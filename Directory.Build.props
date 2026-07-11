@@ -1,0 +1,49 @@
+<Project>
+  <PropertyGroup>
+    <!-- Directory.Build.props는 Microsoft.Common.props의 Configuration 기본값 할당보다 먼저
+         평가되므로, dotnet run/msbuild처럼 -c를 넘기지 않는 호출에서는 Configuration이 비어
+         아래 조건이 모두 불일치 → 출력이 루트 bin\으로 새는 버그가 있었다. 여기서 기본값 지정. -->
+    <Configuration Condition="'$(Configuration)'==''">Debug</Configuration>
+
+    <!-- 빌드 결과물(bin)은 Binary 디렉터리로 분리 -->
+    <SolutionDir Condition="'$(SolutionDir)'==''">$(MSBuildThisFileDirectory)</SolutionDir>
+
+    <BaseOutputPath Condition="'$(Configuration)'=='Debug'">$(SolutionDir)Binary\Debug\$(MSBuildProjectName)</BaseOutputPath>
+    <BaseOutputPath Condition="'$(Configuration)'=='Release'">$(SolutionDir)Binary\Release\$(MSBuildProjectName)</BaseOutputPath>
+    <BaseOutputPath Condition="'$(BaseOutputPath)'==''">bin\$(Configuration)\</BaseOutputPath>
+    <BaseOutputPath>$([MSBuild]::NormalizeDirectory('$(BaseOutputPath)'))</BaseOutputPath>
+
+    <BaseIntermediateOutputPath Condition="'$(Configuration)'=='Debug'">$(SolutionDir)Intermediate\Debug\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath Condition="'$(Configuration)'=='Release'">$(SolutionDir)Intermediate\Release\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'==''">obj\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(BaseIntermediateOutputPath)'))</BaseIntermediateOutputPath>
+
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+
+    <!-- NuGet 복원 자산(project.assets.json, .g.props/.g.targets)은 Configuration 무관 경로에 고정.
+         BaseIntermediateOutputPath에 Debug/Release를 조건부로 넣으면, restore(Configuration 미설정)와
+         build(Debug/Release)가 서로 다른 obj를 봐 참조가 사라진다(dotnet test 시 CS0400). 이를 방지. -->
+    <MSBuildProjectExtensionsPath>$([MSBuild]::NormalizeDirectory('$(SolutionDir)Intermediate\Restore\$(MSBuildProjectName)'))</MSBuildProjectExtensionsPath>
+
+    <OutputPath>$(BaseOutputPath)</OutputPath>
+    <PublishDir>$(BaseIntermediateOutputPath)$(Configuration)\.publish\</PublishDir>
+
+    <EnableDefaultOutputPath>false</EnableDefaultOutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+	  <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <!-- xunit.v3는 Microsoft.Testing.Platform(MTP) 기반. dotnet test를 VSTest 대신 MTP 러너로
+         라우팅해야 MTP 브리지 콘텐츠 컴파일 충돌(CS0400)이 사라진다. -->
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+  </PropertyGroup>
+
+  <Target Name="ShowBuildPaths" BeforeTargets="BeforeBuild">
+    <Message Text="BaseOutputPath: $(BaseOutputPath)" Importance="High" />
+    <Message Text="BaseIntermediateOutputPath: $(BaseIntermediateOutputPath)" Importance="High" />
+    <Message Text="OutputPath: $(OutputPath)" Importance="High" />
+    <Message Text="MSBuildProjectName: $(MSBuildProjectName)" Importance="High" />
+  </Target>
+
+</Project>

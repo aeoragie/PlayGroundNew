@@ -1,0 +1,32 @@
+# 빌드 출력 (Directory.Build.props에서 중앙 관리)
+Binary/
+Intermediate/
+[Bb]in/
+[Oo]bj/
+
+# 생성물
+Generated/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# 테스트/커버리지
+TestResults/
+*.trx
+coverage*.json
+coverage*.xml
+
+# Node (Tailwind 빌드)
+node_modules/
+
+# 로그
+Logs/
+*.log
+
+# 로컬 설정 (민감정보)
+appsettings.Local.json
+appsettings.*.Local.json
+.env

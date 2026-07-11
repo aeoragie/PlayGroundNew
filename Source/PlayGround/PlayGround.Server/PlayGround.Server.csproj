@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>PlayGround.Server</RootNamespace>
+    <AssemblyName>PlayGround.Server</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Update="nlog.config" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <!-- AspNetCore.OpenApi가 끌어오는 취약 transitive 2.0.0을 안전한 버전으로 덮어쓰기 위한 직접 참조 -->
+    <PackageReference Include="Microsoft.OpenApi" />
+    <PackageReference Include="NLog.Web.AspNetCore" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Shared\Core.Shared.csproj" />
+    <ProjectReference Include="..\..\Core\Infrastructure\Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\PlayGround.Contracts\PlayGround.Contracts.csproj" />
+    <ProjectReference Include="..\PlayGround.Application\PlayGround.Application.csproj" />
+    <ProjectReference Include="..\PlayGround.Persistence\PlayGround.Persistence.csproj" />
+    <ProjectReference Include="..\PlayGround.Client\PlayGround.Client.csproj" />
+  </ItemGroup>
+
+</Project>

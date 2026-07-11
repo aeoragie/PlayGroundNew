@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>PlayGround.Application</RootNamespace>
+    <AssemblyName>PlayGround.Application</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Shared\Core.Shared.csproj" />
+    <ProjectReference Include="..\PlayGround.Contracts\PlayGround.Contracts.csproj" />
+    <ProjectReference Include="..\PlayGround.Domain\PlayGround.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

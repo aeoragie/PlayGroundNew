@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Source/" />
+  <Folder Name="/Source/Core/" />
+  <Folder Name="/Source/Core/Infrastructure/">
+    <Project Path="Source/Core/Infrastructure/Core.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Source/Core/Shared/">
+    <Project Path="Source/Core/Shared/Core.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Source/PlayGround/" />
+  <Folder Name="/Source/PlayGround/Apps/">
+    <Project Path="Source/PlayGround/PlayGround.Client/PlayGround.Client.csproj" />
+    <Project Path="Source/PlayGround/PlayGround.Server/PlayGround.Server.csproj" />
+  </Folder>
+  <Folder Name="/Source/PlayGround/Shared/">
+    <Project Path="Source/PlayGround/PlayGround.Application/PlayGround.Application.csproj" />
+    <Project Path="Source/PlayGround/PlayGround.Contracts/PlayGround.Contracts.csproj" />
+    <Project Path="Source/PlayGround/PlayGround.Domain/PlayGround.Domain.csproj" />
+    <Project Path="Source/PlayGround/PlayGround.Persistence/PlayGround.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Tests.Infrastructure/Tests.Infrastructure.csproj" />
+    <Project Path="Tests/Tests.Integration/Tests.Integration.csproj" />
+    <Project Path="Tests/Tests.Unit/Tests.Unit.csproj" />
+  </Folder>
+</Solution>

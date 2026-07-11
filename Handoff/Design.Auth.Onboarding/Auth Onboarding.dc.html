@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+input{font-family:inherit}
+input:focus{outline:2px solid #23408e;outline-offset:-1px}
+</style>
+</helmet>
+
+<div data-screen-label="인증·온보딩 플로우" style="min-height:100vh;display:flex;flex-direction:column">
+
+<!-- ===== 리뷰용 플로우 내비 ===== -->
+<div style="background:#1c2b4a;padding:10px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+  <span style="font-size:12px;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:.08em;margin-right:6px">FLOW</span>
+  <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="5">
+    <button onClick="{{ nv.go }}" style="{{ nv.style }}">{{ nv.label }}</button>
+  </sc-for>
+  <div style="flex:1"></div>
+  <span style="font-size:12px;color:rgba(255,255,255,.45)">버튼을 눌러 실제 플로우대로 이동해 보세요</span>
+</div>
+
+<!-- ===== 상단 미니 헤더 ===== -->
+<div style="background:#fdfdfc;border-bottom:1px solid #e6e8ee;height:60px;display:flex;align-items:center;padding:0 28px;gap:9px">
+  <span style="width:28px;height:28px;border-radius:8px;background:#FF6B35;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff">⚽</span>
+  <span style="font-weight:800;font-size:18px;letter-spacing:-.02em">PlayGround</span>
+  <div style="flex:1"></div>
+  <span style="font-size:13px;color:#8a93a6">{{ routeLabel }}</span>
+</div>
+
+<!-- ===== 화면 영역 ===== -->
+<div style="flex:1;display:flex;align-items:flex-start;justify-content:center;padding:56px 24px 80px">
+
+<!-- ========== ① 로그인 ========== -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="로그인" style="width:400px;background:#fff;border:1.5px solid #e6e8ee;border-radius:20px;padding:40px 36px;display:flex;flex-direction:column;gap:22px;box-shadow:0 8px 32px rgba(28,43,74,.06)">
+  <div style="display:flex;flex-direction:column;gap:8px;text-align:center">
+    <h1 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em">시작하기</h1>
+    <p style="margin:0;font-size:14px;color:#5b6577;line-height:1.6">가입과 로그인이 한 번에 —<br>계정이 없으면 자동으로 만들어 드려요.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <button onClick="{{ goRole }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:50px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:15px;font-weight:700;color:#1c2b4a;cursor:pointer" style-hover="background:#f4f6fa">
+      <svg width="19" height="19" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+      Google로 계속하기
+    </button>
+    <button onClick="{{ goRole }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:50px;border:0;border-radius:11px;background:#FEE500;font-size:15px;font-weight:700;color:#191919;cursor:pointer" style-hover="background:#f5dc00">
+      <svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><path fill="#191919" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.26 4.66 6.65l-.95 3.51c-.08.31.27.56.54.38l4.19-2.79c.51.05 1.03.08 1.56.08 5.52 0 10-3.54 10-7.83S17.52 3 12 3z"></path></svg>
+      카카오로 계속하기
+    </button>
+    <button onClick="{{ goRole }}" style="display:flex;align-items:center;justify-content:center;gap:10px;height:50px;border:0;border-radius:11px;background:#06C755;font-size:15px;font-weight:700;color:#fff;cursor:pointer" style-hover="background:#05b34c">
+      <svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5C6.2 2.5 1.5 6.36 1.5 11.11c0 4.26 3.76 7.83 8.84 8.5.34.07.81.23.93.52.1.27.07.68.03.95l-.15.9c-.04.27-.21 1.05.92.57 1.13-.48 6.08-3.58 8.3-6.13 1.53-1.68 2.13-3.39 2.13-5.31C22.5 6.36 17.8 2.5 12 2.5zM8.09 13.7H6.02a.55.55 0 0 1-.55-.55V8.98a.55.55 0 0 1 1.1 0v3.62h1.52a.55.55 0 0 1 0 1.1zm1.98-.55a.55.55 0 0 1-1.1 0V8.98a.55.55 0 0 1 1.1 0v4.17zm5.02 0a.55.55 0 0 1-.99.33l-2.13-2.9v2.57a.55.55 0 0 1-1.1 0V8.98a.55.55 0 0 1 .99-.33l2.13 2.9V8.98a.55.55 0 0 1 1.1 0v4.17zm3.35-2.64a.55.55 0 0 1 0 1.1h-1.52v.99h1.52a.55.55 0 0 1 0 1.1h-2.07a.55.55 0 0 1-.55-.55V8.98c0-.3.25-.55.55-.55h2.07a.55.55 0 0 1 0 1.1h-1.52v.98h1.52z"></path></svg>
+      LINE으로 계속하기
+    </button>
+    <div style="display:flex;gap:10px">
+      <div style="flex:1;height:44px;border:1.5px dashed #e6e8ee;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#b6bdc9">네이버 (준비중)</div>
+      <div style="flex:1;height:44px;border:1.5px dashed #e6e8ee;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#b6bdc9">Apple (준비중)</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;color:#b6bdc9;font-size:12.5px"><div style="flex:1;height:1px;background:#e6e8ee"></div>또는 이메일로<div style="flex:1;height:1px;background:#e6e8ee"></div></div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <input type="email" placeholder="이메일 주소" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;color:#1c2b4a" />
+    <input type="password" placeholder="비밀번호" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;color:#1c2b4a" />
+    <button onClick="{{ goRole }}" style="height:50px;border:0;border-radius:11px;background:#23408e;color:#fff;font-size:15px;font-weight:700;cursor:pointer" style-hover="background:#1c2b4a">이메일로 계속하기</button>
+  </div>
+  <p style="margin:0;font-size:12px;color:#8a93a6;text-align:center;line-height:1.6">계속하면 <a href="#" style="text-decoration:underline">이용약관</a>과 <a href="#" style="text-decoration:underline">개인정보처리방침</a>에 동의하는 것으로 간주됩니다.<br>로그인 시 General 역할로 자동 가입됩니다.</p>
+</div>
+</sc-if>
+
+<!-- ========== ② 역할 선택 ========== -->
+<sc-if value="{{ isRole }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="역할 선택" style="width:560px;display:flex;flex-direction:column;gap:24px">
+  <div style="text-align:center;display:flex;flex-direction:column;gap:8px">
+    <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em">어떤 역할로 활동하시나요?</h1>
+    <p style="margin:0;font-size:14.5px;color:#5b6577">역할에 맞는 대시보드와 온보딩을 준비해 드려요. 나중에 설정에서 바꿀 수 있어요.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <button onClick="{{ startPlayer }}" style="display:flex;align-items:center;gap:18px;text-align:left;background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;padding:22px 24px;cursor:pointer" style-hover="border-color:#23408e;box-shadow:0 4px 16px rgba(28,43,74,.08)">
+      <span style="width:52px;height:52px;border-radius:14px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;font-size:25px;flex:none">⚽</span>
+      <span style="display:flex;flex-direction:column;gap:4px;flex:1">
+        <span style="font-size:17.5px;font-weight:800">선수 · 학부모</span>
+        <span style="font-size:13.5px;color:#5b6577;line-height:1.55">선수 이력·경기기록 관리 · 학부모는 자녀 프로필을 대리 관리</span>
+      </span>
+      <span style="font-size:18px;color:#b6bdc9">→</span>
+    </button>
+    <button onClick="{{ startTeam }}" style="display:flex;align-items:center;gap:18px;text-align:left;background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;padding:22px 24px;cursor:pointer" style-hover="border-color:#23408e;box-shadow:0 4px 16px rgba(28,43,74,.08)">
+      <span style="width:52px;height:52px;border-radius:14px;background:#1c2b4a;display:flex;align-items:center;justify-content:center;font-size:25px;flex:none">🏛️</span>
+      <span style="display:flex;flex-direction:column;gap:4px;flex:1">
+        <span style="font-size:17.5px;font-weight:800">팀 관리자 · 코치</span>
+        <span style="font-size:13.5px;color:#5b6577;line-height:1.55">팀 홈페이지 자동 생성 · 선수단·일정·경기 결과 운영</span>
+      </span>
+      <span style="font-size:18px;color:#b6bdc9">→</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:18px;background:#fafbfc;border:1.5px dashed #e6e8ee;border-radius:16px;padding:22px 24px;opacity:.7">
+      <span style="width:52px;height:52px;border-radius:14px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;font-size:25px;flex:none">🤝</span>
+      <span style="display:flex;flex-direction:column;gap:4px;flex:1">
+        <span style="font-size:17.5px;font-weight:800;color:#8a93a6">에이전트 <span style="font-size:11.5px;font-weight:700;color:#6d4bd8;background:rgba(109,75,216,.1);border:1px solid rgba(109,75,216,.3);border-radius:99px;padding:2px 9px;margin-left:6px;vertical-align:2px">준비중</span></span>
+        <span style="font-size:13.5px;color:#8a93a6;line-height:1.55">선수 스카우팅 · 팀 추천 — 별도 서비스로 오픈 예정</span>
+      </span>
+    </div>
+  </div>
+  <button onClick="{{ skipRole }}" style="border:0;background:none;font-size:13.5px;color:#8a93a6;cursor:pointer;text-decoration:underline;padding:4px" style-hover="color:#23408e">나중에 선택할게요 (둘러보기)</button>
+</div>
+</sc-if>
+
+<!-- ========== ③a 선수 온보딩 (3스텝) ========== -->
+<sc-if value="{{ isPlayer }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="선수 온보딩" style="width:480px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <h1 style="margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em">{{ playerStepTitle }}</h1>
+      <span style="font-size:13px;font-weight:700;color:#8a93a6">{{ playerStepCount }}</span>
+    </div>
+    <div style="display:flex;gap:6px">
+      <div style="{{ pBar1 }}"></div><div style="{{ pBar2 }}"></div><div style="{{ pBar3 }}"></div>
+    </div>
+  </div>
+
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:18px;padding:30px 28px;display:flex;flex-direction:column;gap:16px;box-shadow:0 8px 32px rgba(28,43,74,.05)">
+    <sc-if value="{{ pStep1 }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;font-weight:700;color:#3c465a">선수 이름
+          <input type="text" placeholder="예: 김민준" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;font-weight:500" /></label>
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;font-weight:700;color:#3c465a">생년월일
+          <input type="text" placeholder="YYYY.MM.DD" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;font-weight:500" /></label>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:#f4f8f7;border:1px solid rgba(46,196,182,.3);border-radius:11px;padding:12px 14px">
+          <span style="font-size:15px">👪</span>
+          <span style="font-size:12.5px;color:#3c465a;line-height:1.6">학부모이신가요? 자녀의 정보를 입력하면 <b>보호자 대리 관리</b> 프로필로 만들어져요. 자녀가 크면 계정을 넘겨줄 수 있어요.</span>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ pStep2 }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:13.5px;font-weight:700;color:#3c465a">연령대</span>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ ageOptions }}" as="ag" hint-placeholder-count="3">
+              <button onClick="{{ ag.pick }}" style="{{ ag.style }}">{{ ag.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:13.5px;font-weight:700;color:#3c465a">종목</span>
+          <div style="display:flex;align-items:center;gap:10px;height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;background:#fafbfc">
+            <span>⚽</span><span style="font-size:14.5px;font-weight:700">축구</span>
+            <span style="font-size:11.5px;font-weight:700;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:2px 9px">현재 축구만 지원</span>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ pStep3 }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;font-weight:700;color:#3c465a">활동 지역
+          <input type="text" placeholder="예: 서울 송파구" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;font-weight:500" /></label>
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;font-weight:700;color:#3c465a">소속팀 <span style="font-weight:500;color:#8a93a6">(선택)</span>
+          <input type="text" placeholder="팀 이름 검색 — 없으면 비워두세요" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;font-weight:500" /></label>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:#fff6f1;border:1px dashed #FF6B35;border-radius:11px;padding:12px 14px">
+          <span style="font-size:15px">✉️</span>
+          <span style="font-size:12.5px;color:#3c465a;line-height:1.6">팀에서 <b>초대코드</b>를 받았나요? 온보딩 후 대시보드에서 입력하면 팀 로스터의 프로필과 바로 연결돼요.</span>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="display:flex;gap:10px">
+    <sc-if value="{{ pCanBack }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ pBack }}" style="height:50px;padding:0 22px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:14.5px;font-weight:700;color:#3c465a;cursor:pointer" style-hover="background:#f4f6fa">← 이전</button>
+    </sc-if>
+    <button onClick="{{ pNext }}" style="flex:1;height:50px;border:0;border-radius:11px;background:#FF6B35;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(255,107,53,.3)" style-hover="background:#e85a26">{{ pNextLabel }}</button>
+  </div>
+  <sc-if value="{{ pStep3 }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ pFinish }}" style="border:0;background:none;font-size:13px;color:#8a93a6;cursor:pointer;text-decoration:underline" style-hover="color:#23408e">이 단계 건너뛰기</button>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ========== ③b 팀 관리자 온보딩 ========== -->
+<sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="팀 온보딩" style="width:560px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <h1 style="margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em">{{ teamStepTitle }}</h1>
+      <span style="font-size:13px;font-weight:700;color:#8a93a6">{{ teamStepCount }}</span>
+    </div>
+    <div style="display:flex;gap:6px"><div style="{{ tBar1 }}"></div><div style="{{ tBar2 }}"></div></div>
+  </div>
+
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:18px;padding:30px 28px;display:flex;flex-direction:column;gap:16px;box-shadow:0 8px 32px rgba(28,43,74,.05)">
+    <sc-if value="{{ tStep1 }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="width:76px;height:76px;border:1.5px dashed #b6bdc9;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#8a93a6;font-size:11px;flex:none;cursor:pointer" style-hover="border-color:#23408e;color:#23408e"><span style="font-size:20px">🛡️</span>엠블럼</div>
+          <label style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;font-weight:700;color:#3c465a;flex:1">팀 이름
+            <input type="text" placeholder="예: FC 한강 유나이티드" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;font-weight:500" /></label>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:13.5px;font-weight:700;color:#3c465a">팀 유형</span>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ teamTypes }}" as="tt" hint-placeholder-count="3">
+              <button onClick="{{ tt.pick }}" style="{{ tt.style }}">{{ tt.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;font-weight:700;color:#3c465a">활동 지역
+          <input type="text" placeholder="예: 서울 강동구" style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;font-size:14.5px;font-weight:500" /></label>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:#f4f6fa;border-radius:11px;padding:12px 14px">
+          <span style="font-size:15px">🏠</span>
+          <span style="font-size:12.5px;color:#3c465a;line-height:1.6">다음 단계를 마치면 <b>공개 팀 홈페이지</b>(/team/한강유나이티드)가 자동으로 만들어져요.</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ tStep2 }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;gap:8px">
+          <input type="text" value="{{ rosterName }}" onChange="{{ onRosterName }}" placeholder="선수 이름" style="flex:1.4;height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;font-size:14px;font-weight:500;min-width:0" />
+          <input type="text" value="{{ rosterPos }}" onChange="{{ onRosterPos }}" placeholder="포지션" style="flex:1;height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;font-size:14px;font-weight:500;min-width:0" />
+          <input type="text" value="{{ rosterNum }}" onChange="{{ onRosterNum }}" placeholder="등번호" style="width:72px;height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;font-size:14px;font-weight:500" />
+          <button onClick="{{ addRoster }}" style="height:46px;padding:0 18px;border:0;border-radius:11px;background:#23408e;color:#fff;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:#1c2b4a">＋ 추가</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto">
+          <sc-for list="{{ roster }}" as="r" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px;border:1px solid #e6e8ee;border-radius:11px;padding:11px 14px">
+              <span style="width:34px;height:34px;border-radius:50%;background:#f1f3f8;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#23408e;flex:none">{{ r.num }}</span>
+              <span style="font-size:14.5px;font-weight:700;flex:1">{{ r.name }}</span>
+              <span style="font-size:13px;color:#5b6577">{{ r.pos }}</span>
+              <span style="font-size:11px;font-weight:700;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 10px;white-space:nowrap">Unclaimed</span>
+              <button onClick="{{ r.remove }}" style="border:0;background:none;color:#b6bdc9;font-size:15px;cursor:pointer;padding:2px" style-hover="color:#e0532f">✕</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:#fff6f1;border:1px dashed #FF6B35;border-radius:11px;padding:12px 14px">
+          <span style="font-size:15px">💡</span>
+          <span style="font-size:12.5px;color:#3c465a;line-height:1.6">등록한 선수마다 <b>선수 프로필이 자동 생성</b>되고, 학부모·선수에게 보낼 <b>초대코드</b>가 만들어져요. 초대코드로 연결(Claim)하면 가족이 직접 기록을 관리할 수 있어요.</span>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="display:flex;gap:10px">
+    <sc-if value="{{ tStep2 }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ tBack }}" style="height:50px;padding:0 22px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:14.5px;font-weight:700;color:#3c465a;cursor:pointer" style-hover="background:#f4f6fa">← 이전</button>
+    </sc-if>
+    <button onClick="{{ tNext }}" style="flex:1;height:50px;border:0;border-radius:11px;background:#FF6B35;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(255,107,53,.3)" style-hover="background:#e85a26">{{ tNextLabel }}</button>
+  </div>
+  <sc-if value="{{ tStep2 }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ tFinish }}" style="border:0;background:none;font-size:13px;color:#8a93a6;cursor:pointer;text-decoration:underline" style-hover="color:#23408e">나중에 등록할게요</button>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ========== ④ 완료 ========== -->
+<sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="완료" style="width:480px;background:#fff;border:1.5px solid #e6e8ee;border-radius:20px;padding:48px 40px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;box-shadow:0 8px 32px rgba(28,43,74,.06)">
+  <div style="width:72px;height:72px;border-radius:50%;background:rgba(46,196,182,.12);border:1.5px solid rgba(46,196,182,.4);display:flex;align-items:center;justify-content:center;font-size:34px">{{ doneIcon }}</div>
+  <h1 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em">{{ doneTitle }}</h1>
+  <p style="margin:0;font-size:14.5px;color:#5b6577;line-height:1.7">{{ doneBody }}</p>
+  <sc-if value="{{ doneIsTeam }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:10px;background:#f4f6fa;border-radius:11px;padding:12px 18px;font-size:13.5px;font-weight:700;color:#23408e">
+      🔗 playground.kr/team/한강유나이티드
+      <span style="font-size:11.5px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:2px 9px">공개됨</span>
+    </div>
+    <div style="font-size:13px;color:#5b6577">등록 선수 {{ rosterCount }}명 · 초대코드 {{ rosterCount }}개 발급됨</div>
+  </sc-if>
+  <button onClick="{{ restart }}" style="margin-top:8px;height:50px;padding:0 32px;border:0;border-radius:11px;background:#FF6B35;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(255,107,53,.3)" style-hover="background:#e85a26">대시보드로 가기</button>
+  <button onClick="{{ restart }}" style="border:0;background:none;font-size:13px;color:#8a93a6;cursor:pointer;text-decoration:underline" style-hover="color:#23408e">처음부터 다시 보기</button>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+class Component extends DCLogic {
+  state = {
+    screen: 'login',      // login | role | player | team | done
+    pStep: 1, tStep: 1,
+    age: 'U15', teamType: '클럽',
+    doneFrom: 'player',
+    roster: [
+      { name: '김민준', pos: 'FW', num: '9' },
+      { name: '이서준', pos: 'MF', num: '8' },
+    ],
+    rosterName: '', rosterPos: '', rosterNum: '',
+  };
+
+  go(screen, extra) { this.setState(Object.assign({ screen }, extra || {})); }
+
+  renderVals() {
+    const s = this.state;
+    const bar = on => 'flex:1;height:5px;border-radius:3px;background:' + (on ? '#FF6B35' : '#e6e8ee');
+    const chip = on =>
+      'flex:1;height:46px;border-radius:11px;font-size:14.5px;font-weight:700;cursor:pointer;border:1.5px solid ' +
+      (on ? '#23408e;background:#23408e;color:#fff' : '#e6e8ee;background:#fff;color:#3c465a');
+
+    const navDefs = [
+      ['login', '① 로그인'], ['role', '② 역할 선택'],
+      ['player', '③a 선수 온보딩'], ['team', '③b 팀 온보딩'], ['done', '④ 완료'],
+    ];
+    const routeLabels = {
+      login: '/login', role: '/settings/select-role',
+      player: '/onboarding/player', team: '/onboarding/team', done: '/dashboard',
+    };
+    const pTitles = { 1: '선수 기본 정보', 2: '연령대와 종목', 3: '지역과 소속' };
+
+    return {
+      routeLabel: routeLabels[s.screen],
+      navItems: navDefs.map(([id, label]) => ({
+        label,
+        go: () => this.go(id, id === 'player' ? { pStep: 1 } : id === 'team' ? { tStep: 1 } : id === 'done' ? { doneFrom: s.doneFrom } : {}),
+        style: 'border:0;border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;' +
+          (s.screen === id ? 'background:#FF6B35;color:#fff' : 'background:rgba(255,255,255,.1);color:rgba(255,255,255,.75)'),
+      })),
+
+      isLogin: s.screen === 'login', isRole: s.screen === 'role',
+      isPlayer: s.screen === 'player', isTeam: s.screen === 'team', isDone: s.screen === 'done',
+
+      goRole: () => this.go('role'),
+      startPlayer: () => this.go('player', { pStep: 1 }),
+      startTeam: () => this.go('team', { tStep: 1 }),
+      skipRole: () => this.go('done', { doneFrom: 'general' }),
+
+      // 선수 온보딩
+      pStep1: s.pStep === 1, pStep2: s.pStep === 2, pStep3: s.pStep === 3,
+      playerStepTitle: pTitles[s.pStep], playerStepCount: s.pStep + ' / 3',
+      pBar1: bar(s.pStep >= 1), pBar2: bar(s.pStep >= 2), pBar3: bar(s.pStep >= 3),
+      pCanBack: s.pStep > 1,
+      pBack: () => this.setState({ pStep: s.pStep - 1 }),
+      pNext: () => s.pStep < 3 ? this.setState({ pStep: s.pStep + 1 }) : this.go('done', { doneFrom: 'player' }),
+      pNextLabel: s.pStep < 3 ? '다음 →' : '프로필 만들기',
+      pFinish: () => this.go('done', { doneFrom: 'player' }),
+      ageOptions: ['U12', 'U15', 'U18'].map(a => ({
+        label: a, pick: () => this.setState({ age: a }), style: chip(s.age === a),
+      })),
+
+      // 팀 온보딩
+      tStep1: s.tStep === 1, tStep2: s.tStep === 2,
+      teamStepTitle: s.tStep === 1 ? '팀 정보' : '선수단(로스터) 등록',
+      teamStepCount: s.tStep + ' / 2',
+      tBar1: bar(s.tStep >= 1), tBar2: bar(s.tStep >= 2),
+      tBack: () => this.setState({ tStep: 1 }),
+      tNext: () => s.tStep === 1 ? this.setState({ tStep: 2 }) : this.go('done', { doneFrom: 'team' }),
+      tNextLabel: s.tStep === 1 ? '다음: 선수단 등록 →' : '팀 홈페이지 만들기 🎉',
+      tFinish: () => this.go('done', { doneFrom: 'team' }),
+      teamTypes: ['클럽', '학교', '학원'].map(t => ({
+        label: t, pick: () => this.setState({ teamType: t }), style: chip(s.teamType === t),
+      })),
+
+      // 로스터
+      roster: s.roster.map((r, i) => ({
+        name: r.name, pos: r.pos, num: r.num,
+        remove: () => this.setState({ roster: s.roster.filter((_, j) => j !== i) }),
+      })),
+      rosterName: s.rosterName, rosterPos: s.rosterPos, rosterNum: s.rosterNum,
+      onRosterName: e => this.setState({ rosterName: e.target.value }),
+      onRosterPos: e => this.setState({ rosterPos: e.target.value }),
+      onRosterNum: e => this.setState({ rosterNum: e.target.value }),
+      addRoster: () => {
+        if (!s.rosterName.trim()) return;
+        this.setState({
+          roster: s.roster.concat([{ name: s.rosterName.trim(), pos: s.rosterPos.trim() || '-', num: s.rosterNum.trim() || '-' }]),
+          rosterName: '', rosterPos: '', rosterNum: '',
+        });
+      },
+      rosterCount: s.roster.length,
+
+      // 완료
+      doneIsTeam: s.doneFrom === 'team',
+      doneIcon: s.doneFrom === 'team' ? '🏛️' : s.doneFrom === 'general' ? '👋' : '⚽',
+      doneTitle: s.doneFrom === 'team' ? '팀 홈페이지가 만들어졌어요!' : s.doneFrom === 'general' ? '환영해요!' : '선수 프로필이 만들어졌어요!',
+      doneBody: s.doneFrom === 'team'
+        ? '이제 대시보드에서 일정과 경기 결과를 기록하고, 선수 모집 공고를 올릴 수 있어요.'
+        : s.doneFrom === 'general'
+        ? 'General 역할로 시작해요. 경기기록은 자유롭게 볼 수 있고, 역할은 언제든 설정에서 선택할 수 있어요.'
+        : '이제 커리어와 시즌 통계가 이 프로필에 쌓여요. 소속팀 초대코드가 있다면 대시보드에서 연결해 보세요.',
+      restart: () => this.go('login'),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+@using PlayGround.Client.Styles
+@implements IAsyncDisposable
+@inject IJSRuntime Js
+
+@* 하이브리드 헤더: hero 위 투명(흰 텍스트) → 스크롤/메뉴 열림 시 solid(네이비 텍스트) *@
+<header class="@HeaderClass">
+    <div class="@($"{Css.Landing.Container} h-14 md:h-[68px] flex items-center gap-3 md:gap-9")">
+        <a href="#top" class="flex items-center gap-2 md:gap-2.5 font-extrabold text-[17px] md:text-[19px] tracking-[-.02em] text-current">
+            <span class="w-[26px] h-[26px] rounded-[7px] md:w-[30px] md:h-[30px] md:rounded-lg bg-orange text-white flex items-center justify-center text-[13px] md:text-[15px]">⚽</span>
+            PlayGround
+        </a>
+
+        @* PC 메뉴 *@
+        <nav class="hidden md:flex gap-[26px]">
+            <a href="#roles" class="@Css.Landing.NavLink">팀</a>
+            <a href="#roles" class="@Css.Landing.NavLink">선수·학부모</a>
+            <a href="#features" class="@Css.Landing.NavLink">경기기록</a>
+        </nav>
+
+        <div class="flex-1"></div>
+
+        <a href="#cta" class="hidden md:block text-[14.5px] font-bold px-4 py-[9px] hover:text-orange transition-colors">로그인</a>
+        <a href="#cta" class="@Css.Landing.HeaderCta">시작하기</a>
+
+        @* 모바일 햄버거 *@
+        <button type="button" aria-label="메뉴" @onclick="ToggleMenu"
+                class="md:hidden w-[38px] h-[38px] flex flex-col items-center justify-center gap-[5px] p-0 bg-transparent border-0 cursor-pointer">
+            <span class="w-5 h-0.5 rounded-sm bg-current"></span>
+            <span class="w-5 h-0.5 rounded-sm bg-current"></span>
+            <span class="w-5 h-0.5 rounded-sm bg-current"></span>
+        </button>
+    </div>
+
+    @* 모바일 드롭다운 메뉴 (열림 중엔 헤더 solid 강제) *@
+    @if (mMenuOpen)
+    {
+        <nav class="md:hidden bg-bg/[.98] border-t border-border shadow-menu flex flex-col py-2">
+            <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">팀</a>
+            <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">선수·학부모</a>
+            <a href="#features" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">경기기록</a>
+            <a href="#cta" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">로그인</a>
+        </nav>
+    }
+</header>
+
+@code {
+    private IJSObjectReference? mModule;
+    private IJSObjectReference? mScrollHandle;
+    private DotNetObjectReference<LandingHeader>? mSelfRef;
+    private bool mScrolled;
+    private bool mMenuOpen;
+
+    private bool IsSolid => mScrolled || mMenuOpen;
+
+    private string HeaderClass => IsSolid
+        ? "fixed inset-x-0 top-0 z-50 transition-all duration-[250ms] bg-bg/[.93] backdrop-blur-[10px] shadow-header text-navy-deep"
+        : "fixed inset-x-0 top-0 z-50 transition-all duration-[250ms] bg-transparent text-white";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            mSelfRef = DotNetObjectReference.Create(this);
+            mModule = await Js.InvokeAsync<IJSObjectReference>("import", "./js/landing.js");
+            mScrollHandle = await mModule.InvokeAsync<IJSObjectReference>("initHeaderScroll", mSelfRef);
+        }
+    }
+
+    [JSInvokable]
+    public void OnScrollStateChanged(bool scrolled)
+    {
+        if (mScrolled != scrolled)
+        {
+            mScrolled = scrolled;
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleMenu()
+    {
+        mMenuOpen = !mMenuOpen;
+    }
+
+    private void CloseMenu()
+    {
+        mMenuOpen = false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (mScrollHandle != null)
+            {
+                await mScrollHandle.InvokeVoidAsync("dispose");
+                await mScrollHandle.DisposeAsync();
+            }
+
+            if (mModule != null)
+            {
+                await mModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // 페이지 이탈 시 JS 런타임이 먼저 끊긴 경우 — 무시
+        }
+
+        mSelfRef?.Dispose();
+    }
+}

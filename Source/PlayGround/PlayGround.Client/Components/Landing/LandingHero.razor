@@ -1,0 +1,40 @@
+@using PlayGround.Client.Styles
+
+@* Hero: 배경 사진(흑백 50%) + 그레이·네이비 오버레이. 사진 로드 실패 시 navy-deep 배경 폴백 *@
+<section id="top" class="relative overflow-hidden bg-navy-deep pt-[120px] pb-24 px-[22px] md:pt-[170px] md:pb-[130px] md:px-8">
+    <img src="https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=2000"
+         alt="역동적인 유소년 축구 경기 장면"
+         class="absolute inset-0 w-full h-full object-cover grayscale-[50%]"
+         onerror="this.style.display='none'" />
+    <div class="absolute inset-0 bg-hero-overlay pointer-events-none"></div>
+
+    @* 장식 원 (1.5px 보더) *@
+    <div class="absolute rounded-full border-1.5 border-white/[.08] pointer-events-none
+                -top-[110px] -right-[120px] w-[300px] h-[300px]
+                md:-top-[120px] md:-right-[100px] md:w-[480px] md:h-[480px]"></div>
+    <div class="absolute rounded-full border-1.5 border-teal/[.12] pointer-events-none
+                -bottom-[140px] -left-[110px] w-[280px] h-[280px]
+                md:-bottom-[200px] md:-left-[140px] md:w-[420px] md:h-[420px]"></div>
+
+    <div class="relative max-w-content mx-auto flex flex-col items-center text-center gap-[18px] md:gap-[26px] pointer-events-none
+                [text-shadow:0_1px_20px_rgba(15,20,30,.35)] md:[text-shadow:0_1px_24px_rgba(15,20,30,.35)]">
+        <div class="text-[12px] md:text-[13.5px] font-bold text-teal bg-teal/[.12] border border-teal/[.35] rounded-full
+                    px-[13px] py-1.5 md:px-4 md:py-[7px] tracking-[.02em] whitespace-nowrap">
+            대한민국 유소년 축구 U12–U18
+        </div>
+
+        <h1 class="m-0 text-[34px] leading-[1.24] md:text-[58px] md:leading-[1.18] font-extrabold tracking-[-.03em] text-white [text-wrap:balance]">
+            유소년 축구,<br />팀과 선수를 잇다
+        </h1>
+
+        <p class="m-0 text-[15px] md:text-[19px] leading-[1.65] text-white/[.72] md:max-w-[560px] [word-break:keep-all] [text-wrap:pretty]">
+            팀 홈페이지, 선수 이력, 공개 경기기록까지.<br />
+            인맥이 아닌 정보로 결정하는 유소년 축구 플랫폼.
+        </p>
+
+        <div class="flex flex-col md:flex-row gap-2.5 md:gap-3.5 mt-1.5 md:mt-2 w-full max-w-[300px] md:w-auto md:max-w-none">
+            <a href="#cta" class="@Css.Landing.HeroCta">무료로 시작하기</a>
+            <a href="#how" class="@Css.Landing.HeroGhost">작동 방식 보기</a>
+        </div>
+    </div>
+</section>

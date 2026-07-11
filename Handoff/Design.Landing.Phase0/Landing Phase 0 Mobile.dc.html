@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#fdfdfc;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+html{scroll-behavior:smooth}
+@keyframes pg-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+</style>
+</helmet>
+
+<div data-screen-label="Landing Phase 0 Mobile" style="min-height:100vh;background:#fdfdfc;max-width:480px;margin:0 auto;overflow-x:hidden">
+
+<!-- ===== GNB (모바일: 로고 + 시작하기 + 햄버거) ===== -->
+<header style="{{ headerStyle }}">
+  <div style="padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;max-width:480px;margin:0 auto">
+    <a href="#top" style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:-.02em;color:{{ headerFg }}">
+      <span style="width:26px;height:26px;border-radius:7px;background:#FF6B35;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff">⚽</span>
+      PlayGround
+    </a>
+    <div style="flex:1"></div>
+    <a href="#cta" style="font-size:13.5px;font-weight:700;color:#fff;background:#FF6B35;white-space:nowrap;padding:9px 16px;border-radius:9px;box-shadow:0 2px 8px rgba(255,107,53,.3)" style-hover="background:#e85a26">시작하기</a>
+    <button onClick="{{ toggleMenu }}" aria-label="메뉴" style="width:38px;height:38px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:0">
+      <span style="width:20px;height:2px;border-radius:2px;background:{{ headerFg }}"></span>
+      <span style="width:20px;height:2px;border-radius:2px;background:{{ headerFg }}"></span>
+      <span style="width:20px;height:2px;border-radius:2px;background:{{ headerFg }}"></span>
+    </button>
+  </div>
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <nav style="background:rgba(253,253,252,.98);border-top:1px solid #e6e8ee;box-shadow:0 12px 24px rgba(28,43,74,.1);display:flex;flex-direction:column;padding:8px 0">
+      <a href="#roles" onClick="{{ closeMenu }}" style="padding:14px 22px;font-size:15.5px;font-weight:700;color:#1c2b4a">팀</a>
+      <a href="#roles" onClick="{{ closeMenu }}" style="padding:14px 22px;font-size:15.5px;font-weight:700;color:#1c2b4a">선수·학부모</a>
+      <a href="#features" onClick="{{ closeMenu }}" style="padding:14px 22px;font-size:15.5px;font-weight:700;color:#1c2b4a">경기기록</a>
+      <a href="#cta" onClick="{{ closeMenu }}" style="padding:14px 22px;font-size:15.5px;font-weight:700;color:#FF6B35">로그인</a>
+    </nav>
+  </sc-if>
+</header>
+
+<!-- ===== HERO ===== -->
+<section id="top" style="background:#1c2b4a;padding:120px 22px 96px;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;filter:grayscale(50%)"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-bg" shape="rect" radius="0" placeholder="역동적인 축구 장면 (히어로 배경)" src="https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" credit="Photo by Franco Monsalvo on Pexels" credit-href="https://www.pexels.com/photo/exciting-youth-soccer-match-celebration-33257251/" hint-size="100%,100%"></x-import></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(30,35,45,.9) 0%,rgba(28,43,74,.84) 55%,rgba(35,64,142,.76) 100%);pointer-events:none"></div>
+  <div style="position:absolute;top:-110px;right:-120px;width:300px;height:300px;border:1.5px solid rgba(255,255,255,.08);border-radius:50%;pointer-events:none"></div>
+  <div style="position:absolute;bottom:-140px;left:-110px;width:280px;height:280px;border:1.5px solid rgba(46,196,182,.12);border-radius:50%;pointer-events:none"></div>
+  <div style="position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;pointer-events:none;text-shadow:0 1px 20px rgba(15,20,30,.35)">
+    <div style="font-size:12px;font-weight:700;color:#2EC4B6;background:rgba(46,196,182,.12);border:1px solid rgba(46,196,182,.35);border-radius:99px;padding:6px 13px;letter-spacing:.02em;white-space:nowrap">
+      대한민국 유소년 축구 U12–U18
+    </div>
+    <h1 style="margin:0;font-size:34px;line-height:1.24;font-weight:800;letter-spacing:-.03em;color:#fff;text-wrap:balance">
+      유소년 축구,<br>팀과 선수를 잇다
+    </h1>
+    <p style="margin:0;font-size:15px;line-height:1.65;color:rgba(255,255,255,.72);text-wrap:pretty;word-break:keep-all">
+      팀 홈페이지, 선수 이력, 공개 경기기록까지.<br>
+      인맥이 아닌 정보로 결정하는 유소년 축구 플랫폼.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;width:100%;max-width:300px">
+      <a href="#cta" style="pointer-events:auto;text-shadow:none;font-size:15.5px;font-weight:700;color:#fff;background:#FF6B35;white-space:nowrap;padding:15px 0;border-radius:12px;box-shadow:0 6px 20px rgba(255,107,53,.35);text-align:center" style-hover="background:#e85a26">무료로 시작하기</a>
+      <a href="#how" style="pointer-events:auto;text-shadow:none;font-size:15.5px;font-weight:700;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.35);white-space:nowrap;padding:15px 0;border-radius:12px;text-align:center;backdrop-filter:blur(4px)" style-hover="background:rgba(255,255,255,.2)">작동 방식 보기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 역할 2분할 (세로 스택) ===== -->
+<section id="roles" style="padding:64px 22px 0;scroll-margin-top:70px">
+  <div style="text-align:center;display:flex;flex-direction:column;gap:9px;margin-bottom:26px">
+    <div style="font-size:12.5px;font-weight:800;color:#2EC4B6;letter-spacing:.12em">FOR YOU</div>
+    <h2 style="margin:0;font-size:25px;font-weight:800;letter-spacing:-.02em">어떤 역할로 시작하시나요?</h2>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="background:#1c2b4a;border-radius:18px;padding:28px 24px;display:flex;flex-direction:column;gap:13px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;bottom:-60px;right:-60px;width:170px;height:170px;border:1.5px solid rgba(255,255,255,.08);border-radius:50%"></div>
+      <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:22px">🏛️</div>
+      <h3 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em">팀을 운영합니다</h3>
+      <p style="margin:0;font-size:14px;line-height:1.7;color:rgba(255,255,255,.7);text-wrap:pretty;word-break:keep-all">가입만 하면 팀 홈페이지가 자동으로 생성됩니다. 선수단·일정·경기 결과를 한곳에서 관리하고, 선수 모집 공고를 올려보세요.</p>
+      <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.85)">
+        <li style="display:flex;gap:8px;align-items:center"><span style="color:#2EC4B6;font-weight:800">✓</span>팀 홈페이지 자동 생성</li>
+        <li style="display:flex;gap:8px;align-items:center"><span style="color:#2EC4B6;font-weight:800">✓</span>선수단 등록 · 성적 자동 집계</li>
+        <li style="display:flex;gap:8px;align-items:center"><span style="color:#2EC4B6;font-weight:800">✓</span>선수 모집 공고</li>
+      </ul>
+      <a href="#cta" style="margin-top:6px;font-size:14.5px;font-weight:700;color:#1c2b4a;background:#fff;white-space:nowrap;padding:13px 0;border-radius:10px;text-align:center" style-hover="background:#2EC4B6;color:#fff">팀 만들기 →</a>
+    </div>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:18px;padding:28px 24px;display:flex;flex-direction:column;gap:13px;position:relative;overflow:hidden">
+      <div style="position:absolute;bottom:-60px;right:-60px;width:170px;height:170px;border:1.5px solid #eef0f5;border-radius:50%"></div>
+      <div style="width:44px;height:44px;border-radius:12px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;font-size:22px">⚽</div>
+      <h3 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em">선수 · 학부모입니다</h3>
+      <p style="margin:0;font-size:14px;line-height:1.7;color:#5b6577;text-wrap:pretty;word-break:keep-all">자녀의 커리어와 경기기록을 한곳에 모으세요. 흩어진 이력이 포트폴리오가 되고, 주변 팀과 지도자를 정보로 비교할 수 있습니다.</p>
+      <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13.5px;font-weight:600;color:#3c465a">
+        <li style="display:flex;gap:8px;align-items:center"><span style="color:#2EC4B6;font-weight:800">✓</span>선수 이력 · 시즌 통계 관리</li>
+        <li style="display:flex;gap:8px;align-items:center"><span style="color:#2EC4B6;font-weight:800">✓</span>공개 프로필 · 선수 카드</li>
+        <li style="display:flex;gap:8px;align-items:center"><span style="color:#2EC4B6;font-weight:800">✓</span>주변 팀 · 지도자 탐색</li>
+      </ul>
+      <a href="#cta" style="margin-top:6px;font-size:14.5px;font-weight:700;color:#fff;background:#23408e;white-space:nowrap;padding:13px 0;border-radius:10px;text-align:center" style-hover="background:#1c2b4a">프로필 만들기 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 핵심 기능 3 (세로 스택) ===== -->
+<section id="features" style="padding:72px 22px 0;scroll-margin-top:70px">
+  <div style="text-align:center;display:flex;flex-direction:column;gap:9px;margin-bottom:26px">
+    <div style="font-size:12.5px;font-weight:800;color:#2EC4B6;letter-spacing:.12em">CORE</div>
+    <h2 style="margin:0;font-size:25px;font-weight:800;letter-spacing:-.02em">폐쇄적인 정보를, 모두에게</h2>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <sc-for list="{{ features }}" as="f" hint-placeholder-count="3">
+      <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;padding:22px 20px;display:flex;gap:16px;align-items:flex-start">
+        <div style="width:42px;height:42px;border-radius:11px;background:#23408e;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none">{{ f.icon }}</div>
+        <div style="display:flex;flex-direction:column;gap:7px;min-width:0">
+          <h3 style="margin:0;font-size:16.5px;font-weight:800">{{ f.title }}</h3>
+          <p style="margin:0;font-size:13.5px;line-height:1.65;color:#5b6577;text-wrap:pretty;word-break:keep-all">{{ f.body }}</p>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- ===== 작동 방식 3스텝 ===== -->
+<section id="how" style="padding:72px 22px 0;scroll-margin-top:70px">
+  <div style="background:#f4f6fa;border-radius:20px;padding:32px 22px">
+    <div style="text-align:center;display:flex;flex-direction:column;gap:9px;margin-bottom:24px">
+      <div style="font-size:12.5px;font-weight:800;color:#2EC4B6;letter-spacing:.12em">HOW IT WORKS</div>
+      <h2 style="margin:0;font-size:25px;font-weight:800;letter-spacing:-.02em">3단계면 충분합니다</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
+        <div style="background:#fff;border-radius:14px;padding:20px 18px;display:flex;flex-direction:column;gap:9px;border:1.5px solid #e6e8ee">
+          <div style="display:flex;align-items:center;gap:11px">
+            <span style="width:30px;height:30px;border-radius:50%;background:#1c2b4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:800;flex:none">{{ st.n }}</span>
+            <h3 style="margin:0;font-size:16.5px;font-weight:800">{{ st.title }}</h3>
+          </div>
+          <p style="margin:0;font-size:13.5px;line-height:1.65;color:#5b6577;text-wrap:pretty;word-break:keep-all">{{ st.body }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section id="cta" style="padding:72px 22px 72px;scroll-margin-top:70px">
+  <div style="background:linear-gradient(160deg,#1c2b4a 0%,#23408e 100%);border-radius:20px;padding:44px 26px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-120px;left:50%;width:340px;height:340px;margin-left:-170px;border:1.5px solid rgba(255,255,255,.08);border-radius:50%"></div>
+    <h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em;color:#fff;position:relative">지금 무료로 시작하세요</h2>
+    <p style="margin:0;font-size:14.5px;line-height:1.6;color:rgba(255,255,255,.7);position:relative;word-break:keep-all">팀도, 선수도, 가입 즉시<br>홈페이지와 프로필이 만들어집니다.</p>
+    <a href="#top" style="position:relative;margin-top:6px;width:100%;max-width:280px;font-size:15.5px;font-weight:700;color:#fff;background:#FF6B35;white-space:nowrap;padding:15px 0;border-radius:12px;box-shadow:0 6px 20px rgba(255,107,53,.35);text-align:center" style-hover="background:#e85a26">무료로 시작하기</a>
+    <div style="position:relative;font-size:12.5px;color:rgba(255,255,255,.5)">Google · Kakao 계정으로 10초 만에</div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer style="border-top:1px solid #e6e8ee;background:#fff;padding:32px 22px 40px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;flex-direction:column;gap:9px">
+    <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:#1c2b4a">
+      <span style="width:24px;height:24px;border-radius:6px;background:#FF6B35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">⚽</span>
+      PlayGround
+    </div>
+    <div style="font-size:12.5px;color:#8a93a6;line-height:1.6">유소년 축구, 팀과 선수를 잇다<br>© 2026 PlayGround</div>
+  </div>
+  <div style="display:flex;gap:48px;font-size:13.5px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-weight:800;font-size:12px;color:#8a93a6;letter-spacing:.06em">서비스</div>
+      <a href="#roles" style="color:#3c465a" style-hover="color:#FF6B35">팀</a>
+      <a href="#roles" style="color:#3c465a" style-hover="color:#FF6B35">선수·학부모</a>
+      <a href="#features" style="color:#3c465a" style-hover="color:#FF6B35">경기기록</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-weight:800;font-size:12px;color:#8a93a6;letter-spacing:.06em">회사</div>
+      <a href="#top" style="color:#3c465a" style-hover="color:#FF6B35">소개</a>
+      <a href="#top" style="color:#3c465a" style-hover="color:#FF6B35">이용약관</a>
+      <a href="#top" style="color:#3c465a" style-hover="color:#FF6B35">개인정보처리방침</a>
+    </div>
+  </div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  state = { solid: false, menuOpen: false };
+
+  componentDidMount() {
+    this._onScroll = () => {
+      const solid = window.scrollY > 30;
+      if (solid !== this.state.solid) this.setState({ solid });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this._onScroll);
+  }
+
+  renderVals() {
+    const { solid, menuOpen } = this.state;
+    const showSolid = solid || menuOpen;
+    return {
+      menuOpen,
+      toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
+      closeMenu: () => this.setState({ menuOpen: false }),
+      headerStyle:
+        'position:fixed;top:0;left:0;right:0;z-index:50;transition:background .25s,box-shadow .25s;' +
+        (showSolid
+          ? 'background:rgba(253,253,252,.94);backdrop-filter:blur(10px);box-shadow:0 1px 0 #e6e8ee,0 4px 16px rgba(28,43,74,.06)'
+          : 'background:transparent'),
+      headerFg: showSolid ? '#1c2b4a' : '#ffffff',
+      features: [
+        { icon: '🏠', title: '팀 홈페이지 자동 생성', body: '소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이.' },
+        { icon: '📈', title: '선수 이력 · 기록 관리', body: '커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다.' },
+        { icon: '📊', title: '경기기록 무료 공개', body: '대회 결과, 순위표, 일정을 로그인 없이 누구나 조회. 자녀와 관심팀의 기록을 언제든 확인하세요.' },
+      ],
+      steps: [
+        { n: '1', title: '팀 등록', body: '팀 정보를 입력하면 공개 팀 홈페이지가 자동으로 생성됩니다. 엠블럼, 소개, 코칭스태프까지.' },
+        { n: '2', title: '선수단 등록', body: '이름·포지션·등번호만 입력하면 선수 프로필이 함께 만들어지고, 학부모가 초대코드로 연결합니다.' },
+        { n: '3', title: '기록 자동 집계', body: '경기 결과를 입력하면 팀 성적과 선수 개인 기록이 자동으로 쌓이고, 경기기록에 공개됩니다.' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
