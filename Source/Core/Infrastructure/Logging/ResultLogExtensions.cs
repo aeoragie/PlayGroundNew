@@ -35,7 +35,7 @@ namespace PlayGround.Infrastructure.Logging
                 : new (string, object?)[] { ("Operation", operation), ("Code", resultData.DetailCode.Name), ("Message", resultData.Message), ("Details", resultData.Details) };
 
             var status = isSuccess ? "Operation completed" : "Operation failed";
-            var logEvent = new LogEventInfo(level, logger.Name, KvLogExtensions.BuildMessage(status, fields));
+            var logEvent = new LogEventInfo(level, logger.Name, KeyValueLogExtensions.BuildMessage(status, fields));
 
             foreach (var (key, value) in fields)
             {

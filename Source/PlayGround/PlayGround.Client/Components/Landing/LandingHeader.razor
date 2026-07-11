@@ -5,10 +5,7 @@
 @* 하이브리드 헤더: hero 위 투명(흰 텍스트) → 스크롤/메뉴 열림 시 solid(네이비 텍스트) *@
 <header class="@HeaderClass">
     <div class="@($"{Css.Landing.Container} h-14 md:h-[68px] flex items-center gap-3 md:gap-9")">
-        <a href="#top" class="flex items-center gap-2 md:gap-2.5 font-extrabold text-[17px] md:text-[19px] tracking-[-.02em] text-current">
-            <span class="w-[26px] h-[26px] rounded-[7px] md:w-[30px] md:h-[30px] md:rounded-lg bg-orange text-white flex items-center justify-center text-[13px] md:text-[15px]">⚽</span>
-            PlayGround
-        </a>
+        <BrandLogo Href="#top" InheritColor="true" />
 
         @* PC 메뉴 *@
         <nav class="hidden md:flex gap-[26px]">
@@ -20,7 +17,7 @@
         <div class="flex-1"></div>
 
         <a href="#cta" class="hidden md:block text-[14.5px] font-bold px-4 py-[9px] hover:text-orange transition-colors">로그인</a>
-        <a href="#cta" class="@Css.Landing.HeaderCta">시작하기</a>
+        <PillButton Href="#cta" Variant="PillVariant.Orange" Size="PillSize.Small">시작하기</PillButton>
 
         @* 모바일 햄버거 *@
         <button type="button" aria-label="메뉴" @onclick="ToggleMenu"

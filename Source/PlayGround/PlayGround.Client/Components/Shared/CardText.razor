@@ -1,0 +1,20 @@
+@* 카드 본문(p): keep-all(한글 줄바꿈) + pretty 기본 적용. 어두운 배경 카드에서는 Inverted *@
+<p class="@CssClass">@ChildContent</p>
+
+@code {
+    // 기본: 핵심기능/3스텝 카드 본문 크기
+    [Parameter]
+    public string SizeClass { get; set; } = "text-[13.5px] leading-[1.65] md:text-[14.5px] md:leading-[1.7]";
+
+    [Parameter]
+    public bool Inverted { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass =>
+        $"m-0 [text-wrap:pretty] [word-break:keep-all] {(Inverted ? "text-white/70" : "text-text-body")} {SizeClass} {Class}".Trim();
+}

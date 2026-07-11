@@ -1,0 +1,55 @@
+@* 역할 카드: 다크(팀, navy-deep 배경) / 라이트(선수, 흰 배경 + 보더) 변형 *@
+<div class="@CardClass">
+    <DecorCircle Class="@CircleClass" />
+    <div class="@IconBoxClass">@Icon</div>
+    <CardTitle SizeClass="text-[20px] md:text-[25px]" Class="tracking-[-.01em]" Inverted="IsDark">@Title</CardTitle>
+    <CardText SizeClass="text-[14px] leading-[1.7] md:text-[15.5px]" Inverted="IsDark">@BodyText</CardText>
+    <ul class="@ListClass">
+        @foreach (var item in Items)
+        {
+            <li class="flex gap-2 md:gap-[9px] items-center"><span class="text-teal font-extrabold">✓</span>@item</li>
+        }
+    </ul>
+    <PillButton Href="@ButtonHref" Variant="ButtonVariant" Size="PillSize.Medium"
+                Class="mt-1.5 md:mt-2.5 md:self-start">@ButtonText</PillButton>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public bool IsDark { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Icon { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string BodyText { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Items { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public string ButtonText { get; set; } = string.Empty;
+
+    [Parameter]
+    public string ButtonHref { get; set; } = "#cta";
+
+    private string CardClass => IsDark
+        ? "relative overflow-hidden flex flex-col gap-[13px] md:gap-4 rounded-card-sm md:rounded-card px-6 py-7 md:px-10 md:py-11 bg-navy-deep text-white"
+        : "relative overflow-hidden flex flex-col gap-[13px] md:gap-4 rounded-card-sm md:rounded-card px-6 py-7 md:px-10 md:py-11 bg-white border-1.5 border-border";
+
+    private string CircleClass =>
+        $"{(IsDark ? "border-white/[.08]" : "border-border-soft")} -bottom-[60px] -right-[60px] w-[170px] h-[170px] md:-bottom-[70px] md:-right-[70px] md:w-[220px] md:h-[220px]";
+
+    private string IconBoxClass => IsDark
+        ? "w-11 h-11 rounded-btn-lg md:w-[52px] md:h-[52px] md:rounded-[14px] flex items-center justify-center text-[22px] md:text-[26px] bg-white/10"
+        : "w-11 h-11 rounded-btn-lg md:w-[52px] md:h-[52px] md:rounded-[14px] flex items-center justify-center text-[22px] md:text-[26px] bg-surface-icon";
+
+    private string ListClass => IsDark
+        ? "m-0 p-0 list-none flex flex-col gap-2 md:gap-[9px] text-[13.5px] md:text-[14.5px] font-semibold text-white/[.85]"
+        : "m-0 p-0 list-none flex flex-col gap-2 md:gap-[9px] text-[13.5px] md:text-[14.5px] font-semibold text-text-strong";
+
+    private PillVariant ButtonVariant => IsDark ? PillVariant.White : PillVariant.Navy;
+}

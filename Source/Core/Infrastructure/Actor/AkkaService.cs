@@ -70,7 +70,7 @@ namespace PlayGround.Infrastructure.Actor
                 ApplicationLifetime.StopApplication();
             }, cancellationToken);
 
-            Logger.Info("ActorSystem '{SystemName}' started", akkaConfig.SystemName);
+            Logger.Info("ActorSystem started. {{ SystemName:{SystemName} }}", akkaConfig.SystemName);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ namespace PlayGround.Infrastructure.Actor
             {
                 await CoordinatedShutdown.Get(ActorSystem)
                     .Run(CoordinatedShutdown.ClrExitReason.Instance);
-                Logger.Info("ActorSystem stopped");
+                Logger.Info("ActorSystem stopped.");
             }
         }
 
@@ -137,7 +137,7 @@ namespace PlayGround.Infrastructure.Actor
             // 중복 이름을 먼저 걸러 고아 액터 생성을 방지
             if (Actors.ContainsKey(actorName))
             {
-                Logger.Warn("Actor '{ActorName}' already exists", actorName);
+                Logger.Warn("Actor already exists. {{ ActorName:{ActorName} }}", actorName);
                 return null;
             }
 
@@ -149,17 +149,17 @@ namespace PlayGround.Infrastructure.Actor
                 var actor = new ActorRef(actorRef, actorName);
                 if (!Actors.TryAdd(actorName, actor))
                 {
-                    Logger.Warn("Actor '{ActorName}' registration raced, stopping orphan", actorName);
+                    Logger.Warn("Actor registration raced, stopping orphan. {{ ActorName:{ActorName} }}", actorName);
                     ActorSystem.Stop(actorRef);
                     return null;
                 }
 
-                Logger.Debug("Actor '{ActorName}' created", actorName);
+                Logger.Debug("Actor created. {{ ActorName:{ActorName} }}", actorName);
                 return actor;
             }
             catch (InvalidActorNameException ex)
             {
-                Logger.Error(ex, "Failed to create actor '{ActorName}'", actorName);
+                Logger.Error(ex, "Actor creation failed. {{ ActorName:{ActorName} }}", actorName);
                 return null;
             }
         }

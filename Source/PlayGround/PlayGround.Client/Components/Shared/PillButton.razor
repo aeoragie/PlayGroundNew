@@ -1,0 +1,57 @@
+@* 공용 pill 버튼: Variant(색상) × Size(크기) 조합. 모든 버튼 nowrap (한글 줄바꿈 방지).
+   폭/여백 등 배치 맥락은 Class로 호출부에서 지정한다. *@
+<a href="@Href" class="@CssClass">@ChildContent</a>
+
+@code {
+    public enum PillVariant
+    {
+        Orange,   // CTA 전용 오렌지 (5~10% 사용 제한)
+        Ghost,    // 어두운 배경 위 반투명 흰 보더
+        White,    // 흰 배경 + 네이비 글자 (hover: teal)
+        Navy      // 네이비 배경 (hover: navy-deep)
+    }
+
+    public enum PillSize
+    {
+        Small,       // 헤더 (13.5/14.5px, radius 9)
+        Medium,      // 카드 내부 (14.5/15px, radius 10)
+        Large,       // 히어로 (15.5/16.5px, radius 12)
+        ExtraLarge   // CTA 섹션 (15.5/17px, radius 12)
+    }
+
+    [Parameter, EditorRequired]
+    public string Href { get; set; } = "#";
+
+    [Parameter, EditorRequired]
+    public PillVariant Variant { get; set; }
+
+    [Parameter, EditorRequired]
+    public PillSize Size { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass =>
+        $"font-bold whitespace-nowrap text-center transition-colors {SizeClass} {VariantClass} {Class}".Trim();
+
+    private string SizeClass => Size switch
+    {
+        PillSize.Small => "text-[13.5px] md:text-[14.5px] px-4 py-[9px] md:px-5 md:py-2.5 rounded-btn",
+        PillSize.Medium => "text-[14.5px] md:text-[15px] py-[13px] md:px-[26px] rounded-[10px]",
+        PillSize.Large => "text-[15.5px] md:text-[16.5px] py-[15px] md:py-4 md:px-[34px] rounded-btn-lg",
+        _ => "text-[15.5px] md:text-[17px] py-[15px] md:py-[17px] md:px-10 rounded-btn-lg"
+    };
+
+    private string VariantClass => Variant switch
+    {
+        PillVariant.Orange => Size == PillSize.Small
+            ? "text-white bg-orange hover:bg-orange-hover shadow-cta-orange-sm"
+            : "text-white bg-orange hover:bg-orange-hover shadow-cta-orange",
+        PillVariant.Ghost => "text-white bg-white/10 hover:bg-white/20 border border-white/[.35] backdrop-blur-[4px]",
+        PillVariant.White => "bg-white text-navy-deep hover:bg-teal hover:text-white",
+        _ => "bg-navy text-white hover:bg-navy-deep"
+    };
+}

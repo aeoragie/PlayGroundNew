@@ -45,7 +45,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryStringGetAsync failed: {Key}", key);
+                Logger.Debug(ex, "TryStringGetAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<string>.Fail(ex);
             }
         }
@@ -69,7 +69,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryGetAsync failed: {Key}", key);
+                Logger.Debug(ex, "TryGetAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<T>.Fail(ex);
             }
         }
@@ -90,7 +90,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryStringSetAsync failed: {Key}", key);
+                Logger.Debug(ex, "TryStringSetAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -104,7 +104,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TrySetAsync failed: {Key}", key);
+                Logger.Debug(ex, "TrySetAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -129,7 +129,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryHashSetAsync failed: {Key}:{Field}", key, hashField);
+                Logger.Debug(ex, "TryHashSetAsync failed. {{ Key:{Key}, Field:{Field} }}", key, hashField);
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -157,7 +157,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryHashGetAsync failed: {Key}:{Field}", key, hashField);
+                Logger.Debug(ex, "TryHashGetAsync failed. {{ Key:{Key}, Field:{Field} }}", key, hashField);
                 return RedisResult<TValue>.Fail(ex);
             }
         }
@@ -194,7 +194,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryHashAllGetAsync failed: {Key}", key);
+                Logger.Debug(ex, "TryHashAllGetAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<Dictionary<string, TValue>>.Fail(ex);
             }
         }
@@ -217,7 +217,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryKeyExistsAsync failed: {Key}", key);
+                Logger.Debug(ex, "TryKeyExistsAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -236,7 +236,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryKeyDeleteAsync failed: {Key}", key);
+                Logger.Debug(ex, "TryKeyDeleteAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -255,7 +255,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "TryGetExpiryRemainingAsync failed: {Key}", key);
+                Logger.Debug(ex, "TryGetExpiryRemainingAsync failed. {{ Key:{Key} }}", key);
                 return RedisResult<TimeSpan?>.Fail(ex);
             }
         }
@@ -276,7 +276,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "PingAsync failed");
+                Logger.Debug(ex, "PingAsync failed.");
                 return false;
             }
         }

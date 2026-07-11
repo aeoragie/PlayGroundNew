@@ -1,0 +1,47 @@
+@using PlayGround.Client.Styles
+
+@* Footer: 좌 로고블록 + 우 링크 2컬럼 (모바일 세로 스택) *@
+<footer class="bg-white border-t border-border">
+    <div class="@($"{Css.Landing.Container} py-8 pb-10 md:py-11 flex flex-col gap-6 md:flex-row md:items-start md:gap-[60px]")">
+        <div class="flex flex-col gap-[9px] md:gap-2.5">
+            <BrandLogo Compact="true" />
+            <div class="text-[12.5px] md:text-[13px] text-text-muted leading-[1.6]">유소년 축구, 팀과 선수를 잇다<br />© 2026 PlayGround</div>
+        </div>
+
+        <div class="md:flex-1"></div>
+
+        <div class="flex gap-12 md:gap-14 text-[13.5px] md:text-sm">
+            @foreach (var group in LinkGroups)
+            {
+                <div class="flex flex-col gap-2.5">
+                    <div class="font-extrabold text-[12px] md:text-[13px] text-text-muted tracking-[.06em]">@group.Heading</div>
+                    @foreach (var link in group.Links)
+                    {
+                        <a href="@link.Href" class="text-text-strong hover:text-orange transition-colors">@link.Label</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</footer>
+
+@code {
+    private sealed record FooterLink(string Label, string Href);
+    private sealed record LinkGroup(string Heading, FooterLink[] Links);
+
+    private static readonly LinkGroup[] LinkGroups =
+    [
+        new("서비스",
+        [
+            new FooterLink("팀", "#roles"),
+            new FooterLink("선수·학부모", "#roles"),
+            new FooterLink("경기기록", "#features")
+        ]),
+        new("회사",
+        [
+            new FooterLink("소개", "#top"),
+            new FooterLink("이용약관", "#top"),
+            new FooterLink("개인정보처리방침", "#top")
+        ])
+    ];
+}

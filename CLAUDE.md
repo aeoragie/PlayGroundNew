@@ -135,8 +135,14 @@ PlayGroundNew/
 - **역할**: SPA UI. Layout, Pages, 재사용 컴포넌트, API 통신 서비스, 인증 상태 관리.
 - **참조**: Contracts, Domain, Core.Shared. (서버 레이어 참조 불가 — HTTP로만 통신)
 - **규칙**: **하나의 시각 패턴은 한 곳에만.**
-  우선순위 = 컴포넌트(.razor) > 시맨틱 클래스/상수 > 페이지에 raw 유틸 직접(금지).
-  같은 마크업이 2번째 등장하면 즉시 컴포넌트로 추출.
+  우선순위 = 컴포넌트(.razor) > 시맨틱 클래스/상수(`Styles/Css.*.cs`) > 페이지에 raw 유틸 직접(금지).
+  같은 마크업이 2번째 등장하면 즉시 컴포넌트로 추출. 새 화면 = "공용 컴포넌트에서 먼저 찾고 없으면 만든다".
+- **공용 컴포넌트 (`Components/Shared/`)** — 새 화면에서 우선 재사용:
+  - `PillButton` (Variant: Orange/Ghost/White/Navy × Size: Small/Medium/Large/ExtraLarge, `Class`로 배치 지정)
+  - `BrandLogo` (`Href` null이면 정적, `Compact` 크기, `InheritColor` 색상 상속)
+  - `CardTitle`/`CardText` (`SizeClass`로 뷰포트별 크기, `Inverted`로 어두운 배경 대응)
+  - `SectionHeader` (오버라인 + H2, `BottomMarginClass`)
+  - 도메인 카드는 `Components/Landing/` 등 기능 폴더에 (예: `RoleCard`).
 
 ### Source/Database/Main — SQL 원본
 
@@ -174,6 +180,39 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 
 - **내부 로직**: `Result<T>` 모나드로 함수형 에러 처리 (예외는 예외 상황에만)
 - **API 응답**: `Envelope<T>` + 페이징은 `PagedData<T>`
+
+## 로깅 규칙 (필수)
+
+**로직을 작성할 때는 반드시 로그를 함께 작성한다.**
+
+### 계층별 책임
+
+| 계층 | 로깅 책임 |
+|---|---|
+| Core.Shared | 로그 없음 — Result가 곧 반환값 |
+| Core.Infrastructure | **Trace/Debug 진단만** (SQL 실행시간, 재시도 등) + 생명주기 Info. 오류는 Result/Exception으로 반환하고 **Error 로그 금지** (중복 방지) |
+| Application (유즈케이스) | **비즈니스 로그의 주 책임 계층** — 맥락(누가·무엇을)을 아는 곳에서 로깅 |
+| Server (Controller) | 최소화 — 컨트롤러는 얇게 |
+
+### 레벨 기준
+
+| 레벨 | 기준 | 예 |
+|---|---|---|
+| **Info** | **비즈니스 이벤트 — 데이터 요청/수신/상태변경은 반드시 남긴다** | 프로필 조회 요청, 팀 생성 완료 |
+| Debug | 개발 진단 | SQL 실행시간, 캐시 히트 |
+| Trace | 상세 덤프 (평소 꺼둠) | 파라미터 전체 |
+| Warn | 자동 복구된 이상 (NotFound 같은 정상적 빈 결과는 Warn 아님) | 재시도 후 성공, 폴백 사용 |
+| Error | 요청 실패 | 유즈케이스 실패, 예외 → Result 변환 지점 |
+| Fatal | 프로세스 지속 불가 | 기동 실패, 설정 누락 |
+
+### 포맷·헬퍼 (Core.Infrastructure/Logging)
+
+- **메시지 포맷: `문장. { Key:Value, Key:Value }`** — 헬퍼가 자동 생성 + 구조화 속성 동시 기록.
+- `Logger.InfoWith("Player profile requested", ("PlayerId", id))` — Trace/Debug/Info/Warn/Error/Fatal 각 `~With` 제공.
+- **실패 Result를 받은 로직은 반드시 `result.LogWith(Logger, "작업명")` 호출** — DetailCode가 레벨을
+  자동 결정 (시스템 오류→Error/Fatal, 비즈니스→Warn, 입력 오류·성공→Info). 라이브러리가 Error를
+  남기지 않으므로 이걸 빼먹으면 오류가 로그에 남지 않는다.
+- 민감정보(패스워드·토큰·API 키) 로깅 금지. 메시지는 영어.
 
 ## UI 구현 규칙 (SPEC 기반 — 필수)
 

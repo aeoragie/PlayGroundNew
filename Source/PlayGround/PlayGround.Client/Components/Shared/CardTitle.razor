@@ -1,0 +1,20 @@
+@* 카드 타이틀(h3): 색상은 기본 navy-deep, 어두운 배경 카드에서는 Inverted *@
+<h3 class="@CssClass">@ChildContent</h3>
+
+@code {
+    // 화면 SPEC의 뷰포트별 크기 (예: "text-[16.5px] md:text-[19px]")
+    [Parameter, EditorRequired]
+    public string SizeClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Inverted { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass =>
+        $"m-0 font-extrabold {(Inverted ? "text-white" : "text-navy-deep")} {SizeClass} {Class}".Trim();
+}

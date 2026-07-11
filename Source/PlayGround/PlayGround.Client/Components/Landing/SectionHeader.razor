@@ -1,0 +1,17 @@
+@* 섹션 공통 헤더: 오버라인(teal) + H2 중앙 정렬 *@
+<div class="@($"text-center flex flex-col gap-[9px] md:gap-3 {BottomMarginClass}")">
+    <div class="text-[12.5px] md:text-sm font-extrabold text-teal tracking-[.12em]">@Overline</div>
+    <h2 class="m-0 text-[25px] md:text-4xl font-extrabold tracking-[-.02em] text-navy-deep">@Title</h2>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Overline { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    // 섹션별 하단 여백 (기본: 모바일 26px / PC 44px)
+    [Parameter]
+    public string BottomMarginClass { get; set; } = "mb-[26px] md:mb-11";
+}

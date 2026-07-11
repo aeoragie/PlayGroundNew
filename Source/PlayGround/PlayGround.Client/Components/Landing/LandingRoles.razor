@@ -1,0 +1,38 @@
+@using PlayGround.Client.Styles
+
+@* 역할 2분할: 팀(다크) / 선수·학부모(라이트) *@
+<section id="roles" class="@($"{Css.Landing.Container} pt-16 md:pt-24 [scroll-margin-top:70px] md:[scroll-margin-top:80px]")">
+    <SectionHeader Overline="FOR YOU" Title="어떤 역할로 시작하시나요?" />
+
+    <div class="grid md:grid-cols-2 gap-4 md:gap-6">
+        <RoleCard IsDark="true"
+                  Icon="🏛️"
+                  Title="팀을 운영합니다"
+                  BodyText="가입만 하면 팀 홈페이지가 자동으로 생성됩니다. 선수단·일정·경기 결과를 한곳에서 관리하고, 선수 모집 공고를 올려보세요."
+                  Items="TeamItems"
+                  ButtonText="팀 만들기 →" />
+
+        <RoleCard IsDark="false"
+                  Icon="⚽"
+                  Title="선수 · 학부모입니다"
+                  BodyText="자녀의 커리어와 경기기록을 한곳에 모으세요. 흩어진 이력이 포트폴리오가 되고, 주변 팀과 지도자를 정보로 비교할 수 있습니다."
+                  Items="PlayerItems"
+                  ButtonText="프로필 만들기 →" />
+    </div>
+</section>
+
+@code {
+    private static readonly string[] TeamItems =
+    [
+        "팀 홈페이지 자동 생성",
+        "선수단 등록 · 성적 자동 집계",
+        "선수 모집 공고"
+    ];
+
+    private static readonly string[] PlayerItems =
+    [
+        "선수 이력 · 시즌 통계 관리",
+        "공개 프로필 · 선수 카드",
+        "주변 팀 · 지도자 탐색"
+    ];
+}

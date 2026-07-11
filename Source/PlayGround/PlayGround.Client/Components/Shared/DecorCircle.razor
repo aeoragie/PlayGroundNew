@@ -1,0 +1,9 @@
+@* 장식용 원(1.5px 보더, 절대배치). 위치·크기·보더색은 Class로 지정.
+   SVG 아님 — div border-radius:50%. Hero·역할카드·CTA 배경 장식에 공용. *@
+<div class="absolute rounded-full border-1.5 pointer-events-none @Class"></div>
+
+@code {
+    // 예: "-top-[110px] -right-[120px] w-[300px] h-[300px] border-white/[.08] md:..."
+    [Parameter, EditorRequired]
+    public string Class { get; set; } = string.Empty;
+}

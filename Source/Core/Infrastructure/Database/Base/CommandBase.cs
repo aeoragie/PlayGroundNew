@@ -17,11 +17,11 @@ public abstract class CommandBase(RepositoryBase repository)
         var result = await task;
         if (result.IsError)
         {
-            Logger.Error("{Command} execute failed: {Message}", CommandName, result.Message);
+            Logger.Debug("Execute failed. {{ Command:{Command}, Message:{Message} }}", CommandName, result.Message);
             return new QueryResultBase { ResultCode = QueryResult.Error };
         }
 
-        Logger.Debug("{Command} executed successfully, affected {Rows} rows", CommandName, result.Value);
+        Logger.Debug("Execute completed. {{ Command:{Command}, AffectedRows:{AffectedRows} }}", CommandName, result.Value);
         return new QueryResultBase { ResultCode = QueryResult.Success };
     }
 
@@ -38,11 +38,11 @@ public abstract class CommandBase(RepositoryBase repository)
         {
             if (result.ResultData.DetailCode == ErrorCode.NotFound)
             {
-                Logger.Debug("{Command} single query returned no data", CommandName);
+                Logger.Debug("Single query returned no data. {{ Command:{Command} }}", CommandName);
             }
             else
             {
-                Logger.Error("{Command} single query failed: {Message}", CommandName, result.Message);
+                Logger.Debug("Single query failed. {{ Command:{Command}, Message:{Message} }}", CommandName, result.Message);
             }
 
             queryResult.ResultCode = QueryResult.Error;
@@ -64,7 +64,7 @@ public abstract class CommandBase(RepositoryBase repository)
         var queryResult = new QueryResultList<T1>();
         if (result.IsError)
         {
-            Logger.Error("{Command} query failed: {Message}", CommandName, result.Message);
+            Logger.Debug("Query failed. {{ Command:{Command}, Message:{Message} }}", CommandName, result.Message);
             queryResult.ResultCode = QueryResult.Error;
             return queryResult;
         }

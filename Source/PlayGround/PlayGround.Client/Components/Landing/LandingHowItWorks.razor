@@ -1,0 +1,34 @@
+@using PlayGround.Client.Styles
+
+@* 작동 방식 3스텝: surface-alt 래퍼 안에 번호 카드 3장 *@
+<section id="how" class="@($"{Css.Landing.Container} pt-[72px] md:pt-[110px] [scroll-margin-top:70px] md:[scroll-margin-top:80px]")">
+    <div class="bg-surface-alt rounded-wrap-sm md:rounded-wrap px-[22px] py-8 md:px-14 md:py-16">
+        <SectionHeader Overline="HOW IT WORKS" Title="3단계면 충분합니다" BottomMarginClass="mb-6 md:mb-12" />
+
+        <div class="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-5">
+            @foreach (var step in Steps)
+            {
+                <div class="bg-white border-1.5 border-border rounded-[14px] md:rounded-card-xs px-[18px] py-5 md:px-7 md:py-[30px]
+                            flex flex-col gap-[9px] md:gap-3">
+                    <div class="flex items-center gap-[11px] md:gap-3">
+                        <span class="w-[30px] h-[30px] text-[13.5px] md:w-[34px] md:h-[34px] md:text-[15px] flex-none
+                                     rounded-full bg-navy-deep text-white flex items-center justify-center font-extrabold">@step.Number</span>
+                        <CardTitle SizeClass="text-[16.5px] md:text-lg">@step.Title</CardTitle>
+                    </div>
+                    <CardText>@step.Body</CardText>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private sealed record Step(string Number, string Title, string Body);
+
+    private static readonly Step[] Steps =
+    [
+        new("1", "팀 등록", "팀 정보를 입력하면 공개 팀 홈페이지가 자동으로 생성됩니다. 엠블럼, 소개, 코칭스태프까지."),
+        new("2", "선수단 등록", "이름·포지션·등번호만 입력하면 선수 프로필이 함께 만들어지고, 학부모가 초대코드로 연결합니다."),
+        new("3", "기록 자동 집계", "경기 결과를 입력하면 팀 성적과 선수 개인 기록이 자동으로 쌓이고, 경기기록에 공개됩니다.")
+    ];
+}

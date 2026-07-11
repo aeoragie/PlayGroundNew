@@ -36,6 +36,7 @@ module.exports = {
         },
         border: {
           DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
+          soft: 'rgb(var(--color-border-soft) / <alpha-value>)',
         },
         text: {
           body: 'rgb(var(--color-text-body) / <alpha-value>)',

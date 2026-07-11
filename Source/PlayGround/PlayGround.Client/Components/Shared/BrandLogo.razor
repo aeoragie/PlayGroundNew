@@ -1,0 +1,35 @@
+@* 브랜드 로고: 오렌지 라운드 박스(⚽) + 워드마크. 헤더/푸터 공용 *@
+@if (Href is null)
+{
+    <div class="@RootClass">@Inner</div>
+}
+else
+{
+    <a href="@Href" class="@RootClass">@Inner</a>
+}
+
+@code {
+    // null이면 링크가 아닌 정적 로고(푸터)
+    [Parameter]
+    public string? Href { get; set; }
+
+    // true: 푸터 사이즈(24→26px), false: 헤더 사이즈(26→30px)
+    [Parameter]
+    public bool Compact { get; set; }
+
+    // true: 부모의 현재 텍스트 색 상속 (하이브리드 헤더의 흰색↔네이비 전환용)
+    [Parameter]
+    public bool InheritColor { get; set; }
+
+    private string RootClass => Compact
+        ? $"flex items-center gap-2 md:gap-[9px] font-extrabold text-[16px] md:text-[17px] tracking-[-.02em] {ColorClass}"
+        : $"flex items-center gap-2 md:gap-2.5 font-extrabold text-[17px] md:text-[19px] tracking-[-.02em] {ColorClass}";
+
+    private string ColorClass => InheritColor ? "text-current" : "text-navy-deep";
+
+    private string BoxClass => Compact
+        ? "w-6 h-6 rounded-md md:w-[26px] md:h-[26px] md:rounded-[7px] bg-orange text-white flex items-center justify-center text-[12px] md:text-[13px]"
+        : "w-[26px] h-[26px] rounded-[7px] md:w-[30px] md:h-[30px] md:rounded-lg bg-orange text-white flex items-center justify-center text-[13px] md:text-[15px]";
+
+    private RenderFragment Inner => @<text><span class="@BoxClass">⚽</span>PlayGround</text>;
+}
