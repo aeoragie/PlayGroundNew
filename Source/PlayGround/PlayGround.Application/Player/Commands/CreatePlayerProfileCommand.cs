@@ -13,11 +13,14 @@ namespace PlayGround.Application.Player.Commands
         private static readonly string[] AllowedAgeGroups = ["U12", "U15", "U18"];
 
         private readonly IPlayerRepository mRepository;
+        private readonly IAccountRepository mAccountRepository;
 
-        public CreatePlayerProfileCommand(IPlayerRepository repository)
+        public CreatePlayerProfileCommand(IPlayerRepository repository, IAccountRepository accountRepository)
         {
             Debug.Assert(repository != null, "repository is required");
+            Debug.Assert(accountRepository != null, "accountRepository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mAccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
         }
 
         public async Task<Result<CreatePlayerProfileResponse>> ExecuteAsync(
@@ -69,6 +72,9 @@ namespace PlayGround.Application.Player.Commands
             {
                 return Result<CreatePlayerProfileResponse>.Failure(created.ResultData);
             }
+
+            // 온보딩 완료 → 역할 승격(로그인 후 라우팅용). 실패해도 프로필은 생성됐으므로 비치명적.
+            await mAccountRepository.UpdateRoleAsync(userId, "Player", cancellation);
 
             return Result<CreatePlayerProfileResponse>.Success(new CreatePlayerProfileResponse { PlayerId = created.Value });
         }

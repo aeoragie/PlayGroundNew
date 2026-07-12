@@ -15,11 +15,14 @@ namespace PlayGround.Application.Team.Commands
         private static readonly string[] AllowedTeamTypes = ["클럽", "학교", "학원"];
 
         private readonly ISoccerTeamRepository mRepository;
+        private readonly IAccountRepository mAccountRepository;
 
-        public CreateSoccerTeamCommand(ISoccerTeamRepository repository)
+        public CreateSoccerTeamCommand(ISoccerTeamRepository repository, IAccountRepository accountRepository)
         {
             Debug.Assert(repository != null, "repository is required");
+            Debug.Assert(accountRepository != null, "accountRepository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mAccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
         }
 
         public async Task<Result<CreateTeamResponse>> ExecuteAsync(
@@ -72,6 +75,9 @@ namespace PlayGround.Application.Team.Commands
             {
                 return Result<CreateTeamResponse>.Failure(created.ResultData);
             }
+
+            // 온보딩 완료 → 역할 승격(로그인 후 라우팅용). 실패해도 팀은 생성됐으므로 비치명적.
+            await mAccountRepository.UpdateRoleAsync(managerUserId, "TeamAdmin", cancellation);
 
             return Result<CreateTeamResponse>.Success(new CreateTeamResponse
             {

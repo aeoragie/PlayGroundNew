@@ -1,12 +1,20 @@
 @page "/settings/select-role"
 @layout AuthLayout
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Auth
 @inject NavigationManager Nav
 @inject OnboardingState State
 @inject JwtAuthenticationStateProvider AuthProvider
+@inject AuthClient Auth
 
 <PageTitle>역할 선택 — PlayGround</PageTitle>
 
+@if (mChecking)
+{
+    <div class="w-[560px] max-w-full flex items-center justify-center py-24 text-text-muted text-sm">확인 중…</div>
+}
+else
+{
 @* ② 역할 선택 *@
 <div class="w-[560px] max-w-full flex flex-col gap-6">
     <div class="text-center flex flex-col gap-2">
@@ -51,8 +59,11 @@
 
     <button type="button" @onclick="SkipRole" class="@($"{Css.Auth.TextLink} self-center py-1")">나중에 선택할게요 (둘러보기)</button>
 </div>
+}
 
 @code {
+    private bool mChecking = true;
+
     protected override async Task OnInitializedAsync()
     {
         // OAuth 콜백은 /settings/select-role#access_token=... 로 리다이렉트된다.
@@ -63,6 +74,16 @@
             await AuthProvider.MarkUserAuthenticatedAsync(token);
             Nav.NavigateTo("settings/select-role", replace: true);
         }
+
+        // 이미 역할을 가진 기존 사용자는 역할 선택을 건너뛰고 대시보드로 직행.
+        AuthUserDto? me = await Auth.GetMeAsync();
+        if (me is not null && !string.IsNullOrEmpty(me.Role) && me.Role != "General")
+        {
+            Nav.NavigateTo("/dashboard", replace: true);
+            return;
+        }
+
+        mChecking = false;
     }
 
     private static string? ExtractAccessToken(string uri)

@@ -1,12 +1,17 @@
+using System.Security.Claims;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PlayGround.Shared.Http;
+using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Logging;
+using PlayGround.Contracts.Auth;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Server.Services;
 
 namespace PlayGround.Server.Controllers.Auth
 {
-    /// <summary>인증(공유 — 종목 무관). 소셜 OAuth 시작/콜백.</summary>
+    /// <summary>인증(공유 — 종목 무관). 소셜 OAuth 시작/콜백 + 현재 사용자(me).</summary>
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
@@ -20,6 +25,22 @@ namespace PlayGround.Server.Controllers.Auth
         {
             mOAuth = oauth;
             mLoginBySocial = loginBySocial;
+        }
+
+        /// <summary>현재 로그인 사용자 — 인증 토큰 클레임을 반환. 클라이언트의 로그인 후 라우팅에 사용.</summary>
+        [Authorize]
+        [HttpGet("me")]
+        public Envelope<AuthUserDto> Me()
+        {
+            var user = new AuthUserDto
+            {
+                UserId = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : Guid.Empty,
+                Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+                DisplayName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? string.Empty,
+                Role = User.FindFirstValue(ClaimTypes.Role) ?? "General",
+                ProfileImageUrl = User.FindFirstValue("avatar")
+            };
+            return Result<AuthUserDto>.Success(user).ToEnvelope();
         }
 
         [HttpGet("social/{provider}")]

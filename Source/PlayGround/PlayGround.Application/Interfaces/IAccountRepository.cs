@@ -14,5 +14,7 @@ namespace PlayGround.Application.Interfaces
         Task<Result<AccountUser>> CreateByEmailAsync(string email, string passwordHash, string displayName, CancellationToken cancellation = default);
 
         Task<Result<AccountUser>> CreateWithSocialAsync(string email, string displayName, string provider, string providerUserId, string? profileImageUrl, CancellationToken cancellation = default);
+
+        Task<Result> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default);
     }
 }
