@@ -10,7 +10,7 @@ using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>선수 프로필 저장 (Soccer DB). 생성된 프로시저 객체 + CreatePlayerRecord 사용.</summary>
+    /// <summary>선수 프로필 저장 (Soccer DB). 생성된 프로시저 객체 + SoccerCreatePlayerRecord 사용.</summary>
     public class SoccerPlayerRepository : RepositoryBase, IPlayerRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;
@@ -32,7 +32,7 @@ namespace PlayGround.Persistence.Repositories
                 Region = input.Region!
             };
 
-            var queryResult = await procedure.QueryAsync<CreatePlayerRecord>(cancellation: cancellation);
+            var queryResult = await procedure.QueryAsync<SoccerCreatePlayerRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
                 Logger.ErrorWith("Player profile creation failed", ("ResultCode", queryResult.ResultCode));

@@ -1,8 +1,8 @@
 -- 랜딩 콘텐츠 시드. 카피는 SPEC.LANDING.md 기준 (한 글자도 변경 금지).
 -- 재실행 안전: Section별로 지우고 다시 삽입.
-DELETE FROM [dbo].[LandingContents] WHERE [Section] IN ('Feature', 'HowStep');
+DELETE FROM [dbo].[SoccerLandingContents] WHERE [Section] IN ('Feature', 'HowStep');
 
-INSERT INTO [dbo].[LandingContents] ([Section], [DisplayOrder], [Icon], [Title], [Body]) VALUES
+INSERT INTO [dbo].[SoccerLandingContents] ([Section], [DisplayOrder], [Icon], [Title], [Body]) VALUES
 ('Feature', 1, N'🏠', N'팀 홈페이지 자동 생성', N'소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이.'),
 ('Feature', 2, N'📈', N'선수 이력 · 기록 관리', N'커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다.'),
 ('Feature', 3, N'📊', N'경기기록 무료 공개', N'대회 결과, 순위표, 일정을 로그인 없이 누구나 조회. 자녀와 관심팀의 기록을 언제든 확인하세요.'),

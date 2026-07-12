@@ -10,10 +10,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
 /// <summary>
-/// LandingContents
+/// SoccerLandingContents
 /// </summary>
-[Table("LandingContents", Schema = "dbo")]
-public class LandingContentsEntity
+[Table("SoccerLandingContents", Schema = "dbo")]
+public class SoccerLandingContentsEntity
 {
 	[Required]
 	public Guid LandingContentId { get; set; } = Guid.Empty;

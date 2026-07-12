@@ -1,5 +1,5 @@
--- 팀. "팀 홈페이지 자동 생성"의 핵심 엔티티. 축구 전용(스포츠 구분 컬럼 없음).
-CREATE TABLE [dbo].[Teams]
+-- 팀. "팀 홈페이지 자동 생성"의 핵심 엔티티.
+CREATE TABLE [dbo].[SoccerTeams]
 (
     [TeamId]           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [TeamName]         NVARCHAR(100)    NOT NULL,
@@ -20,5 +20,5 @@ CREATE TABLE [dbo].[Teams]
     [UpdatedAt]        DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
     [DeletedAt]        DATETIME2        NULL,             -- 소프트 삭제
 
-    CONSTRAINT [PK_Teams] PRIMARY KEY ([TeamId])
+    CONSTRAINT [PK_SoccerTeams] PRIMARY KEY ([TeamId])
 );

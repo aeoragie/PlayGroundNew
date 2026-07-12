@@ -9,9 +9,9 @@ using System.ComponentModel.DataAnnotations;
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
 /// <summary>
-/// LandingContentRecord (JOIN: LandingContents)
+/// SoccerLandingContentRecord (JOIN: SoccerLandingContents)
 /// </summary>
-public class LandingContentRecord
+public class SoccerLandingContentRecord
 {
 	[Required]
 	[StringLength(20)]

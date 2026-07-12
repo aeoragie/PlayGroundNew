@@ -24,7 +24,7 @@ namespace PlayGround.Persistence.Repositories
             Logger.InfoWith("Landing contents requested");
 
             var procedure = new UspGetLandingContents(this);
-            var queryResult = await procedure.QueryAsync<LandingContentRecord>(cancellation: cancellation);
+            var queryResult = await procedure.QueryAsync<SoccerLandingContentRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
                 Logger.ErrorWith("Landing contents query failed", ("ResultCode", queryResult.ResultCode));
@@ -44,7 +44,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<LandingContentsResponse>.Success(response);
         }
 
-        private static List<LandingItemDto> MapSection(List<LandingContentRecord> rows, string section)
+        private static List<LandingItemDto> MapSection(List<SoccerLandingContentRecord> rows, string section)
         {
             return rows
                 .Where(r => string.Equals(r.Section, section, StringComparison.OrdinalIgnoreCase))

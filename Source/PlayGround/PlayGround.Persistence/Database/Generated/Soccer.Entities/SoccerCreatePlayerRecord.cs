@@ -9,9 +9,9 @@ using System.ComponentModel.DataAnnotations;
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
 /// <summary>
-/// CreatePlayerRecord (JOIN: Players)
+/// SoccerCreatePlayerRecord (JOIN: SoccerPlayers)
 /// </summary>
-public class CreatePlayerRecord
+public class SoccerCreatePlayerRecord
 {
 	[Required]
 	public Guid PlayerId { get; set; } = Guid.Empty;
