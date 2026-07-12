@@ -11,11 +11,11 @@ using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 namespace PlayGround.Persistence.Repositories
 {
     /// <summary>선수 프로필 저장 (Soccer DB). 생성된 프로시저 객체 + CreatePlayerRecord 사용.</summary>
-    public class PlayerRepository : RepositoryBase, IPlayerRepository
+    public class SoccerPlayerRepository : RepositoryBase, IPlayerRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;
 
-        public PlayerRepository(IOptions<DatabaseConfiguration> options) : base(options)
+        public SoccerPlayerRepository(IOptions<DatabaseConfiguration> options) : base(options)
         {
         }
 

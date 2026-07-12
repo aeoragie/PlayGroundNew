@@ -30,7 +30,7 @@ try
         builder.Configuration.GetSection(DatabaseConfiguration.Section));
 
     // Persistence 리포지토리 + 유즈케이스
-    builder.Services.AddPersistence();
+    builder.Services.AddSoccerPersistence();
     builder.Services.AddScoped<GetLandingContentsQuery>();
     builder.Services.AddScoped<CreatePlayerProfileCommand>();
 
