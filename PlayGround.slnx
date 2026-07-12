@@ -12,11 +12,8 @@
   <Folder Name="/Source/Core/Shared/">
     <Project Path="Source/Core/Shared/Core.Shared.csproj" />
   </Folder>
-  <Folder Name="/Source/Database/" />
-  <Folder Name="/Source/Database/Account/">
-    <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="858dbcbf-105b-4a19-88d7-7b415c70695e" />
-  </Folder>
-  <Folder Name="/Source/Database/Soccer/">
+  <Folder Name="/Source/Database/">
+    <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="1e4d87e5-a81e-4744-814e-9f1c720c2bb9" />
     <Project Path="Source/Database/Soccer/Database.Soccer.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="4ed4252c-8739-4a90-be03-995394509017" />
   </Folder>
   <Folder Name="/Source/PlayGround/" />

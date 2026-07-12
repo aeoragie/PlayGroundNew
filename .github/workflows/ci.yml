@@ -26,9 +26,6 @@ jobs:
           cache: npm
           cache-dependency-path: Source/PlayGround/PlayGround.Client/package-lock.json
 
-      - name: Restore
-        run: dotnet restore PlayGround.slnx
-
       # Tailwind 산출물(app.css)을 소스 마크업 기준으로 새로 생성 — 설정 오류도 CI에서 잡힌다
       - name: Build Tailwind CSS
         working-directory: Source/PlayGround/PlayGround.Client
@@ -36,9 +33,14 @@ jobs:
           npm ci
           npm run css:build
 
+      # SQL 프로젝트(.sqlproj)는 VS 전용 레거시 SSDT라 dotnet CLI로 빌드 불가 → 솔루션 대신 앱 프로젝트만.
+      # Server가 전 앱 라이브러리 + WASM Client를 전이 참조하므로 이 하나로 앱 전체를 커버한다.
       - name: Build (Release)
-        run: dotnet build PlayGround.slnx -c Release --no-restore
+        run: dotnet build Source/PlayGround/PlayGround.Server/PlayGround.Server.csproj -c Release
 
       # 테스트는 CI-safe (외부 DB 불필요 — 인메모리 설정·모킹·인프로세스 ActorSystem)
       - name: Test
-        run: dotnet test PlayGround.slnx -c Release --no-build --verbosity normal
+        run: |
+          dotnet test Tests/Tests.Unit/Tests.Unit.csproj -c Release --verbosity normal
+          dotnet test Tests/Tests.Integration/Tests.Integration.csproj -c Release --verbosity normal
+          dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj -c Release --verbosity normal
