@@ -43,6 +43,9 @@ try
     builder.Services.AddScoped<OAuthService>();
     builder.Services.AddScoped<LoginBySocialCommand>();
 
+    builder.Services.AddSingleton<IPasswordHasher, PasswordHasherService>();
+    builder.Services.AddScoped<LoginByEmailCommand>();
+
     builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
     builder.Services.AddAuthentication(options =>
     {

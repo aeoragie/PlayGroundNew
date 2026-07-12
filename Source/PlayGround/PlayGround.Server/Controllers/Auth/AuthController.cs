@@ -20,11 +20,27 @@ namespace PlayGround.Server.Controllers.Auth
 
         private readonly OAuthService mOAuth;
         private readonly LoginBySocialCommand mLoginBySocial;
+        private readonly LoginByEmailCommand mLoginByEmail;
 
-        public AuthController(OAuthService oauth, LoginBySocialCommand loginBySocial)
+        public AuthController(OAuthService oauth, LoginBySocialCommand loginBySocial, LoginByEmailCommand loginByEmail)
         {
             mOAuth = oauth;
             mLoginBySocial = loginBySocial;
+            mLoginByEmail = loginByEmail;
+        }
+
+        /// <summary>이메일 로그인/가입 (없으면 자동 생성). 성공 시 액세스 토큰 반환.</summary>
+        [HttpPost("login/email")]
+        public async Task<Envelope<AuthResult>> LoginByEmailAsync(
+            [FromBody] LoginByEmailRequest request, CancellationToken cancellation)
+        {
+            Result<AuthResult> result = await mLoginByEmail.ExecuteAsync(request.Email, request.Password, cancellation);
+            if (result.IsError)
+            {
+                result.LogWith(Logger, "LoginByEmail");
+            }
+
+            return result.ToEnvelope();
         }
 
         /// <summary>현재 로그인 사용자 — 인증 토큰 클레임을 반환. 클라이언트의 로그인 후 라우팅에 사용.</summary>

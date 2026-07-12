@@ -2,10 +2,12 @@
 @layout AuthLayout
 @using PlayGround.Client.Styles
 @inject NavigationManager Nav
+@inject AuthClient Auth
+@inject JwtAuthenticationStateProvider AuthProvider
 
 <PageTitle>시작하기 — PlayGround</PageTitle>
 
-@* ① 로그인. 소셜은 실제 OAuth 연동, 이메일은 아직 목킹(백엔드 별도 슬라이스) *@
+@* ① 로그인. 소셜·이메일 모두 실연동 (가입과 로그인이 한 번에) *@
 <div class="@($"w-[400px] max-w-full {Css.Auth.Card} px-9 py-10 flex flex-col gap-[22px]")">
     <div class="flex flex-col gap-2 text-center">
         <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">시작하기</h1>
@@ -47,9 +49,9 @@
 
     @* 이메일 로그인 *@
     <div class="flex flex-col gap-2.5">
-        <input type="email" placeholder="이메일 주소" class="@Css.Auth.Input" />
-        <input type="password" placeholder="비밀번호" class="@Css.Auth.Input" />
-        <button type="button" @onclick="Continue" class="@Css.Auth.NavyButton">이메일로 계속하기</button>
+        <input type="email" placeholder="이메일 주소" class="@Css.Auth.Input" @bind="mEmail" @bind:event="oninput" />
+        <input type="password" placeholder="비밀번호" class="@Css.Auth.Input" @bind="mPassword" @bind:event="oninput" @onkeydown="OnPasswordKeyDown" />
+        <button type="button" @onclick="EmailLogin" disabled="@mSaving" class="@Css.Auth.NavyButton">@(mSaving ? "처리 중…" : "이메일로 계속하기")</button>
     </div>
 
     <p class="m-0 text-xs text-text-muted text-center leading-relaxed">
@@ -59,6 +61,9 @@
 
 @code {
     private string? mError;
+    private string mEmail = string.Empty;
+    private string mPassword = string.Empty;
+    private bool mSaving;
 
     protected override void OnInitialized()
     {
@@ -79,9 +84,36 @@
         Nav.NavigateTo($"api/auth/social/{provider}", forceLoad: true);
     }
 
-    // 이메일 로그인은 아직 목킹 — 백엔드(LoginByEmail)는 별도 슬라이스에서 구현 예정
-    private void Continue()
+    private async Task OnPasswordKeyDown(KeyboardEventArgs e)
     {
+        if (e.Key == "Enter")
+        {
+            await EmailLogin();
+        }
+    }
+
+    // 이메일 로그인/가입 (없으면 자동 생성). 성공 시 토큰 저장 후 역할 선택으로 — 역할 보유자는 거기서 대시보드 직행.
+    private async Task EmailLogin()
+    {
+        mError = null;
+
+        if (string.IsNullOrWhiteSpace(mEmail) || string.IsNullOrWhiteSpace(mPassword))
+        {
+            mError = "이메일과 비밀번호를 입력해 주세요.";
+            return;
+        }
+
+        mSaving = true;
+        EmailLoginResult result = await Auth.LoginByEmailAsync(mEmail.Trim(), mPassword);
+        mSaving = false;
+
+        if (!result.Success || string.IsNullOrEmpty(result.Token))
+        {
+            mError = result.Error;
+            return;
+        }
+
+        await AuthProvider.MarkUserAuthenticatedAsync(result.Token);
         Nav.NavigateTo("/settings/select-role");
     }
 

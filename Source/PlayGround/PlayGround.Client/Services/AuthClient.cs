@@ -26,5 +26,28 @@ namespace PlayGround.Client.Services
                 return null; // 미인증(401)·네트워크 오류 → null
             }
         }
+
+        public async Task<EmailLoginResult> LoginByEmailAsync(string email, string password)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync(
+                    "api/auth/login/email", new LoginByEmailRequest { Email = email, Password = password });
+
+                Envelope<AuthResult>? envelope = await response.Content.ReadFromJsonAsync<Envelope<AuthResult>>();
+                if (envelope is { IsSuccess: true, Data: not null })
+                {
+                    return new EmailLoginResult(true, envelope.Data.AccessToken, null);
+                }
+
+                return new EmailLoginResult(false, null, envelope?.Message ?? "로그인에 실패했어요.");
+            }
+            catch
+            {
+                return new EmailLoginResult(false, null, "네트워크 오류로 로그인하지 못했어요. 잠시 후 다시 시도해 주세요.");
+            }
+        }
     }
+
+    public record EmailLoginResult(bool Success, string? Token, string? Error);
 }
