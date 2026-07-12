@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/Docs/" />
+  <Folder Name="/Docs/Architecture/">
+    <File Path="Docs/Architecture/ActorVsDirectCall.md" />
+    <File Path="Docs/Architecture/DeploymentAndConfiguration.md" />
+  </Folder>
   <Folder Name="/Source/" />
   <Folder Name="/Source/Core/" />
   <Folder Name="/Source/Core/Infrastructure/">
@@ -9,7 +14,7 @@
   </Folder>
   <Folder Name="/Source/Database/" />
   <Folder Name="/Source/Database/Account/">
-    <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="84e639e5-0985-47f9-8226-f074976b6147" />
+    <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="858dbcbf-105b-4a19-88d7-7b415c70695e" />
   </Folder>
   <Folder Name="/Source/Database/Soccer/">
     <Project Path="Source/Database/Soccer/Database.Soccer.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="4ed4252c-8739-4a90-be03-995394509017" />

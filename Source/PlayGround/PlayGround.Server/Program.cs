@@ -8,6 +8,7 @@ using PlayGround.Infrastructure.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Landing.Queries;
+using PlayGround.Application.Player.Commands;
 using PlayGround.Persistence;
 using PlayGround.Server.Actors;
 using PlayGround.Server.Services;
@@ -31,6 +32,7 @@ try
     // Persistence 리포지토리 + 유즈케이스
     builder.Services.AddPersistence();
     builder.Services.AddScoped<GetLandingContentsQuery>();
+    builder.Services.AddScoped<CreatePlayerProfileCommand>();
 
     //.// Akka: Controller → 액터(비동기 메일박스) → 유즈케이스 → DB
 

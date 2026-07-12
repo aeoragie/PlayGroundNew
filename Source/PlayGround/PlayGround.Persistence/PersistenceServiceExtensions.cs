@@ -11,6 +11,7 @@ namespace PlayGround.Persistence
         {
             services.AddScoped<ILandingContentRepository, LandingContentRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
             return services;
         }
     }

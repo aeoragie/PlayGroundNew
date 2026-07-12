@@ -4,5 +4,6 @@ namespace PlayGround.Server.Actors
     public static class ActorNames
     {
         public const string Landing = "landing";
+        public const string PlayerProfile = "player-profile";
     }
 }

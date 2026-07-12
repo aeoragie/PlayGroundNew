@@ -25,7 +25,13 @@ namespace PlayGround.Server.Actors
             // 읽기 부하 분산용 RoundRobin 풀. ReceiveActorBase(IServiceProvider) 생성자 인자는
             // DI 리졸버가 채우므로 args는 비운다.
             mAkka.CreateRouter<LandingActor>(ActorNames.Landing, poolSize: 4);
-            Logger.InfoWith("Actor topology created", ("Landing", ActorNames.Landing));
+
+            // 쓰기: ConsistentHash 라우터. 메시지의 ConsistentHashKey(UserId)로 라우팅 →
+            // 같은 사용자의 요청은 한 라우티에서 순차 처리(자기 경합 방지).
+            mAkka.CreateHashRouter<PlayerProfileActor>(ActorNames.PlayerProfile, poolSize: 4);
+
+            Logger.InfoWith("Actor topology created",
+                ("Landing", ActorNames.Landing), ("PlayerProfile", ActorNames.PlayerProfile));
             return Task.CompletedTask;
         }
 

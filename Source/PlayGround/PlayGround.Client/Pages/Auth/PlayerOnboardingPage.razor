@@ -1,8 +1,10 @@
 @page "/onboarding/player"
 @layout AuthLayout
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
 @inject NavigationManager Nav
 @inject OnboardingState State
+@inject PlayerClient Players
 
 <PageTitle>선수 온보딩 — PlayGround</PageTitle>
 
@@ -21,9 +23,9 @@
         {
             <div class="flex flex-col gap-3.5">
                 <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">선수 이름
-                    <input type="text" placeholder="예: 김민준" class="@Css.Auth.Input" /></label>
+                    <input type="text" placeholder="예: 김민준" class="@Css.Auth.Input" @bind="mName" @bind:event="oninput" /></label>
                 <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">생년월일
-                    <input type="text" placeholder="YYYY.MM.DD" class="@Css.Auth.Input" /></label>
+                    <input type="text" placeholder="YYYY.MM.DD" class="@Css.Auth.Input" @bind="mBirth" @bind:event="oninput" /></label>
                 <div class="flex gap-2.5 items-start bg-surface-teal border border-teal/30 rounded-[11px] px-3.5 py-3">
                     <span class="text-[15px]">👪</span>
                     <span class="text-[12.5px] text-text-strong leading-relaxed">학부모이신가요? 자녀의 정보를 입력하면 <b>보호자 대리 관리</b> 프로필로 만들어져요. 자녀가 크면 계정을 넘겨줄 수 있어요.</span>
@@ -55,7 +57,7 @@
         {
             <div class="flex flex-col gap-3.5">
                 <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">활동 지역
-                    <input type="text" placeholder="예: 서울 송파구" class="@Css.Auth.Input" /></label>
+                    <input type="text" placeholder="예: 서울 송파구" class="@Css.Auth.Input" @bind="mRegion" @bind:event="oninput" /></label>
                 <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">소속팀 <span class="font-medium text-text-muted">(선택)</span>
                     <input type="text" placeholder="팀 이름 검색 — 없으면 비워두세요" class="@Css.Auth.Input" /></label>
                 <div class="flex gap-2.5 items-start bg-surface-orange border border-dashed border-orange rounded-[11px] px-3.5 py-3">
@@ -66,16 +68,21 @@
         }
     </div>
 
+    @if (mError is not null)
+    {
+        <div role="alert" class="rounded-[11px] bg-surface-alt border-1.5 border-border text-[13px] text-text-body px-4 py-3 text-center">@mError</div>
+    }
+
     <div class="flex gap-2.5">
         @if (mStep > 1)
         {
-            <button type="button" @onclick="Back" class="@Css.Auth.SecondaryButton">← 이전</button>
+            <button type="button" @onclick="Back" disabled="@mSaving" class="@Css.Auth.SecondaryButton">← 이전</button>
         }
-        <button type="button" @onclick="Next" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@NextLabel</button>
+        <button type="button" @onclick="Next" disabled="@mSaving" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@(mSaving ? "저장 중…" : NextLabel)</button>
     </div>
     @if (mStep == 3)
     {
-        <button type="button" @onclick="Finish" class="@($"{Css.Auth.TextLink} !text-[13px]")">이 단계 건너뛰기</button>
+        <button type="button" @onclick="Submit" disabled="@mSaving" class="@($"{Css.Auth.TextLink} !text-[13px]")">이 단계 건너뛰기</button>
     }
 </div>
 
@@ -85,26 +92,71 @@
 
     private int mStep = 1;
     private string mAge = "U15";
+    private string mName = string.Empty;
+    private string mBirth = string.Empty;
+    private string mRegion = string.Empty;
+    private string? mError;
+    private bool mSaving;
 
     private string StepTitle => Titles[mStep];
     private string NextLabel => mStep < 3 ? "다음 →" : "프로필 만들기";
 
-    private void Back() => mStep--;
-
-    private void Next()
+    private void Back()
     {
+        mError = null;
+        mStep--;
+    }
+
+    private async Task Next()
+    {
+        mError = null;
+
+        // 이름은 필수 — 1스텝 통과 전 검증
+        if (mStep == 1 && string.IsNullOrWhiteSpace(mName))
+        {
+            mError = "선수 이름을 입력해 주세요.";
+            return;
+        }
+
         if (mStep < 3)
         {
             mStep++;
+            return;
         }
-        else
-        {
-            Finish();
-        }
+
+        await Submit();
     }
 
-    private void Finish()
+    // 프로필 생성(POST). "프로필 만들기"·"이 단계 건너뛰기" 공통 — 건너뛰기는 지역만 비운 채 저장.
+    private async Task Submit()
     {
+        if (string.IsNullOrWhiteSpace(mName))
+        {
+            mError = "선수 이름을 입력해 주세요.";
+            mStep = 1;
+            return;
+        }
+
+        mSaving = true;
+        mError = null;
+
+        var request = new CreatePlayerProfileRequest
+        {
+            Name = mName.Trim(),
+            BirthDate = string.IsNullOrWhiteSpace(mBirth) ? null : mBirth.Trim(),
+            AgeGroup = mAge,
+            Region = string.IsNullOrWhiteSpace(mRegion) ? null : mRegion.Trim()
+        };
+
+        PlayerSaveResult result = await Players.CreateProfileAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            mError = result.Error;
+            return;
+        }
+
         State.DoneFrom = "player";
         Nav.NavigateTo("/onboarding/complete");
     }
