@@ -36,9 +36,18 @@
 한글 시드는 UTF-8 코드페이지(`-f 65001`) 필수.
 
 ```bash
+# Soccer
 sqlcmd -S '(localdb)\MSSQLLocalDB' -Q "IF DB_ID('PlayGround_Soccer') IS NULL CREATE DATABASE [PlayGround_Soccer];"
 sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Soccer -i Soccer/Tables/LandingContents.sql
+sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Soccer -i Soccer/Procedures/UspGetLandingContents.sql
 sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Soccer -f 65001 -i Soccer/Seeds/LandingContents.Seed.sql
+
+# Account (테이블 먼저, 그다음 프로시저)
+sqlcmd -S '(localdb)\MSSQLLocalDB' -Q "IF DB_ID('PlayGround_Account') IS NULL CREATE DATABASE [PlayGround_Account];"
+sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Account -i Account/Tables/Users.sql
+sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Account -i Account/Tables/SocialAccounts.sql
+sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Account -f 65001 -i Account/Procedures/UspGetUserByEmail.sql
+# … 나머지 Account/Procedures/*.sql 동일하게 적용
 ```
 
-`appsettings.Development.json`의 커넥션이 `(localdb)\MSSQLLocalDB`를 가리킨다.
+`appsettings.Development.json`의 커넥션이 `(localdb)\MSSQLLocalDB`(PlayGround_Account / PlayGround_Soccer)를 가리킨다.

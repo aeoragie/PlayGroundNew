@@ -9,7 +9,7 @@
   </Folder>
   <Folder Name="/Source/Database/" />
   <Folder Name="/Source/Database/Account/">
-    <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="0935876d-9e15-44f4-a340-d8da8687af55" />
+    <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="84e639e5-0985-47f9-8226-f074976b6147" />
   </Folder>
   <Folder Name="/Source/Database/Soccer/">
     <Project Path="Source/Database/Soccer/Database.Soccer.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="4ed4252c-8739-4a90-be03-995394509017" />

@@ -1,0 +1,32 @@
+{
+  "//": [
+    "이 파일을 같은 폴더에 appsettings.Local.json 으로 복사한 뒤 실제 값을 채우세요.",
+    "appsettings.Local.json 은 gitignore되어 커밋되지 않습니다 (시크릿 보관용).",
+    "엔드포인트·Scope 등 비-시크릿은 appsettings.json 에 있으므로 여기엔 시크릿만 둡니다.",
+    "DB 커넥션은 로컬(LocalDB)의 경우 appsettings.Development.json 에 이미 있습니다."
+  ],
+  "Jwt": {
+    "Key": "<32바이트 이상의 서명 키를 넣으세요>",
+    "Issuer": "playground",
+    "Audience": "playground-client",
+    "AccessTokenExpirationMinutes": 30,
+    "RefreshTokenExpirationDays": 7
+  },
+  "OAuth": {
+    "Google": {
+      "ClientId": "<Google OAuth ClientId>",
+      "ClientSecret": "<Google OAuth ClientSecret>",
+      "RedirectUri": "https://localhost:50451/api/auth/social/google/callback"
+    },
+    "Kakao": {
+      "ClientId": "<Kakao REST API 키>",
+      "ClientSecret": "<Kakao ClientSecret (선택)>",
+      "RedirectUri": "https://localhost:50451/api/auth/social/kakao/callback"
+    },
+    "Line": {
+      "ClientId": "<LINE 채널 ID>",
+      "ClientSecret": "<LINE 채널 시크릿>",
+      "RedirectUri": "https://localhost:50451/api/auth/social/line/callback"
+    }
+  }
+}

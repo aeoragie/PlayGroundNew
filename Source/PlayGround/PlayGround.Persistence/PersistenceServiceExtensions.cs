@@ -10,6 +10,7 @@ namespace PlayGround.Persistence
         public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
             services.AddScoped<ILandingContentRepository, LandingContentRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
             return services;
         }
     }

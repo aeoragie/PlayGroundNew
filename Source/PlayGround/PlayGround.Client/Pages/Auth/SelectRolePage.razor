@@ -1,0 +1,63 @@
+@page "/settings/select-role"
+@layout AuthLayout
+@using PlayGround.Client.Styles
+@inject NavigationManager Nav
+@inject OnboardingState State
+
+<PageTitle>역할 선택 — PlayGround</PageTitle>
+
+@* ② 역할 선택 *@
+<div class="w-[560px] max-w-full flex flex-col gap-6">
+    <div class="text-center flex flex-col gap-2">
+        <h1 class="m-0 text-[26px] font-extrabold tracking-[-.02em] text-navy-deep">어떤 역할로 활동하시나요?</h1>
+        <p class="m-0 text-[14.5px] text-text-body">역할에 맞는 대시보드와 온보딩을 준비해 드려요. 나중에 설정에서 바꿀 수 있어요.</p>
+    </div>
+
+    <div class="flex flex-col gap-3.5">
+        @* 선수·학부모 *@
+        <button type="button" @onclick="StartPlayer"
+                class="flex items-center gap-[18px] text-left bg-white border-1.5 border-border rounded-2xl px-6 py-[22px] cursor-pointer hover:border-navy hover:shadow-[0_4px_16px_rgba(28,43,74,.08)] transition-all">
+            <span class="w-[52px] h-[52px] rounded-[14px] bg-surface-icon flex items-center justify-center text-[25px] flex-none">⚽</span>
+            <span class="flex flex-col gap-1 flex-1">
+                <span class="text-[17.5px] font-extrabold text-navy-deep">선수 · 학부모</span>
+                <span class="text-[13.5px] text-text-body leading-[1.55]">선수 이력·경기기록 관리 · 학부모는 자녀 프로필을 대리 관리</span>
+            </span>
+            <span class="text-[18px] text-text-faint">→</span>
+        </button>
+
+        @* 팀 관리자·코치 *@
+        <button type="button" @onclick="StartTeam"
+                class="flex items-center gap-[18px] text-left bg-white border-1.5 border-border rounded-2xl px-6 py-[22px] cursor-pointer hover:border-navy hover:shadow-[0_4px_16px_rgba(28,43,74,.08)] transition-all">
+            <span class="w-[52px] h-[52px] rounded-[14px] bg-navy-deep flex items-center justify-center text-[25px] flex-none">🏛️</span>
+            <span class="flex flex-col gap-1 flex-1">
+                <span class="text-[17.5px] font-extrabold text-navy-deep">팀 관리자 · 코치</span>
+                <span class="text-[13.5px] text-text-body leading-[1.55]">팀 홈페이지 자동 생성 · 선수단·일정·경기 결과 운영</span>
+            </span>
+            <span class="text-[18px] text-text-faint">→</span>
+        </button>
+
+        @* 에이전트 (비활성) *@
+        <div class="flex items-center gap-[18px] bg-[#fafbfc] border-1.5 border-dashed border-border rounded-2xl px-6 py-[22px] opacity-70">
+            <span class="w-[52px] h-[52px] rounded-[14px] bg-surface-icon flex items-center justify-center text-[25px] flex-none">🤝</span>
+            <span class="flex flex-col gap-1 flex-1">
+                <span class="text-[17.5px] font-extrabold text-text-muted">에이전트
+                    <span class="text-[11.5px] font-bold text-agent bg-agent/10 border border-agent/30 rounded-full px-[9px] py-0.5 ml-1.5 align-[2px]">준비중</span>
+                </span>
+                <span class="text-[13.5px] text-text-muted leading-[1.55]">선수 스카우팅 · 팀 추천 — 별도 서비스로 오픈 예정</span>
+            </span>
+        </div>
+    </div>
+
+    <button type="button" @onclick="SkipRole" class="@($"{Css.Auth.TextLink} self-center py-1")">나중에 선택할게요 (둘러보기)</button>
+</div>
+
+@code {
+    private void StartPlayer() => Nav.NavigateTo("/onboarding/player");
+    private void StartTeam() => Nav.NavigateTo("/onboarding/team");
+
+    private void SkipRole()
+    {
+        State.DoneFrom = "general";
+        Nav.NavigateTo("/onboarding/complete");
+    }
+}

@@ -1,0 +1,56 @@
+@page "/onboarding/complete"
+@layout AuthLayout
+@using PlayGround.Client.Styles
+@inject NavigationManager Nav
+@inject OnboardingState State
+
+<PageTitle>완료 — PlayGround</PageTitle>
+
+@* ④ 완료 — player | team | general 3분기 *@
+<div class="@($"w-[480px] max-w-full {Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-[18px] text-center")">
+    <div class="w-[72px] h-[72px] rounded-full bg-teal/[.12] border-1.5 border-teal/40 flex items-center justify-center text-[34px]">@Icon</div>
+    <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">@Title</h1>
+    <p class="m-0 text-[14.5px] text-text-body leading-[1.7]">@Body</p>
+
+    @if (IsTeam)
+    {
+        <div class="flex items-center gap-2.5 bg-surface-alt rounded-[11px] px-[18px] py-3 text-[13.5px] font-bold text-navy">
+            🔗 playground.kr/team/한강유나이티드
+            <span class="text-[11.5px] font-bold text-[#1b8579] bg-teal/[.12] rounded-full px-[9px] py-0.5">공개됨</span>
+        </div>
+        <div class="text-[13px] text-text-body">등록 선수 @(State.RosterCount)명 · 초대코드 @(State.RosterCount)개 발급됨</div>
+    }
+
+    <button type="button" @onclick="GoDashboard" class="@($"mt-2 px-8 {Css.Auth.PrimaryButton}")">대시보드로 가기</button>
+</div>
+
+@code {
+    private bool IsTeam => State.DoneFrom == "team";
+
+    private string Icon => State.DoneFrom switch
+    {
+        "team" => "🏛️",
+        "general" => "👋",
+        _ => "⚽"
+    };
+
+    private string Title => State.DoneFrom switch
+    {
+        "team" => "팀 홈페이지가 만들어졌어요!",
+        "general" => "환영해요!",
+        _ => "선수 프로필이 만들어졌어요!"
+    };
+
+    private string Body => State.DoneFrom switch
+    {
+        "team" => "이제 대시보드에서 일정과 경기 결과를 기록하고, 선수 모집 공고를 올릴 수 있어요.",
+        "general" => "General 역할로 시작해요. 경기기록은 자유롭게 볼 수 있고, 역할은 언제든 설정에서 선택할 수 있어요.",
+        _ => "이제 커리어와 시즌 통계가 이 프로필에 쌓여요. 소속팀 초대코드가 있다면 대시보드에서 연결해 보세요."
+    };
+
+    private void GoDashboard()
+    {
+        State.Reset();
+        Nav.NavigateTo("/dashboard");
+    }
+}

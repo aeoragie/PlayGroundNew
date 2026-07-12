@@ -1,0 +1,11 @@
+@inherits LayoutComponentBase
+
+@* 인증·온보딩 공통 레이아웃: surface-alt 배경 + 상단 로고 + 카드 중앙 정렬 *@
+<div class="min-h-screen bg-surface-alt flex flex-col">
+    <header class="h-16 flex items-center px-6 md:px-8">
+        <BrandLogo Href="/" />
+    </header>
+    <main class="flex-1 flex items-start justify-center px-6 pt-10 pb-20 md:pt-14">
+        @Body
+    </main>
+</div>

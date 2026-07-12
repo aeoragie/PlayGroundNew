@@ -1,0 +1,15 @@
+@* 진행바: 세그먼트별 완료(오렌지)/미완(border) — SPEC 높이 5px, radius 3px *@
+<div class="flex gap-1.5">
+    @for (var i = 1; i <= Total; i++)
+    {
+        <div class="@($"flex-1 h-[5px] rounded-[3px] {(i <= Current ? "bg-orange" : "bg-border")}")"></div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int Total { get; set; }
+
+    [Parameter, EditorRequired]
+    public int Current { get; set; }
+}

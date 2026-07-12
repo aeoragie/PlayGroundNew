@@ -20,10 +20,16 @@
   --color-border: 230 232 238;
   --color-border-soft: 238 240 245;
 
-  /* 텍스트 — body #5b6577 / strong #3c465a / muted #8a93a6 */
+  /* 텍스트 — body #5b6577 / strong #3c465a / muted #8a93a6 / faint #b6bdc9(플레이스홀더·비활성) */
   --color-text-body: 91 101 119;
   --color-text-strong: 60 70 90;
   --color-text-muted: 138 147 166;
+  --color-text-faint: 182 189 201;
+
+  /* 인증·온보딩 — 안내 박스 틴트, 에이전트 바이올렛 */
+  --color-surface-teal: 244 248 247;   /* #f4f8f7 teal 안내 박스 */
+  --color-surface-orange: 255 246 241; /* #fff6f1 orange 안내 박스 */
+  --color-agent: 109 75 216;           /* #6d4bd8 에이전트(준비중) */
 }
 
 @tailwind base;
@@ -37,6 +43,12 @@
 
   body {
     @apply bg-bg font-sans text-text-body;
+  }
+
+  /* FocusOnNavigate가 접근성용으로 헤딩(tabindex=-1)에 주는 포커스는 시각 아웃라인 숨김.
+     실제 상호작용 요소의 키보드 포커스 링에는 영향 없음. */
+  [tabindex="-1"]:focus {
+    outline: none;
   }
 }
 

@@ -1,0 +1,147 @@
+@page "/onboarding/team"
+@layout AuthLayout
+@using PlayGround.Client.Styles
+@inject NavigationManager Nav
+@inject OnboardingState State
+
+<PageTitle>팀 온보딩 — PlayGround</PageTitle>
+
+@* ③b 팀 온보딩 (2스텝) *@
+<div class="w-[560px] max-w-full flex flex-col gap-5">
+    <div class="flex flex-col gap-3">
+        <div class="flex justify-between items-baseline">
+            <h1 class="m-0 text-[23px] font-extrabold tracking-[-.02em] text-navy-deep">@StepTitle</h1>
+            <span class="text-[13px] font-bold text-text-muted">@mStep / 2</span>
+        </div>
+        <StepProgress Total="2" Current="@mStep" />
+    </div>
+
+    <div class="@($"{Css.Auth.Card} px-7 py-[30px] flex flex-col gap-4")">
+        @if (mStep == 1)
+        {
+            <div class="flex flex-col gap-4">
+                <div class="flex gap-4 items-start">
+                    <div class="w-[76px] h-[76px] border-1.5 border-dashed border-text-faint rounded-[14px] flex flex-col items-center justify-center gap-[3px] text-text-muted text-[11px] flex-none cursor-pointer hover:border-navy hover:text-navy transition-colors">
+                        <span class="text-[20px]">🛡️</span>엠블럼
+                    </div>
+                    <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong flex-1">팀 이름
+                        <input type="text" placeholder="예: FC 한강 유나이티드" class="@Css.Auth.Input" /></label>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-[13.5px] font-bold text-text-strong">팀 유형</span>
+                    <div class="flex gap-2">
+                        @foreach (var type in TeamTypes)
+                        {
+                            <ChoiceChip Label="@type" Selected="@(mTeamType == type)" OnClick="@(() => mTeamType = type)" />
+                        }
+                    </div>
+                </div>
+                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">활동 지역
+                    <input type="text" placeholder="예: 서울 강동구" class="@Css.Auth.Input" /></label>
+                <div class="flex gap-2.5 items-start bg-surface-alt rounded-[11px] px-3.5 py-3">
+                    <span class="text-[15px]">🏠</span>
+                    <span class="text-[12.5px] text-text-strong leading-relaxed">다음 단계를 마치면 <b>공개 팀 홈페이지</b>(/team/한강유나이티드)가 자동으로 만들어져요.</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="flex flex-col gap-3.5">
+                <div class="flex gap-2">
+                    <input type="text" @bind="mName" @bind:event="oninput" placeholder="선수 이름" class="[flex:1.4] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
+                    <input type="text" @bind="mPos" @bind:event="oninput" placeholder="포지션" class="flex-1 h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
+                    <input type="text" @bind="mNum" @bind:event="oninput" placeholder="등번호" class="w-[72px] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
+                    <button type="button" @onclick="AddRoster" class="h-[46px] px-[18px] rounded-[11px] bg-navy hover:bg-navy-deep text-white text-sm font-bold whitespace-nowrap transition-colors">＋ 추가</button>
+                </div>
+
+                <div class="flex flex-col gap-2 max-h-[260px] overflow-y-auto">
+                    @foreach (var entry in State.Roster)
+                    {
+                        var captured = entry;
+                        <div class="flex items-center gap-3 border border-border rounded-[11px] px-3.5 py-[11px]">
+                            <span class="w-[34px] h-[34px] rounded-full bg-surface-icon flex items-center justify-center text-sm font-extrabold text-navy flex-none">@entry.Number</span>
+                            <span class="text-[14.5px] font-bold flex-1 text-navy-deep">@entry.Name</span>
+                            <span class="text-[13px] text-text-body">@entry.Position</span>
+                            <span class="text-[11px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">Unclaimed</span>
+                            <button type="button" @onclick="@(() => State.Roster.Remove(captured))" class="border-0 bg-transparent text-text-faint hover:text-[#e0532f] text-[15px] cursor-pointer p-0.5 transition-colors">✕</button>
+                        </div>
+                    }
+                </div>
+
+                <div class="flex gap-2.5 items-start bg-surface-orange border border-dashed border-orange rounded-[11px] px-3.5 py-3">
+                    <span class="text-[15px]">💡</span>
+                    <span class="text-[12.5px] text-text-strong leading-relaxed">등록한 선수마다 <b>선수 프로필이 자동 생성</b>되고, 학부모·선수에게 보낼 <b>초대코드</b>가 만들어져요. 초대코드로 연결(Claim)하면 가족이 직접 기록을 관리할 수 있어요.</span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="flex gap-2.5">
+        @if (mStep == 2)
+        {
+            <button type="button" @onclick="() => mStep = 1" class="@Css.Auth.SecondaryButton">← 이전</button>
+        }
+        <button type="button" @onclick="Next" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@NextLabel</button>
+    </div>
+    @if (mStep == 2)
+    {
+        <button type="button" @onclick="Finish" class="@($"{Css.Auth.TextLink} !text-[13px]")">나중에 등록할게요</button>
+    }
+</div>
+
+@code {
+    private static readonly string[] TeamTypes = ["클럽", "학교", "학원"];
+
+    private int mStep = 1;
+    private string mTeamType = "클럽";
+    private string mName = string.Empty;
+    private string mPos = string.Empty;
+    private string mNum = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        // 데모용 초기 시드 2행 (실서비스는 빈 리스트 시작)
+        if (State.Roster.Count == 0)
+        {
+            State.Roster.Add(new RosterEntry { Name = "김민준", Position = "FW", Number = "9" });
+            State.Roster.Add(new RosterEntry { Name = "이서준", Position = "MF", Number = "8" });
+        }
+    }
+
+    private string StepTitle => mStep == 1 ? "팀 정보" : "선수단(로스터) 등록";
+    private string NextLabel => mStep == 1 ? "다음: 선수단 등록 →" : "팀 홈페이지 만들기 🎉";
+
+    private void AddRoster()
+    {
+        if (string.IsNullOrWhiteSpace(mName))
+        {
+            return;
+        }
+
+        State.Roster.Add(new RosterEntry
+        {
+            Name = mName.Trim(),
+            Position = string.IsNullOrWhiteSpace(mPos) ? "-" : mPos.Trim(),
+            Number = string.IsNullOrWhiteSpace(mNum) ? "-" : mNum.Trim()
+        });
+        mName = mPos = mNum = string.Empty;
+    }
+
+    private void Next()
+    {
+        if (mStep == 1)
+        {
+            mStep = 2;
+        }
+        else
+        {
+            Finish();
+        }
+    }
+
+    private void Finish()
+    {
+        State.DoneFrom = "team";
+        Nav.NavigateTo("/onboarding/complete");
+    }
+}

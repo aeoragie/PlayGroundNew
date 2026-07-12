@@ -33,6 +33,8 @@ module.exports = {
         surface: {
           alt: 'rgb(var(--color-surface-alt) / <alpha-value>)',
           icon: 'rgb(var(--color-surface-icon) / <alpha-value>)',
+          teal: 'rgb(var(--color-surface-teal) / <alpha-value>)',
+          orange: 'rgb(var(--color-surface-orange) / <alpha-value>)',
         },
         border: {
           DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
@@ -42,7 +44,9 @@ module.exports = {
           body: 'rgb(var(--color-text-body) / <alpha-value>)',
           strong: 'rgb(var(--color-text-strong) / <alpha-value>)',
           muted: 'rgb(var(--color-text-muted) / <alpha-value>)',
+          faint: 'rgb(var(--color-text-faint) / <alpha-value>)',
         },
+        agent: 'rgb(var(--color-agent) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
@@ -77,6 +81,9 @@ module.exports = {
         // 오렌지 CTA 버튼 (히어로·CTA 섹션 / 헤더 소형)
         'cta-orange': '0 6px 20px rgba(255,107,53,.35)',
         'cta-orange-sm': '0 2px 8px rgba(255,107,53,.3)',
+        // 인증·온보딩 카드 / 주 버튼
+        authcard: '0 8px 32px rgba(28,43,74,.06)',
+        authbtn: '0 4px 14px rgba(255,107,53,.3)',
       },
     },
   },

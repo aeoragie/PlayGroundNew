@@ -1,0 +1,19 @@
+@* 단일 선택 칩: 선택 시 네이비 채움 — SPEC 연령/팀유형 공용 *@
+<button type="button" @onclick="OnClick" class="@CssClass">@Label</button>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public bool Selected { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private string CssClass =>
+        "flex-1 h-[46px] rounded-[11px] text-[14.5px] font-bold cursor-pointer border-1.5 transition-colors " +
+        (Selected
+            ? "border-navy bg-navy text-white"
+            : "border-border bg-white text-text-strong hover:border-navy");
+}

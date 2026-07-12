@@ -1,0 +1,93 @@
+name: Deploy
+
+# main 푸시 시 자동으로 publish → Staging까지. Production은 승인 게이트(아래 참조).
+# 수동 실행(workflow_dispatch)도 지원.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  #.// 1) Release 산출물 1개 생성 (환경 무관 — build once, run anywhere)
+  publish:
+    name: Publish (Release)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: Source/PlayGround/PlayGround.Client/package-lock.json
+
+      - name: Build Tailwind CSS
+        working-directory: Source/PlayGround/PlayGround.Client
+        run: |
+          npm ci
+          npm run css:build
+
+      # Server 퍼블리시 = 호스팅되는 WASM Client까지 함께 포함
+      - name: Publish Server
+        run: dotnet publish Source/PlayGround/PlayGround.Server/PlayGround.Server.csproj -c Release -o ${{ github.workspace }}/publish
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playground-app
+          path: publish/
+
+  #.// 2) Staging 배포 (main 푸시 시 자동)
+  deploy-staging:
+    name: Deploy → Staging
+    needs: publish
+    runs-on: ubuntu-latest
+    environment: Staging   # GitHub Environment: 시크릿·보호규칙을 이 이름으로 설정
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playground-app
+          path: publish
+
+      # TODO: 실제 배포 스텝으로 교체 (예: SSH/rsync, Azure Web App, 컨테이너 푸시)
+      # 환경·시크릿은 배포 호스트가 주입한다 — 아래 env는 예시(주석)
+      - name: Deploy to Staging (placeholder)
+        run: |
+          echo "Staging 호스트에 publish/ 배포"
+          echo "ASPNETCORE_ENVIRONMENT=Staging 로 실행"
+        # env:
+        #   ASPNETCORE_ENVIRONMENT: Staging
+        #   Jwt__Key: ${{ secrets.STAGING_JWT_KEY }}
+        #   OAuth__Google__ClientSecret: ${{ secrets.STAGING_GOOGLE_CLIENT_SECRET }}
+        #   DatabaseConfiguration__Databases__Account__ConnectionString: ${{ secrets.STAGING_ACCOUNT_CONNSTR }}
+
+  #.// 3) Production 배포 (Staging 성공 후) — 승인 게이트 권장
+  deploy-production:
+    name: Deploy → Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    # GitHub → Settings → Environments → 'Production'에 Required reviewers를 걸면
+    # 이 잡이 수동 승인 대기 후 실행된다 (운영 안전장치).
+    environment: Production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playground-app
+          path: publish
+
+      # TODO: 실제 운영 배포 스텝으로 교체
+      - name: Deploy to Production (placeholder)
+        run: |
+          echo "Production 호스트에 publish/ 배포 (수동 승인 후)"
+          echo "ASPNETCORE_ENVIRONMENT=Production 로 실행"
+        # env:
+        #   ASPNETCORE_ENVIRONMENT: Production
+        #   Jwt__Key: ${{ secrets.PROD_JWT_KEY }}
+        #   OAuth__Google__ClientSecret: ${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}
+        #   DatabaseConfiguration__Databases__Account__ConnectionString: ${{ secrets.PROD_ACCOUNT_CONNSTR }}
