@@ -6,11 +6,11 @@ using PlayGround.Application.Interfaces;
 namespace PlayGround.Application.Landing.Queries
 {
     /// <summary>랜딩 콘텐츠 조회 유즈케이스. 컨트롤러 → 이 핸들러 → 포트.</summary>
-    public class GetLandingContentsQuery
+    public class GetSoccerLandingContentsQuery
     {
         private readonly ILandingContentRepository mRepository;
 
-        public GetLandingContentsQuery(ILandingContentRepository repository)
+        public GetSoccerLandingContentsQuery(ILandingContentRepository repository)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));

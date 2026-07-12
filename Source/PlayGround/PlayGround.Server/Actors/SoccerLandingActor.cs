@@ -19,7 +19,7 @@ namespace PlayGround.Server.Actors
         {
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
-            GetLandingContentsQuery useCase = scope.ServiceProvider.GetRequiredService<GetLandingContentsQuery>();
+            GetSoccerLandingContentsQuery useCase = scope.ServiceProvider.GetRequiredService<GetSoccerLandingContentsQuery>();
             Result<LandingContentsResponse> result = await useCase.ExecuteAsync();
             sender.Tell(result);
         }

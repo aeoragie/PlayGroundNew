@@ -7,7 +7,7 @@ using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
 {
-    public class GetLandingContentsQueryTests
+    public class GetSoccerLandingContentsQueryTests
     {
         [Fact]
         public async Task ExecuteAsync_ReturnsRepositoryResult()
@@ -21,7 +21,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetContentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<LandingContentsResponse>.Success(response));
 
-            var query = new GetLandingContentsQuery(repo.Object);
+            var query = new GetSoccerLandingContentsQuery(repo.Object);
             var result = await query.ExecuteAsync();
 
             Assert.True(result.IsSuccess);
@@ -36,7 +36,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetContentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<LandingContentsResponse>.Error(ErrorCode.DatabaseError));
 
-            var query = new GetLandingContentsQuery(repo.Object);
+            var query = new GetSoccerLandingContentsQuery(repo.Object);
             var result = await query.ExecuteAsync();
 
             Assert.True(result.IsError);

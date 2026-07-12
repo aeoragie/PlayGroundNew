@@ -1,18 +1,7 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using NLog;
-using PlayGround.Infrastructure.Actor;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Logging;
-using PlayGround.Application.Interfaces;
-using PlayGround.Application.Auth.Commands;
-using PlayGround.Application.Landing.Queries;
-using PlayGround.Application.Player.Commands;
-using PlayGround.Application.Team.Commands;
-using PlayGround.Persistence;
-using PlayGround.Server.Actors;
-using PlayGround.Server.Services;
+using PlayGround.Server.DependencyInjection;
 
 var logger = LogManager.GetCurrentClassLogger();
 
@@ -28,45 +17,11 @@ try
     builder.Services.Configure<DatabaseConfiguration>(
         builder.Configuration.GetSection(DatabaseConfiguration.Section));
 
-    builder.Services.AddSoccerPersistence();
-    builder.Services.AddScoped<GetLandingContentsQuery>();
-    builder.Services.AddScoped<CreatePlayerProfileCommand>();
-    builder.Services.AddScoped<CreateSoccerTeamCommand>();
+    //.// 모듈별 DI — 인프라(Akka) · 인증(공유) · 종목(축구)
 
-    // AkkaService(HostedService) 기동 후 토폴로지가 액터를 만든다 — 등록 순서 유지
-    builder.Services.AddSingleton<AkkaService>();
-    builder.Services.AddHostedService(sp => sp.GetRequiredService<AkkaService>());
-    builder.Services.AddSingleton<ActorGateway>();
-    builder.Services.AddHostedService<ActorTopologyService>();
-
-    builder.Services.AddHttpClient();
-    builder.Services.AddScoped<OAuthService>();
-    builder.Services.AddScoped<LoginBySocialCommand>();
-
-    builder.Services.AddSingleton<IPasswordHasher, PasswordHasherService>();
-    builder.Services.AddScoped<LoginByEmailCommand>();
-
-    builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
-    builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "dev-only-insecure-placeholder-key-change-me"))
-        };
-    });
-    builder.Services.AddAuthorization();
+    builder.Services.AddAkkaPipeline();
+    builder.Services.AddAuthServices(builder.Configuration);
+    builder.Services.AddSoccerServices();
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();

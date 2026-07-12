@@ -8,14 +8,14 @@ using PlayGround.Application.Player.Models;
 namespace PlayGround.Application.Player.Commands
 {
     /// <summary>선수 온보딩 프로필 생성 유즈케이스. 입력 검증·정규화 후 포트로 저장.</summary>
-    public class CreatePlayerProfileCommand
+    public class CreateSoccerPlayerProfileCommand
     {
         private static readonly string[] AllowedAgeGroups = ["U12", "U15", "U18"];
 
         private readonly IPlayerRepository mRepository;
         private readonly IAccountRepository mAccountRepository;
 
-        public CreatePlayerProfileCommand(IPlayerRepository repository, IAccountRepository accountRepository)
+        public CreateSoccerPlayerProfileCommand(IPlayerRepository repository, IAccountRepository accountRepository)
         {
             Debug.Assert(repository != null, "repository is required");
             Debug.Assert(accountRepository != null, "accountRepository is required");
