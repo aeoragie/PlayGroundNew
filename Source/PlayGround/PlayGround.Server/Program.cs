@@ -14,8 +14,7 @@ try
     builder.Host.ConfigurePlayGroundLogger(builder.Configuration);
     builder.Services.AddPlayGroundLogger();
 
-    builder.Services.Configure<DatabaseConfiguration>(
-        builder.Configuration.GetSection(DatabaseConfiguration.Section));
+    builder.Services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection(DatabaseConfiguration.Section));
 
     //.// 모듈별 DI — 인프라(Akka) · 인증(공유) · 종목(축구)
 

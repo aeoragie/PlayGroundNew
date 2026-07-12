@@ -10,14 +10,14 @@ using PlayGround.Application.Team.Models;
 namespace PlayGround.Application.Team.Commands
 {
     /// <summary>팀 온보딩 생성 유즈케이스. 검증·슬러그 생성 후 포트로 팀+로스터 저장.</summary>
-    public class CreateSoccerTeamCommand
+    public class SoccerTeamCommand
     {
         private static readonly string[] AllowedTeamTypes = ["클럽", "학교", "학원"];
 
         private readonly ISoccerTeamRepository mRepository;
         private readonly IAccountRepository mAccountRepository;
 
-        public CreateSoccerTeamCommand(ISoccerTeamRepository repository, IAccountRepository accountRepository)
+        public SoccerTeamCommand(ISoccerTeamRepository repository, IAccountRepository accountRepository)
         {
             Debug.Assert(repository != null, "repository is required");
             Debug.Assert(accountRepository != null, "accountRepository is required");

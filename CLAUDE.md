@@ -54,7 +54,7 @@ PlayGroundNew/
 │   ├── PlayGround/                    (PlayGround 프로젝트 전용 레이어)
 │   │   ├── PlayGround.Contracts/      Client/Server 공유 DTO
 │   │   ├── PlayGround.Domain/         엔티티, 도메인 Enum, 비즈니스 규칙
-│   │   ├── PlayGround.Application/    유즈케이스 (Command/Query), 인프라 포트
+│   │   ├── PlayGround.Application/    유즈케이스 (Command), 인프라 포트
 │   │   ├── PlayGround.Persistence/    DB 접근 구현 (EF Core, Dapper, Repository)
 │   │   ├── PlayGround.Server/         ASP.NET Core API + Blazor 호스팅
 │   │   ├── PlayGround.Client/         Blazor WebAssembly 프론트엔드
@@ -110,11 +110,17 @@ PlayGroundNew/
 
 ### PlayGround.Application — 유즈케이스
 
-- **역할**: API 하나 = 유즈케이스 하나. `{기능}/Commands/`(상태 변경),
-  `{기능}/Queries/`(조회), 인프라 포트 인터페이스(`Interfaces/`),
+- **역할**: API 하나 = 유즈케이스 하나. `{기능}/Commands/`, 인프라 포트 인터페이스(`Interfaces/`),
   Entity↔DTO 매핑(`Mappers/`), 입력 검증(`Validators/`).
 - **참조**: Domain, Contracts, Core.Shared.
 - **금지**: Persistence/Server 참조, DB 직접 접근 (반드시 포트 인터페이스 경유).
+- **네이밍 (필수)**:
+  - **유즈케이스는 읽기/쓰기 무관 `{기능}Command`** — 액션 동사(Get/Create) 붙이지 않는다.
+    `Command`는 CQRS의 '쓰기 전용'이 아니라 **GoF Command = 실행 가능한 비즈니스 동작**의 의미.
+    (예: 조회도 `SoccerLandingContentsCommand`, 생성도 `SoccerPlayerProfileCommand`.) 폴더는 `{기능}/Commands/`.
+  - **기술 역량·외부 어댑터는 `{역량}Service`** (인증·JWT·해시·외부 API 등). 유즈케이스가 아니라 유즈케이스가 *의존하는* 수단.
+    (예: `OAuthService`, `JwtTokenService`, `PasswordHasherService`.) 판별: "비즈니스 동작이면 Command, 갖다 쓰는 기술 수단이면 Service."
+  - **축구 전용 유즈케이스는 `Soccer` 프리픽스** (종목 접두 규칙). 상세·근거는 `Docs/Architecture/NamingConventions.md`.
 
 ### PlayGround.Persistence — DB 구현
 

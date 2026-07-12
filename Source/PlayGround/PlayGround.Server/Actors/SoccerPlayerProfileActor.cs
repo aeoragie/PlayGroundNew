@@ -19,7 +19,7 @@ namespace PlayGround.Server.Actors
         {
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
-            CreateSoccerPlayerProfileCommand useCase = scope.ServiceProvider.GetRequiredService<CreateSoccerPlayerProfileCommand>();
+            SoccerPlayerProfileCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerProfileCommand>();
 
             Result<CreatePlayerProfileResponse> result = await useCase.ExecuteAsync(message.UserId, message.Data);
             sender.Tell(result);

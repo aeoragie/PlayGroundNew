@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Actor;
 using PlayGround.Contracts.Landing;
-using PlayGround.Application.Landing.Queries;
+using PlayGround.Application.Landing.Commands;
 
 namespace PlayGround.Server.Actors
 {
@@ -19,7 +19,7 @@ namespace PlayGround.Server.Actors
         {
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
-            GetSoccerLandingContentsQuery useCase = scope.ServiceProvider.GetRequiredService<GetSoccerLandingContentsQuery>();
+            SoccerLandingContentsCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerLandingContentsCommand>();
             Result<LandingContentsResponse> result = await useCase.ExecuteAsync();
             sender.Tell(result);
         }

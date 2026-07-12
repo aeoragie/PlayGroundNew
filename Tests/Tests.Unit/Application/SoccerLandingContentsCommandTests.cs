@@ -2,12 +2,12 @@ using Moq;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Landing;
 using PlayGround.Application.Interfaces;
-using PlayGround.Application.Landing.Queries;
+using PlayGround.Application.Landing.Commands;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
 {
-    public class GetSoccerLandingContentsQueryTests
+    public class SoccerLandingContentsCommandTests
     {
         [Fact]
         public async Task ExecuteAsync_ReturnsRepositoryResult()
@@ -21,7 +21,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetContentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<LandingContentsResponse>.Success(response));
 
-            var query = new GetSoccerLandingContentsQuery(repo.Object);
+            var query = new SoccerLandingContentsCommand(repo.Object);
             var result = await query.ExecuteAsync();
 
             Assert.True(result.IsSuccess);
@@ -36,7 +36,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetContentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<LandingContentsResponse>.Error(ErrorCode.DatabaseError));
 
-            var query = new GetSoccerLandingContentsQuery(repo.Object);
+            var query = new SoccerLandingContentsCommand(repo.Object);
             var result = await query.ExecuteAsync();
 
             Assert.True(result.IsError);

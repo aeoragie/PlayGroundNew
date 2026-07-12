@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using PlayGround.Application.Landing.Queries;
+using PlayGround.Application.Landing.Commands;
 using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Team.Commands;
 using PlayGround.Persistence;
@@ -12,9 +12,9 @@ namespace PlayGround.Server.DependencyInjection
         public static IServiceCollection AddSoccerServices(this IServiceCollection services)
         {
             services.AddSoccerPersistence();
-            services.AddScoped<GetSoccerLandingContentsQuery>();
-            services.AddScoped<CreateSoccerPlayerProfileCommand>();
-            services.AddScoped<CreateSoccerTeamCommand>();
+            services.AddScoped<SoccerLandingContentsCommand>();
+            services.AddScoped<SoccerPlayerProfileCommand>();
+            services.AddScoped<SoccerTeamCommand>();
             return services;
         }
     }
