@@ -4,6 +4,7 @@ CREATE TABLE [dbo].[SoccerTeams]
     [TeamId]           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [TeamName]         NVARCHAR(100)    NOT NULL,
     [ShortName]        NVARCHAR(20)     NULL,
+    [TeamType]         NVARCHAR(20)     NULL,             -- '클럽','학교','학원'
     [Region]           NVARCHAR(100)    NULL,
     [AgeGroup]         VARCHAR(20)      NULL,             -- 'U12','U15','U18' 등
     [LogoUrl]          VARCHAR(2048)    NULL,

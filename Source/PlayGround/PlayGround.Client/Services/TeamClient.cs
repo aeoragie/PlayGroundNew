@@ -1,0 +1,45 @@
+using System.Net;
+using System.Net.Http.Json;
+using PlayGround.Shared.Http;
+using PlayGround.Contracts.Team;
+
+namespace PlayGround.Client.Services
+{
+    /// <summary>팀 API 호출. 인증 토큰은 공유 HttpClient 기본 헤더로 자동 부착됨.</summary>
+    public class TeamClient
+    {
+        private readonly HttpClient mHttp;
+
+        public TeamClient(HttpClient http)
+        {
+            mHttp = http;
+        }
+
+        public async Task<TeamSaveResult> CreateTeamAsync(CreateTeamRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me", request);
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new TeamSaveResult(false, null, 0, "로그인이 필요해요. 다시 로그인해 주세요.");
+                }
+
+                Envelope<CreateTeamResponse>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<CreateTeamResponse>>();
+                if (envelope is { IsSuccess: true, Data: not null })
+                {
+                    return new TeamSaveResult(true, envelope.Data.Slug, envelope.Data.PlayerCount, null);
+                }
+
+                return new TeamSaveResult(false, null, 0, envelope?.Message ?? "팀 생성에 실패했어요.");
+            }
+            catch
+            {
+                return new TeamSaveResult(false, null, 0, "네트워크 오류로 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
+            }
+        }
+    }
+
+    public record TeamSaveResult(bool Success, string? Slug, int PlayerCount, string? Error);
+}

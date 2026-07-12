@@ -1,8 +1,10 @@
 @page "/onboarding/team"
 @layout AuthLayout
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
 @inject NavigationManager Nav
 @inject OnboardingState State
+@inject TeamClient Teams
 
 <PageTitle>팀 온보딩 — PlayGround</PageTitle>
 
@@ -25,7 +27,7 @@
                         <span class="text-[20px]">🛡️</span>엠블럼
                     </div>
                     <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong flex-1">팀 이름
-                        <input type="text" placeholder="예: FC 한강 유나이티드" class="@Css.Auth.Input" /></label>
+                        <input type="text" placeholder="예: FC 한강 유나이티드" class="@Css.Auth.Input" @bind="mTeamName" @bind:event="oninput" /></label>
                 </div>
                 <div class="flex flex-col gap-2">
                     <span class="text-[13.5px] font-bold text-text-strong">팀 유형</span>
@@ -37,7 +39,7 @@
                     </div>
                 </div>
                 <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">활동 지역
-                    <input type="text" placeholder="예: 서울 강동구" class="@Css.Auth.Input" /></label>
+                    <input type="text" placeholder="예: 서울 강동구" class="@Css.Auth.Input" @bind="mRegion" @bind:event="oninput" /></label>
                 <div class="flex gap-2.5 items-start bg-surface-alt rounded-[11px] px-3.5 py-3">
                     <span class="text-[15px]">🏠</span>
                     <span class="text-[12.5px] text-text-strong leading-relaxed">다음 단계를 마치면 <b>공개 팀 홈페이지</b>(/team/한강유나이티드)가 자동으로 만들어져요.</span>
@@ -76,16 +78,21 @@
         }
     </div>
 
+    @if (mError is not null)
+    {
+        <div role="alert" class="rounded-[11px] bg-surface-alt border-1.5 border-border text-[13px] text-text-body px-4 py-3 text-center">@mError</div>
+    }
+
     <div class="flex gap-2.5">
         @if (mStep == 2)
         {
-            <button type="button" @onclick="() => mStep = 1" class="@Css.Auth.SecondaryButton">← 이전</button>
+            <button type="button" @onclick="() => mStep = 1" disabled="@mSaving" class="@Css.Auth.SecondaryButton">← 이전</button>
         }
-        <button type="button" @onclick="Next" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@NextLabel</button>
+        <button type="button" @onclick="Next" disabled="@mSaving" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@(mSaving ? "만드는 중…" : NextLabel)</button>
     </div>
     @if (mStep == 2)
     {
-        <button type="button" @onclick="Finish" class="@($"{Css.Auth.TextLink} !text-[13px]")">나중에 등록할게요</button>
+        <button type="button" @onclick="Submit" disabled="@mSaving" class="@($"{Css.Auth.TextLink} !text-[13px]")">나중에 등록할게요</button>
     }
 </div>
 
@@ -94,19 +101,13 @@
 
     private int mStep = 1;
     private string mTeamType = "클럽";
+    private string mTeamName = string.Empty;
+    private string mRegion = string.Empty;
     private string mName = string.Empty;
     private string mPos = string.Empty;
     private string mNum = string.Empty;
-
-    protected override void OnInitialized()
-    {
-        // 데모용 초기 시드 2행 (실서비스는 빈 리스트 시작)
-        if (State.Roster.Count == 0)
-        {
-            State.Roster.Add(new RosterEntry { Name = "김민준", Position = "FW", Number = "9" });
-            State.Roster.Add(new RosterEntry { Name = "이서준", Position = "MF", Number = "8" });
-        }
-    }
+    private string? mError;
+    private bool mSaving;
 
     private string StepTitle => mStep == 1 ? "팀 정보" : "선수단(로스터) 등록";
     private string NextLabel => mStep == 1 ? "다음: 선수단 등록 →" : "팀 홈페이지 만들기 🎉";
@@ -127,21 +128,59 @@
         mName = mPos = mNum = string.Empty;
     }
 
-    private void Next()
+    private async Task Next()
     {
+        mError = null;
+
         if (mStep == 1)
         {
+            if (string.IsNullOrWhiteSpace(mTeamName))
+            {
+                mError = "팀 이름을 입력해 주세요.";
+                return;
+            }
+
             mStep = 2;
+            return;
         }
-        else
-        {
-            Finish();
-        }
+
+        await Submit();
     }
 
-    private void Finish()
+    // 팀 생성(POST). "팀 홈페이지 만들기"·"나중에 등록할게요" 공통 — 후자는 로스터를 더 추가하지 않은 채 생성.
+    private async Task Submit()
     {
+        if (string.IsNullOrWhiteSpace(mTeamName))
+        {
+            mError = "팀 이름을 입력해 주세요.";
+            mStep = 1;
+            return;
+        }
+
+        mSaving = true;
+        mError = null;
+
+        var request = new CreateTeamRequest
+        {
+            TeamName = mTeamName.Trim(),
+            TeamType = mTeamType,
+            Region = string.IsNullOrWhiteSpace(mRegion) ? null : mRegion.Trim(),
+            Roster = State.Roster
+                .Select(r => new RosterEntryDto { Name = r.Name, Position = r.Position, Number = r.Number })
+                .ToList()
+        };
+
+        TeamSaveResult result = await Teams.CreateTeamAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            mError = result.Error;
+            return;
+        }
+
         State.DoneFrom = "team";
+        State.TeamSlug = result.Slug ?? string.Empty;
         Nav.NavigateTo("/onboarding/complete");
     }
 }

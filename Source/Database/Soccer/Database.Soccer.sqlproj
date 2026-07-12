@@ -66,10 +66,13 @@
   <!-- 빌드 대상 스키마(CREATE 구문) -->
   <ItemGroup>
     <Build Include="Tables\SoccerTeams.sql" />
+    <Build Include="Tables\SoccerTeamPlayers.sql" />
+    <Build Include="Tables\SoccerPlayerInvites.sql" />
     <Build Include="Tables\SoccerPlayers.sql" />
     <Build Include="Tables\SoccerLandingContents.sql" />
     <Build Include="Procedures\UspGetLandingContents.sql" />
     <Build Include="Procedures\UspCreatePlayer.sql" />
+    <Build Include="Procedures\UspCreateSoccerTeamWithRoster.sql" />
   </ItemGroup>
   <!-- 빌드 제외(스키마 아님): Seeds(데이터), Queries(제너레이터용 SELECT) -->
   <ItemGroup>

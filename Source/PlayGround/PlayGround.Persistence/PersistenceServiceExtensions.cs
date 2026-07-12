@@ -12,6 +12,7 @@ namespace PlayGround.Persistence
             services.AddScoped<ILandingContentRepository, SoccerLandingContentRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IPlayerRepository, SoccerPlayerRepository>();
+            services.AddScoped<ISoccerTeamRepository, SoccerTeamRepository>();
             return services;
         }
     }

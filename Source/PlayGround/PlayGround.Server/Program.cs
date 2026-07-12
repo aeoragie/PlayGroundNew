@@ -9,6 +9,7 @@ using PlayGround.Application.Interfaces;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Landing.Queries;
 using PlayGround.Application.Player.Commands;
+using PlayGround.Application.Team.Commands;
 using PlayGround.Persistence;
 using PlayGround.Server.Actors;
 using PlayGround.Server.Services;
@@ -30,6 +31,7 @@ try
     builder.Services.AddSoccerPersistence();
     builder.Services.AddScoped<GetLandingContentsQuery>();
     builder.Services.AddScoped<CreatePlayerProfileCommand>();
+    builder.Services.AddScoped<CreateSoccerTeamCommand>();
 
     // AkkaService(HostedService) 기동 후 토폴로지가 액터를 만든다 — 등록 순서 유지
     builder.Services.AddSingleton<AkkaService>();

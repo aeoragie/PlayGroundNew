@@ -25,6 +25,9 @@ public class SoccerTeamsEntity
 	[StringLength(20)]
 	public string ShortName { get; set; } = String.Empty;
 
+	[StringLength(20)]
+	public string TeamType { get; set; } = String.Empty;
+
 	[StringLength(100)]
 	public string Region { get; set; } = String.Empty;
 
