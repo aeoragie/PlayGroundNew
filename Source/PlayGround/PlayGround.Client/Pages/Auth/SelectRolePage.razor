@@ -3,6 +3,7 @@
 @using PlayGround.Client.Styles
 @inject NavigationManager Nav
 @inject OnboardingState State
+@inject JwtAuthenticationStateProvider AuthProvider
 
 <PageTitle>역할 선택 — PlayGround</PageTitle>
 
@@ -52,6 +53,39 @@
 </div>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        // OAuth 콜백은 /settings/select-role#access_token=... 로 리다이렉트된다.
+        // fragment에서 토큰을 꺼내 저장·인증 갱신한 뒤, 주소에서 토큰을 제거한다.
+        string? token = ExtractAccessToken(Nav.Uri);
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            await AuthProvider.MarkUserAuthenticatedAsync(token);
+            Nav.NavigateTo("settings/select-role", replace: true);
+        }
+    }
+
+    private static string? ExtractAccessToken(string uri)
+    {
+        int hashIndex = uri.IndexOf('#');
+        if (hashIndex < 0)
+        {
+            return null;
+        }
+
+        const string prefix = "access_token=";
+        string fragment = uri[(hashIndex + 1)..];
+        foreach (string part in fragment.Split('&'))
+        {
+            if (part.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return Uri.UnescapeDataString(part[prefix.Length..]);
+            }
+        }
+
+        return null;
+    }
+
     private void StartPlayer() => Nav.NavigateTo("/onboarding/player");
     private void StartTeam() => Nav.NavigateTo("/onboarding/team");
 

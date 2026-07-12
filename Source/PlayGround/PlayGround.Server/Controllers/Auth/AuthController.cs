@@ -31,6 +31,13 @@ namespace PlayGround.Server.Controllers.Auth
                 return BadRequest($"Unsupported provider: {provider}");
             }
 
+            if (!OAuth.IsConfigured(provider))
+            {
+                // 자격증명 미설정(예: LINE 키 미발급) — 500 대신 로그인 화면으로 안내.
+                Logger.WarnWith("Social login provider not configured", ("Provider", provider));
+                return Redirect("/login?error=NotConfigured");
+            }
+
             var state = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
             Logger.InfoWith("Social login started", ("Provider", provider));
             return Redirect(OAuth.GetAuthorizationUrl(provider, state));

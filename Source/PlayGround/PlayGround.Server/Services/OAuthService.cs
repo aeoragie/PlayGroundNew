@@ -21,6 +21,25 @@ namespace PlayGround.Server.Services
         public bool IsSupported(string provider) =>
             provider.ToLowerInvariant() is "google" or "kakao" or "line";
 
+        /// <summary>자격증명(ClientId)이 설정되어 실제 로그인이 가능한 provider인지.</summary>
+        public bool IsConfigured(string provider)
+        {
+            string key = provider.ToLowerInvariant() switch
+            {
+                "google" => "Google",
+                "kakao" => "Kakao",
+                "line" => "Line",
+                _ => string.Empty
+            };
+            if (key.Length == 0)
+            {
+                return false;
+            }
+
+            OAuthProviderOptions? options = Configuration.GetSection($"OAuth:{key}").Get<OAuthProviderOptions>();
+            return !string.IsNullOrWhiteSpace(options?.ClientId);
+        }
+
         public string GetAuthorizationUrl(string provider, string state) => provider.ToLowerInvariant() switch
         {
             "google" => BuildUrl("Google", state, extra: "&access_type=offline"),
