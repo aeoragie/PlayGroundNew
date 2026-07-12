@@ -2,12 +2,14 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NLog;
+using PlayGround.Infrastructure.Actor;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Landing.Queries;
 using PlayGround.Persistence;
+using PlayGround.Server.Actors;
 using PlayGround.Server.Services;
 
 var logger = LogManager.GetCurrentClassLogger();
@@ -29,6 +31,15 @@ try
     // Persistence 리포지토리 + 유즈케이스
     builder.Services.AddPersistence();
     builder.Services.AddScoped<GetLandingContentsQuery>();
+
+    //.// Akka: Controller → 액터(비동기 메일박스) → 유즈케이스 → DB
+
+    // AkkaService는 싱글턴이자 HostedService(같은 인스턴스). 그 다음에 토폴로지 서비스를
+    // 등록해 ActorSystem 기동 이후 액터를 생성한다 (HostedService는 등록 순서대로 기동).
+    builder.Services.AddSingleton<AkkaService>();
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<AkkaService>());
+    builder.Services.AddSingleton<ActorGateway>();
+    builder.Services.AddHostedService<ActorTopologyService>();
 
     // 소셜 OAuth (Google/Kakao/Naver) — provider HTTP 호출용 HttpClient + 유즈케이스
     builder.Services.AddHttpClient();
