@@ -7,6 +7,13 @@
   <Folder Name="/Source/Core/Shared/">
     <Project Path="Source/Core/Shared/Core.Shared.csproj" />
   </Folder>
+  <Folder Name="/Source/Database/" />
+  <Folder Name="/Source/Database/Account/">
+    <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="0935876d-9e15-44f4-a340-d8da8687af55" />
+  </Folder>
+  <Folder Name="/Source/Database/Soccer/">
+    <Project Path="Source/Database/Soccer/Database.Soccer.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="4ed4252c-8739-4a90-be03-995394509017" />
+  </Folder>
   <Folder Name="/Source/PlayGround/" />
   <Folder Name="/Source/PlayGround/Apps/">
     <Project Path="Source/PlayGround/PlayGround.Client/PlayGround.Client.csproj" />
@@ -17,6 +24,9 @@
     <Project Path="Source/PlayGround/PlayGround.Contracts/PlayGround.Contracts.csproj" />
     <Project Path="Source/PlayGround/PlayGround.Domain/PlayGround.Domain.csproj" />
     <Project Path="Source/PlayGround/PlayGround.Persistence/PlayGround.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/Source/Tools/">
+    <Project Path="Source/Tools/Generator.Database/Generator.Database.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/Tests.Infrastructure/Tests.Infrastructure.csproj" />

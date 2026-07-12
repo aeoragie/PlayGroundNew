@@ -4,14 +4,18 @@ Intermediate/
 [Bb]in/
 [Oo]bj/
 
-# 생성물
-Generated/
+# 제너레이터 생성 코드는 커밋한다 (수동 실행 단계라 clone 즉시 빌드되도록).
+# Generated/ 는 의도적으로 ignore하지 않음.
 
 # IDE
 .vs/
 .vscode/
 *.user
 *.suo
+
+# SQL 프로젝트(SSDT) 로컬 캐시 — 소스 아님
+*.dbmdl
+*.jfm
 
 # 테스트/커버리지
 TestResults/

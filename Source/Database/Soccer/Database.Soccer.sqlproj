@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.Build.Sql/2.2.0">
+
+  <PropertyGroup>
+    <Name>Database.Soccer</Name>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+    <ModelCollation>1033,CI</ModelCollation>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <ProjectGuid>{4ed4252c-8739-4a90-be03-995394509017}</ProjectGuid>
+    <!-- 기본 globbing을 끄고 명시 관리 → VS 프로젝트뷰에 .sql이 폴더별로 표시됨 -->
+    <EnableDefaultSqlItems>false</EnableDefaultSqlItems>
+  </PropertyGroup>
+
+  <!-- 빌드 대상 스키마: 테이블·프로시저·인덱스·스키마 정의(CREATE 구문) -->
+  <ItemGroup>
+    <Build Include="Schema\**\*.sql" />
+    <Build Include="Tables\**\*.sql" />
+    <Build Include="Procedures\**\*.sql" />
+    <Build Include="Indexes\**\*.sql" />
+  </ItemGroup>
+
+  <!-- 빌드 제외(스키마 아님): Queries(제너레이터용 SELECT), Seeds(데이터 INSERT) -->
+  <ItemGroup>
+    <None Include="Queries\**\*.sql" />
+    <None Include="Seeds\**\*.sql" />
+  </ItemGroup>
+
+  <!-- 빈 폴더도 프로젝트뷰에 표시 -->
+  <ItemGroup>
+    <Folder Include="Schema\" />
+    <Folder Include="Tables\" />
+    <Folder Include="Procedures\" />
+    <Folder Include="Queries\" />
+    <Folder Include="Indexes\" />
+    <Folder Include="Seeds\" />
+  </ItemGroup>
+
+</Project>

@@ -1,11 +1,15 @@
 @using PlayGround.Client.Styles
+@using PlayGround.Client.Services
+@using PlayGround.Contracts.Landing
+@inject LandingContentClient ContentClient
 
-@* 핵심 기능 3: PC 3컬럼(아이콘 위) / 모바일 세로 스택(아이콘 좌 + 텍스트 우 가로형) *@
+@* 핵심 기능 3: PC 3컬럼(아이콘 위) / 모바일 세로 스택(아이콘 좌 + 텍스트 우 가로형).
+   콘텐츠는 DB에서 로드, 미가용 시 기본 카피로 폴백. *@
 <section id="features" class="@($"{Css.Landing.Container} pt-[72px] md:pt-[110px] [scroll-margin-top:70px] md:[scroll-margin-top:80px]")">
     <SectionHeader Overline="CORE" Title="폐쇄적인 정보를, 모두에게" />
 
     <div class="flex flex-col gap-3.5 md:grid md:grid-cols-3 md:gap-6">
-        @foreach (var feature in Features)
+        @foreach (var feature in mFeatures)
         {
             <div class="bg-white border-1.5 border-border rounded-card-xs md:rounded-card-sm px-5 py-[22px] md:px-[30px] md:py-[34px]
                         flex gap-4 items-start md:flex-col md:gap-[13px]">
@@ -21,12 +25,22 @@
 </section>
 
 @code {
-    private sealed record Feature(string Icon, string Title, string Body);
+    private IReadOnlyList<LandingItemDto> mFeatures = DefaultFeatures;
 
-    private static readonly Feature[] Features =
+    protected override async Task OnInitializedAsync()
+    {
+        var contents = await ContentClient.GetContentsAsync();
+        if (contents is { Features.Count: > 0 })
+        {
+            mFeatures = contents.Features;
+        }
+    }
+
+    // DB 미가용 시 폴백 (카피는 SPEC.LANDING.md 기준)
+    private static readonly LandingItemDto[] DefaultFeatures =
     [
-        new("🏠", "팀 홈페이지 자동 생성", "소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이."),
-        new("📈", "선수 이력 · 기록 관리", "커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다."),
-        new("📊", "경기기록 무료 공개", "대회 결과, 순위표, 일정을 로그인 없이 누구나 조회. 자녀와 관심팀의 기록을 언제든 확인하세요.")
+        new() { Icon = "🏠", Title = "팀 홈페이지 자동 생성", Body = "소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이." },
+        new() { Icon = "📈", Title = "선수 이력 · 기록 관리", Body = "커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다." },
+        new() { Icon = "📊", Title = "경기기록 무료 공개", Body = "대회 결과, 순위표, 일정을 로그인 없이 누구나 조회. 자녀와 관심팀의 기록을 언제든 확인하세요." }
     ];
 }

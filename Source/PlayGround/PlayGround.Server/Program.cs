@@ -1,5 +1,8 @@
 using NLog;
+using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Logging;
+using PlayGround.Application.Landing.Queries;
+using PlayGround.Persistence;
 
 var logger = LogManager.GetCurrentClassLogger();
 
@@ -9,6 +12,14 @@ try
 
     builder.Host.ConfigurePlayGroundLogger(builder.Configuration);
     builder.Services.AddPlayGroundLogger();
+
+    // Account / Soccer 2-DB 설정 바인딩 (Repository가 IOptions<DatabaseConfiguration>로 주입)
+    builder.Services.Configure<DatabaseConfiguration>(
+        builder.Configuration.GetSection(DatabaseConfiguration.Section));
+
+    // Persistence 리포지토리 + 유즈케이스
+    builder.Services.AddPersistence();
+    builder.Services.AddScoped<GetLandingContentsQuery>();
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
