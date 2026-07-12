@@ -153,11 +153,8 @@ namespace PlayGround.Shared.Result
         public Result<T> Build()
         {
             Stopwatch.Stop();
-
-            // 실행 시간을 메타데이터에 추가
             WithMetadata("ExecutionTime", Stopwatch.Elapsed);
 
-            // 에러가 설정된 경우
             if (mDetailCode?.IsError == true)
             {
                 var resultInfo = mException != null
@@ -167,19 +164,16 @@ namespace PlayGround.Shared.Result
                 return Result<T>.Failure(resultInfo);
             }
 
-            // 경고가 설정된 경우 (값과 함께 반환)
             if (mDetailCode?.IsWarning == true && mValue != null)
             {
                 return Result<T>.Warning(mValue, (WarningCode)mDetailCode, mMessage, mDetails);
             }
 
-            // 정보가 설정된 경우 (값과 함께 반환)
             if (mDetailCode?.IsInformation == true && mValue != null)
             {
                 return Result<T>.Information(mValue, (InformationCode)mDetailCode, mMessage, mDetails);
             }
 
-            // 값이 있는 경우 성공
             if (mValue != null)
             {
                 return Result<T>.Success(mValue);

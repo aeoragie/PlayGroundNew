@@ -5,23 +5,21 @@ using System.Text.Json;
 
 namespace PlayGround.Server.Services
 {
-    /// <summary>소셜 OAuth(authorization-code) 처리. provider 인증 URL 생성 + 코드→사용자정보 교환.
-    /// 엔드포인트는 설정(OAuth:{Provider})에서 읽는다.</summary>
+    /// <summary>소셜 OAuth(authorization-code) 처리 — 인증 URL 생성 + 코드→사용자정보 교환.</summary>
     public class OAuthService
     {
-        private readonly IHttpClientFactory HttpClientFactory;
-        private readonly IConfiguration Configuration;
+        private readonly IHttpClientFactory mHttpClientFactory;
+        private readonly IConfiguration mConfiguration;
 
         public OAuthService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
-            HttpClientFactory = httpClientFactory;
-            Configuration = configuration;
+            mHttpClientFactory = httpClientFactory;
+            mConfiguration = configuration;
         }
 
         public bool IsSupported(string provider) =>
             provider.ToLowerInvariant() is "google" or "kakao" or "line";
 
-        /// <summary>자격증명(ClientId)이 설정되어 실제 로그인이 가능한 provider인지.</summary>
         public bool IsConfigured(string provider)
         {
             string key = provider.ToLowerInvariant() switch
@@ -36,7 +34,7 @@ namespace PlayGround.Server.Services
                 return false;
             }
 
-            OAuthProviderOptions? options = Configuration.GetSection($"OAuth:{key}").Get<OAuthProviderOptions>();
+            OAuthProviderOptions? options = mConfiguration.GetSection($"OAuth:{key}").Get<OAuthProviderOptions>();
             return !string.IsNullOrWhiteSpace(options?.ClientId);
         }
 
@@ -58,7 +56,7 @@ namespace PlayGround.Server.Services
 
         private OAuthProviderOptions Options(string providerKey)
         {
-            return Configuration.GetSection($"OAuth:{providerKey}").Get<OAuthProviderOptions>()
+            return mConfiguration.GetSection($"OAuth:{providerKey}").Get<OAuthProviderOptions>()
                 ?? throw new InvalidOperationException($"OAuth:{providerKey} is not configured.");
         }
 
@@ -84,7 +82,7 @@ namespace PlayGround.Server.Services
 
         private async Task<string?> ExchangeCodeAsync(OAuthProviderOptions options, string code)
         {
-            var client = HttpClientFactory.CreateClient();
+            var client = mHttpClientFactory.CreateClient();
             var form = new Dictionary<string, string>
             {
                 ["grant_type"] = "authorization_code",
@@ -109,7 +107,7 @@ namespace PlayGround.Server.Services
 
         private async Task<JsonElement?> GetUserJsonAsync(string userEndpoint, string accessToken)
         {
-            var client = HttpClientFactory.CreateClient();
+            var client = mHttpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await client.GetAsync(userEndpoint);
             if (!response.IsSuccessStatusCode)
@@ -186,7 +184,7 @@ namespace PlayGround.Server.Services
         {
             // LINE Login(OAuth 2.1): 토큰 응답의 id_token(JWT)에 프로필·이메일이 담긴다.
             var options = Options("Line");
-            var client = HttpClientFactory.CreateClient();
+            var client = mHttpClientFactory.CreateClient();
             var form = new Dictionary<string, string>
             {
                 ["grant_type"] = "authorization_code",

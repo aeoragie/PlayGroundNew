@@ -7,15 +7,15 @@ namespace Generator.Database.Services
 {
     public class CodeGeneratorService
     {
-        private readonly string CommonPath;
-        private readonly PathOptions Paths;
-        private readonly string RootNamespace;
+        private readonly string mCommonPath;
+        private readonly PathOptions mPaths;
+        private readonly string mRootNamespace;
 
         public CodeGeneratorService(string commonPath, PathOptions path, string rootNamespace)
         {
-            CommonPath = commonPath;
-            Paths = path;
-            RootNamespace = rootNamespace;
+            mCommonPath = commonPath;
+            mPaths = path;
+            mRootNamespace = rootNamespace;
         }
 
         public async Task<(List<string>, List<string>)> GenerateCodesAsync(string database, DatabaseSchema schema)
@@ -48,7 +48,7 @@ namespace Generator.Database.Services
 
         private async Task<(List<string>, List<string>)> GenerateEntitiesAsync(string database, List<TableSchema> tables)
         {
-            var directoryPath = Path.Combine(CommonPath, Paths.TablePath);
+            var directoryPath = Path.Combine(mCommonPath, mPaths.TablePath);
             if (Directory.Exists(directoryPath))
             {
                 Directory.Delete(directoryPath, true);
@@ -59,12 +59,12 @@ namespace Generator.Database.Services
 
             Console.WriteLine("📋 Generating table entities...");
 
-            var generator = new TableEntityGenerator(RootNamespace);
+            var generator = new TableEntityGenerator(mRootNamespace);
             var generatedCodes = generator.GenerateEntities(database, tables);
 
             foreach (var generatedCode in generatedCodes)
             {
-                var saveResult = await SaveCodeToFileAsync(Paths.TablePath, generatedCode);
+                var saveResult = await SaveCodeToFileAsync(mPaths.TablePath, generatedCode);
                 if (saveResult.Generated && !string.IsNullOrEmpty(saveResult.Path))
                 {
                     generatedFiles.Add(saveResult.Path);
@@ -94,12 +94,12 @@ namespace Generator.Database.Services
 
             Console.WriteLine("📋 Generating join entities...");
 
-            var generator = new JoinEntityGenerator(RootNamespace);
+            var generator = new JoinEntityGenerator(mRootNamespace);
             var generatedCodes = generator.GenerateJoinEntities(database, joinProcedures, tables);
 
             foreach (var generatedCode in generatedCodes)
             {
-                var saveResult = await SaveCodeToFileAsync(Paths.TablePath, generatedCode);
+                var saveResult = await SaveCodeToFileAsync(mPaths.TablePath, generatedCode);
                 if (saveResult.Generated && !string.IsNullOrEmpty(saveResult.Path))
                 {
                     generatedFiles.Add(saveResult.Path);
@@ -114,12 +114,12 @@ namespace Generator.Database.Services
 
         private async Task<(List<string>, List<string>)> GenerateProceduresAsync(string database, List<ProcedureSchema> procedures)
         {
-            if (string.IsNullOrEmpty(Paths.ProcedurePath))
+            if (string.IsNullOrEmpty(mPaths.ProcedurePath))
             {
                 return (new List<string>(), new List<string>());
             }
 
-            var directoryPath = Path.Combine(CommonPath, Paths.ProcedurePath);
+            var directoryPath = Path.Combine(mCommonPath, mPaths.ProcedurePath);
             if (Directory.Exists(directoryPath))
             {
                 Directory.Delete(directoryPath, true);
@@ -130,12 +130,12 @@ namespace Generator.Database.Services
 
             Console.WriteLine("📋 Generating procedure wrappers...");
 
-            var generator = new ProcedureGenerator(RootNamespace);
+            var generator = new ProcedureGenerator(mRootNamespace);
             var generatedCodes = generator.GenerateProcedures(database, procedures);
 
             foreach (var generatedCode in generatedCodes)
             {
-                var saveResult = await SaveCodeToFileAsync(Paths.ProcedurePath, generatedCode);
+                var saveResult = await SaveCodeToFileAsync(mPaths.ProcedurePath, generatedCode);
                 if (saveResult.Generated && !string.IsNullOrEmpty(saveResult.Path))
                 {
                     generatedFiles.Add(saveResult.Path);
@@ -150,12 +150,12 @@ namespace Generator.Database.Services
 
         private async Task<(List<string>, List<string>)> GenerateQueriesAsync(string database, List<QuerySchema> queries)
         {
-            if (string.IsNullOrEmpty(Paths.QueryPath))
+            if (string.IsNullOrEmpty(mPaths.QueryPath))
             {
                 return (new List<string>(), new List<string>());
             }
 
-            var directoryPath = Path.Combine(CommonPath, Paths.QueryPath);
+            var directoryPath = Path.Combine(mCommonPath, mPaths.QueryPath);
             if (Directory.Exists(directoryPath))
             {
                 Directory.Delete(directoryPath, true);
@@ -166,12 +166,12 @@ namespace Generator.Database.Services
 
             Console.WriteLine("📋 Generating query wrappers...");
 
-            var generator = new QueryGenerator(RootNamespace);
+            var generator = new QueryGenerator(mRootNamespace);
             var generatedCodes = generator.GenerateQueries(database, queries);
 
             foreach (var generatedCode in generatedCodes)
             {
-                var saveResult = await SaveCodeToFileAsync(Paths.QueryPath, generatedCode);
+                var saveResult = await SaveCodeToFileAsync(mPaths.QueryPath, generatedCode);
                 if (saveResult.Generated && !string.IsNullOrEmpty(saveResult.Path))
                 {
                     generatedFiles.Add(saveResult.Path);
@@ -186,7 +186,7 @@ namespace Generator.Database.Services
 
         private async Task<(bool Generated, string Path)> SaveCodeToFileAsync(string outputPath, GeneratedFile generated)
         {
-            var directoryPath = Path.Combine(CommonPath, outputPath);
+            var directoryPath = Path.Combine(mCommonPath, outputPath);
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
@@ -245,7 +245,7 @@ namespace Generator.Database.Services
 
             foreach (var group in groupedFiles)
             {
-                var relativePath = Path.GetRelativePath(CommonPath, group.Key ?? string.Empty);
+                var relativePath = Path.GetRelativePath(mCommonPath, group.Key ?? string.Empty);
                 summary.AppendLine($"📁 {relativePath}");
 
                 foreach (var file in group.OrderBy(f => f))

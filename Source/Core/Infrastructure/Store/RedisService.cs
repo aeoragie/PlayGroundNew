@@ -33,17 +33,17 @@ namespace PlayGround.Infrastructure.Store
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IConfiguration Configuration;
+        private readonly IConfiguration mConfiguration;
         private readonly ConcurrentDictionary<string, RedisConnectionEntry> Connections = new();
 
         public RedisService(IConfiguration configuration)
         {
-            Configuration = configuration;
+            mConfiguration = configuration;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            var config = Configuration.GetSection(RedisConfig.Section).Get<RedisConfig>();
+            var config = mConfiguration.GetSection(RedisConfig.Section).Get<RedisConfig>();
             if (config?.Connections == null || config.Connections.Count == 0)
             {
                 Logger.Warn("No Redis connections configured.");

@@ -8,17 +8,17 @@ namespace PlayGround.Application.Landing.Queries
     /// <summary>랜딩 콘텐츠 조회 유즈케이스. 컨트롤러 → 이 핸들러 → 포트.</summary>
     public class GetLandingContentsQuery
     {
-        private readonly ILandingContentRepository Repository;
+        private readonly ILandingContentRepository mRepository;
 
         public GetLandingContentsQuery(ILandingContentRepository repository)
         {
             Debug.Assert(repository != null, "repository is required");
-            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         public async Task<Result<LandingContentsResponse>> ExecuteAsync(CancellationToken cancellation = default)
         {
-            return await Repository.GetContentsAsync(cancellation);
+            return await mRepository.GetContentsAsync(cancellation);
         }
     }
 }

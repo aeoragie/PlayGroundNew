@@ -8,18 +8,18 @@ namespace PlayGround.Client.Services
     /// <summary>선수 프로필 API 호출. 인증 토큰은 공유 HttpClient 기본 헤더로 자동 부착됨.</summary>
     public class PlayerClient
     {
-        private readonly HttpClient Http;
+        private readonly HttpClient mHttp;
 
         public PlayerClient(HttpClient http)
         {
-            Http = http;
+            mHttp = http;
         }
 
         public async Task<PlayerSaveResult> CreateProfileAsync(CreatePlayerProfileRequest request)
         {
             try
             {
-                HttpResponseMessage response = await Http.PostAsJsonAsync("api/soccer/player/me/profile", request);
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/player/me/profile", request);
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     return new PlayerSaveResult(false, "로그인이 필요해요. 다시 로그인해 주세요.");

@@ -6,24 +6,24 @@ namespace Generator.Database.Services
 {
     public class SqlFileSchemaReader
     {
-        private readonly string TablesPath;
+        private readonly string mTablesPath;
 
         public SqlFileSchemaReader(string tablesPath)
         {
-            TablesPath = tablesPath;
+            mTablesPath = tablesPath;
         }
 
         public List<TableSchema> ReadTablesFromSqlFiles()
         {
             var tables = new List<TableSchema>();
 
-            if (!Directory.Exists(TablesPath))
+            if (!Directory.Exists(mTablesPath))
             {
-                Console.WriteLine($"Warning: Tables directory not found: {TablesPath}");
+                Console.WriteLine($"Warning: Tables directory not found: {mTablesPath}");
                 return tables;
             }
 
-            var sqlFiles = Directory.GetFiles(TablesPath, "*.sql");
+            var sqlFiles = Directory.GetFiles(mTablesPath, "*.sql");
             foreach (var sqlFile in sqlFiles)
             {
                 try

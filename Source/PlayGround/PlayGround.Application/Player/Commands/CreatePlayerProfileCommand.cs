@@ -12,12 +12,12 @@ namespace PlayGround.Application.Player.Commands
     {
         private static readonly string[] AllowedAgeGroups = ["U12", "U15", "U18"];
 
-        private readonly IPlayerRepository Repository;
+        private readonly IPlayerRepository mRepository;
 
         public CreatePlayerProfileCommand(IPlayerRepository repository)
         {
             Debug.Assert(repository != null, "repository is required");
-            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         public async Task<Result<CreatePlayerProfileResponse>> ExecuteAsync(
@@ -64,7 +64,7 @@ namespace PlayGround.Application.Player.Commands
                 Region = string.IsNullOrWhiteSpace(request.Region) ? null : request.Region.Trim()
             };
 
-            Result<Guid> created = await Repository.CreateAsync(input, cancellation);
+            Result<Guid> created = await mRepository.CreateAsync(input, cancellation);
             if (created.IsError)
             {
                 return Result<CreatePlayerProfileResponse>.Failure(created.ResultData);

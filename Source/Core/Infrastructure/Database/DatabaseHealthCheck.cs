@@ -7,16 +7,16 @@ namespace PlayGround.Infrastructure.Database;
 
 public class DatabaseHealthCheck : IHealthCheck
 {
-    private readonly DatabaseConfiguration Configuration;
+    private readonly DatabaseConfiguration mConfiguration;
 
     public DatabaseHealthCheck(IOptions<DatabaseConfiguration> options)
     {
-        Configuration = options.Value;
+        mConfiguration = options.Value;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellation = default)
     {
-        if (Configuration.Databases == null || Configuration.Databases.Count == 0)
+        if (mConfiguration.Databases == null || mConfiguration.Databases.Count == 0)
         {
             return HealthCheckResult.Healthy("No databases configured.");
         }
@@ -24,11 +24,11 @@ public class DatabaseHealthCheck : IHealthCheck
         var healthData = new Dictionary<string, object>();
         var unhealthyDatabases = new List<string>();
 
-        foreach (var database in Configuration.Databases.Keys)
+        foreach (var database in mConfiguration.Databases.Keys)
         {
             try
             {
-                var pair = Configuration.GetProviderConnection(database);
+                var pair = mConfiguration.GetProviderConnection(database);
                 await using DbConnection connection = pair.Provider switch
                 {
                     DatabaseProvider.SqlServer => new SqlConnection(pair.Connection),

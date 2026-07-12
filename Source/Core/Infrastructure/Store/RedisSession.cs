@@ -12,16 +12,16 @@ namespace PlayGround.Infrastructure.Store
     {
         protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IConnectionMultiplexer Multiplexer;
+        private readonly IConnectionMultiplexer mMultiplexer;
 
         public IDatabase Database { get; }
-        public bool IsConnected => Multiplexer.IsConnected;
+        public bool IsConnected => mMultiplexer.IsConnected;
 
         public RedisSession(IConnectionMultiplexer multiplexer, int databaseId = 0)
         {
             Debug.Assert(multiplexer != null, "ConnectionMultiplexer cannot be null");
-            Multiplexer = multiplexer ?? throw new ArgumentNullException(nameof(multiplexer));
-            Database = Multiplexer.GetDatabase(databaseId);
+            mMultiplexer = multiplexer ?? throw new ArgumentNullException(nameof(multiplexer));
+            Database = mMultiplexer.GetDatabase(databaseId);
         }
 
         #region String

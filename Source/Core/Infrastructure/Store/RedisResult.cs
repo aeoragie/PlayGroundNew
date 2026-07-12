@@ -7,18 +7,18 @@ namespace PlayGround.Infrastructure.Store
     /// </summary>
     public class RedisResult<T>
     {
-        private readonly Result<T> InnerResult;
+        private readonly Result<T> mInnerResult;
 
-        public bool IsSuccess => InnerResult.IsSuccess;
-        public bool IsError => InnerResult.IsError;
+        public bool IsSuccess => mInnerResult.IsSuccess;
+        public bool IsError => mInnerResult.IsError;
         public bool HasValue { get; }
-        public T? Value => InnerResult.Value;
-        public ResultInfo ResultData => InnerResult.ResultData;
-        public string Message => InnerResult.Message;
+        public T? Value => mInnerResult.Value;
+        public ResultInfo ResultData => mInnerResult.ResultData;
+        public string Message => mInnerResult.Message;
 
         private RedisResult(Result<T> result, bool hasValue)
         {
-            InnerResult = result;
+            mInnerResult = result;
             HasValue = hasValue;
         }
 

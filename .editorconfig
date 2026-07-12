@@ -230,7 +230,7 @@ dotnet_naming_rule.private_fields_should_be_m_pascal_case.severity = warning
 dotnet_naming_rule.private_fields_should_be_m_pascal_case.symbols = private_fields
 dotnet_naming_rule.private_fields_should_be_m_pascal_case.style = m_pascal_case
 
-# readonly 필드는 PascalCase
+# static readonly(상수성) 필드는 PascalCase — private 인스턴스 readonly는 아래 private_fields(m 접두사)를 따른다
 dotnet_naming_rule.readonly_fields_should_be_pascal_case.severity = warning
 dotnet_naming_rule.readonly_fields_should_be_pascal_case.symbols = readonly_fields
 dotnet_naming_rule.readonly_fields_should_be_pascal_case.style = pascal_case
@@ -265,7 +265,7 @@ dotnet_naming_symbols.private_fields.required_modifiers =
 
 dotnet_naming_symbols.readonly_fields.applicable_kinds = field
 dotnet_naming_symbols.readonly_fields.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
-dotnet_naming_symbols.readonly_fields.required_modifiers = readonly
+dotnet_naming_symbols.readonly_fields.required_modifiers = readonly, static
 
 dotnet_naming_symbols.const_fields.applicable_kinds = field
 dotnet_naming_symbols.const_fields.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected

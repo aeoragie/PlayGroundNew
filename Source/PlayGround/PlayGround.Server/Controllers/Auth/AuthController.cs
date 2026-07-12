@@ -13,25 +13,24 @@ namespace PlayGround.Server.Controllers.Auth
     {
         private static readonly NLog.ILogger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly OAuthService OAuth;
-        private readonly LoginBySocialCommand LoginBySocial;
+        private readonly OAuthService mOAuth;
+        private readonly LoginBySocialCommand mLoginBySocial;
 
         public AuthController(OAuthService oauth, LoginBySocialCommand loginBySocial)
         {
-            OAuth = oauth;
-            LoginBySocial = loginBySocial;
+            mOAuth = oauth;
+            mLoginBySocial = loginBySocial;
         }
 
-        /// <summary>소셜 로그인 시작 → provider 인증 페이지로 리다이렉트.</summary>
         [HttpGet("social/{provider}")]
         public IActionResult SocialStart(string provider)
         {
-            if (!OAuth.IsSupported(provider))
+            if (!mOAuth.IsSupported(provider))
             {
                 return BadRequest($"Unsupported provider: {provider}");
             }
 
-            if (!OAuth.IsConfigured(provider))
+            if (!mOAuth.IsConfigured(provider))
             {
                 // 자격증명 미설정(예: LINE 키 미발급) — 500 대신 로그인 화면으로 안내.
                 Logger.WarnWith("Social login provider not configured", ("Provider", provider));
@@ -40,11 +39,10 @@ namespace PlayGround.Server.Controllers.Auth
 
             var state = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
             Logger.InfoWith("Social login started", ("Provider", provider));
-            return Redirect(OAuth.GetAuthorizationUrl(provider, state));
+            return Redirect(mOAuth.GetAuthorizationUrl(provider, state));
         }
 
-        /// <summary>provider 콜백 → 코드 교환 → find-or-create + JWT → 클라이언트로 리다이렉트.
-        /// 토큰은 URL fragment(#access_token=)로 전달 — 서버 로그·리퍼러에 남지 않음.</summary>
+        /// <summary>provider 콜백 → 코드 교환 → 로그인(find-or-create) → 토큰을 URL fragment로 전달(로그·리퍼러 미노출).</summary>
         [HttpGet("social/{provider}/callback")]
         public async Task<IActionResult> SocialCallbackAsync(string provider, [FromQuery] string? code, [FromQuery] string? state, CancellationToken cancellation)
         {
@@ -54,14 +52,14 @@ namespace PlayGround.Server.Controllers.Auth
                 return Redirect("/login?error=NoCode");
             }
 
-            var userInfo = await OAuth.GetUserInfoAsync(provider, code);
+            var userInfo = await mOAuth.GetUserInfoAsync(provider, code);
             if (userInfo is null)
             {
                 Logger.WarnWith("Social callback provider error", ("Provider", provider));
                 return Redirect("/login?error=ProviderError");
             }
 
-            var result = await LoginBySocial.ExecuteAsync(
+            var result = await mLoginBySocial.ExecuteAsync(
                 userInfo.Provider, userInfo.ProviderUserId, userInfo.Email, userInfo.FullName, userInfo.ProfileImageUrl, cancellation);
 
             if (result.IsError)
@@ -72,7 +70,6 @@ namespace PlayGround.Server.Controllers.Auth
 
             Logger.InfoWith("Social login completed", ("Provider", provider), ("UserId", result.Value!.User.UserId));
 
-            // 로그인 성공 → 역할 선택으로. 토큰은 fragment로 전달(SPA가 읽어 저장 — 2d).
             return Redirect($"/settings/select-role#access_token={Uri.EscapeDataString(result.Value!.AccessToken)}");
         }
     }

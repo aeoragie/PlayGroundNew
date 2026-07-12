@@ -14,8 +14,6 @@ builder.Services.AddScoped<LandingContentClient>();
 builder.Services.AddScoped<PlayerClient>();
 builder.Services.AddScoped<OnboardingState>();
 
-//.// 인증 (JWT + localStorage)
-
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<TokenStore>();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();

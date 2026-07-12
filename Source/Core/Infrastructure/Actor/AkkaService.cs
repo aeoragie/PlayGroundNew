@@ -29,9 +29,9 @@ namespace PlayGround.Infrastructure.Actor
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IServiceProvider ServiceProvider;
-        private readonly IConfiguration Configuration;
-        private readonly IHostApplicationLifetime ApplicationLifetime;
+        private readonly IServiceProvider mServiceProvider;
+        private readonly IConfiguration mConfiguration;
+        private readonly IHostApplicationLifetime mApplicationLifetime;
 
         public ActorSystem? ActorSystem { get; private set; }
         public ConcurrentDictionary<string, ActorRef> Actors { get; } = new();
@@ -41,16 +41,15 @@ namespace PlayGround.Infrastructure.Actor
             IConfiguration configuration,
             IHostApplicationLifetime applicationLifetime)
         {
-            ServiceProvider = serviceProvider;
-            Configuration = configuration;
-            ApplicationLifetime = applicationLifetime;
+            mServiceProvider = serviceProvider;
+            mConfiguration = configuration;
+            mApplicationLifetime = applicationLifetime;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            var akkaConfig = Configuration.GetSection(AkkaConfig.Section).Get<AkkaConfig>() ?? new AkkaConfig();
+            var akkaConfig = mConfiguration.GetSection(AkkaConfig.Section).Get<AkkaConfig>() ?? new AkkaConfig();
 
-            // HOCON 설정 로드
             var config = ConfigurationFactory.Default();
             if (!string.IsNullOrWhiteSpace(akkaConfig.ConfFileName) && File.Exists(akkaConfig.ConfFileName))
             {
@@ -58,16 +57,15 @@ namespace PlayGround.Infrastructure.Actor
                 config = ConfigurationFactory.ParseString(hocon);
             }
 
-            // DI 설정
             var bootstrap = BootstrapSetup.Create().WithConfig(config);
-            var diSetup = DependencyResolverSetup.Create(ServiceProvider);
+            var diSetup = DependencyResolverSetup.Create(mServiceProvider);
             var actorSystemSetup = bootstrap.And(diSetup);
 
             ActorSystem = ActorSystem.Create(akkaConfig.SystemName, actorSystemSetup);
 
             ActorSystem.WhenTerminated?.ContinueWith(_ =>
             {
-                ApplicationLifetime.StopApplication();
+                mApplicationLifetime.StopApplication();
             }, cancellationToken);
 
             Logger.Info("ActorSystem started. {{ SystemName:{SystemName} }}", akkaConfig.SystemName);

@@ -101,7 +101,6 @@ namespace PlayGround.Infrastructure.Logging
                 return;
             }
 
-            // 파일 로깅: 아카이브 설정
             if (options.EnableFileLogging)
             {
                 var fileTarget = config.FindTargetByName<FileTarget>("FileLogger");
@@ -112,7 +111,6 @@ namespace PlayGround.Infrastructure.Logging
                 }
             }
 
-            // 콘솔 로깅 비활성화
             if (!options.EnableConsoleLogging)
             {
                 var consoleTarget = config.FindTargetByName("ConsoleLogger");
@@ -129,7 +127,6 @@ namespace PlayGround.Infrastructure.Logging
                 }
             }
 
-            // 로그 레벨 동적 변경
             if (!string.IsNullOrEmpty(options.LogLevel))
             {
                 var logLevel = NLog.LogLevel.FromString(options.LogLevel);

@@ -13,15 +13,15 @@ namespace PlayGround.Infrastructure.Database.Base;
 public abstract class RepositoryBase
 {
     protected readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly DatabaseConfiguration Configuration;
+    private readonly DatabaseConfiguration mConfiguration;
 
     public abstract DatabaseTypes Database { get; }
 
-    protected DatabaseOptions Options => Configuration.GetDatabaseOptions(Database);
+    protected DatabaseOptions Options => mConfiguration.GetDatabaseOptions(Database);
 
     protected RepositoryBase(IOptions<DatabaseConfiguration> options)
     {
-        Configuration = options.Value;
+        mConfiguration = options.Value;
     }
 
     #region Connection Management
@@ -33,7 +33,7 @@ public abstract class RepositoryBase
 
     public DbConnection CreateConnection(DatabaseTypes databaseType)
     {
-        var pair = Configuration.GetProviderConnection(databaseType);
+        var pair = mConfiguration.GetProviderConnection(databaseType);
         return pair.Provider switch
         {
             DatabaseProvider.SqlServer => new SqlConnection(pair.Connection),

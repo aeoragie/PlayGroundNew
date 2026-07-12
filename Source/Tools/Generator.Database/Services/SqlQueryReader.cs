@@ -6,24 +6,24 @@ namespace Generator.Database.Services
 {
     public class SqlQueryReader
     {
-        private readonly string QueriesPath;
+        private readonly string mQueriesPath;
 
         public SqlQueryReader(string queriesPath)
         {
-            QueriesPath = queriesPath;
+            mQueriesPath = queriesPath;
         }
 
         public List<QuerySchema> ReadQueriesFromSqlFiles()
         {
             var queries = new List<QuerySchema>();
 
-            if (!Directory.Exists(QueriesPath))
+            if (!Directory.Exists(mQueriesPath))
             {
-                Console.WriteLine($"Warning: Queries directory not found: {QueriesPath}");
+                Console.WriteLine($"Warning: Queries directory not found: {mQueriesPath}");
                 return queries;
             }
 
-            var sqlFiles = Directory.GetFiles(QueriesPath, "*.sql", SearchOption.AllDirectories);
+            var sqlFiles = Directory.GetFiles(mQueriesPath, "*.sql", SearchOption.AllDirectories);
             foreach (var sqlFile in sqlFiles)
             {
                 try

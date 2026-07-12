@@ -152,8 +152,7 @@ namespace PlayGround.Client.Services.Auth
             return claims;
         }
 
-        // 서버가 발급한 role 클레임 키(짧은 "role"/"roles" 또는 ClaimTypes.Role 긴 URI)를
-        // 표준 Role 타입으로 통일 — AuthorizeView Roles / IsInRole 이 동작하도록.
+        // role 클레임 키를 표준 ClaimTypes.Role로 통일 (AuthorizeView Roles/IsInRole 동작)
         private static string NormalizeClaimType(string key)
         {
             return key switch

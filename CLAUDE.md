@@ -254,9 +254,10 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 
 ## C# 네이밍
 
-- **클래스, 메서드, 속성, 상수, readonly/static 필드**: PascalCase
+- **클래스, 메서드, 속성, 상수(const), static 필드**: PascalCase (`private static readonly Logger`도 포함)
 - **지역 변수, 매개변수**: camelCase
-- **private 멤버 변수**: `m` 접두사 + PascalCase (예: `mConnectionString`)
+- **private 인스턴스 필드**: `m` 접두사 + PascalCase — **readonly여도 m 접두사** (예: `mConnectionString`, `mHttp`, `mRepository`).
+  (static/const만 위의 PascalCase. `private readonly`가 static/const 규칙과 겹칠 때는 이 규칙이 우선.)
 - **인터페이스**: `I` 접두사 (예: `IPlayerRepository`)
 - **비동기 메서드**: `Async` 접미사 필수 (예: `GetPlayerByIdAsync`)
 

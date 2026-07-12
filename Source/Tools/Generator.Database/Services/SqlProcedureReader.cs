@@ -6,24 +6,24 @@ namespace Generator.Database.Services
 {
     public class SqlProcedureReader
     {
-        private readonly string ProceduresPath;
+        private readonly string mProceduresPath;
 
         public SqlProcedureReader(string proceduresPath)
         {
-            ProceduresPath = proceduresPath;
+            mProceduresPath = proceduresPath;
         }
 
         public List<ProcedureSchema> ReadProceduresFromSqlFiles()
         {
             var procedures = new List<ProcedureSchema>();
 
-            if (!Directory.Exists(ProceduresPath))
+            if (!Directory.Exists(mProceduresPath))
             {
-                Console.WriteLine($"Warning: Procedures directory not found: {ProceduresPath}");
+                Console.WriteLine($"Warning: Procedures directory not found: {mProceduresPath}");
                 return procedures;
             }
 
-            var sqlFiles = Directory.GetFiles(ProceduresPath, "*.sql", SearchOption.AllDirectories);
+            var sqlFiles = Directory.GetFiles(mProceduresPath, "*.sql", SearchOption.AllDirectories);
             foreach (var sqlFile in sqlFiles)
             {
                 try

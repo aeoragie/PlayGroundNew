@@ -11,11 +11,11 @@ namespace PlayGround.Server.Services
     /// <summary>JWT 발급·리프레시 토큰 생성. 설정은 Jwt 섹션(appsettings.Local.json).</summary>
     public class JwtTokenService : IJwtTokenService
     {
-        private readonly IConfiguration Configuration;
+        private readonly IConfiguration mConfiguration;
 
         public JwtTokenService(IConfiguration configuration)
         {
-            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            mConfiguration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public string GenerateAccessToken(Guid userId, string email, string displayName, string role, string? avatarUrl)
@@ -23,7 +23,7 @@ namespace PlayGround.Server.Services
             Debug.Assert(userId != Guid.Empty, "UserId cannot be empty");
             Debug.Assert(!string.IsNullOrWhiteSpace(email), "Email cannot be null or empty");
 
-            var key = Configuration["Jwt:Key"];
+            var key = mConfiguration["Jwt:Key"];
             if (string.IsNullOrWhiteSpace(key))
             {
                 throw new InvalidOperationException("Jwt:Key is not configured (appsettings.Local.json).");
@@ -31,7 +31,7 @@ namespace PlayGround.Server.Services
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var expirationMinutes = Configuration.GetValue("Jwt:AccessTokenExpirationMinutes", 30);
+            var expirationMinutes = mConfiguration.GetValue("Jwt:AccessTokenExpirationMinutes", 30);
 
             var claims = new List<Claim>
             {
@@ -48,8 +48,8 @@ namespace PlayGround.Server.Services
             }
 
             var token = new JwtSecurityToken(
-                issuer: Configuration["Jwt:Issuer"],
-                audience: Configuration["Jwt:Audience"],
+                issuer: mConfiguration["Jwt:Issuer"],
+                audience: mConfiguration["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
                 signingCredentials: credentials);

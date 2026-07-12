@@ -1,9 +1,6 @@
 namespace PlayGround.Server.Services
 {
-    /// <summary>
-    /// provider별 OAuth 설정. 엔드포인트·Scope는 커밋되는 appsettings.json,
-    /// ClientId·ClientSecret·RedirectUri는 gitignore된 appsettings.Local.json에서 병합된다.
-    /// </summary>
+    /// <summary>provider별 OAuth 설정. 시크릿은 appsettings.Local.json, 엔드포인트는 appsettings.json에서 병합.</summary>
     public sealed class OAuthProviderOptions
     {
         // 시크릿 (Local)
