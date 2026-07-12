@@ -3,6 +3,7 @@
   <Folder Name="/Docs/Architecture/">
     <File Path="Docs/Architecture/ActorVsDirectCall.md" />
     <File Path="Docs/Architecture/DeploymentAndConfiguration.md" />
+    <File Path="Docs/Architecture/NamingConventions.md" />
   </Folder>
   <Folder Name="/Solutions/">
     <File Path=".editorconfig" />
