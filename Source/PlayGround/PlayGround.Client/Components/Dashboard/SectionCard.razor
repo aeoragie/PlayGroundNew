@@ -1,0 +1,30 @@
+@* 대시보드 풀폭 카드: 헤더(타이틀 + teal 노출 뱃지 + 우측 액션) + 본문 *@
+@using PlayGround.Client.Styles
+
+<div class="@($"{Css.Dashboard.Card} p-[26px] flex flex-col gap-[18px]")">
+    <div class="flex items-center gap-2.5">
+        <span class="@Css.Dashboard.CardTitle">@Title</span>
+        @if (ShowExposedBadge)
+        {
+            <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
+        }
+        <div class="flex-1"></div>
+        @HeaderRight
+    </div>
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    // 공개 홈페이지 소개 탭과 데이터가 공유되는 카드에 표시
+    [Parameter]
+    public bool ShowExposedBadge { get; set; }
+
+    [Parameter]
+    public RenderFragment? HeaderRight { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

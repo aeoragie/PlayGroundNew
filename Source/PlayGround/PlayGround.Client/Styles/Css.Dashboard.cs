@@ -1,0 +1,45 @@
+namespace PlayGround.Client.Styles
+{
+    public static partial class Css
+    {
+        /// <summary>
+        /// 팀 대시보드 전용 클래스 상수 — SPEC.TEAMDASHBOARD.md 기준.
+        /// (색상은 토큰, 크기·radius는 arbitrary 값)
+        /// </summary>
+        public static class Dashboard
+        {
+            public const string Card =
+                "bg-white border-1.5 border-border rounded-[16px]";
+
+            public const string SectionTitle =
+                "m-0 text-[23px] font-extrabold tracking-[-.02em] text-navy-deep";
+
+            public const string CardTitle =
+                "text-base font-extrabold text-navy-deep";
+
+            // teal 틴트 — "공개 홈페이지 노출중" 등
+            public const string BadgeTeal =
+                "text-[11.5px] font-bold text-teal-ink bg-teal/[.12] border border-teal/[.35] " +
+                "rounded-full px-[11px] py-[3px] whitespace-nowrap";
+
+            // orange 틴트 — 인증팀 · Pending
+            public const string BadgeOrange =
+                "text-[11.5px] font-bold text-orange-ink bg-surface-orange-badge border border-orange/40 " +
+                "rounded-full px-2.5 py-[3px] whitespace-nowrap";
+
+            public const string BadgeGray =
+                "text-[11.5px] font-bold text-text-strong bg-surface-icon " +
+                "rounded-full px-2.5 py-[3px] whitespace-nowrap";
+
+            // 화면당 1개인 보조 버튼 (정보 수정 등)
+            public const string SecondaryButton =
+                "h-[42px] px-5 border-1.5 border-border rounded-[10px] bg-white text-[13.5px] font-bold " +
+                "text-text-strong hover:bg-surface-alt transition-colors";
+
+            // 점선 추가 버튼 (＋ 코치 초대 · ＋ 채널 추가)
+            public const string DashedButton =
+                "h-[38px] px-4 border-1.5 border-dashed border-border rounded-[10px] bg-transparent text-[13px] font-bold " +
+                "text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors";
+        }
+    }
+}

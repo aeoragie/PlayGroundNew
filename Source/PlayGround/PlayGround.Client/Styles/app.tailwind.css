@@ -30,6 +30,12 @@
   --color-surface-teal: 244 248 247;   /* #f4f8f7 teal 안내 박스 */
   --color-surface-orange: 255 246 241; /* #fff6f1 orange 안내 박스 */
   --color-agent: 109 75 216;           /* #6d4bd8 에이전트(준비중) */
+
+  /* 대시보드 (SPEC.TEAMDASHBOARD.md) — 틴트 뱃지 텍스트(ink)·서피스 */
+  --color-teal-ink: 27 133 121;            /* #1b8579 teal 틴트 위 텍스트 */
+  --color-orange-ink: 194 74 28;           /* #c24a1c orange 틴트 위 텍스트 (인증팀·Pending) */
+  --color-surface-soft: 248 249 251;       /* #f8f9fb 테이블 헤더·가치 카드 배경 */
+  --color-surface-orange-badge: 255 240 233; /* #fff0e9 orange 틴트 뱃지 배경 */
 }
 
 @tailwind base;

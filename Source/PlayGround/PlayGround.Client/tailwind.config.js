@@ -19,6 +19,7 @@ module.exports = {
         orange: {
           DEFAULT: 'rgb(var(--color-orange) / <alpha-value>)',
           hover: 'rgb(var(--color-orange-hover) / <alpha-value>)',
+          ink: 'rgb(var(--color-orange-ink) / <alpha-value>)',
         },
         // Trust — hero·역할카드·CTA 배경(deep), 그라디언트 끝·보조 버튼·아이콘 배경(DEFAULT)
         navy: {
@@ -28,6 +29,7 @@ module.exports = {
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',
+          ink: 'rgb(var(--color-teal-ink) / <alpha-value>)',
         },
         bg: 'rgb(var(--color-bg) / <alpha-value>)',
         surface: {
@@ -35,6 +37,8 @@ module.exports = {
           icon: 'rgb(var(--color-surface-icon) / <alpha-value>)',
           teal: 'rgb(var(--color-surface-teal) / <alpha-value>)',
           orange: 'rgb(var(--color-surface-orange) / <alpha-value>)',
+          soft: 'rgb(var(--color-surface-soft) / <alpha-value>)',
+          'orange-badge': 'rgb(var(--color-surface-orange-badge) / <alpha-value>)',
         },
         border: {
           DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',

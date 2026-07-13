@@ -1,0 +1,43 @@
+@* 브랜드 아이콘(유튜브·인스타그램 공식 형태) — 콘텐츠 영역 전용, 내비게이션에는 금지 (SPEC.TEAMDASHBOARD.md).
+   브랜드 고유색이라 토큰이 아닌 공식 색상값을 사용한다. *@
+@if (Type == BrandIconType.YouTube)
+{
+    <svg width="@Size" height="@Size" viewBox="0 0 24 24" aria-label="YouTube" class="shrink-0">
+        <path fill="#FF0000" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8z"></path>
+        <path fill="#fff" d="M9.6 15.6V8.4L15.8 12z"></path>
+    </svg>
+}
+else
+{
+    <svg width="@Size" height="@Size" viewBox="0 0 24 24" aria-label="Instagram" class="shrink-0">
+        <defs>
+            <radialGradient id="@mGradientId" cx="30%" cy="107%" r="150%">
+                <stop offset="0%" stop-color="#fdf497"></stop>
+                <stop offset="5%" stop-color="#fdf497"></stop>
+                <stop offset="45%" stop-color="#fd5949"></stop>
+                <stop offset="60%" stop-color="#d6249f"></stop>
+                <stop offset="90%" stop-color="#285AEB"></stop>
+            </radialGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#@mGradientId)"></rect>
+        <circle cx="12" cy="12" r="4.3" fill="none" stroke="#fff" stroke-width="1.8"></circle>
+        <circle cx="17.3" cy="6.7" r="1.25" fill="#fff"></circle>
+    </svg>
+}
+
+@code {
+    public enum BrandIconType
+    {
+        YouTube,
+        Instagram,
+    }
+
+    [Parameter]
+    public BrandIconType Type { get; set; }
+
+    [Parameter]
+    public int Size { get; set; } = 15;
+
+    // 인스타 그라디언트 defs id — 한 화면에 여러 개 있어도 충돌하지 않도록 인스턴스별 고유값
+    private readonly string mGradientId = $"igGrad-{Guid.NewGuid():N}";
+}

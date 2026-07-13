@@ -1,0 +1,45 @@
+@page "/dashboard/team"
+@page "/dashboard/team/{Section}"
+@using PlayGround.Client.Components.Dashboard
+@using PlayGround.Client.Styles
+
+<PageTitle>팀 대시보드 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
+    <DashboardGnb />
+    <div class="flex-1 flex items-stretch">
+        <TeamDashboardSidebar ActiveSection="@CurrentSection" />
+        <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
+            @if (CurrentSection == "info")
+            {
+                <TeamInfoSection />
+            }
+            else
+            {
+                @* 이후 단계에서 섹션별 구현 — 검수 단위 분할 (Handoff/Design.TeamDashboard/README.md) *@
+                <div class="flex flex-col gap-5">
+                    <h1 class="@Css.Dashboard.SectionTitle">@SectionLabels[CurrentSection]</h1>
+                    <div class="@($"{Css.Dashboard.Card} p-[26px] text-[13.5px] text-text-body")">다음 단계에서 구현됩니다.</div>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Section { get; set; }
+
+    private static readonly Dictionary<string, string> SectionLabels = new()
+    {
+        ["info"] = "팀 정보",
+        ["roster"] = "선수단",
+        ["schedule"] = "일정",
+        ["results"] = "경기 결과",
+        ["videos"] = "경기영상",
+        ["recruit"] = "선수 모집",
+    };
+
+    private string CurrentSection =>
+        Section is not null && SectionLabels.ContainsKey(Section) ? Section : "info";
+}

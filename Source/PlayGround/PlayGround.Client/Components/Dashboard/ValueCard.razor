@@ -1,0 +1,13 @@
+@* 핵심가치 카드: 상단 3px teal 보더 + 제목 + 구체적 약속 설명 *@
+<div class="bg-surface-soft rounded-[14px] p-5 flex flex-col gap-2 border-t-[3px] border-t-teal">
+    <span class="text-[15px] font-extrabold text-navy-deep break-keep">@Title</span>
+    <span class="text-[13px] text-text-body leading-[1.65] break-keep">@Description</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Description { get; set; } = string.Empty;
+}

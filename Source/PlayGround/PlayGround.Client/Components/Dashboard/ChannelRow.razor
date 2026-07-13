@@ -1,0 +1,26 @@
+@* 공식 채널 행: 브랜드 아이콘 30px + 채널명 + 설명 + 열기 링크 *@
+<div class="flex items-center gap-3.5 border border-border rounded-[14px] px-[18px] py-4">
+    <BrandIcon Type="@IconType" Size="30" />
+    <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+        <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@Name</span>
+        <span class="text-[12.5px] text-text-body whitespace-nowrap">@Meta</span>
+    </span>
+    <a href="@Url" class="text-[12.5px] font-bold text-navy hover:text-orange transition-colors whitespace-nowrap">@LinkLabel</a>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public BrandIcon.BrandIconType IconType { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Meta { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string LinkLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Url { get; set; } = "#";
+}
