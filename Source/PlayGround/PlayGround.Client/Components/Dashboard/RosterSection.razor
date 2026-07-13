@@ -55,7 +55,7 @@
                     <div class="w-full aspect-[4/3] rounded-[11px] overflow-hidden relative bg-surface-icon">
                         @if (player.PhotoUrl is not null)
                         {
-                            <img src="@player.PhotoUrl" alt="@player.Name" class="w-full h-full object-cover" />
+                            <img src="@player.PhotoUrl" alt="@player.Name" class="absolute inset-0 w-full h-full object-cover" />
                         }
                         else
                         {
