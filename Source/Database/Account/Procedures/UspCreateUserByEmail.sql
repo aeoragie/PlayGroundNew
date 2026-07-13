@@ -2,7 +2,7 @@
 CREATE PROCEDURE [dbo].[UspCreateUserByEmail]
     @Email VARCHAR(255),
     @PasswordHash VARCHAR(255),
-    @DisplayName NVARCHAR(100),
+    @DisplayName VARCHAR(300),
     @UserRole VARCHAR(20) = 'General'
 AS
 BEGIN

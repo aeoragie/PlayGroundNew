@@ -32,6 +32,12 @@
 - **enum 컬럼은 정수가 아니라 문자열(`VARCHAR(20)`)로 저장** — 값은 C# enum 멤버 이름 그대로
   (`'General'`, `'Pending'`), 컬럼 주석에 허용 값을 나열한다. 읽는 쪽에서 enum으로 컨버팅.
   (예: `Users.UserRole`, `SoccerPlayerInvites.Status`, `SoccerTeams.DataSource`)
+- **문자열 인코딩은 UTF-8로 강제 — 다른 인코딩 금지** (2026-07-13 확정).
+  DB는 `COLLATE Latin1_General_100_CI_AS_SC_UTF8`(SQL Server 2019+)로 생성하고 — 글로벌
+  기준 콜레이션 + 대소문자 무시(CI)·악센트 구분(AS)·전각/반각 무시·이모지(SC) — 문자열
+  컬럼·파라미터는 **`VARCHAR`만 사용** (`NVARCHAR`·`N''` 리터럴 금지). 크기는 **바이트
+  단위**이므로 한글 컬럼은 글자수×3으로 잡고 주석에 의도 글자수를 남긴다
+  (예: `VARCHAR(300) -- UTF-8 (한글 100자)`).
 - 스키마 변경은 반드시 이 SQL 파일을 먼저 수정한다.
 - 각 DB 폴더: `Schema/ Tables/ Procedures/ Queries/ Indexes/ Seeds/`.
 
@@ -41,8 +47,8 @@
 UTF-8 코드페이지(`-f 65001`) 필수 — 전 파일에 붙여도 무해하므로 일괄 적용을 권장.
 
 ```powershell
-# DB 생성
-sqlcmd -S .\SQLEXPRESS -b -Q "IF DB_ID('PlayGround_Account') IS NULL CREATE DATABASE [PlayGround_Account]; IF DB_ID('PlayGround_Soccer') IS NULL CREATE DATABASE [PlayGround_Soccer];"
+# DB 생성 — UTF-8 콜레이션 필수 (문자열 인코딩 규칙)
+sqlcmd -S .\SQLEXPRESS -b -Q "IF DB_ID('PlayGround_Account') IS NULL CREATE DATABASE [PlayGround_Account] COLLATE Latin1_General_100_CI_AS_SC_UTF8; IF DB_ID('PlayGround_Soccer') IS NULL CREATE DATABASE [PlayGround_Soccer] COLLATE Latin1_General_100_CI_AS_SC_UTF8;"
 
 # 각 DB에 Tables → Procedures → Seeds 순으로 폴더 전체 적용 (FK 없음 — 폴더 내 순서 무관)
 foreach ($f in (Get-ChildItem Account\Tables\*.sql) + (Get-ChildItem Account\Procedures\*.sql)) {

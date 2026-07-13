@@ -6,7 +6,7 @@ CREATE TABLE [dbo].[Users]
     [EmailConfirmed]  BIT              NOT NULL DEFAULT 0,
     [PasswordHash]    VARCHAR(255)     NULL,                       -- 소셜 전용은 NULL
     [AuthProvider]    VARCHAR(20)      NOT NULL DEFAULT 'Local',   -- 'Local','Google','Kakao'
-    [DisplayName]     NVARCHAR(100)    NOT NULL,
+    [DisplayName]     VARCHAR(300)     NOT NULL,                   -- UTF-8 (한글 100자)
     [ProfileImageUrl] VARCHAR(2048)    NULL,
     [UserRole]        VARCHAR(20)      NOT NULL DEFAULT 'General', -- 'General','Player','TeamAdmin' 등
     [UserStatus]      VARCHAR(20)      NOT NULL DEFAULT 'Active',

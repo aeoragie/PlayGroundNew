@@ -6,11 +6,11 @@
 -- 슬러그 중복 시 -N 부여. 반환: 생성된 TeamId, 최종 Slug.
 CREATE PROCEDURE [dbo].[UspCreateSoccerTeamWithRoster]
     @ManagerUserId UNIQUEIDENTIFIER,
-    @TeamName NVARCHAR(100),
-    @TeamType NVARCHAR(20) = NULL,
-    @Region NVARCHAR(100) = NULL,
+    @TeamName VARCHAR(300),
+    @TeamType VARCHAR(60) = NULL,
+    @Region VARCHAR(300) = NULL,
     @Slug VARCHAR(100),
-    @RosterJson NVARCHAR(MAX) = NULL
+    @RosterJson VARCHAR(MAX) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -36,7 +36,7 @@ BEGIN
 
         --.// 로스터: 유효한(이름 있는) 행마다 PlayerId·Code를 미리 생성해 3개 테이블에 삽입
         DECLARE @roster TABLE (
-            Name NVARCHAR(50), Position NVARCHAR(20), Number VARCHAR(10),
+            Name VARCHAR(150), Position VARCHAR(60), Number VARCHAR(10),
             PlayerId UNIQUEIDENTIFIER, Code VARCHAR(12));
 
         IF @RosterJson IS NOT NULL
@@ -49,8 +49,8 @@ BEGIN
                 NEWID(),
                 UPPER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 8))
             FROM OPENJSON(@RosterJson)
-                WITH ([Name] NVARCHAR(50) '$.Name',
-                      [Position] NVARCHAR(20) '$.Position',
+                WITH ([Name] VARCHAR(150) '$.Name',
+                      [Position] VARCHAR(60) '$.Position',
                       [Number] VARCHAR(10) '$.Number') j
             WHERE j.[Name] IS NOT NULL AND LEN(LTRIM(RTRIM(j.[Name]))) > 0;
 

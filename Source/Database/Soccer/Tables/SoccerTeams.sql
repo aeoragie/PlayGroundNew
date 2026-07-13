@@ -2,13 +2,13 @@
 CREATE TABLE [dbo].[SoccerTeams]
 (
     [TeamId]           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    [TeamName]         NVARCHAR(100)    NOT NULL,
-    [ShortName]        NVARCHAR(20)     NULL,
-    [TeamType]         NVARCHAR(20)     NULL,             -- '클럽','학교','학원'
-    [Region]           NVARCHAR(100)    NULL,
+    [TeamName]         VARCHAR(300)     NOT NULL,         -- UTF-8 (한글 100자)
+    [ShortName]        VARCHAR(60)      NULL,
+    [TeamType]         VARCHAR(60)      NULL,             -- '클럽','학교','학원'
+    [Region]           VARCHAR(300)     NULL,
     [AgeGroup]         VARCHAR(20)      NULL,             -- 'U12','U15','U18' 등
     [LogoUrl]          VARCHAR(2048)    NULL,
-    [Description]      NVARCHAR(1000)   NULL,
+    [Description]      VARCHAR(3000)    NULL,
     [Slug]             VARCHAR(100)     NULL,             -- 공개 홈페이지 URL 슬러그
     [ManagerUserId]    UNIQUEIDENTIFIER NULL,             -- 팀 관리자 (Account.Users.UserId, 앱 계층 참조)
     [IsPublicProfile]  BIT              NOT NULL DEFAULT 1,

@@ -1,7 +1,7 @@
 -- 소셜 회원가입: User + SocialAccount 동시 생성(트랜잭션). 생성 후 UserRecord 반환.
 CREATE PROCEDURE [dbo].[UspCreateUserWithSocial]
     @Email VARCHAR(255),
-    @DisplayName NVARCHAR(100),
+    @DisplayName VARCHAR(300),
     @Provider VARCHAR(20),
     @ProviderUserId VARCHAR(255),
     @ProfileImageUrl VARCHAR(2048) = NULL

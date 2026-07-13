@@ -5,10 +5,10 @@
 -- (IsGuardianManaged/TeamId/DataSource는 테이블 기본값 사용 — Phase A 미수집)
 CREATE PROCEDURE [dbo].[UspCreatePlayer]
     @UserId UNIQUEIDENTIFIER,
-    @Name NVARCHAR(50),
+    @Name VARCHAR(150),
     @BirthDate DATE = NULL,
     @AgeGroup VARCHAR(20) = NULL,
-    @Region NVARCHAR(100) = NULL
+    @Region VARCHAR(300) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;

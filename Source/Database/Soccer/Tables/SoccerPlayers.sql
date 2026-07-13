@@ -3,10 +3,10 @@ CREATE TABLE [dbo].[SoccerPlayers]
 (
     [PlayerId]           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [UserId]             UNIQUEIDENTIFIER NULL,             -- 관리 주체 (Account.Users.UserId, 앱 계층 참조). 대리관리 시 보호자 UserId
-    [Name]               NVARCHAR(50)     NOT NULL,
+    [Name]               VARCHAR(150)     NOT NULL,         -- UTF-8 (한글 50자)
     [BirthDate]          DATE             NULL,
     [AgeGroup]           VARCHAR(20)      NULL,             -- 'U12','U15','U18'
-    [Region]             NVARCHAR(100)    NULL,
+    [Region]             VARCHAR(300)     NULL,
     [TeamId]             UNIQUEIDENTIFIER NULL,             -- 소속팀 (SoccerTeams.TeamId, 앱 계층 참조)
     [IsGuardianManaged]  BIT              NOT NULL DEFAULT 0,-- 학부모 대리 관리 프로필
 

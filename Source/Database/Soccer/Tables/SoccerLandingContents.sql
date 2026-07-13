@@ -5,9 +5,9 @@ CREATE TABLE [dbo].[SoccerLandingContents]
     [LandingContentId] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [Section]          VARCHAR(20)      NOT NULL,           -- 'Feature','HowStep'
     [DisplayOrder]     INT              NOT NULL DEFAULT 0,
-    [Icon]             NVARCHAR(20)     NOT NULL,           -- 이모지(🏠) 또는 스텝 번호('1')
-    [Title]            NVARCHAR(100)    NOT NULL,
-    [Body]             NVARCHAR(500)    NOT NULL,
+    [Icon]             VARCHAR(60)      NOT NULL,           -- 이모지(🏠) 또는 스텝 번호('1')
+    [Title]            VARCHAR(300)     NOT NULL,           -- UTF-8 (한글 100자)
+    [Body]             VARCHAR(1500)    NOT NULL,           -- UTF-8 (한글 500자)
     [IsActive]         BIT              NOT NULL DEFAULT 1,
     [CreatedAt]        DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
     [UpdatedAt]        DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
