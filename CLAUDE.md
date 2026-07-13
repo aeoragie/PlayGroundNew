@@ -7,6 +7,43 @@
 > 코드는 가져오지 않고 **처음부터 새로 구현**하는 리뉴얼 프로젝트다.
 > 기존 코드가 필요하면 참고(읽기)만 하고, 복사해 오지 않는다.
 
+## 진행 상황 · 재개 가이드 (2026-07-13 갱신)
+
+### 완료
+
+- **랜딩(Phase 0)** / **인증·온보딩** — 소셜(Google·Kakao, LINE은 채널 미발급) + 이메일
+  로그인(find-or-create), 역할 선택 → 팀·선수 온보딩 → 완료. JWT + `/api/auth/me`.
+- **팀 대시보드 P0** (`/dashboard/team/{section}`) — PC 6개 섹션(팀 정보·선수단·일정·경기
+  결과·경기영상·선수 모집) + 모바일(하단 탭 5개, 경기=결과/영상 서브탭) 전부 구현.
+  **데이터는 아직 레퍼런스 목데이터** (`Components/Dashboard/`, `Components/Dashboard/Mobile/`).
+- **`/dashboard` 진입 라우팅** — JWT 클레임 역할 기반 분기 (TeamAdmin → 팀 대시보드,
+  미인증 → /login, General → 역할 선택 유도, Player → 준비 안내).
+- **규칙 확정·전면 반영** — enum 문자열 저장(아래 데이터베이스 절), DB UTF-8 강제
+  (`Latin1_General_100_CI_AS_SC_UTF8`, NVARCHAR 금지), Client의 enum은 `Models/`로 분리하고
+  축구 전용은 `Soccer` 프리픽스 (문자열 분기 전수 제거 완료).
+
+### 다음 작업 (우선순위)
+
+1. **온보딩 역할 승격 시 JWT 재발급** — 팀 생성으로 DB는 TeamAdmin이 되지만 토큰 role이
+   General로 남아 재로그인 전까지 `/dashboard` 분기가 어긋나는 **알려진 갭**. 백엔드 연동 1순위.
+2. **팀 대시보드 백엔드 연동** — 팀 정보(핵심가치·코칭스태프·공식 채널 테이블 신설, 공개
+   홈페이지 API와 데이터 공유 구조) → 선수단(로스터 조회 + Claim 상태) 순. 목데이터 교체 시
+   PC/모바일 컴포넌트에 중복된 데이터 정의도 DTO로 일원화.
+3. 이후 Player 축(선수 대시보드), Records 보강.
+
+### 새 PC 환경 재구축 체크리스트 (gitignore 항목 — 클론만으로 안 되는 것)
+
+1. **로컬 DB**: SQL Server 2019+ (UTF-8 콜레이션 필요, 개발은 SQLEXPRESS 기준) 설치 후
+   `Source/Database/README.md`의 셋업 명령 실행 (UTF-8 `COLLATE` 포함 생성 → Tables →
+   Procedures → Seeds).
+2. **시크릿**: `Source/PlayGround/PlayGround.Server/appsettings.Local.json` 을
+   `appsettings.Local.json.example` 복사로 생성 후 Jwt:Key·OAuth(Google/Kakao) 입력.
+   값은 팀 공유 저장소 또는 이전 프로젝트(`D:\Study\Workspace\PlayGround`)의 appsettings 참조.
+3. **Tailwind**: `cd Source/PlayGround/PlayGround.Client && npm install && npm run css:build`.
+4. **실행 확인**: `dotnet run --project Source/PlayGround/PlayGround.Server` →
+   `https://localhost:50451` (랜딩) / `/dashboard/team` (팀 대시보드).
+   SQL 프로젝트(.sqlproj)는 dotnet CLI로 빌드되지 않음 — VS로 열거나 앱 프로젝트만 빌드.
+
 ## 핵심 설계 결정 (2026-07-11 확정)
 
 1. **축구 전용** — UI·스키마 모두 축구만. 멀티스포츠 추상화(SportId/SportConfig 등)를
