@@ -29,6 +29,9 @@
 
 - 테이블명 PascalCase 복수형 + Soccer 도메인은 `Soccer` 프리픽스(`SoccerPlayers`), 컬럼명
   PascalCase(`PlayerId`), 프로시저 `Usp` 접두사 (Account 공용 신원 테이블은 프리픽스 없음).
+- **enum 컬럼은 정수가 아니라 문자열(`VARCHAR(20)`)로 저장** — 값은 C# enum 멤버 이름 그대로
+  (`'General'`, `'Pending'`), 컬럼 주석에 허용 값을 나열한다. 읽는 쪽에서 enum으로 컨버팅.
+  (예: `Users.UserRole`, `SoccerPlayerInvites.Status`, `SoccerTeams.DataSource`)
 - 스키마 변경은 반드시 이 SQL 파일을 먼저 수정한다.
 - 각 DB 폴더: `Schema/ Tables/ Procedures/ Queries/ Indexes/ Seeds/`.
 

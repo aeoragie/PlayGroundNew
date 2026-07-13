@@ -2,13 +2,13 @@ namespace PlayGround.Client.Models
 {
     /// <summary>
     /// 사용자 역할 — 서버가 JWT·AuthUserDto.Role로 주는 문자열의 클라이언트 해석.
-    /// 서버 원본 문자열과 이름이 일치해야 한다 (General/Player/TeamManager, 에이전트 축 선반영).
+    /// 서버 원본 문자열(Users.UserRole 컬럼 값)과 이름이 일치해야 한다. 에이전트 축은 선반영.
     /// </summary>
     public enum UserRole
     {
         General,
         Player,
-        TeamManager,
+        TeamAdmin,
         Agent,
         AgencyAdmin,
     }
