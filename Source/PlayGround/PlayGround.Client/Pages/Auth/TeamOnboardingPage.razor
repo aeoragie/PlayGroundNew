@@ -179,7 +179,7 @@
             return;
         }
 
-        State.DoneFrom = "team";
+        State.DoneFrom = OnboardingRole.Team;
         State.TeamSlug = result.Slug ?? string.Empty;
         Nav.NavigateTo("/onboarding/complete");
     }

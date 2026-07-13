@@ -17,9 +17,9 @@
 
     @* 연령 탭 *@
     <div class="flex gap-2">
-        @foreach (string age in AgeGroups)
+        @foreach (SoccerAgeGroup age in Enum.GetValues<SoccerAgeGroup>())
         {
-            string tab = age;
+            SoccerAgeGroup tab = age;
             <button type="button" class="@(mAgeTab == tab ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
                     @onclick="() => mAgeTab = tab">@tab (@RosterByAge[tab].Length)</button>
         }
@@ -84,46 +84,44 @@
 @code {
     private const string RowGrid = "grid grid-cols-[56px_1.4fr_.8fr_.8fr_1fr_110px] gap-3 px-5 py-[13px]";
 
-    private string mAgeTab = "U15";
+    private SoccerAgeGroup mAgeTab = SoccerAgeGroup.U15;
     private bool mIsListView = true;
 
-    private sealed record RosterPlayer(string Number, string Name, string Position, string Grade, ClaimBadge.ClaimStatus Claim, string? PhotoUrl = null);
-
-    private static readonly string[] AgeGroups = ["U12", "U15", "U18"];
+    private sealed record RosterPlayer(string Number, string Name, string Position, string Grade, SoccerClaimStatus Claim, string? PhotoUrl = null);
 
     private static string Pexels(long id) =>
         $"https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg?auto=compress&cs=tinysrgb&w=600";
 
-    private static readonly Dictionary<string, RosterPlayer[]> RosterByAge = new()
+    private static readonly Dictionary<SoccerAgeGroup, RosterPlayer[]> RosterByAge = new()
     {
-        ["U15"] =
+        [SoccerAgeGroup.U15] =
         [
-            new("9", "김민준", "FW", "중2", ClaimBadge.ClaimStatus.Claimed, Pexels(31855946)),
-            new("8", "이서준", "MF", "중3", ClaimBadge.ClaimStatus.Claimed, Pexels(37044687)),
-            new("4", "박도윤", "DF", "중2", ClaimBadge.ClaimStatus.Pending, Pexels(3886093)),
-            new("1", "최시우", "GK", "중1", ClaimBadge.ClaimStatus.Unclaimed, Pexels(33257251)),
-            new("11", "정하준", "FW", "중2", ClaimBadge.ClaimStatus.Unclaimed),
-            new("6", "강지호", "MF", "중3", ClaimBadge.ClaimStatus.Claimed),
+            new("9", "김민준", "FW", "중2", SoccerClaimStatus.Claimed, Pexels(31855946)),
+            new("8", "이서준", "MF", "중3", SoccerClaimStatus.Claimed, Pexels(37044687)),
+            new("4", "박도윤", "DF", "중2", SoccerClaimStatus.Pending, Pexels(3886093)),
+            new("1", "최시우", "GK", "중1", SoccerClaimStatus.Unclaimed, Pexels(33257251)),
+            new("11", "정하준", "FW", "중2", SoccerClaimStatus.Unclaimed),
+            new("6", "강지호", "MF", "중3", SoccerClaimStatus.Claimed),
         ],
-        ["U12"] =
+        [SoccerAgeGroup.U12] =
         [
-            new("7", "오지안", "MF", "초5", ClaimBadge.ClaimStatus.Claimed, Pexels(35481332)),
-            new("10", "한이든", "FW", "초6", ClaimBadge.ClaimStatus.Unclaimed),
-            new("3", "서준우", "DF", "초5", ClaimBadge.ClaimStatus.Pending),
+            new("7", "오지안", "MF", "초5", SoccerClaimStatus.Claimed, Pexels(35481332)),
+            new("10", "한이든", "FW", "초6", SoccerClaimStatus.Unclaimed),
+            new("3", "서준우", "DF", "초5", SoccerClaimStatus.Pending),
         ],
-        ["U18"] =
+        [SoccerAgeGroup.U18] =
         [
-            new("10", "윤태양", "MF", "고2", ClaimBadge.ClaimStatus.Claimed, Pexels(31855946)),
-            new("5", "임건우", "DF", "고1", ClaimBadge.ClaimStatus.Claimed),
+            new("10", "윤태양", "MF", "고2", SoccerClaimStatus.Claimed, Pexels(31855946)),
+            new("5", "임건우", "DF", "고1", SoccerClaimStatus.Claimed),
         ],
     };
 
     private static int TotalCount => RosterByAge.Values.Sum(players => players.Length);
 
-    private static string ActionLabel(ClaimBadge.ClaimStatus status) => status switch
+    private static string ActionLabel(SoccerClaimStatus status) => status switch
     {
-        ClaimBadge.ClaimStatus.Claimed => "프로필 보기",
-        ClaimBadge.ClaimStatus.Pending => "승인 대기",
+        SoccerClaimStatus.Claimed => "프로필 보기",
+        SoccerClaimStatus.Pending => "승인 대기",
         _ => "초대코드 보내기",
     };
 

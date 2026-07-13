@@ -46,7 +46,7 @@
                     </span>
                     <span class="text-[12.5px] text-text-body">@applicant.Meta</span>
                 </span>
-                <span class="@StatusClass(applicant.Status)">@applicant.Status</span>
+                <span class="@StatusClass(applicant.Status)">@applicant.Status.ToLabel()</span>
                 <span class="flex gap-1.5">
                     <button type="button" class="h-[34px] px-3.5 border-1.5 border-border rounded-lg bg-white text-[12.5px] font-bold text-text-strong hover:bg-surface-alt transition-colors">프로필</button>
                     <button type="button" class="h-[34px] px-3.5 rounded-lg bg-navy hover:bg-navy-deep text-[12.5px] font-bold text-white transition-colors whitespace-nowrap">테스트 요청</button>
@@ -63,21 +63,21 @@
 </div>
 
 @code {
-    private sealed record Applicant(string Name, bool ViaAgent, string Meta, string Status);
+    private sealed record Applicant(string Name, bool ViaAgent, string Meta, SoccerApplicantStatus Status);
 
     private static readonly Applicant[] Applicants =
     [
-        new("조은호", false, "FW · 중2 · 송파구 · 직접 지원", "테스트 확정"),
-        new("문재이", true, "FW · 중2 · 하남 · 스피드 강점", "검토중"),
-        new("배시온", false, "FW/윙 · 중1 · 강동구", "검토중"),
-        new("남도현", false, "FW · 중3 · 광진구", "대기"),
+        new("조은호", false, "FW · 중2 · 송파구 · 직접 지원", SoccerApplicantStatus.TestConfirmed),
+        new("문재이", true, "FW · 중2 · 하남 · 스피드 강점", SoccerApplicantStatus.Reviewing),
+        new("배시온", false, "FW/윙 · 중1 · 강동구", SoccerApplicantStatus.Reviewing),
+        new("남도현", false, "FW · 중3 · 광진구", SoccerApplicantStatus.Waiting),
     ];
 
-    private static string StatusClass(string status) =>
+    private static string StatusClass(SoccerApplicantStatus status) =>
         "text-[11.5px] font-bold rounded-full px-3 py-1 whitespace-nowrap " + status switch
         {
-            "테스트 확정" => "text-teal-ink bg-teal/[.12]",
-            "검토중" => "text-orange-ink bg-surface-orange-badge",
+            SoccerApplicantStatus.TestConfirmed => "text-teal-ink bg-teal/[.12]",
+            SoccerApplicantStatus.Reviewing => "text-orange-ink bg-surface-orange-badge",
             _ => "text-text-muted bg-surface-icon",
         };
 }

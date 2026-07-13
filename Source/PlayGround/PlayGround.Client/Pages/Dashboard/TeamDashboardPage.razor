@@ -12,19 +12,19 @@
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
             @switch (CurrentSection)
             {
-                case TeamDashboardSection.Roster:
+                case SoccerTeamDashboardSection.Roster:
                     <RosterSection />
                     break;
-                case TeamDashboardSection.Schedule:
+                case SoccerTeamDashboardSection.Schedule:
                     <ScheduleSection />
                     break;
-                case TeamDashboardSection.Results:
+                case SoccerTeamDashboardSection.Results:
                     <MatchResultsSection />
                     break;
-                case TeamDashboardSection.Videos:
+                case SoccerTeamDashboardSection.Videos:
                     <VideosSection />
                     break;
-                case TeamDashboardSection.Recruit:
+                case SoccerTeamDashboardSection.Recruit:
                     <RecruitSection />
                     break;
                 default:
@@ -39,5 +39,5 @@
     [Parameter]
     public string? Section { get; set; }
 
-    private TeamDashboardSection CurrentSection => TeamDashboardSectionExtensions.ParseSlug(Section);
+    private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 }

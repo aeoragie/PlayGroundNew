@@ -2,21 +2,14 @@
 <span class="@BadgeClass">@Status</span>
 
 @code {
-    public enum ClaimStatus
-    {
-        Claimed,
-        Pending,
-        Unclaimed,
-    }
-
     [Parameter, EditorRequired]
-    public ClaimStatus Status { get; set; }
+    public SoccerClaimStatus Status { get; set; }
 
     private string BadgeClass =>
         "text-[11.5px] font-bold rounded-full px-[11px] py-1 w-fit whitespace-nowrap " + Status switch
         {
-            ClaimStatus.Claimed => "text-teal-ink bg-teal/[.12]",
-            ClaimStatus.Pending => "text-orange-ink bg-surface-orange-badge",
+            SoccerClaimStatus.Claimed => "text-teal-ink bg-teal/[.12]",
+            SoccerClaimStatus.Pending => "text-orange-ink bg-surface-orange-badge",
             _ => "text-text-muted bg-surface-icon",
         };
 }

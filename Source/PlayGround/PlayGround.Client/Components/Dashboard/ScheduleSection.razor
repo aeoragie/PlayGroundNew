@@ -16,7 +16,7 @@
                     <span class="text-[11.5px] font-bold text-text-muted">@scheduleEvent.Day</span>
                     <span class="text-[21px] font-extrabold text-navy-deep">@scheduleEvent.Date</span>
                 </span>
-                <span class="@TypeClass(scheduleEvent.Type)">@scheduleEvent.Type</span>
+                <span class="@TypeClass(scheduleEvent.Type)">@scheduleEvent.Type.ToLabel()</span>
                 <span class="flex flex-col gap-[3px] flex-1 min-w-0">
                     <span class="text-[15px] font-bold text-navy-deep break-keep">@scheduleEvent.Title</span>
                     <span class="text-[12.5px] text-text-body">@scheduleEvent.Meta</span>
@@ -30,21 +30,21 @@
 </div>
 
 @code {
-    private sealed record ScheduleEvent(string Day, string Date, string Type, string Title, string Meta, string Time);
+    private sealed record ScheduleEvent(string Day, string Date, SoccerScheduleEventType Type, string Title, string Meta, string Time);
 
     private static readonly ScheduleEvent[] Events =
     [
-        new("화", "14", "훈련", "전술 훈련 — 빌드업", "강동 보조구장 · U15 전원", "19:00–21:00"),
-        new("토", "18", "경기", "서울 유스리그 12R vs 송파 FC", "송파 구장 · 원정 · 집결 08:30", "10:00"),
-        new("일", "19", "훈련", "리커버리 + 개인 피드백", "강동 보조구장", "17:00–18:30"),
-        new("토", "25", "대회", "한강배 유소년컵 조별 1차전", "난지 천연잔디 · 대진 추후 공지", "13:00"),
+        new("화", "14", SoccerScheduleEventType.Training, "전술 훈련 — 빌드업", "강동 보조구장 · U15 전원", "19:00–21:00"),
+        new("토", "18", SoccerScheduleEventType.Match, "서울 유스리그 12R vs 송파 FC", "송파 구장 · 원정 · 집결 08:30", "10:00"),
+        new("일", "19", SoccerScheduleEventType.Training, "리커버리 + 개인 피드백", "강동 보조구장", "17:00–18:30"),
+        new("토", "25", SoccerScheduleEventType.Tournament, "한강배 유소년컵 조별 1차전", "난지 천연잔디 · 대진 추후 공지", "13:00"),
     ];
 
-    private static string TypeClass(string type) =>
+    private static string TypeClass(SoccerScheduleEventType type) =>
         "text-xs font-bold rounded-full px-[13px] py-[5px] whitespace-nowrap shrink-0 " + type switch
         {
-            "경기" => "text-white bg-navy",
-            "대회" => "text-orange-ink bg-surface-orange-badge",
+            SoccerScheduleEventType.Match => "text-white bg-navy",
+            SoccerScheduleEventType.Tournament => "text-orange-ink bg-surface-orange-badge",
             _ => "text-teal-ink bg-teal/[.12]",
         };
 }

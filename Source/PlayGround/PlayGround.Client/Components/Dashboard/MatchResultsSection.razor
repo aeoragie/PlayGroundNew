@@ -28,13 +28,13 @@
         </div>
     </div>
 
-    @* 대회 필터 *@
+    @* 대회 필터 (null = 전체) *@
     <div class="flex gap-2">
-        @foreach (string tab in FilterTabs)
+        @foreach (SoccerCompetitionType? tab in FilterTabs)
         {
-            string filter = tab;
+            SoccerCompetitionType? filter = tab;
             <button type="button" class="@(mFilter == filter ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
-                    @onclick="() => mFilter = filter">@filter</button>
+                    @onclick="() => mFilter = filter">@FilterLabel(filter)</button>
         }
     </div>
 
@@ -44,10 +44,10 @@
         {
             <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-[18px] flex flex-col gap-3")">
                 <div class="flex items-center gap-3.5">
-                    <span class="@CompetitionClass(match.Competition)">@match.Competition</span>
+                    <span class="@CompetitionClass(match.Competition)">@match.Competition.ToLabel()</span>
                     <span class="text-[12.5px] text-text-muted">@match.Date · @match.Venue</span>
                     <div class="flex-1"></div>
-                    <span class="@OutcomeClass(match.Outcome)">@match.Outcome</span>
+                    <span class="@OutcomeClass(match.Outcome)">@match.Outcome.ToLabel()</span>
                 </div>
                 <div class="flex items-center justify-center gap-[22px]">
                     <span class="text-[15.5px] font-extrabold text-navy-deep flex-1 text-right">FC 한강 유나이티드</span>
@@ -74,36 +74,39 @@
     private const string SummaryCardClass =
         "bg-white border-1.5 border-border rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px]";
 
-    private string mFilter = "전체";
+    private SoccerCompetitionType? mFilter;
 
-    private sealed record MatchResult(string Competition, string Date, string Venue, string Opponent, string Score, string Outcome, string[] Events);
+    private sealed record MatchResult(SoccerCompetitionType Competition, string Date, string Venue, string Opponent, string Score, SoccerMatchOutcome Outcome, string[] Events);
 
-    private static readonly string[] FilterTabs = ["전체", "리그", "컵", "친선"];
+    private static readonly SoccerCompetitionType?[] FilterTabs =
+        [null, SoccerCompetitionType.League, SoccerCompetitionType.Cup, SoccerCompetitionType.Friendly];
 
     private static readonly MatchResult[] Results =
     [
-        new("리그", "7/5", "홈", "강동 SC", "3 : 1", "승", ["득점 김민준 ×2", "득점 정하준", "도움 이서준 ×2"]),
-        new("컵", "6/28", "난지", "마포 유나이티드", "1 : 1", "무", ["득점 강지호", "도움 김민준"]),
-        new("친선", "6/21", "홈", "광진 FC", "2 : 0", "승", ["득점 김민준", "득점 윤태양"]),
-        new("리그", "6/14", "원정", "성동 드래곤즈", "0 : 2", "패", []),
+        new(SoccerCompetitionType.League, "7/5", "홈", "강동 SC", "3 : 1", SoccerMatchOutcome.Win, ["득점 김민준 ×2", "득점 정하준", "도움 이서준 ×2"]),
+        new(SoccerCompetitionType.Cup, "6/28", "난지", "마포 유나이티드", "1 : 1", SoccerMatchOutcome.Draw, ["득점 강지호", "도움 김민준"]),
+        new(SoccerCompetitionType.Friendly, "6/21", "홈", "광진 FC", "2 : 0", SoccerMatchOutcome.Win, ["득점 김민준", "득점 윤태양"]),
+        new(SoccerCompetitionType.League, "6/14", "원정", "성동 드래곤즈", "0 : 2", SoccerMatchOutcome.Loss, []),
     ];
 
     private IEnumerable<MatchResult> FilteredResults =>
-        mFilter == "전체" ? Results : Results.Where(match => match.Competition == mFilter);
+        mFilter is null ? Results : Results.Where(match => match.Competition == mFilter);
 
-    private static string CompetitionClass(string competition) =>
+    private static string FilterLabel(SoccerCompetitionType? filter) => filter?.ToLabel() ?? "전체";
+
+    private static string CompetitionClass(SoccerCompetitionType competition) =>
         "text-[11.5px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap " + competition switch
         {
-            "리그" => "text-navy bg-surface-icon",
-            "컵" => "text-orange-ink bg-surface-orange-badge",
+            SoccerCompetitionType.League => "text-navy bg-surface-icon",
+            SoccerCompetitionType.Cup => "text-orange-ink bg-surface-orange-badge",
             _ => "text-teal-ink bg-teal/[.12]",
         };
 
-    private static string OutcomeClass(string outcome) =>
+    private static string OutcomeClass(SoccerMatchOutcome outcome) =>
         "text-[12.5px] font-extrabold rounded-lg px-[13px] py-[5px] whitespace-nowrap " + outcome switch
         {
-            "승" => "text-white bg-teal",
-            "무" => "text-text-strong bg-surface-icon",
+            SoccerMatchOutcome.Win => "text-white bg-teal",
+            SoccerMatchOutcome.Draw => "text-text-strong bg-surface-icon",
             _ => "text-white bg-text-muted",
         };
 }

@@ -77,7 +77,7 @@ else
 
         // 이미 역할을 가진 기존 사용자는 역할 선택을 건너뛰고 대시보드로 직행.
         AuthUserDto? me = await Auth.GetMeAsync();
-        if (me is not null && !string.IsNullOrEmpty(me.Role) && me.Role != "General")
+        if (me is not null && UserRoleExtensions.Parse(me.Role) != UserRole.General)
         {
             Nav.NavigateTo("/dashboard", replace: true);
             return;
@@ -112,7 +112,7 @@ else
 
     private void SkipRole()
     {
-        State.DoneFrom = "general";
+        State.DoneFrom = OnboardingRole.General;
         Nav.NavigateTo("/onboarding/complete");
     }
 }

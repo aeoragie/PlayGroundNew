@@ -25,26 +25,26 @@
 </div>
 
 @code {
-    private bool IsTeam => State.DoneFrom == "team";
+    private bool IsTeam => State.DoneFrom == OnboardingRole.Team;
 
     private string Icon => State.DoneFrom switch
     {
-        "team" => "🏛️",
-        "general" => "👋",
+        OnboardingRole.Team => "🏛️",
+        OnboardingRole.General => "👋",
         _ => "⚽"
     };
 
     private string Title => State.DoneFrom switch
     {
-        "team" => "팀 홈페이지가 만들어졌어요!",
-        "general" => "환영해요!",
+        OnboardingRole.Team => "팀 홈페이지가 만들어졌어요!",
+        OnboardingRole.General => "환영해요!",
         _ => "선수 프로필이 만들어졌어요!"
     };
 
     private string Body => State.DoneFrom switch
     {
-        "team" => "이제 대시보드에서 일정과 경기 결과를 기록하고, 선수 모집 공고를 올릴 수 있어요.",
-        "general" => "General 역할로 시작해요. 경기기록은 자유롭게 볼 수 있고, 역할은 언제든 설정에서 선택할 수 있어요.",
+        OnboardingRole.Team => "이제 대시보드에서 일정과 경기 결과를 기록하고, 선수 모집 공고를 올릴 수 있어요.",
+        OnboardingRole.General => "General 역할로 시작해요. 경기기록은 자유롭게 볼 수 있고, 역할은 언제든 설정에서 선택할 수 있어요.",
         _ => "이제 커리어와 시즌 통계가 이 프로필에 쌓여요. 소속팀 초대코드가 있다면 대시보드에서 연결해 보세요."
     };
 
