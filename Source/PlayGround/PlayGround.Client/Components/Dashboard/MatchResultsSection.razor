@@ -1,0 +1,109 @@
+@* 경기 결과 섹션: 시즌 요약 4카드 + 대회 필터 + 경기 카드 — SPEC.TEAMDASHBOARD.md §4
+   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <h1 class="@Css.Dashboard.SectionTitle">경기 결과</h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 결과 입력</button>
+    </div>
+
+    @* 시즌 요약 *@
+    <div class="grid grid-cols-4 gap-3">
+        <div class="bg-navy-deep rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px] text-white">
+            <span class="text-xs font-bold text-white/60">2026 시즌</span>
+            <span class="text-[21px] font-extrabold">8승 2무 1패</span>
+        </div>
+        <div class="@SummaryCardClass">
+            <span class="text-xs font-bold text-text-muted">득점</span>
+            <span class="text-[21px] font-extrabold text-navy-deep">24</span>
+        </div>
+        <div class="@SummaryCardClass">
+            <span class="text-xs font-bold text-text-muted">실점</span>
+            <span class="text-[21px] font-extrabold text-navy-deep">9</span>
+        </div>
+        <div class="@SummaryCardClass">
+            <span class="text-xs font-bold text-text-muted">리그 순위</span>
+            <span class="text-[21px] font-extrabold text-navy-deep">2위 <span class="text-[13px] font-bold text-teal-ink">▲1</span></span>
+        </div>
+    </div>
+
+    @* 대회 필터 *@
+    <div class="flex gap-2">
+        @foreach (string tab in FilterTabs)
+        {
+            string filter = tab;
+            <button type="button" class="@(mFilter == filter ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
+                    @onclick="() => mFilter = filter">@filter</button>
+        }
+    </div>
+
+    @* 경기 카드 *@
+    <div class="flex flex-col gap-3">
+        @foreach (MatchResult match in FilteredResults)
+        {
+            <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-[18px] flex flex-col gap-3")">
+                <div class="flex items-center gap-3.5">
+                    <span class="@CompetitionClass(match.Competition)">@match.Competition</span>
+                    <span class="text-[12.5px] text-text-muted">@match.Date · @match.Venue</span>
+                    <div class="flex-1"></div>
+                    <span class="@OutcomeClass(match.Outcome)">@match.Outcome</span>
+                </div>
+                <div class="flex items-center justify-center gap-[22px]">
+                    <span class="text-[15.5px] font-extrabold text-navy-deep flex-1 text-right">FC 한강 유나이티드</span>
+                    <span class="text-2xl font-extrabold text-navy-deep bg-surface-alt rounded-[10px] px-[18px] py-1.5 whitespace-nowrap">@match.Score</span>
+                    <span class="text-[15.5px] font-bold text-text-body flex-1">@match.Opponent</span>
+                </div>
+                @if (match.Events.Length > 0)
+                {
+                    <div class="flex gap-2 flex-wrap justify-center">
+                        @foreach (string matchEvent in match.Events)
+                        {
+                            <span class="text-xs font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap">@matchEvent</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="text-[12.5px] text-text-muted break-keep">득점·도움은 해당 선수 프로필의 시즌 통계에 자동 반영 · 결과는 공개 홈페이지와 경기기록(Records)에 노출돼요</div>
+</div>
+
+@code {
+    private const string SummaryCardClass =
+        "bg-white border-1.5 border-border rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px]";
+
+    private string mFilter = "전체";
+
+    private sealed record MatchResult(string Competition, string Date, string Venue, string Opponent, string Score, string Outcome, string[] Events);
+
+    private static readonly string[] FilterTabs = ["전체", "리그", "컵", "친선"];
+
+    private static readonly MatchResult[] Results =
+    [
+        new("리그", "7/5", "홈", "강동 SC", "3 : 1", "승", ["득점 김민준 ×2", "득점 정하준", "도움 이서준 ×2"]),
+        new("컵", "6/28", "난지", "마포 유나이티드", "1 : 1", "무", ["득점 강지호", "도움 김민준"]),
+        new("친선", "6/21", "홈", "광진 FC", "2 : 0", "승", ["득점 김민준", "득점 윤태양"]),
+        new("리그", "6/14", "원정", "성동 드래곤즈", "0 : 2", "패", []),
+    ];
+
+    private IEnumerable<MatchResult> FilteredResults =>
+        mFilter == "전체" ? Results : Results.Where(match => match.Competition == mFilter);
+
+    private static string CompetitionClass(string competition) =>
+        "text-[11.5px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap " + competition switch
+        {
+            "리그" => "text-navy bg-surface-icon",
+            "컵" => "text-orange-ink bg-surface-orange-badge",
+            _ => "text-teal-ink bg-teal/[.12]",
+        };
+
+    private static string OutcomeClass(string outcome) =>
+        "text-[12.5px] font-extrabold rounded-lg px-[13px] py-[5px] whitespace-nowrap " + outcome switch
+        {
+            "승" => "text-white bg-teal",
+            "무" => "text-text-strong bg-surface-icon",
+            _ => "text-white bg-text-muted",
+        };
+}
