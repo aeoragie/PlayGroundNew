@@ -21,33 +21,37 @@
 
 ## 분리 원칙 (2026-07-12 확정)
 
-- **DB 간 FK·트랜잭션 불가** (SQL Server). `Players.UserId → Account.Users.Id`는 **앱 계층 정합성**으로 관리.
+- **DB 간 FK·트랜잭션 불가** (SQL Server). `SoccerPlayers.UserId → Account.Users.UserId`는 **앱 계층 정합성**으로 관리.
 - 온보딩처럼 두 DB에 걸치는 작업은 **Account 먼저 생성 → 성공 시 Soccer 프로필** 순서 (분산 트랜잭션 회피).
 - Community/Records는 현 단계 Soccer에 포함 (독립 서비스화 시점에 분리 검토).
 
 ## 규칙
 
-- 테이블명 PascalCase 복수형(`Players`), 컬럼명 PascalCase(`PlayerId`), 프로시저 `Usp` 접두사.
+- 테이블명 PascalCase 복수형 + Soccer 도메인은 `Soccer` 프리픽스(`SoccerPlayers`), 컬럼명
+  PascalCase(`PlayerId`), 프로시저 `Usp` 접두사 (Account 공용 신원 테이블은 프리픽스 없음).
 - 스키마 변경은 반드시 이 SQL 파일을 먼저 수정한다.
 - 각 DB 폴더: `Schema/ Tables/ Procedures/ Queries/ Indexes/ Seeds/`.
 
-## 로컬 개발 DB (LocalDB) 셋업
+## 로컬 개발 DB (SQLEXPRESS) 셋업
 
-한글 시드는 UTF-8 코드페이지(`-f 65001`) 필수.
+로컬 개발 DB는 `.\SQLEXPRESS` (2026-07 LocalDB에서 전환). 한글이 포함된 파일은
+UTF-8 코드페이지(`-f 65001`) 필수 — 전 파일에 붙여도 무해하므로 일괄 적용을 권장.
 
-```bash
-# Soccer
-sqlcmd -S '(localdb)\MSSQLLocalDB' -Q "IF DB_ID('PlayGround_Soccer') IS NULL CREATE DATABASE [PlayGround_Soccer];"
-sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Soccer -i Soccer/Tables/LandingContents.sql
-sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Soccer -i Soccer/Procedures/UspGetLandingContents.sql
-sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Soccer -f 65001 -i Soccer/Seeds/LandingContents.Seed.sql
+```powershell
+# DB 생성
+sqlcmd -S .\SQLEXPRESS -b -Q "IF DB_ID('PlayGround_Account') IS NULL CREATE DATABASE [PlayGround_Account]; IF DB_ID('PlayGround_Soccer') IS NULL CREATE DATABASE [PlayGround_Soccer];"
 
-# Account (테이블 먼저, 그다음 프로시저)
-sqlcmd -S '(localdb)\MSSQLLocalDB' -Q "IF DB_ID('PlayGround_Account') IS NULL CREATE DATABASE [PlayGround_Account];"
-sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Account -i Account/Tables/Users.sql
-sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Account -i Account/Tables/SocialAccounts.sql
-sqlcmd -S '(localdb)\MSSQLLocalDB' -d PlayGround_Account -f 65001 -i Account/Procedures/UspGetUserByEmail.sql
-# … 나머지 Account/Procedures/*.sql 동일하게 적용
+# 각 DB에 Tables → Procedures → Seeds 순으로 폴더 전체 적용 (FK 없음 — 폴더 내 순서 무관)
+foreach ($f in (Get-ChildItem Account\Tables\*.sql) + (Get-ChildItem Account\Procedures\*.sql)) {
+    sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i $f.FullName
+}
+foreach ($f in (Get-ChildItem Soccer\Tables\*.sql) + (Get-ChildItem Soccer\Procedures\*.sql) + (Get-ChildItem Soccer\Seeds\*.sql)) {
+    sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i $f.FullName
+}
 ```
 
-`appsettings.Development.json`의 커넥션이 `(localdb)\MSSQLLocalDB`(PlayGround_Account / PlayGround_Soccer)를 가리킨다.
+- SQL 파일은 SSDT 선언형이라 순수 `CREATE`문 — 신규 DB 기준이며 재실행 시 "이미 존재" 오류.
+  기존 DB에 변경을 반영할 때는 대상 객체를 `DROP` 후 해당 파일만 개별 적용한다.
+- 적용 후 한글 확인: `sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -u -Q "SELECT TOP 3 Title FROM SoccerLandingContents"`
+
+`appsettings.Development.json`의 커넥션이 `.\SQLEXPRESS`(PlayGround_Account / PlayGround_Soccer)를 가리킨다.
