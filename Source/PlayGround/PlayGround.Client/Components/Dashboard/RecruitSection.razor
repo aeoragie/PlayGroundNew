@@ -1,0 +1,83 @@
+@* 선수 모집 섹션: 공고 카드 + 지원자 리스트(에이전트 추천 Violet 뱃지) — SPEC.TEAMDASHBOARD.md §6
+   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <h1 class="@Css.Dashboard.SectionTitle">선수 모집</h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 공고 올리기</button>
+    </div>
+
+    @* 공고 카드 *@
+    <div class="grid grid-cols-2 gap-3.5">
+        <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-5 flex flex-col gap-2.5")">
+            <div class="flex items-center gap-2.5">
+                <span class="text-[15.5px] font-extrabold text-navy-deep">U15 공격수 모집</span>
+                <span class="text-[11.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2.5 py-[3px] whitespace-nowrap">모집중</span>
+            </div>
+            <span class="text-[13px] text-text-body leading-[1.6] break-keep">최전방 스트라이커 1명 · 9월 리그 등록 가능자 · 테스트 후 합류</span>
+            <span class="text-[12.5px] text-text-muted">지원 4 · 마감 7/31</span>
+        </div>
+        <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-5 flex flex-col gap-2.5 opacity-65")">
+            <div class="flex items-center gap-2.5">
+                <span class="text-[15.5px] font-extrabold text-navy-deep">U12 골키퍼 모집</span>
+                <span class="text-[11.5px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">마감</span>
+            </div>
+            <span class="text-[13px] text-text-body leading-[1.6] break-keep">GK 1명 · 완료된 공고</span>
+            <span class="text-[12.5px] text-text-muted">지원 6 · 1명 합류</span>
+        </div>
+    </div>
+
+    <h2 class="mt-1.5 mb-0 text-base font-extrabold text-navy-deep">지원자 <span class="text-[13px] font-bold text-text-muted">U15 공격수 · 4명</span></h2>
+
+    @* 지원자 리스트 *@
+    <div class="@($"{Css.Dashboard.Card} overflow-hidden")">
+        @foreach (Applicant applicant in Applicants)
+        {
+            <div class="flex items-center gap-3.5 px-5 py-3.5 border-b border-surface-icon">
+                <span class="w-[38px] h-[38px] rounded-full bg-surface-icon flex items-center justify-center text-sm font-extrabold text-navy shrink-0">@(applicant.Name[..1])</span>
+                <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span class="flex items-center gap-2">
+                        <a href="#" class="text-[14.5px] font-bold text-navy-deep hover:text-orange transition-colors">@applicant.Name</a>
+                        @if (applicant.ViaAgent)
+                        {
+                            <span class="text-[11px] font-bold text-agent bg-agent/10 border border-agent/30 rounded-full px-[9px] py-0.5 whitespace-nowrap">에이전트 추천</span>
+                        }
+                    </span>
+                    <span class="text-[12.5px] text-text-body">@applicant.Meta</span>
+                </span>
+                <span class="@StatusClass(applicant.Status)">@applicant.Status</span>
+                <span class="flex gap-1.5">
+                    <button type="button" class="h-[34px] px-3.5 border-1.5 border-border rounded-lg bg-white text-[12.5px] font-bold text-text-strong hover:bg-surface-alt transition-colors">프로필</button>
+                    <button type="button" class="h-[34px] px-3.5 rounded-lg bg-navy hover:bg-navy-deep text-[12.5px] font-bold text-white transition-colors whitespace-nowrap">테스트 요청</button>
+                </span>
+            </div>
+        }
+    </div>
+
+    @* 에이전트 추천 안내 *@
+    <div class="flex gap-2.5 items-start bg-agent/5 border border-dashed border-agent/40 rounded-xl px-4 py-[13px]">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="shrink-0 mt-0.5 text-agent"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.1"></path></svg>
+        <span class="text-[13px] text-text-strong leading-[1.6] break-keep"><b>에이전트 추천</b>은 검증된 에이전트가 조건에 맞는 선수를 직접 제안한 지원이에요. 추천 수락 시 지원자 풀에 편입됩니다. (대기 → 검토중 → 수락/거절)</span>
+    </div>
+</div>
+
+@code {
+    private sealed record Applicant(string Name, bool ViaAgent, string Meta, string Status);
+
+    private static readonly Applicant[] Applicants =
+    [
+        new("조은호", false, "FW · 중2 · 송파구 · 직접 지원", "테스트 확정"),
+        new("문재이", true, "FW · 중2 · 하남 · 스피드 강점", "검토중"),
+        new("배시온", false, "FW/윙 · 중1 · 강동구", "검토중"),
+        new("남도현", false, "FW · 중3 · 광진구", "대기"),
+    ];
+
+    private static string StatusClass(string status) =>
+        "text-[11.5px] font-bold rounded-full px-3 py-1 whitespace-nowrap " + status switch
+        {
+            "테스트 확정" => "text-teal-ink bg-teal/[.12]",
+            "검토중" => "text-orange-ink bg-surface-orange-badge",
+            _ => "text-text-muted bg-surface-icon",
+        };
+}
