@@ -12,19 +12,19 @@
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
             @switch (CurrentSection)
             {
-                case "roster":
+                case TeamDashboardSection.Roster:
                     <RosterSection />
                     break;
-                case "schedule":
+                case TeamDashboardSection.Schedule:
                     <ScheduleSection />
                     break;
-                case "results":
+                case TeamDashboardSection.Results:
                     <MatchResultsSection />
                     break;
-                case "videos":
+                case TeamDashboardSection.Videos:
                     <VideosSection />
                     break;
-                case "recruit":
+                case TeamDashboardSection.Recruit:
                     <RecruitSection />
                     break;
                 default:
@@ -39,8 +39,5 @@
     [Parameter]
     public string? Section { get; set; }
 
-    private static readonly string[] Sections = ["info", "roster", "schedule", "results", "videos", "recruit"];
-
-    private string CurrentSection =>
-        Section is not null && Sections.Contains(Section) ? Section : "info";
+    private TeamDashboardSection CurrentSection => TeamDashboardSectionExtensions.ParseSlug(Section);
 }
