@@ -1,0 +1,133 @@
+@* 선수단 섹션: 연령 탭 + 리스트/카드 뷰 토글 + Claim 3상태 — SPEC.TEAMDASHBOARD.md §2
+   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <h1 class="@Css.Dashboard.SectionTitle">선수단 <span class="text-sm font-bold text-text-muted">@(TotalCount)명</span></h1>
+        <div class="flex gap-2">
+            <div class="flex border-1.5 border-border rounded-[10px] overflow-hidden h-[42px]">
+                <button type="button" class="@ViewToggleClass(isList: true)" @onclick="() => mIsListView = true">리스트</button>
+                <button type="button" class="@ViewToggleClass(isList: false)" @onclick="() => mIsListView = false">카드</button>
+            </div>
+            <button type="button" class="@Css.Dashboard.SecondaryButton">초대코드 일괄 발송</button>
+            <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 선수 추가</button>
+        </div>
+    </div>
+
+    @* 연령 탭 *@
+    <div class="flex gap-2">
+        @foreach (string age in AgeGroups)
+        {
+            string tab = age;
+            <button type="button" class="@(mAgeTab == tab ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
+                    @onclick="() => mAgeTab = tab">@tab (@RosterByAge[tab].Length)</button>
+        }
+    </div>
+
+    @if (mIsListView)
+    {
+        @* 리스트 뷰 *@
+        <div class="@($"{Css.Dashboard.Card} overflow-hidden")">
+            <div class="@($"{RowGrid} bg-surface-soft border-b border-border text-xs font-extrabold text-text-muted")">
+                <span>번호</span><span>이름</span><span>포지션</span><span>학년</span><span>연결 상태</span><span></span>
+            </div>
+            @foreach (RosterPlayer player in RosterByAge[mAgeTab])
+            {
+                <div class="@($"{RowGrid} border-b border-surface-icon items-center")">
+                    <span class="w-8 h-8 rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy">@player.Number</span>
+                    <a href="#" class="text-[14.5px] font-bold text-navy-deep hover:text-orange transition-colors">@player.Name</a>
+                    <span class="text-[13.5px] text-text-body">@player.Position</span>
+                    <span class="text-[13.5px] text-text-body">@player.Grade</span>
+                    <ClaimBadge Status="@player.Claim" />
+                    <span class="text-[12.5px] font-bold text-navy text-right cursor-pointer whitespace-nowrap">@ActionLabel(player.Claim)</span>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @* 카드 뷰 *@
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3.5">
+            @foreach (RosterPlayer player in RosterByAge[mAgeTab])
+            {
+                <div class="@($"{Css.Dashboard.Card} px-3.5 pt-3.5 pb-5 flex flex-col items-center gap-3 text-center")">
+                    <div class="w-full aspect-[4/3] rounded-[11px] overflow-hidden relative bg-surface-icon">
+                        @if (player.PhotoUrl is not null)
+                        {
+                            <img src="@player.PhotoUrl" alt="@player.Name" class="w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <span class="absolute inset-0 flex items-center justify-center text-xs text-text-faint">선수 사진</span>
+                        }
+                        <span class="absolute top-2 left-2 w-[30px] h-[30px] rounded-full bg-navy-deep/85 flex items-center justify-center text-[13px] font-extrabold text-white pointer-events-none">@player.Number</span>
+                    </div>
+                    <span class="flex flex-col gap-[3px]">
+                        <a href="#" class="text-[15.5px] font-extrabold text-navy-deep hover:text-orange transition-colors">@player.Name</a>
+                        <span class="text-[12.5px] text-text-body whitespace-nowrap">@player.Position · @player.Grade</span>
+                    </span>
+                    <ClaimBadge Status="@player.Claim" />
+                    <span class="text-[12.5px] font-bold text-navy cursor-pointer">@ActionLabel(player.Claim)</span>
+                </div>
+            }
+        </div>
+    }
+
+    @* Unclaimed 안내 *@
+    <div class="flex gap-2.5 items-start bg-surface-orange border border-dashed border-orange rounded-xl px-4 py-[13px]">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="shrink-0 mt-0.5 text-orange-ink"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.1"></path></svg>
+        <span class="text-[13px] text-text-strong leading-[1.6] break-keep">Unclaimed 선수는 아직 가족이 연결되지 않은 프로필이에요. <b>초대코드를 보내면</b> 학부모·선수가 직접 기록을 관리하고 알림을 받게 됩니다.</span>
+    </div>
+</div>
+
+@code {
+    private const string RowGrid = "grid grid-cols-[56px_1.4fr_.8fr_.8fr_1fr_110px] gap-3 px-5 py-[13px]";
+
+    private string mAgeTab = "U15";
+    private bool mIsListView = true;
+
+    private sealed record RosterPlayer(string Number, string Name, string Position, string Grade, ClaimBadge.ClaimStatus Claim, string? PhotoUrl = null);
+
+    private static readonly string[] AgeGroups = ["U12", "U15", "U18"];
+
+    private static string Pexels(long id) =>
+        $"https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg?auto=compress&cs=tinysrgb&w=600";
+
+    private static readonly Dictionary<string, RosterPlayer[]> RosterByAge = new()
+    {
+        ["U15"] =
+        [
+            new("9", "김민준", "FW", "중2", ClaimBadge.ClaimStatus.Claimed, Pexels(31855946)),
+            new("8", "이서준", "MF", "중3", ClaimBadge.ClaimStatus.Claimed, Pexels(37044687)),
+            new("4", "박도윤", "DF", "중2", ClaimBadge.ClaimStatus.Pending, Pexels(3886093)),
+            new("1", "최시우", "GK", "중1", ClaimBadge.ClaimStatus.Unclaimed, Pexels(33257251)),
+            new("11", "정하준", "FW", "중2", ClaimBadge.ClaimStatus.Unclaimed),
+            new("6", "강지호", "MF", "중3", ClaimBadge.ClaimStatus.Claimed),
+        ],
+        ["U12"] =
+        [
+            new("7", "오지안", "MF", "초5", ClaimBadge.ClaimStatus.Claimed, Pexels(35481332)),
+            new("10", "한이든", "FW", "초6", ClaimBadge.ClaimStatus.Unclaimed),
+            new("3", "서준우", "DF", "초5", ClaimBadge.ClaimStatus.Pending),
+        ],
+        ["U18"] =
+        [
+            new("10", "윤태양", "MF", "고2", ClaimBadge.ClaimStatus.Claimed, Pexels(31855946)),
+            new("5", "임건우", "DF", "고1", ClaimBadge.ClaimStatus.Claimed),
+        ],
+    };
+
+    private static int TotalCount => RosterByAge.Values.Sum(players => players.Length);
+
+    private static string ActionLabel(ClaimBadge.ClaimStatus status) => status switch
+    {
+        ClaimBadge.ClaimStatus.Claimed => "프로필 보기",
+        ClaimBadge.ClaimStatus.Pending => "승인 대기",
+        _ => "초대코드 보내기",
+    };
+
+    private string ViewToggleClass(bool isList) =>
+        "px-4 text-[13px] font-bold transition-colors " +
+        (mIsListView == isList ? "bg-navy text-white" : "bg-white text-text-body");
+}
