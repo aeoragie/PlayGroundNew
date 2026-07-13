@@ -1,113 +1,188 @@
-@* 팀 정보(모바일): 뱃지+요약 / 핵심가치(좌 teal 보더 행) / 코칭스태프 축약 / 공식 채널 / 홈페이지 카드 — 카피는 모바일 레퍼런스 원문 *@
+@* 팀 정보(모바일): 뱃지+요약 / 핵심가치(좌 teal 보더 행) / 코칭스태프 축약 / 공식 채널 / 홈페이지 카드
+   데이터 없는 카드는 렌더하지 않는다 (빈 데이터 노출 금지) *@
+@using PlayGround.Client.Models
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-3.5">
     @* 기본: 뱃지 + 회비/훈련 요약 2칸 *@
-    <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3.5")">
-        <div class="flex gap-2 flex-wrap">
-            <span class="@Css.Dashboard.BadgeOrange">✓ 인증팀</span>
-            <span class="@Css.Dashboard.BadgeGray">클럽</span>
-            <span class="@Css.Dashboard.BadgeGray">서울 강동구</span>
-            <span class="@Css.Dashboard.BadgeGray">2018 창단</span>
+    @if (HasBasicBadges || Info.Profile.MonthlyFee is not null || Info.Profile.TrainingDays is not null)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3.5")">
+            @if (HasBasicBadges)
+            {
+                <div class="flex gap-2 flex-wrap">
+                    @if (Info.Profile.IsVerified)
+                    {
+                        <span class="@Css.Dashboard.BadgeOrange">✓ 인증팀</span>
+                    }
+                    @if (Info.Profile.TeamType is not null)
+                    {
+                        <span class="@Css.Dashboard.BadgeGray">@Info.Profile.TeamType</span>
+                    }
+                    @if (Info.Profile.Region is not null)
+                    {
+                        <span class="@Css.Dashboard.BadgeGray">@Info.Profile.Region</span>
+                    }
+                    @if (Info.Profile.FoundedYear is not null)
+                    {
+                        <span class="@Css.Dashboard.BadgeGray">@(Info.Profile.FoundedYear) 창단</span>
+                    }
+                </div>
+            }
+            @if (Info.Profile.MonthlyFee is not null || Info.Profile.TrainingDays is not null)
+            {
+                <div class="grid grid-cols-2 gap-2.5">
+                    @if (Info.Profile.MonthlyFee is not null)
+                    {
+                        <div class="bg-surface-alt rounded-[11px] px-3.5 py-3 flex flex-col gap-[3px]">
+                            <span class="text-[11.5px] font-bold text-text-muted">월 회비</span>
+                            <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@($"{Info.Profile.MonthlyFee:N0}")원</span>
+                        </div>
+                    }
+                    @if (Info.Profile.TrainingDays is not null)
+                    {
+                        <div class="bg-surface-alt rounded-[11px] px-3.5 py-3 flex flex-col gap-[3px]">
+                            <span class="text-[11.5px] font-bold text-text-muted">훈련</span>
+                            <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">주 @(Info.Profile.TrainingDays.Length)회 · @Info.Profile.TrainingDays</span>
+                        </div>
+                    }
+                </div>
+            }
         </div>
-        <div class="grid grid-cols-2 gap-2.5">
-            <div class="bg-surface-alt rounded-[11px] px-3.5 py-3 flex flex-col gap-[3px]">
-                <span class="text-[11.5px] font-bold text-text-muted">월 회비</span>
-                <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">250,000원</span>
-            </div>
-            <div class="bg-surface-alt rounded-[11px] px-3.5 py-3 flex flex-col gap-[3px]">
-                <span class="text-[11.5px] font-bold text-text-muted">훈련</span>
-                <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">주 4회 · 화목금토</span>
-            </div>
-        </div>
-    </div>
+    }
 
-    @* 핵심가치 — 좌측 3px teal 보더 행 3개 *@
-    <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3")">
-        <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-[15px] font-extrabold text-navy-deep">핵심가치</span>
-            <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
-        </div>
-        <div class="flex flex-col gap-2.5">
-            <div class="@ValueRowClass">
-                <span class="text-sm font-extrabold text-navy-deep break-keep">성장 중심 지도</span>
-                <span class="text-[12.5px] text-text-body leading-[1.6] break-keep">승패보다 개인의 성장 곡선을 봅니다. 분기마다 코치와 1:1 성장 리뷰.</span>
+    @* 핵심가치 — 좌측 3px teal 보더 행 *@
+    @if (Info.Values.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3")">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[15px] font-extrabold text-navy-deep">핵심가치</span>
+                <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
             </div>
-            <div class="@ValueRowClass">
-                <span class="text-sm font-extrabold text-navy-deep break-keep">출전 기회 보장</span>
-                <span class="text-[12.5px] text-text-body leading-[1.6] break-keep">시즌 통산 전원 50% 이상 출전 원칙, 출전 기록 투명 공개.</span>
-            </div>
-            <div class="@ValueRowClass">
-                <span class="text-sm font-extrabold text-navy-deep break-keep">학업 병행 존중</span>
-                <span class="text-[12.5px] text-text-body leading-[1.6] break-keep">시험 기간 훈련 조정, 야간 훈련 최소화.</span>
+            <div class="flex flex-col gap-2.5">
+                @foreach (TeamValueDto value in Info.Values)
+                {
+                    <div class="@ValueRowClass">
+                        <span class="text-sm font-extrabold text-navy-deep break-keep">@value.Title</span>
+                        <span class="text-[12.5px] text-text-body leading-[1.6] break-keep">@value.Description</span>
+                    </div>
+                }
             </div>
         </div>
-    </div>
+    }
 
     @* 코칭스태프 축약 *@
-    <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3")">
-        <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-[15px] font-extrabold text-navy-deep">코칭스태프</span>
-            <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
-        </div>
-        <div class="border border-border rounded-[13px] p-4 flex flex-col gap-[11px]">
-            <div class="flex items-center gap-3">
-                <span class="w-[42px] h-[42px] rounded-full bg-navy-deep flex items-center justify-center text-base font-extrabold text-white shrink-0">박</span>
-                <span class="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">박정훈 <span class="text-xs font-bold text-text-body">감독</span></span>
-                    <span class="text-[11.5px] text-text-body whitespace-nowrap">지도 12년차 · 前 K리그 유스 코치</span>
-                </span>
-                <span class="text-[10.5px] font-bold text-navy bg-surface-icon rounded-full px-[9px] py-[3px] whitespace-nowrap">KFA P2</span>
+    @if (Info.Coaches.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3")">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[15px] font-extrabold text-navy-deep">코칭스태프</span>
+                <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
             </div>
-            <div class="border-l-[3px] border-l-teal pl-3 text-[12.5px] text-text-strong leading-[1.6] break-keep">"실수를 허용해야 도전하는 선수가 됩니다. 결과보다 시도 횟수를 칭찬합니다."</div>
-            <div class="flex gap-[7px]">
-                <a href="#" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="14" />인스타그램</a>
-                <a href="#" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />유튜브</a>
-            </div>
+            @foreach (TeamCoachDto coach in Info.Coaches)
+            {
+                <div class="border border-border rounded-[13px] p-4 flex flex-col gap-[11px]">
+                    <div class="flex items-center gap-3">
+                        <span class="w-[42px] h-[42px] rounded-full bg-navy-deep flex items-center justify-center text-base font-extrabold text-white shrink-0">@(coach.Name[..1])</span>
+                        <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                            <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@coach.Name <span class="text-xs font-bold text-text-body">@coach.Role</span></span>
+                            @if (coach.Career is not null)
+                            {
+                                <span class="text-[11.5px] text-text-body whitespace-nowrap">@coach.Career</span>
+                            }
+                        </span>
+                        @if (coach.Certification is not null)
+                        {
+                            <span class="text-[10.5px] font-bold text-navy bg-surface-icon rounded-full px-[9px] py-[3px] whitespace-nowrap">@ShortCertification(coach.Certification)</span>
+                        }
+                    </div>
+                    @if (coach.Quote is not null)
+                    {
+                        <div class="border-l-[3px] border-l-teal pl-3 text-[12.5px] text-text-strong leading-[1.6] break-keep">@coach.Quote</div>
+                    }
+                    @if (coach.InstagramUrl is not null || coach.YoutubeUrl is not null)
+                    {
+                        <div class="flex gap-[7px]">
+                            @if (coach.InstagramUrl is not null)
+                            {
+                                <a href="@coach.InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="14" />인스타그램</a>
+                            }
+                            @if (coach.YoutubeUrl is not null)
+                            {
+                                <a href="@coach.YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />유튜브</a>
+                            }
+                        </div>
+                    }
+                </div>
+            }
         </div>
-        <div class="border border-border rounded-[13px] p-4 flex flex-col gap-[11px]">
-            <div class="flex items-center gap-3">
-                <span class="w-[42px] h-[42px] rounded-full bg-navy-deep flex items-center justify-center text-base font-extrabold text-white shrink-0">김</span>
-                <span class="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">김수연 <span class="text-xs font-bold text-text-body">GK 코치</span></span>
-                    <span class="text-[11.5px] text-text-body whitespace-nowrap">지도 6년차 · 前 WK리그 골키퍼</span>
-                </span>
-                <span class="text-[10.5px] font-bold text-navy bg-surface-icon rounded-full px-[9px] py-[3px] whitespace-nowrap">KFA C</span>
-            </div>
-            <div class="border-l-[3px] border-l-teal pl-3 text-[12.5px] text-text-strong leading-[1.6] break-keep">"골키퍼는 실점에서 배우는 포지션이에요. 실점 후의 태도를 가장 중요하게 지도합니다."</div>
-        </div>
-    </div>
+    }
 
     @* 공식 채널 *@
-    <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-[11px]")">
-        <span class="text-[15px] font-extrabold text-navy-deep">공식 채널</span>
-        <div class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-[13px]">
-            <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="26" />
-            <span class="flex flex-col gap-px flex-1 min-w-0">
-                <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">FC 한강 유나이티드</span>
-                <span class="text-[11.5px] text-text-body whitespace-nowrap overflow-hidden text-ellipsis">youtube.com/@("@")hangang-united</span>
-            </span>
-            <a href="#" class="text-xs font-bold text-navy whitespace-nowrap">열기 →</a>
+    @if (Info.Channels.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-[11px]")">
+            <span class="text-[15px] font-extrabold text-navy-deep">공식 채널</span>
+            @foreach (TeamChannelDto channel in Info.Channels)
+            {
+                <div class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-[13px]">
+                    <BrandIcon Type="@ChannelIcon(channel)" Size="26" />
+                    <span class="flex flex-col gap-px flex-1 min-w-0">
+                        <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@channel.Name</span>
+                        <span class="text-[11.5px] text-text-body whitespace-nowrap overflow-hidden text-ellipsis">@ChannelMeta(channel)</span>
+                    </span>
+                    <a href="@channel.Url" class="text-xs font-bold text-navy whitespace-nowrap">열기 →</a>
+                </div>
+            }
         </div>
-        <div class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-[13px]">
-            <BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="26" />
-            <span class="flex flex-col gap-px flex-1 min-w-0">
-                <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@("@hangang_united")</span>
-                <span class="text-[11.5px] text-text-body whitespace-nowrap overflow-hidden text-ellipsis">훈련 일상 · 선수 소개</span>
-            </span>
-            <a href="#" class="text-xs font-bold text-navy whitespace-nowrap">열기 →</a>
-        </div>
-    </div>
+    }
 
     @* 공개 팀 홈페이지 *@
-    <div class="bg-gradient-navy rounded-[16px] p-[18px] flex flex-col gap-[7px] text-white">
-        <span class="text-xs font-extrabold text-teal">공개 팀 홈페이지</span>
-        <span class="text-[13.5px] font-bold whitespace-nowrap overflow-hidden text-ellipsis">playground.kr/team/hangang-united</span>
-        <span class="text-[11.5px] text-white/65 leading-[1.55] break-keep">이번 주 방문 128회 · 핵심가치·코칭스태프·공식 채널이 자동 노출돼요</span>
-    </div>
+    @if (Info.Profile.Slug is not null)
+    {
+        <div class="bg-gradient-navy rounded-[16px] p-[18px] flex flex-col gap-[7px] text-white">
+            <span class="text-xs font-extrabold text-teal">공개 팀 홈페이지</span>
+            <span class="text-[13.5px] font-bold whitespace-nowrap overflow-hidden text-ellipsis">playground.kr/team/@Info.Profile.Slug</span>
+            <span class="text-[11.5px] text-white/65 leading-[1.55] break-keep">핵심가치·코칭스태프·공식 채널이 자동 노출돼요</span>
+        </div>
+    }
 </div>
 
 @code {
+    [Parameter, EditorRequired]
+    public TeamInfoResponse Info { get; set; } = new();
+
+    private bool HasBasicBadges =>
+        Info.Profile.IsVerified || Info.Profile.TeamType is not null ||
+        Info.Profile.Region is not null || Info.Profile.FoundedYear is not null;
+
+    // 모바일은 공간이 좁아 자격 뱃지에서 '인증' 접미어 제거 ('KFA P2 인증' → 'KFA P2')
+    private static string ShortCertification(string certification)
+    {
+        const string suffix = " 인증";
+        return certification.EndsWith(suffix, StringComparison.Ordinal)
+            ? certification[..^suffix.Length]
+            : certification;
+    }
+
+    private static BrandIcon.BrandIconType ChannelIcon(TeamChannelDto channel)
+    {
+        return Enum.TryParse(channel.ChannelType, out SoccerChannelType parsed) && parsed == SoccerChannelType.Instagram
+            ? BrandIcon.BrandIconType.Instagram
+            : BrandIcon.BrandIconType.YouTube;
+    }
+
+    // URL 표시부 + 설명 (설명 없으면 URL만)
+    private static string ChannelMeta(TeamChannelDto channel)
+    {
+        string display = channel.Url
+            .Replace("https://", string.Empty)
+            .Replace("http://", string.Empty)
+            .TrimEnd('/');
+        return channel.Description is null ? display : $"{display} · {channel.Description}";
+    }
+
     private const string ValueRowClass =
         "bg-surface-soft rounded-xl px-4 py-3.5 border-l-[3px] border-l-teal flex flex-col gap-[5px]";
 

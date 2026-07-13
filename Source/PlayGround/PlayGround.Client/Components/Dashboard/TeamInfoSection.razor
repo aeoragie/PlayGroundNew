@@ -1,6 +1,8 @@
 @* 팀 정보 섹션: 기본+홈페이지 카드 / 핵심가치 / 코칭스태프 / 공식 채널 — SPEC.TEAMDASHBOARD.md §1
-   데이터는 백엔드 연동 전 레퍼런스 예시 (FC 한강 유나이티드) *@
+   데이터 없는 카드는 렌더하지 않는다 (빈 데이터 노출 금지) *@
+@using PlayGround.Client.Models
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-5">
     <div class="flex justify-between items-center">
@@ -16,81 +18,152 @@
                     <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
                 </span>
                 <span class="flex flex-col gap-[5px]">
-                    <span class="text-xl font-extrabold text-navy-deep break-keep">FC 한강 유나이티드</span>
+                    <span class="text-xl font-extrabold text-navy-deep break-keep">@Info.Profile.TeamName</span>
                     <span class="flex gap-1.5 flex-wrap">
-                        <span class="@Css.Dashboard.BadgeOrange">✓ 인증팀</span>
-                        <span class="@Css.Dashboard.BadgeGray">클럽</span>
-                        <span class="@Css.Dashboard.BadgeGray">서울 강동구</span>
-                        <span class="@Css.Dashboard.BadgeGray">2018 창단</span>
+                        @if (Info.Profile.IsVerified)
+                        {
+                            <span class="@Css.Dashboard.BadgeOrange">✓ 인증팀</span>
+                        }
+                        @if (Info.Profile.TeamType is not null)
+                        {
+                            <span class="@Css.Dashboard.BadgeGray">@Info.Profile.TeamType</span>
+                        }
+                        @if (Info.Profile.Region is not null)
+                        {
+                            <span class="@Css.Dashboard.BadgeGray">@Info.Profile.Region</span>
+                        }
+                        @if (Info.Profile.FoundedYear is not null)
+                        {
+                            <span class="@Css.Dashboard.BadgeGray">@(Info.Profile.FoundedYear) 창단</span>
+                        }
                     </span>
                 </span>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-surface-alt rounded-xl px-4 py-3.5 flex flex-col gap-1">
-                    <span class="text-xs font-bold text-text-muted">월 회비</span>
-                    <span class="text-base font-extrabold text-navy-deep">250,000원 <span class="text-xs font-semibold text-text-body">· 공개</span></span>
+            @if (Info.Profile.MonthlyFee is not null || Info.Profile.TrainingDays is not null)
+            {
+                <div class="grid grid-cols-2 gap-3">
+                    @if (Info.Profile.MonthlyFee is not null)
+                    {
+                        <div class="bg-surface-alt rounded-xl px-4 py-3.5 flex flex-col gap-1">
+                            <span class="text-xs font-bold text-text-muted">월 회비</span>
+                            <span class="text-base font-extrabold text-navy-deep">@($"{Info.Profile.MonthlyFee:N0}")원 <span class="text-xs font-semibold text-text-body">· @(Info.Profile.IsMonthlyFeePublic ? "공개" : "비공개")</span></span>
+                        </div>
+                    }
+                    @if (Info.Profile.TrainingDays is not null)
+                    {
+                        <div class="bg-surface-alt rounded-xl px-4 py-3.5 flex flex-col gap-1">
+                            <span class="text-xs font-bold text-text-muted">훈련</span>
+                            <span class="text-base font-extrabold text-navy-deep">주 @(Info.Profile.TrainingDays.Length)회 <span class="text-xs font-semibold text-text-body">· @Info.Profile.TrainingDays</span></span>
+                        </div>
+                    }
                 </div>
-                <div class="bg-surface-alt rounded-xl px-4 py-3.5 flex flex-col gap-1">
-                    <span class="text-xs font-bold text-text-muted">훈련</span>
-                    <span class="text-base font-extrabold text-navy-deep">주 4회 <span class="text-xs font-semibold text-text-body">· 화목금토</span></span>
-                </div>
+            }
+        </div>
+        @if (Info.Profile.Slug is not null)
+        {
+            <div class="bg-gradient-navy rounded-[16px] px-6 py-[22px] flex flex-col gap-2.5 text-white justify-center">
+                <span class="text-[13px] font-extrabold text-teal">공개 팀 홈페이지</span>
+                <span class="text-[14.5px] font-bold">playground.kr/team/@Info.Profile.Slug</span>
+                <span class="text-[12.5px] text-white/65 leading-[1.6] break-keep">팀 정보의 핵심가치와 코칭스태프가 홈페이지 소개 탭에 그대로 노출돼요</span>
             </div>
-        </div>
-        <div class="bg-gradient-navy rounded-[16px] px-6 py-[22px] flex flex-col gap-2.5 text-white justify-center">
-            <span class="text-[13px] font-extrabold text-teal">공개 팀 홈페이지</span>
-            <span class="text-[14.5px] font-bold">playground.kr/team/hangang-united</span>
-            <span class="text-[12.5px] text-white/65 leading-[1.6] break-keep">이번 주 방문 128회 · 팀 정보의 핵심가치와 코칭스태프가 홈페이지 소개 탭에 그대로 노출돼요</span>
-        </div>
+        }
     </div>
 
     @* 핵심가치 — 학부모 대상 최중요 요소 *@
-    <SectionCard Title="핵심가치" ShowExposedBadge="true">
-        <HeaderRight>
-            <span class="text-[12.5px] text-text-muted break-keep">학부모가 팀을 고르는 첫 번째 기준이에요</span>
-        </HeaderRight>
-        <ChildContent>
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3.5">
-                <ValueCard Title="성장 중심 지도"
-                           Description="승패보다 개인의 성장 곡선을 봅니다. 모든 선수가 분기마다 코치와 1:1 성장 리뷰를 갖습니다." />
-                <ValueCard Title="출전 기회 보장"
-                           Description="리그·컵 시즌 통산 전원 50% 이상 출전을 원칙으로 운영하고, 출전 기록을 투명하게 공개합니다." />
-                <ValueCard Title="학업 병행 존중"
-                           Description="시험 기간 훈련 조정, 야간 훈련 최소화. 축구와 학업이 함께 가는 일정을 설계합니다." />
-            </div>
-        </ChildContent>
-    </SectionCard>
+    @if (Info.Values.Count > 0)
+    {
+        <SectionCard Title="핵심가치" ShowExposedBadge="true">
+            <HeaderRight>
+                <span class="text-[12.5px] text-text-muted break-keep">학부모가 팀을 고르는 첫 번째 기준이에요</span>
+            </HeaderRight>
+            <ChildContent>
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3.5">
+                    @foreach (TeamValueDto value in Info.Values)
+                    {
+                        <ValueCard Title="@value.Title" Description="@value.Description" />
+                    }
+                </div>
+            </ChildContent>
+        </SectionCard>
+    }
 
     @* 코칭스태프 *@
-    <SectionCard Title="코칭스태프" ShowExposedBadge="true">
-        <HeaderRight>
-            <button type="button" class="@Css.Dashboard.DashedButton">＋ 코치 초대</button>
-        </HeaderRight>
-        <ChildContent>
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3.5">
-                <CoachCard Name="박정훈" Role="감독" Career="지도 12년차 · 前 K리그 유스 코치" Certification="KFA P2 인증"
-                           Quote="@("\"실수를 허용해야 도전하는 선수가 됩니다. 저는 결과보다 시도 횟수를 칭찬합니다.\"")"
-                           Achievements="@(new[] { "프로 산하 이적 3명", "축구부 진학 12명" })"
-                           InstagramUrl="#" YoutubeUrl="#" />
-                <CoachCard Name="김수연" Role="GK 코치" Career="지도 6년차 · 前 WK리그 골키퍼" Certification="KFA C 인증"
-                           Quote="@("\"골키퍼는 실점에서 배우는 포지션이에요. 실점 후의 태도를 가장 중요하게 지도합니다.\"")"
-                           Achievements="@(new[] { "GK 전담 트레이닝", "주 2회 영상 분석" })"
-                           InstagramUrl="#" />
-            </div>
-        </ChildContent>
-    </SectionCard>
+    @if (Info.Coaches.Count > 0)
+    {
+        <SectionCard Title="코칭스태프" ShowExposedBadge="true">
+            <HeaderRight>
+                <button type="button" class="@Css.Dashboard.DashedButton">＋ 코치 초대</button>
+            </HeaderRight>
+            <ChildContent>
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3.5">
+                    @foreach (TeamCoachDto coach in Info.Coaches)
+                    {
+                        <CoachCard Name="@coach.Name" Role="@coach.Role" Career="@(coach.Career ?? string.Empty)"
+                                   Certification="@(coach.Certification ?? string.Empty)"
+                                   Quote="@(coach.Quote ?? string.Empty)"
+                                   Achievements="@coach.Achievements.ToArray()"
+                                   InstagramUrl="@coach.InstagramUrl" YoutubeUrl="@coach.YoutubeUrl" />
+                    }
+                </div>
+            </ChildContent>
+        </SectionCard>
+    }
 
     @* 공식 채널 *@
-    <SectionCard Title="공식 채널" ShowExposedBadge="true">
-        <HeaderRight>
-            <button type="button" class="@Css.Dashboard.DashedButton">＋ 채널 추가</button>
-        </HeaderRight>
-        <ChildContent>
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
-                <ChannelRow IconType="BrandIcon.BrandIconType.YouTube" Name="FC 한강 유나이티드"
-                            Meta="@("youtube.com/@hangang-united · 경기 하이라이트")" LinkLabel="채널 열기 →" />
-                <ChannelRow IconType="BrandIcon.BrandIconType.Instagram" Name="@("@hangang_united")"
-                            Meta="훈련 일상 · 선수 소개 · 학부모 소통" LinkLabel="프로필 열기 →" />
-            </div>
-        </ChildContent>
-    </SectionCard>
+    @if (Info.Channels.Count > 0)
+    {
+        <SectionCard Title="공식 채널" ShowExposedBadge="true">
+            <HeaderRight>
+                <button type="button" class="@Css.Dashboard.DashedButton">＋ 채널 추가</button>
+            </HeaderRight>
+            <ChildContent>
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
+                    @foreach (TeamChannelDto channel in Info.Channels)
+                    {
+                        <ChannelRow IconType="@ChannelIcon(channel)" Name="@channel.Name"
+                                    Meta="@ChannelMeta(channel)" LinkLabel="@ChannelLinkLabel(channel)"
+                                    Url="@channel.Url" />
+                    }
+                </div>
+            </ChildContent>
+        </SectionCard>
+    }
 </div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamInfoResponse Info { get; set; } = new();
+
+    private static SoccerChannelType ParseChannelType(TeamChannelDto channel)
+    {
+        return Enum.TryParse(channel.ChannelType, out SoccerChannelType parsed) ? parsed : SoccerChannelType.YouTube;
+    }
+
+    private static BrandIcon.BrandIconType ChannelIcon(TeamChannelDto channel)
+    {
+        return ParseChannelType(channel) switch
+        {
+            SoccerChannelType.Instagram => BrandIcon.BrandIconType.Instagram,
+            _ => BrandIcon.BrandIconType.YouTube
+        };
+    }
+
+    // "youtube.com/@handle · 경기 하이라이트" 형태 — URL 표시부 + 설명
+    private static string ChannelMeta(TeamChannelDto channel)
+    {
+        string display = channel.Url
+            .Replace("https://", string.Empty)
+            .Replace("http://", string.Empty)
+            .TrimEnd('/');
+        return channel.Description is null ? display : $"{display} · {channel.Description}";
+    }
+
+    private static string ChannelLinkLabel(TeamChannelDto channel)
+    {
+        return ParseChannelType(channel) switch
+        {
+            SoccerChannelType.Instagram => "프로필 열기 →",
+            _ => "채널 열기 →"
+        };
+    }
+}

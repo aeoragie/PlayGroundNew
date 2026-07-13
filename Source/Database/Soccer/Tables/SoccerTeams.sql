@@ -13,6 +13,13 @@ CREATE TABLE [dbo].[SoccerTeams]
     [ManagerUserId]    UNIQUEIDENTIFIER NULL,             -- 팀 관리자 (Account.Users.UserId, 앱 계층 참조)
     [IsPublicProfile]  BIT              NOT NULL DEFAULT 1,
 
+    -- 대시보드 팀 정보 (공개 홈페이지 소개 탭과 공유)
+    [IsVerified]         BIT            NOT NULL DEFAULT 0, -- 인증팀 뱃지
+    [FoundedYear]        INT            NULL,              -- 창단연도
+    [MonthlyFee]         INT            NULL,              -- 월 회비(원)
+    [IsMonthlyFeePublic] BIT            NOT NULL DEFAULT 1, -- 회비 공개 여부
+    [TrainingDays]       VARCHAR(60)    NULL,              -- UTF-8 (한글 20자) 훈련 요일 ('화목금토')
+
     -- KFA 데이터 적재 대비 (결정 #5)
     [DataSource]       VARCHAR(20)      NOT NULL DEFAULT 'User', -- 'User','KfaApi','Seed'
     [ExternalId]       VARCHAR(64)      NULL,             -- 외부 시스템 멱등키 (KFA TeamId 등)

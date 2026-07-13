@@ -8,4 +8,7 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => ManagerUserId;
     }
+
+    /// <summary>팀 정보 묶음 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerTeamInfoMessage(Guid ManagerUserId);
 }

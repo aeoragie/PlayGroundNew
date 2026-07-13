@@ -22,10 +22,12 @@ namespace PlayGround.Server.Actors
         public Task StartAsync(CancellationToken cancellationToken)
         {
             mAkka.CreateRouter<SoccerLandingActor>(ActorNames.SoccerLanding, poolSize: 4);                  // 읽기: RoundRobin 풀
+            mAkka.CreateRouter<SoccerTeamInfoActor>(ActorNames.SoccerTeamInfo, poolSize: 4);                // 읽기: RoundRobin 풀
             mAkka.CreateHashRouter<SoccerPlayerProfileActor>(ActorNames.SoccerPlayerProfile, poolSize: 4);  // 쓰기: UserId 해시(사용자별 순차)
             mAkka.CreateHashRouter<SoccerTeamProfileActor>(ActorNames.SoccerTeamProfile, poolSize: 4);      // 쓰기: ManagerUserId 해시
             Logger.InfoWith("Actor topology created",
-                ("Landing", ActorNames.SoccerLanding), ("PlayerProfile", ActorNames.SoccerPlayerProfile), ("TeamProfile", ActorNames.SoccerTeamProfile));
+                ("Landing", ActorNames.SoccerLanding), ("TeamInfo", ActorNames.SoccerTeamInfo),
+                ("PlayerProfile", ActorNames.SoccerPlayerProfile), ("TeamProfile", ActorNames.SoccerTeamProfile));
 
             return Task.CompletedTask;
         }

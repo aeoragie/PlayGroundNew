@@ -35,5 +35,19 @@ namespace PlayGround.Server.Controllers.Soccer
                 ActorNames.SoccerTeamProfile, new CreateSoccerTeamMessage(userId, request), cancellation);
             return result.ToEnvelope();
         }
+
+        [HttpGet("me/info")]
+        public async Task<Envelope<TeamInfoResponse>> GetMyTeamInfoAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamInfoResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamInfoResponse> result = await mGateway.AskAsync<TeamInfoResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamInfoMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
     }
 }

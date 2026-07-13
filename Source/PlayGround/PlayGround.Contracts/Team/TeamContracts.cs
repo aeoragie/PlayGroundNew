@@ -28,4 +28,61 @@ namespace PlayGround.Contracts.Team
         /// <summary>TeamAdmin으로 승격된 새 액세스 토큰. 승격 실패 시 null (기존 토큰 유지).</summary>
         public string? AccessToken { get; set; }
     }
+
+    /// <summary>팀 정보 묶음 (대시보드 팀 정보 섹션 + 공개 홈페이지 소개 탭 공유).</summary>
+    public class TeamInfoResponse
+    {
+        public TeamProfileDto Profile { get; set; } = new();
+        public List<TeamValueDto> Values { get; set; } = new();
+        public List<TeamCoachDto> Coaches { get; set; } = new();
+        public List<TeamChannelDto> Channels { get; set; } = new();
+    }
+
+    /// <summary>팀 기본 정보 (기본 카드 + 사이드바 요약).</summary>
+    public class TeamProfileDto
+    {
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public string? TeamType { get; set; }     // 클럽 | 학교 | 학원
+        public string? Region { get; set; }
+        public string? LogoUrl { get; set; }
+        public string? Slug { get; set; }
+        public bool IsVerified { get; set; }
+        public int? FoundedYear { get; set; }
+        public int? MonthlyFee { get; set; }      // 원
+        public bool IsMonthlyFeePublic { get; set; }
+        public string? TrainingDays { get; set; } // '화목금토'
+    }
+
+    /// <summary>핵심가치 한 항목.</summary>
+    public class TeamValueDto
+    {
+        public Guid TeamValueId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    /// <summary>코칭스태프 한 명.</summary>
+    public class TeamCoachDto
+    {
+        public Guid CoachId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string? Career { get; set; }
+        public string? Certification { get; set; }
+        public string? Quote { get; set; }
+        public List<string> Achievements { get; set; } = new();
+        public string? InstagramUrl { get; set; }
+        public string? YoutubeUrl { get; set; }
+    }
+
+    /// <summary>공식 채널 한 개. ChannelType은 SoccerChannelType enum 멤버 이름 문자열.</summary>
+    public class TeamChannelDto
+    {
+        public Guid ChannelId { get; set; }
+        public string ChannelType { get; set; } = string.Empty; // 'YouTube' | 'Instagram'
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
 }

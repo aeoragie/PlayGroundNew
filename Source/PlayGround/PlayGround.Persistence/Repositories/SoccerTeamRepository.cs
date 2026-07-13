@@ -5,6 +5,7 @@ using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Infrastructure.Logging;
+using PlayGround.Contracts.Team;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Models;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -54,6 +55,109 @@ namespace PlayGround.Persistence.Repositories
 
             Logger.InfoWith("Team created", ("TeamId", row.TeamId), ("Slug", row.Slug));
             return Result<string>.Success(row.Slug);
+        }
+
+        public async Task<Result<TeamInfoResponse?>> GetTeamInfoByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team info requested", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerTeamInfoByManager(this) { ManagerUserId = managerUserId };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Team info query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<TeamInfoResponse?>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            SoccerTeamsEntity? team = await reader.ReadSingleOrDefaultAsync<SoccerTeamsEntity>();
+            if (team is null)
+            {
+                Logger.InfoWith("Team info not found", ("ManagerUserId", managerUserId));
+                return Result<TeamInfoResponse?>.Success(null);
+            }
+
+            var values = (await reader.ReadAsync<SoccerTeamValuesEntity>()).ToList();
+            var coaches = (await reader.ReadAsync<SoccerTeamCoachesEntity>()).ToList();
+            var channels = (await reader.ReadAsync<SoccerTeamChannelsEntity>()).ToList();
+
+            var response = new TeamInfoResponse
+            {
+                Profile = new TeamProfileDto
+                {
+                    TeamId = team.TeamId,
+                    TeamName = team.TeamName,
+                    TeamType = NullIfEmpty(team.TeamType),
+                    Region = NullIfEmpty(team.Region),
+                    LogoUrl = NullIfEmpty(team.LogoUrl),
+                    Slug = NullIfEmpty(team.Slug),
+                    IsVerified = team.IsVerified,
+                    FoundedYear = team.FoundedYear,
+                    MonthlyFee = team.MonthlyFee,
+                    IsMonthlyFeePublic = team.IsMonthlyFeePublic,
+                    TrainingDays = NullIfEmpty(team.TrainingDays)
+                },
+                Values = values
+                    .Select(v => new TeamValueDto
+                    {
+                        TeamValueId = v.TeamValueId,
+                        Title = v.Title,
+                        Description = v.Description
+                    })
+                    .ToList(),
+                Coaches = coaches
+                    .Select(c => new TeamCoachDto
+                    {
+                        CoachId = c.CoachId,
+                        Name = c.Name,
+                        Role = c.Role,
+                        Career = NullIfEmpty(c.Career),
+                        Certification = NullIfEmpty(c.Certification),
+                        Quote = NullIfEmpty(c.Quote),
+                        Achievements = ParseAchievements(c.Achievements),
+                        InstagramUrl = NullIfEmpty(c.InstagramUrl),
+                        YoutubeUrl = NullIfEmpty(c.YoutubeUrl)
+                    })
+                    .ToList(),
+                Channels = channels
+                    .Select(ch => new TeamChannelDto
+                    {
+                        ChannelId = ch.ChannelId,
+                        ChannelType = ch.ChannelType,
+                        Name = ch.Name,
+                        Url = ch.Url,
+                        Description = NullIfEmpty(ch.Description)
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Team info received", ("TeamId", team.TeamId),
+                ("Values", response.Values.Count), ("Coaches", response.Coaches.Count), ("Channels", response.Channels.Count));
+
+            return Result<TeamInfoResponse?>.Success(response);
+        }
+
+        private static string? NullIfEmpty(string? value)
+        {
+            return string.IsNullOrEmpty(value) ? null : value;
+        }
+
+        // 실적 칩 JSON 배열 파싱 — 손상된 값은 빈 목록으로 (조회 실패 사유가 아님)
+        private static List<string> ParseAchievements(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new List<string>();
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+            }
+            catch (JsonException)
+            {
+                return new List<string>();
+            }
         }
     }
 }

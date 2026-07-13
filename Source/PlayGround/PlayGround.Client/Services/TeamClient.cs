@@ -15,6 +15,21 @@ namespace PlayGround.Client.Services
             mHttp = http;
         }
 
+        /// <summary>본인 팀 정보 묶음 조회. 미인증·팀 없음·오류 시 null.</summary>
+        public async Task<TeamInfoResponse?> GetTeamInfoAsync()
+        {
+            try
+            {
+                Envelope<TeamInfoResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamInfoResponse>>("api/soccer/team/me/info");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         public async Task<TeamSaveResult> CreateTeamAsync(CreateTeamRequest request)
         {
             try

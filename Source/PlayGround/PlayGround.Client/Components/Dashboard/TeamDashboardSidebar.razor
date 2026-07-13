@@ -1,14 +1,30 @@
 @* 좌측 사이드바(230px): 팀 요약 + 섹션 메뉴(선택 = 네이비 채움) + P1 예정 비활성 메뉴 *@
+@using PlayGround.Contracts.Team
 <aside class="w-[230px] shrink-0 bg-bg border-r border-border px-3.5 py-[22px] flex flex-col gap-1">
-    <div class="flex items-center gap-3 px-3 pt-2.5 pb-[18px]">
-        <span class="w-11 h-11 rounded-xl bg-navy flex items-center justify-center shrink-0">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
-        </span>
-        <span class="flex flex-col gap-0.5 min-w-0">
-            <span class="text-[15px] font-extrabold tracking-[-.01em] text-navy-deep whitespace-nowrap overflow-hidden text-ellipsis">FC 한강 유나이티드</span>
-            <span class="text-[11.5px] font-bold text-orange-ink flex items-center gap-1 whitespace-nowrap">✓ 인증팀 <span class="text-text-muted font-semibold">· 클럽 · 서울</span></span>
-        </span>
-    </div>
+    @if (Team is not null)
+    {
+        <div class="flex items-center gap-3 px-3 pt-2.5 pb-[18px]">
+            <span class="w-11 h-11 rounded-xl bg-navy flex items-center justify-center shrink-0">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
+            </span>
+            <span class="flex flex-col gap-0.5 min-w-0">
+                <span class="text-[15px] font-extrabold tracking-[-.01em] text-navy-deep whitespace-nowrap overflow-hidden text-ellipsis">@Team.TeamName</span>
+                @if (Team.IsVerified || SummaryMeta.Length > 0)
+                {
+                    <span class="text-[11.5px] font-bold text-orange-ink flex items-center gap-1 whitespace-nowrap">
+                        @if (Team.IsVerified)
+                        {
+                            <text>✓ 인증팀 </text>
+                        }
+                        @if (SummaryMeta.Length > 0)
+                        {
+                            <span class="text-text-muted font-semibold">@(Team.IsVerified ? "· " : "")@SummaryMeta</span>
+                        }
+                    </span>
+                }
+            </span>
+        </div>
+    }
 
     @foreach (NavItem item in NavItems)
     {
@@ -31,6 +47,13 @@
 @code {
     [Parameter]
     public SoccerTeamDashboardSection ActiveSection { get; set; } = SoccerTeamDashboardSection.Info;
+
+    [Parameter]
+    public TeamProfileDto? Team { get; set; }
+
+    // "클럽 · 서울" — 있는 값만 이어 붙인다
+    private string SummaryMeta =>
+        string.Join(" · ", new[] { Team?.TeamType, Team?.Region }.Where(v => v is not null));
 
     private sealed record NavItem(SoccerTeamDashboardSection Section, string Label, string IconPaths);
 

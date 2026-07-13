@@ -3,6 +3,10 @@
 @using PlayGround.Client.Components.Dashboard
 @using PlayGround.Client.Components.Dashboard.Mobile
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject TeamClient Teams
 
 <PageTitle>팀 대시보드 — PlayGround</PageTitle>
 
@@ -10,7 +14,7 @@
 <div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
     <DashboardGnb />
     <div class="flex-1 flex items-stretch">
-        <TeamDashboardSidebar ActiveSection="@CurrentSection" />
+        <TeamDashboardSidebar ActiveSection="@CurrentSection" Team="@mInfo?.Profile" />
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
             @switch (CurrentSection)
             {
@@ -30,7 +34,10 @@
                     <RecruitSection />
                     break;
                 default:
-                    <TeamInfoSection />
+                    @if (mInfo is not null)
+                    {
+                        <TeamInfoSection Info="@mInfo" />
+                    }
                     break;
             }
         </main>
@@ -39,7 +46,7 @@
 
 @* 모바일 (<768px): 상단 바 + 하단 탭 5개 — 경기 결과·영상은 "경기" 서브탭으로 통합 *@
 <div class="md:hidden min-h-screen bg-surface-alt flex flex-col max-w-[480px] mx-auto text-navy-deep">
-    <MobileTopBar />
+    <MobileTopBar Team="@mInfo?.Profile" />
     <main class="flex-1 px-4 pt-[18px] pb-24 flex flex-col gap-3.5">
         @switch (CurrentSection)
         {
@@ -57,7 +64,10 @@
                 <MobileRecruitSection />
                 break;
             default:
-                <MobileTeamInfoSection />
+                @if (mInfo is not null)
+                {
+                    <MobileTeamInfoSection Info="@mInfo" />
+                }
                 break;
         }
     </main>
@@ -68,5 +78,20 @@
     [Parameter]
     public string? Section { get; set; }
 
+    private TeamInfoResponse? mInfo;
+
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 직접 URL 진입(새로고침) 대비 — 인증 상태를 먼저 확정 (토큰 복원 + Bearer 헤더 부착)
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo("/login", replace: true);
+            return;
+        }
+
+        mInfo = await Teams.GetTeamInfoAsync();
+    }
 }

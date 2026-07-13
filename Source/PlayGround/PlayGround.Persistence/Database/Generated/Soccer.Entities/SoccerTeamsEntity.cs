@@ -49,6 +49,19 @@ public class SoccerTeamsEntity
 	public bool IsPublicProfile { get; set; } = false;
 
 	[Required]
+	public bool IsVerified { get; set; } = false;
+
+	public int? FoundedYear { get; set; } = null;
+
+	public int? MonthlyFee { get; set; } = null;
+
+	[Required]
+	public bool IsMonthlyFeePublic { get; set; } = false;
+
+	[StringLength(60)]
+	public string TrainingDays { get; set; } = String.Empty;
+
+	[Required]
 	[StringLength(20)]
 	public string DataSource { get; set; } = String.Empty;
 

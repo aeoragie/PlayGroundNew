@@ -15,6 +15,7 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerLandingContentsCommand>();
             services.AddScoped<SoccerPlayerProfileCommand>();
             services.AddScoped<SoccerTeamCommand>();
+            services.AddScoped<SoccerTeamInfoCommand>();
             return services;
         }
     }
