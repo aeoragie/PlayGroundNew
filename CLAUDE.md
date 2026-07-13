@@ -7,29 +7,49 @@
 > 코드는 가져오지 않고 **처음부터 새로 구현**하는 리뉴얼 프로젝트다.
 > 기존 코드가 필요하면 참고(읽기)만 하고, 복사해 오지 않는다.
 
-## 진행 상황 · 재개 가이드 (2026-07-13 갱신)
+## 진행 상황 · 재개 가이드 (2026-07-14 갱신)
 
 ### 완료
 
 - **랜딩(Phase 0)** / **인증·온보딩** — 소셜(Google·Kakao, LINE은 채널 미발급) + 이메일
   로그인(find-or-create), 역할 선택 → 팀·선수 온보딩 → 완료. JWT + `/api/auth/me`.
-- **팀 대시보드 P0** (`/dashboard/team/{section}`) — PC 6개 섹션(팀 정보·선수단·일정·경기
-  결과·경기영상·선수 모집) + 모바일(하단 탭 5개, 경기=결과/영상 서브탭) 전부 구현.
-  **데이터는 아직 레퍼런스 목데이터** (`Components/Dashboard/`, `Components/Dashboard/Mobile/`).
-- **`/dashboard` 진입 라우팅** — JWT 클레임 역할 기반 분기 (TeamAdmin → 팀 대시보드,
-  미인증 → /login, General → 역할 선택 유도, Player → 준비 안내).
-- **규칙 확정·전면 반영** — enum 문자열 저장(아래 데이터베이스 절), DB UTF-8 강제
-  (`Latin1_General_100_CI_AS_SC_UTF8`, NVARCHAR 금지), Client의 enum은 `Models/`로 분리하고
-  축구 전용은 `Soccer` 프리픽스 (문자열 분기 전수 제거 완료).
+- **온보딩 역할 승격 시 JWT 재발급** — `UspUpdateUserRole`이 갱신된 사용자 행 반환 →
+  온보딩 커맨드가 새 토큰 발급(응답 DTO `AccessToken`) → 클라이언트가
+  `MarkUserAuthenticatedAsync`로 교체. 재로그인 없이 `/dashboard` 분기 정상.
+- **팀 대시보드 P0** (`/dashboard/team/{section}`) — PC 6개 섹션 + 모바일(하단 탭 5개,
+  경기=결과/영상 서브탭) 전부 구현.
+- **팀 정보 섹션 백엔드 연동 (조회)** — SoccerTeams 확장(IsVerified·FoundedYear·MonthlyFee·
+  IsMonthlyFeePublic·TrainingDays) + SoccerTeamValues/Coaches/Channels 신설(공개 홈페이지와
+  데이터 공유 구조). `UspGetSoccerTeamInfoByManager` 4결과셋 1왕복(MultiQueryReader) →
+  `GET api/soccer/team/me/info` → PC/모바일 섹션·사이드바·모바일 상단바 DTO 바인딩.
+  빈 데이터는 뱃지·칸·카드 단위 숨김. **나머지 5개 섹션은 아직 목데이터.**
+  직접 URL 진입 페이지는 인증 상태 선확정 필수(TeamDashboardPage 참조 — 안 하면 헤더 레이스 401).
+- **`/dashboard` 진입 라우팅** — JWT 클레임 역할 기반 분기.
+- **규칙 확정·전면 반영** — enum 문자열 저장, DB UTF-8 강제(NVARCHAR 금지), Client enum은
+  `Models/` 분리 + `Soccer` 프리픽스.
 
 ### 다음 작업 (우선순위)
 
-1. **온보딩 역할 승격 시 JWT 재발급** — 팀 생성으로 DB는 TeamAdmin이 되지만 토큰 role이
-   General로 남아 재로그인 전까지 `/dashboard` 분기가 어긋나는 **알려진 갭**. 백엔드 연동 1순위.
-2. **팀 대시보드 백엔드 연동** — 팀 정보(핵심가치·코칭스태프·공식 채널 테이블 신설, 공개
-   홈페이지 API와 데이터 공유 구조) → 선수단(로스터 조회 + Claim 상태) 순. 목데이터 교체 시
-   PC/모바일 컴포넌트에 중복된 데이터 정의도 DTO로 일원화.
-3. 이후 Player 축(선수 대시보드), Records 보강.
+1. **선수단 섹션 백엔드 연동** — 착수 직전 상태(설계 정리 완료, 코드 없음).
+   설계: `UspGetSoccerTeamRosterByManager`(단일 결과셋, `-- @entity: SoccerTeamRosterRecord`,
+   다중 `@join`: SoccerTeamPlayers(TeamPlayerId·JerseyNumber·Position·Grade) +
+   SoccerPlayers(PlayerId·Name·AgeGroup·UserId)) → `GET api/soccer/team/me/roster`.
+   Claim 상태는 C#에서 계산: UserId 연결 = Claimed, 아니면 Unclaimed (Pending은 Claim 플로우
+   구현 때). 연령 탭은 전원 AgeGroup 보유 시만 노출(온보딩 로스터는 AgeGroup null — 전부 null이면
+   탭 숨기고 전체 표시). 선수 사진 컬럼 없음 → 카드 뷰는 플레이스홀더. Unclaimed 안내 박스는
+   Unclaimed 존재 시만. 페이지에서 섹션 진입 시 지연 로드(OnParametersSetAsync).
+2. **신규 핸드오프 2건 구현** — `Handoff/Design.TeamPublicHome/`(공개 팀 홈페이지 —
+   팀 정보 테이블 그대로 소비, Slug 기반 공개 API), `Handoff/Design.PlayerDashboard/`(선수
+   대시보드). 착수 전 SPEC 필독.
+3. 초대코드 Claim 플로우, 팀 정보 수정 UI(디자인 대기), 온보딩 중복 방지, Records 보강.
+
+### 검증 팁 (2026-07-14 확립)
+
+- 로컬 검증 계정: `verify-teamadmin-0713@test.local` / `password123!` (검증fc 팀, 팀 정보
+  시드 주입됨), `verify-empty-0714@test.local` (EmptyFC — 빈 상태 확인용). 로컬 DB 전용.
+- 화면 검증: 헤드리스 Edge + puppeteer-core(스크래치패드에 설치), localStorage
+  `pg.accessToken`에 토큰 주입 후 진입. `python`은 스토어 스텁 — 스크립트는 PowerShell
+  (한글 포함 .ps1은 UTF-8 BOM 필수).
 
 ### 새 PC 환경 재구축 체크리스트 (gitignore 항목 — 클론만으로 안 되는 것)
 
