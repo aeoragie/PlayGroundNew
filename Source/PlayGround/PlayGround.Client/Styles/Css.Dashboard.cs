@@ -36,6 +36,11 @@ namespace PlayGround.Client.Styles
                 "h-[42px] px-5 rounded-[10px] bg-orange hover:bg-orange-hover text-[13.5px] font-bold text-white " +
                 "shadow-cta-orange-sm transition-colors whitespace-nowrap";
 
+            // 모바일 주 액션 (높이 40px)
+            public const string MobilePrimaryButton =
+                "h-10 px-4 rounded-[10px] bg-orange hover:bg-orange-hover text-[13px] font-bold text-white " +
+                "shadow-cta-orange-sm transition-colors whitespace-nowrap";
+
             // 필터 칩 pill — 선택 = 네이비 채움 (연령 탭·결과/영상 필터 공용)
             public const string FilterChipOn =
                 "h-[38px] px-[18px] rounded-full text-[13.5px] font-bold border-1.5 whitespace-nowrap " +

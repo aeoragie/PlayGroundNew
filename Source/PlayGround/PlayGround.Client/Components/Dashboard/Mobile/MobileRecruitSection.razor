@@ -1,0 +1,60 @@
+@* 선수 모집(모바일): 모집중 공고 1장 + 지원자 리스트(에이전트 추천 뱃지) *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-3">
+    <div class="flex justify-between items-center">
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">선수 모집</h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 공고 올리기</button>
+    </div>
+
+    <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-[15px] flex flex-col gap-[7px]")">
+        <div class="flex items-center gap-2">
+            <span class="text-[14.5px] font-extrabold text-navy-deep">U15 공격수 모집</span>
+            <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] py-0.5 whitespace-nowrap">모집중</span>
+        </div>
+        <span class="text-xs text-text-body leading-[1.55] break-keep">최전방 스트라이커 1명 · 9월 리그 등록 가능자</span>
+        <span class="text-[11.5px] text-text-muted whitespace-nowrap">지원 4 · 마감 7/31</span>
+    </div>
+
+    <h2 class="mt-1 mb-0 text-[14.5px] font-extrabold text-navy-deep">지원자 <span class="text-xs font-bold text-text-muted">4명</span></h2>
+
+    <div class="@($"{Css.Dashboard.Card} rounded-[14px] overflow-hidden")">
+        @foreach (Applicant applicant in Applicants)
+        {
+            <div class="flex items-center gap-[11px] px-[15px] py-[13px] border-b border-surface-icon">
+                <span class="w-9 h-9 rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy shrink-0">@(applicant.Name[..1])</span>
+                <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span class="flex items-center gap-1.5 flex-wrap">
+                        <a href="#" class="text-[13.5px] font-bold text-navy-deep whitespace-nowrap">@applicant.Name</a>
+                        @if (applicant.ViaAgent)
+                        {
+                            <span class="text-[10px] font-bold text-agent bg-agent/10 border border-agent/30 rounded-full px-2 py-px whitespace-nowrap">에이전트 추천</span>
+                        }
+                    </span>
+                    <span class="text-[11.5px] text-text-body whitespace-nowrap overflow-hidden text-ellipsis">@applicant.Meta</span>
+                </span>
+                <span class="@StatusClass(applicant.Status)">@applicant.Status.ToLabel()</span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private sealed record Applicant(string Name, bool ViaAgent, string Meta, SoccerApplicantStatus Status);
+
+    private static readonly Applicant[] Applicants =
+    [
+        new("조은호", false, "FW · 중2 · 송파구 · 직접 지원", SoccerApplicantStatus.TestConfirmed),
+        new("문재이", true, "FW · 중2 · 하남 · 스피드 강점", SoccerApplicantStatus.Reviewing),
+        new("배시온", false, "FW/윙 · 중1 · 강동구", SoccerApplicantStatus.Reviewing),
+        new("남도현", false, "FW · 중3 · 광진구", SoccerApplicantStatus.Waiting),
+    ];
+
+    private static string StatusClass(SoccerApplicantStatus status) =>
+        "text-[10.5px] font-bold rounded-full px-2.5 py-[3px] whitespace-nowrap " + status switch
+        {
+            SoccerApplicantStatus.TestConfirmed => "text-teal-ink bg-teal/[.12]",
+            SoccerApplicantStatus.Reviewing => "text-orange-ink bg-surface-orange-badge",
+            _ => "text-text-muted bg-surface-icon",
+        };
+}

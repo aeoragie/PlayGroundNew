@@ -1,0 +1,148 @@
+@* 경기(모바일): 결과/영상 서브탭 통합 — 주 버튼 라벨이 서브탭 따라 변경, 서브탭은 라우트 이동(results/videos) *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-3">
+    <div class="flex justify-between items-center">
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">경기</h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">@(IsResults ? "＋ 결과 입력" : "＋ 영상 등록")</button>
+    </div>
+
+    @* 결과/영상 세그먼트 — 선택 = 흰 배경 + 그림자 *@
+    <div class="flex bg-surface-icon rounded-[11px] p-[3px] gap-[3px]">
+        <a href="dashboard/team/results" class="@SegmentClass(forResults: true)">결과</a>
+        <a href="dashboard/team/videos" class="@SegmentClass(forResults: false)">영상</a>
+    </div>
+
+    @if (IsResults)
+    {
+        @* 요약 2카드 (시즌 전적 / 득실·순위) *@
+        <div class="grid grid-cols-2 gap-2.5">
+            <div class="bg-navy-deep rounded-[13px] px-[15px] py-[13px] flex flex-col gap-0.5 text-white">
+                <span class="text-[11px] font-bold text-white/60">2026 시즌</span>
+                <span class="text-[16.5px] font-extrabold whitespace-nowrap">8승 2무 1패</span>
+            </div>
+            <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex flex-col gap-0.5")">
+                <span class="text-[11px] font-bold text-text-muted">득실 · 순위</span>
+                <span class="text-[16.5px] font-extrabold text-navy-deep whitespace-nowrap">24 : 9 · 2위</span>
+            </div>
+        </div>
+
+        @foreach (MatchResult match in Results)
+        {
+            <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-3.5 flex flex-col gap-2.5")">
+                <div class="flex items-center gap-[9px]">
+                    <span class="@CompetitionClass(match.Competition)">@match.Competition.ToLabel()</span>
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">@match.Date · @match.Venue</span>
+                    <div class="flex-1"></div>
+                    <span class="@OutcomeClass(match.Outcome)">@match.Outcome.ToLabel()</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[13px] font-extrabold text-navy-deep flex-1 text-right break-keep">FC 한강</span>
+                    <span class="text-lg font-extrabold text-navy-deep bg-surface-alt rounded-[9px] px-[13px] py-1 whitespace-nowrap">@match.Score</span>
+                    <span class="text-[13px] font-bold text-text-body flex-1 break-keep">@match.Opponent</span>
+                </div>
+                @if (match.Events.Length > 0)
+                {
+                    <div class="flex gap-1.5 flex-wrap justify-center">
+                        @foreach (string matchEvent in match.Events)
+                        {
+                            <span class="text-[11px] font-bold text-text-strong bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">@matchEvent</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        @foreach (TeamVideo video in Videos)
+        {
+            <div class="@($"{Css.Dashboard.Card} rounded-[13px] overflow-hidden")">
+                <div class="w-full aspect-video relative bg-navy-deep">
+                    @if (video.ThumbnailUrl is not null)
+                    {
+                        <img src="@video.ThumbnailUrl" alt="@video.Title" class="absolute inset-0 w-full h-full object-cover" />
+                    }
+                    else
+                    {
+                        <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">영상 썸네일</span>
+                    }
+                    <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span class="w-[42px] h-[42px] rounded-full bg-black/65 flex items-center justify-center">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+                        </span>
+                    </span>
+                    <span class="absolute bottom-[7px] right-[7px] text-[10.5px] font-bold text-white bg-black/75 rounded-[5px] px-1.5 py-0.5 pointer-events-none">@video.Duration</span>
+                </div>
+                <div class="px-3.5 pt-3 pb-3.5 flex flex-col gap-1.5">
+                    <div class="flex gap-1.5 items-center">
+                        <span class="@VideoTypeClass(video.Type)">@video.Type.ToLabel()</span>
+                        <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />
+                    </div>
+                    <a href="#" class="text-[13.5px] font-bold text-navy-deep leading-[1.45] break-keep">@video.Title</a>
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">@video.Meta</span>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    // 현재 서브탭 — 라우트 슬러그(results/videos)가 곧 상태
+    [Parameter]
+    public SoccerTeamDashboardSection ActiveSection { get; set; } = SoccerTeamDashboardSection.Results;
+
+    private bool IsResults => ActiveSection != SoccerTeamDashboardSection.Videos;
+
+    private sealed record MatchResult(SoccerCompetitionType Competition, string Date, string Venue, string Opponent, string Score, SoccerMatchOutcome Outcome, string[] Events);
+
+    private sealed record TeamVideo(SoccerVideoType Type, string Title, string Meta, string Duration, string? ThumbnailUrl = null);
+
+    private static string Pexels(long id) =>
+        $"https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg?auto=compress&cs=tinysrgb&w=600";
+
+    private static readonly MatchResult[] Results =
+    [
+        new(SoccerCompetitionType.League, "7/5", "홈", "강동 SC", "3 : 1", SoccerMatchOutcome.Win, ["득점 김민준 ×2", "득점 정하준", "도움 이서준 ×2"]),
+        new(SoccerCompetitionType.Cup, "6/28", "난지", "마포 유나이티드", "1 : 1", SoccerMatchOutcome.Draw, ["득점 강지호", "도움 김민준"]),
+        new(SoccerCompetitionType.Friendly, "6/21", "홈", "광진 FC", "2 : 0", SoccerMatchOutcome.Win, ["득점 김민준", "득점 윤태양"]),
+        new(SoccerCompetitionType.League, "6/14", "원정", "성동 드래곤즈", "0 : 2", SoccerMatchOutcome.Loss, []),
+    ];
+
+    private static readonly TeamVideo[] Videos =
+    [
+        new(SoccerVideoType.Highlight, "리그 12R vs 강동 SC 3:1 하이라이트", "7/5 · 경기 결과와 연결됨", "4:12", Pexels(33257251)),
+        new(SoccerVideoType.FullMatch, "리그 12R vs 강동 SC 풀경기", "7/5 · 경기 결과와 연결됨", "78:30"),
+        new(SoccerVideoType.Highlight, "한강배 유스컵 vs 마포 1:1 하이라이트", "6/28 · 경기 결과와 연결됨", "3:45", Pexels(35481332)),
+    ];
+
+    private string SegmentClass(bool forResults) =>
+        "flex-1 h-[38px] rounded-[9px] text-[13px] font-bold flex items-center justify-center "
+        + (IsResults == forResults
+            ? "bg-white text-navy-deep shadow-[0_1px_4px_rgba(28,43,74,.12)]"
+            : "text-text-body");
+
+    private static string CompetitionClass(SoccerCompetitionType competition) =>
+        "text-[10.5px] font-bold rounded-full px-[9px] py-0.5 whitespace-nowrap " + competition switch
+        {
+            SoccerCompetitionType.League => "text-navy bg-surface-icon",
+            SoccerCompetitionType.Cup => "text-orange-ink bg-surface-orange-badge",
+            _ => "text-teal-ink bg-teal/[.12]",
+        };
+
+    private static string OutcomeClass(SoccerMatchOutcome outcome) =>
+        "text-[11.5px] font-extrabold rounded-[7px] px-2.5 py-[3px] whitespace-nowrap " + outcome switch
+        {
+            SoccerMatchOutcome.Win => "text-white bg-teal",
+            SoccerMatchOutcome.Draw => "text-text-strong bg-surface-icon",
+            _ => "text-white bg-text-muted",
+        };
+
+    private static string VideoTypeClass(SoccerVideoType type) =>
+        "text-[10.5px] font-bold rounded-full px-[9px] py-0.5 whitespace-nowrap " + type switch
+        {
+            SoccerVideoType.Highlight => "text-orange-ink bg-surface-orange-badge",
+            SoccerVideoType.FullMatch => "text-navy bg-surface-icon",
+            _ => "text-teal-ink bg-teal/[.12]",
+        };
+}

@@ -1,11 +1,13 @@
 @page "/dashboard/team"
 @page "/dashboard/team/{Section}"
 @using PlayGround.Client.Components.Dashboard
+@using PlayGround.Client.Components.Dashboard.Mobile
 @using PlayGround.Client.Styles
 
 <PageTitle>팀 대시보드 — PlayGround</PageTitle>
 
-<div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
+@* PC (≥768px): GNB + 사이드바 *@
+<div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
     <DashboardGnb />
     <div class="flex-1 flex items-stretch">
         <TeamDashboardSidebar ActiveSection="@CurrentSection" />
@@ -33,6 +35,33 @@
             }
         </main>
     </div>
+</div>
+
+@* 모바일 (<768px): 상단 바 + 하단 탭 5개 — 경기 결과·영상은 "경기" 서브탭으로 통합 *@
+<div class="md:hidden min-h-screen bg-surface-alt flex flex-col max-w-[480px] mx-auto text-navy-deep">
+    <MobileTopBar />
+    <main class="flex-1 px-4 pt-[18px] pb-24 flex flex-col gap-3.5">
+        @switch (CurrentSection)
+        {
+            case SoccerTeamDashboardSection.Roster:
+                <MobileRosterSection />
+                break;
+            case SoccerTeamDashboardSection.Schedule:
+                <MobileScheduleSection />
+                break;
+            case SoccerTeamDashboardSection.Results:
+            case SoccerTeamDashboardSection.Videos:
+                <MobileMatchSection ActiveSection="@CurrentSection" />
+                break;
+            case SoccerTeamDashboardSection.Recruit:
+                <MobileRecruitSection />
+                break;
+            default:
+                <MobileTeamInfoSection />
+                break;
+        }
+    </main>
+    <MobileTabBar ActiveSection="@CurrentSection" />
 </div>
 
 @code {

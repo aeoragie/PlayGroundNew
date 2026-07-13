@@ -1,0 +1,47 @@
+@* 일정(모바일): 날짜 컬럼 38px, 유형 pill+시간을 제목 위 한 줄로 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-3">
+    <div class="flex justify-between items-center">
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">일정 <span class="text-[13px] font-bold text-text-muted">7월</span></h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 일정 추가</button>
+    </div>
+
+    @foreach (ScheduleEvent scheduleEvent in Events)
+    {
+        <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex items-center gap-[13px]")">
+            <span class="flex flex-col items-center w-[38px] shrink-0">
+                <span class="text-[10.5px] font-bold text-text-muted">@scheduleEvent.Day</span>
+                <span class="text-lg font-extrabold text-navy-deep">@scheduleEvent.Date</span>
+            </span>
+            <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                <span class="flex items-center gap-[7px]">
+                    <span class="@TypeClass(scheduleEvent.Type)">@scheduleEvent.Type.ToLabel()</span>
+                    <span class="text-[11.5px] font-bold text-text-strong whitespace-nowrap">@scheduleEvent.Time</span>
+                </span>
+                <span class="text-[13.5px] font-bold text-navy-deep break-keep">@scheduleEvent.Title</span>
+                <span class="text-[11.5px] text-text-body break-keep">@scheduleEvent.Meta</span>
+            </span>
+        </div>
+    }
+</div>
+
+@code {
+    private sealed record ScheduleEvent(string Day, string Date, SoccerScheduleEventType Type, string Title, string Meta, string Time);
+
+    private static readonly ScheduleEvent[] Events =
+    [
+        new("화", "14", SoccerScheduleEventType.Training, "전술 훈련 — 빌드업", "강동 보조구장 · U15 전원", "19:00"),
+        new("토", "18", SoccerScheduleEventType.Match, "서울 유스리그 12R vs 송파 FC", "송파 구장 · 원정 · 집결 08:30", "10:00"),
+        new("일", "19", SoccerScheduleEventType.Training, "리커버리 + 개인 피드백", "강동 보조구장", "17:00"),
+        new("토", "25", SoccerScheduleEventType.Tournament, "한강배 유소년컵 조별 1차전", "난지 천연잔디", "13:00"),
+    ];
+
+    private static string TypeClass(SoccerScheduleEventType type) =>
+        "text-[10.5px] font-bold rounded-full px-[9px] py-0.5 whitespace-nowrap shrink-0 " + type switch
+        {
+            SoccerScheduleEventType.Match => "text-white bg-navy",
+            SoccerScheduleEventType.Tournament => "text-orange-ink bg-surface-orange-badge",
+            _ => "text-teal-ink bg-teal/[.12]",
+        };
+}
