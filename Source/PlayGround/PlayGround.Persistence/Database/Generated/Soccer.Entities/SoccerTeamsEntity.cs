@@ -19,16 +19,16 @@ public class SoccerTeamsEntity
 	public Guid TeamId { get; set; } = Guid.Empty;
 
 	[Required]
-	[StringLength(100)]
+	[StringLength(300)]
 	public string TeamName { get; set; } = String.Empty;
 
-	[StringLength(20)]
+	[StringLength(60)]
 	public string ShortName { get; set; } = String.Empty;
 
-	[StringLength(20)]
+	[StringLength(60)]
 	public string TeamType { get; set; } = String.Empty;
 
-	[StringLength(100)]
+	[StringLength(300)]
 	public string Region { get; set; } = String.Empty;
 
 	[StringLength(20)]
@@ -37,7 +37,7 @@ public class SoccerTeamsEntity
 	[StringLength(2048)]
 	public string LogoUrl { get; set; } = String.Empty;
 
-	[StringLength(1000)]
+	[StringLength(3000)]
 	public string Description { get; set; } = String.Empty;
 
 	[StringLength(100)]

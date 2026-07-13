@@ -18,14 +18,14 @@ public class SoccerLandingContentRecord
 	public string Section { get; set; } = String.Empty;
 
 	[Required]
-	[StringLength(20)]
+	[StringLength(60)]
 	public string Icon { get; set; } = String.Empty;
 
 	[Required]
-	[StringLength(100)]
+	[StringLength(300)]
 	public string Title { get; set; } = String.Empty;
 
 	[Required]
-	[StringLength(500)]
+	[StringLength(1500)]
 	public string Body { get; set; } = String.Empty;
 }

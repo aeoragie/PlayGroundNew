@@ -22,24 +22,25 @@ namespace PlayGround.Client.Services
                 HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/player/me/profile", request);
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    return new PlayerSaveResult(false, "로그인이 필요해요. 다시 로그인해 주세요.");
+                    return new PlayerSaveResult(false, null, "로그인이 필요해요. 다시 로그인해 주세요.");
                 }
 
                 Envelope<CreatePlayerProfileResponse>? envelope =
                     await response.Content.ReadFromJsonAsync<Envelope<CreatePlayerProfileResponse>>();
                 if (envelope is { IsSuccess: true })
                 {
-                    return new PlayerSaveResult(true, null);
+                    return new PlayerSaveResult(true, envelope.Data?.AccessToken, null);
                 }
 
-                return new PlayerSaveResult(false, envelope?.Message ?? "프로필 저장에 실패했어요.");
+                return new PlayerSaveResult(false, null, envelope?.Message ?? "프로필 저장에 실패했어요.");
             }
             catch
             {
-                return new PlayerSaveResult(false, "네트워크 오류로 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
+                return new PlayerSaveResult(false, null, "네트워크 오류로 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
             }
         }
     }
 
-    public record PlayerSaveResult(bool Success, string? Error);
+    /// <summary>AccessToken은 Player로 승격된 새 토큰 — null이면 기존 토큰 유지.</summary>
+    public record PlayerSaveResult(bool Success, string? AccessToken, string? Error);
 }

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
+using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Models;
 
@@ -14,13 +15,16 @@ namespace PlayGround.Application.Player.Commands
 
         private readonly IPlayerRepository mRepository;
         private readonly IAccountRepository mAccountRepository;
+        private readonly IJwtTokenService mTokenService;
 
-        public SoccerPlayerProfileCommand(IPlayerRepository repository, IAccountRepository accountRepository)
+        public SoccerPlayerProfileCommand(IPlayerRepository repository, IAccountRepository accountRepository, IJwtTokenService tokenService)
         {
             Debug.Assert(repository != null, "repository is required");
             Debug.Assert(accountRepository != null, "accountRepository is required");
+            Debug.Assert(tokenService != null, "tokenService is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mAccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
+            mTokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
         }
 
         public async Task<Result<CreatePlayerProfileResponse>> ExecuteAsync(
@@ -73,10 +77,23 @@ namespace PlayGround.Application.Player.Commands
                 return Result<CreatePlayerProfileResponse>.Failure(created.ResultData);
             }
 
-            // 온보딩 완료 → 역할 승격(로그인 후 라우팅용). 실패해도 프로필은 생성됐으므로 비치명적.
-            await mAccountRepository.UpdateRoleAsync(userId, "Player", cancellation);
+            // 온보딩 완료 → 역할 승격 + 승격된 역할로 JWT 재발급 (재로그인 없이 /dashboard 분기가 맞도록).
+            // 실패해도 프로필은 생성됐으므로 비치명적 — 토큰 없이 반환하면 기존 토큰이 유지된다.
+            Result<AccountUser> promoted = await mAccountRepository.UpdateRoleAsync(userId, "Player", cancellation);
 
-            return Result<CreatePlayerProfileResponse>.Success(new CreatePlayerProfileResponse { PlayerId = created.Value });
+            string? accessToken = null;
+            if (promoted.IsSuccess)
+            {
+                AccountUser user = promoted.Value;
+                accessToken = mTokenService.GenerateAccessToken(
+                    user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
+            }
+
+            return Result<CreatePlayerProfileResponse>.Success(new CreatePlayerProfileResponse
+            {
+                PlayerId = created.Value,
+                AccessToken = accessToken
+            });
         }
 
         private static string? NormalizeAgeGroup(string? value)

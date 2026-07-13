@@ -13,5 +13,8 @@ namespace PlayGround.Contracts.Player
     public class CreatePlayerProfileResponse
     {
         public Guid PlayerId { get; set; }
+
+        /// <summary>Player로 승격된 새 액세스 토큰. 승격 실패 시 null (기존 토큰 유지).</summary>
+        public string? AccessToken { get; set; }
     }
 }

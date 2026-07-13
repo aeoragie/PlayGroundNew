@@ -21,7 +21,7 @@ public class SoccerPlayersEntity
 	public Guid? UserId { get; set; } = null;
 
 	[Required]
-	[StringLength(50)]
+	[StringLength(150)]
 	public string Name { get; set; } = String.Empty;
 
 	public DateTime? BirthDate { get; set; } = null;
@@ -29,7 +29,7 @@ public class SoccerPlayersEntity
 	[StringLength(20)]
 	public string AgeGroup { get; set; } = String.Empty;
 
-	[StringLength(100)]
+	[StringLength(300)]
 	public string Region { get; set; } = String.Empty;
 
 	public Guid? TeamId { get; set; } = null;

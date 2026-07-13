@@ -59,19 +59,12 @@ namespace PlayGround.Persistence.Repositories
             return await CreatedAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "CreateUserWithSocial");
         }
 
-        public async Task<Result> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default)
+        public async Task<Result<AccountUser>> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default)
         {
             Logger.InfoWith("User role update requested", ("UserId", userId), ("Role", role));
 
             var procedure = new UspUpdateUserRole(this) { UserId = userId, Role = role };
-            var result = await procedure.ExecuteAsync(cancellation: cancellation);
-            if (result.IsError)
-            {
-                Logger.ErrorWith("User role update failed", ("ResultCode", result.ResultCode));
-                return Result.Error(ErrorCode.DatabaseError);
-            }
-
-            return Result.Success();
+            return await CreatedAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "UpdateUserRole");
         }
 
         //.// 공통 처리 (빈 결과 = 미존재, DB 오류 = Error)

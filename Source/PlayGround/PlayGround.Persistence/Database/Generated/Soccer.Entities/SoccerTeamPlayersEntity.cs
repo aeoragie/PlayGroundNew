@@ -27,10 +27,10 @@ public class SoccerTeamPlayersEntity
 	[StringLength(10)]
 	public string JerseyNumber { get; set; } = String.Empty;
 
-	[StringLength(20)]
+	[StringLength(60)]
 	public string Position { get; set; } = String.Empty;
 
-	[StringLength(20)]
+	[StringLength(60)]
 	public string Grade { get; set; } = String.Empty;
 
 	[Required]

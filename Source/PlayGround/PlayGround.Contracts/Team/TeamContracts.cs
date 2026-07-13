@@ -24,5 +24,8 @@ namespace PlayGround.Contracts.Team
     {
         public string Slug { get; set; } = string.Empty;
         public int PlayerCount { get; set; }
+
+        /// <summary>TeamAdmin으로 승격된 새 액세스 토큰. 승격 실패 시 null (기존 토큰 유지).</summary>
+        public string? AccessToken { get; set; }
     }
 }

@@ -15,6 +15,7 @@ namespace PlayGround.Application.Interfaces
 
         Task<Result<AccountUser>> CreateWithSocialAsync(string email, string displayName, string provider, string providerUserId, string? profileImageUrl, CancellationToken cancellation = default);
 
-        Task<Result> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default);
+        /// <summary>역할 변경 후 갱신된 사용자를 반환 (JWT 재발급용).</summary>
+        Task<Result<AccountUser>> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default);
     }
 }

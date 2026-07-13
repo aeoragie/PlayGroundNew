@@ -5,6 +5,7 @@
 @inject NavigationManager Nav
 @inject OnboardingState State
 @inject TeamClient Teams
+@inject JwtAuthenticationStateProvider AuthProvider
 
 <PageTitle>팀 온보딩 — PlayGround</PageTitle>
 
@@ -177,6 +178,12 @@
         {
             mError = result.Error;
             return;
+        }
+
+        // 승격된 역할(TeamAdmin)의 새 토큰으로 교체 — 재로그인 없이 /dashboard 분기가 맞도록.
+        if (!string.IsNullOrWhiteSpace(result.AccessToken))
+        {
+            await AuthProvider.MarkUserAuthenticatedAsync(result.AccessToken);
         }
 
         State.DoneFrom = OnboardingRole.Team;

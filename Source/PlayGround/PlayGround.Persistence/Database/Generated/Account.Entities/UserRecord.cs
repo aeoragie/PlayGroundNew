@@ -31,7 +31,7 @@ public class UserRecord
 	public string AuthProvider { get; set; } = String.Empty;
 
 	[Required]
-	[StringLength(100)]
+	[StringLength(300)]
 	public string DisplayName { get; set; } = String.Empty;
 
 	[StringLength(2048)]
