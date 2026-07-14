@@ -1,0 +1,75 @@
+@* 포트폴리오 섹션(PC): [대표 영상 16:9 | 우측 340px 영상 목록] — SPEC.PLAYERDASHBOARD.md §4
+   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <h1 class="@Css.Dashboard.SectionTitle">포트폴리오</h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 영상 추가</button>
+    </div>
+
+    <div class="grid grid-cols-[1fr_340px] gap-[18px] items-start">
+        <div class="@($"{Css.Dashboard.Card} overflow-hidden")">
+            <div class="w-full aspect-video relative bg-navy-deep">
+                <img src="@PrimaryThumb" alt="대표 영상 썸네일" class="absolute inset-0 w-full h-full object-cover" />
+                <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span class="w-14 h-14 rounded-full bg-black/[.65] flex items-center justify-center">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+                    </span>
+                </span>
+                <span class="absolute top-3 left-3 text-[11px] font-bold text-white bg-orange rounded-full px-3 py-1 pointer-events-none">대표 영상</span>
+            </div>
+            <div class="px-[22px] py-[18px] flex flex-col gap-[9px]">
+                <div class="flex gap-[7px] items-center">
+                    <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="15" />
+                    <span class="text-[15px] font-extrabold text-navy-deep break-keep">2026 상반기 하이라이트 — 득점 모음</span>
+                </div>
+                <div class="flex gap-[7px] flex-wrap">
+                    @foreach (string tag in Tags)
+                    {
+                        <span class="text-[11.5px] font-bold text-navy bg-surface-icon rounded-full px-[11px] py-[3px] whitespace-nowrap">@tag</span>
+                    }
+                </div>
+                <span class="text-[12.5px] text-text-muted break-keep">공개 프로필과 선수 카드의 첫 화면에 노출됩니다</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">영상 목록 <span class="text-xs font-bold text-text-muted">@(Clips.Length)개</span></h3>
+            @foreach (Clip clip in Clips)
+            {
+                <div class="@($"{Css.Dashboard.Card} rounded-[13px] p-3 flex gap-3 items-center hover:border-navy transition-colors")">
+                    <div class="w-[110px] aspect-video rounded-lg overflow-hidden relative bg-navy-deep shrink-0">
+                        @if (clip.Thumb is not null)
+                        {
+                            <img src="@clip.Thumb" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" />
+                        }
+                        <span class="absolute bottom-1 right-1 text-[9.5px] font-bold text-white bg-black/75 rounded px-[5px] py-px pointer-events-none">@clip.Duration</span>
+                    </div>
+                    <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                        <span class="text-[12.5px] font-bold text-navy-deep leading-[1.4] break-keep">@clip.Title</span>
+                        <span class="text-[11px] text-text-muted whitespace-nowrap">@clip.Meta</span>
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    internal const string PrimaryThumb = "https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=1200";
+
+    internal static readonly string[] Tags = ["#왼발 마무리", "#침투", "#스피드"];
+
+    internal sealed record Clip(string Title, string Meta, string Duration, string? Thumb);
+
+    // 레퍼런스 목데이터 — PC·모바일 공유
+    internal static readonly Clip[] Clips =
+    [
+        new("리그 12R vs 강동 SC — 2골 장면", "7/5 · 경기 기록과 연결됨", "1:42",
+            "https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=600"),
+        new("한강배 유스컵 — 어시스트 장면", "6/28 · 경기 기록과 연결됨", "0:58",
+            "https://images.pexels.com/photos/35481332/pexels-photo-35481332.jpeg?auto=compress&cs=tinysrgb&w=600"),
+        new("개인 훈련 — 왼발 슈팅 루틴", "6/15", "2:10", null),
+    ];
+}

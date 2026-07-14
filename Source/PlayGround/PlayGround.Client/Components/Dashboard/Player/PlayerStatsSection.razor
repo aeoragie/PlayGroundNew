@@ -1,0 +1,95 @@
+@* 시즌 통계 섹션(PC): 시즌 pill + 요약 4카드 + 경기별 기록 6열 테이블 — SPEC.PLAYERDASHBOARD.md §3
+   읽기전용(팀 경기 결과에서 자동 집계 — 직접 입력 UI 없음). 데이터는 백엔드 연동 전 레퍼런스 예시 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <h1 class="@Css.Dashboard.SectionTitle">시즌 통계</h1>
+        <div class="flex gap-2">
+            @foreach (string season in Seasons)
+            {
+                string tab = season;
+                <button type="button" class="@(mSeason == tab ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
+                        @onclick="() => mSeason = tab">@tab 시즌</button>
+            }
+        </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-3.5">
+        <div class="bg-gradient-navy rounded-[14px] px-[22px] py-5 flex flex-col gap-[3px] text-white">
+            <span class="text-xs font-bold text-white/60">출전</span>
+            <span class="text-[23px] font-extrabold whitespace-nowrap">12경기 <span class="text-[13px] font-bold text-white/60">824'</span></span>
+        </div>
+        <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-5 flex flex-col gap-[3px]")">
+            <span class="text-xs font-bold text-text-muted">득점</span>
+            <span class="text-[23px] font-extrabold text-navy-deep">7</span>
+        </div>
+        <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-5 flex flex-col gap-[3px]")">
+            <span class="text-xs font-bold text-text-muted">도움</span>
+            <span class="text-[23px] font-extrabold text-navy-deep">3</span>
+        </div>
+        <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-5 flex flex-col gap-[3px]")">
+            <span class="text-xs font-bold text-text-muted">경기당 평균 출전</span>
+            <span class="text-[23px] font-extrabold text-navy-deep whitespace-nowrap">68분</span>
+        </div>
+    </div>
+
+    <div class="@($"{Css.Dashboard.Card} overflow-hidden")">
+        <div class="px-6 py-4 border-b border-surface-icon flex items-center gap-2.5">
+            <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">경기별 기록</h3>
+            <span class="text-[11.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[11px] py-[3px] whitespace-nowrap">팀 경기 결과에서 자동 집계</span>
+        </div>
+        <div class="@($"{RowGrid} bg-surface-soft text-[11.5px] font-extrabold text-text-muted py-2.5")">
+            <span>날짜</span><span>경기</span><span>대회</span><span class="text-center">득점</span><span class="text-center">도움</span><span class="text-center">출전</span>
+        </div>
+        @foreach (MatchRecord match in MatchesOf(mSeason))
+        {
+            <div class="@($"{RowGrid} items-center py-[13px] border-b border-surface-icon")">
+                <span class="text-[12.5px] text-text-muted whitespace-nowrap">@match.Date</span>
+                <span class="text-[13.5px] font-bold text-navy-deep break-keep">@match.Title</span>
+                <span><span class="@CompClass(match.Competition)">@match.Competition</span></span>
+                <span class="text-[13.5px] font-extrabold text-navy-deep text-center">@match.Goals</span>
+                <span class="text-[13.5px] font-extrabold text-navy-deep text-center">@match.Assists</span>
+                <span class="text-[12.5px] text-text-body text-center whitespace-nowrap">@(match.Minutes)'</span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private const string RowGrid = "grid grid-cols-[90px_1fr_110px_70px_70px_80px] px-6";
+
+    private string mSeason = "2026";
+
+    internal static readonly string[] Seasons = ["2026", "2025"];
+
+    internal sealed record MatchRecord(string Date, string Title, string Competition, int Goals, int Assists, int Minutes);
+
+    // 레퍼런스 목데이터 — PC·모바일 공유
+    internal static IReadOnlyList<MatchRecord> MatchesOf(string season) => season == "2025" ? Matches2025 : Matches2026;
+
+    private static readonly MatchRecord[] Matches2026 =
+    [
+        new("7/5", "vs 강동 SC (3:1 승)", "리그", 2, 0, 80),
+        new("6/28", "vs 마포 유나이티드 (1:1 무)", "컵", 0, 1, 72),
+        new("6/21", "vs 광진 FC (2:0 승)", "친선", 1, 0, 60),
+        new("6/14", "vs 성동 드래곤즈 (0:2 패)", "리그", 0, 0, 77),
+        new("6/7", "vs 송파 FC (2:1 승)", "리그", 1, 1, 84),
+    ];
+
+    private static readonly MatchRecord[] Matches2025 =
+    [
+        new("11/9", "vs 강일 FC (1:0 승)", "리그", 1, 0, 65),
+        new("10/26", "vs 천호 SC (2:2 무)", "리그", 0, 1, 70),
+    ];
+
+    // 대회 pill: 리그=네이비 / 컵=오렌지톤 / 친선=teal
+    internal static string CompClass(string competition) =>
+        "text-[11px] font-bold rounded-full px-2.5 py-[3px] whitespace-nowrap " +
+        (competition switch
+        {
+            "리그" => "text-navy bg-surface-icon",
+            "컵" => "text-orange-ink bg-surface-orange",
+            _ => "text-teal-ink bg-teal/[.12]",
+        });
+}

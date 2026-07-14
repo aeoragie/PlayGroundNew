@@ -1,0 +1,56 @@
+@* 커리어 섹션(PC): 타임라인(도트 현재=teal/과거=회색) + 검증 뱃지("팀 확인됨"/"본인 입력" 우측) — SPEC.PLAYERDASHBOARD.md §2
+   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <h1 class="@Css.Dashboard.SectionTitle">커리어</h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 이력 추가</button>
+    </div>
+
+    <div class="@($"{Css.Dashboard.Card} p-[26px] flex flex-col")">
+        @foreach (CareerEntry entry in Entries)
+        {
+            <div class="flex gap-[18px] py-4 border-b border-surface-icon">
+                <span class="flex flex-col items-center shrink-0 w-5">
+                    <span class="@($"w-3 h-3 rounded-full shrink-0 mt-1 {(entry.IsCurrent ? "bg-teal" : "bg-border")}")"></span>
+                    <span class="w-0.5 flex-1 bg-border mt-1"></span>
+                </span>
+                <span class="flex flex-col gap-1 flex-1 min-w-0 pb-1">
+                    <span class="flex items-center gap-[9px] flex-wrap">
+                        <span class="text-[15px] font-extrabold text-navy-deep whitespace-nowrap">@entry.Team</span>
+                        @if (entry.IsCurrent)
+                        {
+                            <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] py-0.5 whitespace-nowrap">현재 소속</span>
+                        }
+                        @if (entry.Badge is not null)
+                        {
+                            <span class="text-[10.5px] font-bold text-orange-ink bg-surface-orange border border-orange/40 rounded-full px-[9px] py-0.5 whitespace-nowrap">@entry.Badge</span>
+                        }
+                    </span>
+                    <span class="text-[12.5px] text-text-body whitespace-nowrap">@entry.Period · @entry.Role</span>
+                    <span class="text-[12.5px] text-text-body leading-[1.6] break-keep">@entry.Note</span>
+                </span>
+                <span class="@VerifyClass(entry.IsVerified)">@(entry.IsVerified ? "팀 확인됨" : "본인 입력")</span>
+            </div>
+        }
+        <span class="text-xs text-text-muted pt-3.5 break-keep">팀 소속 이력은 팀 관리자가 확인하면 "팀 확인됨"으로 표시돼요. 확인된 이력은 공개 프로필에서 신뢰 표시와 함께 노출됩니다.</span>
+    </div>
+</div>
+
+@code {
+    internal sealed record CareerEntry(string Team, bool IsCurrent, string? Badge, string Period, string Role, string Note, bool IsVerified);
+
+    // 레퍼런스 목데이터 — PC·모바일 공유
+    internal static readonly CareerEntry[] Entries =
+    [
+        new("FC 한강 유나이티드", true, "서울 지역 대표 선발", "2024.3 ~ 현재", "U15 · FW · 주전",
+            "2026 시즌 리그 득점 2위. 팀 내 최다 슈팅.", true),
+        new("강동 리틀 FC", false, null, "2021.5 ~ 2024.2", "U12 · FW/MF",
+            "유소년 첫 소속팀. 지역 대회 3회 출전.", false),
+    ];
+
+    internal static string VerifyClass(bool verified) =>
+        "text-[11px] font-bold rounded-full px-[11px] py-1 whitespace-nowrap self-start " +
+        (verified ? "text-teal-ink bg-teal/[.12]" : "text-text-muted bg-surface-icon");
+}

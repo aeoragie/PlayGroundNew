@@ -17,9 +17,13 @@
             @switch (CurrentSection)
             {
                 case SoccerPlayerDashboardSection.Career:
+                    <PlayerCareerSection />
+                    break;
                 case SoccerPlayerDashboardSection.Stats:
+                    <PlayerStatsSection />
+                    break;
                 case SoccerPlayerDashboardSection.Portfolio:
-                    @* 커리어·시즌 통계·포트폴리오는 다음 단계에서 구현 *@
+                    <PlayerPortfolioSection />
                     break;
                 default:
                     <PlayerProfileSection />
@@ -36,9 +40,13 @@
         @switch (CurrentSection)
         {
             case SoccerPlayerDashboardSection.Career:
+                <MobilePlayerCareerSection />
+                break;
             case SoccerPlayerDashboardSection.Stats:
+                <MobilePlayerStatsSection />
+                break;
             case SoccerPlayerDashboardSection.Portfolio:
-                @* 커리어·시즌 통계·포트폴리오는 다음 단계에서 구현 *@
+                <MobilePlayerPortfolioSection />
                 break;
             default:
                 <MobilePlayerProfileSection />

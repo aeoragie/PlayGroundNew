@@ -1,0 +1,72 @@
+@* 시즌 통계(모바일): 시즌 pill + 요약 2카드 + 경기별 2줄 카드(스탯 뱃지, 기록 없으면 "기록 없음") — SPEC §3 *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-3">
+    <div class="flex justify-between items-center">
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">시즌 통계</h1>
+        <div class="flex gap-[7px]">
+            @foreach (string season in PlayerStatsSection.Seasons)
+            {
+                string tab = season;
+                <button type="button" class="@PillClass(tab)" @onclick="() => mSeason = tab">@tab 시즌</button>
+            }
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5">
+        <div class="bg-gradient-navy rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5 text-white">
+            <span class="text-[11px] font-bold text-white/60">출전</span>
+            <span class="text-[17px] font-extrabold whitespace-nowrap">12경기 · 824'</span>
+        </div>
+        <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5")">
+            <span class="text-[11px] font-bold text-text-muted">득점 · 도움</span>
+            <span class="text-[17px] font-extrabold text-navy-deep whitespace-nowrap">7골 · 3도움</span>
+        </div>
+    </div>
+
+    <div class="@($"{Css.Dashboard.Card} rounded-[15px] overflow-hidden")">
+        <div class="px-4 py-3.5 border-b border-surface-icon flex items-center gap-2 flex-wrap">
+            <h3 class="m-0 text-sm font-extrabold text-navy-deep">경기별 기록</h3>
+            <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] py-0.5 whitespace-nowrap">자동 집계</span>
+        </div>
+        @foreach (PlayerStatsSection.MatchRecord match in PlayerStatsSection.MatchesOf(mSeason))
+        {
+            <div class="flex flex-col gap-[7px] px-4 py-[13px] border-b border-surface-icon">
+                <div class="flex items-center gap-2">
+                    <span class="@PlayerStatsSection.CompClass(match.Competition)">@match.Competition</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap">@match.Date</span>
+                    <div class="flex-1"></div>
+                    <span class="text-[11.5px] text-text-body whitespace-nowrap">출전 @(match.Minutes)'</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                    <span class="text-[13px] font-bold text-navy-deep flex-1 break-keep">@match.Title</span>
+                    <span class="text-xs font-extrabold text-navy-deep bg-surface-alt rounded-[7px] px-2.5 py-[3px] whitespace-nowrap">@StatLabel(match)</span>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string mSeason = "2026";
+
+    private static string StatLabel(PlayerStatsSection.MatchRecord match)
+    {
+        List<string> parts = new();
+        if (match.Goals > 0)
+        {
+            parts.Add($"{match.Goals}골");
+        }
+
+        if (match.Assists > 0)
+        {
+            parts.Add($"{match.Assists}도움");
+        }
+
+        return parts.Count > 0 ? string.Join(" · ", parts) : "기록 없음";
+    }
+
+    private string PillClass(string tab) =>
+        "h-[34px] px-[13px] rounded-full text-xs font-bold border-1.5 whitespace-nowrap cursor-pointer transition-colors " +
+        (mSeason == tab ? "border-navy bg-navy text-white" : "border-border bg-white text-text-body");
+}
