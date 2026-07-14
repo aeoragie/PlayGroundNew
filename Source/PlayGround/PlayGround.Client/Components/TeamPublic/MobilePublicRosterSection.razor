@@ -1,0 +1,86 @@
+@* 선수단 탭(모바일): 연령 pill + 2열 사진 카드 grid — SPEC.TEAMPUBLICHOME.md ②
+   공개 규칙·연령 pill 규칙은 PC(PublicRosterSection)와 동일 *@
+@using PlayGround.Contracts.Team
+
+<div class="flex flex-col gap-3">
+    <div class="flex items-center gap-2">
+        <h2 class="m-0 text-base font-extrabold text-navy-deep">선수단 <span class="text-[12.5px] font-bold text-text-muted">@(Roster.Count)명</span></h2>
+        <div class="flex-1"></div>
+        @if (HasAgeTabs)
+        {
+            @foreach (SoccerAgeGroup age in AgeTabs)
+            {
+                SoccerAgeGroup tab = age;
+                <button type="button" class="@PillClass(tab)" @onclick="() => mAgeTab = tab">@tab</button>
+            }
+        }
+    </div>
+
+    <div class="grid grid-cols-2 gap-[11px]">
+        @foreach (TeamPublicPlayerDto player in VisiblePlayers)
+        {
+            <div class="bg-white border-1.5 border-border rounded-[14px] px-2.5 pt-2.5 pb-3.5 flex flex-col items-center gap-[9px] text-center">
+                <div class="w-full aspect-[4/3] rounded-[10px] overflow-hidden relative bg-surface-icon">
+                    @if (player.PhotoUrl is not null)
+                    {
+                        <img src="@player.PhotoUrl" alt="@player.Name" class="absolute inset-0 w-full h-full object-cover" />
+                    }
+                    else
+                    {
+                        <span class="absolute inset-0 flex items-center justify-center text-xs text-text-faint">선수 사진</span>
+                    }
+                    <span class="absolute top-1.5 left-1.5 w-[26px] h-[26px] rounded-full bg-navy-deep/85 flex items-center justify-center text-[11.5px] font-extrabold text-white pointer-events-none">@(player.JerseyNumber ?? "-")</span>
+                </div>
+                <span class="flex flex-col gap-0.5">
+                    <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@player.Name</span>
+                    <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
+                </span>
+                @if (player.HasPublicProfile)
+                {
+                    <a href="#" class="text-[11px] font-bold text-navy whitespace-nowrap">공개 프로필 →</a>
+                }
+            </div>
+        }
+    </div>
+
+    @if (Roster.Count > 0)
+    {
+        <span class="text-[11.5px] text-text-muted break-keep">공개 프로필이 있는 선수만 상세 기록으로 연결됩니다.</span>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<TeamPublicPlayerDto> Roster { get; set; } = new();
+
+    private SoccerAgeGroup? mAgeTab;
+
+    // 연령 pill은 전원이 AgeGroup을 가질 때만 (혼합·전부 null이면 pill 없이 전체 표시)
+    private bool HasAgeTabs => Roster.Count > 0 && Roster.All(p => AgeOf(p) is not null);
+
+    private List<SoccerAgeGroup> AgeTabs =>
+        Roster
+        .Select(AgeOf)
+        .OfType<SoccerAgeGroup>()
+        .Distinct()
+        .OrderBy(age => age)
+        .ToList();
+
+    private IEnumerable<TeamPublicPlayerDto> VisiblePlayers =>
+        HasAgeTabs && mAgeTab is not null ? Roster.Where(p => AgeOf(p) == mAgeTab) : Roster;
+
+    protected override void OnParametersSet()
+    {
+        if (HasAgeTabs && (mAgeTab is null || !AgeTabs.Contains(mAgeTab.Value)))
+        {
+            mAgeTab = AgeTabs[0];
+        }
+    }
+
+    private static SoccerAgeGroup? AgeOf(TeamPublicPlayerDto player) =>
+        SoccerAgeGroupExtensions.ParseAgeGroupOrNull(player.AgeGroup);
+
+    private string PillClass(SoccerAgeGroup tab) =>
+        "h-8 px-3 rounded-full text-xs font-bold border-1.5 whitespace-nowrap cursor-pointer transition-colors " +
+        (mAgeTab == tab ? "border-navy bg-navy text-white" : "border-border bg-white text-text-body");
+}

@@ -38,8 +38,16 @@ else if (mHome is not null)
                         <MobilePublicAboutSection Home="@mHome" />
                     </div>
                     break;
+                case SoccerTeamPublicTab.Roster:
+                    <div class="hidden md:block">
+                        <PublicRosterSection Roster="@mHome.Roster" />
+                    </div>
+                    <div class="md:hidden">
+                        <MobilePublicRosterSection Roster="@mHome.Roster" />
+                    </div>
+                    break;
                 default:
-                    @* 선수단·시즌성적·모집·진학진로·리뷰 탭은 다음 단계에서 구현 *@
+                    @* 시즌성적·모집·진학진로·리뷰 탭은 다음 단계에서 구현 *@
                     break;
             }
         </main>
