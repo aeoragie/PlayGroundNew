@@ -68,6 +68,9 @@
   <!-- 빌드 대상 스키마(CREATE 구문) -->
   <ItemGroup>
     <Build Include="Tables\SoccerTeams.sql" />
+    <Build Include="Tables\SoccerTeamValues.sql" />
+    <Build Include="Tables\SoccerTeamCoaches.sql" />
+    <Build Include="Tables\SoccerTeamChannels.sql" />
     <Build Include="Tables\SoccerTeamPlayers.sql" />
     <Build Include="Tables\SoccerPlayerInvites.sql" />
     <Build Include="Tables\SoccerPlayers.sql" />
@@ -75,9 +78,12 @@
     <Build Include="Procedures\UspGetLandingContents.sql" />
     <Build Include="Procedures\UspCreatePlayer.sql" />
     <Build Include="Procedures\UspCreateSoccerTeamWithRoster.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamInfoByManager.sql" />
   </ItemGroup>
   <!-- 빌드 제외(스키마 아님): Seeds(데이터), Queries(제너레이터용 SELECT) -->
   <ItemGroup>
     <None Include="Seeds\SoccerLandingContents.Seed.sql" />
+    <None Include="Seeds\VerificationTeamInfo.Seed.sql" />
+    <None Include="Seeds\VerificationRoster.Seed.sql" />
   </ItemGroup>
 </Project>
