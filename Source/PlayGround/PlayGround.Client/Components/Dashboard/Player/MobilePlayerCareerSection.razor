@@ -1,5 +1,7 @@
-@* 커리어(모바일): 타임라인 — 검증 뱃지는 본문 하단 배치 — SPEC.PLAYERDASHBOARD.md §2 *@
+@* 커리어(모바일): 타임라인 — 검증 뱃지는 본문 하단 배치 — SPEC.PLAYERDASHBOARD.md §2
+   이력 없으면 타임라인 카드를 렌더하지 않는다 (빈 데이터 노출 금지) *@
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
@@ -7,32 +9,43 @@
         <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 이력 추가</button>
     </div>
 
-    <div class="@($"{Css.Dashboard.Card} rounded-[15px] p-[18px] flex flex-col")">
-        @foreach (PlayerCareerSection.CareerEntry entry in PlayerCareerSection.Entries)
-        {
-            <div class="flex gap-[13px] py-[13px] border-b border-surface-icon">
-                <span class="flex flex-col items-center shrink-0 w-3.5">
-                    <span class="@($"w-3 h-3 rounded-full shrink-0 mt-1 {(entry.IsCurrent ? "bg-teal" : "bg-border")}")"></span>
-                    <span class="w-0.5 flex-1 bg-border mt-1"></span>
-                </span>
-                <span class="flex flex-col gap-1 flex-1 min-w-0 pb-1">
-                    <span class="flex items-center gap-[7px] flex-wrap">
-                        <span class="text-sm font-extrabold text-navy-deep break-keep">@entry.Team</span>
-                        @if (entry.IsCurrent)
-                        {
-                            <span class="text-[10px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2 py-0.5 whitespace-nowrap">현재 소속</span>
-                        }
-                        @if (entry.Badge is not null)
-                        {
-                            <span class="text-[10px] font-bold text-orange-ink bg-surface-orange border border-orange/40 rounded-full px-2 py-0.5 whitespace-nowrap">@entry.Badge</span>
-                        }
+    @if (Entries.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} rounded-[15px] p-[18px] flex flex-col")">
+            @foreach (PlayerCareerEntryDto entry in Entries)
+            {
+                <div class="flex gap-[13px] py-[13px] border-b border-surface-icon">
+                    <span class="flex flex-col items-center shrink-0 w-3.5">
+                        <span class="@($"w-3 h-3 rounded-full shrink-0 mt-1 {(entry.IsCurrent ? "bg-teal" : "bg-border")}")"></span>
+                        <span class="w-0.5 flex-1 bg-border mt-1"></span>
                     </span>
-                    <span class="text-[11.5px] text-text-body whitespace-nowrap">@entry.Period · @entry.Role</span>
-                    <span class="text-xs text-text-body leading-[1.6] break-keep">@entry.Note</span>
-                    <span class="@PlayerCareerSection.VerifyClass(entry.IsVerified)">@(entry.IsVerified ? "팀 확인됨" : "본인 입력")</span>
-                </span>
-            </div>
-        }
-        <span class="text-[11px] text-text-muted pt-3 break-keep">팀 소속 이력은 팀 관리자가 확인하면 "팀 확인됨"으로 표시돼요.</span>
-    </div>
+                    <span class="flex flex-col gap-1 flex-1 min-w-0 pb-1">
+                        <span class="flex items-center gap-[7px] flex-wrap">
+                            <span class="text-sm font-extrabold text-navy-deep break-keep">@entry.TeamName</span>
+                            @if (entry.IsCurrent)
+                            {
+                                <span class="text-[10px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2 py-0.5 whitespace-nowrap">현재 소속</span>
+                            }
+                            @if (entry.BadgeLabel is not null)
+                            {
+                                <span class="text-[10px] font-bold text-orange-ink bg-surface-orange border border-orange/40 rounded-full px-2 py-0.5 whitespace-nowrap">@entry.BadgeLabel</span>
+                            }
+                        </span>
+                        <span class="text-[11.5px] text-text-body whitespace-nowrap">@PlayerCareerSection.MetaLine(entry)</span>
+                        @if (entry.Note is not null)
+                        {
+                            <span class="text-xs text-text-body leading-[1.6] break-keep">@entry.Note</span>
+                        }
+                        <span class="@PlayerCareerSection.VerifyClass(entry.IsVerified)">@(entry.IsVerified ? "팀 확인됨" : "본인 입력")</span>
+                    </span>
+                </div>
+            }
+            <span class="text-[11px] text-text-muted pt-3 break-keep">팀 소속 이력은 팀 관리자가 확인하면 "팀 확인됨"으로 표시돼요.</span>
+        </div>
+    }
 </div>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<PlayerCareerEntryDto> Entries { get; set; } = new();
+}

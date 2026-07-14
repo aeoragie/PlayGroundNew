@@ -25,13 +25,19 @@
                 @switch (CurrentSection)
                 {
                     case SoccerPlayerDashboardSection.Career:
-                        <PlayerCareerSection />
+                        @if (mCareer is not null)
+                        {
+                            <PlayerCareerSection Entries="@mCareer.Entries" />
+                        }
                         break;
                     case SoccerPlayerDashboardSection.Stats:
                         <PlayerStatsSection />
                         break;
                     case SoccerPlayerDashboardSection.Portfolio:
-                        <PlayerPortfolioSection />
+                        @if (mPortfolio is not null)
+                        {
+                            <PlayerPortfolioSection Videos="@mPortfolio.Videos" />
+                        }
                         break;
                     default:
                         <PlayerProfileSection Info="@mInfo" OnClaimed="ReloadAsync" />
@@ -51,13 +57,19 @@
             @switch (CurrentSection)
             {
                 case SoccerPlayerDashboardSection.Career:
-                    <MobilePlayerCareerSection />
+                    @if (mCareer is not null)
+                    {
+                        <MobilePlayerCareerSection Entries="@mCareer.Entries" />
+                    }
                     break;
                 case SoccerPlayerDashboardSection.Stats:
                     <MobilePlayerStatsSection />
                     break;
                 case SoccerPlayerDashboardSection.Portfolio:
-                    <MobilePlayerPortfolioSection />
+                    @if (mPortfolio is not null)
+                    {
+                        <MobilePlayerPortfolioSection Videos="@mPortfolio.Videos" />
+                    }
                     break;
                 default:
                     <MobilePlayerProfileSection Info="@mInfo" OnClaimed="ReloadAsync" />
@@ -73,6 +85,8 @@
     public string? Section { get; set; }
 
     private PlayerInfoResponse? mInfo;
+    private PlayerCareerResponse? mCareer;
+    private PlayerPortfolioResponse? mPortfolio;
 
     private SoccerPlayerDashboardSection CurrentSection => SoccerPlayerDashboardSectionExtensions.ParseSlug(Section);
 
@@ -104,10 +118,25 @@
         mInfo = await Players.GetMyInfoAsync();
     }
 
+    // 섹션 진입 시 지연 로드 (1회) — 커리어·포트폴리오는 진입할 때만 조회
+    protected override async Task OnParametersSetAsync()
+    {
+        if (CurrentSection == SoccerPlayerDashboardSection.Career && mCareer is null)
+        {
+            mCareer = await Players.GetMyCareerAsync();
+        }
+        else if (CurrentSection == SoccerPlayerDashboardSection.Portfolio && mPortfolio is null)
+        {
+            mPortfolio = await Players.GetMyPortfolioAsync();
+        }
+    }
+
     // 초대코드 Claim 성공 후 — 연결된 프로필(다른 선수 행일 수 있음)로 전체 재로드
     private async Task ReloadAsync()
     {
         mInfo = await Players.GetMyInfoAsync();
+        mCareer = null;
+        mPortfolio = null;
         StateHasChanged();
     }
 

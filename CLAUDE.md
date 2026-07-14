@@ -44,6 +44,15 @@
   `PUT .../visibility`(소유 선수만). **커리어·시즌 통계·포트폴리오는 목데이터**(PC 컴포넌트
   internal static을 모바일이 공유). SPEC의 "공개 프로필" 네이비 카드는 공개 선수 프로필
   구현 전까지 미노출 처리.
+- **선수 대시보드 커리어·포트폴리오 백엔드 연동 (조회)** — SoccerPlayerCareers(TeamName 자유
+  입력 + TeamId 연결, IsVerified 팀 확인 플래그)·SoccerPlayerPortfolioVideos(IsPrimary 대표,
+  Tags JSON, DurationSeconds) 신설 → `GET api/soccer/player/me/career`·`me/portfolio`
+  (기존 선수 액터에 핸들러 추가) → PC·모바일 4개 섹션 DTO 바인딩 + 페이지 섹션 진입 시
+  지연 로드. 기간("2024.3 ~ 현재")·길이("1:42") 포맷은 클라이언트. 검증 시드
+  `VerificationPlayerCareers.Seed.sql`(김정현 커리어2+영상3, 신준우 커리어1+영상0).
+  **API·커리어 화면 검증 완료. 포트폴리오 화면은 Tailwind 재빌드 후 재검증 필요** —
+  대표 영상 카드의 `block` 클래스가 CSS 산출물에 없어 깨졌던 것 재빌드로 해결(커밋됨),
+  서버 재기동 후 `/dashboard/player/portfolio` 스크린샷 확인이 다음 세션 첫 작업.
 - **초대코드 Claim 플로우** — `UspClaimSoccerPlayerInvite`(Pending·미만료 검증, 같은 계정의
   온보딩 프로필은 COALESCE 병합 후 소프트 삭제) → `POST api/soccer/player/me/claim`(실패 사유
   통합 NotFound — 코드 추측 대비, 값은 로그 미기록. **승격은 JWT 역할 General일 때만** —
@@ -60,12 +69,14 @@
 
 ### 다음 작업 (우선순위)
 
-1. **선수 대시보드 잔여 백엔드** — 커리어(PlayerCareer 스키마 + 팀 확인 verified 플래그),
-   포트폴리오(영상 링크·대표 지정). 시즌 통계는 경기 스키마(Records) 선행 필요.
+1. **포트폴리오 화면 재검증** — 서버 기동 후 `/dashboard/player/portfolio` PC·모바일
+   스크린샷 확인 (CSS 재빌드 반영분). 계정 `verify-player-u15@test.local`(영상 3),
+   `verify-player-u12@test.local`(빈 포트폴리오 — 헤더만 남는지).
 2. **Records 보강 → 경기 스키마 설계** — 공개 홈 시즌성적 탭·팀 대시보드 경기 섹션·선수
    시즌 통계가 공유할 Match/결과 구조 (설계 결정 #5 DataSource·ExternalRef 선반영 포함).
+   선수 대시보드는 시즌 통계만 남음(경기 스키마 의존).
 3. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
-   온보딩 중복 방지, 공개 페이지 로그인 상태 GNB(선수 대시보드·역할별 진입점과 함께 설계).
+   커리어·포트폴리오 입력(추가/수정) UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
 
 ### 검증 팁 (2026-07-14 확립)
 

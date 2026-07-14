@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div data-screen-label="경기기록 Records v3" style="min-height:100vh;background:#f4f6fa">
+
+<!-- ===== GNB ===== -->
+<header style="background:#fdfdfc;border-bottom:1px solid #e6e8ee;position:sticky;top:0;z-index:50">
+  <div style="max-width:1100px;margin:0 auto;padding:0 32px;height:60px;display:flex;align-items:center;gap:16px">
+    <a href="#" style="display:flex;align-items:baseline;gap:6px;white-space:nowrap">
+      <span style="font-size:17px;font-weight:800;letter-spacing:-.03em;color:#23408e">PlayGround</span>
+      <span style="font-size:17px;font-weight:700;letter-spacing:-.02em;color:#b6bdc9">Soccer</span>
+    </a>
+    <span style="width:1px;height:16px;background:#e6e8ee;margin:0 2px"></span>
+    <span style="font-size:13px;font-weight:700;color:#3c465a;white-space:nowrap">경기기록</span>
+    <div style="flex:1"></div>
+    <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#3c465a;white-space:nowrap">
+      <span style="width:26px;height:26px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff">김</span>
+      김OO 님 · U15 보호자
+    </span>
+  </div>
+</header>
+
+<main style="max-width:1100px;margin:0 auto;padding:24px 32px 80px;display:flex;flex-direction:column;gap:16px">
+
+<!-- ════════ 목록 ════════ -->
+<sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="대회·리그 목록" style="display:flex;flex-direction:column;gap:14px">
+
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <h1 style="margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em;white-space:nowrap">2026 시즌</h1>
+    <div style="display:flex;background:#e9ecf2;border-radius:11px;padding:3px;gap:3px">
+      <button onClick="{{ segCup }}" style="{{ segCupStyle }}">대회</button>
+      <button onClick="{{ segLeague }}" style="{{ segLeagueStyle }}">리그</button>
+    </div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 15px;height:42px;width:260px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <span style="font-size:13px;color:#8a93a6;white-space:nowrap">대회 · 팀 · 선수 검색</span>
+    </div>
+    <button onClick="{{ goArchive }}" style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#23408e;white-space:nowrap;border:0;background:none;cursor:pointer;font-family:inherit;padding:0">지난 시즌 기록
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+    </button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="display:flex;gap:14px;font-size:11.5px;color:#8a93a6;align-items:center">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:#2EC4B6"></span>진행중</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:#23408e"></span>예정</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:#d5d9e2"></span>종료</span>
+      <span>진행중 → 예정 → 종료 순 자동 정렬</span>
+    </div>
+    <div style="flex:1"></div>
+    <button onClick="{{ toggleMyAge }}" style="{{ myAgeStyle }}">내 연령(U15)만 보기</button>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ ageGroups }}" as="g" hint-placeholder-count="3">
+      <div style="{{ g.cardStyle }}">
+        <button onClick="{{ g.toggle }}" style="width:100%;border:0;background:none;cursor:pointer;font-family:inherit;padding:16px 22px;display:flex;align-items:center;gap:12px;text-align:left">
+          <span style="font-size:15.5px;font-weight:800;color:#1c2b4a;width:44px">{{ g.age }}</span>
+          <sc-if value="{{ g.mine }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:10.5px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border:1px solid rgba(46,196,182,.35);border-radius:99px;padding:2px 9px;white-space:nowrap">내 연령</span>
+          </sc-if>
+          <span style="font-size:12px;color:#8a93a6;white-space:nowrap">{{ g.desc }}</span>
+          <div style="flex:1"></div>
+          <span style="font-size:11.5px;font-weight:700;color:#23408e;background:#f1f3f8;border-radius:99px;padding:3px 11px;white-space:nowrap">{{ g.count }}개</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ g.chev }}"><path d="M6 9l6 6 6-6"></path></svg>
+        </button>
+        <sc-if value="{{ g.open }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top:1px solid #f1f3f8;display:flex;flex-direction:column">
+            <sc-for list="{{ g.sections }}" as="sec" hint-placeholder-count="1">
+              <sc-if value="{{ sec.hasLabel }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:9px 22px;background:#f8f9fb;font-size:11.5px;font-weight:800;color:#8a93a6;border-bottom:1px solid #f1f3f8">{{ sec.label }}</div>
+              </sc-if>
+              <sc-for list="{{ sec.items }}" as="t" hint-placeholder-count="4">
+                <button onClick="{{ t.open }}" style="{{ t.rowStyle }}" style-hover="background:#f8f9fb">
+                  <span style="{{ t.barStyle }}"></span>
+                  <span style="{{ t.scopeStyle }}">{{ t.scope }}</span>
+                  <span style="{{ t.nameStyle }}">{{ t.name }}</span>
+                  <span style="font-size:10.5px;font-weight:700;color:#8a93a6;border:1px solid #e6e8ee;border-radius:99px;padding:2px 9px;white-space:nowrap;flex:none">{{ t.fmt }}</span>
+                  <span style="font-size:12px;color:#8a93a6;width:38px;text-align:right;white-space:nowrap">{{ t.teams }}팀</span>
+                  <span style="{{ t.statusStyle }}">{{ t.status }}</span>
+                </button>
+              </sc-for>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ════════ 지난 시즌 아카이브 ════════ -->
+<sc-if value="{{ isArchive }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="지난 시즌 아카이브" style="display:flex;flex-direction:column;gap:16px">
+  <button onClick="{{ backToList }}" style="align-self:flex-start;display:flex;align-items:center;gap:6px;border:0;background:none;font-size:13px;font-weight:700;color:#5b6577;cursor:pointer;font-family:inherit;padding:0" style-hover="color:#23408e">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>2026 시즌으로
+  </button>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <h1 style="margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em;white-space:nowrap">지난 시즌 기록</h1>
+    <div style="flex:1"></div>
+    <div style="display:flex;gap:7px">
+      <sc-for list="{{ archiveYears }}" as="y" hint-placeholder-count="5">
+        <button onClick="{{ y.go }}" style="{{ y.style }}">{{ y.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+    <sc-for list="{{ archiveItems }}" as="t" hint-placeholder-count="4">
+      <button onClick="{{ t.open }}" style="width:100%;border:0;border-bottom:1px solid #f8f9fb;background:none;cursor:pointer;font-family:inherit;padding:14px 22px 14px 16px;display:flex;align-items:center;gap:12px;text-align:left" style-hover="background:#f8f9fb">
+        <span style="width:4px;height:28px;border-radius:99px;background:#d5d9e2;flex:none"></span>
+        <span style="{{ t.scopeStyle }}">{{ t.scope }}</span>
+        <span style="font-size:13.5px;font-weight:700;color:#1c2b4a;flex:1;min-width:0;word-break:keep-all">{{ t.name }}</span>
+        <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">{{ t.age }} · {{ t.fmt }} · {{ t.teams }}팀</span>
+        <span style="display:flex;align-items:center;gap:7px;flex:none">
+          <span style="font-size:10.5px;font-weight:800;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:2px 9px;white-space:nowrap">우승</span>
+          <span style="font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">{{ t.champion }}</span>
+        </span>
+      </button>
+    </sc-for>
+  </div>
+  <span style="font-size:12px;color:#8a93a6;word-break:keep-all">종료된 대회의 전체 기록(순위·경기·수상)을 그대로 볼 수 있어요.</span>
+</div>
+</sc-if>
+
+<!-- ════════ 대회 상세 (탭 가변) ════════ -->
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="대회 상세" style="display:flex;flex-direction:column;gap:16px">
+
+  <button onClick="{{ backToList }}" style="align-self:flex-start;display:flex;align-items:center;gap:6px;border:0;background:none;font-size:13px;font-weight:700;color:#5b6577;cursor:pointer;font-family:inherit;padding:0" style-hover="color:#23408e">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>목록으로
+  </button>
+
+  <div style="background:linear-gradient(160deg,#1c2b4a,#23408e);border-radius:18px;padding:26px 30px;color:#fff;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-90px;right:-70px;width:240px;height:240px;border:1.5px solid rgba(255,255,255,.09);border-radius:50%"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;position:relative">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ heroBadges }}" as="hb" hint-placeholder-count="3">
+          <span style="{{ hb.style }}">{{ hb.label }}</span>
+        </sc-for>
+      </div>
+      <h1 style="margin:0;font-size:25px;font-weight:800;letter-spacing:-.02em;word-break:keep-all">{{ heroTitle }}</h1>
+      <span style="font-size:13.5px;color:rgba(255,255,255,.7);word-break:keep-all">{{ heroMeta }}</span>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:4px;border-bottom:1.5px solid #e6e8ee;overflow-x:auto">
+    <sc-for list="{{ detailTabs }}" as="t" hint-placeholder-count="4">
+      <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}<sc-if value="{{ t.hasCount }}" hint-placeholder-val="{{ false }}"><span style="{{ t.countStyle }}">{{ t.count }}</span></sc-if></button>
+    </sc-for>
+  </div>
+
+  <!-- ── 대회 정보 ── -->
+  <sc-if value="{{ isInfo }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="background:#1c2b4a;border-radius:14px;padding:16px 24px;display:flex;align-items:center;gap:26px;color:#fff;flex-wrap:wrap">
+      <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);white-space:nowrap">총 경기 · 종료</span><span style="font-size:18px;font-weight:800;white-space:nowrap">{{ infoStats.games }}</span></span>
+      <span style="width:1px;height:22px;background:rgba(255,255,255,.15)"></span>
+      <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);white-space:nowrap">득점 · 경기당</span><span style="font-size:18px;font-weight:800;white-space:nowrap">{{ infoStats.goals }}</span></span>
+      <div style="flex:1"></div>
+      <a href="#" style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:9px;padding:8px 14px;white-space:nowrap" style-hover="background:rgba(255,255,255,.18);color:#fff">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>대회 규정 PDF
+      </a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px">
+      <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-size:15px;font-weight:800">대회 개요</h3>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;color:#3c465a">
+          <sc-for list="{{ infoRows }}" as="ir" hint-placeholder-count="6">
+            <span style="display:flex;justify-content:space-between;gap:10px"><span style="color:#8a93a6;white-space:nowrap">{{ ir.k }}</span><span style="font-weight:700;text-align:right;word-break:keep-all">{{ ir.v }}</span></span>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:11px">
+          <h3 style="margin:0;font-size:15px;font-weight:800">대회 수상</h3>
+          <sc-if value="{{ infoDone }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+              <span style="display:flex;gap:10px;align-items:center"><span style="font-size:11px;font-weight:800;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:2px 10px;white-space:nowrap">우승</span><a href="#" style="font-weight:700;color:#1c2b4a">경남밀양밀성 U15</a></span>
+              <span style="display:flex;gap:10px;align-items:center"><span style="font-size:11px;font-weight:800;color:#3c465a;background:#f1f3f8;border-radius:99px;padding:2px 10px;white-space:nowrap">준우승</span><a href="#" style="font-weight:700;color:#1c2b4a">인천부평동중</a></span>
+              <span style="display:flex;gap:10px;align-items:center"><span style="font-size:11px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:2px 10px;white-space:nowrap">페어플레이</span><a href="#" style="font-weight:700;color:#1c2b4a">경남밀양밀성 U15</a></span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ infoNotDone }}" hint-placeholder-val="{{ true }}">
+            <span style="font-size:12.5px;color:#8a93a6;word-break:keep-all">수상 내역은 대회 종료 후 제공됩니다</span>
+          </sc-if>
+        </div>
+        <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:11px">
+          <h3 style="margin:0;font-size:15px;font-weight:800">역대 우승팀</h3>
+          <div style="display:flex;flex-direction:column;gap:7px;font-size:13px">
+            <span style="display:flex;gap:12px"><span style="color:#8a93a6;width:38px">2025</span><a href="#" style="font-weight:700;color:#1c2b4a">서울 풍생중</a></span>
+            <span style="display:flex;gap:12px"><span style="color:#8a93a6;width:38px">2024</span><a href="#" style="font-weight:700;color:#1c2b4a">FC 한강 유나이티드</a></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ── 조별 스테이지 (예선/풀리그/스플릿리그 공용) ── -->
+  <sc-if value="{{ isStage }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:7px">
+      <sc-for list="{{ groups }}" as="gp" hint-placeholder-count="9">
+        <button onClick="{{ gp.go }}" style="{{ gp.style }}">{{ gp.label }}</button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ stageNote }}" hint-placeholder-val="{{ false }}">
+      <span style="font-size:11.5px;color:#8a93a6;word-break:keep-all">{{ stageNote }}</span>
+    </sc-if>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+      <div style="padding:14px 22px;border-bottom:1px solid #f1f3f8;display:flex;align-items:center;gap:10px">
+        <h3 style="margin:0;font-size:14.5px;font-weight:800;white-space:nowrap">{{ groupLabel }} 순위</h3>
+        <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">{{ zoneNote }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:44px 1fr 48px 48px 40px 40px 40px 56px;padding:10px 22px;background:#f8f9fb;border-bottom:1px solid #f1f3f8;font-size:11px;font-weight:800;color:#8a93a6">
+        <span>순위</span><span>팀</span><span style="text-align:center">경기</span><span style="text-align:center">승점</span><span style="text-align:center">승</span><span style="text-align:center">무</span><span style="text-align:center">패</span><span style="text-align:center">득실</span>
+      </div>
+      <sc-for list="{{ groupTable }}" as="r" hint-placeholder-count="4">
+        <div style="{{ r.rowStyle }}">
+          <span style="{{ r.rankStyle }}">{{ r.rank }}</span>
+          <a href="#" style="font-size:13px;font-weight:700;color:#1c2b4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" style-hover="color:#FF6B35">{{ r.team }}</a>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.p }}</span>
+          <span style="text-align:center;font-size:13px;font-weight:800">{{ r.pts }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.w }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.d }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.l }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577;white-space:nowrap">{{ r.gd }}</span>
+        </div>
+      </sc-for>
+      <div style="padding:11px 22px;font-size:11.5px;color:#8a93a6;display:flex;gap:14px"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:#2EC4B6"></span>{{ zoneLegend }}</span><span>승점 3/1/0</span></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <h3 style="margin:0;font-size:14.5px;font-weight:800;white-space:nowrap">경기 일정 · 결과</h3>
+      <div style="flex:1"></div>
+      <sc-for list="{{ roundFilters }}" as="rf" hint-placeholder-count="4">
+        <button onClick="{{ rf.go }}" style="{{ rf.style }}">{{ rf.label }}</button>
+      </sc-for>
+    </div>
+    <sc-for list="{{ groupMatches }}" as="m" hint-placeholder-count="3">
+      <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;padding:15px 22px;display:flex;align-items:center;gap:14px">
+        <span style="display:flex;flex-direction:column;gap:2px;width:130px;flex:none">
+          <span style="font-size:12px;font-weight:700;white-space:nowrap">{{ m.when }}</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.venue }}</span>
+        </span>
+        <span style="flex:1;display:flex;align-items:center;gap:12px;justify-content:center">
+          <a href="#" style="{{ m.homeStyle }}">{{ m.home }}</a>
+          <span style="font-size:17px;font-weight:800;background:#f4f6fa;border-radius:8px;padding:4px 14px;white-space:nowrap">{{ m.score }}</span>
+          <a href="#" style="{{ m.awayStyle }}">{{ m.away }}</a>
+        </span>
+        <span style="{{ m.stateStyle }}">{{ m.state }}</span>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <!-- ── 토너먼트 ── -->
+  <sc-if value="{{ isBracket }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;gap:7px;overflow-x:auto">
+      <sc-for list="{{ rounds }}" as="rd" hint-placeholder-count="5">
+        <button onClick="{{ rd.go }}" style="{{ rd.style }}">{{ rd.label }}</button>
+      </sc-for>
+    </div>
+    <span style="font-size:11.5px;color:#8a93a6">득실·조 순위는 예선 기준입니다 · PK는 괄호로 표기</span>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+      <sc-for list="{{ bracketMatches }}" as="b" hint-placeholder-count="4">
+        <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:12px" style-hover="border-color:#23408e;box-shadow:0 4px 16px rgba(28,43,74,.08)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="{{ b.stateStyle }}">{{ b.state }}</span>
+            <span style="font-size:11px;color:#8a93a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.when }} · {{ b.venue }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px"><span style="{{ b.homeNameStyle }}">{{ b.home }}</span><div style="flex:1"></div><span style="{{ b.homeScoreStyle }}">{{ b.homeScore }}</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="{{ b.awayNameStyle }}">{{ b.away }}</span><div style="flex:1"></div><span style="{{ b.awayScoreStyle }}">{{ b.awayScore }}</span></div>
+          </div>
+          <div style="display:flex;gap:6px;border-top:1px solid #f8f9fb;padding-top:10px">
+            <span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">{{ b.homeMeta }}</span>
+            <div style="flex:1"></div>
+            <span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">{{ b.awayMeta }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ── 리그 경기 (리그형) ── -->
+  <sc-if value="{{ isLeagueGames }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+      <div style="padding:14px 22px;border-bottom:1px solid #f1f3f8;display:flex;align-items:center;gap:10px">
+        <h3 style="margin:0;font-size:14.5px;font-weight:800;white-space:nowrap">리그 순위</h3>
+        <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">상위 3팀 왕중왕전 진출</span>
+      </div>
+      <div style="display:grid;grid-template-columns:44px 1fr 48px 48px 40px 40px 40px 56px;padding:10px 22px;background:#f8f9fb;border-bottom:1px solid #f1f3f8;font-size:11px;font-weight:800;color:#8a93a6">
+        <span>순위</span><span>팀</span><span style="text-align:center">경기</span><span style="text-align:center">승점</span><span style="text-align:center">승</span><span style="text-align:center">무</span><span style="text-align:center">패</span><span style="text-align:center">득실</span>
+      </div>
+      <sc-for list="{{ leagueTable }}" as="r" hint-placeholder-count="7">
+        <div style="{{ r.rowStyle }}">
+          <span style="{{ r.rankStyle }}">{{ r.rank }}</span>
+          <a href="#" style="font-size:13px;font-weight:700;color:#1c2b4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" style-hover="color:#FF6B35">{{ r.team }}</a>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.p }}</span>
+          <span style="text-align:center;font-size:13px;font-weight:800">{{ r.pts }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.w }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.d }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577">{{ r.l }}</span>
+          <span style="text-align:center;font-size:12.5px;color:#5b6577;white-space:nowrap">{{ r.gd }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <h3 style="margin:0;font-size:14.5px;font-weight:800;white-space:nowrap">경기 일정 · 결과</h3>
+      <div style="flex:1"></div>
+      <sc-for list="{{ monthFilters }}" as="mf" hint-placeholder-count="5">
+        <button onClick="{{ mf.go }}" style="{{ mf.style }}">{{ mf.label }}</button>
+      </sc-for>
+    </div>
+    <sc-for list="{{ leagueMatches }}" as="m" hint-placeholder-count="3">
+      <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;padding:15px 22px;display:flex;align-items:center;gap:14px">
+        <span style="display:flex;flex-direction:column;gap:2px;width:130px;flex:none">
+          <span style="font-size:12px;font-weight:700;white-space:nowrap">{{ m.when }}</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.venue }}</span>
+        </span>
+        <span style="flex:1;display:flex;align-items:center;gap:12px;justify-content:center">
+          <a href="#" style="{{ m.homeStyle }}">{{ m.home }}</a>
+          <span style="font-size:17px;font-weight:800;background:#f4f6fa;border-radius:8px;padding:4px 14px;white-space:nowrap">{{ m.score }}</span>
+          <a href="#" style="{{ m.awayStyle }}">{{ m.away }}</a>
+        </span>
+        <span style="{{ m.stateStyle }}">{{ m.state }}</span>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <!-- ── 미디어 ── -->
+  <sc-if value="{{ isMedia }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;gap:8px">
+      <button onClick="{{ mediaVideo }}" style="{{ mediaVideoStyle }}">영상 {{ videoCount }}</button>
+      <button onClick="{{ mediaNews }}" style="{{ mediaNewsStyle }}">인터넷 뉴스 {{ newsCount }}</button>
+    </div>
+    <sc-if value="{{ isMediaVideo }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+        <sc-for list="{{ mediaVideos }}" as="v" hint-placeholder-count="3">
+          <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;overflow:hidden" style-hover="border-color:#23408e;box-shadow:0 4px 16px rgba(28,43,74,.08)">
+            <div style="width:100%;aspect-ratio:16/9;position:relative;background:linear-gradient(135deg,#1c2b4a,#23408e);display:flex;align-items:center;justify-content:center;gap:16px">
+              <span style="font-size:14px;font-weight:800;color:#fff;word-break:keep-all;text-align:center">{{ v.home }}</span>
+              <span style="font-size:12px;font-weight:800;color:rgba(255,255,255,.4)">VS</span>
+              <span style="font-size:14px;font-weight:800;color:#fff;word-break:keep-all;text-align:center">{{ v.away }}</span>
+              <span style="position:absolute;bottom:9px;right:9px;width:36px;height:36px;border-radius:50%;background:rgba(15,20,30,.6);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg></span>
+              <span style="position:absolute;top:9px;left:9px;font-size:10px;font-weight:700;color:#fff;background:rgba(15,20,30,.6);border-radius:99px;padding:2px 9px">{{ v.kind }}</span>
+            </div>
+            <div style="padding:13px 16px;display:flex;flex-direction:column;gap:5px">
+              <span style="display:flex;align-items:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" aria-label="YouTube"><path fill="#FF0000" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8z"></path><path fill="#fff" d="M9.6 15.6V8.4L15.8 12z"></path></svg>
+                <span style="font-size:13px;font-weight:700;word-break:keep-all">{{ v.title }}</span>
+              </span>
+              <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">{{ v.meta }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isMediaNews }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#f8f9fb;border:1.5px dashed #d5d9e2;border-radius:14px;padding:34px;display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span style="font-size:13.5px;font-weight:700;color:#8a93a6">등록된 뉴스가 없습니다</span>
+        <span style="font-size:12px;color:#b6bdc9;word-break:keep-all">대회 관련 기사가 등록되면 여기에 표시돼요</span>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+</main>
+
+<footer style="border-top:1px solid #e6e8ee;background:#fff;padding:24px 32px">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <span style="font-size:12px;color:#8a93a6;white-space:nowrap">경기기록은 누구에게나 무료로 공개됩니다</span>
+    <div style="flex:1"></div>
+    <span style="font-size:11.5px;color:#b6bdc9;white-space:nowrap">출처: KFA 공식 · 대회 주최자 입력 · 팀 입력</span>
+  </div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'list', segment: 'cup', myAgeOnly: false, openAges: { U15: true }, archiveYear: 2025,
+    format: 'cup', tab: 'stage1', group: 1, round: '전체', bround: 'PO', month: '전체', mediaTab: 'video',
+  };
+
+  renderVals() {
+    const s = this.state;
+    const MY_AGE = 'U15';
+    const pill = (on, small) =>
+      'height:' + (small ? 32 : 36) + 'px;padding:0 ' + (small ? 13 : 15) + 'px;border-radius:99px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex:none;border:1.5px solid ' +
+      (on ? '#23408e;background:#23408e;color:#fff' : '#e6e8ee;background:#fff;color:#5b6577');
+    const seg = on =>
+      'height:36px;padding:0 20px;border:0;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;' +
+      (on ? 'background:#fff;color:#1c2b4a;box-shadow:0 1px 4px rgba(28,43,74,.12)' : 'background:none;color:#5b6577');
+    const tabBtn = on =>
+      'display:flex;align-items:center;gap:6px;border:0;background:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;padding:12px 16px;white-space:nowrap;border-bottom:2.5px solid ' +
+      (on ? '#23408e;color:#23408e' : 'transparent;color:#8a93a6');
+    const statusBadge = st => {
+      const base = 'font-size:11px;font-weight:700;border-radius:99px;padding:3px 11px;white-space:nowrap;flex:none;';
+      if (st === '진행중') return base + 'color:#fff;background:#2EC4B6';
+      if (st === '예정') return base + 'color:#23408e;background:#f1f3f8';
+      return base + 'color:#8a93a6;background:#f1f3f8';
+    };
+    const scopeBadge = sc => {
+      const base = 'font-size:10.5px;font-weight:700;border-radius:6px;padding:3px 9px;white-space:nowrap;flex:none;';
+      return sc.startsWith('전국') ? base + 'color:#c24a1c;background:#fff0e9' : base + 'color:#23408e;background:#f1f3f8';
+    };
+    const statusOrder = { '진행중': 0, '예정': 1, '종료': 2 };
+    const barColor = st => st === '진행중' ? '#2EC4B6' : st === '예정' ? '#23408e' : '#d5d9e2';
+
+    // ── 목록 데이터 ──
+    const cupData = {
+      U18: { desc: '고등 · 17~18세', items: [
+        { scope: '전국', name: '제61회 전국고교축구선수권', fmt: '조별+토너먼트', teams: 32, status: '진행중', format: 'cup' },
+        { scope: '지방/서울', name: '서울시협회장기', fmt: '토너먼트', teams: 16, status: '종료', format: 'cup' },
+      ]},
+      U15: { desc: '중등 · 14~15세', items: [
+        { scope: '지방/서울', name: '2026 제1차 서울 꿈나무 축구대회 (비선발)', fmt: '조별+토너먼트', teams: 36, status: '진행중', format: 'cup' },
+        { scope: '지방/경기', name: '2026 경기 유소년 챔피언스컵', fmt: '조별+토너먼트', teams: 24, status: '예정', format: 'cup' },
+        { scope: '전국/부산', name: '제55회 전국소년체육대회', fmt: '조별+토너먼트', teams: 17, status: '종료', format: 'cup' },
+        { scope: '지방/서울', name: '제43회 서울소년체육대회', fmt: '토너먼트', teams: 36, status: '종료', format: 'cup' },
+      ]},
+      U12: { desc: '초등 · 11~12세', items: [
+        { scope: '지방/경북', name: '2026 STAY 영덕', fmt: '풀리그+스플릿', teams: 64, status: '진행중', format: 'split' },
+        { scope: '지방/서울', name: '한강배 유소년컵', fmt: '조별+토너먼트', teams: 24, status: '진행중', format: 'cup' },
+        { scope: '전국', name: '2026 전국유소년축구페스티벌', fmt: '조별', teams: 48, status: '예정', format: 'cup' },
+      ]},
+    };
+    const leagueData = {
+      U15: { desc: '중등 · 14~15세', items: [
+        { region: '서울', scope: '지방/서울', name: '[서울1] 2026 전국 중등 축구리그', fmt: '리그', teams: 16, status: '진행중', format: 'league' },
+        { region: '서울', scope: '지방/서울', name: '[서울2] 2026 전국 중등 축구리그', fmt: '리그', teams: 14, status: '진행중', format: 'league' },
+        { region: '인천', scope: '지방/인천', name: '[인천1] 2026 전국 중등 축구리그', fmt: '리그', teams: 12, status: '진행중', format: 'league' },
+      ]},
+      U12: { desc: '초등 · 11~12세', items: [
+        { region: '서울', scope: '지방/서울', name: '[서울1] 2026 전국 초등 축구리그', fmt: '리그', teams: 9, status: '진행중', format: 'league' },
+        { region: '서울', scope: '지방/서울', name: '[서울2] 2026 전국 초등 축구리그', fmt: '리그', teams: 9, status: '진행중', format: 'league' },
+      ]},
+    };
+
+    const data = s.segment === 'cup' ? cupData : leagueData;
+    let ages = Object.keys(data);
+    ages.sort((a, b) => (a === MY_AGE ? -1 : b === MY_AGE ? 1 : 0));
+    if (s.myAgeOnly) ages = ages.filter(a => a === MY_AGE);
+
+    const ageGroups = ages.map(age => {
+      const g = data[age];
+      const items = [...g.items].sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+      const mine = age === MY_AGE;
+      const open = !!s.openAges[age];
+      // 리그: 지역 그룹핑
+      let sections;
+      if (s.segment === 'league') {
+        const byRegion = {};
+        items.forEach(t => { (byRegion[t.region] = byRegion[t.region] || []).push(t); });
+        sections = Object.entries(byRegion).map(([label, its]) => ({ label, hasLabel: true, items: its }));
+      } else {
+        sections = [{ label: '', hasLabel: false, items }];
+      }
+      const mkItem = t => Object.assign({}, t, {
+        rowStyle: 'width:100%;border:0;border-bottom:1px solid #f8f9fb;background:none;cursor:pointer;font-family:inherit;padding:12px 22px 12px 16px;display:flex;align-items:center;gap:11px;text-align:left;' + (t.status === '종료' ? 'opacity:.55' : ''),
+        barStyle: 'width:4px;height:26px;border-radius:99px;background:' + barColor(t.status) + ';flex:none',
+        scopeStyle: scopeBadge(t.scope),
+        nameStyle: 'font-size:13.5px;font-weight:700;color:#1c2b4a;flex:1;min-width:0;word-break:keep-all',
+        statusStyle: statusBadge(t.status),
+        open: () => this.setState({ screen: 'detail', format: t.format, tab: t.format === 'league' ? 'league' : 'stage1', group: 1, round: '전체', bround: 'PO', month: '전체' }),
+      });
+      return {
+        age, desc: g.desc, mine, open,
+        count: items.length,
+        cardStyle: 'background:#fff;border:1.5px solid ' + (mine ? 'rgba(46,196,182,.45)' : '#e6e8ee') + ';border-radius:14px;overflow:hidden',
+        chev: 'transition:transform .2s;flex:none;' + (open ? 'transform:rotate(180deg)' : ''),
+        toggle: () => this.setState(p => ({ openAges: Object.assign({}, p.openAges, { [age]: !p.openAges[age] }) })),
+        sections: sections.map(sec => ({ ...sec, items: sec.items.map(mkItem) })),
+      };
+    });
+
+    // ── 상세: 포맷별 구성 ──
+    const fmtDefs = {
+      cup: {
+        title: '2026 제1차 서울 꿈나무 축구대회', meta: '3/14 ~ 3/29 · 36팀 · 14개 조 → PO · 16강 ~ 결승',
+        badges: ['본선 진행중|on', '지방 · 서울|off', 'U15|off', '조별 예선 + 토너먼트|off'],
+        tabs: [['info', '대회 정보'], ['stage1', '예선'], ['bracket', '토너먼트'], ['media', '미디어']],
+        groups: 14, zoneNote: '상위 2팀 본선 진출', zoneLegend: '본선 진출', stageNote: '',
+        stats: { games: '65 · 42', goals: '190 · 2.92' }, done: false,
+        infoRows: [['주최', '서울시축구협회'], ['기간', '2026. 3. 14 ~ 3. 29'], ['참가', '36팀 (U15 · 비선발)'], ['방식', '14개 조 예선 → PO → 16강 토너먼트'], ['경기시간', '전·후반 각 35분 · 무승부 시 승부차기'], ['구장', '마장·이천북부·이천대월면 체육공원'], ['출처', '대회 주최자 입력']],
+      },
+      split: {
+        title: '2026 STAY 영덕', meta: '2/22 ~ 2/28 (7일간) · 64팀 · 1차 풀리그 → 2차 스플릿리그',
+        badges: ['종료|off', '지방 · 경북|off', 'U12|off', '풀리그 + 스플릿리그|off'],
+        tabs: [['info', '대회 정보'], ['stage1', '1차 풀리그'], ['stage2', '2차 스플릿리그'], ['media', '미디어']],
+        groups: 16, zoneNote: '1차 결과로 2차 조 배치', zoneLegend: '상위 스플릿 배치', stageNote: '',
+        stats: { games: '192 · 192', goals: '926 · 4.82' }, done: true,
+        infoRows: [['주최', '영덕군축구협회'], ['기간', '2026. 2. 22 ~ 2. 28 (7일간)'], ['참가', '64팀 (U12)'], ['방식', '1차 풀리그(16개 조) → 순위별 2차 스플릿리그 재배치'], ['경기시간', '전·후반 각 25분'], ['순위 결정', '승점 → 페어플레이 → 추첨'], ['출처', '대회 주최자 입력']],
+      },
+      league: {
+        title: '[서울1] 2026 전국 중등 축구리그', meta: '3월 ~ 11월 · 16팀 · 홈앤어웨이 · 주말 리그',
+        badges: ['진행중|on', 'KFA 공식|off', 'U15|off', '리그|off'],
+        tabs: [['league', '리그 경기'], ['media', '미디어']],
+        groups: 0, zoneNote: '', zoneLegend: '', stageNote: '',
+        stats: { games: '96 · 58', goals: '241 · 2.51' }, done: false,
+        infoRows: [],
+      },
+    };
+    const f = fmtDefs[s.format];
+    const stage2Note = s.tab === 'stage2' ? '2차 스플릿리그는 1차 풀리그 결과(조 1~4위)로 재배치됩니다 · 표기된 순위는 2차 기준' : '';
+
+    const tables = {
+      1: [
+        { rank: 1, team: '서울 풍생중', p: 3, pts: 9, w: 3, d: 0, l: 0, gd: '+5', zone: true },
+        { rank: 2, team: '강동 유나이티드', p: 3, pts: 4, w: 1, d: 1, l: 1, gd: '+5', zone: true },
+        { rank: 3, team: '서울 BDFC', p: 3, pts: 4, w: 1, d: 1, l: 1, gd: '+2', zone: false },
+        { rank: 4, team: 'FC 여주', p: 3, pts: 0, w: 0, d: 0, l: 3, gd: '-12', zone: false },
+      ],
+      2: [
+        { rank: 1, team: 'FC 한강 유나이티드', p: 3, pts: 7, w: 2, d: 1, l: 0, gd: '+6', zone: true },
+        { rank: 2, team: '송파 FC', p: 3, pts: 5, w: 1, d: 2, l: 0, gd: '+3', zone: true },
+        { rank: 3, team: '마포 유나이티드', p: 3, pts: 2, w: 0, d: 2, l: 1, gd: '-2', zone: false },
+        { rank: 4, team: '광진 FC', p: 3, pts: 1, w: 0, d: 1, l: 2, gd: '-7', zone: false },
+      ],
+    };
+    const mkRow = r => ({
+      ...r,
+      rowStyle: 'display:grid;grid-template-columns:44px 1fr 48px 48px 40px 40px 40px 56px;padding:12px 22px;border-bottom:1px solid #f1f3f8;align-items:center;' + (r.zone ? 'background:rgba(46,196,182,.05)' : ''),
+      rankStyle: 'width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;' + (r.zone ? 'background:#2EC4B6;color:#fff' : 'background:#f1f3f8;color:#5b6577'),
+    });
+
+    const teamName = bold => 'font-size:13.5px;flex:1;word-break:keep-all;' + (bold ? 'font-weight:800;color:#1c2b4a' : 'font-weight:700;color:#5b6577');
+    const allGroupMatches = [
+      { r: '1R', when: '3/15 (일) 10:00', venue: '마장체육공원', home: '강동 유나이티드', away: '서울 BDFC', score: '2 : 2', state: '종료', hw: false, aw: false },
+      { r: '1R', when: '3/15 (일) 10:00', venue: '이천대월면체육공원', home: '서울 풍생중', away: 'FC 여주', score: '3 : 1', state: '종료', hw: true, aw: false },
+      { r: '2R', when: '3/17 (화) 10:00', venue: '마장체육공원', home: '강동 유나이티드', away: '서울 풍생중', score: '1 : 3', state: '종료', hw: false, aw: true },
+      { r: '3R', when: '3/21 (토) 10:00', venue: '이천북부체육공원', home: '서울 BDFC', away: '서울 풍생중', score: '0 : 2', state: '종료', hw: false, aw: true },
+    ];
+    const groupMatches = allGroupMatches
+      .filter(m => s.round === '전체' || m.r === s.round)
+      .map(m => Object.assign({}, m, {
+        homeStyle: teamName(m.hw) + ';text-align:right',
+        awayStyle: teamName(m.aw),
+        stateStyle: statusBadge(m.state),
+      }));
+
+    const brackets = {
+      'PO': [
+        { when: '3/22 (일) 10:00', venue: '마장체육공원', home: 'FC 운정', away: '이천중', homeScore: '2', awayScore: '0', hw: true, homeMeta: '2조 1위 · 득5 실1', awayMeta: '14조 2위 · 득8 실4', state: '종료' },
+        { when: '3/22 (일) 11:30', venue: '마장체육공원', home: '남양주 FC', away: '칸테라 FC', homeScore: '0 (3)', awayScore: '(5) 0', hw: false, homeMeta: '11조 2위', awayMeta: '10조 2위 · PK승', state: '종료' },
+        { when: '3/22 (일) 11:30', venue: '이천북부체육공원', home: '능곡중', away: '시흥시민축구단', homeScore: '1 (4)', awayScore: '(2) 1', hw: true, homeMeta: '6조 1위 · PK승', awayMeta: '9조 2위', state: '종료' },
+        { when: '3/22 (일) 13:00', venue: '이천북부체육공원', home: '연천 FC', away: 'SHFC', homeScore: '0', awayScore: '3', hw: false, homeMeta: '10조 1위', awayMeta: '6조 2위', state: '종료' },
+      ],
+      '16강': [
+        { when: '3/28 (토) 10:00', venue: '마장체육공원', home: 'FC 한강 유나이티드', away: 'FC 운정', homeScore: '2', awayScore: '1', hw: true, homeMeta: '2조 1위', awayMeta: 'PO 승자', state: '종료' },
+        { when: '3/28 (토) 11:30', venue: '이천대월면체육공원', home: '서울 풍생중', away: 'SHFC', homeScore: '1', awayScore: '0', hw: true, homeMeta: '1조 1위', awayMeta: 'PO 승자', state: '종료' },
+        { when: '3/28 (토) 13:00', venue: '마장체육공원', home: '송파 FC', away: '칸테라 FC', homeScore: '-', awayScore: '-', hw: false, homeMeta: '2조 2위', awayMeta: 'PO 승자', state: '예정' },
+        { when: '3/28 (토) 14:30', venue: '이천북부체육공원', home: '능곡중', away: '강동 유나이티드', homeScore: '-', awayScore: '-', hw: false, homeMeta: '6조 1위', awayMeta: '1조 2위', state: '예정' },
+      ],
+      '8강': [], '4강': [], '결승': [],
+    };
+    const scoreStyle = win =>
+      'font-size:17px;font-weight:800;min-width:44px;text-align:center;border-radius:8px;padding:3px 10px;white-space:nowrap;' +
+      (win ? 'background:#23408e;color:#fff' : 'background:#f4f6fa;color:#5b6577');
+    const bracketMatches = (brackets[s.bround] || []).map(b => Object.assign({}, b, {
+      stateStyle: statusBadge(b.state),
+      homeNameStyle: 'font-size:13.5px;word-break:keep-all;' + (b.hw && b.state === '종료' ? 'font-weight:800;color:#1c2b4a' : 'font-weight:700;color:#5b6577'),
+      awayNameStyle: 'font-size:13.5px;word-break:keep-all;' + (!b.hw && b.state === '종료' ? 'font-weight:800;color:#1c2b4a' : 'font-weight:700;color:#5b6577'),
+      homeScoreStyle: scoreStyle(b.hw && b.state === '종료'),
+      awayScoreStyle: scoreStyle(!b.hw && b.state === '종료'),
+    }));
+
+    const leagueTable = [
+      { rank: 1, team: '강원홍천 FC', p: 6, pts: 16, w: 5, d: 1, l: 0, gd: '+18', zone: true },
+      { rank: 2, team: '속초연세 FC', p: 6, pts: 11, w: 3, d: 2, l: 1, gd: '+13', zone: true },
+      { rank: 3, team: '원주 SMC', p: 6, pts: 11, w: 3, d: 2, l: 1, gd: '+9', zone: true },
+      { rank: 4, team: '춘천체육회', p: 6, pts: 10, w: 3, d: 1, l: 2, gd: '+6', zone: false },
+      { rank: 5, team: '강릉중', p: 6, pts: 4, w: 1, d: 1, l: 4, gd: '-17', zone: false },
+      { rank: 6, team: '속초중', p: 6, pts: 4, w: 1, d: 1, l: 4, gd: '-18', zone: false },
+      { rank: 7, team: '학성중', p: 6, pts: 2, w: 0, d: 2, l: 4, gd: '-11', zone: false },
+    ].map(mkRow);
+    const allLeagueMatches = [
+      { mo: '4월', when: '4/13 (토) 13:50', venue: '횡성생활체육공원B', home: '속초중', away: '학성중', score: '2 : 1', state: '종료', hw: true, aw: false },
+      { mo: '4월', when: '4/13 (토) 15:10', venue: '횡성생활체육공원B', home: '속초연세 FC', away: '강릉중', score: '5 : 0', state: '종료', hw: true, aw: false },
+      { mo: '5월', when: '5/11 (토) 10:00', venue: '춘천송암구장', home: '춘천체육회', away: '강원홍천 FC', score: '1 : 3', state: '종료', hw: false, aw: true },
+      { mo: '7월', when: '7/19 (토) 10:00', venue: '원주종합운동장', home: '원주 SMC', away: '속초연세 FC', score: '- : -', state: '예정', hw: false, aw: false },
+    ];
+    const leagueMatches = allLeagueMatches
+      .filter(m => s.month === '전체' || m.mo === s.month)
+      .map(m => Object.assign({}, m, {
+        homeStyle: teamName(m.hw) + ';text-align:right',
+        awayStyle: teamName(m.aw),
+        stateStyle: statusBadge(m.state),
+      }));
+
+    const mediaVideos = [
+      { home: 'FC 한강', away: '강동 SC', kind: '다시보기', title: '16강전 라이브중계 풀경기', meta: '3/28 · 마장체육공원 · 대회 공식 채널' },
+      { home: '서울 풍생중', away: 'SHFC', kind: '다시보기', title: '16강전 라이브중계 풀경기', meta: '3/28 · 이천대월면체육공원' },
+      { home: 'FC 운정', away: '이천중', kind: '하이라이트', title: 'PO 하이라이트', meta: '3/22 · 팀 등록 영상' },
+    ];
+
+    const stageTabIds = { stage1: true, stage2: true };
+
+    return {
+      isList: s.screen === 'list',
+      isDetail: s.screen === 'detail',
+      isArchive: s.screen === 'archive',
+      backToList: () => this.setState({ screen: 'list' }),
+      goArchive: () => this.setState({ screen: 'archive' }),
+      archiveYears: [2025, 2024, 2023, 2022, 2021].map(y => ({
+        label: y + '', go: () => this.setState({ archiveYear: y }), style: pill(s.archiveYear === y, true),
+      })),
+      archiveItems: (s.archiveYear === 2025 ? [
+        { scope: '지방/서울', name: '2025 제1차 서울 꿈나무 축구대회', age: 'U15', fmt: '조별+토너먼트', teams: 34, champion: '서울 풍생중' },
+        { scope: '전국', name: '2025 전국 중등 축구리그 왕중왕전', age: 'U15', fmt: '토너먼트', teams: 32, champion: '경남밀양밀성 U15' },
+        { scope: '지방/경북', name: '2025 STAY 영덕', age: 'U12', fmt: '풀리그+스플릿', teams: 60, champion: '포항제철동초' },
+        { scope: '지방/서울', name: '2025 한강배 유소년컵', age: 'U12', fmt: '조별+토너먼트', teams: 24, champion: 'FC 한강 유나이티드' },
+      ] : [
+        { scope: '지방/서울', name: s.archiveYear + ' 제1차 서울 꿈나무 축구대회', age: 'U15', fmt: '조별+토너먼트', teams: 32, champion: 'FC 한강 유나이티드' },
+        { scope: '전국', name: s.archiveYear + ' 전국 중등 축구리그 왕중왕전', age: 'U15', fmt: '토너먼트', teams: 32, champion: '인천부평동중' },
+      ]).map(t => Object.assign({}, t, {
+        scopeStyle: scopeBadge(t.scope),
+        open: () => this.setState({ screen: 'detail', format: 'cup', tab: 'info', group: 1, round: '전체', bround: 'PO', month: '전체' }),
+      })),
+
+      segCup: () => this.setState({ segment: 'cup' }),
+      segLeague: () => this.setState({ segment: 'league' }),
+      segCupStyle: seg(s.segment === 'cup'),
+      segLeagueStyle: seg(s.segment === 'league'),
+      toggleMyAge: () => this.setState(p => ({ myAgeOnly: !p.myAgeOnly })),
+      myAgeStyle: 'height:34px;padding:0 15px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border:1.5px solid ' +
+        (s.myAgeOnly ? 'rgba(46,196,182,.5);background:rgba(46,196,182,.12);color:#1b8579' : '#e6e8ee;background:#fff;color:#5b6577'),
+      ageGroups,
+
+      heroTitle: f.title,
+      heroMeta: f.meta,
+      heroBadges: f.badges.map(b => {
+        const [label, kind] = b.split('|');
+        return { label, style: 'font-size:11px;font-weight:700;border-radius:99px;padding:3px 11px;white-space:nowrap;' + (kind === 'on' ? 'color:#fff;background:#2EC4B6' : 'color:rgba(255,255,255,.85);background:rgba(255,255,255,.12)') };
+      }),
+      detailTabs: f.tabs.map(([id, label]) => ({
+        label,
+        go: () => this.setState({ tab: id }),
+        style: tabBtn(s.tab === id),
+        hasCount: id === 'media',
+        count: mediaVideos.length,
+        countStyle: 'font-size:10.5px;font-weight:800;border-radius:99px;padding:1px 7px;' + (s.tab === id ? 'background:#23408e;color:#fff' : 'background:#f1f3f8;color:#8a93a6'),
+      })),
+      isInfo: s.tab === 'info',
+      isStage: !!stageTabIds[s.tab] && s.format !== 'league',
+      isBracket: s.tab === 'bracket',
+      isLeagueGames: s.tab === 'league',
+      isMedia: s.tab === 'media',
+
+      infoStats: f.stats,
+      infoRows: f.infoRows.map(([k, v]) => ({ k, v })),
+      infoDone: f.done,
+      infoNotDone: !f.done,
+
+      groups: Array.from({ length: f.groups }, (_, i) => i + 1).map(n => ({
+        label: n + '조', go: () => this.setState({ group: n }), style: pill(s.group === n, true),
+      })),
+      groupLabel: s.group + '조',
+      zoneNote: f.zoneNote,
+      zoneLegend: f.zoneLegend,
+      stageNote: stage2Note,
+      groupTable: (tables[s.group] || tables[1]).map(mkRow),
+      roundFilters: ['전체', '1R', '2R', '3R'].map(r => ({
+        label: r, go: () => this.setState({ round: r }), style: pill(s.round === r, true),
+      })),
+      groupMatches,
+
+      rounds: ['PO', '16강', '8강', '4강', '결승'].map(r => ({
+        label: r, go: () => this.setState({ bround: r }), style: pill(s.bround === r),
+      })),
+      bracketMatches,
+
+      leagueTable,
+      monthFilters: ['전체', '4월', '5월', '6월', '7월'].map(m => ({
+        label: m, go: () => this.setState({ month: m }), style: pill(s.month === m, true),
+      })),
+      leagueMatches,
+
+      mediaVideo: () => this.setState({ mediaTab: 'video' }),
+      mediaNews: () => this.setState({ mediaTab: 'news' }),
+      mediaVideoStyle: pill(s.mediaTab === 'video'),
+      mediaNewsStyle: pill(s.mediaTab === 'news'),
+      isMediaVideo: s.mediaTab === 'video',
+      isMediaNews: s.mediaTab === 'news',
+      videoCount: mediaVideos.length,
+      newsCount: 0,
+      mediaVideos,
+    };
+  }
+}
+</script>
+</body>
+</html>

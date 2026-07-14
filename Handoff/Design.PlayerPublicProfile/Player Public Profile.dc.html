@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div data-screen-label="공개 선수 프로필 4뷰" style="min-height:100vh;background:#f4f6fa">
+
+<!-- ===== 뷰 전환기 (프로토타입 전용) ===== -->
+<div style="background:#1c2b4a;padding:10px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <span style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,.55);white-space:nowrap">뷰 전환 (프로토타입 전용)</span>
+  <sc-for list="{{ modeTabs }}" as="m" hint-placeholder-count="4">
+    <button onClick="{{ m.go }}" style="{{ m.style }}">{{ m.label }}</button>
+  </sc-for>
+  <div style="flex:1"></div>
+  <span style="font-size:11.5px;color:rgba(255,255,255,.45);white-space:nowrap">{{ modeDesc }}</span>
+</div>
+
+<!-- ═══════════ 디테일 뷰 (공개 / 권한) ═══════════ -->
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="디테일 뷰">
+
+<!-- GNB -->
+<header style="background:#fdfdfc;border-bottom:1px solid #e6e8ee">
+  <div style="max-width:1000px;margin:0 auto;padding:0 32px;height:56px;display:flex;align-items:center;gap:14px">
+    <a href="#" style="display:flex;align-items:baseline;gap:6px;white-space:nowrap">
+      <span style="font-size:17px;font-weight:800;letter-spacing:-.03em;color:#23408e">PlayGround</span>
+      <span style="font-size:17px;font-weight:700;letter-spacing:-.02em;color:#b6bdc9">Soccer</span>
+    </a>
+    <span style="width:1px;height:16px;background:#e6e8ee;margin:0 2px"></span>
+    <span style="font-size:13px;font-weight:700;color:#3c465a;white-space:nowrap">선수 프로필</span>
+    <div style="flex:1"></div>
+    <a href="#" style="font-size:13px;font-weight:700;color:#3c465a;white-space:nowrap">경기기록</a>
+    <a href="#" style="font-size:13px;font-weight:700;color:#fff;background:#23408e;white-space:nowrap;padding:8px 16px;border-radius:9px" style-hover="background:#1c2b4a;color:#fff">로그인</a>
+  </div>
+</header>
+
+<!-- 권한 뷰 배너 -->
+<sc-if value="{{ isGranted }}" hint-placeholder-val="{{ false }}">
+  <div style="background:rgba(46,196,182,.1);border-bottom:1px solid rgba(46,196,182,.3)">
+    <div style="max-width:1000px;margin:0 auto;padding:11px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1b8579" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+      <span style="font-size:12.5px;font-weight:700;color:#1b8579;word-break:keep-all">보호자 승인으로 상세 정보 열람 중 — 에이전트 계정 · 승인일 7/10 · 30일 후 만료</span>
+      <div style="flex:1"></div>
+      <span style="font-size:11.5px;color:#5b6577;white-space:nowrap">열람 기록이 보호자에게 표시됩니다</span>
+    </div>
+  </div>
+</sc-if>
+
+<main style="max-width:1000px;margin:0 auto;padding:26px 32px 70px;display:flex;flex-direction:column;gap:18px">
+
+  <!-- 히어로 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:18px;padding:28px;display:flex;gap:26px;flex-wrap:wrap">
+    <div style="width:150px;aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:#f1f3f8;flex:none">
+      <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="player-U15-9" shape="rect" radius="0" src="https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=600" placeholder="프로필 사진" hint-size="150px,200px"></x-import>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;flex:1;min-width:300px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em;white-space:nowrap">김민준</h1>
+        <span style="font-size:12px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border:1px solid rgba(46,196,182,.35);border-radius:99px;padding:3px 11px;white-space:nowrap">가족 관리 프로필</span>
+      </div>
+      <span style="font-size:14px;color:#5b6577;white-space:nowrap">FW · 등번호 9 · 2012년생 · U15</span>
+      <a href="#" style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:#23408e;white-space:nowrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
+        FC 한강 유나이티드 <span style="font-size:11px;font-weight:700;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:2px 8px">✓ 인증팀</span>
+      </a>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <span style="font-size:12.5px;font-weight:700;color:#3c465a;background:#f1f3f8;border-radius:99px;padding:5px 14px;white-space:nowrap">키 168cm</span>
+        <span style="font-size:12.5px;font-weight:700;color:#3c465a;background:#f1f3f8;border-radius:99px;padding:5px 14px;white-space:nowrap">몸무게 54kg</span>
+        <span style="font-size:12.5px;font-weight:700;color:#3c465a;background:#f1f3f8;border-radius:99px;padding:5px 14px;white-space:nowrap">주발 왼발</span>
+        <sc-if value="{{ isGranted }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size:12.5px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border:1px solid rgba(46,196,182,.35);border-radius:99px;padding:5px 14px;white-space:nowrap">강동중학교</span>
+        </sc-if>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span style="font-size:11.5px;font-weight:700;color:#23408e;background:#f1f3f8;border-radius:99px;padding:3px 11px;white-space:nowrap">#왼발 마무리</span>
+        <span style="font-size:11.5px;font-weight:700;color:#23408e;background:#f1f3f8;border-radius:99px;padding:3px 11px;white-space:nowrap">#침투</span>
+        <span style="font-size:11.5px;font-weight:700;color:#23408e;background:#f1f3f8;border-radius:99px;padding:3px 11px;white-space:nowrap">#스피드</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;justify-content:center">
+      <sc-if value="{{ isPublicDetail }}" hint-placeholder-val="{{ true }}">
+        <a href="#" style="display:flex;align-items:center;justify-content:center;height:44px;padding:0 24px;border-radius:11px;background:#FF6B35;font-size:13.5px;font-weight:700;color:#fff;white-space:nowrap;box-shadow:0 4px 14px rgba(255,107,53,.35)" style-hover="background:#e85a26;color:#fff">상세 정보 열람 요청</a>
+        <span style="font-size:11px;color:#8a93a6;text-align:center;word-break:keep-all">보호자 승인 후 열람 가능</span>
+      </sc-if>
+      <sc-if value="{{ isGranted }}" hint-placeholder-val="{{ false }}">
+        <a href="#" style="display:flex;align-items:center;justify-content:center;height:44px;padding:0 24px;border-radius:11px;background:#FF6B35;font-size:13.5px;font-weight:700;color:#fff;white-space:nowrap;box-shadow:0 4px 14px rgba(255,107,53,.35)" style-hover="background:#e85a26;color:#fff">보호자에게 연락하기</a>
+        <span style="font-size:11px;color:#8a93a6;text-align:center;word-break:keep-all">연락은 플랫폼 내 메시지로 시작됩니다</span>
+      </sc-if>
+      <button style="display:flex;align-items:center;justify-content:center;gap:7px;height:44px;padding:0 20px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap" style-hover="border-color:#23408e;color:#23408e">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>선수 카드 공유
+      </button>
+    </div>
+  </div>
+
+  <!-- 시즌 요약 -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+    <div style="background:linear-gradient(160deg,#1c2b4a,#23408e);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:3px;color:#fff">
+      <span style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,.6)">2026 출전</span>
+      <span style="font-size:20px;font-weight:800;white-space:nowrap">12경기 · 824'</span>
+    </div>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:11.5px;font-weight:700;color:#8a93a6">득점</span>
+      <span style="font-size:20px;font-weight:800">7 <span style="font-size:12px;color:#1b8579">리그 2위</span></span>
+    </div>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:11.5px;font-weight:700;color:#8a93a6">도움</span>
+      <span style="font-size:20px;font-weight:800">3</span>
+    </div>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:11.5px;font-weight:700;color:#8a93a6">경기당 평균</span>
+      <span style="font-size:20px;font-weight:800;white-space:nowrap">68분</span>
+    </div>
+  </div>
+
+  <!-- 대표 영상 + 커리어 -->
+  <div style="display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start">
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+      <div style="width:100%;aspect-ratio:16/9;position:relative;background:#1c2b4a">
+        <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="portfolio-main" shape="rect" radius="0" src="https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" placeholder="대표 영상" hint-size="100%,100%"></x-import>
+        <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="width:52px;height:52px;border-radius:50%;background:rgba(15,20,30,.65);display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg></span></span>
+        <span style="position:absolute;top:12px;left:12px;font-size:11px;font-weight:700;color:#fff;background:#FF6B35;border-radius:99px;padding:3px 11px;pointer-events:none">대표 영상</span>
+      </div>
+      <div style="padding:16px 20px;display:flex;align-items:center;gap:8px">
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-label="YouTube"><path fill="#FF0000" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8z"></path><path fill="#fff" d="M9.6 15.6V8.4L15.8 12z"></path></svg>
+        <span style="font-size:14.5px;font-weight:800;word-break:keep-all">2026 상반기 하이라이트 — 득점 모음</span>
+        <div style="flex:1"></div>
+        <span style="font-size:12px;color:#8a93a6;white-space:nowrap">영상 3개 더 보기 →</span>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <h2 style="margin:0;font-size:15.5px;font-weight:800">커리어</h2>
+      <div style="display:flex;gap:12px">
+        <span style="display:flex;flex-direction:column;align-items:center;flex:none;width:12px"><span style="width:11px;height:11px;border-radius:50%;background:#2EC4B6;margin-top:4px"></span><span style="width:2px;flex:1;background:#e6e8ee;margin-top:4px"></span></span>
+        <span style="display:flex;flex-direction:column;gap:3px;padding-bottom:12px">
+          <span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span style="font-size:13.5px;font-weight:800">FC 한강 유나이티드</span><span style="font-size:10px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:2px 8px;white-space:nowrap">팀 확인됨</span></span>
+          <span style="font-size:11.5px;color:#5b6577;white-space:nowrap">2024.3 ~ 현재 · U15 · FW 주전</span>
+          <span style="font-size:10.5px;font-weight:700;color:#c24a1c;background:#fff0e9;border:1px solid rgba(255,107,53,.4);border-radius:99px;padding:2px 9px;white-space:nowrap;align-self:flex-start">서울 지역 대표 선발</span>
+        </span>
+      </div>
+      <div style="display:flex;gap:12px">
+        <span style="display:flex;flex-direction:column;align-items:center;flex:none;width:12px"><span style="width:11px;height:11px;border-radius:50%;background:#e6e8ee;margin-top:4px"></span></span>
+        <span style="display:flex;flex-direction:column;gap:3px">
+          <span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span style="font-size:13.5px;font-weight:800">강동 리틀 FC</span><span style="font-size:10px;font-weight:700;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:2px 8px;white-space:nowrap">본인 입력</span></span>
+          <span style="font-size:11.5px;color:#5b6577;white-space:nowrap">2021.5 ~ 2024.2 · U12 · FW/MF</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 권한 전용: 경기별 기록 + 연락 -->
+  <sc-if value="{{ isGranted }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#fff;border:1.5px solid rgba(46,196,182,.4);border-radius:16px;overflow:hidden">
+      <div style="padding:16px 22px;border-bottom:1px solid #f1f3f8;display:flex;align-items:center;gap:10px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1b8579" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+        <h2 style="margin:0;font-size:15.5px;font-weight:800">경기별 상세 기록 <span style="font-size:11.5px;font-weight:700;color:#1b8579">승인 열람</span></h2>
+      </div>
+      <sc-for list="{{ matches }}" as="m" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid #f1f3f8">
+          <span style="{{ m.compStyle }}">{{ m.comp }}</span>
+          <span style="font-size:12px;color:#8a93a6;width:44px;white-space:nowrap">{{ m.date }}</span>
+          <span style="font-size:13px;font-weight:700;flex:1;word-break:keep-all">{{ m.title }}</span>
+          <span style="font-size:12px;font-weight:800;background:#f4f6fa;border-radius:7px;padding:3px 10px;white-space:nowrap">{{ m.stat }}</span>
+          <span style="font-size:12px;color:#5b6577;width:64px;text-align:right;white-space:nowrap">출전 {{ m.minutes }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- 공개 뷰 전용: 잠금 안내 -->
+  <sc-if value="{{ isPublicDetail }}" hint-placeholder-val="{{ true }}">
+    <div style="background:#f8f9fb;border:1.5px dashed #d5d9e2;border-radius:16px;padding:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <span style="width:44px;height:44px;border-radius:12px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;flex:none"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:260px">
+        <span style="font-size:14.5px;font-weight:800;word-break:keep-all">경기별 상세 기록 · 학교 · 연락 수단은 보호자 승인 후 열람할 수 있어요</span>
+        <span style="font-size:12.5px;color:#5b6577;word-break:keep-all">에이전트·지도자 계정으로 열람을 요청하면 보호자에게 알림이 갑니다. 승인 내역과 열람 기록은 모두 보호자에게 공개됩니다.</span>
+      </span>
+      <a href="#" style="display:flex;align-items:center;height:42px;padding:0 22px;border:1.5px solid #23408e;border-radius:10px;font-size:13px;font-weight:700;color:#23408e;white-space:nowrap" style-hover="background:#23408e;color:#fff">열람 요청하기</a>
+    </div>
+  </sc-if>
+
+</main>
+
+<footer style="border-top:1px solid #e6e8ee;background:#fff;padding:24px 32px">
+  <div style="max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <span style="font-size:12px;color:#8a93a6;white-space:nowrap">이 프로필은 PlayGround에서 자동 생성되었습니다</span>
+    <div style="flex:1"></div>
+    <a href="#" style="font-size:12px;font-weight:700;color:#23408e;white-space:nowrap">내 아이 프로필 만들기 →</a>
+  </div>
+</footer>
+
+</div>
+</sc-if>
+
+<!-- ═══════════ 카드 뷰 (공개 / 권한) ═══════════ -->
+<sc-if value="{{ isCard }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="선수 카드 뷰" style="min-height:calc(100vh - 50px);display:flex;align-items:center;justify-content:center;padding:50px 24px;background:linear-gradient(160deg,#eef1f7,#f4f6fa)">
+  <div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+
+    <div style="width:360px;border-radius:22px;overflow:hidden;box-shadow:0 24px 60px rgba(28,43,74,.28);background:linear-gradient(170deg,#1c2b4a 0%,#23408e 100%);color:#fff;position:relative">
+      <div style="position:absolute;top:-70px;right:-70px;width:220px;height:220px;border:1.5px solid rgba(255,255,255,.09);border-radius:50%"></div>
+      <div style="position:absolute;top:20px;right:-40px;width:150px;height:150px;border:1.5px solid rgba(46,196,182,.25);border-radius:50%"></div>
+      <div style="padding:22px 24px 0;display:flex;align-items:center;gap:9px;position:relative">
+        <svg width="22" height="25" viewBox="0 0 44 50"><path d="M22 1l19 6.5v14c0 12.5-8.2 21-19 26.5C11.2 42.5 3 34 3 21.5v-14z" fill="#fff" opacity=".15"></path><path d="M22 5l15 5.1v11.6c0 10.3-6.5 17.4-15 22.2-8.5-4.8-15-11.9-15-22.2V10.1z" fill="#2EC4B6" opacity=".7"></path></svg>
+        <span style="display:flex;flex-direction:column">
+          <span style="font-size:12px;font-weight:800;white-space:nowrap">FC 한강 유나이티드</span>
+          <span style="font-size:10px;color:rgba(255,255,255,.55);white-space:nowrap">2026 시즌 · U15</span>
+        </span>
+        <div style="flex:1"></div>
+        <span style="font-size:26px;font-weight:800;color:rgba(255,255,255,.25)">#9</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:16px;padding:14px 24px 0;position:relative">
+        <div style="width:132px;aspect-ratio:3/4;border-radius:13px;overflow:hidden;background:rgba(255,255,255,.08);flex:none;border:1px solid rgba(255,255,255,.15)">
+          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="player-U15-9" shape="rect" radius="0" src="https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=600" placeholder="선수 사진" hint-size="132px,176px"></x-import>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;padding-bottom:6px;min-width:0">
+          <span style="font-size:24px;font-weight:800;letter-spacing:-.02em;white-space:nowrap">김민준</span>
+          <span style="font-size:12.5px;font-weight:700;color:#2EC4B6;white-space:nowrap">FW · 왼발 · 2012</span>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap">키 168cm · 몸무게 54kg</span>
+            <span style="font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap">서울 지역 대표 선발</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;padding:16px 24px;position:relative">
+        <span style="flex:1;background:rgba(255,255,255,.08);border-radius:11px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:1px"><span style="font-size:17px;font-weight:800">12</span><span style="font-size:9.5px;font-weight:700;color:rgba(255,255,255,.55)">출전</span></span>
+        <span style="flex:1;background:rgba(255,255,255,.08);border-radius:11px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:1px"><span style="font-size:17px;font-weight:800;color:#2EC4B6">7</span><span style="font-size:9.5px;font-weight:700;color:rgba(255,255,255,.55)">득점</span></span>
+        <span style="flex:1;background:rgba(255,255,255,.08);border-radius:11px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:1px"><span style="font-size:17px;font-weight:800">3</span><span style="font-size:9.5px;font-weight:700;color:rgba(255,255,255,.55)">도움</span></span>
+        <span style="flex:1;background:rgba(255,255,255,.08);border-radius:11px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:1px"><span style="font-size:17px;font-weight:800">824'</span><span style="font-size:9.5px;font-weight:700;color:rgba(255,255,255,.55)">시간</span></span>
+      </div>
+
+      <sc-if value="{{ isGrantedCard }}" hint-placeholder-val="{{ false }}">
+        <div style="margin:0 24px;border-top:1px dashed rgba(255,255,255,.2);padding:14px 0;display:flex;flex-direction:column;gap:7px;position:relative">
+          <span style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#2EC4B6"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>승인 열람 정보</span>
+          <span style="font-size:12px;color:rgba(255,255,255,.8);white-space:nowrap">강동중학교 2학년 · 보호자 김OO</span>
+          <span style="font-size:12px;color:rgba(255,255,255,.8);white-space:nowrap">플랫폼 메시지로 연락 가능</span>
+        </div>
+      </sc-if>
+
+      <div style="background:rgba(15,20,30,.35);padding:13px 24px;display:flex;align-items:center;gap:9px;position:relative">
+        <span style="width:34px;height:34px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="22" height="22" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" fill="#1c2b4a"></rect><rect x="14" y="3" width="7" height="7" fill="#1c2b4a"></rect><rect x="3" y="14" width="7" height="7" fill="#1c2b4a"></rect><rect x="14" y="14" width="3" height="3" fill="#1c2b4a"></rect><rect x="18" y="18" width="3" height="3" fill="#1c2b4a"></rect><rect x="14" y="18" width="3" height="3" fill="#1c2b4a" opacity=".5"></rect></svg>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:1px;min-width:0">
+          <span style="font-size:11px;font-weight:700;white-space:nowrap">playground.kr/player/kim-minjun</span>
+          <span style="font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap">{{ cardFooterNote }}</span>
+        </span>
+        <div style="flex:1"></div>
+        <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);white-space:nowrap">PlayGround</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button style="display:flex;align-items:center;gap:7px;height:44px;padding:0 22px;border:0;border-radius:11px;background:#FF6B35;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 4px 14px rgba(255,107,53,.35)" style-hover="background:#e85a26">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"></path><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>이미지로 저장
+      </button>
+      <button style="display:flex;align-items:center;gap:7px;height:44px;padding:0 22px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13.5px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap" style-hover="border-color:#23408e;color:#23408e">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>링크 공유
+      </button>
+    </div>
+    <span style="font-size:12px;color:#8a93a6;text-align:center;word-break:keep-all;max-width:360px">{{ cardCaption }}</span>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { mode: 'detail-public' };
+
+  renderVals() {
+    const s = this.state;
+    const modeDefs = [
+      ['detail-public', '디테일 · 공개', '누구나 보는 기본 공개 프로필'],
+      ['detail-granted', '디테일 · 권한 열람', '보호자 승인을 받은 에이전트·지도자 뷰'],
+      ['card-public', '카드 · 공개', 'SNS·메신저 공유용 요약 카드'],
+      ['card-granted', '카드 · 권한 열람', '승인 열람 정보가 포함된 카드'],
+    ];
+    const tabStyle = on =>
+      'height:32px;padding:0 14px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border:1.5px solid ' +
+      (on ? '#2EC4B6;background:#2EC4B6;color:#fff' : 'rgba(255,255,255,.25);background:none;color:rgba(255,255,255,.75)');
+    const comp = c => {
+      const base = 'font-size:10.5px;font-weight:700;border-radius:99px;padding:2px 9px;white-space:nowrap;';
+      if (c === '리그') return base + 'color:#23408e;background:#f1f3f8';
+      if (c === '컵') return base + 'color:#c24a1c;background:#fff0e9';
+      return base + 'color:#1b8579;background:rgba(46,196,182,.12)';
+    };
+    const cur = modeDefs.find(m => m[0] === s.mode);
+
+    return {
+      modeTabs: modeDefs.map(([id, label]) => ({
+        label, go: () => this.setState({ mode: id }), style: tabStyle(s.mode === id),
+      })),
+      modeDesc: cur[2],
+      isDetail: s.mode === 'detail-public' || s.mode === 'detail-granted',
+      isCard: s.mode === 'card-public' || s.mode === 'card-granted',
+      isPublicDetail: s.mode === 'detail-public',
+      isGranted: s.mode === 'detail-granted',
+      isGrantedCard: s.mode === 'card-granted',
+      cardFooterNote: s.mode === 'card-granted' ? '승인 열람 카드 · 재공유 금지' : 'QR 스캔으로 전체 프로필 열람',
+      cardCaption: s.mode === 'card-granted'
+        ? '승인 열람 카드는 워터마크가 포함되며 승인된 계정 외 재공유가 제한됩니다.'
+        : '카드에는 공개 설정된 정보만 담깁니다. 이미지 저장 시 1080×1350 크기로 만들어져요.',
+
+      matches: [
+        { date: '7/5', title: 'vs 강동 SC (3:1 승)', comp: '리그', stat: '2골', minutes: "80'" },
+        { date: '6/28', title: 'vs 마포 유나이티드 (1:1 무)', comp: '컵', stat: '1도움', minutes: "72'" },
+        { date: '6/21', title: 'vs 광진 FC (2:0 승)', comp: '친선', stat: '1골', minutes: "60'" },
+        { date: '6/14', title: 'vs 성동 드래곤즈 (0:2 패)', comp: '리그', stat: '기록 없음', minutes: "77'" },
+      ].map(m => Object.assign({}, m, { compStyle: comp(m.comp) })),
+    };
+  }
+}
+</script>
+</body>
+</html>

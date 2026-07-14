@@ -26,4 +26,16 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => UserId;
     }
+
+    /// <summary>커리어 목록 조회 메시지 (같은 사용자 쓰기와 순차 처리 — UserId 해시).</summary>
+    public sealed record GetSoccerPlayerCareerMessage(Guid UserId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>포트폴리오 영상 목록 조회 메시지 (같은 사용자 쓰기와 순차 처리 — UserId 해시).</summary>
+    public sealed record GetSoccerPlayerPortfolioMessage(Guid UserId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
 }

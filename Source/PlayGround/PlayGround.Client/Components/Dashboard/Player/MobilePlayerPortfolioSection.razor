@@ -1,5 +1,7 @@
-@* 포트폴리오(모바일): 대표 영상 카드 + 영상 목록(가로 카드 104px 썸네일) — SPEC.PLAYERDASHBOARD.md §4 *@
+@* 포트폴리오(모바일): 대표 영상 카드 + 영상 목록(가로 카드 104px 썸네일) — SPEC.PLAYERDASHBOARD.md §4
+   대표 영상·목록은 데이터가 있을 때만 렌더 (빈 데이터 노출 금지) *@
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
@@ -7,46 +9,74 @@
         <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 영상 추가</button>
     </div>
 
-    <div class="@($"{Css.Dashboard.Card} rounded-[15px] overflow-hidden")">
-        <div class="w-full aspect-video relative bg-navy-deep">
-            <img src="@PlayerPortfolioSection.PrimaryThumb" alt="대표 영상 썸네일" class="absolute inset-0 w-full h-full object-cover" />
-            <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span class="w-[46px] h-[46px] rounded-full bg-black/[.65] flex items-center justify-center">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
-                </span>
-            </span>
-            <span class="absolute top-2.5 left-2.5 text-[10.5px] font-bold text-white bg-orange rounded-full px-2.5 py-[3px] pointer-events-none">대표 영상</span>
-        </div>
-        <div class="px-4 py-3.5 flex flex-col gap-2">
-            <div class="flex gap-1.5 items-center">
-                <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />
-                <span class="text-sm font-extrabold text-navy-deep break-keep">2026 상반기 하이라이트 — 득점 모음</span>
-            </div>
-            <div class="flex gap-1.5 flex-wrap">
-                @foreach (string tag in PlayerPortfolioSection.Tags)
-                {
-                    <span class="text-[11px] font-bold text-navy bg-surface-icon rounded-full px-2.5 py-0.5 whitespace-nowrap">@tag</span>
-                }
-            </div>
-            <span class="text-[11.5px] text-text-muted break-keep">공개 프로필과 선수 카드의 첫 화면에 노출됩니다</span>
-        </div>
-    </div>
-
-    <h3 class="m-0 mt-0.5 text-sm font-extrabold text-navy-deep">영상 목록 <span class="text-xs font-bold text-text-muted">@(PlayerPortfolioSection.Clips.Length)개</span></h3>
-    @foreach (PlayerPortfolioSection.Clip clip in PlayerPortfolioSection.Clips)
+    @if (Primary is not null)
     {
-        <div class="@($"{Css.Dashboard.Card} rounded-[13px] p-[11px] flex gap-3 items-center")">
-            <div class="w-[104px] aspect-video rounded-lg overflow-hidden relative bg-navy-deep shrink-0">
-                @if (clip.Thumb is not null)
+        <div class="@($"{Css.Dashboard.Card} rounded-[15px] overflow-hidden")">
+            <a href="@Primary.VideoUrl" target="_blank" rel="noopener" class="block w-full aspect-video relative bg-navy-deep">
+                @if (Primary.ThumbnailUrl is not null)
                 {
-                    <img src="@clip.Thumb" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" />
+                    <img src="@Primary.ThumbnailUrl" alt="대표 영상 썸네일" class="absolute inset-0 w-full h-full object-cover" />
                 }
-                <span class="absolute bottom-1 right-1 text-[9.5px] font-bold text-white bg-black/75 rounded px-[5px] py-px pointer-events-none">@clip.Duration</span>
+                <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span class="w-[46px] h-[46px] rounded-full bg-black/[.65] flex items-center justify-center">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+                    </span>
+                </span>
+                <span class="absolute top-2.5 left-2.5 text-[10.5px] font-bold text-white bg-orange rounded-full px-2.5 py-[3px] pointer-events-none">대표 영상</span>
+            </a>
+            <div class="px-4 py-3.5 flex flex-col gap-2">
+                <div class="flex gap-1.5 items-center">
+                    <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />
+                    <span class="text-sm font-extrabold text-navy-deep break-keep">@Primary.Title</span>
+                </div>
+                @if (Primary.Tags.Count > 0)
+                {
+                    <div class="flex gap-1.5 flex-wrap">
+                        @foreach (string tag in Primary.Tags)
+                        {
+                            <span class="text-[11px] font-bold text-navy bg-surface-icon rounded-full px-2.5 py-0.5 whitespace-nowrap">@tag</span>
+                        }
+                    </div>
+                }
+                <span class="text-[11.5px] text-text-muted break-keep">공개 프로필과 선수 카드의 첫 화면에 노출됩니다</span>
             </div>
-            <span class="flex flex-col gap-[3px] flex-1 min-w-0">
-                <span class="text-[12.5px] font-bold text-navy-deep leading-[1.4] break-keep">@clip.Title</span>
-                <span class="text-[11px] text-text-muted whitespace-nowrap">@clip.Meta</span>
-            </span>
         </div>
     }
+
+    @if (Others.Count > 0)
+    {
+        <h3 class="m-0 mt-0.5 text-sm font-extrabold text-navy-deep">영상 목록 <span class="text-xs font-bold text-text-muted">@(Others.Count)개</span></h3>
+        @foreach (PlayerPortfolioVideoDto clip in Others)
+        {
+            <a href="@clip.VideoUrl" target="_blank" rel="noopener"
+               class="@($"{Css.Dashboard.Card} rounded-[13px] p-[11px] flex gap-3 items-center")">
+                <div class="w-[104px] aspect-video rounded-lg overflow-hidden relative bg-navy-deep shrink-0">
+                    @if (clip.ThumbnailUrl is not null)
+                    {
+                        <img src="@clip.ThumbnailUrl" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" />
+                    }
+                    @if (clip.DurationSeconds is not null)
+                    {
+                        <span class="absolute bottom-1 right-1 text-[9.5px] font-bold text-white bg-black/75 rounded px-[5px] py-px pointer-events-none">@PlayerPortfolioSection.FormatDuration(clip.DurationSeconds.Value)</span>
+                    }
+                </div>
+                <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                    <span class="text-[12.5px] font-bold text-navy-deep leading-[1.4] break-keep">@clip.Title</span>
+                    @if (clip.RecordedOn is not null)
+                    {
+                        <span class="text-[11px] text-text-muted whitespace-nowrap">@PlayerPortfolioSection.FormatDate(clip.RecordedOn.Value)</span>
+                    }
+                </span>
+            </a>
+        }
+    }
 </div>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<PlayerPortfolioVideoDto> Videos { get; set; } = new();
+
+    private PlayerPortfolioVideoDto? Primary => Videos.FirstOrDefault(v => v.IsPrimary);
+
+    private List<PlayerPortfolioVideoDto> Others => Videos.Where(v => !v.IsPrimary).ToList();
+}

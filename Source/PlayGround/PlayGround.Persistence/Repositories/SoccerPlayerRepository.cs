@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
@@ -172,9 +173,94 @@ namespace PlayGround.Persistence.Repositories
             });
         }
 
+        public async Task<Result<PlayerCareerResponse>> GetCareersByUserAsync(Guid userId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player careers requested", ("UserId", userId));
+
+            var procedure = new UspGetSoccerPlayerCareersByUser(this) { UserId = userId };
+            var queryResult = await procedure.QueryAsync<SoccerPlayerCareersEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player careers query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<PlayerCareerResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new PlayerCareerResponse
+            {
+                Entries = queryResult.Values1
+                    .Select(c => new PlayerCareerEntryDto
+                    {
+                        CareerId = c.CareerId,
+                        TeamName = c.TeamName,
+                        IsCurrent = c.IsCurrent,
+                        BadgeLabel = NullIfEmpty(c.BadgeLabel),
+                        StartDate = DateOnly.FromDateTime(c.StartDate),
+                        EndDate = c.EndDate is null ? null : DateOnly.FromDateTime(c.EndDate.Value),
+                        Role = NullIfEmpty(c.Role),
+                        Note = NullIfEmpty(c.Note),
+                        IsVerified = c.IsVerified
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Player careers received", ("UserId", userId), ("Entries", response.Entries.Count));
+            return Result<PlayerCareerResponse>.Success(response);
+        }
+
+        public async Task<Result<PlayerPortfolioResponse>> GetPortfolioByUserAsync(Guid userId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player portfolio requested", ("UserId", userId));
+
+            var procedure = new UspGetSoccerPlayerPortfolioByUser(this) { UserId = userId };
+            var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioVideosEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player portfolio query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<PlayerPortfolioResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new PlayerPortfolioResponse
+            {
+                Videos = queryResult.Values1
+                    .Select(v => new PlayerPortfolioVideoDto
+                    {
+                        VideoId = v.VideoId,
+                        Title = v.Title,
+                        VideoUrl = v.VideoUrl,
+                        ThumbnailUrl = NullIfEmpty(v.ThumbnailUrl),
+                        DurationSeconds = v.DurationSeconds,
+                        IsPrimary = v.IsPrimary,
+                        Tags = ParseTags(v.Tags),
+                        RecordedOn = v.RecordedOn is null ? null : DateOnly.FromDateTime(v.RecordedOn.Value)
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Player portfolio received", ("UserId", userId), ("Videos", response.Videos.Count));
+            return Result<PlayerPortfolioResponse>.Success(response);
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;
+        }
+
+        // 태그 칩 JSON 배열 파싱 — 손상된 값은 빈 목록으로 (조회 실패 사유가 아님)
+        private static List<string> ParseTags(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new List<string>();
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+            }
+            catch (JsonException)
+            {
+                return new List<string>();
+            }
         }
 
         // 보호자 연락처 마스킹 — 가운데 자리 감춤 (010-1234-5678 → 010-****-5678)

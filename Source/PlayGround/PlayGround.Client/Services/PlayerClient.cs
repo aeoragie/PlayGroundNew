@@ -30,6 +30,36 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>본인(관리 주체) 커리어 목록 조회. 미인증·오류 시 null.</summary>
+        public async Task<PlayerCareerResponse?> GetMyCareerAsync()
+        {
+            try
+            {
+                Envelope<PlayerCareerResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerCareerResponse>>("api/soccer/player/me/career");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>본인(관리 주체) 포트폴리오 영상 목록 조회. 미인증·오류 시 null.</summary>
+        public async Task<PlayerPortfolioResponse?> GetMyPortfolioAsync()
+        {
+            try
+            {
+                Envelope<PlayerPortfolioResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerPortfolioResponse>>("api/soccer/player/me/portfolio");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         /// <summary>항목 공개 설정 변경. 성공 여부 반환.</summary>
         public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic)
         {

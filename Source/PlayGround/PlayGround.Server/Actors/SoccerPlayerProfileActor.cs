@@ -16,6 +16,8 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerPlayerInfoMessage>(HandleGetInfoAsync);
             RegisterHandlerAsync<SetSoccerPlayerFieldVisibilityMessage>(HandleSetVisibilityAsync);
             RegisterHandlerAsync<ClaimSoccerPlayerInviteMessage>(HandleClaimAsync);
+            RegisterHandlerAsync<GetSoccerPlayerCareerMessage>(HandleGetCareerAsync);
+            RegisterHandlerAsync<GetSoccerPlayerPortfolioMessage>(HandleGetPortfolioAsync);
         }
 
         private async Task HandleCreateAsync(CreatePlayerProfileMessage message)
@@ -52,6 +54,24 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerClaimCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerClaimCommand>();
             Result<ClaimPlayerInviteResponse> result = await useCase.ExecuteAsync(message.UserId, message.Data.Code, message.CurrentRole);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetCareerAsync(GetSoccerPlayerCareerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerPlayerCareerCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerCareerCommand>();
+            Result<PlayerCareerResponse> result = await useCase.ExecuteAsync(message.UserId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetPortfolioAsync(GetSoccerPlayerPortfolioMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerPlayerPortfolioCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerPortfolioCommand>();
+            Result<PlayerPortfolioResponse> result = await useCase.ExecuteAsync(message.UserId);
             sender.Tell(result);
         }
     }

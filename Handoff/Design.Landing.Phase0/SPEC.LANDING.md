@@ -10,8 +10,14 @@
 
 ---
 
+## 0. 브랜드 워드마크 (전 페이지 공통 규칙)
+- 텍스트 전용: **PlayGround**(800) + **Soccer**(700) — 아이콘·이모지 금지
+- 라이트 배경: PlayGround `#23408e` / Soccer `#b6bdc9`
+- 다크(네이비·투명 히어로) 배경: PlayGround `#fff` / Soccer `rgba(255,255,255,.45)`
+- 종목 확장 시 뒷단어(Soccer)만 교체
+
 ## 1. GNB — 하이브리드 헤더
-공통 동작: `position:fixed`, 투명(텍스트 흰색) ↔ 스크롤 시 solid(`rgba(253,253,252,.92~.94)` + `backdrop-filter:blur(10px)` + `box-shadow:0 1px 0 #e6e8ee,0 4px 16px rgba(28,43,74,.06)`, 텍스트 `#1c2b4a`). transition 250ms.
+공통 동작: **`position:sticky;top:0` + `margin-bottom:-56~68px`** (fixed 금지 — 래퍼와 중앙 정렬 어긋남 버그), 투명(텍스트 흰색) ↔ 스크롤 시 solid(`rgba(253,253,252,.92~.94)` + `backdrop-filter:blur(10px)` + `box-shadow:0 1px 0 #e6e8ee,0 4px 16px rgba(28,43,74,.06)`, 텍스트 `#1c2b4a`). transition 250ms.
 
 | | PC | 모바일 |
 |---|---|---|

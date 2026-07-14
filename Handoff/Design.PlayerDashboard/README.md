@@ -37,3 +37,7 @@ Handoff/Design.PlayerDashboard/README.md와 SPEC.PLAYERDASHBOARD.md를 읽어.
 공개 토글 쓰기는 보호자 role 가드 필수.
 ```
 → 이후: 커리어 → 시즌 통계 → 포트폴리오 순.
+
+
+## 변경 이력 (2026-07-14)
+- 브랜드 로고 → 텍스트 전용 워드마크: PlayGround(라이트 #23408e / 다크 #fff, 800) + Soccer(라이트 #b6bdc9 / 다크 흰45%, 700). 아이콘·이모지 금지. 레퍼런스 HTML 갱신됨.

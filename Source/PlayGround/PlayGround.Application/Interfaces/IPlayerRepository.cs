@@ -17,5 +17,11 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>초대코드 Claim — 성공 시 연결된 선수·팀 요약, 무효 코드·이미 연결된 선수면 Success(null).</summary>
         Task<Result<ClaimPlayerInviteResponse?>> ClaimInviteAsync(Guid userId, string code, CancellationToken cancellation = default);
+
+        /// <summary>관리 주체(UserId) 기준 커리어 목록 조회. 이력 없으면 빈 목록 — 에러가 아니다.</summary>
+        Task<Result<PlayerCareerResponse>> GetCareersByUserAsync(Guid userId, CancellationToken cancellation = default);
+
+        /// <summary>관리 주체(UserId) 기준 포트폴리오 영상 목록 조회. 없으면 빈 목록 — 에러가 아니다.</summary>
+        Task<Result<PlayerPortfolioResponse>> GetPortfolioByUserAsync(Guid userId, CancellationToken cancellation = default);
     }
 }

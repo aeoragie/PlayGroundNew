@@ -68,6 +68,34 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        [HttpGet("me/career")]
+        public async Task<Envelope<PlayerCareerResponse>> GetMyCareerAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<PlayerCareerResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<PlayerCareerResponse> result = await mGateway.AskAsync<PlayerCareerResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerCareerMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        [HttpGet("me/portfolio")]
+        public async Task<Envelope<PlayerPortfolioResponse>> GetMyPortfolioAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<PlayerPortfolioResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<PlayerPortfolioResponse> result = await mGateway.AskAsync<PlayerPortfolioResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerPortfolioMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpPut("me/profile/visibility")]
         public async Task<Envelope<bool>> SetMyFieldVisibilityAsync(
             [FromBody] SetPlayerFieldVisibilityRequest request, CancellationToken cancellation)

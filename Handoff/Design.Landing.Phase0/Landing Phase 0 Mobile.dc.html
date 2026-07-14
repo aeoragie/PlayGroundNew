@@ -22,10 +22,9 @@ html{scroll-behavior:smooth}
 
 <!-- ===== GNB (모바일: 로고 + 시작하기 + 햄버거) ===== -->
 <header style="{{ headerStyle }}">
-  <div style="padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;max-width:480px;margin:0 auto">
-    <a href="#top" style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:-.02em;color:{{ headerFg }}">
-      <span style="width:26px;height:26px;border-radius:7px;background:#FF6B35;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff">⚽</span>
-      PlayGround
+  <div style="padding:0 22px;height:56px;display:flex;align-items:center;gap:12px;max-width:480px;margin:0 auto">
+    <a href="#top" style="display:flex;align-items:baseline;gap:5px;font-weight:800;font-size:16.5px;letter-spacing:-.03em;color:{{ headerFg }};white-space:nowrap">
+      PlayGround <span style="font-weight:700;color:{{ headerSubFg }}">Soccer</span>
     </a>
     <div style="flex:1"></div>
     <a href="#cta" style="font-size:13.5px;font-weight:700;color:#fff;background:#FF6B35;white-space:nowrap;padding:9px 16px;border-radius:9px;box-shadow:0 2px 8px rgba(255,107,53,.3)" style-hover="background:#e85a26">시작하기</a>
@@ -158,8 +157,7 @@ html{scroll-behavior:smooth}
 <footer style="border-top:1px solid #e6e8ee;background:#fff;padding:32px 22px 40px;display:flex;flex-direction:column;gap:24px">
   <div style="display:flex;flex-direction:column;gap:9px">
     <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:#1c2b4a">
-      <span style="width:24px;height:24px;border-radius:6px;background:#FF6B35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">⚽</span>
-      PlayGround
+      <span style="display:flex;align-items:baseline;gap:5px;letter-spacing:-.03em;color:#23408e">PlayGround <span style="font-weight:700;color:#b6bdc9">Soccer</span></span>
     </div>
     <div style="font-size:12.5px;color:#8a93a6;line-height:1.6">유소년 축구, 팀과 선수를 잇다<br>© 2026 PlayGround</div>
   </div>
@@ -205,11 +203,12 @@ class Component extends DCLogic {
       toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
       closeMenu: () => this.setState({ menuOpen: false }),
       headerStyle:
-        'position:fixed;top:0;left:0;right:0;z-index:50;transition:background .25s,box-shadow .25s;' +
+        'position:sticky;top:0;margin-bottom:-56px;z-index:50;transition:background .25s,box-shadow .25s;' +
         (showSolid
           ? 'background:rgba(253,253,252,.94);backdrop-filter:blur(10px);box-shadow:0 1px 0 #e6e8ee,0 4px 16px rgba(28,43,74,.06)'
           : 'background:transparent'),
-      headerFg: showSolid ? '#1c2b4a' : '#ffffff',
+      headerFg: showSolid ? '#23408e' : '#ffffff',
+      headerSubFg: showSolid ? '#b6bdc9' : 'rgba(255,255,255,.45)',
       features: [
         { icon: '🏠', title: '팀 홈페이지 자동 생성', body: '소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이.' },
         { icon: '📈', title: '선수 이력 · 기록 관리', body: '커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다.' },

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace PlayGround.Contracts.Player
 {
     /// <summary>선수 온보딩 프로필 생성 요청. UserId는 본문이 아니라 인증 토큰(sub)에서 읽는다.</summary>
@@ -84,5 +86,44 @@ namespace PlayGround.Contracts.Player
 
         /// <summary>Player로 승격된 새 액세스 토큰. 이미 Player였거나 승격 실패 시 null (기존 토큰 유지).</summary>
         public string? AccessToken { get; set; }
+    }
+
+    /// <summary>커리어(소속 이력) 목록 (선수 대시보드 커리어 섹션).</summary>
+    public class PlayerCareerResponse
+    {
+        public List<PlayerCareerEntryDto> Entries { get; set; } = new();
+    }
+
+    /// <summary>커리어 한 건. 기간 표시("2024.3 ~ 현재")는 클라이언트 포맷.</summary>
+    public class PlayerCareerEntryDto
+    {
+        public Guid CareerId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public bool IsCurrent { get; set; }
+        public string? BadgeLabel { get; set; }    // 특이 뱃지 ('서울 지역 대표 선발')
+        public DateOnly StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }     // null = 현재
+        public string? Role { get; set; }          // 'U15 · FW · 주전'
+        public string? Note { get; set; }
+        public bool IsVerified { get; set; }       // 팀 확인됨 / 본인 입력
+    }
+
+    /// <summary>포트폴리오 영상 목록 (선수 대시보드 포트폴리오 섹션). 대표 영상 분리는 클라이언트에서.</summary>
+    public class PlayerPortfolioResponse
+    {
+        public List<PlayerPortfolioVideoDto> Videos { get; set; } = new();
+    }
+
+    /// <summary>포트폴리오 영상 한 건. 길이 표시("1:42")는 클라이언트 포맷.</summary>
+    public class PlayerPortfolioVideoDto
+    {
+        public Guid VideoId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string VideoUrl { get; set; } = string.Empty;
+        public string? ThumbnailUrl { get; set; }
+        public int? DurationSeconds { get; set; }
+        public bool IsPrimary { get; set; }
+        public List<string> Tags { get; set; } = new();
+        public DateOnly? RecordedOn { get; set; }
     }
 }
