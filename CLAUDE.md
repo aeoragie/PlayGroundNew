@@ -30,16 +30,42 @@
   Claim은 C# 파생(UserId 연결 = Claimed, Pending은 Claim 플로우 때). 연령 탭은 전원 AgeGroup
   보유 시만 노출(전부/일부 null이면 탭 숨기고 전체 표시), Unclaimed 안내 박스는 존재 시만.
   카드 뷰는 `SoccerPlayers.PhotoUrl` 렌더(없으면 플레이스홀더 — 사진 컬럼은 94d1e08에서 추가됨).
-- **`/dashboard` 진입 라우팅** — JWT 클레임 역할 기반 분기.
+- **공개 팀 홈페이지 1차+선수단 탭** (`/team/{slug}`, `/team/{slug}/{tab}`) — SoccerTeams에
+  CoverImageUrl 신설, `UspGetSoccerTeamHomeBySlug`(5결과셋: 팀·가치·코치·채널·로스터, 비공개 제외)
+  → `GET api/soccer/team/{slug}/home`(AllowAnonymous, 회비 비공개·UserId 등 관리 정보 미노출)
+  → GNB(팀명 히어로 통과 시 fade-in, JS interop `team-public-home.js`)·히어로·6탭 골격·소개 탭·
+  선수단 탭(공개 규칙: Claim 뱃지 비노출, Claimed만 공개 프로필 링크). **시즌성적·모집·진학진로·
+  리뷰 탭은 미구현** — 각각 스키마 필요, 시즌성적은 Records 이후로 결정.
+- **선수 대시보드 P0** (`/dashboard/player/{section}`) — PC(GNB·사이드바)+모바일(하단 탭 4),
+  4섹션(프로필·커리어·시즌 통계·포트폴리오). **프로필은 백엔드 연동 완료**: SoccerPlayers 확장
+  (HeightCm·WeightKg·PreferredFoot·SchoolName·GuardianPhone)과 SoccerPlayerFieldVisibilities
+  (행 없으면 기본값: 키·몸무게·주발 공개 — Domain `SoccerPlayerProfileField.DefaultIsPublic`),
+  SoccerPlayerFamilyLinks 신설 → `GET api/soccer/player/me/info`(연락처 서버 마스킹) 및
+  `PUT .../visibility`(소유 선수만). **커리어·시즌 통계·포트폴리오는 목데이터**(PC 컴포넌트
+  internal static을 모바일이 공유). SPEC의 "공개 프로필" 네이비 카드는 공개 선수 프로필
+  구현 전까지 미노출 처리.
+- **초대코드 Claim 플로우** — `UspClaimSoccerPlayerInvite`(Pending·미만료 검증, 같은 계정의
+  온보딩 프로필은 COALESCE 병합 후 소프트 삭제) → `POST api/soccer/player/me/claim`(실패 사유
+  통합 NotFound — 코드 추측 대비, 값은 로그 미기록. **승격은 JWT 역할 General일 때만** —
+  UspUpdateUserRole은 무조건 덮어쓰므로 주의). 관리자 로스터 API에 Pending 코드 포함(Unclaimed만)
+  → PC 로스터 "초대코드 보내기" 클릭 시 코드 표시+클립보드 복사. 선수 대시보드는 무소속일 때
+  "초대코드로 팀 연결" 카드(성공 시 승격 토큰 교체+재로드).
+- **브랜드 워드마크 전환** — BrandLogo = `PlayGround`(네이비)+종목명(연회색, `Sport` 파라미터,
+  이모지 박스 제거). 공개 팀 홈 GNB는 좌측 브랜드 고정 + 팀명 fade-in 구조 (핸드오프 SPEC의
+  "우측 회색 링크"와 다른 확정 결정 — 획득 플라이휠 노출 목적).
+- **`/dashboard` 진입 라우팅** — JWT 클레임 역할 기반 분기 (TeamAdmin→팀, Player→선수).
 - **규칙 확정·전면 반영** — enum 문자열 저장, DB UTF-8 강제(NVARCHAR 금지), Client enum은
-  `Models/` 분리 + `Soccer` 프리픽스.
+  `Models/` 분리 + `Soccer` 프리픽스, **페이지 라우트 문자열은 `Client/Routes.cs` 단일 관리**
+  (@page 대신 `@attribute [Route(Routes.X)]`, 링크·NavigateTo는 상수/헬퍼만).
 
 ### 다음 작업 (우선순위)
 
-1. **신규 핸드오프 2건 구현** — `Handoff/Design.TeamPublicHome/`(공개 팀 홈페이지 —
-   팀 정보 테이블 그대로 소비, Slug 기반 공개 API), `Handoff/Design.PlayerDashboard/`(선수
-   대시보드 — 검증 계정 `verify-player-u12/u15@test.local` 준비됨). 착수 전 SPEC 필독.
-2. 초대코드 Claim 플로우, 팀 정보 수정 UI(디자인 대기), 온보딩 중복 방지, Records 보강.
+1. **선수 대시보드 잔여 백엔드** — 커리어(PlayerCareer 스키마 + 팀 확인 verified 플래그),
+   포트폴리오(영상 링크·대표 지정). 시즌 통계는 경기 스키마(Records) 선행 필요.
+2. **Records 보강 → 경기 스키마 설계** — 공개 홈 시즌성적 탭·팀 대시보드 경기 섹션·선수
+   시즌 통계가 공유할 Match/결과 구조 (설계 결정 #5 DataSource·ExternalRef 선반영 포함).
+3. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
+   온보딩 중복 방지, 공개 페이지 로그인 상태 GNB(선수 대시보드·역할별 진입점과 함께 설계).
 
 ### 검증 팁 (2026-07-14 확립)
 
