@@ -1,4 +1,4 @@
-@page "/settings/select-role"
+@attribute [Route(Routes.SelectRole)]
 @layout AuthLayout
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Auth
@@ -72,14 +72,14 @@ else
         if (!string.IsNullOrWhiteSpace(token))
         {
             await AuthProvider.MarkUserAuthenticatedAsync(token);
-            Nav.NavigateTo("settings/select-role", replace: true);
+            Nav.NavigateTo(Routes.SelectRole, replace: true);
         }
 
         // 이미 역할을 가진 기존 사용자는 역할 선택을 건너뛰고 대시보드로 직행.
         AuthUserDto? me = await Auth.GetMeAsync();
         if (me is not null && UserRoleExtensions.Parse(me.Role) != UserRole.General)
         {
-            Nav.NavigateTo("/dashboard", replace: true);
+            Nav.NavigateTo(Routes.Dashboard, replace: true);
             return;
         }
 
@@ -107,12 +107,12 @@ else
         return null;
     }
 
-    private void StartPlayer() => Nav.NavigateTo("/onboarding/player");
-    private void StartTeam() => Nav.NavigateTo("/onboarding/team");
+    private void StartPlayer() => Nav.NavigateTo(Routes.PlayerOnboarding);
+    private void StartTeam() => Nav.NavigateTo(Routes.TeamOnboarding);
 
     private void SkipRole()
     {
         State.DoneFrom = OnboardingRole.General;
-        Nav.NavigateTo("/onboarding/complete");
+        Nav.NavigateTo(Routes.OnboardingComplete);
     }
 }

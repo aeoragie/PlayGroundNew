@@ -1,4 +1,4 @@
-@page "/login"
+@attribute [Route(Routes.Login)]
 @layout AuthLayout
 @using PlayGround.Client.Styles
 @inject NavigationManager Nav
@@ -11,7 +11,7 @@
 <div class="@($"w-[400px] max-w-full {Css.Auth.Card} px-9 py-10 flex flex-col gap-[22px]")">
     <div class="flex flex-col gap-2 text-center">
         <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">시작하기</h1>
-        <p class="m-0 text-sm text-text-body leading-relaxed">가입과 로그인이 한 번에 —<br />계정이 없으면 자동으로 만들어 드려요.</p>
+        <p class="m-0 text-sm text-text-body leading-relaxed">가입과 로그인이 한 번에<br />계정이 없으면 자동으로 만들어 드려요.</p>
     </div>
 
     @if (mError is not null)
@@ -114,7 +114,7 @@
         }
 
         await AuthProvider.MarkUserAuthenticatedAsync(result.Token);
-        Nav.NavigateTo("/settings/select-role");
+        Nav.NavigateTo(Routes.SelectRole);
     }
 
     private static string MapError(string code)

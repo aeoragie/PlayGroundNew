@@ -1,4 +1,4 @@
-@page "/dashboard"
+@attribute [Route(Routes.Dashboard)]
 @layout AuthLayout
 @using System.Security.Claims
 @using PlayGround.Client.Styles
@@ -30,7 +30,7 @@ else
         </p>
         @if (mRole != UserRole.Player)
         {
-            <a href="settings/select-role" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">역할 선택하기</a>
+            <a href="@Routes.SelectRole" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">역할 선택하기</a>
         }
     </div>
 }
@@ -45,14 +45,14 @@ else
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
-            Nav.NavigateTo("/login", replace: true);
+            Nav.NavigateTo(Routes.Login, replace: true);
             return;
         }
 
         mRole = UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
         if (mRole == UserRole.TeamAdmin)
         {
-            Nav.NavigateTo("/dashboard/team", replace: true);
+            Nav.NavigateTo(Routes.TeamDashboard, replace: true);
             return;
         }
 

@@ -1,4 +1,4 @@
-@page "/onboarding/player"
+@attribute [Route(Routes.PlayerOnboarding)]
 @layout AuthLayout
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
@@ -165,6 +165,6 @@
         }
 
         State.DoneFrom = OnboardingRole.Player;
-        Nav.NavigateTo("/onboarding/complete");
+        Nav.NavigateTo(Routes.OnboardingComplete);
     }
 }

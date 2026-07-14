@@ -9,8 +9,8 @@
 
     @* 결과/영상 세그먼트 — 선택 = 흰 배경 + 그림자 *@
     <div class="flex bg-surface-icon rounded-[11px] p-[3px] gap-[3px]">
-        <a href="dashboard/team/results" class="@SegmentClass(forResults: true)">결과</a>
-        <a href="dashboard/team/videos" class="@SegmentClass(forResults: false)">영상</a>
+        <a href="@Routes.TeamDashboardSection(SoccerTeamDashboardSection.Results)" class="@SegmentClass(forResults: true)">결과</a>
+        <a href="@Routes.TeamDashboardSection(SoccerTeamDashboardSection.Videos)" class="@SegmentClass(forResults: false)">영상</a>
     </div>
 
     @if (IsResults)

@@ -1,4 +1,4 @@
-@page "/not-found"
+@attribute [Route(Routes.NotFound)]
 @layout MainLayout
 
 <PageTitle>페이지를 찾을 수 없어요 — PlayGround</PageTitle>
@@ -7,5 +7,5 @@
     <div class="text-[64px]">🔍</div>
     <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">페이지를 찾을 수 없어요</h1>
     <p class="m-0 text-[14.5px] text-text-body leading-relaxed">주소가 바뀌었거나 삭제된 페이지일 수 있어요.</p>
-    <PillButton Href="/" Variant="PillVariant.Orange" Size="PillSize.Medium" Class="mt-2">홈으로 가기</PillButton>
+    <PillButton Href="@Routes.Landing" Variant="PillVariant.Orange" Size="PillSize.Medium" Class="mt-2">홈으로 가기</PillButton>
 </div>

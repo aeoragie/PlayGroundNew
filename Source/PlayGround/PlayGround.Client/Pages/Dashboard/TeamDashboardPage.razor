@@ -1,5 +1,5 @@
-@page "/dashboard/team"
-@page "/dashboard/team/{Section}"
+@attribute [Route(Routes.TeamDashboard)]
+@attribute [Route(Routes.TeamDashboardSectionTemplate)]
 @using PlayGround.Client.Components.Dashboard
 @using PlayGround.Client.Components.Dashboard.Mobile
 @using PlayGround.Client.Styles
@@ -12,7 +12,7 @@
 
 @* PC (≥768px): GNB + 사이드바 *@
 <div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
-    <DashboardGnb />
+    <DashboardGnb Slug="@mInfo?.Profile.Slug" />
     <div class="flex-1 flex items-stretch">
         <TeamDashboardSidebar ActiveSection="@CurrentSection" Team="@mInfo?.Profile" />
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
@@ -97,7 +97,7 @@
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
-            Nav.NavigateTo("/login", replace: true);
+            Nav.NavigateTo(Routes.Login, replace: true);
             return;
         }
 

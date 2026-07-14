@@ -3,7 +3,7 @@
 <nav class="fixed bottom-0 inset-x-0 z-50 max-w-[480px] mx-auto bg-bg/95 backdrop-blur-[10px] border-t border-border flex px-1 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))]">
     @foreach (TabItem tab in Tabs)
     {
-        <a href="@($"dashboard/team/{tab.Section.ToSlug()}")" class="@TabClass(tab)">
+        <a href="@Routes.TeamDashboardSection(tab.Section)" class="@TabClass(tab)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">@((MarkupString)tab.IconPaths)</svg>@tab.Label
         </a>
     }

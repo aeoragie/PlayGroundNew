@@ -1,4 +1,4 @@
-@page "/onboarding/complete"
+@attribute [Route(Routes.OnboardingComplete)]
 @layout AuthLayout
 @using PlayGround.Client.Styles
 @inject NavigationManager Nav
@@ -51,6 +51,6 @@
     private void GoDashboard()
     {
         State.Reset();
-        Nav.NavigateTo("/dashboard");
+        Nav.NavigateTo(Routes.Dashboard);
     }
 }

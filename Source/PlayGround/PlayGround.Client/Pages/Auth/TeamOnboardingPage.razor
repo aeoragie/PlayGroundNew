@@ -1,4 +1,4 @@
-@page "/onboarding/team"
+@attribute [Route(Routes.TeamOnboarding)]
 @layout AuthLayout
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
@@ -188,6 +188,6 @@
 
         State.DoneFrom = OnboardingRole.Team;
         State.TeamSlug = result.Slug ?? string.Empty;
-        Nav.NavigateTo("/onboarding/complete");
+        Nav.NavigateTo(Routes.OnboardingComplete);
     }
 }
