@@ -40,6 +40,11 @@
         </div>
     </div>
 
+    @if (Info.Profile.TeamName is null)
+    {
+        <PlayerClaimCard OnClaimed="OnClaimed" />
+    }
+
     @if (FieldRows.Count > 0)
     {
         <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-[11px]")">
@@ -91,6 +96,10 @@
 @code {
     [Parameter, EditorRequired]
     public PlayerInfoResponse Info { get; set; } = new();
+
+    /// <summary>초대코드 Claim 성공 시 상위(페이지)로 전달 — 프로필 재로드.</summary>
+    [Parameter]
+    public EventCallback OnClaimed { get; set; }
 
     private List<PlayerProfileSection.FieldRow> FieldRows => PlayerProfileSection.BuildFieldRows(Info);
 

@@ -69,4 +69,20 @@ namespace PlayGround.Contracts.Player
         public string FieldName { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
     }
+
+    /// <summary>초대코드 Claim 요청 — 팀이 발급한 코드로 로스터 선수 프로필을 내 계정에 연결.</summary>
+    public class ClaimPlayerInviteRequest
+    {
+        public string Code { get; set; } = string.Empty;
+    }
+
+    /// <summary>Claim 결과 — 연결된 선수·팀 요약.</summary>
+    public class ClaimPlayerInviteResponse
+    {
+        public string PlayerName { get; set; } = string.Empty;
+        public string? TeamName { get; set; }
+
+        /// <summary>Player로 승격된 새 액세스 토큰. 이미 Player였거나 승격 실패 시 null (기존 토큰 유지).</summary>
+        public string? AccessToken { get; set; }
+    }
 }

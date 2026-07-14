@@ -144,6 +144,34 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
+        public async Task<Result<ClaimPlayerInviteResponse?>> ClaimInviteAsync(Guid userId, string code, CancellationToken cancellation = default)
+        {
+            // 코드 값은 추측 공격 로그가 될 수 있어 남기지 않는다
+            Logger.InfoWith("Player invite claim requested", ("UserId", userId));
+
+            var procedure = new UspClaimSoccerPlayerInvite(this) { UserId = userId, Code = code };
+            var queryResult = await procedure.QueryAsync<SoccerClaimInviteRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player invite claim failed", ("ResultCode", queryResult.ResultCode));
+                return Result<ClaimPlayerInviteResponse?>.Error(ErrorCode.DatabaseError);
+            }
+
+            var row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                Logger.InfoWith("Player invite claim rejected — invalid or used code", ("UserId", userId));
+                return Result<ClaimPlayerInviteResponse?>.Success(null);
+            }
+
+            Logger.InfoWith("Player invite claimed", ("UserId", userId), ("PlayerId", row.PlayerId));
+            return Result<ClaimPlayerInviteResponse?>.Success(new ClaimPlayerInviteResponse
+            {
+                PlayerName = row.Name,
+                TeamName = NullIfEmpty(row.TeamName)
+            });
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

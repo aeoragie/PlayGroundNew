@@ -14,5 +14,8 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>항목 공개 설정 업서트. 관리 주체 소유 선수가 없으면 Success(false).</summary>
         Task<Result<bool>> SetFieldVisibilityAsync(Guid userId, string fieldName, bool isPublic, CancellationToken cancellation = default);
+
+        /// <summary>초대코드 Claim — 성공 시 연결된 선수·팀 요약, 무효 코드·이미 연결된 선수면 Success(null).</summary>
+        Task<Result<ClaimPlayerInviteResponse?>> ClaimInviteAsync(Guid userId, string code, CancellationToken cancellation = default);
     }
 }

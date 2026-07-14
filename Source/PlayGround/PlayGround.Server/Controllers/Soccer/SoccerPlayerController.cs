@@ -51,6 +51,23 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        [HttpPost("me/claim")]
+        public async Task<Envelope<ClaimPlayerInviteResponse>> ClaimInviteAsync(
+            [FromBody] ClaimPlayerInviteRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<ClaimPlayerInviteResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            // 현재 역할은 JWT 클레임에서 — General만 Player로 승격 (상위 역할 강등 방지)
+            string? currentRole = User.FindFirstValue(ClaimTypes.Role);
+            Result<ClaimPlayerInviteResponse> result = await mGateway.AskAsync<ClaimPlayerInviteResponse>(
+                ActorNames.SoccerPlayerProfile, new ClaimSoccerPlayerInviteMessage(userId, currentRole, request), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpPut("me/profile/visibility")]
         public async Task<Envelope<bool>> SetMyFieldVisibilityAsync(
             [FromBody] SetPlayerFieldVisibilityRequest request, CancellationToken cancellation)

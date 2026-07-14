@@ -1,8 +1,10 @@
 @* 선수단 섹션: 연령 탭 + 리스트/카드 뷰 토글 + Claim 상태 — SPEC.TEAMDASHBOARD.md §2
    연령 탭은 전원 AgeGroup 보유 시만 노출 (온보딩 로스터는 null — 전부 표시).
-   Unclaimed 안내 박스는 Unclaimed 선수 존재 시만. *@
+   Unclaimed 안내 박스는 Unclaimed 선수 존재 시만.
+   "초대코드 보내기" 클릭 → 코드 표시 + 클립보드 복사 (관리자가 직접 전달). *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
+@inject IJSRuntime Js
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
@@ -45,7 +47,7 @@
                     <span class="text-[13.5px] text-text-body">@(player.Position ?? "-")</span>
                     <span class="text-[13.5px] text-text-body">@(player.Grade ?? "-")</span>
                     <ClaimBadge Status="@ClaimOf(player)" />
-                    <span class="text-[12.5px] font-bold text-navy text-right cursor-pointer whitespace-nowrap">@ActionLabel(ClaimOf(player))</span>
+                    <span class="flex items-center justify-end">@ActionArea(player)</span>
                 </div>
             }
         </div>
@@ -73,7 +75,7 @@
                         <span class="text-[12.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
                     <ClaimBadge Status="@ClaimOf(player)" />
-                    <span class="text-[12.5px] font-bold text-navy cursor-pointer">@ActionLabel(ClaimOf(player))</span>
+                    @ActionArea(player)
                 </div>
             }
         </div>
@@ -130,12 +132,46 @@
 
     private int CountOf(SoccerAgeGroup tab) => Players.Count(p => AgeOf(p) == tab);
 
+    private Guid? mOpenCodePlayerId;
+    private string? mCopiedCode;
+
     private static string ActionLabel(SoccerClaimStatus status) => status switch
     {
         SoccerClaimStatus.Claimed => "프로필 보기",
         SoccerClaimStatus.Pending => "승인 대기",
         _ => "초대코드 보내기",
     };
+
+    // 액션 영역: Unclaimed + 유효 코드 보유 → 클릭 시 코드 노출 + 복사. 그 외는 기존 라벨.
+    private RenderFragment ActionArea(TeamRosterPlayerDto player) => __builder =>
+    {
+        if (ClaimOf(player) == SoccerClaimStatus.Unclaimed && player.InviteCode is not null)
+        {
+            if (mOpenCodePlayerId == player.TeamPlayerId)
+            {
+                <span class="flex items-center gap-1.5 whitespace-nowrap">
+                    <span class="text-xs font-extrabold tracking-[.08em] text-navy-deep bg-surface-icon rounded-md px-2 py-[3px]">@player.InviteCode</span>
+                    <button type="button" class="text-xs font-bold text-navy hover:text-orange bg-transparent border-0 cursor-pointer p-0 transition-colors"
+                            @onclick="() => CopyCodeAsync(player.InviteCode)">@(mCopiedCode == player.InviteCode ? "복사됨" : "복사")</button>
+                </span>
+            }
+            else
+            {
+                <button type="button" class="text-[12.5px] font-bold text-navy hover:text-orange bg-transparent border-0 cursor-pointer p-0 whitespace-nowrap transition-colors"
+                        @onclick="() => mOpenCodePlayerId = player.TeamPlayerId">초대코드 보내기</button>
+            }
+        }
+        else
+        {
+            <span class="text-[12.5px] font-bold text-navy whitespace-nowrap">@ActionLabel(ClaimOf(player))</span>
+        }
+    };
+
+    private async Task CopyCodeAsync(string code)
+    {
+        await Js.InvokeVoidAsync("navigator.clipboard.writeText", code);
+        mCopiedCode = code;
+    }
 
     private string ViewToggleClass(bool isList) =>
         "px-4 text-[13px] font-bold transition-colors " +

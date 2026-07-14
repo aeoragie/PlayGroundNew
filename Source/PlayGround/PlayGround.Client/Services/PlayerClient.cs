@@ -47,6 +47,28 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>초대코드 Claim — 성공 시 연결된 팀 이름과 (승격 시) 새 토큰.</summary>
+        public async Task<PlayerClaimResult> ClaimInviteAsync(string code)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync(
+                    "api/soccer/player/me/claim", new ClaimPlayerInviteRequest { Code = code });
+                Envelope<ClaimPlayerInviteResponse>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<ClaimPlayerInviteResponse>>();
+                if (envelope is { IsSuccess: true, Data: not null })
+                {
+                    return new PlayerClaimResult(true, envelope.Data.TeamName, envelope.Data.AccessToken, null);
+                }
+
+                return new PlayerClaimResult(false, null, null, "코드가 유효하지 않아요. 팀 관리자에게 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new PlayerClaimResult(false, null, null, "네트워크 오류로 연결하지 못했어요. 잠시 후 다시 시도해 주세요.");
+            }
+        }
+
         public async Task<PlayerSaveResult> CreateProfileAsync(CreatePlayerProfileRequest request)
         {
             try
@@ -75,4 +97,7 @@ namespace PlayGround.Client.Services
 
     /// <summary>AccessToken은 Player로 승격된 새 토큰 — null이면 기존 토큰 유지.</summary>
     public record PlayerSaveResult(bool Success, string? AccessToken, string? Error);
+
+    /// <summary>초대코드 Claim 결과. AccessToken은 승격 시에만 값이 온다.</summary>
+    public record PlayerClaimResult(bool Success, string? TeamName, string? AccessToken, string? Error);
 }

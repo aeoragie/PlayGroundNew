@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
 /// <summary>
-/// SoccerTeamRosterRecord (JOIN: SoccerTeamPlayers + SoccerPlayers)
+/// SoccerTeamRosterRecord (JOIN: SoccerTeamPlayers + SoccerPlayers + SoccerPlayerInvites)
 /// </summary>
 public class SoccerTeamRosterRecord
 {
@@ -39,4 +39,8 @@ public class SoccerTeamRosterRecord
 	public string AgeGroup { get; set; } = String.Empty;
 
 	public Guid? UserId { get; set; } = null;
+
+	[Required]
+	[StringLength(12)]
+	public string Code { get; set; } = String.Empty;
 }

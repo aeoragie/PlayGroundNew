@@ -163,7 +163,9 @@ namespace PlayGround.Persistence.Repositories
                         AgeGroup = NullIfEmpty(r.AgeGroup),
                         PhotoUrl = NullIfEmpty(r.PhotoUrl),
                         // Claim 상태는 저장 컬럼이 아니라 파생값 — UserId 연결 = Claimed (Pending은 Claim 플로우 도입 때)
-                        ClaimStatus = r.UserId is null ? "Unclaimed" : "Claimed"
+                        ClaimStatus = r.UserId is null ? "Unclaimed" : "Claimed",
+                        // 초대코드는 Unclaimed 선수에게만 의미 있다 (Claimed는 코드가 이미 소진된 상태)
+                        InviteCode = r.UserId is null ? NullIfEmpty(r.Code) : null
                     })
                     .ToList()
             };

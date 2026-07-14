@@ -15,6 +15,7 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<CreatePlayerProfileMessage>(HandleCreateAsync);
             RegisterHandlerAsync<GetSoccerPlayerInfoMessage>(HandleGetInfoAsync);
             RegisterHandlerAsync<SetSoccerPlayerFieldVisibilityMessage>(HandleSetVisibilityAsync);
+            RegisterHandlerAsync<ClaimSoccerPlayerInviteMessage>(HandleClaimAsync);
         }
 
         private async Task HandleCreateAsync(CreatePlayerProfileMessage message)
@@ -42,6 +43,15 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerFieldVisibilityCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerFieldVisibilityCommand>();
             Result<bool> result = await useCase.ExecuteAsync(message.UserId, message.Data.FieldName, message.Data.IsPublic);
+            sender.Tell(result);
+        }
+
+        private async Task HandleClaimAsync(ClaimSoccerPlayerInviteMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerPlayerClaimCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerClaimCommand>();
+            Result<ClaimPlayerInviteResponse> result = await useCase.ExecuteAsync(message.UserId, message.Data.Code, message.CurrentRole);
             sender.Tell(result);
         }
     }

@@ -20,4 +20,10 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => UserId;
     }
+
+    /// <summary>초대코드 Claim 메시지 (쓰기 — UserId 해시). CurrentRole은 JWT 클레임 — General만 승격.</summary>
+    public sealed record ClaimSoccerPlayerInviteMessage(Guid UserId, string? CurrentRole, ClaimPlayerInviteRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
 }

@@ -68,6 +68,11 @@
             }
         </div>
 
+        <div class="flex flex-col gap-[18px]">
+        @if (Info.Profile.TeamName is null)
+        {
+            <PlayerClaimCard OnClaimed="OnClaimed" />
+        }
         @if (Info.Family.Count > 0)
         {
             <div class="@($"{Css.Dashboard.Card} p-[22px] flex flex-col gap-3")">
@@ -93,12 +98,17 @@
                 <button type="button" class="@Css.Dashboard.DashedButton">＋ 가족 초대</button>
             </div>
         }
+        </div>
     </div>
 </div>
 
 @code {
     [Parameter, EditorRequired]
     public PlayerInfoResponse Info { get; set; } = new();
+
+    /// <summary>초대코드 Claim 성공 시 상위(페이지)로 전달 — 프로필 재로드.</summary>
+    [Parameter]
+    public EventCallback OnClaimed { get; set; }
 
     internal sealed record FieldRow(string Label, string Value, PlayerFieldVisibilityDto Visibility);
 

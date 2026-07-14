@@ -1,0 +1,68 @@
+@* 초대코드로 팀 연결 카드 — 소속팀 없는 선수 프로필에서 노출. 성공 시 승격 토큰 교체 후 부모에 재로드 통지 *@
+@using PlayGround.Client.Styles
+@inject PlayerClient Players
+@inject JwtAuthenticationStateProvider AuthProvider
+
+<div class="@($"{Css.Dashboard.Card} p-[18px] md:p-[22px] flex flex-col gap-3")">
+    <div class="flex flex-col gap-1">
+        <span class="text-sm md:text-[15px] font-extrabold text-navy-deep">초대코드로 팀 연결</span>
+        <span class="text-xs text-text-muted leading-[1.6] break-keep">팀 관리자에게 받은 초대코드를 입력하면 팀 로스터의 내 프로필과 연결돼요.</span>
+    </div>
+    <div class="flex gap-2">
+        <input class="flex-1 min-w-0 h-[42px] px-3.5 border-1.5 border-border rounded-[10px] text-sm font-bold text-navy-deep uppercase tracking-[.08em] placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-text-faint focus:border-navy outline-none"
+               placeholder="예: 3F82AC91" maxlength="12" @bind="mCode" @bind:event="oninput" @onkeydown="OnKeyDown" />
+        <button type="button" disabled="@mBusy" @onclick="SubmitAsync"
+                class="h-[42px] px-[18px] rounded-[10px] bg-navy hover:bg-navy-deep text-[13px] font-bold text-white whitespace-nowrap border-0 cursor-pointer transition-colors disabled:opacity-60">@(mBusy ? "연결 중…" : "연결하기")</button>
+    </div>
+    @if (mError is not null)
+    {
+        <span role="alert" class="text-xs text-orange-ink break-keep">@mError</span>
+    }
+</div>
+
+@code {
+    /// <summary>Claim 성공 후 호출 — 부모가 프로필을 다시 로드한다.</summary>
+    [Parameter]
+    public EventCallback OnClaimed { get; set; }
+
+    private string mCode = string.Empty;
+    private string? mError;
+    private bool mBusy;
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SubmitAsync();
+        }
+    }
+
+    private async Task SubmitAsync()
+    {
+        mError = null;
+
+        if (string.IsNullOrWhiteSpace(mCode))
+        {
+            mError = "초대코드를 입력해 주세요.";
+            return;
+        }
+
+        mBusy = true;
+        PlayerClaimResult result = await Players.ClaimInviteAsync(mCode.Trim());
+        mBusy = false;
+
+        if (!result.Success)
+        {
+            mError = result.Error;
+            return;
+        }
+
+        // General → Player 승격 시 새 토큰으로 교체 (재로그인 불필요)
+        if (result.AccessToken is not null)
+        {
+            await AuthProvider.MarkUserAuthenticatedAsync(result.AccessToken);
+        }
+
+        await OnClaimed.InvokeAsync();
+    }
+}

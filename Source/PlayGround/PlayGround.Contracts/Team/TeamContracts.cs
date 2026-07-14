@@ -96,6 +96,9 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>SoccerClaimStatus enum 멤버 이름 문자열. 'Claimed' | 'Unclaimed' (Pending은 Claim 플로우 도입 때).</summary>
         public string ClaimStatus { get; set; } = string.Empty;
+
+        /// <summary>유효한 Pending 초대코드 — Unclaimed 선수만 값이 온다 (관리자 전용 API).</summary>
+        public string? InviteCode { get; set; }
     }
 
     /// <summary>공개 팀 홈페이지 묶음 (비로그인, Slug 기준). 관리 정보(Claim·UserId 등)는 포함하지 않는다.</summary>

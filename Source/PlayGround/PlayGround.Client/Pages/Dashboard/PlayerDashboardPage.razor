@@ -34,7 +34,7 @@
                         <PlayerPortfolioSection />
                         break;
                     default:
-                        <PlayerProfileSection Info="@mInfo" />
+                        <PlayerProfileSection Info="@mInfo" OnClaimed="ReloadAsync" />
                         break;
                 }
             }
@@ -60,7 +60,7 @@
                     <MobilePlayerPortfolioSection />
                     break;
                 default:
-                    <MobilePlayerProfileSection Info="@mInfo" />
+                    <MobilePlayerProfileSection Info="@mInfo" OnClaimed="ReloadAsync" />
                     break;
             }
         </main>
@@ -102,6 +102,13 @@
         }
 
         mInfo = await Players.GetMyInfoAsync();
+    }
+
+    // 초대코드 Claim 성공 후 — 연결된 프로필(다른 선수 행일 수 있음)로 전체 재로드
+    private async Task ReloadAsync()
+    {
+        mInfo = await Players.GetMyInfoAsync();
+        StateHasChanged();
     }
 
     private string BuildSummary(bool includeTeam)
