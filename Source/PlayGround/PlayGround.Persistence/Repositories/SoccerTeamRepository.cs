@@ -172,6 +172,104 @@ namespace PlayGround.Persistence.Repositories
             return Result<TeamRosterResponse>.Success(response);
         }
 
+        public async Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team public home requested", ("Slug", slug));
+
+            var procedure = new UspGetSoccerTeamHomeBySlug(this) { Slug = slug };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Team public home query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<TeamPublicHomeResponse?>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            SoccerTeamsEntity? team = await reader.ReadSingleOrDefaultAsync<SoccerTeamsEntity>();
+            if (team is null)
+            {
+                Logger.InfoWith("Team public home not found", ("Slug", slug));
+                return Result<TeamPublicHomeResponse?>.Success(null);
+            }
+
+            var values = (await reader.ReadAsync<SoccerTeamValuesEntity>()).ToList();
+            var coaches = (await reader.ReadAsync<SoccerTeamCoachesEntity>()).ToList();
+            var channels = (await reader.ReadAsync<SoccerTeamChannelsEntity>()).ToList();
+            var roster = (await reader.ReadAsync<SoccerTeamRosterRecord>()).ToList();
+
+            var response = new TeamPublicHomeResponse
+            {
+                Profile = new TeamPublicProfileDto
+                {
+                    TeamName = team.TeamName,
+                    TeamType = NullIfEmpty(team.TeamType),
+                    Region = NullIfEmpty(team.Region),
+                    AgeGroup = NullIfEmpty(team.AgeGroup),
+                    LogoUrl = NullIfEmpty(team.LogoUrl),
+                    CoverImageUrl = NullIfEmpty(team.CoverImageUrl),
+                    Description = NullIfEmpty(team.Description),
+                    Slug = NullIfEmpty(team.Slug),
+                    IsVerified = team.IsVerified,
+                    FoundedYear = team.FoundedYear,
+                    // 공개/비공개 규칙 — 회비는 공개 설정일 때만 노출
+                    MonthlyFee = team.IsMonthlyFeePublic ? team.MonthlyFee : null,
+                    TrainingDays = NullIfEmpty(team.TrainingDays)
+                },
+                Values = values
+                    .Select(v => new TeamValueDto
+                    {
+                        TeamValueId = v.TeamValueId,
+                        Title = v.Title,
+                        Description = v.Description
+                    })
+                    .ToList(),
+                Coaches = coaches
+                    .Select(c => new TeamCoachDto
+                    {
+                        CoachId = c.CoachId,
+                        Name = c.Name,
+                        Role = c.Role,
+                        Career = NullIfEmpty(c.Career),
+                        Certification = NullIfEmpty(c.Certification),
+                        Quote = NullIfEmpty(c.Quote),
+                        Achievements = ParseAchievements(c.Achievements),
+                        InstagramUrl = NullIfEmpty(c.InstagramUrl),
+                        YoutubeUrl = NullIfEmpty(c.YoutubeUrl)
+                    })
+                    .ToList(),
+                Channels = channels
+                    .Select(ch => new TeamChannelDto
+                    {
+                        ChannelId = ch.ChannelId,
+                        ChannelType = ch.ChannelType,
+                        Name = ch.Name,
+                        Url = ch.Url,
+                        Description = NullIfEmpty(ch.Description)
+                    })
+                    .ToList(),
+                Roster = roster
+                    .Select(r => new TeamPublicPlayerDto
+                    {
+                        PlayerId = r.PlayerId,
+                        Name = r.Name,
+                        JerseyNumber = NullIfEmpty(r.JerseyNumber),
+                        Position = NullIfEmpty(r.Position),
+                        Grade = NullIfEmpty(r.Grade),
+                        AgeGroup = NullIfEmpty(r.AgeGroup),
+                        PhotoUrl = NullIfEmpty(r.PhotoUrl),
+                        // 공개 규칙: UserId 자체는 내리지 않고 공개 프로필 연결 여부만
+                        HasPublicProfile = r.UserId is not null
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Team public home received", ("Slug", slug), ("TeamId", team.TeamId),
+                ("Values", response.Values.Count), ("Coaches", response.Coaches.Count),
+                ("Channels", response.Channels.Count), ("Roster", response.Roster.Count));
+
+            return Result<TeamPublicHomeResponse?>.Success(response);
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

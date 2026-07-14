@@ -1,0 +1,86 @@
+@* 팀 히어로: 커버 사진(그라디언트 오버레이) + 엠블럼(커버와 겹침) + 팀명·인증 뱃지·메타 + PC CTA(입단 문의·공유).
+   텍스트 블록은 커버 아래 흰 배경에서 시작 — relative+z-index로 엠블럼이 커버 뒤로 깔리는 버그 방지 (SPEC) *@
+@using PlayGround.Contracts.Team
+
+<section class="relative">
+    <div class="h-[150px] md:h-[260px] relative overflow-hidden bg-navy-deep">
+        @if (Profile.CoverImageUrl is not null)
+        {
+            <img src="@Profile.CoverImageUrl" alt="팀 커버 사진" class="absolute inset-0 w-full h-full object-cover" />
+        }
+        <div class="absolute inset-0 bg-team-cover-overlay-m md:bg-team-cover-overlay pointer-events-none"></div>
+    </div>
+    <div class="max-w-[1120px] mx-auto px-4 md:px-8 pt-3 md:pt-3.5 relative z-[5] flex items-start gap-3.5 md:gap-[22px] flex-wrap">
+        <span class="-mt-11 md:-mt-[72px] w-[84px] h-[84px] md:w-[118px] md:h-[118px] rounded-[19px] md:rounded-[26px] bg-bg border-[3px] md:border-4 border-bg shadow-team-emblem flex items-center justify-center shrink-0">
+            <TeamEmblem LogoUrl="@Profile.LogoUrl" ContainerClass="w-[58px] h-[58px] md:w-[82px] md:h-[82px] rounded-[13px] md:rounded-[18px]" IconSize="34" />
+        </span>
+        <div class="flex flex-col gap-[5px] md:gap-2 pt-0.5 flex-1 min-w-0 md:min-w-[280px]">
+            <div class="flex items-center gap-2 md:gap-[11px] flex-wrap">
+                <h1 class="m-0 text-xl md:text-[30px] font-extrabold tracking-[-.02em] text-navy-deep whitespace-nowrap">@Profile.TeamName</h1>
+                @if (Profile.IsVerified)
+                {
+                    <span class="text-[10.5px] md:text-xs font-bold text-orange-ink bg-surface-orange border border-orange/40 rounded-full px-[9px] py-[3px] md:px-3 md:py-1 whitespace-nowrap">✓ 인증팀</span>
+                }
+            </div>
+            @if (Meta.Length > 0)
+            {
+                <span class="text-xs md:text-[13.5px] text-text-body break-keep md:whitespace-nowrap">@Meta</span>
+            }
+        </div>
+        @* 오렌지 CTA는 "입단 문의" 1개 — 모바일은 하단 고정 바(페이지)에서 제공 *@
+        <div class="hidden md:flex gap-2.5 pt-1.5">
+            <button type="button" @onclick="OnInquire"
+                    class="flex items-center h-[46px] px-[26px] rounded-[11px] bg-orange hover:bg-orange-hover text-[14.5px] font-bold text-white whitespace-nowrap shadow-authbtn border-0 cursor-pointer transition-colors">입단 문의</button>
+            <button type="button"
+                    class="flex items-center gap-[7px] h-[46px] px-5 border-1.5 border-border rounded-[11px] bg-white text-[13.5px] font-bold text-text-strong hover:border-navy hover:text-navy cursor-pointer whitespace-nowrap transition-colors">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>공유
+            </button>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamPublicProfileDto Profile { get; set; } = new();
+
+    /// <summary>로스터에서 파생한 연령 그룹 목록 (예: ["U12","U15","U18"]).</summary>
+    [Parameter]
+    public IReadOnlyList<string> AgeGroups { get; set; } = [];
+
+    [Parameter]
+    public EventCallback OnInquire { get; set; }
+
+    // "클럽 · 서울 강동구 · 2018 창단 · U12 / U15 / U18" — 있는 항목만 조합
+    private string Meta
+    {
+        get
+        {
+            List<string> parts = new();
+            if (Profile.TeamType is not null)
+            {
+                parts.Add(Profile.TeamType);
+            }
+
+            if (Profile.Region is not null)
+            {
+                parts.Add(Profile.Region);
+            }
+
+            if (Profile.FoundedYear is not null)
+            {
+                parts.Add($"{Profile.FoundedYear} 창단");
+            }
+
+            if (AgeGroups.Count > 0)
+            {
+                parts.Add(string.Join(" / ", AgeGroups));
+            }
+            else if (Profile.AgeGroup is not null)
+            {
+                parts.Add(Profile.AgeGroup);
+            }
+
+            return string.Join(" · ", parts);
+        }
+    }
+}

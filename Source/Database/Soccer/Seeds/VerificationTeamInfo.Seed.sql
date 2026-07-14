@@ -24,6 +24,9 @@ SET [IsVerified] = 1,
     [TrainingDays] = '화목금토',
     -- 엠블럼 (외부 생성 이미지 — 로컬 검증용)
     [LogoUrl] = 'https://api.dicebear.com/9.x/initials/svg?seed=VF&backgroundColor=23408e&fontWeight=700',
+    -- 공개 홈페이지: 소개 문단 + 히어로 커버 (Pexels 무료 스톡)
+    [Description] = '검증fc는 2018년 창단한 서울 강동구 기반의 유소년 축구 클럽입니다. 승패보다 선수 개개인의 성장 곡선에 집중하며, 모든 훈련과 경기 기록을 투명하게 공개합니다.',
+    [CoverImageUrl] = 'https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=1600',
     [UpdatedAt] = GETUTCDATE()
 WHERE [TeamId] = @TeamId;
 

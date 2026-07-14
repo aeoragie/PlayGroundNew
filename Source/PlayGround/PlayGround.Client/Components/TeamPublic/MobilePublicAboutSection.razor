@@ -1,0 +1,135 @@
+@* 소개 탭(모바일): 세로 스택 — 소개 → 핵심가치(좌 teal 보더 행) → 코칭스태프 → 공식 채널("열기 →")
+   데이터 없는 항목·카드는 렌더하지 않는다 (빈 데이터 노출 금지) *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+
+<div class="flex flex-col gap-3.5">
+    <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-[11px]")">
+        <h2 class="m-0 text-base font-extrabold text-navy-deep">우리 팀은</h2>
+        @if (Home.Profile.Description is not null)
+        {
+            <p class="m-0 text-[13.5px] leading-[1.75] text-text-strong break-keep [text-wrap:pretty]">@Home.Profile.Description</p>
+        }
+        @if (Home.Profile.MonthlyFee is not null || Home.Profile.TrainingDays is not null)
+        {
+            <div class="flex gap-[7px] flex-wrap">
+                @if (Home.Profile.MonthlyFee is not null)
+                {
+                    <span class="@ChipClass">월 회비 @($"{Home.Profile.MonthlyFee:N0}")원</span>
+                }
+                @if (Home.Profile.TrainingDays is not null)
+                {
+                    <span class="@ChipClass">훈련 주 @(Home.Profile.TrainingDays.Length)회 · @Home.Profile.TrainingDays</span>
+                }
+            </div>
+        }
+    </div>
+
+    @if (Home.Values.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-3")">
+            <div class="flex flex-col gap-[3px]">
+                <h2 class="m-0 text-base font-extrabold text-navy-deep">핵심가치</h2>
+                <span class="text-xs text-text-muted break-keep">학부모님과 선수에게 드리는 약속입니다</span>
+            </div>
+            @foreach (TeamValueDto value in Home.Values)
+            {
+                <div class="bg-surface-soft rounded-xl border-l-[3px] border-l-teal px-4 py-3.5 flex flex-col gap-[5px]">
+                    <span class="text-sm font-extrabold text-navy-deep break-keep">@value.Title</span>
+                    <span class="text-[12.5px] text-text-body leading-[1.65] break-keep">@value.Description</span>
+                </div>
+            }
+        </div>
+    }
+
+    @if (Home.Coaches.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-3")">
+            <h2 class="m-0 text-base font-extrabold text-navy-deep">코칭스태프</h2>
+            @foreach (TeamCoachDto coach in Home.Coaches)
+            {
+                <div class="border border-border rounded-[13px] p-4 flex flex-col gap-2.5">
+                    <div class="flex items-center gap-[11px]">
+                        <span class="w-[42px] h-[42px] rounded-full bg-navy-deep flex items-center justify-center text-[15px] font-extrabold text-white shrink-0">@(coach.Name[..1])</span>
+                        <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                            <span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@coach.Name <span class="text-[11.5px] font-bold text-text-body">@coach.Role</span></span>
+                            @if (coach.Career is not null)
+                            {
+                                <span class="text-[11px] text-text-body whitespace-nowrap">@coach.Career</span>
+                            }
+                        </span>
+                        @if (coach.Certification is not null)
+                        {
+                            <span class="text-[10px] font-bold text-navy bg-surface-icon rounded-full px-[9px] py-[3px] whitespace-nowrap">@ShortCertification(coach.Certification)</span>
+                        }
+                    </div>
+                    @if (coach.Quote is not null)
+                    {
+                        <div class="border-l-[3px] border-l-teal pl-[11px] text-[12.5px] text-text-strong leading-[1.65] break-keep">@coach.Quote</div>
+                    }
+                    @if (coach.InstagramUrl is not null || coach.YoutubeUrl is not null)
+                    {
+                        <div class="flex gap-[7px]">
+                            @if (coach.InstagramUrl is not null)
+                            {
+                                <a href="@coach.InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="13" />인스타그램</a>
+                            }
+                            @if (coach.YoutubeUrl is not null)
+                            {
+                                <a href="@coach.YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="13" />유튜브</a>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (Home.Channels.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-[11px]")">
+            <h2 class="m-0 text-base font-extrabold text-navy-deep">공식 채널</h2>
+            @foreach (TeamChannelDto channel in Home.Channels)
+            {
+                <a href="@channel.Url" class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-3">
+                    <BrandIcon Type="@ChannelIcon(channel)" Size="24" />
+                    <span class="flex flex-col gap-px flex-1 min-w-0">
+                        <span class="text-[12.5px] font-extrabold text-navy-deep whitespace-nowrap">@channel.Name</span>
+                        @if (channel.Description is not null)
+                        {
+                            <span class="text-[11px] text-text-muted whitespace-nowrap">@channel.Description</span>
+                        }
+                    </span>
+                    <span class="text-[11.5px] font-bold text-navy whitespace-nowrap">열기 →</span>
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamPublicHomeResponse Home { get; set; } = new();
+
+    // 모바일은 공간이 좁아 자격 뱃지에서 '인증' 접미어 제거 ('KFA P2 인증' → 'KFA P2')
+    private static string ShortCertification(string certification)
+    {
+        const string suffix = " 인증";
+        return certification.EndsWith(suffix, StringComparison.Ordinal)
+            ? certification[..^suffix.Length]
+            : certification;
+    }
+
+    private static BrandIcon.BrandIconType ChannelIcon(TeamChannelDto channel)
+    {
+        return Enum.TryParse(channel.ChannelType, out SoccerChannelType parsed) && parsed == SoccerChannelType.Instagram
+            ? BrandIcon.BrandIconType.Instagram
+            : BrandIcon.BrandIconType.YouTube;
+    }
+
+    private const string ChipClass =
+        "text-[11.5px] font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap";
+
+    private const string SnsLinkClass =
+        "flex items-center gap-[5px] h-8 px-[11px] border-1.5 border-border rounded-lg text-[11.5px] font-bold text-text-strong";
+}

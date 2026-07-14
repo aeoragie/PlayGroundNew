@@ -11,30 +11,36 @@
         <span class="text-[11px] font-bold text-navy bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">@Certification</span>
     </div>
     <div class="border-l-[3px] border-l-teal pl-3.5 py-0.5 text-[13.5px] text-text-strong leading-[1.65] break-keep">@Quote</div>
-    <div class="flex gap-2 flex-wrap">
-        @foreach (string chip in Achievements)
-        {
-            <span class="text-[11.5px] font-bold text-text-strong bg-surface-icon rounded-full px-[11px] py-1 whitespace-nowrap">@chip</span>
-        }
-    </div>
-    <div class="flex gap-2">
-        @if (InstagramUrl is not null)
-        {
-            <a href="@InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" />인스타그램</a>
-        }
-        else
-        {
-            <span class="@SnsEmptyClass">인스타그램 미등록</span>
-        }
-        @if (YoutubeUrl is not null)
-        {
-            <a href="@YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" />유튜브 채널</a>
-        }
-        else
-        {
-            <span class="@SnsEmptyClass">유튜브 미등록</span>
-        }
-    </div>
+    @if (Achievements.Length > 0)
+    {
+        <div class="flex gap-2 flex-wrap">
+            @foreach (string chip in Achievements)
+            {
+                <span class="text-[11.5px] font-bold text-text-strong bg-surface-icon rounded-full px-[11px] py-1 whitespace-nowrap">@chip</span>
+            }
+        </div>
+    }
+    @if (InstagramUrl is not null || YoutubeUrl is not null || ShowEmptySnsPlaceholder)
+    {
+        <div class="flex gap-2">
+            @if (InstagramUrl is not null)
+            {
+                <a href="@InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" />인스타그램</a>
+            }
+            else if (ShowEmptySnsPlaceholder)
+            {
+                <span class="@SnsEmptyClass">인스타그램 미등록</span>
+            }
+            @if (YoutubeUrl is not null)
+            {
+                <a href="@YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" />유튜브 채널</a>
+            }
+            else if (ShowEmptySnsPlaceholder)
+            {
+                <span class="@SnsEmptyClass">유튜브 미등록</span>
+            }
+        </div>
+    }
 </div>
 
 @code {
@@ -61,6 +67,10 @@
 
     [Parameter]
     public string? YoutubeUrl { get; set; }
+
+    /// <summary>SNS 미등록 표시 여부 — 관리자 대시보드는 true, 공개 홈페이지는 false(빈 데이터 노출 금지).</summary>
+    [Parameter]
+    public bool ShowEmptySnsPlaceholder { get; set; } = true;
 
     private const string SnsLinkClass =
         "flex items-center gap-[7px] h-[34px] px-[13px] border-1.5 border-border rounded-[9px] text-[12.5px] font-bold " +

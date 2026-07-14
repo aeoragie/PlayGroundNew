@@ -8,6 +8,7 @@ CREATE TABLE [dbo].[SoccerTeams]
     [Region]           VARCHAR(300)     NULL,
     [AgeGroup]         VARCHAR(20)      NULL,             -- 'U12','U15','U18' 등
     [LogoUrl]          VARCHAR(2048)    NULL,
+    [CoverImageUrl]    VARCHAR(2048)    NULL,             -- 공개 홈페이지 히어로 커버 사진
     [Description]      VARCHAR(3000)    NULL,
     [Slug]             VARCHAR(100)     NULL,             -- 공개 홈페이지 URL 슬러그
     [ManagerUserId]    UNIQUEIDENTIFIER NULL,             -- 팀 관리자 (Account.Users.UserId, 앱 계층 참조)

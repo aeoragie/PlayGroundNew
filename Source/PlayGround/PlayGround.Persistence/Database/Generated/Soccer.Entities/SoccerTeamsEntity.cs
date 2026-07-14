@@ -37,6 +37,9 @@ public class SoccerTeamsEntity
 	[StringLength(2048)]
 	public string LogoUrl { get; set; } = String.Empty;
 
+	[StringLength(2048)]
+	public string CoverImageUrl { get; set; } = String.Empty;
+
 	[StringLength(3000)]
 	public string Description { get; set; } = String.Empty;
 

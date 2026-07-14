@@ -1,0 +1,99 @@
+@attribute [Route(Routes.TeamPublicHomeTemplate)]
+@attribute [Route(Routes.TeamPublicHomeTabTemplate)]
+@layout LandingLayout
+@using PlayGround.Client.Components.TeamPublic
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject NavigationManager Nav
+
+<PageTitle>@(mHome?.Profile.TeamName ?? "팀 홈페이지") — PlayGround</PageTitle>
+
+@* 공개 팀 홈페이지 — 비로그인 읽기전용. 1차: GNB + 히어로 + 탭 골격 + 소개 탭 (나머지 탭은 다음 단계) *@
+@if (mLoaded && mHome is null)
+{
+    <div class="min-h-screen bg-bg flex items-center justify-center px-4">
+        <div class="@($"{Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-3 text-center max-w-[420px]")">
+            <h1 class="m-0 text-xl font-extrabold text-navy-deep">팀 홈페이지를 찾을 수 없어요</h1>
+            <p class="m-0 text-sm text-text-body leading-[1.7] break-keep">주소가 잘못되었거나 비공개로 전환된 팀이에요.</p>
+            <a href="@Routes.Landing" class="mt-1 text-[13.5px] font-bold text-navy">PlayGround 홈으로 →</a>
+        </div>
+    </div>
+}
+else if (mHome is not null)
+{
+    <div class="min-h-screen bg-bg text-navy-deep">
+        <PublicTeamGnb Slug="@Slug" TeamName="@mHome.Profile.TeamName" LogoUrl="@mHome.Profile.LogoUrl" />
+        <PublicTeamHero Profile="@mHome.Profile" AgeGroups="@mAgeGroups" OnInquire="GoRecruit" />
+        <PublicTeamTabs Slug="@Slug" Active="@CurrentTab" />
+
+        <main class="max-w-[1120px] mx-auto px-4 md:px-8 pt-[18px] md:pt-[30px] pb-[110px] md:pb-20 flex flex-col">
+            @switch (CurrentTab)
+            {
+                case SoccerTeamPublicTab.About:
+                    <div class="hidden md:block">
+                        <PublicAboutSection Home="@mHome" />
+                    </div>
+                    <div class="md:hidden">
+                        <MobilePublicAboutSection Home="@mHome" />
+                    </div>
+                    break;
+                default:
+                    @* 선수단·시즌성적·모집·진학진로·리뷰 탭은 다음 단계에서 구현 *@
+                    break;
+            }
+        </main>
+
+        <footer class="border-t border-border bg-white px-4 md:px-8 py-5 md:py-7">
+            <div class="max-w-[1120px] mx-auto flex items-center gap-3.5 flex-wrap">
+                <span class="text-[12.5px] text-text-muted whitespace-nowrap">이 홈페이지는 PlayGround에서 자동 생성되었습니다</span>
+                <div class="flex-1"></div>
+                <a href="@Routes.Landing" class="text-[12.5px] font-bold text-navy whitespace-nowrap">우리 팀 홈페이지 만들기 →</a>
+            </div>
+        </footer>
+
+        @* 모바일 하단 고정 CTA: 공유 + 풀폭 입단 문의 (safe-area 대응) *@
+        <div class="md:hidden fixed bottom-0 inset-x-0 bg-bg/[.96] backdrop-blur-[10px] border-t border-border px-4 pt-2.5 pb-[calc(10px+env(safe-area-inset-bottom))] flex gap-2.5 z-50">
+            <button type="button" aria-label="공유"
+                    class="w-12 h-12 border-1.5 border-border rounded-[11px] bg-white flex items-center justify-center cursor-pointer shrink-0">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-text-strong"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>
+            </button>
+            <button type="button" @onclick="GoRecruit"
+                    class="flex-1 flex items-center justify-center h-12 rounded-[11px] bg-orange hover:bg-orange-hover text-[15px] font-bold text-white whitespace-nowrap shadow-authbtn border-0 cursor-pointer transition-colors">입단 문의</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Tab { get; set; }
+
+    private TeamPublicHomeResponse? mHome;
+    private bool mLoaded;
+    private List<string> mAgeGroups = new();
+
+    private SoccerTeamPublicTab CurrentTab => SoccerTeamPublicTabExtensions.ParseSlug(Tab);
+
+    protected override async Task OnInitializedAsync()
+    {
+        mHome = await Teams.GetTeamHomeAsync(Slug);
+        mLoaded = true;
+
+        if (mHome is not null)
+        {
+            // 히어로 메타용 연령 그룹 — 로스터에서 파생 (enum 순서 유지)
+            mAgeGroups = Enum.GetValues<SoccerAgeGroup>()
+                .Where(age => mHome.Roster.Any(p => SoccerAgeGroupExtensions.ParseAgeGroupOrNull(p.AgeGroup) == age))
+                .Select(age => age.ToString())
+                .ToList();
+        }
+    }
+
+    private void GoRecruit()
+    {
+        Nav.NavigateTo(Routes.TeamPublicHomeTab(Slug, SoccerTeamPublicTab.Recruit));
+    }
+}

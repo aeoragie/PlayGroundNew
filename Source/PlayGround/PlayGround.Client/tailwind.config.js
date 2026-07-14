@@ -76,6 +76,11 @@ module.exports = {
         // hero 배경 사진 위 오버레이
         'hero-overlay':
           'linear-gradient(160deg, rgba(30,35,45,.9) 0%, rgba(28,43,74,.84) 55%, rgba(35,64,142,.76) 100%)',
+        // 공개 팀 홈페이지 히어로 커버 오버레이 (PC / 모바일)
+        'team-cover-overlay':
+          'linear-gradient(180deg, rgba(28,43,74,.25) 0%, rgba(28,43,74,.78) 100%)',
+        'team-cover-overlay-m':
+          'linear-gradient(180deg, rgba(28,43,74,.2) 0%, rgba(28,43,74,.7) 100%)',
       },
       boxShadow: {
         // 스크롤 시 solid 헤더
@@ -88,6 +93,8 @@ module.exports = {
         // 인증·온보딩 카드 / 주 버튼
         authcard: '0 8px 32px rgba(28,43,74,.06)',
         authbtn: '0 4px 14px rgba(255,107,53,.3)',
+        // 공개 팀 홈페이지 히어로 엠블럼 박스
+        'team-emblem': '0 8px 24px rgba(28,43,74,.25)',
       },
     },
   },

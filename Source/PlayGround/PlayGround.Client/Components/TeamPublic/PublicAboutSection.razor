@@ -1,0 +1,105 @@
+@* 소개 탭(PC): [팀 소개+요약 칩 | 공식 채널 340px] 2컬럼 → 핵심가치 → 코칭스태프 — SPEC.TEAMPUBLICHOME.md ①
+   데이터 없는 항목·카드는 렌더하지 않는다 (빈 데이터 노출 금지) *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+
+<div class="flex flex-col gap-[22px]">
+    <div class="@(Home.Channels.Count > 0 ? "grid grid-cols-[1fr_340px] gap-[22px] items-start" : "")">
+        <div class="@($"{Css.Dashboard.Card} p-[30px] flex flex-col gap-3.5")">
+            <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">우리 팀은</h2>
+            @if (Home.Profile.Description is not null)
+            {
+                <p class="m-0 text-[15px] leading-[1.8] text-text-strong break-keep [text-wrap:pretty]">@Home.Profile.Description</p>
+            }
+            @if (HasChips)
+            {
+                <div class="flex gap-[9px] flex-wrap">
+                    @if (Home.Profile.MonthlyFee is not null)
+                    {
+                        <span class="@ChipClass">월 회비 @($"{Home.Profile.MonthlyFee:N0}")원</span>
+                    }
+                    @if (Home.Profile.TrainingDays is not null)
+                    {
+                        <span class="@ChipClass">훈련 주 @(Home.Profile.TrainingDays.Length)회 · @Home.Profile.TrainingDays</span>
+                    }
+                    @if (Home.Roster.Count > 0)
+                    {
+                        <span class="@ChipClass">선수단 @(Home.Roster.Count)명</span>
+                    }
+                </div>
+            }
+        </div>
+        @if (Home.Channels.Count > 0)
+        {
+            <div class="@($"{Css.Dashboard.Card} p-6 flex flex-col gap-[13px]")">
+                <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">공식 채널</h3>
+                @foreach (TeamChannelDto channel in Home.Channels)
+                {
+                    <a href="@channel.Url" class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-3 hover:border-navy transition-colors">
+                        <BrandIcon Type="@ChannelIcon(channel)" Size="26" />
+                        <span class="flex flex-col gap-px min-w-0">
+                            <span class="text-[13px] font-extrabold text-navy-deep whitespace-nowrap">@channel.Name</span>
+                            @if (channel.Description is not null)
+                            {
+                                <span class="text-[11.5px] text-text-muted whitespace-nowrap">@channel.Description</span>
+                            }
+                        </span>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    @if (Home.Values.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-[30px] flex flex-col gap-[18px]")">
+            <div class="flex flex-col gap-1">
+                <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">핵심가치</h2>
+                <span class="text-[13px] text-text-muted break-keep">우리 팀이 학부모님과 선수에게 드리는 약속입니다</span>
+            </div>
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3.5">
+                @foreach (TeamValueDto value in Home.Values)
+                {
+                    <ValueCard Title="@value.Title" Description="@value.Description" />
+                }
+            </div>
+        </div>
+    }
+
+    @if (Home.Coaches.Count > 0)
+    {
+        <div class="@($"{Css.Dashboard.Card} p-[30px] flex flex-col gap-[18px]")">
+            <div class="flex flex-col gap-1">
+                <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">코칭스태프</h2>
+                <span class="text-[13px] text-text-muted break-keep">지도 철학과 경력을 확인하세요</span>
+            </div>
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-3.5">
+                @foreach (TeamCoachDto coach in Home.Coaches)
+                {
+                    <CoachCard Name="@coach.Name" Role="@coach.Role" Career="@(coach.Career ?? string.Empty)"
+                               Certification="@(coach.Certification ?? string.Empty)" Quote="@(coach.Quote ?? string.Empty)"
+                               Achievements="@coach.Achievements.ToArray()" InstagramUrl="@coach.InstagramUrl"
+                               YoutubeUrl="@coach.YoutubeUrl" ShowEmptySnsPlaceholder="false" />
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamPublicHomeResponse Home { get; set; } = new();
+
+    private bool HasChips =>
+        Home.Profile.MonthlyFee is not null || Home.Profile.TrainingDays is not null || Home.Roster.Count > 0;
+
+    private static BrandIcon.BrandIconType ChannelIcon(TeamChannelDto channel)
+    {
+        return Enum.TryParse(channel.ChannelType, out SoccerChannelType parsed) && parsed == SoccerChannelType.Instagram
+            ? BrandIcon.BrandIconType.Instagram
+            : BrandIcon.BrandIconType.YouTube;
+    }
+
+    private const string ChipClass =
+        "text-[12.5px] font-bold text-text-strong bg-surface-icon rounded-full px-3.5 py-[5px] whitespace-nowrap";
+}

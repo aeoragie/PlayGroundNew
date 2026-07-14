@@ -45,6 +45,21 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>공개 팀 홈페이지 조회 (비로그인 가능). 미존재·비공개·오류 시 null.</summary>
+        public async Task<TeamPublicHomeResponse?> GetTeamHomeAsync(string slug)
+        {
+            try
+            {
+                Envelope<TeamPublicHomeResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamPublicHomeResponse>>($"api/soccer/team/{Uri.EscapeDataString(slug)}/home");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미존재(404)·네트워크 오류 → null
+            }
+        }
+
         public async Task<TeamSaveResult> CreateTeamAsync(CreateTeamRequest request)
         {
             try

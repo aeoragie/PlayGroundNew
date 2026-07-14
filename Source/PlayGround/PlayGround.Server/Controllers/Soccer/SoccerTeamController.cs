@@ -50,6 +50,16 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        // 공개 팀 홈페이지 — 비로그인 읽기전용. 'me' 리터럴 라우트가 {slug}보다 우선 매칭된다.
+        [AllowAnonymous]
+        [HttpGet("{slug}/home")]
+        public async Task<Envelope<TeamPublicHomeResponse>> GetTeamHomeAsync(string slug, CancellationToken cancellation)
+        {
+            Result<TeamPublicHomeResponse> result = await mGateway.AskAsync<TeamPublicHomeResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamHomeMessage(slug), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/roster")]
         public async Task<Envelope<TeamRosterResponse>> GetMyTeamRosterAsync(CancellationToken cancellation)
         {

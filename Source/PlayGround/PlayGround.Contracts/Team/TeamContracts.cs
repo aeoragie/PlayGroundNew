@@ -98,6 +98,48 @@ namespace PlayGround.Contracts.Team
         public string ClaimStatus { get; set; } = string.Empty;
     }
 
+    /// <summary>공개 팀 홈페이지 묶음 (비로그인, Slug 기준). 관리 정보(Claim·UserId 등)는 포함하지 않는다.</summary>
+    public class TeamPublicHomeResponse
+    {
+        public TeamPublicProfileDto Profile { get; set; } = new();
+        public List<TeamValueDto> Values { get; set; } = new();
+        public List<TeamCoachDto> Coaches { get; set; } = new();
+        public List<TeamChannelDto> Channels { get; set; } = new();
+        public List<TeamPublicPlayerDto> Roster { get; set; } = new();
+    }
+
+    /// <summary>공개 팀 프로필 (히어로 + 소개 탭). MonthlyFee는 공개 설정일 때만 값이 온다.</summary>
+    public class TeamPublicProfileDto
+    {
+        public string TeamName { get; set; } = string.Empty;
+        public string? TeamType { get; set; }      // 클럽 | 학교 | 학원
+        public string? Region { get; set; }
+        public string? AgeGroup { get; set; }      // 팀 자체 연령 그룹 (로스터 비어 있을 때 메타 폴백)
+        public string? LogoUrl { get; set; }
+        public string? CoverImageUrl { get; set; }
+        public string? Description { get; set; }
+        public string? Slug { get; set; }
+        public bool IsVerified { get; set; }
+        public int? FoundedYear { get; set; }
+        public int? MonthlyFee { get; set; }       // 원 — 비공개 설정이면 null
+        public string? TrainingDays { get; set; }  // '화목금토'
+    }
+
+    /// <summary>공개 로스터 한 명 — 공개 규칙: 이름·포지션·등번호·학년·연령·사진 + 공개 프로필 여부만.</summary>
+    public class TeamPublicPlayerDto
+    {
+        public Guid PlayerId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? JerseyNumber { get; set; }
+        public string? Position { get; set; }
+        public string? Grade { get; set; }
+        public string? AgeGroup { get; set; }
+        public string? PhotoUrl { get; set; }
+
+        /// <summary>공개 프로필 연결 여부 (Claimed) — "공개 프로필 →" 링크 노출용. Claim 상태 자체는 비노출.</summary>
+        public bool HasPublicProfile { get; set; }
+    }
+
     /// <summary>공식 채널 한 개. ChannelType은 SoccerChannelType enum 멤버 이름 문자열.</summary>
     public class TeamChannelDto
     {

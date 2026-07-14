@@ -1,0 +1,20 @@
+@* 탭 내비게이션: PC 히어로 아래 보더탭 / 모바일 sticky(top:54px) 가로 스크롤(스크롤바 숨김) *@
+
+<nav class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden sticky top-[54px] z-40 bg-bg/[.96] backdrop-blur-[8px] border-b-1.5 border-border flex gap-0.5 overflow-x-auto px-2.5 mt-3.5 md:static md:z-auto md:bg-transparent md:backdrop-blur-none md:max-w-[1120px] md:mx-auto md:mt-[26px] md:px-8 md:gap-1">
+    @foreach (SoccerTeamPublicTab tab in Enum.GetValues<SoccerTeamPublicTab>())
+    {
+        <a href="@Routes.TeamPublicHomeTab(Slug, tab)" class="@TabClass(tab)">@tab.ToLabel()</a>
+    }
+</nav>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Slug { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public SoccerTeamPublicTab Active { get; set; }
+
+    private string TabClass(SoccerTeamPublicTab tab) =>
+        "px-[13px] py-3 md:px-4 md:py-[13px] text-[13.5px] md:text-sm font-bold whitespace-nowrap border-b-[2.5px] transition-colors " +
+        (Active == tab ? "border-navy text-navy" : "border-transparent text-text-muted hover:text-navy");
+}
