@@ -1,0 +1,23 @@
+@* 팀 엠블럼: LogoUrl 있으면 이미지, 없으면 네이비 실드 아이콘 (사이드바·모바일 상단바·팀 정보 카드 공용) *@
+<span class="@($"{ContainerClass} overflow-hidden flex items-center justify-center shrink-0 {(LogoUrl is null ? "bg-navy" : "bg-surface-icon")}")">
+    @if (LogoUrl is not null)
+    {
+        <img src="@LogoUrl" alt="팀 엠블럼" class="w-full h-full object-cover" />
+    }
+    else
+    {
+        <svg width="@IconSize" height="@IconSize" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
+    }
+</span>
+
+@code {
+    [Parameter]
+    public string? LogoUrl { get; set; }
+
+    // 크기·radius는 배치 위치가 지정 (예: "w-11 h-11 rounded-xl")
+    [Parameter, EditorRequired]
+    public string ContainerClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public int IconSize { get; set; } = 22;
+}

@@ -14,9 +14,7 @@
     <div class="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] gap-[18px]">
         <div class="@($"{Css.Dashboard.Card} p-[26px] flex flex-col gap-[18px]")">
             <div class="flex gap-[18px] items-center">
-                <span class="w-[72px] h-[72px] rounded-[16px] bg-navy flex items-center justify-center shrink-0">
-                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
-                </span>
+                <TeamEmblem LogoUrl="@Info.Profile.LogoUrl" ContainerClass="w-[72px] h-[72px] rounded-[16px]" IconSize="34" />
                 <span class="flex flex-col gap-[5px]">
                     <span class="text-xl font-extrabold text-navy-deep break-keep">@Info.Profile.TeamName</span>
                     <span class="flex gap-1.5 flex-wrap">

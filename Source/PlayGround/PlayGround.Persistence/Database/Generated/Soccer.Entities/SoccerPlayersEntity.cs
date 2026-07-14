@@ -24,6 +24,9 @@ public class SoccerPlayersEntity
 	[StringLength(150)]
 	public string Name { get; set; } = String.Empty;
 
+	[StringLength(2048)]
+	public string PhotoUrl { get; set; } = String.Empty;
+
 	public DateTime? BirthDate { get; set; } = null;
 
 	[StringLength(20)]

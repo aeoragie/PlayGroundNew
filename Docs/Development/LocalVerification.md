@@ -35,19 +35,25 @@
    Invoke-WebRequest -Uri "https://localhost:50451/api/soccer/team/me" -Method Post -ContentType "application/json; charset=utf-8" -Headers @{ Authorization = "Bearer $token2" } -Body '{"teamName":"EmptyFC","roster":[]}' -UseBasicParsing
    ```
 
-3. 팀 정보 시드 주입 (검증fc에 핵심가치·코칭스태프·공식 채널·확장 컬럼):
+3. 검증 시드 주입 — 팀 정보(핵심가치·코칭스태프·공식 채널·확장 컬럼·엠블럼) + 선수단
+   (11명: 사진·연령 그룹·Claim 혼합·초대코드. 온보딩으로 만든 로스터는 시드가 대체한다):
 
    ```powershell
    sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationTeamInfo.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationRoster.Seed.sql
    ```
+
+   선수 사진은 Pexels, 엠블럼은 DiceBear 외부 URL이라 인터넷 연결이 필요하다.
+   Claimed 선수의 UserId는 표시용 더미(NEWID) — Account에 실제 사용자는 없다.
 
 ## 화면 검증 방법
 
 1. `https://localhost:50451/login` → 검증 계정으로 로그인.
    - 팀 관리자 계정은 `/dashboard` 진입 시 `/dashboard/team`으로 자동 직행한다 (JWT 역할 분기).
-2. **검증fc 계정**: 팀 정보 섹션이 DB 데이터로 렌더되는지 — 인증팀 뱃지, 월 회비 `250,000원 · 공개`,
-   훈련 `주 4회 · 화목금토`, 핵심가치 3장, 코치 2명(김수연은 "유튜브 미등록"), 공식 채널 2행,
-   사이드바·모바일 상단바 팀 요약.
+2. **검증fc 계정**: 팀 정보 섹션이 DB 데이터로 렌더되는지 — 엠블럼 이미지(VF, 사이드바·정보
+   카드·모바일 상단바), 인증팀 뱃지, 월 회비 `250,000원 · 공개`, 훈련 `주 4회 · 화목금토`,
+   핵심가치 3장, 코치 2명(김수연은 "유튜브 미등록"), 공식 채널 2행.
+   선수단 시드(사진·연령 탭·Claim)는 선수단 섹션 백엔드 연동 후 화면에서 확인 가능.
 3. **EmptyFC 계정**: 핵심가치·코칭스태프·공식 채널 **카드 자체가 없어야** 하고, 기본 카드도
    뱃지·요약 칸이 숨겨진 채 팀명만 노출 (빈 데이터 노출 금지 규칙).
 4. 모바일: 브라우저 폭 480px 이하 — 하단 탭 5개, 경기 탭은 결과/영상 서브탭.

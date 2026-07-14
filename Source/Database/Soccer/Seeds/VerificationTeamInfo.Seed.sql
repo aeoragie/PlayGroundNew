@@ -22,6 +22,8 @@ SET [IsVerified] = 1,
     [MonthlyFee] = 250000,
     [IsMonthlyFeePublic] = 1,
     [TrainingDays] = '화목금토',
+    -- 엠블럼 (외부 생성 이미지 — 로컬 검증용)
+    [LogoUrl] = 'https://api.dicebear.com/9.x/initials/svg?seed=VF&backgroundColor=23408e&fontWeight=700',
     [UpdatedAt] = GETUTCDATE()
 WHERE [TeamId] = @TeamId;
 

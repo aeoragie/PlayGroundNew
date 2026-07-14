@@ -4,6 +4,7 @@ CREATE TABLE [dbo].[SoccerPlayers]
     [PlayerId]           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [UserId]             UNIQUEIDENTIFIER NULL,             -- 관리 주체 (Account.Users.UserId, 앱 계층 참조). 대리관리 시 보호자 UserId
     [Name]               VARCHAR(150)     NOT NULL,         -- UTF-8 (한글 50자)
+    [PhotoUrl]           VARCHAR(2048)    NULL,             -- 선수 사진 (카드 뷰·프로필)
     [BirthDate]          DATE             NULL,
     [AgeGroup]           VARCHAR(20)      NULL,             -- 'U12','U15','U18'
     [Region]             VARCHAR(300)     NULL,
