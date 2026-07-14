@@ -75,4 +75,8 @@
     <Build Include="Procedures\UspCreateUserWithSocial.sql" />
     <Build Include="Procedures\UspUpdateUserRole.sql" />
   </ItemGroup>
+  <!-- 빌드 제외(스키마 아님): Seeds(데이터) -->
+  <ItemGroup>
+    <None Include="Seeds\VerificationTeamAdmins.Seed.sql" />
+  </ItemGroup>
 </Project>

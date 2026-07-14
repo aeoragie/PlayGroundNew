@@ -5,13 +5,23 @@
 
 ## 검증 계정
 
-| 계정 | 비밀번호 | 팀 | 용도 |
-|---|---|---|---|
-| `verify-teamadmin-0713@test.local` | `password123!` | 검증fc (로스터 4명) | 팀 대시보드 — 데이터 있는 상태 |
-| `verify-empty-0714@test.local` | `password123!` | EmptyFC (빈 팀) | 빈 데이터 숨김(뱃지·칸·카드) 확인 |
+비밀번호는 전부 `password123!`.
 
-이메일 로그인은 find-or-create라서 **첫 로그인이 곧 가입**이다. 비밀번호가 다르면 로그인 실패이므로
-반드시 위 비밀번호를 그대로 쓴다.
+| 계정 | 팀 | 용도 |
+|---|---|---|
+| `verify-teamadmin-0713@test.local` | 검증fc (로스터 11명·팀 정보 풀시드) | 팀 대시보드 — 데이터 있는 상태 |
+| `verify-empty-0714@test.local` | EmptyFC (빈 팀) | 빈 데이터 숨김(뱃지·칸·카드) 확인 |
+| `verify-u12-1@test.local` | 서울신답FCU12 (30명: 초4·5·6 각 10) | U12 대규모 로스터 |
+| `verify-u12-2@test.local` | 서울K리거강용FC (30명, 미인증·회비 없음) | U12 + 빈 항목 혼합 |
+| `verify-u12-3@test.local` | 전남순천중앙초 (30명, 학교·회비 비공개) | U12 학교 팀 |
+| `verify-u15-1@test.local` | 광주광주FCU15 (42명: 중1·2·3 각 14) | U15 대규모 로스터 |
+| `verify-u15-2@test.local` | 부산아이파크U15낙동중 (42명, 미인증) | U15 + 빈 항목 혼합 |
+| `verify-u15-3@test.local` | 전북U15군산시민축구단 (42명) | U15 시민구단 |
+
+- 위 2종(검증fc·EmptyFC)은 **이메일 첫 로그인 = 가입**(find-or-create)으로 만들고,
+  아래 6종(리그 팀)은 **Account 시드가 계정까지 생성**한다 (동일 해시 재사용).
+- 리그 팀 선수 216명은 크롤러 백업 실데이터(팀명·선수명·포지션)에서 샘플링. Claimed 약 1/3,
+  학년별 상위 3명에 사진.
 
 ## 재구축 절차 (새 PC · DB 재생성 후)
 
@@ -45,6 +55,13 @@
 
    선수 사진은 Pexels, 엠블럼은 DiceBear 외부 URL이라 인터넷 연결이 필요하다.
    Claimed 선수의 UserId는 표시용 더미(NEWID) — Account에 실제 사용자는 없다.
+
+4. 리그 팀 시드 (U12 3팀·U15 3팀 + 관리자 계정 6종 — 계정 생성까지 시드가 처리):
+
+   ```powershell
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i Source\Database\Account\Seeds\VerificationTeamAdmins.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationLeagueTeams.Seed.sql
+   ```
 
 ## 화면 검증 방법
 
