@@ -1,4 +1,4 @@
-@* 브랜드 로고: 오렌지 라운드 박스(⚽) + 워드마크. 헤더/푸터 공용 *@
+@* 브랜드 워드마크: PlayGround(네이비) + 종목명(연회색) — 종목별 서비스 구분 (Soccer/Baseball …). 헤더/푸터 공용 *@
 @if (Href is null)
 {
     <div class="@RootClass">@Inner</div>
@@ -13,7 +13,7 @@ else
     [Parameter]
     public string? Href { get; set; }
 
-    // true: 푸터 사이즈(24→26px), false: 헤더 사이즈(26→30px)
+    // true: 푸터 사이즈, false: 헤더 사이즈
     [Parameter]
     public bool Compact { get; set; }
 
@@ -21,15 +21,18 @@ else
     [Parameter]
     public bool InheritColor { get; set; }
 
+    // 종목 접미사 — 타 종목 서비스 도입 시 교체 (예: "Baseball")
+    [Parameter]
+    public string Sport { get; set; } = "Soccer";
+
     private string RootClass => Compact
-        ? $"flex items-center gap-2 md:gap-[9px] font-extrabold text-[16px] md:text-[17px] tracking-[-.02em] {ColorClass}"
-        : $"flex items-center gap-2 md:gap-2.5 font-extrabold text-[17px] md:text-[19px] tracking-[-.02em] {ColorClass}";
+        ? $"flex items-baseline gap-1.5 font-extrabold text-[16px] md:text-[17px] tracking-[-.02em] whitespace-nowrap {ColorClass}"
+        : $"flex items-baseline gap-1.5 md:gap-2 font-extrabold text-[17px] md:text-[19px] tracking-[-.02em] whitespace-nowrap {ColorClass}";
 
     private string ColorClass => InheritColor ? "text-current" : "text-navy-deep";
 
-    private string BoxClass => Compact
-        ? "w-6 h-6 rounded-md md:w-[26px] md:h-[26px] md:rounded-[7px] bg-orange text-white flex items-center justify-center text-[12px] md:text-[13px]"
-        : "w-[26px] h-[26px] rounded-[7px] md:w-[30px] md:h-[30px] md:rounded-lg bg-orange text-white flex items-center justify-center text-[13px] md:text-[15px]";
+    // 종목명은 연회색 — 색 상속 모드(어두운/전환 헤더)에선 고정 회색 대신 현재색 반투명
+    private string SportClass => InheritColor ? "opacity-55" : "text-text-muted";
 
-    private RenderFragment Inner => @<text><span class="@BoxClass">⚽</span>PlayGround</text>;
+    private RenderFragment Inner => @<text>PlayGround<span class="@SportClass">@Sport</span></text>;
 }
