@@ -8,4 +8,16 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => UserId;
     }
+
+    /// <summary>선수 프로필 묶음 조회 메시지 (같은 사용자 쓰기와 순차 처리 — UserId 해시).</summary>
+    public sealed record GetSoccerPlayerInfoMessage(Guid UserId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>항목 공개 설정 변경 메시지 (쓰기 — UserId 해시로 사용자별 순차).</summary>
+    public sealed record SetSoccerPlayerFieldVisibilityMessage(Guid UserId, SetPlayerFieldVisibilityRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
 }

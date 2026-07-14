@@ -8,6 +8,13 @@ CREATE TABLE [dbo].[SoccerPlayers]
     [BirthDate]          DATE             NULL,
     [AgeGroup]           VARCHAR(20)      NULL,             -- 'U12','U15','U18'
     [Region]             VARCHAR(300)     NULL,
+
+    -- 선수 대시보드 프로필 (공개 여부는 SoccerPlayerFieldVisibilities)
+    [HeightCm]           INT              NULL,             -- 키(cm)
+    [WeightKg]           INT              NULL,             -- 몸무게(kg)
+    [PreferredFoot]      VARCHAR(20)      NULL,             -- 주발 'Left','Right','Both'
+    [SchoolName]         VARCHAR(300)     NULL,             -- UTF-8 (한글 100자)
+    [GuardianPhone]      VARCHAR(30)      NULL,             -- 보호자 연락처 (노출 시 서버에서 마스킹)
     [TeamId]             UNIQUEIDENTIFIER NULL,             -- 소속팀 (SoccerTeams.TeamId, 앱 계층 참조)
     [IsGuardianManaged]  BIT              NOT NULL DEFAULT 0,-- 학부모 대리 관리 프로필
 

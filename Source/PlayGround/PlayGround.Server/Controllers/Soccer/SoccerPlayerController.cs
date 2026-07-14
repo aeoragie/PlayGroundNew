@@ -36,5 +36,34 @@ namespace PlayGround.Server.Controllers.Soccer
                 ActorNames.SoccerPlayerProfile, new CreatePlayerProfileMessage(userId, request), cancellation);
             return result.ToEnvelope();
         }
+
+        [HttpGet("me/info")]
+        public async Task<Envelope<PlayerInfoResponse>> GetMyInfoAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<PlayerInfoResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<PlayerInfoResponse> result = await mGateway.AskAsync<PlayerInfoResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerInfoMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        [HttpPut("me/profile/visibility")]
+        public async Task<Envelope<bool>> SetMyFieldVisibilityAsync(
+            [FromBody] SetPlayerFieldVisibilityRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new SetSoccerPlayerFieldVisibilityMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
     }
 }

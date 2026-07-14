@@ -17,4 +17,56 @@ namespace PlayGround.Contracts.Player
         /// <summary>Player로 승격된 새 액세스 토큰. 승격 실패 시 null (기존 토큰 유지).</summary>
         public string? AccessToken { get; set; }
     }
+
+    /// <summary>선수 대시보드 프로필 묶음 (기본 카드 + 항목별 공개 설정 + 가족 계정).</summary>
+    public class PlayerInfoResponse
+    {
+        public PlayerProfileDto Profile { get; set; } = new();
+
+        /// <summary>5개 항목 전부 포함 — 저장값 없는 항목은 기본값(키·몸무게·주발 공개 / 학교·연락처 비공개).</summary>
+        public List<PlayerFieldVisibilityDto> Visibilities { get; set; } = new();
+        public List<PlayerFamilyMemberDto> Family { get; set; } = new();
+    }
+
+    /// <summary>선수 프로필. 보호자 연락처는 마스킹된 값만 내려간다 (010-****-1234).</summary>
+    public class PlayerProfileDto
+    {
+        public Guid PlayerId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? PhotoUrl { get; set; }
+        public string? AgeGroup { get; set; }      // 'U12' | 'U15' | 'U18'
+        public int? BirthYear { get; set; }
+        public string? Grade { get; set; }         // '초4'~'고3'
+        public string? Position { get; set; }      // FW | MF | DF | GK
+        public string? JerseyNumber { get; set; }
+        public string? TeamName { get; set; }      // 소속 없으면 null
+        public int? HeightCm { get; set; }
+        public int? WeightKg { get; set; }
+        public string? PreferredFoot { get; set; } // SoccerPreferredFoot enum 멤버 이름 ('Left' | 'Right' | 'Both')
+        public string? SchoolName { get; set; }
+        public string? GuardianPhoneMasked { get; set; }
+        public bool IsGuardianManaged { get; set; }
+    }
+
+    /// <summary>항목 공개 여부. FieldName은 SoccerPlayerProfileField enum 멤버 이름 문자열.</summary>
+    public class PlayerFieldVisibilityDto
+    {
+        public string FieldName { get; set; } = string.Empty; // 'Height','Weight','PreferredFoot','School','GuardianPhone'
+        public bool IsPublic { get; set; }
+    }
+
+    /// <summary>가족 구성원. Role은 'Guardian'(관리) | 'Self'(열람).</summary>
+    public class PlayerFamilyMemberDto
+    {
+        public string MemberName { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public bool HasAccount { get; set; }
+    }
+
+    /// <summary>항목 공개 설정 변경 요청 (보호자 = 관리 주체 계정만).</summary>
+    public class SetPlayerFieldVisibilityRequest
+    {
+        public string FieldName { get; set; } = string.Empty;
+        public bool IsPublic { get; set; }
+    }
 }

@@ -14,6 +14,8 @@ namespace PlayGround.Server.DependencyInjection
             services.AddSoccerPersistence();
             services.AddScoped<SoccerLandingContentsCommand>();
             services.AddScoped<SoccerPlayerProfileCommand>();
+            services.AddScoped<SoccerPlayerInfoCommand>();
+            services.AddScoped<SoccerPlayerFieldVisibilityCommand>();
             services.AddScoped<SoccerTeamCommand>();
             services.AddScoped<SoccerTeamInfoCommand>();
             services.AddScoped<SoccerTeamRosterCommand>();

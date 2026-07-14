@@ -15,6 +15,38 @@ namespace PlayGround.Client.Services
             mHttp = http;
         }
 
+        /// <summary>본인(관리 주체) 선수 프로필 묶음 조회. 미인증·미존재·오류 시 null.</summary>
+        public async Task<PlayerInfoResponse?> GetMyInfoAsync()
+        {
+            try
+            {
+                Envelope<PlayerInfoResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerInfoResponse>>("api/soccer/player/me/info");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>항목 공개 설정 변경. 성공 여부 반환.</summary>
+        public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync(
+                    "api/soccer/player/me/profile/visibility",
+                    new SetPlayerFieldVisibilityRequest { FieldName = fieldName, IsPublic = isPublic });
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<PlayerSaveResult> CreateProfileAsync(CreatePlayerProfileRequest request)
         {
             try

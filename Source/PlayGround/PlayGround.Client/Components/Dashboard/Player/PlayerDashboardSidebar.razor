@@ -26,10 +26,13 @@
     </span>
 
     <div class="flex-1"></div>
-    <div class="bg-surface-alt rounded-xl px-3.5 py-[13px] flex flex-col gap-1.5">
-        <span class="text-[11.5px] font-extrabold text-text-strong">소속팀 연결됨</span>
-        <span class="text-[11px] text-text-body leading-[1.5] break-keep">@TeamName · 경기 기록이 자동으로 쌓여요</span>
-    </div>
+    @if (TeamName is not null)
+    {
+        <div class="bg-surface-alt rounded-xl px-3.5 py-[13px] flex flex-col gap-1.5">
+            <span class="text-[11.5px] font-extrabold text-text-strong">소속팀 연결됨</span>
+            <span class="text-[11px] text-text-body leading-[1.5] break-keep">@TeamName · 경기 기록이 자동으로 쌓여요</span>
+        </div>
+    }
 </aside>
 
 @code {
@@ -43,8 +46,9 @@
     [Parameter, EditorRequired]
     public string Summary { get; set; } = string.Empty;
 
-    [Parameter, EditorRequired]
-    public string TeamName { get; set; } = string.Empty;
+    /// <summary>소속팀 이름 — null이면 소속팀 안내 박스를 렌더하지 않는다.</summary>
+    [Parameter]
+    public string? TeamName { get; set; }
 
     private string PlayerInitial => PlayerName.Length > 1 ? PlayerName[1..2] : PlayerName;
 

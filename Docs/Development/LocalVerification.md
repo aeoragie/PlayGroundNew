@@ -76,7 +76,11 @@
    ```powershell
    sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i Source\Database\Account\Seeds\VerificationPlayers.Seed.sql
    sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationPlayerLinks.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationPlayerProfiles.Seed.sql
    ```
+
+   마지막 시드는 선수 대시보드 프로필 데이터(키·몸무게·주발·학교·보호자 연락처 + 항목별
+   공개 설정 + 가족 계정)를 주입한다. 김정현은 공개 설정 2행만 저장해 기본값 병합도 검증.
 
 ## 화면 검증 방법
 
