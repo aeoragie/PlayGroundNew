@@ -30,6 +30,21 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>본인 팀 선수단(로스터) 조회. 미인증·오류 시 null.</summary>
+        public async Task<TeamRosterResponse?> GetTeamRosterAsync()
+        {
+            try
+            {
+                Envelope<TeamRosterResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamRosterResponse>>("api/soccer/team/me/roster");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         public async Task<TeamSaveResult> CreateTeamAsync(CreateTeamRequest request)
         {
             try

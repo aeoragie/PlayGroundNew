@@ -11,4 +11,7 @@ namespace PlayGround.Server.Actors
 
     /// <summary>팀 정보 묶음 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamInfoMessage(Guid ManagerUserId);
+
+    /// <summary>선수단(로스터) 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerTeamRosterMessage(Guid ManagerUserId);
 }

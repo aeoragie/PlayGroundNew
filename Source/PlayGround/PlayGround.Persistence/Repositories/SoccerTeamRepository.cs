@@ -137,6 +137,41 @@ namespace PlayGround.Persistence.Repositories
             return Result<TeamInfoResponse?>.Success(response);
         }
 
+        public async Task<Result<TeamRosterResponse>> GetTeamRosterByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team roster requested", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerTeamRosterByManager(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerTeamRosterRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Team roster query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<TeamRosterResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new TeamRosterResponse
+            {
+                Players = queryResult.Values1
+                    .Select(r => new TeamRosterPlayerDto
+                    {
+                        TeamPlayerId = r.TeamPlayerId,
+                        PlayerId = r.PlayerId,
+                        Name = r.Name,
+                        JerseyNumber = NullIfEmpty(r.JerseyNumber),
+                        Position = NullIfEmpty(r.Position),
+                        Grade = NullIfEmpty(r.Grade),
+                        AgeGroup = NullIfEmpty(r.AgeGroup),
+                        PhotoUrl = NullIfEmpty(r.PhotoUrl),
+                        // Claim 상태는 저장 컬럼이 아니라 파생값 — UserId 연결 = Claimed (Pending은 Claim 플로우 도입 때)
+                        ClaimStatus = r.UserId is null ? "Unclaimed" : "Claimed"
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Team roster received", ("ManagerUserId", managerUserId), ("Players", response.Players.Count));
+            return Result<TeamRosterResponse>.Success(response);
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

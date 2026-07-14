@@ -76,6 +76,28 @@ namespace PlayGround.Contracts.Team
         public string? YoutubeUrl { get; set; }
     }
 
+    /// <summary>선수단(로스터) 묶음 (대시보드 선수단 섹션).</summary>
+    public class TeamRosterResponse
+    {
+        public List<TeamRosterPlayerDto> Players { get; set; } = new();
+    }
+
+    /// <summary>로스터 한 명 (팀 소속 속성 + 선수 프로필 요약).</summary>
+    public class TeamRosterPlayerDto
+    {
+        public Guid TeamPlayerId { get; set; }
+        public Guid PlayerId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? JerseyNumber { get; set; }
+        public string? Position { get; set; }   // FW | MF | DF | GK
+        public string? Grade { get; set; }      // '초4'~'고3'
+        public string? AgeGroup { get; set; }   // 'U12' | 'U15' | 'U18' — 온보딩 로스터는 null
+        public string? PhotoUrl { get; set; }
+
+        /// <summary>SoccerClaimStatus enum 멤버 이름 문자열. 'Claimed' | 'Unclaimed' (Pending은 Claim 플로우 도입 때).</summary>
+        public string ClaimStatus { get; set; } = string.Empty;
+    }
+
     /// <summary>공식 채널 한 개. ChannelType은 SoccerChannelType enum 멤버 이름 문자열.</summary>
     public class TeamChannelDto
     {

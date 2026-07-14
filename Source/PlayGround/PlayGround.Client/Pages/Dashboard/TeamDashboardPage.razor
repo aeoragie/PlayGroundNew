@@ -19,7 +19,10 @@
             @switch (CurrentSection)
             {
                 case SoccerTeamDashboardSection.Roster:
-                    <RosterSection />
+                    @if (mRoster is not null)
+                    {
+                        <RosterSection Players="@mRoster.Players" />
+                    }
                     break;
                 case SoccerTeamDashboardSection.Schedule:
                     <ScheduleSection />
@@ -51,7 +54,10 @@
         @switch (CurrentSection)
         {
             case SoccerTeamDashboardSection.Roster:
-                <MobileRosterSection />
+                @if (mRoster is not null)
+                {
+                    <MobileRosterSection Players="@mRoster.Players" />
+                }
                 break;
             case SoccerTeamDashboardSection.Schedule:
                 <MobileScheduleSection />
@@ -79,6 +85,9 @@
     public string? Section { get; set; }
 
     private TeamInfoResponse? mInfo;
+    private TeamRosterResponse? mRoster;
+    private bool mAuthenticated;
+    private bool mRosterRequested;
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
@@ -92,6 +101,17 @@
             return;
         }
 
+        mAuthenticated = true;
         mInfo = await Teams.GetTeamInfoAsync();
+    }
+
+    // 선수단은 섹션 진입 시 지연 로드 (한 번만 — 섹션 재방문 시 재요청하지 않는다)
+    protected override async Task OnParametersSetAsync()
+    {
+        if (CurrentSection == SoccerTeamDashboardSection.Roster && mAuthenticated && !mRosterRequested)
+        {
+            mRosterRequested = true;
+            mRoster = await Teams.GetTeamRosterAsync();
+        }
     }
 }

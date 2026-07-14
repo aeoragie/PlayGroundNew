@@ -79,6 +79,7 @@
     <Build Include="Procedures\UspCreatePlayer.sql" />
     <Build Include="Procedures\UspCreateSoccerTeamWithRoster.sql" />
     <Build Include="Procedures\UspGetSoccerTeamInfoByManager.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamRosterByManager.sql" />
   </ItemGroup>
   <!-- 빌드 제외(스키마 아님): Seeds(데이터), Queries(제너레이터용 SELECT) -->
   <ItemGroup>

@@ -49,5 +49,19 @@ namespace PlayGround.Server.Controllers.Soccer
                 ActorNames.SoccerTeamInfo, new GetSoccerTeamInfoMessage(userId), cancellation);
             return result.ToEnvelope();
         }
+
+        [HttpGet("me/roster")]
+        public async Task<Envelope<TeamRosterResponse>> GetMyTeamRosterAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamRosterResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamRosterResponse> result = await mGateway.AskAsync<TeamRosterResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamRosterMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
     }
 }

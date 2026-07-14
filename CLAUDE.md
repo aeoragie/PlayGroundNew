@@ -22,26 +22,24 @@
   IsMonthlyFeePublic·TrainingDays) + SoccerTeamValues/Coaches/Channels 신설(공개 홈페이지와
   데이터 공유 구조). `UspGetSoccerTeamInfoByManager` 4결과셋 1왕복(MultiQueryReader) →
   `GET api/soccer/team/me/info` → PC/모바일 섹션·사이드바·모바일 상단바 DTO 바인딩.
-  빈 데이터는 뱃지·칸·카드 단위 숨김. **나머지 5개 섹션은 아직 목데이터.**
+  빈 데이터는 뱃지·칸·카드 단위 숨김. **나머지 4개 섹션(일정·경기 결과·경기영상·선수 모집)은 아직 목데이터.**
   직접 URL 진입 페이지는 인증 상태 선확정 필수(TeamDashboardPage 참조 — 안 하면 헤더 레이스 401).
+- **선수단 섹션 백엔드 연동** — `UspGetSoccerTeamRosterByManager`(단일 결과셋, 다중 `@join`:
+  SoccerTeamPlayers + SoccerPlayers, 등번호 숫자순) → `GET api/soccer/team/me/roster` →
+  PC·모바일 섹션 `Players` 파라미터 바인딩. 섹션 진입 시 지연 로드(OnParametersSetAsync, 1회).
+  Claim은 C# 파생(UserId 연결 = Claimed, Pending은 Claim 플로우 때). 연령 탭은 전원 AgeGroup
+  보유 시만 노출(전부/일부 null이면 탭 숨기고 전체 표시), Unclaimed 안내 박스는 존재 시만.
+  카드 뷰는 `SoccerPlayers.PhotoUrl` 렌더(없으면 플레이스홀더 — 사진 컬럼은 94d1e08에서 추가됨).
 - **`/dashboard` 진입 라우팅** — JWT 클레임 역할 기반 분기.
 - **규칙 확정·전면 반영** — enum 문자열 저장, DB UTF-8 강제(NVARCHAR 금지), Client enum은
   `Models/` 분리 + `Soccer` 프리픽스.
 
 ### 다음 작업 (우선순위)
 
-1. **선수단 섹션 백엔드 연동** — 착수 직전 상태(설계 정리 완료, 코드 없음).
-   설계: `UspGetSoccerTeamRosterByManager`(단일 결과셋, `-- @entity: SoccerTeamRosterRecord`,
-   다중 `@join`: SoccerTeamPlayers(TeamPlayerId·JerseyNumber·Position·Grade) +
-   SoccerPlayers(PlayerId·Name·AgeGroup·UserId)) → `GET api/soccer/team/me/roster`.
-   Claim 상태는 C#에서 계산: UserId 연결 = Claimed, 아니면 Unclaimed (Pending은 Claim 플로우
-   구현 때). 연령 탭은 전원 AgeGroup 보유 시만 노출(온보딩 로스터는 AgeGroup null — 전부 null이면
-   탭 숨기고 전체 표시). 선수 사진 컬럼 없음 → 카드 뷰는 플레이스홀더. Unclaimed 안내 박스는
-   Unclaimed 존재 시만. 페이지에서 섹션 진입 시 지연 로드(OnParametersSetAsync).
-2. **신규 핸드오프 2건 구현** — `Handoff/Design.TeamPublicHome/`(공개 팀 홈페이지 —
+1. **신규 핸드오프 2건 구현** — `Handoff/Design.TeamPublicHome/`(공개 팀 홈페이지 —
    팀 정보 테이블 그대로 소비, Slug 기반 공개 API), `Handoff/Design.PlayerDashboard/`(선수
-   대시보드). 착수 전 SPEC 필독.
-3. 초대코드 Claim 플로우, 팀 정보 수정 UI(디자인 대기), 온보딩 중복 방지, Records 보강.
+   대시보드 — 검증 계정 `verify-player-u12/u15@test.local` 준비됨). 착수 전 SPEC 필독.
+2. 초대코드 Claim 플로우, 팀 정보 수정 UI(디자인 대기), 온보딩 중복 방지, Records 보강.
 
 ### 검증 팁 (2026-07-14 확립)
 

@@ -7,4 +7,13 @@ namespace PlayGround.Client.Models
         Pending,
         Unclaimed,
     }
+
+    public static class SoccerClaimStatusExtensions
+    {
+        /// <summary>서버 문자열 → enum. 알 수 없는 값은 Unclaimed (안전 기본값).</summary>
+        public static SoccerClaimStatus ParseClaimStatus(string? value)
+        {
+            return Enum.TryParse(value, out SoccerClaimStatus status) ? status : SoccerClaimStatus.Unclaimed;
+        }
+    }
 }
