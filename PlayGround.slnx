@@ -5,6 +5,9 @@
     <File Path="Docs/Architecture/DeploymentAndConfiguration.md" />
     <File Path="Docs/Architecture/NamingConventions.md" />
   </Folder>
+  <Folder Name="/Docs/Development/">
+    <File Path="Docs/Development/LocalVerification.md" />
+  </Folder>
   <Folder Name="/Solutions/">
     <File Path=".editorconfig" />
     <File Path=".gitignore" />

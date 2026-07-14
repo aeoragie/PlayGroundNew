@@ -45,9 +45,12 @@
 
 ### 검증 팁 (2026-07-14 확립)
 
+- **상세는 `Docs/Development/LocalVerification.md`** — 검증 계정·재구축 절차·화면 확인
+  체크리스트·헤드리스 자동화 팁을 정리해 둠 (PC 이동 시 이 문서대로 재구축).
 - 로컬 검증 계정: `verify-teamadmin-0713@test.local` / `password123!` (검증fc 팀, 팀 정보
   시드 주입됨), `verify-empty-0714@test.local` (EmptyFC — 빈 상태 확인용). 로컬 DB 전용.
-- 화면 검증: 헤드리스 Edge + puppeteer-core(스크래치패드에 설치), localStorage
+  시드: `Source/Database/Soccer/Seeds/VerificationTeamInfo.Seed.sql`.
+- 화면 검증: 헤드리스 Edge + playwright-core/puppeteer-core(스크래치패드에 설치), localStorage
   `pg.accessToken`에 토큰 주입 후 진입. `python`은 스토어 스텁 — 스크립트는 PowerShell
   (한글 포함 .ps1은 UTF-8 BOM 필수).
 
