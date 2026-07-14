@@ -1,0 +1,29 @@
+@* 상단 GNB(선수·보호자): 네이비 sticky 60px — 로고 + 보호자 관리 모드 teal 뱃지 + 공개 프로필 보기 / 알림(주황 점) / 아바타
+   공개 선수 프로필 페이지 구현 전이라 링크는 무동작 버튼으로 렌더 (플레이스홀더 # 금지 — 랜딩 오이동 방지) *@
+@using PlayGround.Client.Styles
+
+<header class="sticky top-0 z-40 h-[60px] bg-navy-deep flex items-center gap-4 px-6 text-white">
+    <BrandLogo Href="@Routes.Landing" InheritColor="true" />
+    <span class="@Css.Dashboard.BadgeTeal">보호자 관리 모드</span>
+    <div class="flex-1"></div>
+    <button type="button" class="flex items-center gap-[7px] text-[13px] font-bold text-white/85 hover:text-white transition-colors whitespace-nowrap bg-transparent border-0 cursor-pointer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <path d="M15 3h6v6M10 14L21 3"></path>
+        </svg>공개 프로필 보기
+    </button>
+    <span class="w-9 h-9 rounded-[10px] bg-white/[.08] flex items-center justify-center relative">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-white/85">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+        </svg>
+        <span class="absolute top-1.5 right-1.5 w-[7px] h-[7px] rounded-full bg-orange"></span>
+    </span>
+    <span class="w-9 h-9 rounded-full bg-teal flex items-center justify-center text-[13.5px] font-extrabold text-white">@GuardianInitial</span>
+</header>
+
+@code {
+    /// <summary>보호자 이름 첫 글자 (아바타).</summary>
+    [Parameter, EditorRequired]
+    public string GuardianInitial { get; set; } = string.Empty;
+}

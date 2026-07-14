@@ -8,7 +8,7 @@
 <PageTitle>대시보드 — PlayGround</PageTitle>
 
 @* 로그인·온보딩 후 공통 진입 지점 — 역할에 맞는 대시보드로 분기.
-   TeamAdmin → 팀 대시보드. Player 대시보드는 미구현이라 준비 안내 유지. *@
+   TeamAdmin → 팀 대시보드, Player → 선수 대시보드. 역할 없으면 선택 안내. *@
 @if (mChecking)
 {
     <div class="w-[480px] max-w-full flex items-center justify-center py-24 text-text-muted text-sm">확인 중…</div>
@@ -16,22 +16,12 @@
 else
 {
     <div class="@($"w-[480px] max-w-full {Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-4 text-center")">
-        <div class="w-[72px] h-[72px] rounded-full bg-surface-icon flex items-center justify-center text-[34px]">@(mRole == UserRole.Player ? "⚽" : "👋")</div>
-        <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">@(mRole == UserRole.Player ? "선수 대시보드 준비 중" : "환영해요!")</h1>
+        <div class="w-[72px] h-[72px] rounded-full bg-surface-icon flex items-center justify-center text-[34px]">👋</div>
+        <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">환영해요!</h1>
         <p class="m-0 text-[14.5px] text-text-body leading-[1.7]">
-            @if (mRole == UserRole.Player)
-            {
-                <text>선수 대시보드는 다음 단계에서 열려요.<br />그때까지 경기기록과 팀 홈페이지는 자유롭게 볼 수 있어요.</text>
-            }
-            else
-            {
-                <text>아직 역할을 선택하지 않았어요.<br />역할을 선택하면 맞춤 대시보드가 열려요.</text>
-            }
+            <text>아직 역할을 선택하지 않았어요.<br />역할을 선택하면 맞춤 대시보드가 열려요.</text>
         </p>
-        @if (mRole != UserRole.Player)
-        {
-            <a href="@Routes.SelectRole" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">역할 선택하기</a>
-        }
+        <a href="@Routes.SelectRole" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">역할 선택하기</a>
     </div>
 }
 
@@ -53,6 +43,12 @@ else
         if (mRole == UserRole.TeamAdmin)
         {
             Nav.NavigateTo(Routes.TeamDashboard, replace: true);
+            return;
+        }
+
+        if (mRole == UserRole.Player)
+        {
+            Nav.NavigateTo(Routes.PlayerDashboard, replace: true);
             return;
         }
 

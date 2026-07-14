@@ -21,6 +21,8 @@ namespace PlayGround.Client
         public const string Dashboard = "/dashboard";
         public const string TeamDashboard = "/dashboard/team";
         public const string TeamDashboardSectionTemplate = "/dashboard/team/{Section}";
+        public const string PlayerDashboard = "/dashboard/player";
+        public const string PlayerDashboardSectionTemplate = "/dashboard/player/{Section}";
         public const string TeamPublicHomeTemplate = "/team/{Slug}";
         public const string TeamPublicHomeTabTemplate = "/team/{Slug}/{Tab}";
         public const string NotFound = "/not-found";
@@ -30,6 +32,11 @@ namespace PlayGround.Client
         public static string TeamDashboardSection(SoccerTeamDashboardSection section)
         {
             return $"{TeamDashboard}/{section.ToSlug()}";
+        }
+
+        public static string PlayerDashboardSection(SoccerPlayerDashboardSection section)
+        {
+            return $"{PlayerDashboard}/{section.ToSlug()}";
         }
 
         public static string TeamPublicHome(string slug)

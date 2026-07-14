@@ -1,0 +1,31 @@
+@* 모바일 하단 고정 탭 4개: 아이콘 20px + 라벨, 선택 색 네이비 — safe-area 대응, 터치 타겟 44px 이상 *@
+
+<nav class="fixed bottom-0 inset-x-0 max-w-[480px] mx-auto bg-bg/[.96] backdrop-blur-[10px] border-t border-border flex px-1 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] z-50">
+    @foreach (SoccerPlayerDashboardSection section in Enum.GetValues<SoccerPlayerDashboardSection>())
+    {
+        <a href="@Routes.PlayerDashboardSection(section)" class="@TabClass(section)">
+            @TabIcon(section)@section.ToLabel()
+        </a>
+    }
+</nav>
+
+@code {
+    [Parameter, EditorRequired]
+    public SoccerPlayerDashboardSection ActiveSection { get; set; }
+
+    private string TabClass(SoccerPlayerDashboardSection section) =>
+        "flex-1 flex flex-col items-center gap-[3px] pt-[7px] pb-[5px] rounded-[10px] text-[10.5px] font-bold whitespace-nowrap " +
+        (ActiveSection == section ? "text-navy" : "text-text-muted");
+
+    private static RenderFragment TabIcon(SoccerPlayerDashboardSection section) => section switch
+    {
+        SoccerPlayerDashboardSection.Career =>
+            @<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M12 8l4-2M12 14l-4-2"></path><circle cx="18" cy="5" r="2"></circle><circle cx="6" cy="11" r="2"></circle><circle cx="12" cy="20" r="2"></circle></svg>,
+        SoccerPlayerDashboardSection.Stats =>
+            @<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"></path></svg>,
+        SoccerPlayerDashboardSection.Portfolio =>
+            @<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14.5" rx="3"></rect><path d="M10 9.5l5 3-5 3z"></path></svg>,
+        _ =>
+            @<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c0-3.5 3-5.8 7-5.8s7 2.3 7 5.8"></path></svg>,
+    };
+}

@@ -1,0 +1,109 @@
+@* 프로필 섹션(PC): [기본 카드+공개 설정 | 우측 340px(공개 프로필·가족 계정)] — SPEC.PLAYERDASHBOARD.md §1
+   데이터는 백엔드 연동 전 레퍼런스 예시. 공개 토글 쓰기는 보호자 role 가드(연동 시) *@
+@using PlayGround.Client.Styles
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <h1 class="@Css.Dashboard.SectionTitle">프로필</h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton">프로필 수정</button>
+    </div>
+
+    <div class="grid grid-cols-[1fr_340px] gap-[18px] items-start">
+        <div class="@($"{Css.Dashboard.Card} p-[26px] flex flex-col gap-5")">
+            <div class="flex gap-5 items-start">
+                <div class="w-[120px] aspect-[3/4] rounded-[14px] overflow-hidden bg-surface-icon shrink-0">
+                    @if (PhotoUrl is not null)
+                    {
+                        <img src="@PhotoUrl" alt="프로필 사진" class="w-full h-full object-cover" />
+                    }
+                    else
+                    {
+                        <span class="w-full h-full flex items-center justify-center text-xs text-text-faint">프로필 사진</span>
+                    }
+                </div>
+                <div class="flex flex-col gap-2.5 flex-1">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <span class="text-[21px] font-extrabold text-navy-deep whitespace-nowrap">김민준</span>
+                        <span class="@Css.Dashboard.BadgeTeal">가족 연결됨</span>
+                    </div>
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2.5">
+                        <span class="flex flex-col gap-0.5"><span class="text-[11px] font-bold text-text-muted">포지션</span><span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">FW · 등번호 9</span></span>
+                        <span class="flex flex-col gap-0.5"><span class="text-[11px] font-bold text-text-muted">생년</span><span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">2012 · 중2</span></span>
+                        <span class="flex flex-col gap-0.5"><span class="text-[11px] font-bold text-text-muted">소속</span><span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">FC 한강 유나이티드</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-surface-icon pt-4 flex flex-col gap-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-extrabold text-navy-deep">항목별 공개 설정</span>
+                    <span class="text-[11.5px] text-text-muted break-keep">보호자만 변경할 수 있어요</span>
+                </div>
+                @foreach (VisibilityField field in mFields)
+                {
+                    <div class="flex items-center gap-3 border border-border rounded-[11px] px-[15px] py-[11px]">
+                        <span class="text-[13px] font-bold text-navy-deep w-[110px] shrink-0 whitespace-nowrap">@field.Label</span>
+                        <span class="text-[13px] text-text-body flex-1 whitespace-nowrap">@field.Value</span>
+                        <button type="button" class="@ToggleClass(field.IsPublic)" @onclick="() => field.IsPublic = !field.IsPublic">@(field.IsPublic ? "공개" : "비공개")</button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-[18px]">
+            <div class="bg-gradient-navy rounded-[16px] p-[22px] flex flex-col gap-[9px] text-white">
+                <span class="text-xs font-extrabold text-teal">공개 프로필</span>
+                <span class="text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis">playground.kr/player/kim-minjun</span>
+                <span class="text-[11.5px] text-white/65 leading-[1.55] break-keep">이번 주 방문 34회 · 에이전트 열람 요청 1건</span>
+                <div class="flex gap-2 mt-1">
+                    <button type="button" class="flex-1 flex items-center justify-center h-[38px] rounded-[9px] bg-white hover:bg-teal text-[12.5px] font-bold text-navy-deep hover:text-white whitespace-nowrap border-0 cursor-pointer transition-colors">공개 뷰 보기</button>
+                    <button type="button" class="flex-1 flex items-center justify-center h-[38px] rounded-[9px] bg-white/[.12] hover:bg-white/20 border border-white/25 text-[12.5px] font-bold text-white whitespace-nowrap cursor-pointer transition-colors">선수 카드 공유</button>
+                </div>
+            </div>
+            <div class="@($"{Css.Dashboard.Card} p-[22px] flex flex-col gap-3")">
+                <span class="text-sm font-extrabold text-navy-deep">가족 계정</span>
+                <div class="flex items-center gap-[11px]">
+                    <span class="w-[38px] h-[38px] rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy shrink-0">김</span>
+                    <span class="flex flex-col gap-px flex-1 min-w-0">
+                        <span class="text-[13px] font-extrabold text-navy-deep whitespace-nowrap">김OO (보호자)</span>
+                        <span class="text-[11.5px] text-text-muted whitespace-nowrap">프로필 관리 · 공개 설정 권한</span>
+                    </span>
+                    <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2.5 py-[3px] whitespace-nowrap">관리자</span>
+                </div>
+                <div class="flex items-center gap-[11px]">
+                    <span class="w-[38px] h-[38px] rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy shrink-0">민</span>
+                    <span class="flex flex-col gap-px flex-1 min-w-0">
+                        <span class="text-[13px] font-extrabold text-navy-deep whitespace-nowrap">김민준 (본인)</span>
+                        <span class="text-[11.5px] text-text-muted whitespace-nowrap">만 14세 이상 시 관리 권한 이전 가능</span>
+                    </span>
+                    <span class="text-[10.5px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">열람</span>
+                </div>
+                <button type="button" class="@Css.Dashboard.DashedButton">＋ 가족 초대</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private const string PhotoUrl = "https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=600";
+
+    private sealed class VisibilityField
+    {
+        public required string Label { get; init; }
+        public required string Value { get; init; }
+        public bool IsPublic { get; set; }
+    }
+
+    // 기본값: 키·몸무게·주발 공개, 학교·연락처 비공개 (SPEC §1)
+    private readonly List<VisibilityField> mFields = new()
+    {
+        new() { Label = "키", Value = "168cm", IsPublic = true },
+        new() { Label = "몸무게", Value = "54kg", IsPublic = true },
+        new() { Label = "주발", Value = "왼발", IsPublic = true },
+        new() { Label = "학교", Value = "강동중학교", IsPublic = false },
+        new() { Label = "보호자 연락처", Value = "010-****-1234", IsPublic = false },
+    };
+
+    private static string ToggleClass(bool isPublic) =>
+        "h-[30px] px-3.5 rounded-full text-[11.5px] font-bold whitespace-nowrap border-1.5 cursor-pointer transition-colors " +
+        (isPublic ? "border-teal/40 bg-teal/[.12] text-teal-ink" : "border-border bg-surface-soft text-text-muted");
+}

@@ -1,0 +1,66 @@
+@attribute [Route(Routes.PlayerDashboard)]
+@attribute [Route(Routes.PlayerDashboardSectionTemplate)]
+@using PlayGround.Client.Components.Dashboard.Player
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+
+<PageTitle>선수 대시보드 — PlayGround</PageTitle>
+
+@* P0 핵심 시나리오 = 보호자 대리 관리 (Claim 완료). 데이터는 백엔드 연동 전 레퍼런스 예시 *@
+
+@* PC (≥1024px 설계 — md 브레이크포인트 공용): GNB + 사이드바 230px *@
+<div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
+    <PlayerDashboardGnb GuardianInitial="김" />
+    <div class="flex-1 flex items-stretch">
+        <PlayerDashboardSidebar ActiveSection="@CurrentSection" PlayerName="김민준" Summary="U15 · FW · #9 · FC 한강" TeamName="FC 한강 유나이티드" />
+        <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
+            @switch (CurrentSection)
+            {
+                case SoccerPlayerDashboardSection.Career:
+                case SoccerPlayerDashboardSection.Stats:
+                case SoccerPlayerDashboardSection.Portfolio:
+                    @* 커리어·시즌 통계·포트폴리오는 다음 단계에서 구현 *@
+                    break;
+                default:
+                    <PlayerProfileSection />
+                    break;
+            }
+        </main>
+    </div>
+</div>
+
+@* 모바일 (<768px): 상단 바 + 하단 탭 4개 *@
+<div class="md:hidden min-h-screen bg-surface-alt flex flex-col max-w-[480px] mx-auto text-navy-deep">
+    <PlayerMobileTopBar PlayerName="김민준" Summary="U15 · FW · #9" />
+    <main class="flex-1 px-4 pt-[18px] pb-24 flex flex-col gap-3.5">
+        @switch (CurrentSection)
+        {
+            case SoccerPlayerDashboardSection.Career:
+            case SoccerPlayerDashboardSection.Stats:
+            case SoccerPlayerDashboardSection.Portfolio:
+                @* 커리어·시즌 통계·포트폴리오는 다음 단계에서 구현 *@
+                break;
+            default:
+                <MobilePlayerProfileSection />
+                break;
+        }
+    </main>
+    <PlayerMobileTabBar ActiveSection="@CurrentSection" />
+</div>
+
+@code {
+    [Parameter]
+    public string? Section { get; set; }
+
+    private SoccerPlayerDashboardSection CurrentSection => SoccerPlayerDashboardSectionExtensions.ParseSlug(Section);
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 직접 URL 진입(새로고침) 대비 — 인증 상태를 먼저 확정 (토큰 복원 + Bearer 헤더 부착)
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo(Routes.Login, replace: true);
+        }
+    }
+}
