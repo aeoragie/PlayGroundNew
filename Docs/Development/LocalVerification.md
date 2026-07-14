@@ -17,11 +17,17 @@
 | `verify-u15-1@test.local` | 광주광주FCU15 (42명: 중1·2·3 각 14) | U15 대규모 로스터 |
 | `verify-u15-2@test.local` | 부산아이파크U15낙동중 (42명, 미인증) | U15 + 빈 항목 혼합 |
 | `verify-u15-3@test.local` | 전북U15군산시민축구단 (42명) | U15 시민구단 |
+| `verify-player-u12@test.local` | 서울신답FCU12 소속 신준우 (#1 MF 초6) | U12 선수 계정 (역할 Player) |
+| `verify-player-u15@test.local` | 광주광주FCU15 소속 김정현 (#1 GK 중3) | U15 선수 계정 (역할 Player) |
 
 - 위 2종(검증fc·EmptyFC)은 **이메일 첫 로그인 = 가입**(find-or-create)으로 만들고,
-  아래 6종(리그 팀)은 **Account 시드가 계정까지 생성**한다 (동일 해시 재사용).
+  아래 6종(리그 팀 관리자)·선수 2종은 **Account 시드가 계정까지 생성**한다 (동일 해시 재사용).
 - 리그 팀 선수 216명은 크롤러 백업 실데이터(팀명·선수명·포지션)에서 샘플링. Claimed 약 1/3,
   학년별 상위 3명에 사진.
+- 선수 계정 2종은 리그 팀의 등번호 1번 선수와 `SoccerPlayers.UserId`로 연결된다
+  (Soccer의 `VerificationPlayerLinks.Seed.sql`). 나머지 Claimed 선수의 UserId는 표시용 더미.
+  선수 대시보드는 미구현 — 현재는 로그인 시 `/dashboard`에서 "선수 대시보드 준비 중" 안내가
+  뜨는 것까지가 정상이고, 선수 대시보드(Handoff/Design.PlayerDashboard) 개발·검증용 계정이다.
 
 ## 재구축 절차 (새 PC · DB 재생성 후)
 
@@ -63,6 +69,15 @@
    sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationLeagueTeams.Seed.sql
    ```
 
+5. 선수 계정 시드 (U12·U15 각 1명 — 계정 생성 + 리그 팀 선수 연결).
+   **연결 시드는 리그 팀 시드(4번) 이후에 실행**해야 하고, 리그 시드를 다시 돌리면
+   PlayerId가 재생성되므로 연결 시드도 다시 실행한다:
+
+   ```powershell
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i Source\Database\Account\Seeds\VerificationPlayers.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationPlayerLinks.Seed.sql
+   ```
+
 ## 화면 검증 방법
 
 1. `https://localhost:50451/login` → 검증 계정으로 로그인.
@@ -73,8 +88,10 @@
    선수단 시드(사진·연령 탭·Claim)는 선수단 섹션 백엔드 연동 후 화면에서 확인 가능.
 3. **EmptyFC 계정**: 핵심가치·코칭스태프·공식 채널 **카드 자체가 없어야** 하고, 기본 카드도
    뱃지·요약 칸이 숨겨진 채 팀명만 노출 (빈 데이터 노출 금지 규칙).
-4. 모바일: 브라우저 폭 480px 이하 — 하단 탭 5개, 경기 탭은 결과/영상 서브탭.
-5. 로그아웃 대신 다른 계정 확인 시: 시크릿 창을 쓰거나 localStorage의 `pg.accessToken` 삭제.
+4. **선수 계정** (`verify-player-u12/u15`): 로그인 → `/dashboard`에 "선수 대시보드 준비 중"
+   안내가 뜨면 정상 (JWT 역할 `Player` 분기). 선수 대시보드 구현 후 이 계정으로 본검증.
+5. 모바일: 브라우저 폭 480px 이하 — 하단 탭 5개, 경기 탭은 결과/영상 서브탭.
+6. 로그아웃 대신 다른 계정 확인 시: 시크릿 창을 쓰거나 localStorage의 `pg.accessToken` 삭제.
 
 ## 헤드리스 검증 (자동화 팁)
 

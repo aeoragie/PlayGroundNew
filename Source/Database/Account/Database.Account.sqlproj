@@ -78,5 +78,6 @@
   <!-- 빌드 제외(스키마 아님): Seeds(데이터) -->
   <ItemGroup>
     <None Include="Seeds\VerificationTeamAdmins.Seed.sql" />
+    <None Include="Seeds\VerificationPlayers.Seed.sql" />
   </ItemGroup>
 </Project>

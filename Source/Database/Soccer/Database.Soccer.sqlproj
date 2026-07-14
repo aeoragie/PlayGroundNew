@@ -86,5 +86,6 @@
     <None Include="Seeds\VerificationTeamInfo.Seed.sql" />
     <None Include="Seeds\VerificationRoster.Seed.sql" />
     <None Include="Seeds\VerificationLeagueTeams.Seed.sql" />
+    <None Include="Seeds\VerificationPlayerLinks.Seed.sql" />
   </ItemGroup>
 </Project>
