@@ -1,5 +1,5 @@
 @* 포트폴리오(모바일): 대표 영상 카드 + 영상 목록(가로 카드 104px 썸네일) — SPEC.PLAYERDASHBOARD.md §4
-   대표 영상·목록은 데이터가 있을 때만 렌더 (빈 데이터 노출 금지) *@
+   대표 영상·목록은 데이터가 있을 때만 렌더. 영상이 없으면 현재 상태 + 등록 가이드 안내 *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
 
@@ -8,6 +8,16 @@
         <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">포트폴리오</h1>
         <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 영상 추가</button>
     </div>
+
+    @if (Videos.Count == 0)
+    {
+        @* 빈 상태: 현재 상태 + 등록 가이드 (주 액션은 헤더의 ＋ 영상 추가 하나 유지) *@
+        <div class="bg-white border-1.5 border-dashed border-border rounded-[15px] px-5 py-10 flex flex-col items-center gap-2 text-center">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-text-faint"><rect x="3" y="5" width="18" height="14.5" rx="3"></rect><path d="M10 9.5l5 3-5 3z"></path></svg>
+            <span class="text-sm font-extrabold text-navy-deep">아직 등록된 영상이 없어요</span>
+            <span class="text-xs text-text-body leading-[1.7] break-keep">＋ 영상 추가로 유튜브 링크를 등록해 보세요.<br />대표 영상은 공개 프로필과 선수 카드의 첫 화면에 노출돼요.</span>
+        </div>
+    }
 
     @if (Primary is not null)
     {

@@ -1,5 +1,5 @@
 @* 커리어 섹션(PC): 타임라인(도트 현재=teal/과거=회색) + 검증 뱃지("팀 확인됨"/"본인 입력" 우측) — SPEC.PLAYERDASHBOARD.md §2
-   이력 없으면 타임라인 카드를 렌더하지 않는다 (빈 데이터 노출 금지) *@
+   이력이 없으면 현재 상태 + 등록 가이드 안내 *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
 
@@ -8,6 +8,16 @@
         <h1 class="@Css.Dashboard.SectionTitle">커리어</h1>
         <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 이력 추가</button>
     </div>
+
+    @if (Entries.Count == 0)
+    {
+        @* 빈 상태: 현재 상태 + 등록 가이드 (주 액션은 헤더의 ＋ 이력 추가 하나 유지) *@
+        <div class="bg-white border-1.5 border-dashed border-border rounded-[16px] px-6 py-14 flex flex-col items-center gap-2.5 text-center">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-text-faint"><path d="M12 4v16M12 8l4-2M12 14l-4-2"></path><circle cx="18" cy="5" r="2"></circle><circle cx="6" cy="11" r="2"></circle><circle cx="12" cy="20" r="2"></circle></svg>
+            <span class="text-[15px] font-extrabold text-navy-deep">아직 등록된 이력이 없어요</span>
+            <span class="text-[13px] text-text-body leading-[1.7] break-keep">＋ 이력 추가로 소속 이력을 등록해 보세요.<br />팀 관리자가 확인하면 "팀 확인됨"으로 공개 프로필에 신뢰 표시와 함께 노출돼요.</span>
+        </div>
+    }
 
     @if (Entries.Count > 0)
     {
