@@ -1,6 +1,6 @@
-# 경기(Match) 스키마 설계안 — Records · 검수용
+# 경기(Match) 스키마 설계안 — Records
 
-> 상태: **검수 대기** (2026-07-15 작성). 검수 확정 후 `Source/Database/Soccer/Tables/`에 DDL로 구현한다.
+> 상태: **검수 확정** (2026-07-15 — D1~D8 추천안 수용, D5는 아래 확정안으로 보강).
 > 근거 문서: `Handoff/Design.Records/`(SPEC + README 설계 결정 5개), SPEC.TEAMDASHBOARD §3~5,
 > SPEC.PLAYERDASHBOARD §3, CLAUDE.md 핵심 설계 결정 #4(에이전트 축)·#5(KFA 어댑터 적재).
 
@@ -165,10 +165,21 @@ Events(MatchId), Events(PlayerId)/(AssistPlayerId), Appearances(PlayerId), Stand
 | D2 | 참가팀 목록 테이블 | **이번엔 없음** — TeamCount 저장 + 순위표·경기가 사실상 참가팀 | SoccerTournamentTeams (참가 신청 기능 때 추가) |
 | D3 | 경기 상태 | **Scheduled/Completed/Canceled** — '진행중'은 대회 레벨만 | Match에 InProgress 추가 (실시간 중계 없으므로 불요) |
 | D4 | 득점/도움 구조 | **골 1행 + Assist 컬럼** — 골·도움 1:1, 집계 단순 | 이벤트 행 분리(Goal/Assist 별도) — 정합성 관리 비용 ↑ |
-| D5 | 순위표 | **저장** — 외부 적재(경기 없이 순위만)·순위 결정 규칙(승자승 등) 재현 불가 대응. 자체 입력 경기는 저장 시 Application이 재계산·갱신 | 경기에서 실시간 계산 (외부 적재·수동 보정 불가) |
+| D5 | 순위표 | **저장 + 자동 재계산** (아래 확정안) | 경기에서 실시간 계산 (외부 적재·수동 보정 불가) |
 | D6 | 영상 테이블 | **SoccerMatchVideos 신설** — 소유·수명주기가 선수 포트폴리오와 다름 | PortfolioVideos 확장 (혼합 시 공개 규칙 복잡) |
 | D7 | 시즌 통계 집계 | **실시간 SUM** (프로시저) | 집계 테이블 + 트리거/배치 (규모상 불요) |
 | D8 | 팀 '일정' 섹션의 훈련 등 비경기 일정 | **이번 스코프 제외** — 경기 일정은 Match(Scheduled)로 커버, 훈련·회비일정은 후속 SoccerTeamScheduleEvents | 지금 포함 (Records와 무관해 스코프 팽창) |
+
+### D5 확정안 — 순위표 자동 재계산 (2026-07-15 검수 결과)
+
+- **저장식 유지** + 순위 계산은 **별도 프로시저 `UspRecalculateSoccerTournamentStandings`로 분리 관리**
+  (@TournamentId, @StageType, @GroupName 스코프 단위 재계산).
+- **트리거 시점**: 경기 결과가 저장(Completed 인서트/갱신)될 때 저장 유즈케이스가 같은 스코프의
+  재계산 프로시저를 호출 — 순위가 자동 결정된다.
+- 계산 규칙: 승점(승3·무1·패0), 정렬 = 승점 → 득실차 → 다득점 → 팀명. 승자승 등 특수 규칙은
+  수동 보정 영역. `IsQualified`·경기 없는 팀 행(0전)은 재계산이 건드리지 않는다.
+- **후속(에이전트 축)**: 대회 개최 Agent 대시보드에서 버튼으로 재계산 트리거 + 예외 수동 보정
+  기능 제공 예정 — 프로시저를 분리해 두는 이유.
 
 ## 6. 구현 순서 제안 (검수 후)
 

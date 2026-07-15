@@ -85,6 +85,18 @@
    PlayerCareers 시드는 커리어·포트폴리오 데이터 — 김정현(U15) = 커리어 2건(팀 확인됨/본인 입력
    혼합) + 영상 3건(대표 1), 신준우(U12) = 커리어 1건 + 영상 0건(빈 포트폴리오 상태 검증).
 
+6. 경기 도메인 시드 (Records — 3형식 대회 + 친선 + 이벤트·출전·미디어·수상.
+   **리그 팀·선수 시드(4·5번) 이후 실행**, 순위표는 UspRecalculateSoccerTournamentStandings
+   호출로 생성되므로 재계산 경로도 함께 검증된다):
+
+   ```powershell
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationMatches.Seed.sql
+   ```
+
+   구성: U15 챔피언십(Cup — 1조 6경기·2조 2경기·4강 PK "2 (4)"·결승 예정, 2025 아카이브 동일
+   시리즈 + 수상 3종), 서울 U12 주말리그(League — 월별 4경기), 왕중왕전(Split — 행만), 검증fc
+   친선 2경기(TournamentId NULL). 김정현 = 골2·도움1·4경기 265분, 신준우 = 골1·2경기(시즌 통계 검증용).
+
 ## 화면 검증 방법
 
 1. `https://localhost:50451/login` → 검증 계정으로 로그인.

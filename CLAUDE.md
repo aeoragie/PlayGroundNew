@@ -68,12 +68,25 @@
 
 ### 다음 작업 (우선순위)
 
-1. **Records 보강 → 경기 스키마 설계** — 공개 홈 시즌성적 탭·팀 대시보드 경기 섹션·선수
-   시즌 통계가 공유할 Match/결과 구조 (설계 결정 #5 DataSource·ExternalRef 선반영 포함).
-   선수 대시보드는 시즌 통계만 남음(경기 스키마 의존). **스키마 설계안 먼저 정리 → 검수 →
-   구현** 순서 권장 (큰 설계 — 시즌·경기·득점/도움 이벤트·집계 구조).
+1. **Records 구현 계속** — 스키마는 완료(아래). 다음 = `/records` **목록+아카이브** 화면
+   (공개 AllowAnonymous, 조회 프로시저 → API → Blazor. `Handoff/Design.Records/` SPEC·설계
+   결정 5개 필독) → 상세(형식별 가변 탭) → 팀 대시보드 경기 결과·영상 연동 → 선수 시즌 통계
+   → 공개 홈 시즌성적. 단계별 검수 (구현 순서: `Docs/Architecture/MatchSchemaDesign.md` §6).
 2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
    커리어·포트폴리오 입력(추가/수정) UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+
+### 경기(Match) 스키마 — 완료 (2026-07-15, 설계 문서 `Docs/Architecture/MatchSchemaDesign.md`)
+
+- 테이블 8개: SoccerTournaments(Format: Cup/Split/League, SeriesSlug=역대 우승 연결)·
+  SoccerMatches(친선=TournamentId NULL, PK 스코어 컬럼)·SoccerMatchEvents(골 1행+Assist 컬럼)·
+  SoccerMatchAppearances·SoccerTournamentStandings(저장식)·SoccerMatchVideos·News·Awards.
+  외부 팀/선수는 Id NULL + Name 병행. 결정 #4·#5 컬럼 선반영.
+- **순위표는 D5 확정안**: 경기 결과 저장 시 `UspRecalculateSoccerTournamentStandings`
+  (스코프 단위, 승점→득실차→다득점→팀명) 자동 호출 — 경기 저장 유즈케이스 구현 때 잊지 말 것.
+  IsQualified·0전 행은 보존(수동 보정 영역). 추후 Agent 대시보드 버튼 트리거 예정.
+- 시드 `VerificationMatches.Seed.sql`(재계산 경로 포함 검증 완료 — 승점 동률 득실차 타이브레이크 확인).
+- **인덱스에 필터드(WHERE) 금지** — 있으면 해당 테이블 DML에 QUOTED_IDENTIFIER ON이 강제되어
+  sqlcmd(기본 OFF) 시드·운영 스크립트가 깨진다 (`Indexes/SoccerMatchDomain.Indexes.sql` 참조).
 
 ### 검증 팁 (2026-07-14 확립)
 

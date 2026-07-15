@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#e9ecf2;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 16px 60px">
+
+<!-- ===== 프로토타입 역할 전환 바 (구현 대상 아님) ===== -->
+<div style="width:100%;max-width:420px;background:#1c2b4a;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:9px">
+  <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.55);white-space:nowrap">프로토타입 · 시점 전환</span>
+  <div style="flex:1"></div>
+  <button onClick="{{ roleParent }}" style="{{ roleParentStyle }}">보호자</button>
+  <button onClick="{{ roleManager }}" style="{{ roleManagerStyle }}">팀 관리자</button>
+</div>
+
+<!-- ═══════ 보호자 시점 ═══════ -->
+<sc-if value="{{ isParent }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Claim 보호자 플로우" style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px">
+
+  <!-- 스텝 인디케이터 -->
+  <div style="display:flex;align-items:center;gap:6px;padding:0 4px">
+    <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+      <button onClick="{{ st.go }}" style="{{ st.style }}">{{ st.label }}</button>
+      <sc-if value="{{ st.hasArrow }}" hint-placeholder-val="{{ true }}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b6bdc9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
+      </sc-if>
+    </sc-for>
+  </div>
+
+  <div style="background:#fdfdfc;border-radius:20px;box-shadow:0 12px 40px rgba(28,43,74,.12);overflow:hidden;display:flex;flex-direction:column">
+
+    <!-- 상단 바 -->
+    <div style="padding:14px 20px;border-bottom:1px solid #e6e8ee;display:flex;align-items:center;gap:6px">
+      <span style="font-size:14px;font-weight:800;letter-spacing:-.03em;color:#23408e;white-space:nowrap">PlayGround <span style="font-weight:700;color:#b6bdc9">Soccer</span></span>
+      <div style="flex:1"></div>
+      <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">자녀 프로필 연결</span>
+    </div>
+
+    <!-- ── STEP 1: 초대코드 입력 ── -->
+    <sc-if value="{{ isCode }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:26px 22px 28px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <h1 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.02em;word-break:keep-all">초대코드를 입력해 주세요</h1>
+        <p style="margin:0;font-size:13.5px;color:#5b6577;line-height:1.65;word-break:keep-all">팀에서 받은 6자리 코드를 입력하면 자녀의 선수 프로필을 찾아드려요.</p>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <sc-for list="{{ codeChars }}" as="c" hint-placeholder-count="6">
+          <span style="{{ c.style }}">{{ c.ch }}</span>
+        </sc-for>
+      </div>
+      <button onClick="{{ toConfirm }}" style="height:50px;border:0;border-radius:12px;background:#FF6B35;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 5px 16px rgba(255,107,53,.32)" style-hover="background:#e85a26">프로필 찾기</button>
+      <div style="display:flex;flex-direction:column;gap:9px;border-top:1px dashed #e6e8ee;padding-top:16px">
+        <span style="font-size:12px;font-weight:800;color:#8a93a6">코드가 없어요</span>
+        <span style="font-size:12.5px;color:#5b6577;line-height:1.6;word-break:keep-all">· 소속팀 감독·코치에게 초대코드를 요청하세요<br>· 경기기록에서 자녀 이름을 찾았다면 <a href="#" style="font-weight:700">프로필에서 바로 연결 요청</a>도 가능해요<br>· 소속팀이 없다면 <a href="#" style="font-weight:700">프로필 직접 만들기</a></span>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ── STEP 2: 프로필 확인 ── -->
+    <sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:26px 22px 28px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <h1 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.02em;word-break:keep-all">이 프로필이 맞나요?</h1>
+        <p style="margin:0;font-size:13.5px;color:#5b6577;line-height:1.65;word-break:keep-all">FC 한강 유나이티드가 등록한 선수 정보예요.</p>
+      </div>
+      <div style="border:1.5px solid #e6e8ee;border-radius:15px;padding:18px;display:flex;align-items:center;gap:14px">
+        <span style="width:54px;height:54px;border-radius:50%;background:#1c2b4a;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff;flex:none">민</span>
+        <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+          <span style="font-size:16px;font-weight:800;white-space:nowrap">김민준</span>
+          <span style="font-size:12.5px;color:#5b6577;white-space:nowrap">FW · 등번호 9 · 2012년생 · U15</span>
+          <span style="font-size:12px;color:#8a93a6;white-space:nowrap">FC 한강 유나이티드</span>
+        </span>
+        <span style="font-size:10.5px;font-weight:700;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 10px;white-space:nowrap">미연결</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:12.5px;font-weight:800;color:#3c465a">자녀와의 관계</span>
+        <div style="display:flex;gap:8px">
+          <sc-for list="{{ relations }}" as="r" hint-placeholder-count="3">
+            <button onClick="{{ r.go }}" style="{{ r.style }}">{{ r.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#f8f9fb;border-radius:11px;padding:12px 15px;font-size:12px;color:#5b6577;line-height:1.6;word-break:keep-all">
+        연결 요청을 보내면 팀 관리자가 확인 후 승인해요. 승인되면 <b>프로필 관리 권한이 보호자에게 넘어오고</b>, 팀은 더 이상 정보를 수정할 수 없어요.
+      </div>
+      <button onClick="{{ toPending }}" style="height:50px;border:0;border-radius:12px;background:#FF6B35;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 5px 16px rgba(255,107,53,.32)" style-hover="background:#e85a26">연결 요청 보내기</button>
+      <button onClick="{{ toCode }}" style="height:42px;border:0;background:none;font-size:13px;font-weight:700;color:#8a93a6;cursor:pointer;font-family:inherit">내 자녀가 아니에요 — 코드 다시 입력</button>
+    </div>
+    </sc-if>
+
+    <!-- ── STEP 3: 승인 대기 ── -->
+    <sc-if value="{{ isPending }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:34px 22px 30px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center">
+      <span style="width:64px;height:64px;border-radius:50%;background:#fff0e9;display:flex;align-items:center;justify-content:center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+      </span>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <h1 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-.02em">승인을 기다리고 있어요</h1>
+        <p style="margin:0;font-size:13.5px;color:#5b6577;line-height:1.65;word-break:keep-all">FC 한강 유나이티드 관리자에게 요청을 보냈어요.<br>승인되면 알림으로 알려드릴게요. 보통 1~2일 안에 처리돼요.</p>
+      </div>
+      <div style="width:100%;border:1.5px solid #e6e8ee;border-radius:13px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left">
+        <span style="width:40px;height:40px;border-radius:50%;background:#1c2b4a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex:none">민</span>
+        <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
+          <span style="font-size:13.5px;font-weight:800;white-space:nowrap">김민준 · 보호자(어머니)</span>
+          <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">7/15 오전 10:24 요청</span>
+        </span>
+        <span style="font-size:10.5px;font-weight:700;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:3px 10px;white-space:nowrap">승인 대기</span>
+      </div>
+      <button onClick="{{ toManagerView }}" style="height:46px;width:100%;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap" style-hover="border-color:#23408e;color:#23408e">(프로토타입) 팀 관리자 시점으로 →</button>
+    </div>
+    </sc-if>
+
+    <!-- ── STEP 4: 연결 완료 ── -->
+    <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:34px 22px 30px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center">
+      <span style="width:64px;height:64px;border-radius:50%;background:rgba(46,196,182,.14);display:flex;align-items:center;justify-content:center">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2EC4B6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"></path></svg>
+      </span>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <h1 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-.02em">김민준 선수와 연결됐어요</h1>
+        <p style="margin:0;font-size:13.5px;color:#5b6577;line-height:1.65;word-break:keep-all">이제 보호자님이 프로필의 주인이에요.<br>공개 범위를 확인하고 포트폴리오를 채워보세요.</p>
+      </div>
+      <div style="width:100%;display:flex;flex-direction:column;gap:8px;text-align:left">
+        <div style="display:flex;align-items:center;gap:10px;border:1.5px solid #e6e8ee;border-radius:12px;padding:13px 15px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 4v10M8 10l4 4 4-4"></path><path d="M5 19h14"></path></svg>
+          <span style="font-size:12.5px;color:#3c465a;word-break:keep-all"><b>항목별 공개 설정</b> — 키·몸무게·학교 공개 여부를 정하세요</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;border:1.5px solid #e6e8ee;border-radius:12px;padding:13px 15px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="3" y="5" width="18" height="14.5" rx="3"></rect><path d="M10 9.5l5 3-5 3z"></path></svg>
+          <span style="font-size:12.5px;color:#3c465a;word-break:keep-all"><b>대표 영상 등록</b> — 공개 프로필 첫 화면에 노출돼요</span>
+        </div>
+      </div>
+      <button style="height:50px;width:100%;border:0;border-radius:12px;background:#FF6B35;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 5px 16px rgba(255,107,53,.32)" style-hover="background:#e85a26">선수 대시보드로 가기</button>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</sc-if>
+
+<!-- ═══════ 팀 관리자 시점: 알림 센터 ═══════ -->
+<sc-if value="{{ isManager }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="알림 센터 (팀 관리자)" style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px">
+  <div style="background:#fdfdfc;border-radius:20px;box-shadow:0 12px 40px rgba(28,43,74,.12);overflow:hidden;display:flex;flex-direction:column">
+    <div style="background:#1c2b4a;padding:14px 20px;display:flex;align-items:center;gap:10px">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+      <span style="font-size:15px;font-weight:800;color:#fff">알림</span>
+      <span style="font-size:11px;font-weight:800;color:#fff;background:#FF6B35;border-radius:99px;padding:1px 8px">3</span>
+      <div style="flex:1"></div>
+      <span style="font-size:11.5px;color:rgba(255,255,255,.55);white-space:nowrap">FC 한강 유나이티드</span>
+    </div>
+
+    <div style="display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid #f1f3f8">
+      <span style="height:30px;display:flex;align-items:center;padding:0 13px;border-radius:99px;font-size:11.5px;font-weight:700;background:#23408e;color:#fff;white-space:nowrap">전체 3</span>
+      <span style="height:30px;display:flex;align-items:center;padding:0 13px;border-radius:99px;font-size:11.5px;font-weight:700;border:1.5px solid #e6e8ee;color:#5b6577;white-space:nowrap">연결 요청 1</span>
+      <span style="height:30px;display:flex;align-items:center;padding:0 13px;border-radius:99px;font-size:11.5px;font-weight:700;border:1.5px solid #e6e8ee;color:#5b6577;white-space:nowrap">모집 2</span>
+    </div>
+
+    <!-- Claim 승인 카드 -->
+    <div style="padding:16px;border-bottom:1px solid #f1f3f8;display:flex;flex-direction:column;gap:12px;background:{{ claimCardBg }}">
+      <div style="display:flex;align-items:flex-start;gap:11px">
+        <span style="width:38px;height:38px;border-radius:50%;background:#fff0e9;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+          <span style="font-size:13.5px;font-weight:800;word-break:keep-all">프로필 연결 요청</span>
+          <span style="font-size:12.5px;color:#3c465a;line-height:1.55;word-break:keep-all"><b>김OO 님(어머니)</b>이 <b>김민준</b>(FW · #9 · U15) 프로필 연결을 요청했어요</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">초대코드 HG26-K9 사용 · 10분 전</span>
+        </span>
+      </div>
+      <sc-if value="{{ notApproved }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;gap:8px">
+          <button onClick="{{ approve }}" style="flex:1;height:42px;border:0;border-radius:10px;background:#2EC4B6;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap" style-hover="background:#25a396">승인</button>
+          <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#5b6577;cursor:pointer;font-family:inherit;white-space:nowrap">거절</button>
+        </div>
+        <span style="font-size:11px;color:#8a93a6;word-break:keep-all">승인하면 프로필 관리 권한이 보호자에게 이전돼요. 이후 팀은 소속·등번호만 관리해요.</span>
+      </sc-if>
+      <sc-if value="{{ approved }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(46,196,182,.1);border-radius:10px;padding:11px 14px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1b8579" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4.5 12.5l5 5 10-11"></path></svg>
+          <span style="font-size:12.5px;font-weight:700;color:#1b8579;word-break:keep-all">승인 완료 — 김민준 선수가 Claimed 상태가 됐어요</span>
+        </div>
+        <button onClick="{{ toParentDone }}" style="height:42px;border:1.5px solid #e6e8ee;border-radius:10px;background:#fff;font-size:12.5px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap" style-hover="border-color:#23408e;color:#23408e">(프로토타입) 보호자 완료 화면으로 →</button>
+      </sc-if>
+    </div>
+
+    <!-- 기타 알림 -->
+    <div style="padding:15px 16px;border-bottom:1px solid #f1f3f8;display:flex;align-items:flex-start;gap:11px;opacity:.85">
+      <span style="width:38px;height:38px;border-radius:50%;background:#f1f3f8;display:flex;align-items:center;justify-content:center;flex:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5v3h3.5l9.5 5v-13l-9.5 5z"></path><path d="M19.5 9.5a4 4 0 0 1 0 5"></path></svg>
+      </span>
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+        <span style="font-size:13px;font-weight:800;word-break:keep-all">모집 공고 새 지원자</span>
+        <span style="font-size:12.5px;color:#3c465a;line-height:1.55;word-break:keep-all"><b>조은호</b> 님이 U15 공격수 모집에 지원했어요</span>
+        <span style="font-size:11px;color:#8a93a6;white-space:nowrap">2시간 전</span>
+      </span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b6bdc9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:12px"><path d="M9 6l6 6-6 6"></path></svg>
+    </div>
+    <div style="padding:15px 16px;display:flex;align-items:flex-start;gap:11px;opacity:.85">
+      <span style="width:38px;height:38px;border-radius:50%;background:rgba(109,75,216,.1);display:flex;align-items:center;justify-content:center;flex:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d4bd8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M15.5 9.5l2 2 4-4.5"></path></svg>
+      </span>
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+        <span style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;font-weight:800;word-break:keep-all">에이전트 추천 도착</span><span style="font-size:9.5px;font-weight:700;color:#6d4bd8;background:rgba(109,75,216,.1);border:1px solid rgba(109,75,216,.3);border-radius:99px;padding:1px 7px;white-space:nowrap">에이전트</span></span>
+        <span style="font-size:12.5px;color:#3c465a;line-height:1.55;word-break:keep-all"><b>문재이</b> 선수(FW · 중2)가 추천됐어요 — 스피드 강점</span>
+        <span style="font-size:11px;color:#8a93a6;white-space:nowrap">어제</span>
+      </span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b6bdc9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:12px"><path d="M9 6l6 6-6 6"></path></svg>
+    </div>
+  </div>
+  <span style="font-size:11.5px;color:#8a93a6;text-align:center;word-break:keep-all">알림 센터는 팀·선수 대시보드 GNB 벨 아이콘에서 열리는 공통 패널이에요</span>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:460,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { role: 'parent', step: 'code', relation: '어머니', approved: false };
+
+  renderVals() {
+    const s = this.state;
+    const roleBtn = on =>
+      'height:32px;padding:0 14px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border:1.5px solid ' +
+      (on ? '#2EC4B6;background:#2EC4B6;color:#fff' : 'rgba(255,255,255,.25);background:none;color:rgba(255,255,255,.75)');
+    const stepBtn = on =>
+      'border:0;background:none;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 9px;border-radius:99px;white-space:nowrap;' +
+      (on ? 'background:#23408e;color:#fff' : 'color:#8a93a6');
+    const relBtn = on =>
+      'flex:1;height:40px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border:1.5px solid ' +
+      (on ? '#23408e;background:#23408e;color:#fff' : '#e6e8ee;background:#fff;color:#5b6577');
+
+    const stepDefs = [['code', '① 코드'], ['confirm', '② 확인'], ['pending', '③ 대기'], ['done', '④ 완료']];
+    const code = 'HG26K9';
+
+    return {
+      isParent: s.role === 'parent',
+      isManager: s.role === 'manager',
+      roleParent: () => this.setState({ role: 'parent' }),
+      roleManager: () => this.setState({ role: 'manager' }),
+      roleParentStyle: roleBtn(s.role === 'parent'),
+      roleManagerStyle: roleBtn(s.role === 'manager'),
+
+      steps: stepDefs.map(([id, label], i) => ({
+        label, go: () => this.setState({ step: id }), style: stepBtn(s.step === id),
+        hasArrow: i < stepDefs.length - 1,
+      })),
+      isCode: s.step === 'code',
+      isConfirm: s.step === 'confirm',
+      isPending: s.step === 'pending',
+      isDone: s.step === 'done',
+      toCode: () => this.setState({ step: 'code' }),
+      toConfirm: () => this.setState({ step: 'confirm' }),
+      toPending: () => this.setState({ step: 'pending' }),
+      toManagerView: () => this.setState({ role: 'manager' }),
+
+      codeChars: code.split('').map((ch, i) => ({
+        ch,
+        style: 'width:46px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;letter-spacing:0;' +
+          (i < 4 ? 'border:1.5px solid #23408e;background:#f1f3f8;color:#1c2b4a' : 'border:1.5px solid #e6e8ee;background:#fff;color:#b6bdc9'),
+      })),
+
+      relations: ['어머니', '아버지', '기타 보호자'].map(r => ({
+        label: r, go: () => this.setState({ relation: r }), style: relBtn(s.relation === r),
+      })),
+
+      notApproved: !s.approved,
+      approved: s.approved,
+      approve: () => this.setState({ approved: true }),
+      claimCardBg: s.approved ? '#fdfdfc' : '#fffdfb',
+      toParentDone: () => this.setState({ role: 'parent', step: 'done' }),
+    };
+  }
+}
+</script>
+</body>
+</html>
