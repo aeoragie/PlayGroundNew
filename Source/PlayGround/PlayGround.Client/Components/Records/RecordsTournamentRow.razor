@@ -1,0 +1,55 @@
+@* 대회/리그 목록 행 — 상태 컬러 바 + 범위 뱃지 + 대회명 + 형식·팀수 + 상태 뱃지.
+   PC 1줄 / 모바일 2줄(이름 위, 뱃지·메타 아래). 종료 행은 opacity .55. 상세는 후속(3단계) 연결 *@
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Records
+
+<div class="@($"w-full border-b border-surface-soft px-4 md:pl-4 md:pr-[22px] py-3 flex items-center gap-[11px] {(Status == SoccerTournamentStatus.Completed ? "opacity-55" : "")}")">
+    <span class="@($"w-1 h-[26px] rounded-full shrink-0 {BarClass}")"></span>
+    <span class="@($"hidden md:inline-flex {ScopeBadgeClass}")">@ScopeLabel(Tournament)</span>
+    <div class="flex-1 min-w-0 flex flex-col gap-1.5 md:flex-row md:items-center md:gap-[11px]">
+        <span class="text-[13.5px] font-bold text-navy-deep break-keep md:flex-1 md:min-w-0">@Tournament.Name</span>
+        <div class="flex items-center gap-[7px] md:contents">
+            <span class="@($"md:hidden {ScopeBadgeClass}")">@ScopeLabel(Tournament)</span>
+            <span class="text-[10.5px] font-bold text-text-muted border border-border rounded-full px-[9px] py-0.5 whitespace-nowrap shrink-0">@FormatLabel</span>
+            @if (Tournament.TeamCount is not null)
+            {
+                <span class="text-xs text-text-muted whitespace-nowrap md:w-[38px] md:text-right">@(Tournament.TeamCount)팀</span>
+            }
+            <span class="@StatusBadgeClass">@Status.ToLabel()</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RecordsTournamentDto Tournament { get; set; } = new();
+
+    private SoccerTournamentStatus Status =>
+        Enum.TryParse(Tournament.Status, out SoccerTournamentStatus parsed) ? parsed : SoccerTournamentStatus.Completed;
+
+    private string FormatLabel =>
+        Enum.TryParse(Tournament.Format, out SoccerTournamentFormat parsed) ? parsed.ToLabel() : Tournament.Format;
+
+    private string BarClass => Status switch
+    {
+        SoccerTournamentStatus.InProgress => "bg-teal",
+        SoccerTournamentStatus.Scheduled => "bg-navy",
+        _ => "bg-border",
+    };
+
+    private string StatusBadgeClass =>
+        "text-[11px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap shrink-0 " +
+        (Status == SoccerTournamentStatus.InProgress ? "text-white bg-teal" : "text-navy bg-surface-icon") +
+        (Status == SoccerTournamentStatus.Completed ? " !text-text-muted" : "");
+
+    private string ScopeBadgeClass =>
+        "text-[10.5px] font-bold rounded-md px-[9px] py-[3px] whitespace-nowrap shrink-0 " +
+        (Tournament.Scope == "National" ? "text-orange-ink bg-surface-orange" : "text-navy bg-surface-icon");
+
+    // "전국" / "전국/부산" / "지방/서울" — 범위 + 지역
+    internal static string ScopeLabel(RecordsTournamentDto tournament)
+    {
+        string baseLabel = tournament.Scope == "National" ? "전국" : "지방";
+        return tournament.RegionGroup is null ? baseLabel : $"{baseLabel}/{tournament.RegionGroup}";
+    }
+}

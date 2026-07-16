@@ -1,0 +1,219 @@
+@* 경기기록 목록 — SPEC.RECORDS.md §목록 + README 설계 결정(올해만·상태 색 표시·내 연령 우선·대회|리그 세그먼트).
+   비로그인 전면 공개. 내 연령 개인화는 로그인 + 선수(보호자) 계정일 때만 *@
+@attribute [Route(Routes.Records)]
+@using PlayGround.Client.Components.Records
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Player
+@using PlayGround.Contracts.Records
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject RecordsClient Records
+@inject PlayerClient Players
+@inject NavigationManager Nav
+
+<PageTitle>경기기록 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
+    <RecordsGnb UserLabel="@mUserLabel" UserInitial="@mUserInitial" />
+
+    <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-6 pb-20 flex flex-col gap-3.5">
+        <div class="flex items-center gap-3.5 flex-wrap">
+            <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em] whitespace-nowrap">@(mSeasonYear) 시즌</h1>
+            <div class="flex bg-surface-segment rounded-[11px] p-[3px] gap-[3px] w-full order-last md:w-auto md:order-none">
+                <button type="button" class="@SegmentClass(isLeague: false)" @onclick="() => SwitchSegment(isLeague: false)">대회</button>
+                <button type="button" class="@SegmentClass(isLeague: true)" @onclick="() => SwitchSegment(isLeague: true)">리그</button>
+            </div>
+            <div class="flex-1"></div>
+            <div class="hidden md:flex items-center gap-[9px] bg-white border-1.5 border-border rounded-[11px] px-[15px] h-[42px] w-[260px]">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-text-muted shrink-0"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+                <input class="w-full min-w-0 border-0 outline-none bg-transparent text-[13px] text-navy-deep placeholder:text-text-muted"
+                       placeholder="대회 · 팀 · 선수 검색" @bind="mSearch" @bind:event="oninput" />
+            </div>
+            <a href="@Routes.RecordsArchive" class="flex items-center gap-1.5 text-[12.5px] font-bold text-navy whitespace-nowrap">지난 시즌 기록
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+            </a>
+        </div>
+
+        @* 상태 범례 + 내 연령 토글 (토글은 내 연령이 있을 때만) *@
+        <div class="flex items-center gap-3.5 flex-wrap">
+            <div class="flex gap-3.5 text-[11.5px] text-text-muted items-center flex-wrap">
+                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-teal"></span>진행중</span>
+                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-navy"></span>예정</span>
+                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-border"></span>종료</span>
+                <span class="whitespace-nowrap">진행중 → 예정 → 종료 순 자동 정렬</span>
+            </div>
+            <div class="flex-1"></div>
+            @if (mMyAge is not null)
+            {
+                <button type="button" class="@MyAgeToggleClass" @onclick="() => mMyAgeOnly = !mMyAgeOnly">내 연령(@mMyAge)만 보기</button>
+            }
+        </div>
+
+        @* 연령 아코디언 *@
+        <div class="flex flex-col gap-2.5">
+            @foreach (string age in VisibleAges)
+            {
+                bool isMine = age == mMyAge;
+                bool isOpen = mOpenAges.GetValueOrDefault(age);
+                List<RecordsTournamentDto> items = ItemsOf(age);
+                <div class="@($"bg-white border-1.5 rounded-[14px] overflow-hidden {(isMine ? "border-teal/45" : "border-border")}")">
+                    <button type="button" class="w-full px-4 md:px-[22px] py-4 flex items-center gap-3 text-left"
+                            @onclick="() => ToggleAge(age)">
+                        <span class="text-[15.5px] font-extrabold text-navy-deep w-11">@age</span>
+                        @if (isMine)
+                        {
+                            <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] border border-teal/35 rounded-full px-[9px] py-0.5 whitespace-nowrap">내 연령</span>
+                        }
+                        <span class="text-xs text-text-muted whitespace-nowrap">@AgeDescription(age)</span>
+                        <div class="flex-1"></div>
+                        <span class="text-[11.5px] font-bold text-navy bg-surface-icon rounded-full px-[11px] py-[3px] whitespace-nowrap">@(items.Count)개</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="@($"text-text-muted shrink-0 transition-transform {(isOpen ? "rotate-180" : "")}")"><path d="M6 9l6 6 6-6"></path></svg>
+                    </button>
+                    @if (isOpen)
+                    {
+                        <div class="border-t border-surface-icon flex flex-col">
+                            @foreach ((string? label, List<RecordsTournamentDto> sectionItems) in SectionsOf(items))
+                            {
+                                @if (label is not null)
+                                {
+                                    <div class="px-4 md:px-[22px] py-[9px] bg-surface-soft text-[11.5px] font-extrabold text-text-muted border-b border-surface-icon">@label</div>
+                                }
+                                @foreach (RecordsTournamentDto tournament in sectionItems)
+                                {
+                                    <RecordsTournamentRow Tournament="@tournament" />
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </main>
+
+    <footer class="border-t border-border bg-white px-4 md:px-8 py-6">
+        <div class="max-w-[1100px] mx-auto flex items-center gap-3.5 flex-wrap">
+            <span class="text-xs text-text-muted break-keep">경기기록은 누구에게나 무료로 공개됩니다</span>
+            <div class="flex-1"></div>
+            <span class="text-[11.5px] text-text-faint whitespace-nowrap">출처: KFA 공식 · 대회 주최자 입력 · 팀 입력</span>
+        </div>
+    </footer>
+</div>
+
+@code {
+    private static readonly string[] AgeOrder = ["U18", "U15", "U12"];
+
+    private int mSeasonYear = DateTime.Now.Year;
+    private RecordsTournamentsResponse? mData;
+    private bool mIsLeagueSegment;
+    private string mSearch = string.Empty;
+    private bool mMyAgeOnly;
+    private string? mMyAge;
+    private string? mUserLabel;
+    private string? mUserInitial;
+    private readonly Dictionary<string, bool> mOpenAges = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 공개 화면 — 인증은 선택. 토큰이 있으면 상태를 확정하고 내 연령(자녀) 개인화를 시도한다.
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is { IsAuthenticated: true })
+        {
+            PlayerInfoResponse? info = await Players.GetMyInfoAsync();
+            if (info?.Profile.AgeGroup is not null)
+            {
+                mMyAge = info.Profile.AgeGroup;
+                string? guardian = info.Family.FirstOrDefault(f => f.Role == "Guardian")?.MemberName;
+                if (guardian is not null)
+                {
+                    mUserLabel = $"{guardian} 님 · {mMyAge} 보호자";
+                    mUserInitial = guardian[..1];
+                }
+            }
+        }
+
+        mData = await Records.GetTournamentsAsync(mSeasonYear);
+
+        // 내 연령은 자동 펼침, 비로그인·연령 없음은 첫 연령 펼침
+        string? openFirst = mMyAge ?? VisibleAges.FirstOrDefault();
+        if (openFirst is not null)
+        {
+            mOpenAges[openFirst] = true;
+        }
+    }
+
+    // 세그먼트: 대회 = Cup+Split, 리그 = League
+    private List<RecordsTournamentDto> SegmentItems =>
+        (mData?.Tournaments ?? new List<RecordsTournamentDto>())
+        .Where(t => mIsLeagueSegment == (t.Format == nameof(SoccerTournamentFormat.League)))
+        .Where(t => mSearch.Length == 0 || t.Name.Contains(mSearch, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    // 내 연령 최상단, 나머지는 연령 내림차순(U18 → U12)
+    private List<string> VisibleAges
+    {
+        get
+        {
+            List<string> ages = SegmentItems
+                .Select(t => t.AgeGroup)
+                .Distinct()
+                .OrderBy(a => a == mMyAge ? 0 : 1)
+                .ThenByDescending(a => Array.IndexOf(AgeOrder, a) < 0 ? a : AgeOrder[Array.IndexOf(AgeOrder, a)], StringComparer.Ordinal)
+                .ToList();
+            return mMyAgeOnly && mMyAge is not null ? ages.Where(a => a == mMyAge).ToList() : ages;
+        }
+    }
+
+    private List<RecordsTournamentDto> ItemsOf(string age)
+    {
+        return SegmentItems
+            .Where(t => t.AgeGroup == age)
+            .OrderBy(t => Enum.TryParse(t.Status, out SoccerTournamentStatus status) ? status.SortOrder() : 2)
+            .ThenBy(t => t.Name, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    // 리그 세그먼트는 지역 그룹 헤더로 묶는다 (대회 세그먼트는 헤더 없음)
+    private List<(string? Label, List<RecordsTournamentDto> Items)> SectionsOf(List<RecordsTournamentDto> items)
+    {
+        if (!mIsLeagueSegment)
+        {
+            return [(null, items)];
+        }
+
+        return items
+            .GroupBy(t => t.RegionGroup ?? "기타")
+            .Select(g => ((string?)g.Key, g.ToList()))
+            .ToList();
+    }
+
+    private static string AgeDescription(string age) => age switch
+    {
+        "U18" => "고등 · 17~18세",
+        "U15" => "중등 · 14~15세",
+        _ => "초등 · 11~12세",
+    };
+
+    private void ToggleAge(string age)
+    {
+        mOpenAges[age] = !mOpenAges.GetValueOrDefault(age);
+    }
+
+    // 세그먼트 전환 — 전부 접힌 채 보이지 않도록 첫 연령(내 연령 우선)을 펼친다
+    private void SwitchSegment(bool isLeague)
+    {
+        mIsLeagueSegment = isLeague;
+        string? first = VisibleAges.FirstOrDefault();
+        if (first is not null && !mOpenAges.GetValueOrDefault(first))
+        {
+            mOpenAges[first] = true;
+        }
+    }
+
+    private string SegmentClass(bool isLeague) =>
+        "flex-1 md:flex-none px-[18px] h-9 rounded-[9px] text-[13px] font-bold whitespace-nowrap transition-colors " +
+        (mIsLeagueSegment == isLeague ? "bg-navy text-white" : "text-text-body");
+
+    private string MyAgeToggleClass =>
+        "h-9 px-3.5 rounded-full text-xs font-bold whitespace-nowrap border-1.5 transition-colors " +
+        (mMyAgeOnly ? "border-teal/45 bg-teal/[.12] text-teal-ink" : "border-border bg-white text-text-body");
+}

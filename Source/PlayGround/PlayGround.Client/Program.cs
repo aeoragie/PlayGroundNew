@@ -14,6 +14,7 @@ builder.Services.AddScoped<LandingContentClient>();
 builder.Services.AddScoped<PlayerClient>();
 builder.Services.AddScoped<TeamClient>();
 builder.Services.AddScoped<AuthClient>();
+builder.Services.AddScoped<RecordsClient>();
 builder.Services.AddScoped<OnboardingState>();
 
 builder.Services.AddAuthorizationCore();

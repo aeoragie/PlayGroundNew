@@ -68,12 +68,24 @@
 
 ### 다음 작업 (우선순위)
 
-1. **Records 구현 계속** — 스키마는 완료(아래). 다음 = `/records` **목록+아카이브** 화면
-   (공개 AllowAnonymous, 조회 프로시저 → API → Blazor. `Handoff/Design.Records/` SPEC·설계
-   결정 5개 필독) → 상세(형식별 가변 탭) → 팀 대시보드 경기 결과·영상 연동 → 선수 시즌 통계
-   → 공개 홈 시즌성적. 단계별 검수 (구현 순서: `Docs/Architecture/MatchSchemaDesign.md` §6).
+1. **Records 구현 계속** — 스키마·목록+아카이브 완료(아래). 다음 = **상세 화면**
+   (`/records/{id}` — Format별 가변 탭: 대회 정보/조별·1차·2차/토너먼트/리그 경기/미디어.
+   `Handoff/Design.Records/` SPEC·설계 결정 5개 필독) → 팀 대시보드 경기 결과·영상 연동
+   → 선수 시즌 통계 → 공개 홈 시즌성적. 단계별 검수 (`Docs/Architecture/MatchSchemaDesign.md` §6).
+   목록 행 클릭 → 상세 링크는 상세 구현 때 연결(현재 비활성).
 2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
    커리어·포트폴리오 입력(추가/수정) UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+
+### Records 목록+아카이브 — 완료 (2026-07-15)
+
+- `/records`(목록)·`/records/archive`(아카이브) — `UspGetSoccerTournamentsBySeason`(3결과셋:
+  대회+Champion 수상+연도 목록) → `GET api/soccer/records/tournaments?season=`(AllowAnonymous,
+  Soccer_Records 읽기 액터) → RecordsPage/RecordsArchivePage + RecordsGnb/RecordsTournamentRow.
+- 설계 결정 반영: 올해만+아카이브 분리 / 상태 컬러 바+진행중→예정→종료 자동 정렬 / 내 연령
+  우선 배치(로그인 Player 계정의 AgeGroup — 최상단·자동 펼침·teal 테두리·"내 연령(U15)만 보기"
+  opt-in 토글, 비로그인은 개인화 요소 전체 숨김) / [대회|리그] 세그먼트(대회=Cup+Split,
+  리그=League + 지역 그룹 헤더). 세그먼트 전환 시 첫 연령 자동 펼침. 검색은 대회명 필터만(팀·선수는 후속).
+- 공개 팀 홈 GNB "경기기록" 링크 → `/records` 실링크 연결. 화면 검증 완료(PC·모바일·개인화).
 
 ### 경기(Match) 스키마 — 완료 (2026-07-15, 설계 문서 `Docs/Architecture/MatchSchemaDesign.md`)
 

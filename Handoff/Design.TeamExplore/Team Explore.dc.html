@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div data-screen-label="팀 탐색" style="min-height:100vh;background:#f4f6fa">
+
+<!-- ===== GNB ===== -->
+<header style="background:#fdfdfc;border-bottom:1px solid #e6e8ee;position:sticky;top:0;z-index:50">
+  <div style="max-width:1120px;margin:0 auto;padding:0 32px;height:60px;display:flex;align-items:center;gap:14px">
+    <a href="#" style="display:flex;align-items:baseline;gap:6px;white-space:nowrap">
+      <span style="font-size:17px;font-weight:800;letter-spacing:-.035em;color:#23408e">PlayGround</span>
+      <span style="font-size:17px;font-weight:700;letter-spacing:-.02em;color:#b6bdc9">Soccer</span>
+    </a>
+    <span style="width:1px;height:16px;background:#e6e8ee"></span>
+    <span style="font-size:13px;font-weight:700;color:#3c465a;white-space:nowrap">팀 탐색</span>
+    <div style="flex:1"></div>
+    <a href="#" style="font-size:13.5px;font-weight:700;color:#3c465a;white-space:nowrap">경기기록</a>
+    <a href="#" style="font-size:13.5px;font-weight:700;color:#fff;background:#23408e;padding:9px 18px;border-radius:9px;white-space:nowrap" style-hover="background:#1c2b4a;color:#fff">로그인</a>
+  </div>
+</header>
+
+<main style="max-width:1120px;margin:0 auto;padding:28px 32px 70px;display:flex;flex-direction:column;gap:18px">
+
+  <!-- 헤더 + 검색 -->
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h1 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em;white-space:nowrap">우리 지역 팀 찾기</h1>
+      <span style="font-size:13px;color:#5b6577;word-break:keep-all">홈페이지·리뷰·성적을 비교하고 정보로 결정하세요</span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:280px;display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #e6e8ee;border-radius:12px;padding:0 16px;height:48px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <span style="font-size:14px;color:#8a93a6;white-space:nowrap">팀 이름으로 검색</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <sc-for list="{{ sorts }}" as="so" hint-placeholder-count="3">
+          <button onClick="{{ so.go }}" style="{{ so.style }}">{{ so.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- 필터 바 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:14px;padding:14px 18px;display:flex;flex-direction:column;gap:11px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:11.5px;font-weight:800;color:#8a93a6;width:34px;white-space:nowrap">연령</span>
+      <sc-for list="{{ ageFilters }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</button>
+      </sc-for>
+      <span style="width:1px;height:18px;background:#e6e8ee;margin:0 4px"></span>
+      <span style="font-size:11.5px;font-weight:800;color:#8a93a6;white-space:nowrap">지역</span>
+      <sc-for list="{{ regionFilters }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:11.5px;font-weight:800;color:#8a93a6;width:34px;white-space:nowrap">유형</span>
+      <sc-for list="{{ typeFilters }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</button>
+      </sc-for>
+      <span style="width:1px;height:18px;background:#e6e8ee;margin:0 4px"></span>
+      <button onClick="{{ toggleVerified }}" style="{{ verifiedStyle }}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5 9-10"></path></svg>인증팀만
+      </button>
+      <button onClick="{{ toggleRecruiting }}" style="{{ recruitingStyle }}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>모집중만
+      </button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:13px;font-weight:700;color:#3c465a;white-space:nowrap">{{ resultCount }}개 팀</span>
+    <span style="font-size:12px;color:#8a93a6;word-break:keep-all">{{ resultDesc }}</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px">
+    <sc-for list="{{ teams }}" as="t" hint-placeholder-count="6">
+      <a href="#" style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;color:inherit" style-hover="border-color:#23408e;box-shadow:0 8px 24px rgba(28,43,74,.08);color:inherit">
+        <div style="height:64px;background:{{ t.cover }};position:relative;margin-bottom:26px">
+          <sc-if value="{{ t.photo }}" hint-placeholder-val="{{ false }}">
+            <img src="{{ t.photo }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            <span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,43,74,.08),rgba(28,43,74,.35))"></span>
+          </sc-if>
+          <sc-if value="{{ t.recruiting }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;top:10px;right:12px;font-size:10.5px;font-weight:700;color:#fff;background:#FF6B35;border-radius:99px;padding:3px 10px;white-space:nowrap">모집중</span>
+          </sc-if>
+        </div>
+        <div style="padding:0 18px 18px;display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;align-items:flex-end;gap:12px;margin-top:-26px;position:relative">
+            <span style="width:52px;height:52px;border-radius:14px;background:#1c2b4a;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex:none;box-shadow:0 3px 10px rgba(28,43,74,.15)">{{ t.initial }}</span>
+            <span style="display:flex;flex-direction:column;gap:1px;min-width:0;padding-top:30px">
+              <span style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:15.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.name }}</span>
+                <sc-if value="{{ t.verified }}" hint-placeholder-val="{{ true }}">
+                  <span style="font-size:10px;font-weight:700;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:2px 8px;white-space:nowrap;flex:none">✓ 인증팀</span>
+                </sc-if>
+              </span>
+              <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">{{ t.meta }}</span>
+            </span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ t.values }}" as="v" hint-placeholder-count="2">
+              <span style="font-size:11px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.1);border-radius:99px;padding:3px 10px;white-space:nowrap">{{ v }}</span>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:7px">
+            <span style="flex:1;background:#f8f9fb;border-radius:9px;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:1px">
+              <span style="font-size:13.5px;font-weight:800;white-space:nowrap">{{ t.record }}</span>
+              <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">올해 전적</span>
+            </span>
+            <span style="flex:1;background:#f8f9fb;border-radius:9px;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:1px">
+              <span style="font-size:13.5px;font-weight:800;white-space:nowrap">{{ t.players }}명</span>
+              <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">선수단</span>
+            </span>
+            <span style="flex:1;background:#f8f9fb;border-radius:9px;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:1px">
+              <span style="display:flex;align-items:center;gap:3px;font-size:13.5px;font-weight:800;white-space:nowrap"><svg width="12" height="12" viewBox="0 0 24 24" fill="#FF6B35"><path d="M12 2l2.9 6.3 6.6.8-4.9 4.6 1.3 6.6-5.9-3.4-5.9 3.4 1.3-6.6-4.9-4.6 6.6-.8z"></path></svg>{{ t.rating }}</span>
+              <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">리뷰 {{ t.reviews }}</span>
+            </span>
+          </div>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+
+  <!-- 팀 획득 훅 -->
+  <div style="background:linear-gradient(160deg,#1c2b4a,#23408e);border-radius:18px;padding:32px 36px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-90px;right:-70px;width:240px;height:240px;border:1.5px solid rgba(255,255,255,.08);border-radius:50%"></div>
+    <span style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:260px;position:relative">
+      <span style="font-size:19px;font-weight:800;color:#fff;word-break:keep-all">우리 팀이 아직 없나요?</span>
+      <span style="font-size:13.5px;color:rgba(255,255,255,.68);word-break:keep-all">팀을 등록하면 홈페이지가 자동으로 생성되고, 학부모들이 이 목록에서 찾을 수 있어요.</span>
+    </span>
+    <a href="#" style="position:relative;font-size:14.5px;font-weight:700;color:#fff;background:#FF6B35;padding:14px 28px;border-radius:11px;white-space:nowrap;box-shadow:0 5px 16px rgba(255,107,53,.32)" style-hover="background:#e85a26;color:#fff">팀 홈페이지 만들기</a>
+  </div>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { age: '전체', region: '전체', type: '전체', verified: false, recruiting: false, sort: '추천순' };
+
+  renderVals() {
+    const s = this.state;
+    const pill = on =>
+      'height:32px;padding:0 13px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border:1.5px solid ' +
+      (on ? '#23408e;background:#23408e;color:#fff' : '#e6e8ee;background:#fff;color:#5b6577');
+    const togglePill = on =>
+      'height:32px;padding:0 13px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:5px;border:1.5px solid ' +
+      (on ? 'rgba(46,196,182,.5);background:rgba(46,196,182,.12);color:#1b8579' : '#e6e8ee;background:#fff;color:#5b6577');
+    const mk = (key, vals) => vals.map(v => ({
+      label: v, go: () => this.setState({ [key]: v }), style: pill(s[key] === v),
+    }));
+
+    const all = [
+      { initial: '한', name: 'FC 한강 유나이티드', region: '서울', type: '클럽', age: 'U15', meta: '서울 강동 · 클럽 · U12–U15', values: ['기본기 우선', '전원 출전 보장'], record: '8승 2무 1패', players: 24, rating: '4.8', reviews: 12, verified: true, recruiting: true, photo: 'https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=800', cover: 'linear-gradient(160deg,#8fa0c8,#7288bd)' },
+      { initial: '강', name: '강동 리틀 FC', region: '서울', type: '학원', age: 'U12', meta: '서울 강동 · 축구교실 · U8–U12', values: ['즐거운 축구', '인성 교육'], record: '5승 4무 3패', players: 38, rating: '4.6', reviews: 21, verified: true, recruiting: false, cover: 'linear-gradient(160deg,#bfe2dd,#a3d8d1)' },
+      { initial: '송', name: '송파 FC', region: '서울', type: '클럽', age: 'U15', meta: '서울 송파 · 클럽 · U13–U15', values: ['공격 축구'], record: '7승 3무 2패', players: 21, rating: '4.4', reviews: 8, verified: false, recruiting: true, cover: 'linear-gradient(160deg,#d5cdec,#c4b8e5)' },
+      { initial: '풍', name: '풍생중 축구부', region: '경기', type: '학교', age: 'U15', meta: '경기 성남 · 학교 운동부 · U15', values: ['전국대회 상위권', '진학 실적'], record: '11승 1무 2패', players: 26, rating: '4.9', reviews: 15, verified: true, recruiting: false, cover: 'linear-gradient(160deg,#eed6c6,#e8c3ab)' },
+      { initial: '마', name: '마포 유나이티드', region: '서울', type: '클럽', age: 'U18', meta: '서울 마포 · 클럽 · U16–U18', values: ['대학 진학 중심'], record: '6승 2무 4패', players: 19, rating: '4.2', reviews: 6, verified: false, recruiting: true, cover: 'linear-gradient(160deg,#eed6c6,#e8c3ab)' },
+      { initial: '인', name: '인천 드림 SC', region: '인천', type: '클럽', age: 'U12', meta: '인천 연수 · 클럽 · U10–U12', values: ['체계적 훈련 일지'], record: '9승 1무 2패', players: 29, rating: '4.7', reviews: 18, verified: true, recruiting: true, photo: 'https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=800', cover: 'linear-gradient(160deg,#bfe2dd,#a3d8d1)' },
+    ];
+
+    const filtered = all.filter(t =>
+      (s.age === '전체' || t.age === s.age) &&
+      (s.region === '전체' || t.region === s.region) &&
+      (s.type === '전체' || t.type === s.type) &&
+      (!s.verified || t.verified) &&
+      (!s.recruiting || t.recruiting));
+    const sorted = filtered.slice().sort((a, b) => {
+      if (s.sort === '리뷰순') return parseFloat(b.rating) - parseFloat(a.rating);
+      if (s.sort === '선수단순') return b.players - a.players;
+      return 0;
+    });
+
+    const parts = [];
+    if (s.age !== '전체') parts.push(s.age);
+    if (s.region !== '전체') parts.push(s.region);
+    if (s.type !== '전체') parts.push(s.type);
+    if (s.verified) parts.push('인증팀');
+    if (s.recruiting) parts.push('모집중');
+
+    return {
+      ageFilters: mk('age', ['전체', 'U12', 'U15', 'U18']),
+      regionFilters: mk('region', ['전체', '서울', '경기', '인천']),
+      typeFilters: mk('type', ['전체', '클럽', '학교', '학원']),
+      sorts: ['추천순', '리뷰순', '선수단순'].map(v => ({
+        label: v, go: () => this.setState({ sort: v }), style: pill(s.sort === v),
+      })),
+      toggleVerified: () => this.setState(p => ({ verified: !p.verified })),
+      toggleRecruiting: () => this.setState(p => ({ recruiting: !p.recruiting })),
+      verifiedStyle: togglePill(s.verified),
+      recruitingStyle: togglePill(s.recruiting),
+      resultCount: sorted.length,
+      resultDesc: parts.length ? parts.join(' · ') + ' 조건' : '모든 지역·연령 표시 중 (로그인하면 자녀 연령·지역 우선으로 정렬돼요)',
+      teams: sorted.map(t => Object.assign({}, t, {
+        cover: t.verified ? 'linear-gradient(160deg,#8fa0c8,#7288bd)' : t.cover,
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

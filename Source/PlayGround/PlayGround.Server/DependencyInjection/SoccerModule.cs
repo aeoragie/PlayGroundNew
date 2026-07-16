@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PlayGround.Application.Landing.Commands;
 using PlayGround.Application.Player.Commands;
+using PlayGround.Application.Records.Commands;
 using PlayGround.Application.Team.Commands;
 using PlayGround.Persistence;
 
@@ -23,6 +24,7 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerTeamInfoCommand>();
             services.AddScoped<SoccerTeamRosterCommand>();
             services.AddScoped<SoccerTeamPublicHomeCommand>();
+            services.AddScoped<SoccerRecordsTournamentsCommand>();
             return services;
         }
     }

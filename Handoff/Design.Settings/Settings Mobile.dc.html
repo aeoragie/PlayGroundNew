@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+
+<div data-screen-label="설정 모바일" style="min-height:100vh;max-width:480px;margin:0 auto;background:#f4f6fa">
+
+<!-- ===== 상단 바 ===== -->
+<header style="background:#1c2b4a;position:sticky;top:0;z-index:50">
+  <div style="padding:0 16px;height:54px;display:flex;align-items:center;gap:10px">
+    <a href="#" aria-label="뒤로" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;margin-left:-6px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+    </a>
+    <span style="font-size:15px;font-weight:800;color:#fff">설정</span>
+    <div style="flex:1"></div>
+    <span style="width:32px;height:32px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex:none">김</span>
+  </div>
+  <!-- 세그먼트 탭 -->
+  <div style="display:flex;gap:2px;padding:0 12px;background:#1c2b4a">
+    <sc-for list="{{ menu }}" as="m" hint-placeholder-count="3">
+      <button onClick="{{ m.go }}" style="{{ m.style }}">{{ m.label }}</button>
+    </sc-for>
+  </div>
+</header>
+
+<main style="padding:16px 16px 60px;display:flex;flex-direction:column;gap:14px">
+
+  <!-- ── 계정 ── -->
+  <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="설정-계정(모바일)" style="display:flex;flex-direction:column;gap:14px">
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:13px">
+        <span style="width:50px;height:50px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex:none">김</span>
+        <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
+          <span style="font-size:15px;font-weight:800;white-space:nowrap">김OO</span>
+          <span style="font-size:12px;color:#8a93a6;white-space:nowrap">kim***@gmail.com</span>
+        </span>
+        <button style="height:36px;padding:0 14px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;font-size:12px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">이름 변경</button>
+      </div>
+      <div style="border-top:1px solid #f1f3f8;padding-top:14px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:12.5px;font-weight:800;color:#3c465a">연결된 로그인</span>
+        <div style="display:flex;align-items:center;gap:10px;border:1px solid #e6e8ee;border-radius:11px;padding:11px 13px">
+          <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2 3.7-5 3.7-8.6z"></path><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.7-2.9c-1 .7-2.4 1.2-4.2 1.2-3.1 0-5.8-2.1-6.7-5l-3.9 3C3.4 21.3 7.4 24 12 24z"></path><path fill="#FBBC05" d="M5.3 14.4c-.2-.7-.4-1.5-.4-2.4s.2-1.7.4-2.4l-3.9-3C.5 8.2 0 10 0 12s.5 3.8 1.4 5.4l3.9-3z"></path><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.6l3.9 3c.9-2.9 3.6-4.9 6.7-4.9z"></path></svg>
+          <span style="font-size:12.5px;font-weight:700;flex:1;white-space:nowrap">Google</span>
+          <span style="font-size:10px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap">연결됨</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;border:1px dashed #e6e8ee;border-radius:11px;padding:11px 13px">
+          <span style="width:17px;height:17px;border-radius:4px;background:#FEE500;display:flex;align-items:center;justify-content:center;flex:none"><svg width="10" height="10" viewBox="0 0 24 24"><path fill="#191919" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1.2 4.4c-.1.4.3.7.6.5l5.2-3.5c.2 0 .5.1.7.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"></path></svg></span>
+          <span style="font-size:12.5px;font-weight:700;color:#8a93a6;flex:1;white-space:nowrap">Kakao</span>
+          <button style="height:30px;padding:0 12px;border:1.5px solid #e6e8ee;border-radius:8px;background:#fff;font-size:11px;font-weight:700;color:#5b6577;cursor:pointer;font-family:inherit;white-space:nowrap">연결하기</button>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:12.5px;font-weight:800;color:#3c465a">계정 관리</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:700;white-space:nowrap">데이터 내려받기</span>
+          <span style="font-size:11px;color:#8a93a6;word-break:keep-all">자녀 프로필·기록 전체를 파일로 받아요</span>
+        </span>
+        <button style="height:34px;padding:0 14px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;font-size:11.5px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">요청</button>
+      </div>
+      <div style="border-top:1px solid #f1f3f8;padding-top:12px;display:flex;align-items:center;gap:10px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:700;color:#c0392b;white-space:nowrap">계정 삭제</span>
+          <span style="font-size:11px;color:#8a93a6;word-break:keep-all">자녀 프로필은 다른 보호자에게 이전하거나 함께 삭제돼요</span>
+        </span>
+        <button style="height:34px;padding:0 14px;border:1.5px solid #f2d5d0;border-radius:9px;background:#fff;font-size:11.5px;font-weight:700;color:#c0392b;cursor:pointer;font-family:inherit;white-space:nowrap">삭제</button>
+      </div>
+    </div>
+    <button style="height:46px;border:1.5px solid #e6e8ee;border-radius:12px;background:#fff;font-size:13px;font-weight:700;color:#c0392b;cursor:pointer;font-family:inherit;white-space:nowrap">로그아웃</button>
+  </div>
+  </sc-if>
+
+  <!-- ── 역할 ── -->
+  <sc-if value="{{ isRoles }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="설정-역할(모바일)" style="display:flex;flex-direction:column;gap:14px">
+    <span style="font-size:12px;color:#5b6577;word-break:keep-all">한 계정으로 여러 역할을 가질 수 있어요. 역할을 추가하면 대시보드 허브에서 전환합니다.</span>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:11px;border:1px solid #e6e8ee;border-radius:12px;padding:13px 14px">
+        <span style="width:38px;height:38px;border-radius:10px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c0-3.5 3-5.8 7-5.8s7 2.3 7 5.8"></path></svg>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13.5px;font-weight:800;white-space:nowrap">보호자</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">김민준(U15) · 김서연(U12)</span>
+        </span>
+        <span style="font-size:10px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap">사용 중</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:11px;border:1px solid #e6e8ee;border-radius:12px;padding:13px 14px">
+        <span style="width:38px;height:38px;border-radius:10px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13.5px;font-weight:800;white-space:nowrap">팀 관리자</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">FC 한강 유나이티드 · 감독</span>
+        </span>
+        <span style="font-size:10px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap">사용 중</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:11px;border:1px dashed #d5d9e2;border-radius:12px;padding:13px 14px;opacity:.75">
+        <span style="width:38px;height:38px;border-radius:10px;background:rgba(109,75,216,.08);display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6d4bd8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M15.5 9.5l2 2 4-4.5"></path></svg>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13.5px;font-weight:800;color:#5b6577;white-space:nowrap">에이전트</span>
+          <span style="font-size:11px;color:#8a93a6;word-break:keep-all">별도 서비스에서 운영돼요 · 준비 중</span>
+        </span>
+        <span style="font-size:10px;font-weight:700;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap">준비 중</span>
+      </div>
+      <button style="height:44px;border:1.5px dashed #d5d9e2;border-radius:11px;background:none;font-size:12.5px;font-weight:700;color:#8a93a6;cursor:pointer;font-family:inherit;white-space:nowrap">＋ 역할 추가</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ── 알림 ── -->
+  <sc-if value="{{ isNoti }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="설정-알림(모바일)" style="display:flex;flex-direction:column;gap:14px">
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:2px">
+      <span style="font-size:12.5px;font-weight:800;color:#3c465a;margin-bottom:8px">수신 방법</span>
+      <sc-for list="{{ channels }}" as="c" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f8f9fb">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+            <span style="font-size:13px;font-weight:700;white-space:nowrap">{{ c.label }}</span>
+            <span style="font-size:11px;color:#8a93a6;word-break:keep-all">{{ c.desc }}</span>
+          </span>
+          <button onClick="{{ c.toggle }}" style="{{ c.style }}"><span style="{{ c.knob }}"></span></button>
+        </div>
+      </sc-for>
+    </div>
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:2px">
+      <span style="font-size:12.5px;font-weight:800;color:#3c465a;margin-bottom:8px">알림 항목</span>
+      <sc-for list="{{ notiItems }}" as="n" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #f8f9fb">
+          <span style="{{ n.chip }}">{{ n.cat }}</span>
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+            <span style="font-size:13px;font-weight:700;word-break:keep-all">{{ n.label }}</span>
+            <span style="font-size:11px;color:#8a93a6;word-break:keep-all">{{ n.desc }}</span>
+          </span>
+          <sc-if value="{{ n.locked }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:10px;font-weight:700;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap">항상 켜짐</span>
+          </sc-if>
+          <sc-if value="{{ n.toggleable }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ n.toggle }}" style="{{ n.style }}"><span style="{{ n.knob }}"></span></button>
+          </sc-if>
+        </div>
+      </sc-for>
+      <span style="font-size:11px;color:#8a93a6;padding-top:10px;word-break:keep-all">연결 요청·열람 요청 등 승인이 필요한 알림은 안전을 위해 끌 수 없어요.</span>
+    </div>
+  </div>
+  </sc-if>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  state = {
+    section: 'account',
+    channels: { push: true, email: false },
+    noti: { match: true, recruit: true, review: true, visit: false },
+  };
+
+  renderVals() {
+    const s = this.state;
+    const tab = id =>
+      'flex:1;height:42px;border:0;background:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;border-bottom:2.5px solid ' +
+      (s.section === id ? '#2EC4B6;color:#fff' : 'transparent;color:rgba(255,255,255,.55)');
+    const sw = on =>
+      'width:42px;height:25px;border-radius:99px;border:0;cursor:pointer;padding:2px;display:flex;flex:none;transition:background .2s;' +
+      (on ? 'background:#2EC4B6;justify-content:flex-end' : 'background:#d5d9e2;justify-content:flex-start');
+    const knob = 'width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)';
+    const chip = tone => {
+      const base = 'font-size:9.5px;font-weight:700;border-radius:99px;padding:3px 8px;white-space:nowrap;flex:none;';
+      if (tone === 'orange') return base + 'color:#c24a1c;background:#fff0e9';
+      if (tone === 'violet') return base + 'color:#6d4bd8;background:rgba(109,75,216,.1)';
+      return base + 'color:#23408e;background:#f1f3f8';
+    };
+    const mkSwitch = (group, key) => ({
+      toggle: () => this.setState(p => ({ [group]: Object.assign({}, p[group], { [key]: !p[group][key] }) })),
+      style: sw(s[group][key]), knob,
+    });
+
+    return {
+      menu: [['account', '계정'], ['roles', '역할'], ['noti', '알림']].map(([id, label]) => ({
+        label, go: () => this.setState({ section: id }), style: tab(id),
+      })),
+      isAccount: s.section === 'account',
+      isRoles: s.section === 'roles',
+      isNoti: s.section === 'noti',
+
+      channels: [
+        Object.assign({ label: '앱 푸시', desc: '모바일 앱 설치 시' }, mkSwitch('channels', 'push')),
+        Object.assign({ label: '이메일', desc: '주간 요약과 중요 알림' }, mkSwitch('channels', 'email')),
+      ],
+
+      notiItems: [
+        { cat: '승인', tone: 'orange', label: '연결 요청 · 열람 요청', desc: '자녀 프로필 연결, 에이전트 상세 열람 승인 요청', locked: true, toggleable: false },
+        Object.assign({ cat: '경기', tone: 'navy', label: '경기 결과 반영', desc: '자녀 기록·팀 성적 업데이트', locked: false, toggleable: true }, mkSwitch('noti', 'match')),
+        Object.assign({ cat: '모집', tone: 'navy', label: '모집 공고 · 지원 현황', desc: '관심 지역 새 공고, 지원 결과', locked: false, toggleable: true }, mkSwitch('noti', 'recruit')),
+        Object.assign({ cat: '리뷰', tone: 'navy', label: '리뷰 답글', desc: '내가 쓴 리뷰에 팀이 답글을 달면', locked: false, toggleable: true }, mkSwitch('noti', 'review')),
+        Object.assign({ cat: '열람', tone: 'violet', label: '프로필 방문 요약', desc: '공개 프로필 주간 방문 통계', locked: false, toggleable: true }, mkSwitch('noti', 'visit')),
+      ].map(n => Object.assign({}, n, { chip: chip(n.tone) })),
+    };
+  }
+}
+</script>
+</body>
+</html>

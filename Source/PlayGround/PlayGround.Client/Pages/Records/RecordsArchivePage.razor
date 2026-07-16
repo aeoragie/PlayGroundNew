@@ -1,0 +1,116 @@
+@* 지난 시즌 아카이브 — 연도 칩 + 종료 대회 목록(우승팀). SPEC.RECORDS.md §지난 시즌 아카이브 *@
+@attribute [Route(Routes.RecordsArchive)]
+@using PlayGround.Client.Components.Records
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Records
+@inject RecordsClient Records
+
+<PageTitle>지난 시즌 기록 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
+    <RecordsGnb />
+
+    <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-6 pb-20 flex flex-col gap-4">
+        <a href="@Routes.Records" class="self-start flex items-center gap-1.5 text-[13px] font-bold text-text-body hover:text-navy transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>@(CurrentYear) 시즌으로
+        </a>
+
+        <div class="flex items-center gap-3.5 flex-wrap">
+            <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em] whitespace-nowrap">지난 시즌 기록</h1>
+            <div class="flex-1"></div>
+            <div class="flex gap-[7px] flex-wrap">
+                @foreach (int year in ArchiveYears)
+                {
+                    int chip = year;
+                    <button type="button" class="@YearChipClass(chip)" @onclick="() => SelectYearAsync(chip)">@chip</button>
+                }
+            </div>
+        </div>
+
+        @if (Items.Count > 0)
+        {
+            <div class="bg-white border-1.5 border-border rounded-[14px] overflow-hidden flex flex-col">
+                @foreach (RecordsTournamentDto tournament in Items)
+                {
+                    <div class="w-full border-b border-surface-soft px-4 md:pl-4 md:pr-[22px] py-3.5 flex items-center gap-3">
+                        <span class="w-1 h-7 rounded-full bg-border shrink-0"></span>
+                        <span class="@ScopeBadgeClass(tournament)">@RecordsTournamentRow.ScopeLabel(tournament)</span>
+                        <div class="flex-1 min-w-0 flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
+                            <span class="text-[13.5px] font-bold text-navy-deep break-keep md:flex-1 md:min-w-0">@tournament.Name</span>
+                            <div class="flex items-center gap-[7px] md:contents">
+                                <span class="text-[11.5px] text-text-muted whitespace-nowrap">@MetaLine(tournament)</span>
+                                @if (tournament.ChampionTeamName is not null)
+                                {
+                                    <span class="flex items-center gap-[7px] shrink-0">
+                                        <span class="text-[10.5px] font-extrabold text-orange-ink bg-surface-orange rounded-full px-[9px] py-0.5 whitespace-nowrap">우승</span>
+                                        <span class="text-xs font-bold text-text-body whitespace-nowrap">@tournament.ChampionTeamName</span>
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        <span class="text-xs text-text-muted break-keep">종료된 대회의 전체 기록(순위·경기·수상)을 그대로 볼 수 있어요.</span>
+    </main>
+
+    <footer class="border-t border-border bg-white px-4 md:px-8 py-6">
+        <div class="max-w-[1100px] mx-auto flex items-center gap-3.5 flex-wrap">
+            <span class="text-xs text-text-muted break-keep">경기기록은 누구에게나 무료로 공개됩니다</span>
+            <div class="flex-1"></div>
+            <span class="text-[11.5px] text-text-faint whitespace-nowrap">출처: KFA 공식 · 대회 주최자 입력 · 팀 입력</span>
+        </div>
+    </footer>
+</div>
+
+@code {
+    private static readonly int CurrentYear = DateTime.Now.Year;
+
+    private int mYear;
+    private RecordsTournamentsResponse? mData;
+
+    private List<int> ArchiveYears =>
+        (mData?.SeasonYears ?? new List<int>()).Where(y => y < CurrentYear).ToList();
+
+    private List<RecordsTournamentDto> Items =>
+        mData?.Tournaments ?? new List<RecordsTournamentDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 첫 진입: 연도 목록을 얻기 위해 현재 연도로 조회 후, 최신 과거 연도로 전환
+        mData = await Records.GetTournamentsAsync(CurrentYear);
+        int? latestArchive = ArchiveYears.Count > 0 ? ArchiveYears[0] : null;
+        if (latestArchive is not null)
+        {
+            await SelectYearAsync(latestArchive.Value);
+        }
+    }
+
+    private async Task SelectYearAsync(int year)
+    {
+        mYear = year;
+        RecordsTournamentsResponse? data = await Records.GetTournamentsAsync(year);
+        if (data is not null)
+        {
+            mData = data;
+        }
+    }
+
+    private static string MetaLine(RecordsTournamentDto tournament)
+    {
+        string format = Enum.TryParse(tournament.Format, out SoccerTournamentFormat parsed)
+            ? parsed.ToLabel()
+            : tournament.Format;
+        string meta = $"{tournament.AgeGroup} · {format}";
+        return tournament.TeamCount is null ? meta : $"{meta} · {tournament.TeamCount}팀";
+    }
+
+    private static string ScopeBadgeClass(RecordsTournamentDto tournament) =>
+        "text-[10.5px] font-bold rounded-md px-[9px] py-[3px] whitespace-nowrap shrink-0 " +
+        (tournament.Scope == "National" ? "text-orange-ink bg-surface-orange" : "text-navy bg-surface-icon");
+
+    private string YearChipClass(int year) =>
+        "h-9 px-[15px] rounded-full text-[12.5px] font-bold whitespace-nowrap border-1.5 transition-colors " +
+        (mYear == year ? "border-navy bg-navy text-white" : "border-border bg-white text-text-body");
+}

@@ -25,6 +25,8 @@ namespace PlayGround.Client
         public const string PlayerDashboardSectionTemplate = "/dashboard/player/{Section}";
         public const string TeamPublicHomeTemplate = "/team/{Slug}";
         public const string TeamPublicHomeTabTemplate = "/team/{Slug}/{Tab}";
+        public const string Records = "/records";
+        public const string RecordsArchive = "/records/archive";
         public const string NotFound = "/not-found";
 
         //.// 링크 생성 헬퍼 (파라미터 라우트)
