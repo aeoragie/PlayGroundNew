@@ -28,5 +28,20 @@ namespace PlayGround.Client.Services
                 return null; // 네트워크 오류 → null
             }
         }
+
+        /// <summary>대회 상세 묶음. 미존재·오류 시 null.</summary>
+        public async Task<RecordsTournamentDetailResponse?> GetTournamentDetailAsync(Guid tournamentId)
+        {
+            try
+            {
+                Envelope<RecordsTournamentDetailResponse>? envelope = await mHttp.GetFromJsonAsync<Envelope<RecordsTournamentDetailResponse>>(
+                    $"api/soccer/records/tournaments/{tournamentId}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미존재(404)·네트워크 오류 → null
+            }
+        }
     }
 }

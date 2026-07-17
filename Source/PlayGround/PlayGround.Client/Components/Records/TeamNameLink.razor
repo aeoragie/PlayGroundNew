@@ -1,0 +1,21 @@
+@* 팀명 — 공개 팀 슬러그가 있으면 팀 홈페이지 링크, 없으면 텍스트 *@
+
+@if (Slug is not null)
+{
+    <a href="@Routes.TeamPublicHome(Slug)" class="@($"{Class} hover:text-orange transition-colors")">@Name</a>
+}
+else
+{
+    <span class="@Class">@Name</span>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Slug { get; set; }
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+}

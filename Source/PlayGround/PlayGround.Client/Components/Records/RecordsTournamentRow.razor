@@ -1,9 +1,10 @@
-@* 대회/리그 목록 행 — 상태 컬러 바 + 범위 뱃지 + 대회명 + 형식·팀수 + 상태 뱃지.
-   PC 1줄 / 모바일 2줄(이름 위, 뱃지·메타 아래). 종료 행은 opacity .55. 상세는 후속(3단계) 연결 *@
+@* 대회/리그 목록 행 — 상태 컬러 바 + 범위 뱃지 + 대회명 + 형식·팀수 + 상태 뱃지 → 클릭 시 상세.
+   PC 1줄 / 모바일 2줄(이름 위, 뱃지·메타 아래). 종료 행은 opacity .55 *@
 @using PlayGround.Client.Models
 @using PlayGround.Contracts.Records
 
-<div class="@($"w-full border-b border-surface-soft px-4 md:pl-4 md:pr-[22px] py-3 flex items-center gap-[11px] {(Status == SoccerTournamentStatus.Completed ? "opacity-55" : "")}")">
+<a href="@Routes.RecordsDetail(Tournament.TournamentId)"
+   class="@($"w-full border-b border-surface-soft px-4 md:pl-4 md:pr-[22px] py-3 flex items-center gap-[11px] hover:bg-surface-soft transition-colors {(Status == SoccerTournamentStatus.Completed ? "opacity-55" : "")}")">
     <span class="@($"w-1 h-[26px] rounded-full shrink-0 {BarClass}")"></span>
     <span class="@($"hidden md:inline-flex {ScopeBadgeClass}")">@ScopeLabel(Tournament)</span>
     <div class="flex-1 min-w-0 flex flex-col gap-1.5 md:flex-row md:items-center md:gap-[11px]">
@@ -18,7 +19,7 @@
             <span class="@StatusBadgeClass">@Status.ToLabel()</span>
         </div>
     </div>
-</div>
+</a>
 
 @code {
     [Parameter, EditorRequired]

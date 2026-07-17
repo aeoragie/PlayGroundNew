@@ -68,13 +68,24 @@
 
 ### 다음 작업 (우선순위)
 
-1. **Records 구현 계속** — 스키마·목록+아카이브 완료(아래). 다음 = **상세 화면**
-   (`/records/{id}` — Format별 가변 탭: 대회 정보/조별·1차·2차/토너먼트/리그 경기/미디어.
-   `Handoff/Design.Records/` SPEC·설계 결정 5개 필독) → 팀 대시보드 경기 결과·영상 연동
-   → 선수 시즌 통계 → 공개 홈 시즌성적. 단계별 검수 (`Docs/Architecture/MatchSchemaDesign.md` §6).
-   목록 행 클릭 → 상세 링크는 상세 구현 때 연결(현재 비활성).
+1. **Records 구현 계속** — 스키마·목록+아카이브·상세 완료(아래). 다음 = **팀 대시보드
+   경기 결과·영상 연동**(목데이터 교체 — 시즌 요약·대회 필터·이벤트 칩은 Matches/Events에서
+   집계) → 선수 시즌 통계 → 공개 홈 시즌성적. 단계별 검수 (`Docs/Architecture/MatchSchemaDesign.md` §6).
 2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
    커리어·포트폴리오 입력(추가/수정) UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+
+### Records 상세 — 완료 (2026-07-16)
+
+- `/records/{id}` — `UspGetSoccerTournamentDetail`(8결과셋: 대회·순위표·경기·수상·역대 우승
+  (SeriesSlug)·영상·뉴스·**등장 팀 공개 슬러그**) → `GET api/soccer/records/tournaments/{id}`
+  (AllowAnonymous) → RecordsDetailPage + RecordsStandingsTable/RecordsMatchRowCard/TeamNameLink
+  /RecordsFormatting(포맷 헬퍼).
+- **Format별 가변 탭**(설계 결정 5): Cup=대회 정보/예선/토너먼트/미디어, Split=…/1차 풀리그/2차
+  스플릿리그/…, League=리그 경기/미디어. 진입 기본 탭 = 리그→리그 경기, 대회→예선/1차(레퍼런스 동작).
+- 통계 바(총 경기·득점·경기당)는 경기 결과셋에서 클라 계산. 순위표 PC 8열/모바일 5열(승-무-패 통합),
+  진출권 teal + 범례. PK 괄호 표기("2 (4)"/"(3) 2") + PK 승자 강조. 조·라운드·월 필터는 데이터 기반
+  (있는 값만 칩 노출). 팀명은 공개 슬러그 있으면 팀 홈 링크. zone 문구(본선 진출 등)는 레퍼런스
+  고정 카피 — 대회별 커스텀은 후속. 화면 검증 완료(cup 4탭·league·모바일).
 
 ### Records 목록+아카이브 — 완료 (2026-07-15)
 

@@ -1,0 +1,86 @@
+@* 순위표 (조별/리그/스플릿 공용) — 진출권 행 teal, PC 8열 / 모바일 5열(승무패 통합·득실 제거).
+   범례는 진출권 행이 있을 때만 + "승점 3/1/0" 고정 — SPEC.RECORDS.md §조별 스테이지 *@
+@using PlayGround.Contracts.Records
+
+<div class="bg-white border-1.5 border-border rounded-[16px] overflow-hidden">
+    <div class="px-4 md:px-[22px] py-3.5 border-b border-surface-icon flex items-center gap-2.5 flex-wrap">
+        <h3 class="m-0 text-[14.5px] font-extrabold whitespace-nowrap">@Title</h3>
+        @if (ZoneNote is not null)
+        {
+            <span class="text-[11.5px] text-text-muted break-keep">@ZoneNote</span>
+        }
+    </div>
+
+    @* PC 8열 *@
+    <div class="hidden md:grid grid-cols-[44px_1fr_48px_48px_40px_40px_40px_56px] px-[22px] py-2.5 bg-surface-soft border-b border-surface-icon text-[11px] font-extrabold text-text-muted">
+        <span>순위</span><span>팀</span><span class="text-center">경기</span><span class="text-center">승점</span><span class="text-center">승</span><span class="text-center">무</span><span class="text-center">패</span><span class="text-center">득실</span>
+    </div>
+    @* 모바일 5열 *@
+    <div class="grid md:hidden grid-cols-[40px_1fr_44px_44px_64px] px-4 py-2.5 bg-surface-soft border-b border-surface-icon text-[11px] font-extrabold text-text-muted">
+        <span>순위</span><span>팀</span><span class="text-center">경기</span><span class="text-center">승점</span><span class="text-center">승-무-패</span>
+    </div>
+
+    @foreach (RecordsStandingDto row in Rows)
+    {
+        <div class="@RowClass(row, pc: true)">
+            <span class="@RankClass(row)">@row.TeamRank</span>
+            <TeamNameLink Name="@row.TeamName" Slug="@row.TeamSlug" Class="text-[13px] font-bold text-navy-deep whitespace-nowrap overflow-hidden text-ellipsis" />
+            <span class="text-center text-[12.5px] text-text-body">@row.Played</span>
+            <span class="text-center text-[13px] font-extrabold">@row.Points</span>
+            <span class="text-center text-[12.5px] text-text-body">@row.Won</span>
+            <span class="text-center text-[12.5px] text-text-body">@row.Drawn</span>
+            <span class="text-center text-[12.5px] text-text-body">@row.Lost</span>
+            <span class="text-center text-[12.5px] text-text-body whitespace-nowrap">@GoalDiff(row)</span>
+        </div>
+        <div class="@RowClass(row, pc: false)">
+            <span class="@RankClass(row)">@row.TeamRank</span>
+            <TeamNameLink Name="@row.TeamName" Slug="@row.TeamSlug" Class="text-[13px] font-bold text-navy-deep whitespace-nowrap overflow-hidden text-ellipsis" />
+            <span class="text-center text-[12.5px] text-text-body">@row.Played</span>
+            <span class="text-center text-[13px] font-extrabold">@row.Points</span>
+            <span class="text-center text-[12.5px] text-text-body whitespace-nowrap">@row.Won-@row.Drawn-@row.Lost</span>
+        </div>
+    }
+
+    @if (Rows.Any(r => r.IsQualified) || ZoneLegend is not null)
+    {
+        <div class="px-4 md:px-[22px] py-[11px] text-[11.5px] text-text-muted flex gap-3.5">
+            @if (ZoneLegend is not null && Rows.Any(r => r.IsQualified))
+            {
+                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-teal"></span>@ZoneLegend</span>
+            }
+            <span>승점 3/1/0</span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? ZoneNote { get; set; }
+
+    [Parameter]
+    public string? ZoneLegend { get; set; }
+
+    [Parameter, EditorRequired]
+    public List<RecordsStandingDto> Rows { get; set; } = new();
+
+    private static string GoalDiff(RecordsStandingDto row)
+    {
+        int diff = row.GoalsFor - row.GoalsAgainst;
+        return diff > 0 ? $"+{diff}" : diff.ToString();
+    }
+
+    private static string RowClass(RecordsStandingDto row, bool pc)
+    {
+        string grid = pc
+            ? "hidden md:grid grid-cols-[44px_1fr_48px_48px_40px_40px_40px_56px] px-[22px]"
+            : "grid md:hidden grid-cols-[40px_1fr_44px_44px_64px] px-4";
+        return $"{grid} py-3 border-b border-surface-icon items-center {(row.IsQualified ? "bg-teal/[.05]" : "")}";
+    }
+
+    private static string RankClass(RecordsStandingDto row) =>
+        "w-[22px] h-[22px] rounded-md flex items-center justify-center text-xs font-extrabold " +
+        (row.IsQualified ? "bg-teal text-white" : "bg-surface-icon text-text-body");
+}

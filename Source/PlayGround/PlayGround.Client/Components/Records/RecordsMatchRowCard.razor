@@ -1,0 +1,35 @@
+@* 경기 가로 카드 (조별/리그 공용) — 일시·구장 / 홈-스코어-원정(승팀 강조) / 상태 뱃지.
+   PC 1줄 / 모바일 2줄 — SPEC.RECORDS.md §조별 스테이지 *@
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Records
+
+<div class="bg-white border-1.5 border-border rounded-[14px] px-4 md:px-[22px] py-3.5 flex flex-col md:flex-row md:items-center gap-2.5 md:gap-3.5">
+    <div class="flex items-center gap-2.5 md:w-[130px] md:flex-none md:flex-col md:items-start md:gap-0.5">
+        <span class="text-xs font-bold whitespace-nowrap">@RecordsFormatting.WhenLabel(Match.MatchedAt)</span>
+        @if (Match.VenueName is not null)
+        {
+            <span class="text-[11px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">@Match.VenueName</span>
+        }
+        <span class="@($"md:hidden ml-auto {RecordsFormatting.MatchStatusBadgeClass(Match)}")">@RecordsFormatting.MatchStatusLabel(Match)</span>
+    </div>
+    <div class="flex-1 flex items-center gap-3 justify-center min-w-0">
+        <TeamNameLink Name="@Match.HomeTeamName" Slug="@Match.HomeTeamSlug"
+                      Class="@($"text-[13.5px] flex-1 break-keep text-right {(HomeWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
+        <span class="text-[17px] font-extrabold bg-surface-alt rounded-lg px-3.5 py-1 whitespace-nowrap">@ScoreLabel</span>
+        <TeamNameLink Name="@Match.AwayTeamName" Slug="@Match.AwayTeamSlug"
+                      Class="@($"text-[13.5px] flex-1 break-keep {(AwayWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
+    </div>
+    <span class="@($"hidden md:inline-flex {RecordsFormatting.MatchStatusBadgeClass(Match)}")">@RecordsFormatting.MatchStatusLabel(Match)</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RecordsMatchDto Match { get; set; } = new();
+
+    private bool HomeWin => Match.HomeScore > Match.AwayScore;
+
+    private bool AwayWin => Match.AwayScore > Match.HomeScore;
+
+    private string ScoreLabel =>
+        Match.HomeScore is null || Match.AwayScore is null ? "- : -" : $"{Match.HomeScore} : {Match.AwayScore}";
+}

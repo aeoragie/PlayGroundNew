@@ -32,7 +32,8 @@
             <div class="bg-white border-1.5 border-border rounded-[14px] overflow-hidden flex flex-col">
                 @foreach (RecordsTournamentDto tournament in Items)
                 {
-                    <div class="w-full border-b border-surface-soft px-4 md:pl-4 md:pr-[22px] py-3.5 flex items-center gap-3">
+                    <a href="@Routes.RecordsDetail(tournament.TournamentId)"
+                       class="w-full border-b border-surface-soft px-4 md:pl-4 md:pr-[22px] py-3.5 flex items-center gap-3 hover:bg-surface-soft transition-colors">
                         <span class="w-1 h-7 rounded-full bg-border shrink-0"></span>
                         <span class="@ScopeBadgeClass(tournament)">@RecordsTournamentRow.ScopeLabel(tournament)</span>
                         <div class="flex-1 min-w-0 flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
@@ -48,7 +49,7 @@
                                 }
                             </div>
                         </div>
-                    </div>
+                    </a>
                 }
             </div>
         }

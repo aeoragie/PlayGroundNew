@@ -1,0 +1,628 @@
+@* 대회 상세 — 네이비 히어로 + Format별 가변 탭 (설계 결정 5).
+   Cup: 대회 정보/예선/토너먼트/미디어 · Split: 대회 정보/1차 풀리그/2차 스플릿리그/미디어 · League: 리그 경기/미디어 *@
+@attribute [Route(Routes.RecordsDetailTemplate)]
+@using PlayGround.Client.Components.Records
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Records
+@inject RecordsClient Records
+
+<PageTitle>경기기록 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
+    <RecordsGnb />
+
+    <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-6 pb-20 flex flex-col gap-4">
+        <a href="@Routes.Records" class="self-start flex items-center gap-1.5 text-[13px] font-bold text-text-body hover:text-navy transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>목록으로
+        </a>
+
+        @if (mData is not null)
+        {
+            RecordsTournamentDetailDto t = mData.Tournament;
+
+            @* 히어로 *@
+            <div class="bg-gradient-navy rounded-[18px] px-5 py-5 md:px-[30px] md:py-[26px] text-white relative overflow-hidden">
+                <div class="absolute -top-[90px] -right-[70px] w-[240px] h-[240px] border-1.5 border-white/[.09] rounded-full"></div>
+                <div class="flex flex-col gap-2.5 relative">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="@HeroStatusBadgeClass">@Status.ToLabel()</span>
+                        <span class="@HeroBadgeClass">@HeroScopeLabel</span>
+                        <span class="@HeroBadgeClass">@t.AgeGroup</span>
+                        <span class="@HeroBadgeClass">@FormatHeroLabel</span>
+                    </div>
+                    <h1 class="m-0 text-lg md:text-[25px] font-extrabold tracking-[-.02em] break-keep">@t.Name</h1>
+                    @if (HeroMeta.Length > 0)
+                    {
+                        <span class="text-[12.5px] md:text-[13.5px] text-white/70 break-keep">@HeroMeta</span>
+                    }
+                </div>
+            </div>
+
+            @* 탭 바 *@
+            <div class="flex gap-1 border-b-1.5 border-border overflow-x-auto">
+                @foreach ((string id, string label) in Tabs)
+                {
+                    string tabId = id;
+                    <button type="button" class="@TabClass(tabId)" @onclick="() => SelectTab(tabId)">
+                        @label
+                        @if (tabId == "media")
+                        {
+                            <span class="@MediaCountClass(tabId)">@mData.Videos.Count</span>
+                        }
+                    </button>
+                }
+            </div>
+
+            @* ── 대회 정보 ── *@
+            @if (mTab == "info")
+            {
+                <div class="flex flex-col gap-3.5">
+                    @if (TotalMatches > 0)
+                    {
+                        <div class="bg-navy-deep rounded-[14px] px-5 md:px-6 py-4 flex items-center gap-4 md:gap-[26px] text-white flex-wrap">
+                            <span class="flex items-baseline gap-2"><span class="text-xs font-bold text-white/60 whitespace-nowrap">총 경기 · 종료</span><span class="text-lg font-extrabold whitespace-nowrap">@TotalMatches · @CompletedMatches</span></span>
+                            @if (CompletedMatches > 0)
+                            {
+                                <span class="w-px h-[22px] bg-white/15"></span>
+                                <span class="flex items-baseline gap-2"><span class="text-xs font-bold text-white/60 whitespace-nowrap">득점 · 경기당</span><span class="text-lg font-extrabold whitespace-nowrap">@TotalGoals · @GoalsPerGame</span></span>
+                            }
+                            <div class="flex-1"></div>
+                            @if (t.RegulationPdfUrl is not null)
+                            {
+                                <a href="@t.RegulationPdfUrl" target="_blank" rel="noopener" class="flex items-center gap-2 text-[12.5px] font-bold text-white hover:text-white bg-white/10 hover:bg-white/[.18] border border-white/20 rounded-[9px] px-3.5 py-2 whitespace-nowrap transition-colors">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>대회 규정 PDF
+                                </a>
+                            }
+                        </div>
+                    }
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3.5">
+                        <div class="bg-white border-1.5 border-border rounded-[16px] p-6 flex flex-col gap-3">
+                            <h3 class="m-0 text-[15px] font-extrabold">대회 개요</h3>
+                            <div class="flex flex-col gap-[9px] text-[13px] text-text-strong">
+                                @foreach ((string key, string value) in InfoRows)
+                                {
+                                    <span class="flex justify-between gap-2.5"><span class="text-text-muted whitespace-nowrap">@key</span><span class="font-bold text-right break-keep">@value</span></span>
+                                }
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-3.5">
+                            <div class="bg-white border-1.5 border-border rounded-[16px] p-6 flex flex-col gap-[11px]">
+                                <h3 class="m-0 text-[15px] font-extrabold">대회 수상</h3>
+                                @if (Status == SoccerTournamentStatus.Completed && mData.Awards.Count > 0)
+                                {
+                                    <div class="flex flex-col gap-2 text-[13px]">
+                                        @foreach (RecordsAwardDto award in mData.Awards)
+                                        {
+                                            <span class="flex gap-2.5 items-center">
+                                                <span class="@AwardBadgeClass(award.AwardType)">@AwardLabel(award.AwardType)</span>
+                                                <TeamNameLink Name="@award.TeamName" Slug="@award.TeamSlug" Class="font-bold text-navy-deep" />
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-[12.5px] text-text-muted break-keep">수상 내역은 대회 종료 후 제공됩니다</span>
+                                }
+                            </div>
+                            @if (mData.SeriesChampions.Count > 0)
+                            {
+                                <div class="bg-white border-1.5 border-border rounded-[16px] p-6 flex flex-col gap-[11px]">
+                                    <h3 class="m-0 text-[15px] font-extrabold">역대 우승팀</h3>
+                                    <div class="flex flex-col gap-[7px] text-[13px]">
+                                        @foreach (RecordsSeriesChampionDto champion in mData.SeriesChampions)
+                                        {
+                                            <span class="flex gap-3"><span class="text-text-muted w-[38px]">@champion.SeasonYear</span><TeamNameLink Name="@champion.TeamName" Slug="@champion.TeamSlug" Class="font-bold text-navy-deep" /></span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @* ── 조별 스테이지 (예선/1차 풀리그/2차 스플릿리그 공용) ── *@
+            @if (mTab is "stage1" or "stage2")
+            {
+                string stageType = StageTypeOf(mTab);
+                List<string> groups = GroupsOf(stageType);
+                <div class="flex flex-col gap-3.5">
+                    @if (groups.Count > 0)
+                    {
+                        <div class="grid grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-[7px]">
+                            @foreach (string group in groups)
+                            {
+                                string chip = group;
+                                <button type="button" class="@PillClass(mGroup == chip)" @onclick="() => SelectGroup(chip)">@chip</button>
+                            }
+                        </div>
+                    }
+                    @if (mTab == "stage2")
+                    {
+                        <span class="text-[11.5px] text-text-muted break-keep">2차 스플릿리그는 1차 풀리그 결과(조 1~4위)로 재배치됩니다 · 표기된 순위는 2차 기준</span>
+                    }
+                    @{
+                        List<RecordsStandingDto> standings = StandingsOf(stageType, mGroup);
+                        List<RecordsMatchDto> stageMatches = MatchesOf(stageType, mGroup);
+                        List<string> roundNames = stageMatches.Select(m => m.RoundName).OfType<string>().Distinct().OrderBy(r => r, StringComparer.Ordinal).ToList();
+                    }
+                    @if (standings.Count > 0)
+                    {
+                        <RecordsStandingsTable Title="@($"{mGroup ?? "전체"} 순위")" Rows="@standings"
+                                               ZoneNote="@StageZoneNote" ZoneLegend="@StageZoneLegend" />
+                    }
+                    @if (stageMatches.Count > 0)
+                    {
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="m-0 text-[14.5px] font-extrabold whitespace-nowrap">경기 일정 · 결과</h3>
+                            <div class="flex-1"></div>
+                            @if (roundNames.Count > 1)
+                            {
+                                @foreach (string round in Prepend전체(roundNames))
+                                {
+                                    string chip = round;
+                                    <button type="button" class="@PillClass(mRound == chip)" @onclick="() => mRound = chip">@chip</button>
+                                }
+                            }
+                        </div>
+                        @foreach (RecordsMatchDto match in stageMatches.Where(m => mRound == "전체" || m.RoundName == mRound))
+                        {
+                            <RecordsMatchRowCard Match="@match" />
+                        }
+                    }
+                </div>
+            }
+
+            @* ── 토너먼트 ── *@
+            @if (mTab == "bracket")
+            {
+                List<string> rounds = KnockoutRounds;
+                <div class="flex flex-col gap-3.5">
+                    @if (rounds.Count > 0)
+                    {
+                        <div class="flex gap-[7px] overflow-x-auto">
+                            @foreach (string round in rounds)
+                            {
+                                string chip = round;
+                                <button type="button" class="@PillClass(mKnockoutRound == chip)" @onclick="() => mKnockoutRound = chip">@KnockoutRoundLabel(chip)</button>
+                            }
+                        </div>
+                        <span class="text-[11.5px] text-text-muted break-keep">득실·조 순위는 예선 기준입니다 · PK는 괄호로 표기</span>
+                        <div class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3">
+                            @foreach (RecordsMatchDto match in KnockoutMatchesOf(mKnockoutRound))
+                            {
+                                bool homeWin = RecordsFormatting.IsHomeWinner(match);
+                                bool awayWin = RecordsFormatting.IsAwayWinner(match);
+                                <div class="bg-white border-1.5 border-border rounded-[14px] px-[18px] py-4 flex flex-col gap-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="@RecordsFormatting.MatchStatusBadgeClass(match)">@RecordsFormatting.MatchStatusLabel(match)</span>
+                                        <span class="text-[11px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">@RecordsFormatting.WhenLabel(match.MatchedAt)@(match.VenueName is null ? "" : $" · {match.VenueName}")</span>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-center gap-2.5">
+                                            <TeamNameLink Name="@match.HomeTeamName" Slug="@match.HomeTeamSlug"
+                                                          Class="@($"text-[13.5px] break-keep {(homeWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
+                                            <div class="flex-1"></div>
+                                            <span class="@BracketScoreClass(homeWin)">@RecordsFormatting.HomeScoreLabel(match)</span>
+                                        </div>
+                                        <div class="flex items-center gap-2.5">
+                                            <TeamNameLink Name="@match.AwayTeamName" Slug="@match.AwayTeamSlug"
+                                                          Class="@($"text-[13.5px] break-keep {(awayWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
+                                            <div class="flex-1"></div>
+                                            <span class="@BracketScoreClass(awayWin)">@RecordsFormatting.AwayScoreLabel(match)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @* ── 리그 경기 (리그형) ── *@
+            @if (mTab == "league")
+            {
+                List<RecordsStandingDto> leagueStandings = StandingsOf(nameof(SoccerTournamentStageType.League), null);
+                List<RecordsMatchDto> leagueMatches = MatchesOf(nameof(SoccerTournamentStageType.League), null);
+                List<string> months = leagueMatches.Where(m => m.MatchedAt is not null).Select(m => $"{m.MatchedAt!.Value.Month}월").Distinct().ToList();
+                <div class="flex flex-col gap-3.5">
+                    @if (leagueStandings.Count > 0)
+                    {
+                        <RecordsStandingsTable Title="리그 순위" Rows="@leagueStandings"
+                                               ZoneNote="@(leagueStandings.Any(s => s.IsQualified) ? "상위 3팀 왕중왕전 진출" : null)"
+                                               ZoneLegend="@(leagueStandings.Any(s => s.IsQualified) ? "왕중왕전 진출" : null)" />
+                    }
+                    @if (leagueMatches.Count > 0)
+                    {
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="m-0 text-[14.5px] font-extrabold whitespace-nowrap">경기 일정 · 결과</h3>
+                            <div class="flex-1"></div>
+                            @if (months.Count > 1)
+                            {
+                                @foreach (string month in Prepend전체(months))
+                                {
+                                    string chip = month;
+                                    <button type="button" class="@PillClass(mMonth == chip)" @onclick="() => mMonth = chip">@chip</button>
+                                }
+                            }
+                        </div>
+                        @foreach (RecordsMatchDto match in leagueMatches.Where(m => mMonth == "전체" || (m.MatchedAt is not null && $"{m.MatchedAt.Value.Month}월" == mMonth)))
+                        {
+                            <RecordsMatchRowCard Match="@match" />
+                        }
+                    }
+                </div>
+            }
+
+            @* ── 미디어 ── *@
+            @if (mTab == "media")
+            {
+                <div class="flex flex-col gap-3.5">
+                    <div class="flex gap-2">
+                        <button type="button" class="@PillClass(!mIsNewsTab)" @onclick="() => mIsNewsTab = false">영상 @mData.Videos.Count</button>
+                        <button type="button" class="@PillClass(mIsNewsTab)" @onclick="() => mIsNewsTab = true">인터넷 뉴스 @mData.News.Count</button>
+                    </div>
+                    @if (!mIsNewsTab)
+                    {
+                        <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
+                            @foreach (RecordsVideoDto video in mData.Videos)
+                            {
+                                <a href="@video.VideoUrl" target="_blank" rel="noopener"
+                                   class="bg-white border-1.5 border-border rounded-[14px] overflow-hidden hover:border-navy transition-colors">
+                                    <div class="w-full aspect-video relative bg-gradient-navy flex items-center justify-center gap-4">
+                                        @if (video.HomeTeamName is not null)
+                                        {
+                                            <span class="text-sm font-extrabold text-white break-keep text-center">@video.HomeTeamName</span>
+                                            <span class="text-xs font-extrabold text-white/40">VS</span>
+                                            <span class="text-sm font-extrabold text-white break-keep text-center">@video.AwayTeamName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-sm font-extrabold text-white break-keep text-center px-6">@video.Title</span>
+                                        }
+                                        <span class="absolute bottom-[9px] right-[9px] w-9 h-9 rounded-full bg-black/60 flex items-center justify-center">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+                                        </span>
+                                        <span class="absolute top-[9px] left-[9px] text-[10px] font-bold text-white bg-black/60 rounded-full px-[9px] py-0.5">@VideoKindLabel(video)</span>
+                                    </div>
+                                    <div class="px-4 py-[13px] flex flex-col gap-[5px]">
+                                        <span class="flex items-center gap-1.5">
+                                            <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />
+                                            <span class="text-[13px] font-bold break-keep text-navy-deep">@video.Title</span>
+                                        </span>
+                                        @if (VideoMeta(video).Length > 0)
+                                        {
+                                            <span class="text-[11.5px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">@VideoMeta(video)</span>
+                                        }
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        @if (mData.News.Count > 0)
+                        {
+                            <div class="bg-white border-1.5 border-border rounded-[14px] overflow-hidden flex flex-col">
+                                @foreach (RecordsNewsDto news in mData.News)
+                                {
+                                    <a href="@news.Url" target="_blank" rel="noopener"
+                                       class="px-4 md:px-[22px] py-3.5 border-b border-surface-soft flex items-center gap-3 hover:bg-surface-soft transition-colors">
+                                        <span class="text-[13px] font-bold text-navy-deep break-keep flex-1 min-w-0">@news.Title</span>
+                                        <span class="text-[11.5px] text-text-muted whitespace-nowrap">@NewsMeta(news)</span>
+                                    </a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="bg-surface-soft border-1.5 border-dashed border-border rounded-[14px] p-[34px] flex flex-col items-center gap-1.5">
+                                <span class="text-[13.5px] font-bold text-text-muted">등록된 뉴스가 없습니다</span>
+                                <span class="text-xs text-text-faint break-keep">대회 관련 기사가 등록되면 여기에 표시돼요</span>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        }
+    </main>
+
+    <footer class="border-t border-border bg-white px-4 md:px-8 py-6">
+        <div class="max-w-[1100px] mx-auto flex items-center gap-3.5 flex-wrap">
+            <span class="text-xs text-text-muted break-keep">경기기록은 누구에게나 무료로 공개됩니다</span>
+            <div class="flex-1"></div>
+            <span class="text-[11.5px] text-text-faint whitespace-nowrap">출처: KFA 공식 · 대회 주최자 입력 · 팀 입력</span>
+        </div>
+    </footer>
+</div>
+
+@code {
+    private static readonly string[] KnockoutRoundOrder = ["PO", "R16", "QF", "SF", "F"];
+
+    [Parameter]
+    public Guid TournamentId { get; set; }
+
+    private RecordsTournamentDetailResponse? mData;
+    private string mTab = "info";
+    private string? mGroup;
+    private string mRound = "전체";
+    private string mKnockoutRound = "";
+    private string mMonth = "전체";
+    private bool mIsNewsTab;
+
+    protected override async Task OnInitializedAsync()
+    {
+        mData = await Records.GetTournamentDetailAsync(TournamentId);
+        if (mData is null)
+        {
+            return;
+        }
+
+        // 진입 기본 탭 — 리그는 리그 경기, 대회는 예선/1차 (레퍼런스 동작)
+        mTab = Format switch
+        {
+            SoccerTournamentFormat.League => "league",
+            _ => "stage1",
+        };
+        InitTabState();
+    }
+
+    private SoccerTournamentFormat Format =>
+        Enum.TryParse(mData?.Tournament.Format, out SoccerTournamentFormat parsed) ? parsed : SoccerTournamentFormat.Cup;
+
+    private SoccerTournamentStatus Status =>
+        Enum.TryParse(mData?.Tournament.Status, out SoccerTournamentStatus parsed) ? parsed : SoccerTournamentStatus.Completed;
+
+    //.// 탭 구성 (Format별 가변)
+
+    private List<(string Id, string Label)> Tabs => Format switch
+    {
+        SoccerTournamentFormat.League => [("league", "리그 경기"), ("media", "미디어")],
+        SoccerTournamentFormat.Split => [("info", "대회 정보"), ("stage1", "1차 풀리그"), ("stage2", "2차 스플릿리그"), ("media", "미디어")],
+        _ => [("info", "대회 정보"), ("stage1", "예선"), ("bracket", "토너먼트"), ("media", "미디어")],
+    };
+
+    private void SelectTab(string tab)
+    {
+        mTab = tab;
+        InitTabState();
+    }
+
+    // 탭 진입 시 조·라운드 선택 초기화 (첫 값)
+    private void InitTabState()
+    {
+        if (mTab is "stage1" or "stage2")
+        {
+            mGroup = GroupsOf(StageTypeOf(mTab)).FirstOrDefault();
+            mRound = "전체";
+        }
+        else if (mTab == "bracket")
+        {
+            mKnockoutRound = KnockoutRounds.FirstOrDefault() ?? "";
+        }
+    }
+
+    private string StageTypeOf(string tab) => Format == SoccerTournamentFormat.Split
+        ? (tab == "stage2" ? nameof(SoccerTournamentStageType.Split2) : nameof(SoccerTournamentStageType.Split1))
+        : nameof(SoccerTournamentStageType.Group);
+
+    private void SelectGroup(string group)
+    {
+        mGroup = group;
+        mRound = "전체";
+    }
+
+    //.// 데이터 조회 (스테이지·조 스코프)
+
+    private List<string> GroupsOf(string stageType)
+    {
+        return (mData?.Standings.Where(s => s.StageType == stageType).Select(s => s.GroupName) ?? [])
+            .Concat(mData?.Matches.Where(m => m.StageType == stageType).Select(m => m.GroupName) ?? [])
+            .OfType<string>()
+            .Distinct()
+            .OrderBy(GroupSortKey)
+            .ToList();
+    }
+
+    private static int GroupSortKey(string group)
+    {
+        string digits = new(group.TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(digits, out int number) ? number : int.MaxValue;
+    }
+
+    private List<RecordsStandingDto> StandingsOf(string stageType, string? group)
+    {
+        return (mData?.Standings ?? new List<RecordsStandingDto>())
+            .Where(s => s.StageType == stageType && (group is null || s.GroupName == group))
+            .OrderBy(s => s.TeamRank)
+            .ToList();
+    }
+
+    private List<RecordsMatchDto> MatchesOf(string stageType, string? group)
+    {
+        return (mData?.Matches ?? new List<RecordsMatchDto>())
+            .Where(m => m.StageType == stageType && (group is null || m.GroupName == group))
+            .ToList();
+    }
+
+    private List<string> KnockoutRounds =>
+        (mData?.Matches.Where(m => m.StageType == nameof(SoccerTournamentStageType.Knockout)).Select(m => m.RoundName) ?? [])
+        .OfType<string>()
+        .Distinct()
+        .OrderBy(r => Array.IndexOf(KnockoutRoundOrder, r))
+        .ToList();
+
+    private List<RecordsMatchDto> KnockoutMatchesOf(string round)
+    {
+        return (mData?.Matches ?? new List<RecordsMatchDto>())
+            .Where(m => m.StageType == nameof(SoccerTournamentStageType.Knockout) && m.RoundName == round)
+            .ToList();
+    }
+
+    private static string KnockoutRoundLabel(string round) => round switch
+    {
+        "R16" => "16강",
+        "QF" => "8강",
+        "SF" => "4강",
+        "F" => "결승",
+        _ => round,
+    };
+
+    private static List<string> Prepend전체(List<string> values)
+    {
+        List<string> result = ["전체"];
+        result.AddRange(values);
+        return result;
+    }
+
+    //.// 히어로·통계·개요
+
+    private string HeroScopeLabel
+    {
+        get
+        {
+            string baseLabel = mData?.Tournament.Scope == "National" ? "전국" : "지방";
+            return mData?.Tournament.RegionGroup is null ? baseLabel : $"{baseLabel} · {mData.Tournament.RegionGroup}";
+        }
+    }
+
+    private string FormatHeroLabel => Format switch
+    {
+        SoccerTournamentFormat.Cup => "조별 예선 + 토너먼트",
+        SoccerTournamentFormat.Split => "풀리그 + 스플릿리그",
+        _ => "리그",
+    };
+
+    private string HeroMeta
+    {
+        get
+        {
+            RecordsTournamentDetailDto t = mData!.Tournament;
+            List<string> parts = new();
+            if (t.StartDate is not null && t.EndDate is not null)
+            {
+                parts.Add($"{t.StartDate.Value.Month}/{t.StartDate.Value.Day} ~ {t.EndDate.Value.Month}/{t.EndDate.Value.Day}");
+            }
+            if (t.TeamCount is not null)
+            {
+                parts.Add($"{t.TeamCount}팀");
+            }
+            if (t.MethodText is not null)
+            {
+                parts.Add(t.MethodText);
+            }
+            return string.Join(" · ", parts);
+        }
+    }
+
+    private int TotalMatches => mData?.Matches.Count ?? 0;
+    private int CompletedMatches => mData?.Matches.Count(m => m.Status == nameof(SoccerMatchStatus.Completed)) ?? 0;
+    private int TotalGoals => mData?.Matches.Where(m => m.Status == nameof(SoccerMatchStatus.Completed)).Sum(m => (m.HomeScore ?? 0) + (m.AwayScore ?? 0)) ?? 0;
+    private string GoalsPerGame => CompletedMatches == 0 ? "0" : ((double)TotalGoals / CompletedMatches).ToString("0.00");
+
+    private List<(string Key, string Value)> InfoRows
+    {
+        get
+        {
+            RecordsTournamentDetailDto t = mData!.Tournament;
+            List<(string, string)> rows = new();
+            if (t.HostName is not null) { rows.Add(("주최", t.HostName)); }
+            if (t.StartDate is not null && t.EndDate is not null) { rows.Add(("기간", $"{t.StartDate.Value.Year}. {t.StartDate.Value.Month}. {t.StartDate.Value.Day} ~ {t.EndDate.Value.Month}. {t.EndDate.Value.Day}")); }
+            if (t.TeamCount is not null) { rows.Add(("참가", $"{t.TeamCount}팀 ({t.AgeGroup})")); }
+            if (t.MethodText is not null) { rows.Add(("방식", t.MethodText)); }
+            if (t.MatchTimeText is not null) { rows.Add(("경기시간", t.MatchTimeText)); }
+            if (t.VenueText is not null) { rows.Add(("구장", t.VenueText)); }
+            if (t.TiebreakText is not null) { rows.Add(("순위 결정", t.TiebreakText)); }
+            if (t.SourceName is not null) { rows.Add(("출처", t.SourceName)); }
+            return rows;
+        }
+    }
+
+    // 조별 스테이지 zone 카피 (레퍼런스 원문 — 대회별 커스텀은 후속)
+    private string? StageZoneNote => Format == SoccerTournamentFormat.Split
+        ? (mTab == "stage1" ? "1차 결과로 2차 조 배치" : null)
+        : "상위 2팀 본선 진출";
+
+    private string? StageZoneLegend => Format == SoccerTournamentFormat.Split
+        ? (mTab == "stage1" ? "상위 스플릿 배치" : null)
+        : "본선 진출";
+
+    //.// 수상
+
+    private static string AwardLabel(string awardType) => awardType switch
+    {
+        "Champion" => "우승",
+        "RunnerUp" => "준우승",
+        _ => "페어플레이",
+    };
+
+    private static string AwardBadgeClass(string awardType) =>
+        "text-[11px] font-extrabold rounded-full px-2.5 py-0.5 whitespace-nowrap " + awardType switch
+        {
+            "Champion" => "text-orange-ink bg-surface-orange",
+            "RunnerUp" => "text-text-strong bg-surface-icon",
+            _ => "text-teal-ink bg-teal/[.12]",
+        };
+
+    //.// 미디어
+
+    private static string VideoKindLabel(RecordsVideoDto video) => video.VideoType switch
+    {
+        nameof(SoccerVideoType.FullMatch) => "다시보기",
+        nameof(SoccerVideoType.Training) => "훈련",
+        _ => "하이라이트",
+    };
+
+    private static string VideoMeta(RecordsVideoDto video)
+    {
+        List<string> parts = new();
+        if (video.RecordedOn is not null)
+        {
+            parts.Add($"{video.RecordedOn.Value.Month}/{video.RecordedOn.Value.Day}");
+        }
+        if (video.VenueName is not null)
+        {
+            parts.Add(video.VenueName);
+        }
+        return string.Join(" · ", parts);
+    }
+
+    private static string NewsMeta(RecordsNewsDto news)
+    {
+        List<string> parts = new();
+        if (news.PublisherName is not null)
+        {
+            parts.Add(news.PublisherName);
+        }
+        if (news.PublishedOn is not null)
+        {
+            parts.Add($"{news.PublishedOn.Value.Month}/{news.PublishedOn.Value.Day}");
+        }
+        return string.Join(" · ", parts);
+    }
+
+    //.// 스타일
+
+    private const string HeroBadgeClass = "text-[11px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap text-white/85 bg-white/[.12]";
+
+    private string HeroStatusBadgeClass =>
+        "text-[11px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap " +
+        (Status == SoccerTournamentStatus.InProgress ? "text-white bg-teal" : "text-white/85 bg-white/[.12]");
+
+    private string TabClass(string tab) =>
+        "flex items-center gap-1.5 px-3.5 md:px-[18px] h-11 text-[13.5px] font-bold whitespace-nowrap border-b-2 -mb-[1.5px] transition-colors " +
+        (mTab == tab ? "text-navy border-navy" : "text-text-body border-transparent");
+
+    private string MediaCountClass(string tab) =>
+        "text-[10.5px] font-extrabold rounded-full px-[7px] py-px " +
+        (mTab == tab ? "bg-navy text-white" : "bg-surface-icon text-text-muted");
+
+    private static string PillClass(bool selected) =>
+        "h-9 px-[15px] rounded-full text-[12.5px] font-bold whitespace-nowrap border-1.5 transition-colors shrink-0 " +
+        (selected ? "border-navy bg-navy text-white" : "border-border bg-white text-text-body");
+
+    private string BracketScoreClass(bool winner) =>
+        "text-[17px] font-extrabold min-w-11 text-center rounded-lg px-2.5 py-[3px] whitespace-nowrap " +
+        (winner ? "bg-navy text-white" : "bg-surface-alt text-text-body");
+}

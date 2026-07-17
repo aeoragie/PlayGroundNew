@@ -27,6 +27,7 @@ namespace PlayGround.Client
         public const string TeamPublicHomeTabTemplate = "/team/{Slug}/{Tab}";
         public const string Records = "/records";
         public const string RecordsArchive = "/records/archive";
+        public const string RecordsDetailTemplate = "/records/{TournamentId:guid}";
         public const string NotFound = "/not-found";
 
         //.// 링크 생성 헬퍼 (파라미터 라우트)
@@ -39,6 +40,11 @@ namespace PlayGround.Client
         public static string PlayerDashboardSection(SoccerPlayerDashboardSection section)
         {
             return $"{PlayerDashboard}/{section.ToSlug()}";
+        }
+
+        public static string RecordsDetail(Guid tournamentId)
+        {
+            return $"{Records}/{tournamentId}";
         }
 
         public static string TeamPublicHome(string slug)
