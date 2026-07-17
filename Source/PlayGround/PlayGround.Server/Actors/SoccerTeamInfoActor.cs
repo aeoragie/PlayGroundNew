@@ -15,6 +15,8 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerTeamInfoMessage>(HandleGetInfoAsync);
             RegisterHandlerAsync<GetSoccerTeamRosterMessage>(HandleGetRosterAsync);
             RegisterHandlerAsync<GetSoccerTeamHomeMessage>(HandleGetHomeAsync);
+            RegisterHandlerAsync<GetSoccerTeamMatchesMessage>(HandleGetMatchesAsync);
+            RegisterHandlerAsync<GetSoccerTeamVideosMessage>(HandleGetVideosAsync);
         }
 
         private async Task HandleGetInfoAsync(GetSoccerTeamInfoMessage message)
@@ -41,6 +43,24 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerTeamPublicHomeCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPublicHomeCommand>();
             Result<TeamPublicHomeResponse> result = await useCase.ExecuteAsync(message.Slug);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetMatchesAsync(GetSoccerTeamMatchesMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamMatchesCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamMatchesCommand>();
+            Result<TeamMatchesResponse> result = await useCase.ExecuteAsync(message.ManagerUserId, message.SeasonYear);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetVideosAsync(GetSoccerTeamVideosMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamVideosCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamVideosCommand>();
+            Result<TeamVideosResponse> result = await useCase.ExecuteAsync(message.ManagerUserId);
             sender.Tell(result);
         }
     }

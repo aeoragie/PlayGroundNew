@@ -45,6 +45,36 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>본인 팀 시즌 경기 결과 조회. 미인증·오류 시 null.</summary>
+        public async Task<TeamMatchesResponse?> GetTeamMatchesAsync(int seasonYear)
+        {
+            try
+            {
+                Envelope<TeamMatchesResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamMatchesResponse>>($"api/soccer/team/me/matches?season={seasonYear}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>본인 팀 경기영상 목록 조회. 미인증·오류 시 null.</summary>
+        public async Task<TeamVideosResponse?> GetTeamVideosAsync()
+        {
+            try
+            {
+                Envelope<TeamVideosResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamVideosResponse>>("api/soccer/team/me/videos");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         /// <summary>공개 팀 홈페이지 조회 (비로그인 가능). 미존재·비공개·오류 시 null.</summary>
         public async Task<TeamPublicHomeResponse?> GetTeamHomeAsync(string slug)
         {

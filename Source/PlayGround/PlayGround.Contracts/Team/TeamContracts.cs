@@ -143,6 +143,61 @@ namespace PlayGround.Contracts.Team
         public bool HasPublicProfile { get; set; }
     }
 
+    /// <summary>팀 시즌 경기 결과 묶음 (팀 대시보드 경기 결과 섹션). 시즌 요약(승무패·득실)은 클라이언트 집계.</summary>
+    public class TeamMatchesResponse
+    {
+        public int SeasonYear { get; set; }
+
+        /// <summary>해당 시즌 리그 순위 (League 스테이지의 우리 팀 행). 리그 미참여면 null — 카드 숨김.</summary>
+        public int? LeagueRank { get; set; }
+
+        public List<TeamMatchDto> Matches { get; set; } = new();
+    }
+
+    /// <summary>팀 관점으로 변환된 종료 경기 한 건. 승무패는 스코어에서 클라이언트 파생.</summary>
+    public class TeamMatchDto
+    {
+        public Guid MatchId { get; set; }
+
+        /// <summary>SoccerCompetitionType 멤버 이름 — 친선=대회 없음, League=리그 대회, 그 외 Cup (서버 파생).</summary>
+        public string CompetitionType { get; set; } = string.Empty;
+        public string? TournamentName { get; set; }
+        public DateTime? MatchedAt { get; set; }
+        public string? VenueName { get; set; }
+        public bool IsHome { get; set; }
+        public string OpponentName { get; set; } = string.Empty;
+        public int TeamScore { get; set; }
+        public int OpponentScore { get; set; }
+        public List<TeamMatchEventDto> Events { get; set; } = new();
+    }
+
+    /// <summary>우리 팀 득점 이벤트 (칩 조립 원자료 — "득점 김민준 ×2"는 클라이언트 그룹핑).</summary>
+    public class TeamMatchEventDto
+    {
+        public string EventType { get; set; } = string.Empty;   // 'Goal','PenaltyGoal','OwnGoal'
+        public string? PlayerName { get; set; }
+        public string? AssistPlayerName { get; set; }
+    }
+
+    /// <summary>팀 경기영상 목록 (팀 대시보드 경기영상 섹션).</summary>
+    public class TeamVideosResponse
+    {
+        public List<TeamVideoDto> Videos { get; set; } = new();
+    }
+
+    /// <summary>경기영상 한 건. 길이 표시("4:12")는 클라이언트 포맷.</summary>
+    public class TeamVideoDto
+    {
+        public Guid VideoId { get; set; }
+        public string VideoType { get; set; } = string.Empty;   // SoccerVideoType 멤버 이름
+        public string Title { get; set; } = string.Empty;
+        public string VideoUrl { get; set; } = string.Empty;
+        public string? ThumbnailUrl { get; set; }
+        public int? DurationSeconds { get; set; }
+        public DateOnly? RecordedOn { get; set; }
+        public bool IsMatchLinked { get; set; }                 // 메타 "경기 결과와 연결됨"
+    }
+
     /// <summary>공식 채널 한 개. ChannelType은 SoccerChannelType enum 멤버 이름 문자열.</summary>
     public class TeamChannelDto
     {

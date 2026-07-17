@@ -1,89 +1,129 @@
 @* 경기영상 섹션: 유형 필터 + 유튜브 영상 카드 그리드 — SPEC.TEAMDASHBOARD.md §5
-   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+   영상 없으면 현재 상태 + 등록 가이드 안내 *@
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
-        <h1 class="@Css.Dashboard.SectionTitle">경기영상 <span class="text-sm font-bold text-text-muted">@(Videos.Length)개</span></h1>
+        <h1 class="@Css.Dashboard.SectionTitle">경기영상 <span class="text-sm font-bold text-text-muted">@(Data.Videos.Count)개</span></h1>
         <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 영상 등록</button>
     </div>
 
-    @* 유형 필터 (null = 전체) *@
-    <div class="flex gap-2">
-        @foreach (SoccerVideoType? tab in FilterTabs)
-        {
-            SoccerVideoType? filter = tab;
-            <button type="button" class="@(mFilter == filter ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
-                    @onclick="() => mFilter = filter">@FilterLabel(filter)</button>
-        }
-    </div>
+    @if (Data.Videos.Count == 0)
+    {
+        @* 빈 상태: 현재 상태 + 등록 가이드 (주 액션은 헤더의 ＋ 영상 등록 하나 유지) *@
+        <div class="bg-white border-1.5 border-dashed border-border rounded-[16px] px-6 py-14 flex flex-col items-center gap-2.5 text-center">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-text-faint"><rect x="3" y="5" width="18" height="14.5" rx="3"></rect><path d="M10 9.5l5 3-5 3z"></path></svg>
+            <span class="text-[15px] font-extrabold text-navy-deep">아직 등록된 영상이 없어요</span>
+            <span class="text-[13px] text-text-body leading-[1.7] break-keep">＋ 영상 등록으로 유튜브 링크를 붙여넣어 보세요.<br />경기와 연결된 영상은 경기 결과 상세와 공개 홈페이지에 자동으로 노출돼요.</span>
+        </div>
+    }
+    else
+    {
+        @* 유형 필터 (null = 전체) *@
+        <div class="flex gap-2">
+            @foreach (SoccerVideoType? tab in FilterTabs)
+            {
+                SoccerVideoType? filter = tab;
+                <button type="button" class="@(mFilter == filter ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
+                        @onclick="() => mFilter = filter">@FilterLabel(filter)</button>
+            }
+        </div>
 
-    @* 영상 카드 *@
-    <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
-        @foreach (TeamVideo video in FilteredVideos)
-        {
-            <div class="@($"{Css.Dashboard.Card} rounded-[14px] overflow-hidden flex flex-col")">
-                <div class="w-full aspect-video relative bg-navy-deep">
-                    @if (video.ThumbnailUrl is not null)
-                    {
-                        <img src="@video.ThumbnailUrl" alt="@video.Title" class="absolute inset-0 w-full h-full object-cover" />
-                    }
-                    else
-                    {
-                        <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">영상 썸네일</span>
-                    }
-                    <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span class="w-11 h-11 rounded-full bg-black/65 flex items-center justify-center">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+        @* 영상 카드 *@
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+            @foreach (TeamVideoDto video in FilteredVideos)
+            {
+                <div class="@($"{Css.Dashboard.Card} rounded-[14px] overflow-hidden flex flex-col")">
+                    <a href="@video.VideoUrl" target="_blank" rel="noopener" class="block w-full aspect-video relative bg-navy-deep">
+                        @if (video.ThumbnailUrl is not null)
+                        {
+                            <img src="@video.ThumbnailUrl" alt="@video.Title" class="absolute inset-0 w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">영상 썸네일</span>
+                        }
+                        <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span class="w-11 h-11 rounded-full bg-black/65 flex items-center justify-center">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+                            </span>
                         </span>
-                    </span>
-                    <span class="absolute bottom-2 right-2 text-[11px] font-bold text-white bg-black/75 rounded-[5px] px-[7px] py-0.5 pointer-events-none">@video.Duration</span>
-                </div>
-                <div class="px-4 pt-3.5 pb-4 flex flex-col gap-2">
-                    <div class="flex gap-[7px] items-center">
-                        <span class="@TypeClass(video.Type)">@video.Type.ToLabel()</span>
-                        <BrandIcon Type="BrandIcon.BrandIconType.YouTube" />
-                        <span class="text-[11.5px] text-text-muted">유튜브</span>
+                        @if (video.DurationSeconds is not null)
+                        {
+                            <span class="absolute bottom-2 right-2 text-[11px] font-bold text-white bg-black/75 rounded-[5px] px-[7px] py-0.5 pointer-events-none">@FormatDuration(video.DurationSeconds.Value)</span>
+                        }
+                    </a>
+                    <div class="px-4 pt-3.5 pb-4 flex flex-col gap-2">
+                        <div class="flex gap-[7px] items-center">
+                            <span class="@TypeClass(TypeOf(video))">@TypeOf(video).ToLabel()</span>
+                            <BrandIcon Type="BrandIcon.BrandIconType.YouTube" />
+                            <span class="text-[11.5px] text-text-muted">유튜브</span>
+                        </div>
+                        <a href="@video.VideoUrl" target="_blank" rel="noopener" class="text-[14.5px] font-bold text-navy-deep hover:text-orange transition-colors leading-[1.45] break-keep">@video.Title</a>
+                        @{
+                            string meta = MetaLine(video);
+                        }
+                        @if (meta.Length > 0)
+                        {
+                            <span class="text-[12.5px] text-text-muted whitespace-nowrap">@meta</span>
+                        }
                     </div>
-                    <a href="#" class="text-[14.5px] font-bold text-navy-deep hover:text-orange transition-colors leading-[1.45] break-keep">@video.Title</a>
-                    <span class="text-[12.5px] text-text-muted whitespace-nowrap">@video.Meta</span>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
 
-    @* 등록 방식 안내 *@
-    <div class="flex gap-2.5 items-start bg-surface-alt rounded-xl px-4 py-[13px]">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="shrink-0 mt-0.5 text-text-muted"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.1"></path></svg>
-        <span class="text-[13px] text-text-strong leading-[1.6] break-keep">영상은 유튜브 링크로 등록해요 — 파일 업로드 없이 링크만 붙여넣으면 됩니다. 경기와 연결된 영상은 <b>경기 결과 상세와 공개 홈페이지</b>에 자동으로 노출돼요.</span>
-    </div>
+        @* 등록 방식 안내 *@
+        <div class="flex gap-2.5 items-start bg-surface-alt rounded-xl px-4 py-[13px]">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="shrink-0 mt-0.5 text-text-muted"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.1"></path></svg>
+            <span class="text-[13px] text-text-strong leading-[1.6] break-keep">영상은 유튜브 링크로 등록해요 — 파일 업로드 없이 링크만 붙여넣으면 됩니다. 경기와 연결된 영상은 <b>경기 결과 상세와 공개 홈페이지</b>에 자동으로 노출돼요.</span>
+        </div>
+    }
 </div>
 
 @code {
     private SoccerVideoType? mFilter;
 
-    private sealed record TeamVideo(SoccerVideoType Type, string Title, string Meta, string Duration, string? ThumbnailUrl = null);
+    [Parameter, EditorRequired]
+    public TeamVideosResponse Data { get; set; } = new();
 
     private static readonly SoccerVideoType?[] FilterTabs =
         [null, SoccerVideoType.Highlight, SoccerVideoType.FullMatch, SoccerVideoType.Training];
 
-    private static string Pexels(long id) =>
-        $"https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg?auto=compress&cs=tinysrgb&w=600";
+    private IEnumerable<TeamVideoDto> FilteredVideos =>
+        mFilter is null ? Data.Videos : Data.Videos.Where(video => TypeOf(video) == mFilter);
 
-    private static readonly TeamVideo[] Videos =
-    [
-        new(SoccerVideoType.Highlight, "리그 12R vs 강동 SC 3:1 하이라이트", "7/5 · 경기 결과와 연결됨", "4:12", Pexels(33257251)),
-        new(SoccerVideoType.FullMatch, "리그 12R vs 강동 SC 풀경기", "7/5 · 경기 결과와 연결됨", "78:30"),
-        new(SoccerVideoType.Highlight, "한강배 유스컵 vs 마포 1:1 하이라이트", "6/28 · 경기 결과와 연결됨", "3:45", Pexels(35481332)),
-        new(SoccerVideoType.Training, "주간 훈련 스케치 — 빌드업 세션", "6/24", "2:20"),
-    ];
+    //.// 표시 파생 — PC·모바일 공유
 
-    private IEnumerable<TeamVideo> FilteredVideos =>
-        mFilter is null ? Videos : Videos.Where(video => video.Type == mFilter);
+    internal static SoccerVideoType TypeOf(TeamVideoDto video)
+    {
+        return Enum.TryParse(video.VideoType, out SoccerVideoType parsed) ? parsed : SoccerVideoType.Highlight;
+    }
+
+    // 4710초 → "78:30"
+    internal static string FormatDuration(int seconds)
+    {
+        return $"{seconds / 60}:{seconds % 60:00}";
+    }
+
+    // "7/5 · 경기 결과와 연결됨" — 있는 항목만
+    internal static string MetaLine(TeamVideoDto video)
+    {
+        List<string> parts = new();
+        if (video.RecordedOn is not null)
+        {
+            parts.Add($"{video.RecordedOn.Value.Month}/{video.RecordedOn.Value.Day}");
+        }
+        if (video.IsMatchLinked)
+        {
+            parts.Add("경기 결과와 연결됨");
+        }
+        return string.Join(" · ", parts);
+    }
 
     private static string FilterLabel(SoccerVideoType? filter) => filter?.ToLabel() ?? "전체";
 
-    private static string TypeClass(SoccerVideoType type) =>
+    internal static string TypeClass(SoccerVideoType type) =>
         "text-[11px] font-bold rounded-full px-2.5 py-[3px] whitespace-nowrap " + type switch
         {
             SoccerVideoType.Highlight => "text-orange-ink bg-surface-orange-badge",

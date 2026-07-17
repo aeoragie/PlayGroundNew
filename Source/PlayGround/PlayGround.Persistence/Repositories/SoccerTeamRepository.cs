@@ -272,6 +272,107 @@ namespace PlayGround.Persistence.Repositories
             return Result<TeamPublicHomeResponse?>.Success(response);
         }
 
+        public async Task<Result<TeamMatchesResponse>> GetTeamMatchesByManagerAsync(Guid managerUserId, int seasonYear, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team matches requested", ("ManagerUserId", managerUserId), ("SeasonYear", seasonYear));
+
+            var procedure = new UspGetSoccerTeamMatchesByManager(this) { ManagerUserId = managerUserId, SeasonYear = seasonYear };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Team matches query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<TeamMatchesResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            Guid? teamId = await reader.ReadSingleOrDefaultAsync<Guid?>();
+            var matches = (await reader.ReadAsync<SoccerTeamMatchRecord>()).ToList();
+            var events = (await reader.ReadAsync<SoccerMatchEventsEntity>()).ToList();
+            int? leagueRank = await reader.ReadSingleOrDefaultAsync<int?>();
+
+            var response = new TeamMatchesResponse
+            {
+                SeasonYear = seasonYear,
+                LeagueRank = leagueRank,
+                Matches = matches
+                    .Select(m =>
+                    {
+                        bool isHome = m.HomeTeamId == teamId;
+                        return new TeamMatchDto
+                        {
+                            MatchId = m.MatchId,
+                            CompetitionType = CompetitionTypeOf(m),
+                            TournamentName = NullIfEmpty(m.Name),
+                            MatchedAt = m.MatchedAt,
+                            VenueName = NullIfEmpty(m.VenueName),
+                            IsHome = isHome,
+                            OpponentName = isHome ? m.AwayTeamName : m.HomeTeamName,
+                            TeamScore = (isHome ? m.HomeScore : m.AwayScore) ?? 0,
+                            OpponentScore = (isHome ? m.AwayScore : m.HomeScore) ?? 0,
+                            Events = events
+                                .Where(e => e.MatchId == m.MatchId)
+                                .Select(e => new TeamMatchEventDto
+                                {
+                                    EventType = e.EventType,
+                                    PlayerName = NullIfEmpty(e.PlayerName),
+                                    AssistPlayerName = NullIfEmpty(e.AssistPlayerName)
+                                })
+                                .ToList()
+                        };
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Team matches received", ("ManagerUserId", managerUserId),
+                ("Matches", response.Matches.Count), ("LeagueRank", leagueRank));
+
+            return Result<TeamMatchesResponse>.Success(response);
+        }
+
+        public async Task<Result<TeamVideosResponse>> GetTeamVideosByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team videos requested", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerTeamVideosByManager(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerMatchVideosEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Team videos query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<TeamVideosResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new TeamVideosResponse
+            {
+                Videos = queryResult.Values1
+                    .Select(v => new TeamVideoDto
+                    {
+                        VideoId = v.VideoId,
+                        VideoType = v.VideoType,
+                        Title = v.Title,
+                        VideoUrl = v.VideoUrl,
+                        ThumbnailUrl = NullIfEmpty(v.ThumbnailUrl),
+                        DurationSeconds = v.DurationSeconds,
+                        RecordedOn = v.RecordedOn is null ? null : DateOnly.FromDateTime(v.RecordedOn.Value),
+                        IsMatchLinked = v.MatchId is not null
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Team videos received", ("ManagerUserId", managerUserId), ("Videos", response.Videos.Count));
+            return Result<TeamVideosResponse>.Success(response);
+        }
+
+        // 친선 = 대회 없음, League 형식 = 리그, 그 외(Cup/Split) = 컵
+        private static string CompetitionTypeOf(SoccerTeamMatchRecord match)
+        {
+            if (match.TournamentId is null)
+            {
+                return "Friendly";
+            }
+
+            return match.Format == "League" ? "League" : "Cup";
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

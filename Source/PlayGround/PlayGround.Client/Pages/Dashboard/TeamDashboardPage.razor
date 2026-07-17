@@ -28,10 +28,16 @@
                     <ScheduleSection />
                     break;
                 case SoccerTeamDashboardSection.Results:
-                    <MatchResultsSection />
+                    @if (mMatches is not null)
+                    {
+                        <MatchResultsSection Data="@mMatches" TeamName="@(mInfo?.Profile.TeamName ?? "")" />
+                    }
                     break;
                 case SoccerTeamDashboardSection.Videos:
-                    <VideosSection />
+                    @if (mVideos is not null)
+                    {
+                        <VideosSection Data="@mVideos" />
+                    }
                     break;
                 case SoccerTeamDashboardSection.Recruit:
                     <RecruitSection />
@@ -64,7 +70,11 @@
                 break;
             case SoccerTeamDashboardSection.Results:
             case SoccerTeamDashboardSection.Videos:
-                <MobileMatchSection ActiveSection="@CurrentSection" />
+                @if (mMatches is not null && mVideos is not null)
+                {
+                    <MobileMatchSection ActiveSection="@CurrentSection" Matches="@mMatches" Videos="@mVideos"
+                                        TeamName="@(mInfo?.Profile.TeamName ?? "")" />
+                }
                 break;
             case SoccerTeamDashboardSection.Recruit:
                 <MobileRecruitSection />
@@ -86,8 +96,12 @@
 
     private TeamInfoResponse? mInfo;
     private TeamRosterResponse? mRoster;
+    private TeamMatchesResponse? mMatches;
+    private TeamVideosResponse? mVideos;
     private bool mAuthenticated;
     private bool mRosterRequested;
+    private bool mMatchesRequested;
+    private bool mVideosRequested;
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
@@ -105,13 +119,33 @@
         mInfo = await Teams.GetTeamInfoAsync();
     }
 
-    // 선수단은 섹션 진입 시 지연 로드 (한 번만 — 섹션 재방문 시 재요청하지 않는다)
+    // 섹션 진입 시 지연 로드 (한 번만 — 섹션 재방문 시 재요청하지 않는다)
     protected override async Task OnParametersSetAsync()
     {
-        if (CurrentSection == SoccerTeamDashboardSection.Roster && mAuthenticated && !mRosterRequested)
+        if (!mAuthenticated)
+        {
+            return;
+        }
+
+        if (CurrentSection == SoccerTeamDashboardSection.Roster && !mRosterRequested)
         {
             mRosterRequested = true;
             mRoster = await Teams.GetTeamRosterAsync();
+        }
+        else if (CurrentSection is SoccerTeamDashboardSection.Results or SoccerTeamDashboardSection.Videos)
+        {
+            // 모바일은 결과·영상이 한 화면(서브탭)이라 함께 로드한다
+            if (!mMatchesRequested)
+            {
+                mMatchesRequested = true;
+                mMatches = await Teams.GetTeamMatchesAsync(DateTime.Now.Year);
+            }
+
+            if (!mVideosRequested)
+            {
+                mVideosRequested = true;
+                mVideos = await Teams.GetTeamVideosAsync();
+            }
         }
     }
 }

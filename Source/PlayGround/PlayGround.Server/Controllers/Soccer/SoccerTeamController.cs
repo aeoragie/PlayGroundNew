@@ -73,5 +73,34 @@ namespace PlayGround.Server.Controllers.Soccer
                 ActorNames.SoccerTeamInfo, new GetSoccerTeamRosterMessage(userId), cancellation);
             return result.ToEnvelope();
         }
+
+        [HttpGet("me/matches")]
+        public async Task<Envelope<TeamMatchesResponse>> GetMyTeamMatchesAsync(
+            [FromQuery] int season, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamMatchesResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamMatchesResponse> result = await mGateway.AskAsync<TeamMatchesResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamMatchesMessage(userId, season), cancellation);
+            return result.ToEnvelope();
+        }
+
+        [HttpGet("me/videos")]
+        public async Task<Envelope<TeamVideosResponse>> GetMyTeamVideosAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamVideosResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamVideosResponse> result = await mGateway.AskAsync<TeamVideosResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamVideosMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
     }
 }

@@ -68,11 +68,24 @@
 
 ### 다음 작업 (우선순위)
 
-1. **Records 구현 계속** — 스키마·목록+아카이브·상세 완료(아래). 다음 = **팀 대시보드
-   경기 결과·영상 연동**(목데이터 교체 — 시즌 요약·대회 필터·이벤트 칩은 Matches/Events에서
-   집계) → 선수 시즌 통계 → 공개 홈 시즌성적. 단계별 검수 (`Docs/Architecture/MatchSchemaDesign.md` §6).
+1. **Records 구현 계속** — 스키마·목록+아카이브·상세·팀 대시보드 경기 연동 완료(아래).
+   다음 = **선수 시즌 통계 연동**(Appearances+Events 자동 집계 — MatchSchemaDesign §4의
+   `UspGetSoccerPlayerSeasonStats` 설계 참조, 시즌 pill = 출전 연도) → 공개 홈 시즌성적 탭.
+   단계별 검수 (`Docs/Architecture/MatchSchemaDesign.md` §6).
 2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
    커리어·포트폴리오 입력(추가/수정) UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+
+### 팀 대시보드 경기 결과·영상 연동 — 완료 (2026-07-16)
+
+- `UspGetSoccerTeamMatchesByManager`(4결과셋: ⓪TeamId → ①종료 경기+대회명·형식 → ②우리 팀
+  이벤트 → ③리그 순위) → `GET api/soccer/team/me/matches?season=` / `UspGetSoccerTeamVideosByManager`
+  (팀 소유+팀 경기 연결 영상) → `me/videos`. 기존 팀 읽기 액터에 핸들러 추가.
+- 팀 관점 변환(IsHome·상대·아군 스코어)은 Persistence, 승무패·시즌 요약(승무패·득실)·이벤트 칩
+  ("득점 김민준 ×2" — 이름 있는 이벤트 그룹핑, 자책 제외)은 클라이언트. 대회 구분 서버 파생
+  (친선=대회 NULL, League, 그 외 Cup). 리그 순위 카드는 League 순위표에 팀 행 있을 때만.
+- PC 경기 결과·경기영상 + 모바일 경기(결과/영상 서브탭) 바인딩, 섹션 진입 시 지연 로드
+  (모바일 서브탭 공용이라 결과·영상 함께 로드). 빈 상태 점선 카드. 시드에 검증fc 친선 이벤트 추가.
+  화면 검증 완료(검증fc 친선·신답 리그 순위·모바일). **새 Tailwind 클래스 추가 시 css:build 필수.**
 
 ### Records 상세 — 완료 (2026-07-16)
 

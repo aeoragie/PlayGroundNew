@@ -1,6 +1,7 @@
 @* 경기 결과 섹션: 시즌 요약 4카드 + 대회 필터 + 경기 카드 — SPEC.TEAMDASHBOARD.md §4
-   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+   결과 없으면 현재 상태 + 등록 가이드 안내. 승무패·요약은 팀 관점 스코어에서 파생 *@
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
@@ -8,66 +9,84 @@
         <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 결과 입력</button>
     </div>
 
-    @* 시즌 요약 *@
-    <div class="grid grid-cols-4 gap-3">
-        <div class="bg-navy-deep rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px] text-white">
-            <span class="text-xs font-bold text-white/60">2026 시즌</span>
-            <span class="text-[21px] font-extrabold">8승 2무 1패</span>
+    @if (Data.Matches.Count == 0)
+    {
+        @* 빈 상태: 현재 상태 + 등록 가이드 (주 액션은 헤더의 ＋ 결과 입력 하나 유지) *@
+        <div class="bg-white border-1.5 border-dashed border-border rounded-[16px] px-6 py-14 flex flex-col items-center gap-2.5 text-center">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="text-text-faint"><path d="M5 20V11M12 20V4M19 20v-6"></path></svg>
+            <span class="text-[15px] font-extrabold text-navy-deep">아직 등록된 경기 결과가 없어요</span>
+            <span class="text-[13px] text-text-body leading-[1.7] break-keep">＋ 결과 입력으로 첫 경기를 기록해 보세요.<br />득점·도움은 선수 시즌 통계에, 결과는 공개 홈페이지와 경기기록(Records)에 자동 반영돼요.</span>
         </div>
-        <div class="@SummaryCardClass">
-            <span class="text-xs font-bold text-text-muted">득점</span>
-            <span class="text-[21px] font-extrabold text-navy-deep">24</span>
-        </div>
-        <div class="@SummaryCardClass">
-            <span class="text-xs font-bold text-text-muted">실점</span>
-            <span class="text-[21px] font-extrabold text-navy-deep">9</span>
-        </div>
-        <div class="@SummaryCardClass">
-            <span class="text-xs font-bold text-text-muted">리그 순위</span>
-            <span class="text-[21px] font-extrabold text-navy-deep">2위 <span class="text-[13px] font-bold text-teal-ink">▲1</span></span>
-        </div>
-    </div>
-
-    @* 대회 필터 (null = 전체) *@
-    <div class="flex gap-2">
-        @foreach (SoccerCompetitionType? tab in FilterTabs)
-        {
-            SoccerCompetitionType? filter = tab;
-            <button type="button" class="@(mFilter == filter ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
-                    @onclick="() => mFilter = filter">@FilterLabel(filter)</button>
-        }
-    </div>
-
-    @* 경기 카드 *@
-    <div class="flex flex-col gap-3">
-        @foreach (MatchResult match in FilteredResults)
-        {
-            <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-[18px] flex flex-col gap-3")">
-                <div class="flex items-center gap-3.5">
-                    <span class="@CompetitionClass(match.Competition)">@match.Competition.ToLabel()</span>
-                    <span class="text-[12.5px] text-text-muted">@match.Date · @match.Venue</span>
-                    <div class="flex-1"></div>
-                    <span class="@OutcomeClass(match.Outcome)">@match.Outcome.ToLabel()</span>
-                </div>
-                <div class="flex items-center justify-center gap-[22px]">
-                    <span class="text-[15.5px] font-extrabold text-navy-deep flex-1 text-right">FC 한강 유나이티드</span>
-                    <span class="text-2xl font-extrabold text-navy-deep bg-surface-alt rounded-[10px] px-[18px] py-1.5 whitespace-nowrap">@match.Score</span>
-                    <span class="text-[15.5px] font-bold text-text-body flex-1">@match.Opponent</span>
-                </div>
-                @if (match.Events.Length > 0)
-                {
-                    <div class="flex gap-2 flex-wrap justify-center">
-                        @foreach (string matchEvent in match.Events)
-                        {
-                            <span class="text-xs font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap">@matchEvent</span>
-                        }
-                    </div>
-                }
+    }
+    else
+    {
+        @* 시즌 요약 *@
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-navy-deep rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px] text-white">
+                <span class="text-xs font-bold text-white/60">@(Data.SeasonYear) 시즌</span>
+                <span class="text-[21px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
             </div>
-        }
-    </div>
+            <div class="@SummaryCardClass">
+                <span class="text-xs font-bold text-text-muted">득점</span>
+                <span class="text-[21px] font-extrabold text-navy-deep">@GoalsFor</span>
+            </div>
+            <div class="@SummaryCardClass">
+                <span class="text-xs font-bold text-text-muted">실점</span>
+                <span class="text-[21px] font-extrabold text-navy-deep">@GoalsAgainst</span>
+            </div>
+            @if (Data.LeagueRank is not null)
+            {
+                <div class="@SummaryCardClass">
+                    <span class="text-xs font-bold text-text-muted">리그 순위</span>
+                    <span class="text-[21px] font-extrabold text-navy-deep">@(Data.LeagueRank)위</span>
+                </div>
+            }
+        </div>
 
-    <div class="text-[12.5px] text-text-muted break-keep">득점·도움은 해당 선수 프로필의 시즌 통계에 자동 반영 · 결과는 공개 홈페이지와 경기기록(Records)에 노출돼요</div>
+        @* 대회 필터 (null = 전체) *@
+        <div class="flex gap-2">
+            @foreach (SoccerCompetitionType? tab in FilterTabs)
+            {
+                SoccerCompetitionType? filter = tab;
+                <button type="button" class="@(mFilter == filter ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
+                        @onclick="() => mFilter = filter">@FilterLabel(filter)</button>
+            }
+        </div>
+
+        @* 경기 카드 *@
+        <div class="flex flex-col gap-3">
+            @foreach (TeamMatchDto match in FilteredMatches)
+            {
+                <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-[18px] flex flex-col gap-3")">
+                    <div class="flex items-center gap-3.5">
+                        <span class="@CompetitionClass(CompetitionOf(match))">@CompetitionOf(match).ToLabel()</span>
+                        <span class="text-[12.5px] text-text-muted">@MetaLine(match)</span>
+                        <div class="flex-1"></div>
+                        <span class="@OutcomeClass(OutcomeOf(match))">@OutcomeOf(match).ToLabel()</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-[22px]">
+                        <span class="text-[15.5px] font-extrabold text-navy-deep flex-1 text-right break-keep">@TeamName</span>
+                        <span class="text-2xl font-extrabold text-navy-deep bg-surface-alt rounded-[10px] px-[18px] py-1.5 whitespace-nowrap">@match.TeamScore : @match.OpponentScore</span>
+                        <span class="text-[15.5px] font-bold text-text-body flex-1 break-keep">@match.OpponentName</span>
+                    </div>
+                    @{
+                        List<string> chips = EventChips(match);
+                    }
+                    @if (chips.Count > 0)
+                    {
+                        <div class="flex gap-2 flex-wrap justify-center">
+                            @foreach (string chip in chips)
+                            {
+                                <span class="text-xs font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap">@chip</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="text-[12.5px] text-text-muted break-keep">득점·도움은 해당 선수 프로필의 시즌 통계에 자동 반영 · 결과는 공개 홈페이지와 경기기록(Records)에 노출돼요</div>
+    }
 </div>
 
 @code {
@@ -76,25 +95,69 @@
 
     private SoccerCompetitionType? mFilter;
 
-    private sealed record MatchResult(SoccerCompetitionType Competition, string Date, string Venue, string Opponent, string Score, SoccerMatchOutcome Outcome, string[] Events);
+    [Parameter, EditorRequired]
+    public TeamMatchesResponse Data { get; set; } = new();
+
+    /// <summary>경기 카드의 아군 팀명 (페이지가 팀 프로필에서 전달).</summary>
+    [Parameter, EditorRequired]
+    public string TeamName { get; set; } = string.Empty;
 
     private static readonly SoccerCompetitionType?[] FilterTabs =
         [null, SoccerCompetitionType.League, SoccerCompetitionType.Cup, SoccerCompetitionType.Friendly];
 
-    private static readonly MatchResult[] Results =
-    [
-        new(SoccerCompetitionType.League, "7/5", "홈", "강동 SC", "3 : 1", SoccerMatchOutcome.Win, ["득점 김민준 ×2", "득점 정하준", "도움 이서준 ×2"]),
-        new(SoccerCompetitionType.Cup, "6/28", "난지", "마포 유나이티드", "1 : 1", SoccerMatchOutcome.Draw, ["득점 강지호", "도움 김민준"]),
-        new(SoccerCompetitionType.Friendly, "6/21", "홈", "광진 FC", "2 : 0", SoccerMatchOutcome.Win, ["득점 김민준", "득점 윤태양"]),
-        new(SoccerCompetitionType.League, "6/14", "원정", "성동 드래곤즈", "0 : 2", SoccerMatchOutcome.Loss, []),
-    ];
+    private IEnumerable<TeamMatchDto> FilteredMatches =>
+        mFilter is null ? Data.Matches : Data.Matches.Where(match => CompetitionOf(match) == mFilter);
 
-    private IEnumerable<MatchResult> FilteredResults =>
-        mFilter is null ? Results : Results.Where(match => match.Competition == mFilter);
+    //.// 요약 집계 (팀 관점 스코어)
+
+    private int Wins => Data.Matches.Count(m => m.TeamScore > m.OpponentScore);
+    private int Draws => Data.Matches.Count(m => m.TeamScore == m.OpponentScore);
+    private int Losses => Data.Matches.Count(m => m.TeamScore < m.OpponentScore);
+    private int GoalsFor => Data.Matches.Sum(m => m.TeamScore);
+    private int GoalsAgainst => Data.Matches.Sum(m => m.OpponentScore);
+
+    //.// 표시 파생 — PC·모바일 공유
+
+    internal static SoccerCompetitionType CompetitionOf(TeamMatchDto match)
+    {
+        return Enum.TryParse(match.CompetitionType, out SoccerCompetitionType parsed) ? parsed : SoccerCompetitionType.Friendly;
+    }
+
+    internal static SoccerMatchOutcome OutcomeOf(TeamMatchDto match)
+    {
+        if (match.TeamScore > match.OpponentScore)
+        {
+            return SoccerMatchOutcome.Win;
+        }
+
+        return match.TeamScore == match.OpponentScore ? SoccerMatchOutcome.Draw : SoccerMatchOutcome.Loss;
+    }
+
+    // "7/5 · 신답체육공원" — 구장 없으면 홈/원정
+    internal static string MetaLine(TeamMatchDto match)
+    {
+        string date = match.MatchedAt is null ? "일정 미정" : $"{match.MatchedAt.Value.Month}/{match.MatchedAt.Value.Day}";
+        return $"{date} · {match.VenueName ?? (match.IsHome ? "홈" : "원정")}";
+    }
+
+    // "득점 김민준 ×2" / "도움 이서준" — 이름 있는 이벤트만, 자책골 제외
+    internal static List<string> EventChips(TeamMatchDto match)
+    {
+        List<string> chips = new();
+        chips.AddRange(match.Events
+            .Where(e => e.EventType != "OwnGoal" && e.PlayerName is not null)
+            .GroupBy(e => e.PlayerName!)
+            .Select(g => g.Count() > 1 ? $"득점 {g.Key} ×{g.Count()}" : $"득점 {g.Key}"));
+        chips.AddRange(match.Events
+            .Where(e => e.AssistPlayerName is not null)
+            .GroupBy(e => e.AssistPlayerName!)
+            .Select(g => g.Count() > 1 ? $"도움 {g.Key} ×{g.Count()}" : $"도움 {g.Key}"));
+        return chips;
+    }
 
     private static string FilterLabel(SoccerCompetitionType? filter) => filter?.ToLabel() ?? "전체";
 
-    private static string CompetitionClass(SoccerCompetitionType competition) =>
+    internal static string CompetitionClass(SoccerCompetitionType competition) =>
         "text-[11.5px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap " + competition switch
         {
             SoccerCompetitionType.League => "text-navy bg-surface-icon",
@@ -102,7 +165,7 @@
             _ => "text-teal-ink bg-teal/[.12]",
         };
 
-    private static string OutcomeClass(SoccerMatchOutcome outcome) =>
+    internal static string OutcomeClass(SoccerMatchOutcome outcome) =>
         "text-[12.5px] font-extrabold rounded-lg px-[13px] py-[5px] whitespace-nowrap " + outcome switch
         {
             SoccerMatchOutcome.Win => "text-white bg-teal",

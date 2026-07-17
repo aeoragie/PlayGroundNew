@@ -17,5 +17,11 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>공개 팀 홈페이지 묶음 조회 (Slug 기준). 미존재·비공개 팀은 Success(null) — 에러가 아니다.</summary>
         Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, CancellationToken cancellation = default);
+
+        /// <summary>관리자 기준 시즌 종료 경기 목록(팀 관점 변환) + 리그 순위. 경기 없으면 빈 목록 — 에러가 아니다.</summary>
+        Task<Result<TeamMatchesResponse>> GetTeamMatchesByManagerAsync(Guid managerUserId, int seasonYear, CancellationToken cancellation = default);
+
+        /// <summary>관리자 기준 경기영상 목록 (팀 소유 + 팀 경기 연결). 없으면 빈 목록 — 에러가 아니다.</summary>
+        Task<Result<TeamVideosResponse>> GetTeamVideosByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
     }
 }
