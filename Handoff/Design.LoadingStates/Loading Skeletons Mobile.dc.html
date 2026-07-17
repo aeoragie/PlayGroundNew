@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:16px">
+
+<header style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:18px;font-weight:800;letter-spacing:-.02em">스켈레톤 카탈로그 — 모바일 (390px)</span>
+  <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">PC와 동일 규칙(시머 1.6s · 200ms 지연 · 고정 폭 배열). 모바일은 1열 세로 스택, 행형 3개·카드형 4개까지.</span>
+</header>
+
+<!-- 팀 탐색 카드 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">팀 탐색 · 팀 카드</span></div>
+  <div style="padding:14px">
+    <div style="border:1px solid #f1f3f8;border-radius:13px;overflow:hidden">
+      <div style="height:64px;background:linear-gradient(90deg,#e2e7f0 25%,#eef1f7 50%,#e2e7f0 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+      <div style="padding:0 14px 14px;margin-top:-20px">
+        <div style="width:46px;height:46px;border-radius:50%;border:3px solid #fff;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="width:55%;height:13px;border-radius:6px;margin-top:10px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="width:80%;height:9px;border-radius:6px;margin-top:8px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <div style="width:58px;height:20px;border-radius:99px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+          <div style="width:48px;height:20px;border-radius:99px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 선수 카드 2열 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">선수단 · 선수 카드 (2열)</span></div>
+  <div style="padding:14px;display:flex;gap:10px">
+    <sc-for list="{{ two }}" as="i" hint-placeholder-count="2">
+      <div style="flex:1;border:1px solid #f1f3f8;border-radius:13px;padding:14px;display:flex;flex-direction:column;align-items:center">
+        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="width:62%;height:11px;border-radius:6px;margin-top:10px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="width:42%;height:8px;border-radius:6px;margin-top:7px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- 경기기록 행 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">경기기록 · 대회/리그 행</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:9px">
+    <sc-for list="{{ three }}" as="i" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:11px;border:1px solid #f1f3f8;border-radius:11px;padding:11px 12px">
+        <div style="width:34px;height:34px;border-radius:9px;flex:none;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div style="width:75%;height:10px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+          <div style="width:45%;height:8px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        </div>
+        <div style="width:48px;height:20px;border-radius:99px;flex:none;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- 대시보드 스탯 3칸 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">대시보드 · 스탯 카드 3칸</span></div>
+  <div style="padding:14px;display:flex;gap:8px">
+    <sc-for list="{{ three }}" as="i" hint-placeholder-count="3">
+      <div style="flex:1;border:1px solid #f1f3f8;border-radius:11px;padding:12px;display:flex;flex-direction:column;gap:8px">
+        <div style="width:55%;height:8px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="width:32px;height:18px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- 알림 센터 행 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">알림 센터 · 알림 행</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:11px">
+    <sc-for list="{{ three }}" as="i" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="width:32px;height:32px;border-radius:50%;flex:none;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div style="width:88%;height:9px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+          <div style="width:32%;height:7px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- 선수 프로필 헤더 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">공개 선수 프로필 · 헤더</span></div>
+  <div style="padding:14px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:54px;height:54px;border-radius:50%;flex:none;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+        <div style="width:45%;height:13px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+        <div style="width:65%;height:9px;border-radius:6px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <sc-for list="{{ three }}" as="i" hint-placeholder-count="3">
+        <div style="flex:1;height:46px;border-radius:11px;background:linear-gradient(90deg,#e9edf4 25%,#f4f6fa 50%,#e9edf4 75%);background-size:200% 100%;animation:sh 1.6s infinite"></div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">PC 카탈로그와 동일 규칙 적용 · 모바일 추가 규칙: 스크롤 진입 전 영역은 렌더 생략 가능(뷰포트 + 1화면분만).</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1500}}">
+class Component extends DCLogic {
+  renderVals() { return { two: [1, 2], three: [1, 2, 3] }; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:16px">
+
+<header style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:18px;font-weight:800;letter-spacing:-.02em">폼 패턴 — 모바일 (390px)</span>
+  <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">PC와 동일 규칙 + 모바일 추가: 필드 높이 46px · 폰트 16px 이상(iOS 자동 줌 방지) · inputmode 지정(숫자 키패드) · 제출 버튼 하단 고정 바.</span>
+</header>
+
+<!-- 상태 5종 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">텍스트 필드 · 상태 5종 (높이 46px · 16px)</span></div>
+  <div style="padding:16px;display:flex;flex-direction:column;gap:13px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800;color:#3c465a">기본</span>
+      <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;display:flex;align-items:center;font-size:16px;color:#8a93a6">선수 이름</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800;color:#3c465a">포커스</span>
+      <div style="height:46px;border:1.5px solid #23408e;border-radius:11px;padding:0 13px;display:flex;align-items:center;font-size:16px;box-shadow:0 0 0 3px rgba(35,64,142,.12)">김민준<span style="width:1.5px;height:18px;background:#23408e;margin-left:1px"></span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800;color:#3c465a">채움</span>
+      <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;display:flex;align-items:center;font-size:16px">김민준</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800;color:#c0392b">오류</span>
+      <div style="height:46px;border:1.5px solid #c0392b;border-radius:11px;padding:0 13px;display:flex;align-items:center;font-size:16px">김</div>
+      <span style="font-size:11.5px;font-weight:700;color:#c0392b;word-break:keep-all">이름을 2자 이상 입력해 주세요</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800;color:#8a93a6">비활성</span>
+      <div style="height:46px;border:1.5px solid #eef0f4;border-radius:11px;padding:0 13px;display:flex;align-items:center;font-size:16px;background:#f8f9fb;color:#b6bdc9">등번호는 팀 관리자만 수정</div>
+    </div>
+  </div>
+</div>
+
+<!-- 자동 포맷 + inputmode -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">자동 포맷 · 숫자 키패드 (inputmode)</span></div>
+  <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800">생년월일</span>
+      <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;display:flex;align-items:center;font-size:16px">2011. 03. 14</div>
+      <span style="font-size:11.5px;color:#8a93a6;word-break:keep-all">inputmode="numeric" — 숫자 키패드, 자동 구분</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800">보호자 연락처</span>
+      <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;display:flex;align-items:center;font-size:16px">010-1234-5678</div>
+      <span style="font-size:11.5px;color:#8a93a6;word-break:keep-all">inputmode="tel" · 하이픈 자동 · 프로필에 노출되지 않아요</span>
+    </div>
+  </div>
+</div>
+
+<!-- 선택 컨트롤 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">선택 컨트롤 — 셀렉트는 바텀시트로</span></div>
+  <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800">연령대</span>
+      <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;font-size:16px">U15
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+      </div>
+      <span style="font-size:11.5px;color:#8a93a6;word-break:keep-all">탭하면 바텀시트 목록(네이티브 셀렉트 금지 — 옵션에 부가정보 표시)</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;font-weight:800">주 포지션</span>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+        <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#5b6577;white-space:nowrap">GK</div>
+        <div style="height:46px;border:1.5px solid #23408e;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#23408e;background:rgba(35,64,142,.06);white-space:nowrap">DF</div>
+        <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#5b6577;white-space:nowrap">MF</div>
+        <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#5b6577;white-space:nowrap">FW</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:4px 0">
+      <span style="width:22px;height:22px;border-radius:7px;background:#23408e;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6.5l-11 11-5-5"></path></svg>
+      </span>
+      <span style="font-size:13px;line-height:1.55;word-break:keep-all">만 14세 미만 자녀의 프로필 공개에 동의합니다 <a href="#" style="font-weight:700">약관 보기</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- 하단 고정 제출 바 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">제출 — 하단 고정 바 (키보드 위)</span></div>
+  <div style="padding:16px;background:#eef1f6">
+    <div style="background:#fff;border-top:1px solid #e6e8ee;padding:12px 16px;margin:-16px;margin-top:24px;display:flex;flex-direction:column;gap:8px">
+      <button style="height:48px;border:0;border-radius:12px;background:#23408e;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">저장</button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">제출 버튼은 스크롤 최하단이 아니라 <b>하단 고정 바</b>(키보드 열리면 키보드 위). 로딩 시 스피너+"저장 중…", 이중 제출 잠금. 오류 시 첫 오류 필드로 스크롤(고정 바 높이만큼 오프셋).</div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">검증 타이밍·문구·placeholder 규칙은 PC 카탈로그와 동일 (blur 첫 검증 → 오류 중 즉시 재검증 → 제출 시 첫 오류 포커스).</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1450}}"></script>
+</body>
+</html>

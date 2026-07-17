@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+<!-- 프로토타입 전용 상태 전환 바 (구현 대상 아님) -->
+<div style="background:#1c2b4a;padding:10px 16px;display:flex;gap:8px;justify-content:center">
+  <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2">
+    <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+  </sc-for>
+</div>
+
+<!-- 공통 GNB (게스트 상태) -->
+<header style="background:#1c2b4a;padding:0 32px;height:60px;display:flex;align-items:center;gap:20px">
+  <a href="#" style="display:flex;align-items:baseline;gap:6px">
+    <span style="font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;white-space:nowrap">PlayGround</span>
+    <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,.45);white-space:nowrap">Soccer</span>
+  </a>
+  <div style="flex:1"></div>
+  <a href="#" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.75);white-space:nowrap">경기기록</a>
+  <a href="#" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.75);white-space:nowrap">팀 탐색</a>
+  <a href="#" style="height:38px;padding:0 18px;border:1.5px solid rgba(255,255,255,.25);border-radius:10px;display:flex;align-items:center;font-size:13px;font-weight:700;color:#fff;white-space:nowrap">로그인</a>
+</header>
+
+<!-- ===== 404 ===== -->
+<sc-if value="{{ is404 }}" hint-placeholder-val="{{ true }}">
+<main data-screen-label="404" style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 24px">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0;text-align:center;max-width:460px">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <rect x="16" y="32" width="88" height="58" rx="7" stroke="#c5cfe4" stroke-width="3"></rect>
+      <path d="M60 32v14M60 76v14M16 50h12v22H16M104 50H92v22h12" stroke="#c5cfe4" stroke-width="3" stroke-linejoin="round"></path>
+      <path d="M60 42c-7.2 0-13 5.6-13 12.6C47 64 60 76 60 76s13-12 13-21.4c0-7-5.8-12.6-13-12.6z" stroke="#23408e" stroke-width="3.5" stroke-linejoin="round"></path>
+      <circle cx="60" cy="55" r="3.2" fill="#23408e"></circle>
+    </svg>
+    <span style="font-size:60px;font-weight:800;color:#23408e;letter-spacing:-.03em;margin-top:18px;line-height:1">404</span>
+    <span style="font-size:19px;font-weight:800;margin-top:14px;word-break:keep-all">페이지를 찾을 수 없어요</span>
+    <span style="font-size:13.5px;color:#5b6577;margin-top:8px;line-height:1.65;word-break:keep-all">주소가 바뀌었거나 삭제된 페이지예요.<br>팀·선수를 찾고 있었다면 탐색에서 다시 검색해 보세요.</span>
+    <div style="display:flex;gap:10px;margin-top:26px">
+      <a href="#" style="height:44px;padding:0 22px;background:#23408e;border-radius:11px;display:flex;align-items:center;font-size:13.5px;font-weight:700;color:#fff;white-space:nowrap" style-hover="background:#1c2b4a;color:#fff">홈으로</a>
+      <a href="#" style="height:44px;padding:0 22px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;display:flex;align-items:center;font-size:13.5px;font-weight:700;color:#3c465a;white-space:nowrap">팀 탐색</a>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ===== 403 권한 없음 ===== -->
+<sc-if value="{{ is403 }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="403 권한 없음" style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 24px">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0;text-align:center;max-width:460px">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <path d="M60 18l34 14v25c0 21-14.5 36.5-34 45-19.5-8.5-34-24-34-45V32z" stroke="#c5cfe4" stroke-width="3" stroke-linejoin="round"></path>
+      <rect x="46" y="54" width="28" height="24" rx="5" stroke="#23408e" stroke-width="3.5"></rect>
+      <path d="M52 54v-7a8 8 0 0116 0v7" stroke="#23408e" stroke-width="3.5" stroke-linecap="round"></path>
+      <circle cx="60" cy="66" r="3" fill="#23408e"></circle>
+    </svg>
+    <span style="font-size:19px;font-weight:800;margin-top:24px;word-break:keep-all">볼 수 있는 권한이 없어요</span>
+    <span style="font-size:13.5px;color:#5b6577;margin-top:8px;line-height:1.65;word-break:keep-all">이 페이지는 해당 역할의 계정만 열 수 있어요.<br>다른 계정으로 로그인했는지 확인해 보세요.</span>
+    <div style="display:flex;gap:10px;margin-top:26px">
+      <a href="#" style="height:44px;padding:0 22px;background:#23408e;border-radius:11px;display:flex;align-items:center;font-size:13.5px;font-weight:700;color:#fff;white-space:nowrap" style-hover="background:#1c2b4a;color:#fff">내 대시보드로</a>
+      <a href="#" style="height:44px;padding:0 22px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;display:flex;align-items:center;font-size:13.5px;font-weight:700;color:#3c465a;white-space:nowrap">다른 계정으로 로그인</a>
+    </div>
+    <span style="font-size:11.5px;color:#8a93a6;margin-top:16px;word-break:keep-all">계속 문제가 있다면 팀 관리자 또는 고객센터에 문의하세요.</span>
+  </div>
+</main>
+</sc-if>
+
+<!-- ===== 500 서버 오류 ===== -->
+<sc-if value="{{ is500 }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="500 서버 오류" style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 24px">
+  <div style="display:flex;flex-direction:column;align-items:center;text-align:center;max-width:460px">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <rect x="22" y="28" width="76" height="48" rx="7" stroke="#c5cfe4" stroke-width="3"></rect>
+      <path d="M40 76l-6 18M80 76l6 18M22 42h76" stroke="#c5cfe4" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M60 50v12" stroke="#23408e" stroke-width="4" stroke-linecap="round"></path>
+      <circle cx="60" cy="69" r="2.6" fill="#23408e"></circle>
+      <path d="M100 18l7-6M104 28l9-2" stroke="#FF6B35" stroke-width="3.5" stroke-linecap="round"></path>
+    </svg>
+    <span style="font-size:60px;font-weight:800;color:#23408e;letter-spacing:-.03em;margin-top:18px;line-height:1">500</span>
+    <span style="font-size:19px;font-weight:800;margin-top:14px;word-break:keep-all">일시적인 오류가 발생했어요</span>
+    <span style="font-size:13.5px;color:#5b6577;margin-top:8px;line-height:1.65;word-break:keep-all">서버에 문제가 생겨 요청을 처리하지 못했어요.<br>잠시 후 다시 시도해 주세요. 기록·데이터는 안전하게 보관되어 있어요.</span>
+    <div style="display:flex;gap:10px;margin-top:26px">
+      <a href="#" style="height:44px;padding:0 22px;background:#23408e;border-radius:11px;display:flex;align-items:center;font-size:13.5px;font-weight:700;color:#fff;white-space:nowrap" style-hover="background:#1c2b4a;color:#fff">다시 시도</a>
+      <a href="#" style="height:44px;padding:0 22px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;display:flex;align-items:center;font-size:13.5px;font-weight:700;color:#3c465a;white-space:nowrap">홈으로</a>
+    </div>
+    <span style="font-size:11.5px;color:#8a93a6;margin-top:16px;word-break:keep-all">문제가 계속되면 고객센터로 알려주세요. 오류 코드: <span style="font-weight:700">ERR-{시각}-{요청ID}</span></span>
+  </div>
+</main>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:760}}">
+class Component extends DCLogic {
+  state = { page: '404' };
+  renderVals() {
+    const s = this.state;
+    const tab = id =>
+      'height:30px;padding:0 14px;border-radius:8px;border:0;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;white-space:nowrap;' +
+      (s.page === id ? 'background:#2EC4B6;color:#fff' : 'background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)');
+    return {
+      tabs: [['404', '404 없는 페이지'], ['403', '403 권한 없음'], ['500', '500 서버 오류']].map(([id, label]) => ({
+        label, go: () => this.setState({ page: id }), style: tab(id),
+      })),
+      is404: s.page === '404',
+      is403: s.page === '403',
+      is500: s.page === '500',
+    };
+  }
+}
+</script>
+</body>
+</html>

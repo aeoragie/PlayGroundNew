@@ -74,11 +74,15 @@
 
 ### 다음 작업 (우선순위)
 
+0. **공용 패턴 4부작 + Navigation** — 새 횡단 핸드오프 5종(Form·Feedback·Loading·Empty·
+   Navigation). **작업 순서·근거는 `Docs/Development/SharedPatternsPlan.md`**(2026-07-18 정리).
+   요지: Form·Feedback 먼저(아래 입력 기능들을 unblock) → Loading·Empty(애드혹 점선 카드 통합)
+   → Navigation(에러 페이지 신규·죽은 링크 감사). 아래 1·2번은 Form·Feedback 위에 올린다.
 1. **경기 결과 입력 UI** (팀 대시보드 "＋ 결과 입력") — 경기 도메인의 마지막 미구현 축(현재는
    시드로만 입력). 결과 저장 시 `UspRecalculateSoccerTournamentStandings` 자동 호출 필수.
-   디자인 핸드오프 확인 필요.
-2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
-   커리어·포트폴리오 입력 UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+   → FormPatterns/FeedbackPatterns 선행 권장.
+2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI, 커리어·포트폴리오 입력 UI,
+   온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
 
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
 

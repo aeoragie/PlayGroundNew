@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">피드백 패턴 카탈로그 — 토스트 · 확인 모달</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all"><b>토스트</b> = 완료 통지(이미 일어난 일, 3.5초 자동 소멸, 액션 최대 1개) · <b>모달</b> = 되돌릴 수 없는 일의 사전 확인(그 외엔 모달 금지). 성공 teal · 오류 레드 #c0392b · 정보 네이비. 오렌지 금지.</span>
+</header>
+
+<!-- ===== 토스트 ===== -->
+<section style="display:flex;flex-direction:column;gap:14px">
+  <span style="font-size:14px;font-weight:800;color:#3c465a">A. 토스트 — PC 좌하단 / 모바일 하단 중앙(탭바 위), 슬라이드 업 + 페이드</span>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+    <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="4">
+      <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+        <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">{{ t.label }}</span></div>
+        <div style="padding:24px 20px;display:flex;justify-content:center;background:#eef1f6">
+          <div style="background:#1c2b4a;border-radius:13px;padding:13px 16px;display:flex;align-items:center;gap:11px;box-shadow:0 8px 24px rgba(28,43,74,.25);max-width:340px">
+            <span style="{{ t.dotStyle }}">{{ t.icon }}</span>
+            <span style="font-size:13px;font-weight:600;color:#fff;word-break:keep-all">{{ t.msg }}</span>
+            <sc-if value="{{ t.hasAction }}" hint-placeholder-val="{{ false }}">
+              <button style="border:0;background:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:#2EC4B6;white-space:nowrap;padding:0 0 0 4px">{{ t.action }}</button>
+            </sc-if>
+          </div>
+        </div>
+        <div style="padding:10px 16px;font-size:11px;color:#8a93a6;word-break:keep-all">{{ t.note }}</div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- ===== 확인 모달 ===== -->
+<section style="display:flex;flex-direction:column;gap:14px">
+  <span style="font-size:14px;font-weight:800;color:#3c465a">B. 확인 모달 — 오버레이 rgba(28,43,74,.45), 카드 radius 18, 최대 420px</span>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+    <!-- 일반 확인 -->
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+      <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">일반 확인 (네이비)</span></div>
+      <div style="padding:24px 20px;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+        <div style="background:#fff;border-radius:18px;padding:24px 22px;max-width:340px;display:flex;flex-direction:column;gap:0;box-shadow:0 20px 50px rgba(28,43,74,.3)">
+          <span style="font-size:15.5px;font-weight:800;word-break:keep-all">경기 결과를 공개할까요?</span>
+          <span style="font-size:12.5px;color:#5b6577;margin-top:7px;line-height:1.6;word-break:keep-all">공개하면 팀 홈페이지와 선수 프로필에 바로 반영돼요.</span>
+          <div style="display:flex;gap:9px;margin-top:20px">
+            <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">취소</button>
+            <button style="flex:1;height:42px;border:0;border-radius:11px;background:#23408e;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">공개하기</button>
+          </div>
+        </div>
+      </div>
+      <div style="padding:10px 16px;font-size:11px;color:#8a93a6;word-break:keep-all">주 버튼 = 동사형 레이블("확인" 금지). Enter=주 버튼, Esc=취소.</div>
+    </div>
+
+    <!-- 파괴적 확인 -->
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+      <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">파괴적 확인 (레드)</span></div>
+      <div style="padding:24px 20px;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+        <div style="background:#fff;border-radius:18px;padding:24px 22px;max-width:340px;display:flex;flex-direction:column;gap:0;box-shadow:0 20px 50px rgba(28,43,74,.3)">
+          <span style="font-size:15.5px;font-weight:800;word-break:keep-all">김민준 선수를 선수단에서 삭제할까요?</span>
+          <span style="font-size:12.5px;color:#5b6577;margin-top:7px;line-height:1.6;word-break:keep-all">경기 기록은 유지되지만 선수단 목록과 공개 홈페이지에서 사라져요. 되돌릴 수 없어요.</span>
+          <div style="display:flex;gap:9px;margin-top:20px">
+            <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">취소</button>
+            <button style="flex:1;height:42px;border:0;border-radius:11px;background:#c0392b;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">삭제</button>
+          </div>
+        </div>
+      </div>
+      <div style="padding:10px 16px;font-size:11px;color:#8a93a6;word-break:keep-all">대상 이름을 제목에 명시. 기본 포커스=취소. 삭제 후 실행취소 토스트로 이중 안전망.</div>
+    </div>
+
+    <!-- 고위험: 입력 확인 -->
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+      <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">고위험 확인 (입력 잠금)</span></div>
+      <div style="padding:24px 20px;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+        <div style="background:#fff;border-radius:18px;padding:24px 22px;max-width:340px;display:flex;flex-direction:column;gap:0;box-shadow:0 20px 50px rgba(28,43,74,.3)">
+          <span style="font-size:15.5px;font-weight:800;word-break:keep-all">계정을 삭제할까요?</span>
+          <span style="font-size:12.5px;color:#5b6577;margin-top:7px;line-height:1.6;word-break:keep-all">자녀 프로필 2개가 함께 삭제돼요. 계속하려면 <b>삭제합니다</b>를 입력하세요.</span>
+          <input placeholder="삭제합니다" style="height:42px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 13px;font-size:13px;font-family:inherit;margin-top:14px;color:#1c2b4a" />
+          <div style="display:flex;gap:9px;margin-top:14px">
+            <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">취소</button>
+            <button style="flex:1;height:42px;border:0;border-radius:11px;background:#e8b0a8;font-size:13px;font-weight:700;color:#fff;cursor:default;font-family:inherit;white-space:nowrap">삭제</button>
+          </div>
+        </div>
+      </div>
+      <div style="padding:10px 16px;font-size:11px;color:#8a93a6;word-break:keep-all">계정 삭제·팀 삭제 전용. 입력 일치 전까지 버튼 비활성(#e8b0a8). 영향 범위(자녀 수) 명시.</div>
+    </div>
+
+    <!-- 모바일 바텀시트 -->
+    <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+      <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">모바일 변형 — 바텀시트</span></div>
+      <div style="padding:24px 20px 0;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+        <div style="background:#fff;border-radius:18px 18px 0 0;padding:12px 20px 20px;width:280px;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(28,43,74,.3)">
+          <span style="width:36px;height:4px;border-radius:99px;background:#e6e8ee;margin:0 auto"></span>
+          <span style="font-size:14.5px;font-weight:800;margin-top:14px;word-break:keep-all">일정을 삭제할까요?</span>
+          <span style="font-size:12px;color:#5b6577;margin-top:6px;line-height:1.6;word-break:keep-all">3/21(토) 리그 6R · 삭제하면 팀원에게 알림이 가요.</span>
+          <button style="height:46px;border:0;border-radius:12px;background:#c0392b;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;margin-top:16px;white-space:nowrap">삭제</button>
+          <button style="height:46px;border:0;border-radius:12px;background:#fff;font-size:13.5px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;margin-top:4px;white-space:nowrap">취소</button>
+        </div>
+      </div>
+      <div style="padding:10px 16px;font-size:11px;color:#8a93a6;word-break:keep-all">모바일 확인은 모두 바텀시트(엄지 도달권). 버튼 세로 스택 46px, 파괴 버튼이 위.</div>
+    </div>
+
+  </div>
+</section>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">사용 결정표: 저장·복사·전송 성공 = 토스트 / 삭제·공개 전환·승인 = 모달 → 완료 토스트 / 폼 검증 오류 = 필드 인라인(토스트 금지) / 서버 오류 = 오류 토스트 + 재시도. 토스트 동시 1개(교체식), 알림 센터와 중복 발송 금지.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1300}}">
+class Component extends DCLogic {
+  renderVals() {
+    const dot = bg => 'width:26px;height:26px;border-radius:50%;background:' + bg + ';display:flex;align-items:center;justify-content:center;flex:none;font-size:13px;font-weight:800;color:#fff';
+    return {
+      toasts: [
+        { label: '성공', msg: '선수 정보가 저장됐어요', icon: '✓', dotStyle: dot('#2EC4B6'), hasAction: false, action: '', note: '3.5초 자동 소멸. 저장·전송·복사 등 완료 통지.' },
+        { label: '성공 + 실행 취소', msg: '일정이 삭제됐어요', icon: '✓', dotStyle: dot('#2EC4B6'), hasAction: true, action: '실행 취소', note: '5초 유지(액션 있을 때 연장). 액션은 1개만, teal 텍스트 버튼.' },
+        { label: '오류', msg: '저장하지 못했어요. 다시 시도해 주세요', icon: '!', dotStyle: dot('#c0392b'), hasAction: true, action: '재시도', note: '자동 소멸 안 함(수동 닫기 or 재시도). 원인보다 다음 행동 안내.' },
+        { label: '정보', msg: '프로필 링크가 복사됐어요', icon: 'i', dotStyle: dot('#23408e'), hasAction: false, action: '', note: '중립 통지. 남용 금지 — 화면 내 변화가 보이면 토스트 생략.' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
