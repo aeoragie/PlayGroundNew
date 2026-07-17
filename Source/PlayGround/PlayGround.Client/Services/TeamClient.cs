@@ -75,6 +75,21 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>공개 팀 홈 시즌성적 조회 (비로그인 가능, Slug 기준). 미존재·오류 시 null.</summary>
+        public async Task<TeamSeasonRecordResponse?> GetTeamSeasonRecordAsync(string slug, int seasonYear)
+        {
+            try
+            {
+                Envelope<TeamSeasonRecordResponse>? envelope = await mHttp.GetFromJsonAsync<Envelope<TeamSeasonRecordResponse>>(
+                    $"api/soccer/team/{Uri.EscapeDataString(slug)}/season-record?season={seasonYear}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미존재·네트워크 오류 → null
+            }
+        }
+
         /// <summary>공개 팀 홈페이지 조회 (비로그인 가능). 미존재·비공개·오류 시 null.</summary>
         public async Task<TeamPublicHomeResponse?> GetTeamHomeAsync(string slug)
         {

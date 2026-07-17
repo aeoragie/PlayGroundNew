@@ -198,6 +198,21 @@ namespace PlayGround.Contracts.Team
         public bool IsMatchLinked { get; set; }                 // 메타 "경기 결과와 연결됨"
     }
 
+    /// <summary>공개 팀 홈 시즌성적 탭 묶음 (Slug 공개 조회). 경기 카드용 팀명·시즌 요약·최근 경기·영상.
+    /// 팀 대시보드 TeamMatchDto/TeamVideoDto 재사용 — 공개 뷰는 이벤트 칩 없이 승무패 뱃지만 사용.</summary>
+    public class TeamSeasonRecordResponse
+    {
+        public string TeamName { get; set; } = string.Empty;
+        public int SeasonYear { get; set; }
+
+        /// <summary>해당 시즌 리그 순위 (League 스테이지의 우리 팀 행). 리그 미참여면 null — 카드 숨김.</summary>
+        public int? LeagueRank { get; set; }
+
+        /// <summary>최근 종료 경기 (최신순, 최대 8) — 팀 관점 변환 완료.</summary>
+        public List<TeamMatchDto> Matches { get; set; } = new();
+        public List<TeamVideoDto> Videos { get; set; } = new();
+    }
+
     /// <summary>공식 채널 한 개. ChannelType은 SoccerChannelType enum 멤버 이름 문자열.</summary>
     public class TeamChannelDto
     {

@@ -60,6 +60,17 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        // 공개 팀 홈 시즌성적 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
+        [AllowAnonymous]
+        [HttpGet("{slug}/season-record")]
+        public async Task<Envelope<TeamSeasonRecordResponse>> GetTeamSeasonRecordAsync(
+            string slug, [FromQuery] int season, CancellationToken cancellation)
+        {
+            Result<TeamSeasonRecordResponse> result = await mGateway.AskAsync<TeamSeasonRecordResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamSeasonRecordMessage(slug, season), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/roster")]
         public async Task<Envelope<TeamRosterResponse>> GetMyTeamRosterAsync(CancellationToken cancellation)
         {

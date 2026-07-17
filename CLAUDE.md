@@ -34,8 +34,14 @@
   CoverImageUrl 신설, `UspGetSoccerTeamHomeBySlug`(5결과셋: 팀·가치·코치·채널·로스터, 비공개 제외)
   → `GET api/soccer/team/{slug}/home`(AllowAnonymous, 회비 비공개·UserId 등 관리 정보 미노출)
   → GNB(팀명 히어로 통과 시 fade-in, JS interop `team-public-home.js`)·히어로·6탭 골격·소개 탭·
-  선수단 탭(공개 규칙: Claim 뱃지 비노출, Claimed만 공개 프로필 링크). **시즌성적·모집·진학진로·
-  리뷰 탭은 미구현** — 각각 스키마 필요, 시즌성적은 Records 이후로 결정.
+  선수단 탭(공개 규칙: Claim 뱃지 비노출, Claimed만 공개 프로필 링크). **모집·진학진로·리뷰 탭은
+  미구현** — 각각 스키마 필요.
+- **공개 팀 홈 시즌성적 탭** (`/team/{slug}/record`) — `UspGetSoccerTeamSeasonRecordBySlug`
+  (4결과셋: TeamId·최근 종료 경기 TOP 8·리그 순위·영상) → `GET api/soccer/team/{slug}/season-record?season=`
+  (AllowAnonymous) → PublicRecordSection/MobilePublicRecordSection. 탭 진입 시 지연 로드.
+  팀 대시보드 경기 섹션과 같은 데이터(팀 관점 변환은 Persistence, 승무패·요약은 클라)지만 **공개
+  뷰라 이벤트 칩·필터 없음** — 요약 4카드(순위 없으면 숨김)+최근 경기+영상, "경기기록에서 전체 보기
+  →" `/records` 링크. TeamMatchDto/TeamVideoDto·MatchResultsSection/VideosSection 헬퍼 재사용.
 - **선수 대시보드 P0** (`/dashboard/player/{section}`) — PC(GNB·사이드바)+모바일(하단 탭 4),
   4섹션(프로필·커리어·시즌 통계·포트폴리오). **프로필은 백엔드 연동 완료**: SoccerPlayers 확장
   (HeightCm·WeightKg·PreferredFoot·SchoolName·GuardianPhone)과 SoccerPlayerFieldVisibilities
@@ -68,11 +74,10 @@
 
 ### 다음 작업 (우선순위)
 
-1. **공개 팀 홈 시즌성적 탭** — 경기 도메인 마지막 소비처. 팀 대시보드 경기 결과와 같은
-   데이터(팀 관점 경기·요약)를 Slug 기준 공개 조회로 (기존 `UspGetSoccerTeamHomeBySlug` 확장
-   또는 별도 프로시저). `Handoff/Design.TeamPublicHome/` SPEC의 시즌성적 탭 참조.
-2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정·경기 결과 입력 UI(디자인
-   대기 — 결과 입력 시 `UspRecalculateSoccerTournamentStandings` 자동 호출 잊지 말 것),
+1. **경기 결과 입력 UI** (팀 대시보드 "＋ 결과 입력") — 경기 도메인의 마지막 미구현 축(현재는
+   시드로만 입력). 결과 저장 시 `UspRecalculateSoccerTournamentStandings` 자동 호출 필수.
+   디자인 핸드오프 확인 필요.
+2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
    커리어·포트폴리오 입력 UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
 
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
@@ -144,6 +149,10 @@
 - 화면 검증: 헤드리스 Edge + playwright-core/puppeteer-core(스크래치패드에 설치), localStorage
   `pg.accessToken`에 토큰 주입 후 진입. `python`은 스토어 스텁 — 스크립트는 PowerShell
   (한글 포함 .ps1은 UTF-8 BOM 필수).
+- **Edge 150부터 `puppeteer.launch()`가 "Failed to launch... Code: 0"으로 실패**(헤드리스
+  시그널링 변경). 우회: `msedge.exe --headless=new --remote-debugging-port=PORT --user-data-dir=고유`로
+  직접 띄우고 `puppeteer.connect({browserWSEndpoint})`로 붙는다(`/json/version`의 webSocketDebuggerUrl).
+  참고 스크립트 `scratchpad/shot-connect.js`. userDataDir는 실행마다 고유(Date.now())로 — 락 충돌 방지.
 
 ### 새 PC 환경 재구축 체크리스트 (gitignore 항목 — 클론만으로 안 되는 것)
 

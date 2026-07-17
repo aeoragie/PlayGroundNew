@@ -1,0 +1,123 @@
+@* 공개 팀 홈 시즌성적 탭(PC): 요약 4카드 + 최근 경기 + 경기 영상 — SPEC.TEAMPUBLICHOME.md §③
+   공개 뷰라 이벤트 칩·필터 없음. 팀 대시보드 경기 섹션의 표시 파생 헬퍼 재사용. 카피는 레퍼런스 원문 *@
+@using PlayGround.Client.Components.Dashboard
+@using PlayGround.Client.Models
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+
+<div class="flex flex-col gap-4">
+    <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@(Data.SeasonYear) 시즌</h2>
+
+    @if (Data.Matches.Count == 0)
+    {
+        @* 빈 데이터 노출 금지 — 경기 없으면 안내만 *@
+        <div class="bg-white border-1.5 border-dashed border-border rounded-[16px] px-6 py-14 flex flex-col items-center gap-2.5 text-center">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="text-text-faint"><path d="M5 20V11M12 20V4M19 20v-6"></path></svg>
+            <span class="text-[15px] font-extrabold text-navy-deep">아직 등록된 경기 기록이 없어요</span>
+            <span class="text-[13px] text-text-body leading-[1.7] break-keep">경기가 진행되면 전적·최근 경기·영상이 여기에 표시돼요.</span>
+        </div>
+    }
+    else
+    {
+        @* 요약 4카드 *@
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+            <div class="bg-gradient-navy rounded-[14px] px-5 py-5 flex flex-col gap-[3px] text-white">
+                <span class="text-xs font-bold text-white/60">전적</span>
+                <span class="text-[21px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
+            </div>
+            <div class="@SummaryCardClass">
+                <span class="text-xs font-bold text-text-muted">득점</span>
+                <span class="text-[21px] font-extrabold text-navy-deep">@GoalsFor</span>
+            </div>
+            <div class="@SummaryCardClass">
+                <span class="text-xs font-bold text-text-muted">실점</span>
+                <span class="text-[21px] font-extrabold text-navy-deep">@GoalsAgainst</span>
+            </div>
+            @if (Data.LeagueRank is not null)
+            {
+                <div class="@SummaryCardClass">
+                    <span class="text-xs font-bold text-text-muted">리그 순위</span>
+                    <span class="text-[21px] font-extrabold text-navy-deep whitespace-nowrap">@(Data.LeagueRank)위</span>
+                </div>
+            }
+        </div>
+
+        @* 최근 경기 *@
+        <div class="bg-white border-1.5 border-border rounded-[16px] overflow-hidden">
+            <div class="px-6 py-[18px] border-b border-surface-icon flex items-center gap-2.5">
+                <h3 class="m-0 text-[15.5px] font-extrabold text-navy-deep">최근 경기</h3>
+                <div class="flex-1"></div>
+                <a href="@Routes.Records" class="text-[12.5px] font-bold text-navy whitespace-nowrap">경기기록에서 전체 보기 →</a>
+            </div>
+            @foreach (TeamMatchDto match in Data.Matches)
+            {
+                <div class="flex items-center gap-4 px-6 py-[15px] border-b border-surface-icon">
+                    <span class="@MatchResultsSection.CompetitionClass(MatchResultsSection.CompetitionOf(match))">@MatchResultsSection.CompetitionOf(match).ToLabel()</span>
+                    <span class="text-[12.5px] text-text-muted whitespace-nowrap">@MatchResultsSection.MetaLine(match)</span>
+                    <span class="flex-1 flex items-center gap-3 justify-center">
+                        <span class="text-[13.5px] font-extrabold text-navy-deep text-right flex-1 break-keep">@Data.TeamName</span>
+                        <span class="text-base font-extrabold bg-surface-alt rounded-lg px-3.5 py-1 whitespace-nowrap">@match.TeamScore : @match.OpponentScore</span>
+                        <span class="text-[13.5px] font-bold text-text-body flex-1 break-keep">@match.OpponentName</span>
+                    </span>
+                    <span class="@MatchResultsSection.OutcomeClass(MatchResultsSection.OutcomeOf(match))">@MatchResultsSection.OutcomeOf(match).ToLabel()</span>
+                </div>
+            }
+        </div>
+
+        @* 경기 영상 *@
+        @if (Data.Videos.Count > 0)
+        {
+            <div class="flex flex-col gap-3">
+                <h3 class="m-0 text-[15.5px] font-extrabold text-navy-deep">경기 영상</h3>
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
+                    @foreach (TeamVideoDto video in Data.Videos)
+                    {
+                        <a href="@video.VideoUrl" target="_blank" rel="noopener"
+                           class="bg-white border-1.5 border-border rounded-[14px] overflow-hidden hover:border-navy transition-colors">
+                            <div class="w-full aspect-video relative bg-navy-deep">
+                                @if (video.ThumbnailUrl is not null)
+                                {
+                                    <img src="@video.ThumbnailUrl" alt="@video.Title" class="absolute inset-0 w-full h-full object-cover" />
+                                }
+                                else
+                                {
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">영상 썸네일</span>
+                                }
+                                <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <span class="w-[42px] h-[42px] rounded-full bg-black/65 flex items-center justify-center">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+                                    </span>
+                                </span>
+                                @if (video.DurationSeconds is not null)
+                                {
+                                    <span class="absolute bottom-[7px] right-[7px] text-[10.5px] font-bold text-white bg-black/75 rounded-[5px] px-1.5 py-0.5 pointer-events-none">@VideosSection.FormatDuration(video.DurationSeconds.Value)</span>
+                                }
+                            </div>
+                            <div class="px-4 pt-3.5 pb-4 flex flex-col gap-1.5">
+                                <div class="flex gap-1.5 items-center">
+                                    <span class="@VideosSection.TypeClass(VideosSection.TypeOf(video))">@VideosSection.TypeOf(video).ToLabel()</span>
+                                    <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />
+                                </div>
+                                <span class="text-[13.5px] font-bold text-navy-deep leading-[1.45] break-keep">@video.Title</span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamSeasonRecordResponse Data { get; set; } = new();
+
+    private const string SummaryCardClass =
+        "bg-white border-1.5 border-border rounded-[14px] px-5 py-5 flex flex-col gap-[3px]";
+
+    private int Wins => Data.Matches.Count(m => m.TeamScore > m.OpponentScore);
+    private int Draws => Data.Matches.Count(m => m.TeamScore == m.OpponentScore);
+    private int Losses => Data.Matches.Count(m => m.TeamScore < m.OpponentScore);
+    private int GoalsFor => Data.Matches.Sum(m => m.TeamScore);
+    private int GoalsAgainst => Data.Matches.Sum(m => m.OpponentScore);
+}

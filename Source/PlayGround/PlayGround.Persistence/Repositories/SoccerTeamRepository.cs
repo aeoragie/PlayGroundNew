@@ -294,39 +294,102 @@ namespace PlayGround.Persistence.Repositories
             {
                 SeasonYear = seasonYear,
                 LeagueRank = leagueRank,
-                Matches = matches
-                    .Select(m =>
-                    {
-                        bool isHome = m.HomeTeamId == teamId;
-                        return new TeamMatchDto
-                        {
-                            MatchId = m.MatchId,
-                            CompetitionType = CompetitionTypeOf(m),
-                            TournamentName = NullIfEmpty(m.Name),
-                            MatchedAt = m.MatchedAt,
-                            VenueName = NullIfEmpty(m.VenueName),
-                            IsHome = isHome,
-                            OpponentName = isHome ? m.AwayTeamName : m.HomeTeamName,
-                            TeamScore = (isHome ? m.HomeScore : m.AwayScore) ?? 0,
-                            OpponentScore = (isHome ? m.AwayScore : m.HomeScore) ?? 0,
-                            Events = events
-                                .Where(e => e.MatchId == m.MatchId)
-                                .Select(e => new TeamMatchEventDto
-                                {
-                                    EventType = e.EventType,
-                                    PlayerName = NullIfEmpty(e.PlayerName),
-                                    AssistPlayerName = NullIfEmpty(e.AssistPlayerName)
-                                })
-                                .ToList()
-                        };
-                    })
-                    .ToList()
+                Matches = matches.Select(m => MapMatch(m, teamId, events)).ToList()
             };
 
             Logger.InfoWith("Team matches received", ("ManagerUserId", managerUserId),
                 ("Matches", response.Matches.Count), ("LeagueRank", leagueRank));
 
             return Result<TeamMatchesResponse>.Success(response);
+        }
+
+        public async Task<Result<TeamSeasonRecordResponse>> GetTeamSeasonRecordBySlugAsync(string slug, int seasonYear, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team season record requested", ("Slug", slug), ("SeasonYear", seasonYear));
+
+            var procedure = new UspGetSoccerTeamSeasonRecordBySlug(this) { Slug = slug, SeasonYear = seasonYear };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Team season record query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<TeamSeasonRecordResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            Guid? teamId = await reader.ReadSingleOrDefaultAsync<Guid?>();
+            var matches = (await reader.ReadAsync<SoccerTeamMatchRecord>()).ToList();
+            int? leagueRank = await reader.ReadSingleOrDefaultAsync<int?>();
+            var videos = (await reader.ReadAsync<SoccerMatchVideosEntity>()).ToList();
+
+            // 공개 뷰는 이벤트 칩이 없다 — 빈 이벤트 목록으로 매핑(승무패 뱃지만 사용).
+            var noEvents = new List<SoccerMatchEventsEntity>();
+            var response = new TeamSeasonRecordResponse
+            {
+                TeamName = FindTeamName(matches, teamId),
+                SeasonYear = seasonYear,
+                LeagueRank = leagueRank,
+                Matches = matches.Select(m => MapMatch(m, teamId, noEvents)).ToList(),
+                Videos = videos.Select(MapVideo).ToList()
+            };
+
+            Logger.InfoWith("Team season record received", ("Slug", slug),
+                ("Matches", response.Matches.Count), ("Videos", response.Videos.Count));
+
+            return Result<TeamSeasonRecordResponse>.Success(response);
+        }
+
+        // 경기 목록에서 우리 팀 표시명 파생 (홈/원정 어느 쪽이든 우리 TeamId 쪽 이름). 경기 없으면 빈 문자열.
+        private static string FindTeamName(List<SoccerTeamMatchRecord> matches, Guid? teamId)
+        {
+            SoccerTeamMatchRecord? sample = matches.FirstOrDefault(m => m.HomeTeamId == teamId || m.AwayTeamId == teamId);
+            if (sample is null)
+            {
+                return string.Empty;
+            }
+
+            return sample.HomeTeamId == teamId ? sample.HomeTeamName : sample.AwayTeamName;
+        }
+
+        // 경기 한 건을 우리 팀 관점으로 변환 (이벤트 목록이 비면 칩 없음)
+        private static TeamMatchDto MapMatch(SoccerTeamMatchRecord match, Guid? teamId, List<SoccerMatchEventsEntity> events)
+        {
+            bool isHome = match.HomeTeamId == teamId;
+            return new TeamMatchDto
+            {
+                MatchId = match.MatchId,
+                CompetitionType = CompetitionTypeOf(match),
+                TournamentName = NullIfEmpty(match.Name),
+                MatchedAt = match.MatchedAt,
+                VenueName = NullIfEmpty(match.VenueName),
+                IsHome = isHome,
+                OpponentName = isHome ? match.AwayTeamName : match.HomeTeamName,
+                TeamScore = (isHome ? match.HomeScore : match.AwayScore) ?? 0,
+                OpponentScore = (isHome ? match.AwayScore : match.HomeScore) ?? 0,
+                Events = events
+                    .Where(e => e.MatchId == match.MatchId)
+                    .Select(e => new TeamMatchEventDto
+                    {
+                        EventType = e.EventType,
+                        PlayerName = NullIfEmpty(e.PlayerName),
+                        AssistPlayerName = NullIfEmpty(e.AssistPlayerName)
+                    })
+                    .ToList()
+            };
+        }
+
+        private static TeamVideoDto MapVideo(SoccerMatchVideosEntity video)
+        {
+            return new TeamVideoDto
+            {
+                VideoId = video.VideoId,
+                VideoType = video.VideoType,
+                Title = video.Title,
+                VideoUrl = video.VideoUrl,
+                ThumbnailUrl = NullIfEmpty(video.ThumbnailUrl),
+                DurationSeconds = video.DurationSeconds,
+                RecordedOn = video.RecordedOn is null ? null : DateOnly.FromDateTime(video.RecordedOn.Value),
+                IsMatchLinked = video.MatchId is not null
+            };
         }
 
         public async Task<Result<TeamVideosResponse>> GetTeamVideosByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
@@ -343,19 +406,7 @@ namespace PlayGround.Persistence.Repositories
 
             var response = new TeamVideosResponse
             {
-                Videos = queryResult.Values1
-                    .Select(v => new TeamVideoDto
-                    {
-                        VideoId = v.VideoId,
-                        VideoType = v.VideoType,
-                        Title = v.Title,
-                        VideoUrl = v.VideoUrl,
-                        ThumbnailUrl = NullIfEmpty(v.ThumbnailUrl),
-                        DurationSeconds = v.DurationSeconds,
-                        RecordedOn = v.RecordedOn is null ? null : DateOnly.FromDateTime(v.RecordedOn.Value),
-                        IsMatchLinked = v.MatchId is not null
-                    })
-                    .ToList()
+                Videos = queryResult.Values1.Select(MapVideo).ToList()
             };
 
             Logger.InfoWith("Team videos received", ("ManagerUserId", managerUserId), ("Videos", response.Videos.Count));
