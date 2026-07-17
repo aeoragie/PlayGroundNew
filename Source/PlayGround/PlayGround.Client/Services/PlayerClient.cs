@@ -60,6 +60,21 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>본인(관리 주체) 시즌 통계 조회. 미인증·오류 시 null.</summary>
+        public async Task<PlayerSeasonStatsResponse?> GetMySeasonStatsAsync(int seasonYear)
+        {
+            try
+            {
+                Envelope<PlayerSeasonStatsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerSeasonStatsResponse>>($"api/soccer/player/me/season-stats?season={seasonYear}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         /// <summary>항목 공개 설정 변경. 성공 여부 반환.</summary>
         public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic)
         {

@@ -21,6 +21,12 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
+    /// <summary>시즌 통계 조회 메시지 (같은 사용자 쓰기와 순차 처리 — UserId 해시).</summary>
+    public sealed record GetSoccerPlayerSeasonStatsMessage(Guid UserId, int SeasonYear) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>초대코드 Claim 메시지 (쓰기 — UserId 해시). CurrentRole은 JWT 클레임 — General만 승격.</summary>
     public sealed record ClaimSoccerPlayerInviteMessage(Guid UserId, string? CurrentRole, ClaimPlayerInviteRequest Data) : IConsistentHashable
     {

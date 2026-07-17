@@ -18,6 +18,7 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<ClaimSoccerPlayerInviteMessage>(HandleClaimAsync);
             RegisterHandlerAsync<GetSoccerPlayerCareerMessage>(HandleGetCareerAsync);
             RegisterHandlerAsync<GetSoccerPlayerPortfolioMessage>(HandleGetPortfolioAsync);
+            RegisterHandlerAsync<GetSoccerPlayerSeasonStatsMessage>(HandleGetSeasonStatsAsync);
         }
 
         private async Task HandleCreateAsync(CreatePlayerProfileMessage message)
@@ -72,6 +73,15 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerPortfolioCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerPortfolioCommand>();
             Result<PlayerPortfolioResponse> result = await useCase.ExecuteAsync(message.UserId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetSeasonStatsAsync(GetSoccerPlayerSeasonStatsMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerPlayerSeasonStatsCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerSeasonStatsCommand>();
+            Result<PlayerSeasonStatsResponse> result = await useCase.ExecuteAsync(message.UserId, message.SeasonYear);
             sender.Tell(result);
         }
     }

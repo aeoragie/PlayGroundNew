@@ -88,6 +88,33 @@ namespace PlayGround.Contracts.Player
         public string? AccessToken { get; set; }
     }
 
+    /// <summary>선수 시즌 통계 (팀 경기 결과에서 자동 집계). 요약(경기·분·득점·도움)은 클라이언트 집계.</summary>
+    public class PlayerSeasonStatsResponse
+    {
+        public int SeasonYear { get; set; }
+
+        /// <summary>출전 기록이 있는 연도 목록 (내림차순) — 시즌 pill.</summary>
+        public List<int> SeasonYears { get; set; } = new();
+
+        public List<PlayerMatchStatDto> Matches { get; set; } = new();
+    }
+
+    /// <summary>경기별 기록 한 행 (팀 관점 변환 완료). 경기명("vs 강동 SC (3:1 승)")은 클라이언트 조립.</summary>
+    public class PlayerMatchStatDto
+    {
+        public Guid MatchId { get; set; }
+        public DateTime? MatchedAt { get; set; }
+
+        /// <summary>SoccerCompetitionType 멤버 이름 — 친선=대회 없음, League=리그, 그 외 Cup (서버 파생).</summary>
+        public string CompetitionType { get; set; } = string.Empty;
+        public string OpponentName { get; set; } = string.Empty;
+        public int TeamScore { get; set; }
+        public int OpponentScore { get; set; }
+        public int Goals { get; set; }
+        public int Assists { get; set; }
+        public int? MinutesPlayed { get; set; }
+    }
+
     /// <summary>커리어(소속 이력) 목록 (선수 대시보드 커리어 섹션).</summary>
     public class PlayerCareerResponse
     {

@@ -240,6 +240,65 @@ namespace PlayGround.Persistence.Repositories
             return Result<PlayerPortfolioResponse>.Success(response);
         }
 
+        public async Task<Result<PlayerSeasonStatsResponse>> GetSeasonStatsByUserAsync(Guid userId, int seasonYear, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player season stats requested", ("UserId", userId), ("SeasonYear", seasonYear));
+
+            var procedure = new UspGetSoccerPlayerSeasonStatsByUser(this) { UserId = userId, SeasonYear = seasonYear };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Player season stats query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<PlayerSeasonStatsResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            Guid? playerId = await reader.ReadSingleOrDefaultAsync<Guid?>();
+            var appearances = (await reader.ReadAsync<SoccerPlayerMatchStatRecord>()).ToList();
+            var events = (await reader.ReadAsync<SoccerMatchEventsEntity>()).ToList();
+            var seasonYears = (await reader.ReadAsync<int>()).ToList();
+
+            var response = new PlayerSeasonStatsResponse
+            {
+                SeasonYear = seasonYear,
+                SeasonYears = seasonYears,
+                Matches = appearances
+                    .Select(a =>
+                    {
+                        bool isHome = a.HomeTeamId == a.TeamId;
+                        return new PlayerMatchStatDto
+                        {
+                            MatchId = a.MatchId,
+                            MatchedAt = a.MatchedAt,
+                            CompetitionType = CompetitionTypeOf(a),
+                            OpponentName = isHome ? a.AwayTeamName : a.HomeTeamName,
+                            TeamScore = (isHome ? a.HomeScore : a.AwayScore) ?? 0,
+                            OpponentScore = (isHome ? a.AwayScore : a.HomeScore) ?? 0,
+                            Goals = events.Count(e => e.MatchId == a.MatchId && e.PlayerId == playerId && e.EventType != "OwnGoal"),
+                            Assists = events.Count(e => e.MatchId == a.MatchId && e.AssistPlayerId == playerId),
+                            MinutesPlayed = a.MinutesPlayed
+                        };
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Player season stats received", ("UserId", userId),
+                ("Matches", response.Matches.Count), ("Years", seasonYears.Count));
+
+            return Result<PlayerSeasonStatsResponse>.Success(response);
+        }
+
+        // 친선 = 대회 없음, League 형식 = 리그, 그 외(Cup/Split) = 컵
+        private static string CompetitionTypeOf(SoccerPlayerMatchStatRecord appearance)
+        {
+            if (appearance.TournamentId is null)
+            {
+                return "Friendly";
+            }
+
+            return appearance.Format == "League" ? "League" : "Cup";
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

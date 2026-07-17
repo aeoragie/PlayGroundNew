@@ -20,6 +20,7 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerPlayerClaimCommand>();
             services.AddScoped<SoccerPlayerCareerCommand>();
             services.AddScoped<SoccerPlayerPortfolioCommand>();
+            services.AddScoped<SoccerPlayerSeasonStatsCommand>();
             services.AddScoped<SoccerTeamCommand>();
             services.AddScoped<SoccerTeamInfoCommand>();
             services.AddScoped<SoccerTeamRosterCommand>();

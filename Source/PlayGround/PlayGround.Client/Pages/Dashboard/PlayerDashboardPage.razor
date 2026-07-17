@@ -31,7 +31,10 @@
                         }
                         break;
                     case SoccerPlayerDashboardSection.Stats:
-                        <PlayerStatsSection />
+                        @if (mStats is not null)
+                        {
+                            <PlayerStatsSection Stats="@mStats" OnSeasonSelected="LoadSeasonStatsAsync" />
+                        }
                         break;
                     case SoccerPlayerDashboardSection.Portfolio:
                         @if (mPortfolio is not null)
@@ -63,7 +66,10 @@
                     }
                     break;
                 case SoccerPlayerDashboardSection.Stats:
-                    <MobilePlayerStatsSection />
+                    @if (mStats is not null)
+                    {
+                        <MobilePlayerStatsSection Stats="@mStats" OnSeasonSelected="LoadSeasonStatsAsync" />
+                    }
                     break;
                 case SoccerPlayerDashboardSection.Portfolio:
                     @if (mPortfolio is not null)
@@ -87,6 +93,7 @@
     private PlayerInfoResponse? mInfo;
     private PlayerCareerResponse? mCareer;
     private PlayerPortfolioResponse? mPortfolio;
+    private PlayerSeasonStatsResponse? mStats;
 
     private SoccerPlayerDashboardSection CurrentSection => SoccerPlayerDashboardSectionExtensions.ParseSlug(Section);
 
@@ -118,16 +125,30 @@
         mInfo = await Players.GetMyInfoAsync();
     }
 
-    // 섹션 진입 시 지연 로드 (1회) — 커리어·포트폴리오는 진입할 때만 조회
+    // 섹션 진입 시 지연 로드 (1회) — 커리어·시즌 통계·포트폴리오는 진입할 때만 조회
     protected override async Task OnParametersSetAsync()
     {
         if (CurrentSection == SoccerPlayerDashboardSection.Career && mCareer is null)
         {
             mCareer = await Players.GetMyCareerAsync();
         }
+        else if (CurrentSection == SoccerPlayerDashboardSection.Stats && mStats is null)
+        {
+            await LoadSeasonStatsAsync(DateTime.Now.Year);
+        }
         else if (CurrentSection == SoccerPlayerDashboardSection.Portfolio && mPortfolio is null)
         {
             mPortfolio = await Players.GetMyPortfolioAsync();
+        }
+    }
+
+    // 시즌 pill 전환 — 선택 연도로 재조회
+    private async Task LoadSeasonStatsAsync(int seasonYear)
+    {
+        PlayerSeasonStatsResponse? stats = await Players.GetMySeasonStatsAsync(seasonYear);
+        if (stats is not null)
+        {
+            mStats = stats;
         }
     }
 
@@ -137,6 +158,7 @@
         mInfo = await Players.GetMyInfoAsync();
         mCareer = null;
         mPortfolio = null;
+        mStats = null;
         StateHasChanged();
     }
 

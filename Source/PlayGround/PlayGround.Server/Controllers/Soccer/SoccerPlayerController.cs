@@ -96,6 +96,21 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        [HttpGet("me/season-stats")]
+        public async Task<Envelope<PlayerSeasonStatsResponse>> GetMySeasonStatsAsync(
+            [FromQuery] int season, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<PlayerSeasonStatsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<PlayerSeasonStatsResponse> result = await mGateway.AskAsync<PlayerSeasonStatsResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerSeasonStatsMessage(userId, season), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpPut("me/profile/visibility")]
         public async Task<Envelope<bool>> SetMyFieldVisibilityAsync(
             [FromBody] SetPlayerFieldVisibilityRequest request, CancellationToken cancellation)

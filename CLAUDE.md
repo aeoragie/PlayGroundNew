@@ -68,12 +68,22 @@
 
 ### 다음 작업 (우선순위)
 
-1. **Records 구현 계속** — 스키마·목록+아카이브·상세·팀 대시보드 경기 연동 완료(아래).
-   다음 = **선수 시즌 통계 연동**(Appearances+Events 자동 집계 — MatchSchemaDesign §4의
-   `UspGetSoccerPlayerSeasonStats` 설계 참조, 시즌 pill = 출전 연도) → 공개 홈 시즌성적 탭.
-   단계별 검수 (`Docs/Architecture/MatchSchemaDesign.md` §6).
-2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI(디자인 대기),
-   커리어·포트폴리오 입력(추가/수정) UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+1. **공개 팀 홈 시즌성적 탭** — 경기 도메인 마지막 소비처. 팀 대시보드 경기 결과와 같은
+   데이터(팀 관점 경기·요약)를 Slug 기준 공개 조회로 (기존 `UspGetSoccerTeamHomeBySlug` 확장
+   또는 별도 프로시저). `Handoff/Design.TeamPublicHome/` SPEC의 시즌성적 탭 참조.
+2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정·경기 결과 입력 UI(디자인
+   대기 — 결과 입력 시 `UspRecalculateSoccerTournamentStandings` 자동 호출 잊지 말 것),
+   커리어·포트폴리오 입력 UI, 온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+
+### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
+
+- `UspGetSoccerPlayerSeasonStatsByUser`(4결과셋: ⓪PlayerId → ①시즌 출전 경기(Appearances+
+  종료 경기+대회 형식) → ②선수 득점·도움 이벤트 → ③출전 연도 목록) →
+  `GET api/soccer/player/me/season-stats?season=` → PC·모바일 섹션 바인딩.
+- 팀 관점 변환·경기별 골/도움 집계(PlayerId/AssistPlayerId 매칭, 자책 제외)는 Persistence,
+  요약(경기·분·득점·도움·경기당 평균 — 분 기록 경기 기준)·경기명("vs 강동 SC (3:1 승)")은
+  클라이언트. 시즌 pill = 출전 연도, 전환 시 재조회(페이지 콜백). 출전 없으면 안내 카드
+  (자동 집계 섹션이라 등록 버튼 없음). 화면 검증 완료(김정현 4경기 265' 골2 도움1·모바일·신준우).
 
 ### 팀 대시보드 경기 결과·영상 연동 — 완료 (2026-07-16)
 
