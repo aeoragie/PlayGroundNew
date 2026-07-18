@@ -25,22 +25,37 @@
                 @switch (CurrentSection)
                 {
                     case SoccerPlayerDashboardSection.Career:
-                        @if (mCareer is not null)
-                        {
-                            <PlayerCareerSection Entries="@mCareer.Entries" />
-                        }
+                        <LoadingGate IsLoading="@(mCareer is null && !mCareerFailed)" HasFailed="@mCareerFailed" OnRetry="LoadCareerAsync">
+                            <Skeleton>
+                                <SkeletonSection><SkeletonRows Count="3" /></SkeletonSection>
+                            </Skeleton>
+                            <ChildContent>
+                                <PlayerCareerSection Entries="@mCareer!.Entries" />
+                            </ChildContent>
+                        </LoadingGate>
                         break;
                     case SoccerPlayerDashboardSection.Stats:
-                        @if (mStats is not null)
-                        {
-                            <PlayerStatsSection Stats="@mStats" OnSeasonSelected="LoadSeasonStatsAsync" />
-                        }
+                        <LoadingGate IsLoading="@(mStats is null && !mStatsFailed)" HasFailed="@mStatsFailed" OnRetry="RetryStatsAsync">
+                            <Skeleton>
+                                <SkeletonSection ShowAction="false">
+                                    <SkeletonStatCards Count="5" />
+                                    <SkeletonRows Count="4" />
+                                </SkeletonSection>
+                            </Skeleton>
+                            <ChildContent>
+                                <PlayerStatsSection Stats="@(mStats!)" OnSeasonSelected="LoadSeasonStatsAsync" />
+                            </ChildContent>
+                        </LoadingGate>
                         break;
                     case SoccerPlayerDashboardSection.Portfolio:
-                        @if (mPortfolio is not null)
-                        {
-                            <PlayerPortfolioSection Videos="@mPortfolio.Videos" />
-                        }
+                        <LoadingGate IsLoading="@(mPortfolio is null && !mPortfolioFailed)" HasFailed="@mPortfolioFailed" OnRetry="LoadPortfolioAsync">
+                            <Skeleton>
+                                <SkeletonSection><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection>
+                            </Skeleton>
+                            <ChildContent>
+                                <PlayerPortfolioSection Videos="@mPortfolio!.Videos" />
+                            </ChildContent>
+                        </LoadingGate>
                         break;
                     default:
                         <PlayerProfileSection Info="@mInfo" OnClaimed="ReloadAsync" />
@@ -60,22 +75,37 @@
             @switch (CurrentSection)
             {
                 case SoccerPlayerDashboardSection.Career:
-                    @if (mCareer is not null)
-                    {
-                        <MobilePlayerCareerSection Entries="@mCareer.Entries" />
-                    }
+                    <LoadingGate IsLoading="@(mCareer is null && !mCareerFailed)" HasFailed="@mCareerFailed" OnRetry="LoadCareerAsync">
+                        <Skeleton>
+                            <SkeletonSection Compact="true"><SkeletonRows Count="3" /></SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <MobilePlayerCareerSection Entries="@mCareer!.Entries" />
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 case SoccerPlayerDashboardSection.Stats:
-                    @if (mStats is not null)
-                    {
-                        <MobilePlayerStatsSection Stats="@mStats" OnSeasonSelected="LoadSeasonStatsAsync" />
-                    }
+                    <LoadingGate IsLoading="@(mStats is null && !mStatsFailed)" HasFailed="@mStatsFailed" OnRetry="RetryStatsAsync">
+                        <Skeleton>
+                            <SkeletonSection Compact="true" ShowAction="false">
+                                <SkeletonStatCards Count="2" />
+                                <SkeletonRows Count="3" />
+                            </SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <MobilePlayerStatsSection Stats="@(mStats!)" OnSeasonSelected="LoadSeasonStatsAsync" />
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 case SoccerPlayerDashboardSection.Portfolio:
-                    @if (mPortfolio is not null)
-                    {
-                        <MobilePlayerPortfolioSection Videos="@mPortfolio.Videos" />
-                    }
+                    <LoadingGate IsLoading="@(mPortfolio is null && !mPortfolioFailed)" HasFailed="@mPortfolioFailed" OnRetry="LoadPortfolioAsync">
+                        <Skeleton>
+                            <SkeletonSection Compact="true"><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <MobilePlayerPortfolioSection Videos="@mPortfolio!.Videos" />
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 default:
                     <MobilePlayerProfileSection Info="@mInfo" OnClaimed="ReloadAsync" />
@@ -94,6 +124,11 @@
     private PlayerCareerResponse? mCareer;
     private PlayerPortfolioResponse? mPortfolio;
     private PlayerSeasonStatsResponse? mStats;
+
+    // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
+    private bool mCareerFailed;
+    private bool mPortfolioFailed;
+    private bool mStatsFailed;
 
     private SoccerPlayerDashboardSection CurrentSection => SoccerPlayerDashboardSectionExtensions.ParseSlug(Section);
 
@@ -128,29 +163,51 @@
     // 섹션 진입 시 지연 로드 (1회) — 커리어·시즌 통계·포트폴리오는 진입할 때만 조회
     protected override async Task OnParametersSetAsync()
     {
-        if (CurrentSection == SoccerPlayerDashboardSection.Career && mCareer is null)
+        if (CurrentSection == SoccerPlayerDashboardSection.Career && mCareer is null && !mCareerFailed)
         {
-            mCareer = await Players.GetMyCareerAsync();
+            await LoadCareerAsync();
         }
-        else if (CurrentSection == SoccerPlayerDashboardSection.Stats && mStats is null)
+        else if (CurrentSection == SoccerPlayerDashboardSection.Stats && mStats is null && !mStatsFailed)
         {
             await LoadSeasonStatsAsync(DateTime.Now.Year);
         }
-        else if (CurrentSection == SoccerPlayerDashboardSection.Portfolio && mPortfolio is null)
+        else if (CurrentSection == SoccerPlayerDashboardSection.Portfolio && mPortfolio is null && !mPortfolioFailed)
         {
-            mPortfolio = await Players.GetMyPortfolioAsync();
+            await LoadPortfolioAsync();
         }
     }
 
-    // 시즌 pill 전환 — 선택 연도로 재조회
+    private async Task LoadCareerAsync()
+    {
+        mCareerFailed = false;
+        mCareer = await Players.GetMyCareerAsync();
+        mCareerFailed = mCareer is null;
+    }
+
+    private async Task LoadPortfolioAsync()
+    {
+        mPortfolioFailed = false;
+        mPortfolio = await Players.GetMyPortfolioAsync();
+        mPortfolioFailed = mPortfolio is null;
+    }
+
+    // 시즌 pill 전환 — 선택 연도로 재조회. 첫 조회 실패만 에러 안내로 바꾸고,
+    // 이미 표시 중인 통계가 있으면 화면을 비우지 않는다(전환 실패 = 기존 값 유지)
     private async Task LoadSeasonStatsAsync(int seasonYear)
     {
+        mStatsFailed = false;
         PlayerSeasonStatsResponse? stats = await Players.GetMySeasonStatsAsync(seasonYear);
         if (stats is not null)
         {
             mStats = stats;
         }
+        else
+        {
+            mStatsFailed = mStats is null;
+        }
     }
+
+    private Task RetryStatsAsync() => LoadSeasonStatsAsync(DateTime.Now.Year);
 
     // 초대코드 Claim 성공 후 — 연결된 프로필(다른 선수 행일 수 있음)로 전체 재로드
     private async Task ReloadAsync()

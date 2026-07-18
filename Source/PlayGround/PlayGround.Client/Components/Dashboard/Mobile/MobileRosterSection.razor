@@ -29,7 +29,14 @@
         </div>
     </div>
 
-    @if (mIsListView)
+    @if (Players.Count == 0)
+    {
+        @* 빈 상태 Tier A (주 액션은 헤더 버튼 하나 유지 — 카드 안 CTA 없음) *@
+        <EmptyState Kind="EmptyState.Art.Players" Title="아직 등록된 선수가 없어요">
+            <Description>선수를 등록하면 공개 홈페이지 선수단에도 함께 표시돼요.</Description>
+        </EmptyState>
+    }
+    else if (mIsListView)
     {
         <div class="@($"{Css.Dashboard.Card} rounded-[14px] overflow-hidden")">
             @foreach (TeamRosterPlayerDto player in VisiblePlayers)

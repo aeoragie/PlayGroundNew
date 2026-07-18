@@ -1,0 +1,30 @@
+@* 대시보드 섹션 골격 — 헤더(제목 + 주 버튼) + 본문. 실제 섹션이 헤더를 직접 그리므로
+   스켈레톤에도 같은 헤더를 둬야 로드 완료 시 본문이 위로 튀지 않는다. *@
+
+<div class="flex flex-col gap-[18px]">
+    <div class="flex justify-between items-center">
+        <Skeleton Width="132px" Height="@TitleHeight" />
+        @if (ShowAction)
+        {
+            <Skeleton Shape="Skeleton.SkeletonShape.Chip" Width="104px" Height="@ActionHeight" />
+        }
+    </div>
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>모바일 섹션은 제목·버튼이 한 단계 작다.</summary>
+    [Parameter]
+    public bool Compact { get; set; }
+
+    /// <summary>헤더 우측 주 버튼 자리 — 실물에 버튼이 없으면 false.</summary>
+    [Parameter]
+    public bool ShowAction { get; set; } = true;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string TitleHeight => Compact ? "17px" : "21px";
+
+    private string ActionHeight => Compact ? "36px" : "42px";
+}

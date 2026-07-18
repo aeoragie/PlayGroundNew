@@ -78,9 +78,8 @@
 > **모든 UI 작업 전 `Handoff/Design.PatternsIndex/README.md` 필독** — 공용 패턴 15종 목차·결정표.
 > 새 요소가 필요하면 새로 만들지 말고 결정표에서 기존 15종 조합을 먼저 찾는다.
 
-1. **Phase A — 횡단 기반** (다른 모든 작업 unblock): ~~A1 폼 공용 컴포넌트~~(완료, 아래) →
-   **A2 Toast·ConfirmModal(FeedbackPatterns)** → A3 스켈레톤·빈 상태(Loading·EmptyStates,
-   기존 애드혹 점선 카드 통합) → A4 내비게이션 배선·에러 페이지(Navigation, 잔여 항목
+1. **Phase A — 횡단 기반** (다른 모든 작업 unblock): ~~A1 폼~~ · ~~A2 Toast·ConfirmModal~~ ·
+   ~~A3 스켈레톤·빈 상태~~ 완료(아래) → **A4 내비게이션 배선·에러 페이지**(Navigation, 잔여 항목
    "공개 페이지 로그인 상태 GNB" 흡수).
 2. **Phase B — 입력 UI** (A1·A2 위에): B1 경기 결과 입력(+DatePicker, 저장 시
    `UspRecalculateSoccerTournamentStandings` 자동 호출 필수) → B2 팀 정보 수정(+ImageUploader)
@@ -127,6 +126,37 @@
 - 스타일 `Styles/Css.Feedback.cs`, 토큰 신설 `danger-muted`(#e8b0a8) · 그림자 `toast`/`modal` ·
   애니메이션 `toast-in`. 데모 `/dev/feedback-patterns`로 **삭제 → 파괴 모달 → 실행취소 왕복** 검증
   완료(PC·모바일, 파괴 모달 기본 포커스=취소 확인).
+
+### Phase A3 — 스켈레톤·빈 상태 완료 (2026-07-19, Design.LoadingStates·EmptyStates)
+
+- **스켈레톤** `Components/Shared/Loading/`: `Skeleton`(프리미티브 4종 Bar·Circle·Thumb·Chip —
+  **폭·높이는 인라인 style**. Tailwind JIT가 임의값을 스캔 못 하고, 폭은 고정 배열이라 랜덤 금지) +
+  조합 인스턴스 `SkeletonRows`(아이콘+2줄+칩) · `SkeletonPlayerCards` · `SkeletonStatCards` ·
+  `SkeletonSection`(헤더 제목+주 버튼 — **실제 섹션이 헤더를 직접 그리므로 스켈레톤에도 넣어야 점프 0**).
+- **`LoadingGate`가 타이밍 3종을 전담** — 200ms 전에는 아무것도 안 그림(플리커 방지) / 3초 초과 시
+  "불러오는 중이에요…" / 실패 시 그 자리를 에러 안내+"다시 시도"로 교체. `IsLoading`·`HasFailed`·
+  `OnRetry`·`Skeleton`·`ChildContent` 파라미터.
+- **실패 플래그를 각 페이지에 신설** — 기존 클라이언트는 오류를 삼키고 null을 반환해서 **실패와
+  로딩이 구분되지 않았다**(스켈레톤 무한 회전). `mXxxFailed = 결과 is null`로 판정하고 재시도
+  콜백을 연결(팀 로스터·경기·영상, 선수 커리어·통계·포트폴리오, 공개홈 시즌성적).
+  시즌 통계는 pill 전환 실패 시 **기존 값을 유지**하고 첫 조회 실패만 에러로 바꾼다.
+- **빈 상태** `Components/Shared/Empty/`: `EmptyState`(Tier A — 일러스트 88px/모바일 72px,
+  `Art` 프리셋 Players·Video·Record·Trophy를 컴포넌트가 직접 렌더) · `EmptySlot`(Tier B — 아이콘
+  40px + 한 줄, 페이지 내 한 블록만 빌 때). 스타일은 `Styles/Css.State.cs`.
+- **CTA 결정(PLAN 예외 해석 적용)**: 헤더 오렌지 버튼이 이미 있는 섹션에는 **카드 안 CTA를 넣지
+  않는다**(중복). 카드 안 CTA가 필요한 곳만 네이비 — 현재는 경기기록 "지난 시즌 아카이브"(아웃라인)
+  하나. 방문자 뷰(공개홈·시즌통계)는 CTA 없이 안내 문장으로 종료.
+- 교체: 애드혹 점선 카드 11곳(커리어·포트폴리오·경기결과·영상·시즌통계·공개홈 시즌성적, PC+모바일)
+  → 공용 컴포넌트. 신규 5곳: 선수단 0명(PC·모바일 — **기존엔 빈 상태가 아예 없었다**), 경기기록
+  진행중 대회 0건, 대회 상세 뉴스(Tier B, "없습니다"→"~해요"체 통일).
+- 토큰 신설: `skeleton`/`skeleton-lit`/`skeleton-deep`/`skeleton-deep-lit`·`illustration`(#c5cfe4),
+  `bg-shimmer`/`bg-shimmer-deep` + `animate-shimmer`(1.6s linear).
+- 검증(스크래치패드 `shot-states.js`): **120ms 시점 스켈레톤 없음** → 표시 → 3초 문구 →
+  섹션 top 90px가 스켈레톤·실물 동일(**점프 0**) → EmptyFC 빈 상태 3종 + 모바일.
+  **헤드리스 팁**: 스크린샷 직후 `waitForFunction`의 기본 rAF 폴링이 멈춘다 — `{ polling: 300 }` 필수.
+  API 지연은 스로틀 대신 CDP `Fetch.requestPaused`로 특정 경로만 붙잡는 게 결정적(스로틀은 WASM
+  부팅까지 느려져 화면이 안 뜬다). **패턴 등록 시 통과용 기본 핸들러를 반드시 함께 달 것**(없으면
+  모든 /api/ 요청이 영구 정지).
 
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
 

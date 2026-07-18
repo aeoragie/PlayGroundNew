@@ -10,12 +10,10 @@
 
     @if (Data.Matches.Count == 0)
     {
-        @* 빈 데이터 노출 금지 — 경기 없으면 안내만 *@
-        <div class="bg-white border-1.5 border-dashed border-border rounded-[16px] px-6 py-14 flex flex-col items-center gap-2.5 text-center">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="text-text-faint"><path d="M5 20V11M12 20V4M19 20v-6"></path></svg>
-            <span class="text-[15px] font-extrabold text-navy-deep">아직 등록된 경기 기록이 없어요</span>
-            <span class="text-[13px] text-text-body leading-[1.7] break-keep">경기가 진행되면 전적·최근 경기·영상이 여기에 표시돼요.</span>
-        </div>
+        @* 빈 상태 Tier A — 방문자 뷰라 CTA 없이 안내 문장으로 종료 *@
+        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 경기 기록이 없어요">
+            <Description>경기가 진행되면 전적·최근 경기·영상이 여기에 표시돼요.</Description>
+        </EmptyState>
     }
     else
     {

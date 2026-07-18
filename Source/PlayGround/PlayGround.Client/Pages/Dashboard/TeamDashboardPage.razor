@@ -19,25 +19,40 @@
             @switch (CurrentSection)
             {
                 case SoccerTeamDashboardSection.Roster:
-                    @if (mRoster is not null)
-                    {
-                        <RosterSection Players="@mRoster.Players" />
-                    }
+                    <LoadingGate IsLoading="@(mRoster is null && !mRosterFailed)" HasFailed="@mRosterFailed" OnRetry="LoadRosterAsync">
+                        <Skeleton>
+                            <SkeletonSection><SkeletonPlayerCards Count="8" /></SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <RosterSection Players="@mRoster!.Players" />
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 case SoccerTeamDashboardSection.Schedule:
                     <ScheduleSection />
                     break;
                 case SoccerTeamDashboardSection.Results:
-                    @if (mMatches is not null)
-                    {
-                        <MatchResultsSection Data="@mMatches" TeamName="@(mInfo?.Profile.TeamName ?? "")" />
-                    }
+                    <LoadingGate IsLoading="@(mMatches is null && !mMatchesFailed)" HasFailed="@mMatchesFailed" OnRetry="LoadMatchesAsync">
+                        <Skeleton>
+                            <SkeletonSection>
+                                <SkeletonStatCards Count="4" />
+                                <SkeletonRows Count="4" />
+                            </SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <MatchResultsSection Data="@(mMatches!)" TeamName="@(mInfo?.Profile.TeamName ?? "")" />
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 case SoccerTeamDashboardSection.Videos:
-                    @if (mVideos is not null)
-                    {
-                        <VideosSection Data="@mVideos" />
-                    }
+                    <LoadingGate IsLoading="@(mVideos is null && !mVideosFailed)" HasFailed="@mVideosFailed" OnRetry="LoadVideosAsync">
+                        <Skeleton>
+                            <SkeletonSection><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <VideosSection Data="@(mVideos!)" />
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 case SoccerTeamDashboardSection.Recruit:
                     <RecruitSection />
@@ -60,21 +75,34 @@
         @switch (CurrentSection)
         {
             case SoccerTeamDashboardSection.Roster:
-                @if (mRoster is not null)
-                {
-                    <MobileRosterSection Players="@mRoster.Players" />
-                }
+                <LoadingGate IsLoading="@(mRoster is null && !mRosterFailed)" HasFailed="@mRosterFailed" OnRetry="LoadRosterAsync">
+                    <Skeleton>
+                        <SkeletonSection Compact="true"><SkeletonPlayerCards Count="4" /></SkeletonSection>
+                    </Skeleton>
+                    <ChildContent>
+                        <MobileRosterSection Players="@mRoster!.Players" />
+                    </ChildContent>
+                </LoadingGate>
                 break;
             case SoccerTeamDashboardSection.Schedule:
                 <MobileScheduleSection />
                 break;
             case SoccerTeamDashboardSection.Results:
             case SoccerTeamDashboardSection.Videos:
-                @if (mMatches is not null && mVideos is not null)
-                {
-                    <MobileMatchSection ActiveSection="@CurrentSection" Matches="@mMatches" Videos="@mVideos"
-                                        TeamName="@(mInfo?.Profile.TeamName ?? "")" />
-                }
+                @* 서브탭이 결과·영상을 공유하므로 둘 다 도착해야 실물을 그린다 *@
+                <LoadingGate IsLoading="@((mMatches is null && !mMatchesFailed) || (mVideos is null && !mVideosFailed))"
+                             HasFailed="@(mMatchesFailed || mVideosFailed)" OnRetry="RetryMatchTabAsync">
+                    <Skeleton>
+                        <SkeletonSection Compact="true">
+                            <SkeletonStatCards Count="2" />
+                            <SkeletonRows Count="3" />
+                        </SkeletonSection>
+                    </Skeleton>
+                    <ChildContent>
+                        <MobileMatchSection ActiveSection="@CurrentSection" Matches="@(mMatches!)" Videos="@(mVideos!)"
+                                            TeamName="@(mInfo?.Profile.TeamName ?? "")" />
+                    </ChildContent>
+                </LoadingGate>
                 break;
             case SoccerTeamDashboardSection.Recruit:
                 <MobileRecruitSection />
@@ -103,6 +131,11 @@
     private bool mMatchesRequested;
     private bool mVideosRequested;
 
+    // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
+    private bool mRosterFailed;
+    private bool mMatchesFailed;
+    private bool mVideosFailed;
+
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
     protected override async Task OnInitializedAsync()
@@ -129,23 +162,58 @@
 
         if (CurrentSection == SoccerTeamDashboardSection.Roster && !mRosterRequested)
         {
-            mRosterRequested = true;
-            mRoster = await Teams.GetTeamRosterAsync();
+            await LoadRosterAsync();
         }
         else if (CurrentSection is SoccerTeamDashboardSection.Results or SoccerTeamDashboardSection.Videos)
         {
             // 모바일은 결과·영상이 한 화면(서브탭)이라 함께 로드한다
             if (!mMatchesRequested)
             {
-                mMatchesRequested = true;
-                mMatches = await Teams.GetTeamMatchesAsync(DateTime.Now.Year);
+                await LoadMatchesAsync();
             }
 
             if (!mVideosRequested)
             {
-                mVideosRequested = true;
-                mVideos = await Teams.GetTeamVideosAsync();
+                await LoadVideosAsync();
             }
+        }
+    }
+
+    private async Task LoadRosterAsync()
+    {
+        mRosterRequested = true;
+        mRosterFailed = false;
+        mRoster = await Teams.GetTeamRosterAsync();
+        mRosterFailed = mRoster is null;
+    }
+
+    private async Task LoadMatchesAsync()
+    {
+        mMatchesRequested = true;
+        mMatchesFailed = false;
+        mMatches = await Teams.GetTeamMatchesAsync(DateTime.Now.Year);
+        mMatchesFailed = mMatches is null;
+    }
+
+    private async Task LoadVideosAsync()
+    {
+        mVideosRequested = true;
+        mVideosFailed = false;
+        mVideos = await Teams.GetTeamVideosAsync();
+        mVideosFailed = mVideos is null;
+    }
+
+    // 모바일 경기 탭은 결과·영상을 함께 쓰므로 실패한 쪽만 다시 부른다
+    private async Task RetryMatchTabAsync()
+    {
+        if (mMatchesFailed)
+        {
+            await LoadMatchesAsync();
+        }
+
+        if (mVideosFailed)
+        {
+            await LoadVideosAsync();
         }
     }
 }

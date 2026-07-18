@@ -1,0 +1,17 @@
+@* 스탯 카드 스켈레톤 (라벨 + 숫자) — Design.LoadingStates 인스턴스 "대시보드 · 스탯 카드 3칸". *@
+
+<div class="grid gap-2.5" style="grid-template-columns:repeat(@Count,minmax(0,1fr))">
+    @for (int i = 0; i < Count; i++)
+    {
+        <div class="border-1.5 border-border-soft rounded-xl p-3.5 flex flex-col gap-[9px]">
+            <Skeleton Width="50%" Height="9px" />
+            <Skeleton Width="36px" Height="20px" />
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>칸 수 — 요약 카드 개수와 같아야 로드 후 점프가 없다.</summary>
+    [Parameter]
+    public int Count { get; set; } = 3;
+}

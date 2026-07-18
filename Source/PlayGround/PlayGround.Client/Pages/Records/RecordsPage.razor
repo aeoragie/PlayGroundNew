@@ -2,6 +2,7 @@
    비로그인 전면 공개. 내 연령 개인화는 로그인 + 선수(보호자) 계정일 때만 *@
 @attribute [Route(Routes.Records)]
 @using PlayGround.Client.Components.Records
+@using PlayGround.Client.Styles
 @using PlayGround.Client.Models
 @using PlayGround.Contracts.Player
 @using PlayGround.Contracts.Records
@@ -49,6 +50,16 @@
         </div>
 
         @* 연령 아코디언 *@
+        @if (VisibleAges.Count == 0)
+        {
+            @* 빈 상태 Tier A — 소유자 액션이 없는 공개 화면이라 보조 탐색(아웃라인)만 *@
+            <EmptyState Kind="EmptyState.Art.Trophy" Title="지금 진행 중인 대회가 없어요">
+                <Description>시즌 사이 기간이에요. 지난 시즌 기록은 아카이브에서 볼 수 있어요.</Description>
+                <Cta>
+                    <a href="@Routes.RecordsArchive" class="@Css.State.EmptyCtaGhost">지난 시즌 아카이브</a>
+                </Cta>
+            </EmptyState>
+        }
         <div class="flex flex-col gap-2.5">
             @foreach (string age in VisibleAges)
             {

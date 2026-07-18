@@ -43,6 +43,15 @@
 
   /* 피드백 (Design.FeedbackPatterns) — 고위험 확인 입력 잠금 버튼 */
   --color-danger-muted: 232 176 168;       /* #e8b0a8 입력 일치 전 파괴 버튼 비활성 */
+
+  /* 로딩 스켈레톤 (Design.LoadingStates) — 시머 그라디언트 3색 */
+  --color-skeleton: 233 237 244;           /* #e9edf4 텍스트 바·원·칩 기본 */
+  --color-skeleton-lit: 244 246 250;       /* #f4f6fa 시머 하이라이트 */
+  --color-skeleton-deep: 226 231 240;      /* #e2e7f0 썸네일·커버(한 톤 진하게) */
+  --color-skeleton-deep-lit: 238 241 247;  /* #eef1f7 썸네일 시머 하이라이트 */
+
+  /* 빈 상태 (Design.EmptyStates) — Tier A 일러스트 외곽선 */
+  --color-illustration: 197 207 228;       /* #c5cfe4 일러스트 연한 외곽 (디테일은 navy) */
 }
 
 @tailwind base;

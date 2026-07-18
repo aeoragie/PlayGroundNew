@@ -32,6 +32,8 @@ module.exports = {
           DEFAULT: 'rgb(var(--color-danger) / <alpha-value>)',
           muted: 'rgb(var(--color-danger-muted) / <alpha-value>)',
         },
+        // 빈 상태 Tier A 일러스트 외곽선 (Design.EmptyStates)
+        illustration: 'rgb(var(--color-illustration) / <alpha-value>)',
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',
@@ -87,6 +89,11 @@ module.exports = {
           'linear-gradient(180deg, rgba(28,43,74,.25) 0%, rgba(28,43,74,.78) 100%)',
         'team-cover-overlay-m':
           'linear-gradient(180deg, rgba(28,43,74,.2) 0%, rgba(28,43,74,.7) 100%)',
+        // 로딩 스켈레톤 시머 (Design.LoadingStates) — deep는 썸네일·커버 전용
+        shimmer:
+          'linear-gradient(90deg, rgb(var(--color-skeleton)) 25%, rgb(var(--color-skeleton-lit)) 50%, rgb(var(--color-skeleton)) 75%)',
+        'shimmer-deep':
+          'linear-gradient(90deg, rgb(var(--color-skeleton-deep)) 25%, rgb(var(--color-skeleton-deep-lit)) 50%, rgb(var(--color-skeleton-deep)) 75%)',
       },
       boxShadow: {
         // 스크롤 시 solid 헤더
@@ -111,9 +118,15 @@ module.exports = {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        // 스켈레톤 시머 — 좌→우 1.6s 무한 루프
+        shimmer: {
+          from: { backgroundPosition: '200% 0' },
+          to: { backgroundPosition: '-200% 0' },
+        },
       },
       animation: {
         'toast-in': 'toast-in .18s ease-out',
+        shimmer: 'shimmer 1.6s linear infinite',
       },
     },
   },

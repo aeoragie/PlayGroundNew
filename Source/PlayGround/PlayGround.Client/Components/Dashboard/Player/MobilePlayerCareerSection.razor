@@ -11,12 +11,10 @@
 
     @if (Entries.Count == 0)
     {
-        @* 빈 상태: 현재 상태 + 등록 가이드 (주 액션은 헤더의 ＋ 이력 추가 하나 유지) *@
-        <div class="bg-white border-1.5 border-dashed border-border rounded-[15px] px-5 py-10 flex flex-col items-center gap-2 text-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-text-faint"><path d="M12 4v16M12 8l4-2M12 14l-4-2"></path><circle cx="18" cy="5" r="2"></circle><circle cx="6" cy="11" r="2"></circle><circle cx="12" cy="20" r="2"></circle></svg>
-            <span class="text-sm font-extrabold text-navy-deep">아직 등록된 이력이 없어요</span>
-            <span class="text-xs text-text-body leading-[1.7] break-keep">＋ 이력 추가로 소속 이력을 등록해 보세요.<br />팀 관리자가 확인하면 "팀 확인됨"으로 공개 프로필에 신뢰 표시와 함께 노출돼요.</span>
-        </div>
+        @* 빈 상태 Tier A (주 액션은 헤더의 ＋ 이력 추가 하나 유지 — 카드 안 CTA 없음) *@
+        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 이력이 없어요">
+            <Description>＋ 이력 추가로 소속 이력을 등록해 보세요.<br />팀 관리자가 확인하면 "팀 확인됨"으로 공개 프로필에 신뢰 표시와 함께 노출돼요.</Description>
+        </EmptyState>
     }
 
     @if (Entries.Count > 0)

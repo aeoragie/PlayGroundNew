@@ -1,0 +1,29 @@
+@* 행형 스켈레톤 (아이콘 박스 + 2줄 + 우측 칩) — Design.LoadingStates 인스턴스 "경기기록 · 대회/리그 행".
+   경기 결과·영상·커리어·포트폴리오 목록이 모두 이 골격에서 파생한다. 행형은 3~5개. *@
+
+<div class="flex flex-col gap-2.5">
+    @for (int i = 0; i < Count; i++)
+    {
+        <div class="flex items-center gap-3 border-1.5 border-border-soft rounded-xl px-3.5 py-3">
+            <Skeleton Shape="Skeleton.SkeletonShape.Thumb" Size="38px" Class="rounded-[10px]" />
+            <div class="flex-1 flex flex-col gap-[7px] min-w-0">
+                <Skeleton Width="70%" Height="11px" />
+                <Skeleton Width="45%" Height="9px" />
+            </div>
+            @if (ShowChip)
+            {
+                <Skeleton Shape="Skeleton.SkeletonShape.Chip" Width="54px" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>행 개수 — 3~5개(README 규칙 5).</summary>
+    [Parameter]
+    public int Count { get; set; } = 3;
+
+    /// <summary>우측 상태 칩 자리 — 실물에 칩이 없으면 false로 둬야 점프가 없다.</summary>
+    [Parameter]
+    public bool ShowChip { get; set; } = true;
+}

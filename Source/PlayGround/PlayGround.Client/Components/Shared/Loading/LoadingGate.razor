@@ -1,0 +1,113 @@
+@* 로딩 표시 타이밍 담당 — Design.LoadingStates 동작 규칙 1·3·6.
+   200ms 안에 응답이 오면 스켈레톤을 아예 그리지 않고(플리커 방지),
+   3초를 넘기면 "불러오는 중이에요…"를 덧붙이며, 실패하면 그 자리를 에러 안내로 바꾼다. *@
+@using PlayGround.Client.Styles
+@implements IDisposable
+
+@if (HasFailed)
+{
+    <div class="@Css.State.ErrorBox">
+        <span class="@Css.State.ErrorTitle">불러오지 못했어요</span>
+        <span class="@Css.State.EmptyDescription">잠시 후 다시 시도해 주세요.</span>
+        @if (OnRetry.HasDelegate)
+        {
+            <button type="button" class="@Css.State.ErrorRetry" @onclick="OnRetry">다시 시도</button>
+        }
+    </div>
+}
+else if (IsLoading)
+{
+    @* 200ms 전에는 아무것도 그리지 않는다 — 자리 차지도 하지 않음 *@
+    @if (mShowSkeleton)
+    {
+        <div>
+            @Skeleton
+            @if (mIsSlow)
+            {
+                <span class="@Css.State.SlowNotice">불러오는 중이에요…</span>
+            }
+        </div>
+    }
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    private const int SkeletonDelayMs = 200;
+    private const int SlowNoticeMs = 3000;
+
+    /// <summary>true면 스켈레톤(지연 후), false면 ChildContent.</summary>
+    [Parameter, EditorRequired]
+    public bool IsLoading { get; set; }
+
+    /// <summary>true면 스켈레톤 자리를 에러 안내로 교체한다.</summary>
+    [Parameter]
+    public bool HasFailed { get; set; }
+
+    /// <summary>로딩 중 보여줄 골격 — 실물과 같은 크기여야 로드 후 점프가 없다.</summary>
+    [Parameter, EditorRequired]
+    public RenderFragment? Skeleton { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    private bool mShowSkeleton;
+    private bool mIsSlow;
+    private CancellationTokenSource? mTimers;
+
+    protected override void OnParametersSet()
+    {
+        if (IsLoading && mTimers is null)
+        {
+            StartTimers();
+        }
+        else if (!IsLoading)
+        {
+            StopTimers();
+        }
+    }
+
+    private void StartTimers()
+    {
+        mTimers = new CancellationTokenSource();
+        CancellationToken token = mTimers.Token;
+
+        _ = RunAfterAsync(SkeletonDelayMs, () => mShowSkeleton = true, token);
+        _ = RunAfterAsync(SlowNoticeMs, () => mIsSlow = true, token);
+    }
+
+    private async Task RunAfterAsync(int delayMs, Action apply, CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(delayMs, token);
+        }
+        catch (TaskCanceledException)
+        {
+            return; // 로딩이 먼저 끝났다 — 표시하지 않는다
+        }
+
+        apply();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void StopTimers()
+    {
+        mTimers?.Cancel();
+        mTimers?.Dispose();
+        mTimers = null;
+        mShowSkeleton = false;
+        mIsSlow = false;
+    }
+
+    public void Dispose()
+    {
+        mTimers?.Cancel();
+        mTimers?.Dispose();
+    }
+}

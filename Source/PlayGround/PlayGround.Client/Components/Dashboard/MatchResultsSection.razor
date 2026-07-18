@@ -11,12 +11,10 @@
 
     @if (Data.Matches.Count == 0)
     {
-        @* 빈 상태: 현재 상태 + 등록 가이드 (주 액션은 헤더의 ＋ 결과 입력 하나 유지) *@
-        <div class="bg-white border-1.5 border-dashed border-border rounded-[16px] px-6 py-14 flex flex-col items-center gap-2.5 text-center">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="text-text-faint"><path d="M5 20V11M12 20V4M19 20v-6"></path></svg>
-            <span class="text-[15px] font-extrabold text-navy-deep">아직 등록된 경기 결과가 없어요</span>
-            <span class="text-[13px] text-text-body leading-[1.7] break-keep">＋ 결과 입력으로 첫 경기를 기록해 보세요.<br />득점·도움은 선수 시즌 통계에, 결과는 공개 홈페이지와 경기기록(Records)에 자동 반영돼요.</span>
-        </div>
+        @* 빈 상태 Tier A (주 액션은 헤더의 ＋ 결과 입력 하나 유지 — 카드 안 CTA 없음) *@
+        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 경기 결과가 없어요">
+            <Description>＋ 결과 입력으로 첫 경기를 기록해 보세요.<br />득점·도움은 선수 시즌 통계에, 결과는 공개 홈페이지와 경기기록(Records)에 자동 반영돼요.</Description>
+        </EmptyState>
     }
     else
     {

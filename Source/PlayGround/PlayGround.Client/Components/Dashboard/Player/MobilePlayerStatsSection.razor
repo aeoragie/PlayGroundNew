@@ -20,11 +20,10 @@
 
     @if (Stats.Matches.Count == 0)
     {
-        <div class="bg-white border-1.5 border-dashed border-border rounded-[15px] px-5 py-10 flex flex-col items-center gap-2 text-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="text-text-faint"><path d="M5 20V11M12 20V4M19 20v-6"></path></svg>
-            <span class="text-sm font-extrabold text-navy-deep">아직 집계된 경기 기록이 없어요</span>
-            <span class="text-xs text-text-body leading-[1.7] break-keep">팀 관리자가 경기 결과에 출전·득점을 입력하면<br />시즌 통계가 자동으로 집계돼요.</span>
-        </div>
+        @* 자동 집계 섹션 — CTA 없이 입력 부담 제거 문구(카탈로그 인스턴스 6) *@
+        <EmptyState Kind="EmptyState.Art.Record" Title="아직 경기 기록이 없어요">
+            <Description>첫 경기 결과가 반영되면 자동으로 채워져요. 따로 입력할 필요 없어요.</Description>
+        </EmptyState>
     }
     else
     {

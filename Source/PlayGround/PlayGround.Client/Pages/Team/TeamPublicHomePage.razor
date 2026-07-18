@@ -47,15 +47,22 @@ else if (mHome is not null)
                     </div>
                     break;
                 case SoccerTeamPublicTab.Record:
-                    @if (mRecord is not null)
-                    {
-                        <div class="hidden md:block">
-                            <PublicRecordSection Data="@mRecord" />
-                        </div>
-                        <div class="md:hidden">
-                            <MobilePublicRecordSection Data="@mRecord" />
-                        </div>
-                    }
+                    <LoadingGate IsLoading="@(mRecord is null && !mRecordFailed)" HasFailed="@mRecordFailed" OnRetry="LoadRecordAsync">
+                        <Skeleton>
+                            <SkeletonSection ShowAction="false">
+                                <SkeletonStatCards Count="4" />
+                                <SkeletonRows Count="4" />
+                            </SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <div class="hidden md:block">
+                                <PublicRecordSection Data="@(mRecord!)" />
+                            </div>
+                            <div class="md:hidden">
+                                <MobilePublicRecordSection Data="@(mRecord!)" />
+                            </div>
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 default:
                     @* 모집·진학진로·리뷰 탭은 다음 단계에서 구현 *@
@@ -94,6 +101,9 @@ else if (mHome is not null)
     private TeamSeasonRecordResponse? mRecord;
     private bool mLoaded;
     private bool mRecordRequested;
+
+    // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
+    private bool mRecordFailed;
     private List<string> mAgeGroups = new();
 
     private SoccerTeamPublicTab CurrentTab => SoccerTeamPublicTabExtensions.ParseSlug(Tab);
@@ -119,8 +129,15 @@ else if (mHome is not null)
         if (mHome is not null && CurrentTab == SoccerTeamPublicTab.Record && !mRecordRequested)
         {
             mRecordRequested = true;
-            mRecord = await Teams.GetTeamSeasonRecordAsync(Slug, DateTime.Now.Year);
+            await LoadRecordAsync();
         }
+    }
+
+    private async Task LoadRecordAsync()
+    {
+        mRecordFailed = false;
+        mRecord = await Teams.GetTeamSeasonRecordAsync(Slug, DateTime.Now.Year);
+        mRecordFailed = mRecord is null;
     }
 
     private void GoRecruit()

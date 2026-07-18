@@ -1,0 +1,68 @@
+@* 스켈레톤 프리미티브 4종(텍스트 바·원·썸네일·칩) — Design.LoadingStates.
+   폭은 호출부가 고정값으로 지정한다(랜덤 금지 — 재방문 시 흔들림 방지). *@
+@using PlayGround.Client.Styles
+
+<div class="@ShapeClass @Class" style="@SizeStyle" aria-hidden="true"></div>
+
+@code {
+    /// <summary>프리미티브 종류.</summary>
+    public enum SkeletonShape
+    {
+        /// <summary>텍스트 바 (radius 6).</summary>
+        Bar,
+
+        /// <summary>아바타·엠블럼 원.</summary>
+        Circle,
+
+        /// <summary>썸네일·커버 (한 톤 진한 시머).</summary>
+        Thumb,
+
+        /// <summary>칩 (radius 99).</summary>
+        Chip,
+    }
+
+    [Parameter]
+    public SkeletonShape Shape { get; set; } = SkeletonShape.Bar;
+
+    /// <summary>CSS 폭 — "55%", "64px" 등. 원은 Size로 지정한다.</summary>
+    [Parameter]
+    public string? Width { get; set; }
+
+    /// <summary>CSS 높이 — 바는 8~15px.</summary>
+    [Parameter]
+    public string? Height { get; set; }
+
+    /// <summary>원·정사각 썸네일의 한 변 — Width/Height를 함께 지정한 것과 같다.</summary>
+    [Parameter]
+    public string? Size { get; set; }
+
+    /// <summary>배치용 추가 클래스 (margin·flex 등).</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string ShapeClass => Shape switch
+    {
+        SkeletonShape.Circle => Css.State.SkeletonCircle,
+        SkeletonShape.Thumb => Css.State.SkeletonThumb,
+        SkeletonShape.Chip => Css.State.SkeletonChip,
+        _ => Css.State.SkeletonBar,
+    };
+
+    // 폭·높이는 임의값이라 Tailwind JIT가 스캔할 수 없다 → 인라인 style로 지정
+    private string SizeStyle
+    {
+        get
+        {
+            string width = Size ?? Width ?? "100%";
+            string height = Size ?? Height ?? DefaultHeight;
+            return $"width:{width};height:{height}";
+        }
+    }
+
+    private string DefaultHeight => Shape switch
+    {
+        SkeletonShape.Chip => "22px",
+        SkeletonShape.Thumb => "74px",
+        _ => "11px",
+    };
+}

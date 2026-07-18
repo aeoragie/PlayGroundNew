@@ -1,0 +1,76 @@
+@* 빈 상태 Tier A — 페이지/탭 수준(콘텐츠 영역 전체가 빔). Design.EmptyStates.
+   일러스트 88px(모바일 72px): 외곽 illustration stroke 3 + navy 디테일 stroke 3.5 (에러 페이지와 같은 문법).
+   CTA는 그 화면의 소유자에게만 — 방문자는 안내 문장으로 종료한다. *@
+@using PlayGround.Client.Styles
+
+<div class="@($"{Css.State.EmptyCard} {Class}")">
+    <svg class="@Css.State.EmptyIllustration" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        @RenderArt()
+    </svg>
+
+    <span class="@Css.State.EmptyTitle">@Title</span>
+    <span class="@Css.State.EmptyDescription">@Description</span>
+
+    @if (Cta is not null)
+    {
+        @Cta
+    }
+</div>
+
+@code {
+    /// <summary>일러스트 프리셋 — 카탈로그(Empty States.dc.html)와 1:1.</summary>
+    public enum Art
+    {
+        /// <summary>선수단 0명 — 유니폼.</summary>
+        Players,
+
+        /// <summary>영상 없음 — 재생 화면.</summary>
+        Video,
+
+        /// <summary>경기 기록 없음 — 기록지.</summary>
+        Record,
+
+        /// <summary>진행중 대회 없음 — 트로피.</summary>
+        Trophy,
+    }
+
+    [Parameter, EditorRequired]
+    public Art Kind { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>설명 — 자동 집계 섹션은 "자동으로 채워져요" 문구로 입력 부담을 없앤다.</summary>
+    [Parameter, EditorRequired]
+    public RenderFragment? Description { get; set; }
+
+    /// <summary>소유자 액션 버튼·링크. 방문자에게는 넘기지 않는다(Css.State.EmptyCta 사용).</summary>
+    [Parameter]
+    public RenderFragment? Cta { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private RenderFragment RenderArt() => Kind switch
+    {
+        Art.Players => @<g>
+            <path d="M42 30l-16 8v16l12 4v34h44V58l12-4V38l-16-8-8 8h-20z" class="stroke-illustration" stroke-width="3" stroke-linejoin="round"></path>
+            <path d="M52 62h16M52 74h16" class="stroke-navy" stroke-width="3.5" stroke-linecap="round"></path>
+        </g>,
+        Art.Video => @<g>
+            <rect x="22" y="34" width="76" height="52" rx="8" class="stroke-illustration" stroke-width="3"></rect>
+            <path d="M54 50l16 10-16 10z" class="stroke-navy" stroke-width="3.5" stroke-linejoin="round"></path>
+        </g>,
+        Art.Trophy => @<g>
+            <path d="M40 28h40v22a20 20 0 0 1-40 0z" class="stroke-illustration" stroke-width="3" stroke-linejoin="round"></path>
+            <path d="M40 34H28v8a12 12 0 0 0 12 12M80 34h12v8a12 12 0 0 1-12 12" class="stroke-illustration" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M60 70v14M48 92h24" class="stroke-navy" stroke-width="3.5" stroke-linecap="round"></path>
+        </g>,
+        _ => @<g>
+            <rect x="30" y="24" width="60" height="72" rx="7" class="stroke-illustration" stroke-width="3"></rect>
+            <path d="M42 44h36M42 58h36" class="stroke-illustration" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M42 76h14" class="stroke-navy" stroke-width="3.5" stroke-linecap="round"></path>
+            <circle cx="72" cy="76" r="6" class="stroke-navy" stroke-width="3.5"></circle>
+        </g>,
+    };
+}

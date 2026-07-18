@@ -1,0 +1,18 @@
+@* 선수 카드 스켈레톤 (중앙 아바타 + 2줄) — Design.LoadingStates 인스턴스 "선수단 · 선수 카드".
+   카드형은 최대 6개(README 규칙 5). *@
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    @for (int i = 0; i < Count; i++)
+    {
+        <div class="border-1.5 border-border-soft rounded-[14px] p-4 flex flex-col items-center">
+            <Skeleton Shape="Skeleton.SkeletonShape.Circle" Size="56px" />
+            <Skeleton Width="60%" Height="12px" Class="mt-[11px]" />
+            <Skeleton Width="40%" Height="9px" Class="mt-2" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Count { get; set; } = 4;
+}
