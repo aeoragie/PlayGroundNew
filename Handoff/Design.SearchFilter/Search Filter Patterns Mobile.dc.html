@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:16px">
+
+<header style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:18px;font-weight:800;letter-spacing:-.02em">검색 · 필터 — 모바일 (390px)</span>
+  <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">PC와 동일 원칙(즉시 적용·URL 동기화·카운트 표시). 모바일 전용: 칩 가로 스크롤 · 상세 필터는 바텀시트(지연 적용) · 검색은 16px.</span>
+</header>
+
+<!-- 검색 + 칩 행 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">검색 바 + 필터 칩 행 (팀 탐색 상단)</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:11px">
+    <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:12px;padding:0 13px;display:flex;align-items:center;gap:10px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+      <span style="font-size:16px;color:#8a93a6">팀 이름, 지역으로 검색</span>
+    </div>
+    <div style="display:flex;gap:7px;overflow-x:auto;margin:0 -14px;padding:0 14px">
+      <span style="height:36px;padding:0 12px;border:1.5px solid #23408e;border-radius:99px;background:rgba(35,64,142,.06);display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#23408e;flex:none;white-space:nowrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>필터
+        <span style="width:17px;height:17px;border-radius:50%;background:#23408e;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">2</span>
+      </span>
+      <span style="height:36px;padding:0 12px;border-radius:99px;background:#23408e;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#fff;flex:none;white-space:nowrap">서울
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      </span>
+      <span style="height:36px;padding:0 12px;border-radius:99px;background:#23408e;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#fff;flex:none;white-space:nowrap">U15
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      </span>
+      <span style="height:36px;padding:0 14px;border:1.5px solid #e6e8ee;border-radius:99px;background:#fff;display:flex;align-items:center;font-size:12.5px;font-weight:700;color:#5b6577;flex:none;white-space:nowrap">모집중</span>
+      <span style="height:36px;padding:0 14px;border:1.5px solid #e6e8ee;border-radius:99px;background:#fff;display:flex;align-items:center;font-size:12.5px;font-weight:700;color:#5b6577;flex:none;white-space:nowrap">인증팀</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:12.5px;font-weight:800;white-space:nowrap">팀 <span style="color:#23408e">24</span>개</span>
+      <span style="font-size:11.5px;font-weight:700;color:#8a93a6;white-space:nowrap">필터 초기화</span>
+      <div style="flex:1"></div>
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#3c465a;white-space:nowrap">추천순
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- 필터 바텀시트 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">필터 바텀시트 — 시트에서만 지연 적용</span></div>
+  <div style="padding:20px 16px 0;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+    <div style="background:#fff;border-radius:18px 18px 0 0;padding:12px 18px 16px;width:300px;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(28,43,74,.3)">
+      <span style="width:36px;height:4px;border-radius:99px;background:#e6e8ee;margin:0 auto"></span>
+      <div style="display:flex;align-items:center;margin-top:12px">
+        <span style="font-size:15px;font-weight:800">필터</span>
+        <div style="flex:1"></div>
+        <span style="font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">초기화</span>
+      </div>
+      <span style="font-size:11.5px;font-weight:800;color:#3c465a;margin-top:14px">지역</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
+        <span style="height:34px;padding:0 13px;border-radius:99px;background:#23408e;display:flex;align-items:center;font-size:12px;font-weight:700;color:#fff;white-space:nowrap">서울</span>
+        <span style="height:34px;padding:0 13px;border:1.5px solid #e6e8ee;border-radius:99px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">경기</span>
+        <span style="height:34px;padding:0 13px;border:1.5px solid #e6e8ee;border-radius:99px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">인천</span>
+      </div>
+      <span style="font-size:11.5px;font-weight:800;color:#3c465a;margin-top:14px">연령</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
+        <span style="height:34px;padding:0 13px;border:1.5px solid #e6e8ee;border-radius:99px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">U12</span>
+        <span style="height:34px;padding:0 13px;border-radius:99px;background:#23408e;display:flex;align-items:center;font-size:12px;font-weight:700;color:#fff;white-space:nowrap">U15</span>
+        <span style="height:34px;padding:0 13px;border:1.5px solid #e6e8ee;border-radius:99px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">U18</span>
+      </div>
+      <span style="font-size:11.5px;font-weight:800;color:#3c465a;margin-top:14px">상태</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
+        <span style="height:34px;padding:0 13px;border:1.5px solid #e6e8ee;border-radius:99px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">모집중</span>
+        <span style="height:34px;padding:0 13px;border:1.5px solid #e6e8ee;border-radius:99px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">인증팀</span>
+      </div>
+      <button style="height:48px;border:0;border-radius:12px;background:#23408e;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;margin-top:18px;white-space:nowrap">24개 팀 보기</button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">시트 내에서는 선택해도 미적용 — 하단 버튼에 결과 수 실시간 표시 후 탭 시 일괄 적용. 시트 밖 칩 행은 즉시 적용 유지.</div>
+</div>
+
+<!-- 검색 결과 (퀵서치 풀스크린) -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">GNB 퀵서치 — 모바일 풀스크린</span></div>
+  <div style="padding:14px">
+    <div style="border:1.5px solid #e6e8ee;border-radius:13px;overflow:hidden">
+      <div style="background:#1c2b4a;padding:10px 12px;display:flex;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+        <div style="flex:1;height:36px;border-radius:9px;background:rgba(255,255,255,.1);padding:0 11px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px;color:#fff">한강</span>
+          <span style="width:1.5px;height:16px;background:#2EC4B6"></span>
+        </div>
+      </div>
+      <div style="padding:10px;display:flex;flex-direction:column;gap:2px">
+        <span style="font-size:10.5px;font-weight:800;color:#8a93a6;padding:4px 8px">팀</span>
+        <span style="display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:8px;background:#f8f9fb">
+          <span style="width:30px;height:30px;border-radius:50%;background:#23408e;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff">한</span>
+          <span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap">FC <b style="color:#23408e">한강</b> 유나이티드</span><span style="font-size:11px;font-weight:600;color:#8a93a6;white-space:nowrap">서울 · U15</span></span>
+        </span>
+        <span style="font-size:10.5px;font-weight:800;color:#8a93a6;padding:4px 8px">선수</span>
+        <span style="display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:8px">
+          <span style="width:30px;height:30px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff">김</span>
+          <span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap">김<b style="color:#23408e">한강</b></span><span style="font-size:11px;font-weight:600;color:#8a93a6;white-space:nowrap">U15 · FC 서울남부</span></span>
+        </span>
+        <span style="font-size:12px;font-weight:700;color:#23408e;padding:10px 8px 4px">"한강" 전체 결과 보기 →</span>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 16px 12px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">모바일 퀵서치는 드롭다운 대신 풀스크린 전환(뒤로가기=닫기). 최근 검색어 3개 저장(로컬).</div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">터치 타겟: 칩 36px·시트 버튼 48px. 칩 행 스크롤바 숨김. 0건=EmptyStates, 로딩=스켈레톤 유지.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1500}}"></script>
+</body>
+</html>

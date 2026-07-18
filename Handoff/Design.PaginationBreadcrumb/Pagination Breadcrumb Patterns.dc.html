@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">페이지네이션 · 브레드크럼 패턴 카탈로그</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">의견: 이 서비스는 구조가 얕아(대부분 2단) <b>브레드크럼은 깊이 3단 이상에서만</b> — 그 외에는 "뒤로" 헤더나 GNB로 충분하며 상시 브레드크럼은 소음. 페이지네이션은 TableList의 "더 보기"가 기본이고 여기서는 <b>숫자 페이지네이션(관리자 테이블 전용)</b>과 브레드크럼·뒤로 헤더의 사용 경계를 확정.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 브레드크럼 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">브레드크럼 — 깊이 3단 이상만 (PC)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+        <a href="#" style="font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">경기기록</a>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+        <a href="#" style="font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">U15 춘계 한강리그</a>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+        <span style="font-size:12px;font-weight:800;color:#1c2b4a;white-space:nowrap">12R vs 강북 드래곤즈</span>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">현재 = 800 다크(링크 아님), 조상 = 700 회색 링크 · 4단 초과 시 중간을 "…"로 축약(첫+마지막 2단 유지) · 팀·선수명이 길면 말줄임 160px · 사용처: 경기기록 상세(기록→대회→경기) 정도 — 팀 공개홈·대시보드에는 넣지 않음(탭이 이미 위치 표시).</span>
+    </div>
+  </div>
+
+  <!-- 뒤로 헤더 (모바일) -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">뒤로 헤더 — 모바일 대체 (브레드크럼 금지)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="width:280px;background:#fff;border:1px solid #f1f3f8;border-radius:12px;padding:11px 12px;display:flex;align-items:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1c2b4a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M15 18l-6-6 6-6"></path></svg>
+        <span style="display:flex;flex-direction:column;gap:0;min-width:0">
+          <span style="font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">12R vs 강북 드래곤즈</span>
+          <span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">U15 춘계 한강리그</span>
+        </span>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">모바일은 브레드크럼 대신 뒤로 헤더: ← 44px 타겟 + 제목 + 상위 맥락 1줄(회색 10.5px) · ←는 history.back이 아니라 <b>구조상 상위로</b>(딥링크 진입 대비) · 사용처: 상세 화면 전부.</span>
+    </div>
+  </div>
+
+  <!-- 숫자 페이지네이션 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">숫자 페이지네이션 — 관리자 테이블 전용</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:5px">
+        <button style="width:34px;height:34px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.4"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></button>
+        <button style="width:34px;height:34px;border:0;border-radius:9px;background:#23408e;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;color:#fff">1</button>
+        <button style="width:34px;height:34px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:#5b6577">2</button>
+        <button style="width:34px;height:34px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:#5b6577">3</button>
+        <span style="font-size:12px;color:#8a93a6;padding:0 3px">…</span>
+        <button style="width:34px;height:34px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:#5b6577">12</button>
+        <button style="width:34px;height:34px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">현재 = 네이비 채움 · 1~3 + … + 마지막(7개 초과 시 축약) · 페이지는 URL 쿼리(`?page=3`) · <b>사용처: 관리자 승인 테이블뿐</b> — 사용자 화면은 전부 "더 보기"(TableList). 두 방식 혼용 금지.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">결정표: 사용자 목록 = "더 보기"(TableList) / 관리자 테이블 = 숫자 페이지네이션 / 위치 표시 = PC 3단 이상 브레드크럼·모바일 뒤로 헤더·2단 이하는 GNB+탭으로 충분. 모바일판 없음 — 뒤로 헤더가 곧 모바일 형태이며 숫자 페이지네이션은 관리자(PC) 전용.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:800}}"></script>
+</body>
+</html>

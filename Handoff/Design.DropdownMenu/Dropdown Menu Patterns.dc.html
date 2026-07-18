@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">드롭다운 메뉴 패턴 카탈로그</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">경계: <b>드롭다운 메뉴 = 액션 목록</b>(이동·수정·삭제) — 값 선택은 셀렉트(FormPatterns), 조건은 칩·세그먼트(SearchFilter). 모바일은 전부 <b>바텀시트로 변환</b>(FeedbackPatterns 시트 규칙). 항목 7개 이하 — 넘치면 화면을 나눌 신호.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 계정 메뉴 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">계정 메뉴 — GNB 아바타 (전 화면 공통)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:flex-end"><button onClick="{{ toggleAcc }}" style="width:36px;height:36px;border-radius:50%;border:0;background:#2EC4B6;color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">김</button></div>
+      <sc-if value="{{ accOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1.5px solid #e6e8ee;border-radius:13px;box-shadow:0 10px 30px rgba(28,43,74,.12);overflow:hidden;max-width:240px;margin-left:auto">
+          <div style="padding:12px 14px;border-bottom:1px solid #f1f3f8;display:flex;align-items:center;gap:10px">
+            <span style="width:34px;height:34px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex:none">김</span>
+            <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:12.5px;font-weight:800;white-space:nowrap">김성원</span><span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">보호자 · 자녀 2</span></span>
+          </div>
+          <div style="padding:6px">
+            <a href="#" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a;background:#f8f9fb"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg>대시보드 허브</a>
+            <a href="#" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6577" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 00-2-1.2L14 3h-4l-.4 2.6a7 7 0 00-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 005 12a7 7 0 00.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 002 1.2L10 21h4l.4-2.6a7 7 0 002-1.2l2.4 1 2-3.4-2-1.6c.1-.4.2-.8.2-1.2z"></path></svg>설정</a>
+          </div>
+          <div style="padding:6px;border-top:1px solid #f1f3f8">
+            <a href="#" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#5b6577"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 01-2-2V5a2 2 0 012-2h3M16 17l5-5-5-5M21 12H9"></path></svg>로그아웃</a>
+          </div>
+        </div>
+      </sc-if>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">헤더(이름+역할) + 이동 그룹 + 구분선 + 로그아웃 · 항목 36px·호버 `#f8f9fb` · 바깥 클릭/Esc 닫힘 · 위험 액션 없음(로그아웃은 회색).</span>
+    </div>
+  </div>
+
+  <!-- 행 오버플로 메뉴 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">오버플로 메뉴 (⋯) — 행·카드 액션</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="width:36px;height:36px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex:none">박</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap">박지호 · MF · 8번</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">2011 · 연결됨</span></span>
+        <button onClick="{{ toggleRow }}" style="width:32px;height:32px;border:0;border-radius:8px;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px">⋯</button>
+      </div>
+      <sc-if value="{{ rowOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1.5px solid #e6e8ee;border-radius:13px;box-shadow:0 10px 30px rgba(28,43,74,.12);overflow:hidden;max-width:200px;margin-left:auto">
+          <div style="padding:6px">
+            <a href="#" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a">정보 수정</a>
+            <a href="#" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a">공개 프로필 보기</a>
+          </div>
+          <div style="padding:6px;border-top:1px solid #f1f3f8">
+            <a href="#" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#c0392b">선수단에서 삭제</a>
+          </div>
+        </div>
+      </sc-if>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">주 액션 1개는 행에 직접 노출, 나머지만 ⋯로 · <b>파괴 액션은 항상 맨 아래 + 구분선 + 레드</b> → 확인 모달(FeedbackPatterns) · 액션 1개뿐이면 ⋯ 금지(직접 버튼).</span>
+    </div>
+  </div>
+
+  <!-- 모바일 바텀시트 변환 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">모바일 변환 — 전부 바텀시트</span></div>
+    <div style="padding:20px 20px 0;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+      <div style="background:#fff;border-radius:18px 18px 0 0;padding:12px 18px 16px;width:280px;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(28,43,74,.3)">
+        <span style="width:36px;height:4px;border-radius:99px;background:#e6e8ee;margin:0 auto"></span>
+        <span style="font-size:12px;font-weight:800;color:#8a93a6;margin-top:12px;padding:0 4px">박지호</span>
+        <a href="#" style="display:flex;align-items:center;min-height:48px;padding:0 4px;font-size:14px;font-weight:700;color:#1c2b4a;border-bottom:1px solid #f8f9fb">정보 수정</a>
+        <a href="#" style="display:flex;align-items:center;min-height:48px;padding:0 4px;font-size:14px;font-weight:700;color:#1c2b4a;border-bottom:1px solid #f8f9fb">공개 프로필 보기</a>
+        <a href="#" style="display:flex;align-items:center;min-height:48px;padding:0 4px;font-size:14px;font-weight:700;color:#c0392b">선수단에서 삭제</a>
+        <button style="height:46px;border:0;border-radius:12px;background:#f1f3f8;font-size:13.5px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;margin-top:8px;white-space:nowrap">취소</button>
+      </div>
+    </div>
+    <div style="padding:12px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">모바일 드롭다운은 전부 바텀시트: 대상 이름 헤더 + 행 48px + 파괴 레드 맨 아래 + 취소 버튼. 앵커 위치 팝업 금지(엄지 도달권).</div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">적용: GNB 아바타(계정 메뉴) · 선수단 행·일정 행·팀 소식 카드(⋯) · 정렬 드롭다운은 SearchFilter, 값 선택은 FormPatterns 셀렉트 — 이 카탈로그는 액션 메뉴만. 공통: 바깥 클릭/Esc 닫힘, 동시 1개, 열림 상태 URL 제외.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:950}}">
+class Component extends DCLogic {
+  state = { acc: true, row: true };
+  renderVals() {
+    return {
+      accOpen: this.state.acc, toggleAcc: () => this.setState(p => ({ acc: !p.acc })),
+      rowOpen: this.state.row, toggleRow: () => this.setState(p => ({ row: !p.row })),
+    };
+  }
+}
+</script>
+</body>
+</html>

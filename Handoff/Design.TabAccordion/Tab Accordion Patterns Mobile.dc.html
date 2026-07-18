@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:16px">
+
+<header style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:18px;font-weight:800;letter-spacing:-.02em">탭 · 아코디언 — 모바일 (390px)</span>
+  <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">PC와 동일 결정표. 모바일 전용: 탭 바 가로 스크롤(선택 탭 자동 스크롤 인) · 아코디언 헤더 56px · 다크 GNB 탭(teal 언더라인).</span>
+</header>
+
+<!-- 페이지 탭 가로 스크롤 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">페이지 탭 — 가로 스크롤 (팀 공개홈 6탭)</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:11px">
+    <div style="display:flex;gap:2px;border-bottom:1.5px solid #e6e8ee;overflow-x:auto;margin:0 -14px;padding:0 14px">
+      <sc-for list="{{ pageTabs }}" as="t" hint-placeholder-count="6">
+        <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <div style="border:1px dashed #e6e8ee;border-radius:11px;padding:14px;font-size:12px;color:#5b6577;word-break:keep-all">{{ pageBody }}</div>
+    <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">탭 높이 44px · 바 끝 잘림으로 스크롤 힌트(그라디언트 페이드 선택) · 선택 탭이 화면 밖이면 자동 스크롤 인 · 스와이프로 탭 전환은 금지(가로 스크롤 콘텐츠와 충돌).</span>
+  </div>
+</div>
+
+<!-- 다크 GNB 탭 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">다크 GNB 탭 — 상단 바 하위 (설정 모바일)</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:11px">
+    <div style="background:#1c2b4a;border-radius:12px;overflow:hidden">
+      <div style="display:flex;gap:2px;padding:0 10px">
+        <sc-for list="{{ gnbTabs }}" as="t" hint-placeholder-count="3">
+          <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">GNB(네이비)에 붙는 탭만 이 형태 — 선택 = 흰 텍스트 + teal 2.5px 언더라인. 본문 탭과 혼용 금지.</span>
+  </div>
+</div>
+
+<!-- 아코디언 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">아코디언 — 헤더 56px (Records 지난 회차)</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ accs }}" as="a" hint-placeholder-count="3">
+      <div style="border:1px solid #f1f3f8;border-radius:12px;overflow:hidden">
+        <button onClick="{{ a.go }}" style="width:100%;min-height:56px;border:0;background:#fff;cursor:pointer;font-family:inherit;padding:0 14px;display:flex;align-items:center;gap:10px">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;text-align:left">
+            <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.title }}</span>
+            <span style="font-size:11px;color:#8a93a6;white-space:nowrap">{{ a.meta }}</span>
+          </span>
+          <span style="{{ a.chev }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></span>
+        </button>
+        <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top:1px solid #f4f6fa;padding:12px 14px;font-size:12px;color:#5b6577;line-height:1.6;word-break:keep-all">{{ a.body }}</div>
+        </sc-if>
+      </div>
+    </sc-for>
+    <span style="font-size:11px;color:#8a93a6;padding-top:2px;line-height:1.6;word-break:keep-all">메타를 제목 아래 줄로(모바일 폭 대응) · 다중 열림·기본 최신 1개·열림 시 스크롤 유지 — PC와 동일.</span>
+  </div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">결정표·URL 동기화·중첩 상한(탭 1단+세그먼트 1단)은 PC 카탈로그 참조.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  state = { tab: 1, gnb: 0, open: [true, false, false] };
+  renderVals() {
+    const s = this.state;
+    const labels = ['소개', '선수단', '일정', '기록', '경기영상', '리뷰'];
+    return {
+      pageTabs: labels.map((label, i) => ({
+        label, go: () => this.setState({ tab: i }),
+        style: 'height:44px;padding:0 13px;border:0;background:none;cursor:pointer;font-family:inherit;font-size:13px;white-space:nowrap;flex:none;border-bottom:2.5px solid ' +
+          (s.tab === i ? '#23408e;color:#1c2b4a;font-weight:800' : 'transparent;color:#8a93a6;font-weight:700'),
+      })),
+      pageBody: labels[s.tab] + ' 콘텐츠 — URL: /team/hangang/' + ['about', 'players', 'schedule', 'records', 'videos', 'reviews'][s.tab],
+      gnbTabs: ['계정', '역할', '알림'].map((label, i) => ({
+        label, go: () => this.setState({ gnb: i }),
+        style: 'flex:1;height:42px;border:0;background:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;border-bottom:2.5px solid ' +
+          (s.gnb === i ? '#2EC4B6;color:#fff' : 'transparent;color:rgba(255,255,255,.55)'),
+      })),
+      accs: [
+        { title: '서울시장배 유소년 대회', meta: '2026 · 8강 진출', body: '경기 결과 리스트 (TableList 정보형 행)' },
+        { title: '춘계 한강리그', meta: '2026 · 3위', body: '순위표 + 경기 결과' },
+        { title: '전국 유소년 챔피언십', meta: '2025 · 16강', body: '경기 결과 리스트' },
+      ].map((a, i) => ({
+        ...a, open: s.open[i],
+        go: () => this.setState(p => ({ open: p.open.map((o, j) => (j === i ? !o : o)) })),
+        chev: 'display:flex;flex:none;transition:transform .2s;' + (s.open[i] ? 'transform:rotate(180deg)' : ''),
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

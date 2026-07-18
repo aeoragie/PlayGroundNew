@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">툴팁 · 헬프 패턴 카탈로그</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">원칙: <b>필수 정보는 절대 툴팁에 넣지 않는다</b>(항상 보이게) — 툴팁은 보조 설명 전용. 우선순위: ① 헬퍼 텍스트(FormPatterns, 상시 노출) ② 인포 팝오버(탭 열림 — 모바일 공용) ③ 호버 툴팁(PC 아이콘 버튼 레이블 전용). 모바일에 호버 없음 — 호버 툴팁에 의존하는 정보 금지.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 호버 툴팁 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">호버 툴팁 — PC 아이콘 버튼 레이블 전용</span></div>
+    <div style="padding:22px 20px;display:flex;flex-direction:column;gap:14px;align-items:center">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px">
+        <span style="background:#1c2b4a;color:#fff;font-size:11.5px;font-weight:700;border-radius:8px;padding:6px 11px;white-space:nowrap;box-shadow:0 4px 12px rgba(28,43,74,.25)">링크 복사</span>
+        <span style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid #1c2b4a;margin-top:-7px"></span>
+        <span style="width:38px;height:38px;border-radius:10px;border:1.5px solid #e6e8ee;display:flex;align-items:center;justify-content:center;cursor:pointer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3c465a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 006.4.4l3-3a4.5 4.5 0 00-6.4-6.4l-1.5 1.5"></path><path d="M14 10a4.5 4.5 0 00-6.4-.4l-3 3a4.5 4.5 0 006.4 6.4l1.5-1.5"></path></svg>
+        </span>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all;text-align:center">다크 네이비 캡슐 11.5px · 지연 400ms 표시·즉시 소멸 · 텍스트 한 줄(줄바꿈 필요하면 팝오버로 승격) · 텍스트가 이미 보이는 버튼에는 금지(중복).</span>
+    </div>
+  </div>
+
+  <!-- 인포 팝오버 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">인포 팝오버 — ⓘ 탭 열림 (PC·모바일 공용)</span></div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:13px;font-weight:700;white-space:nowrap">에이전트 열람 허용</span>
+        <button onClick="{{ togglePop }}" style="width:20px;height:20px;border-radius:50%;border:0;background:#f1f3f8;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;flex:none">
+          <span style="font-size:11px;font-weight:800;color:#5b6577;font-style:normal">i</span>
+        </button>
+      </div>
+      <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1.5px solid #e6e8ee;border-radius:12px;padding:13px 15px;box-shadow:0 8px 24px rgba(28,43,74,.1);display:flex;flex-direction:column;gap:6px;max-width:300px">
+          <span style="font-size:12.5px;font-weight:800">에이전트 열람이란?</span>
+          <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">인증된 에이전트가 자녀의 상세 기록을 보려면 보호자 승인이 필요해요. 승인 후 30일이 지나면 자동 만료돼요.</span>
+          <a href="#" style="font-size:11.5px;font-weight:700">자세히 보기</a>
+        </div>
+      </sc-if>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">ⓘ 20px 회색 원 · 탭 토글(바깥 탭 닫힘) · 제목+본문 2~3문장+링크 1개까지 · 서비스 고유 개념(Claim·열람 승인·인증팀)에 사용.</span>
+    </div>
+  </div>
+
+  <!-- 첫 사용 힌트 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">첫 사용 힌트 — 1회성 (코치마크 투어 금지)</span></div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+      <sc-if value="{{ hintVisible }}" hint-placeholder-val="{{ true }}">
+      <div style="border:1.5px solid rgba(46,196,182,.4);background:rgba(46,196,182,.05);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+        <span style="width:28px;height:28px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path></svg>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
+          <span style="font-size:12.5px;font-weight:800;word-break:keep-all">자녀를 연결하면 경기 기록이 자동으로 쌓여요</span>
+          <span style="font-size:11.5px;color:#5b6577;word-break:keep-all">선수 검색 후 '내 자녀예요'를 눌러 시작하세요</span>
+        </span>
+        <button onClick="{{ dismissHint }}" style="width:24px;height:24px;border:0;background:none;cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      </sc-if>
+      <sc-if value="{{ hintGone }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size:11.5px;color:#8a93a6;word-break:keep-all">닫힘 — 재노출 없음 (로컬 저장)</span>
+      </sc-if>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">teal 틴트 배너 · X로 닫으면 재노출 없음(로컬 저장) · 화면당 최대 1개 · 오버레이 코치마크 투어 금지(보호자 연령대 — 방해가 학습을 이김).</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">적용: 아이콘 전용 버튼 전부(호버 툴팁) · Claim/열람 승인/인증팀/Records 집계 기준(인포 팝오버) · 허브 첫 방문·팀 대시보드 첫 개설(첫 사용 힌트). 헬퍼 텍스트가 가능하면 항상 그것부터 — 툴팁·팝오버는 공간이 없을 때의 차선. 모바일판 없음 — 호버 툴팁은 모바일 부재, 팝오버·힌트는 동일 동작.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:800}}">
+class Component extends DCLogic {
+  state = { pop: true, hint: true };
+  renderVals() {
+    return {
+      popOpen: this.state.pop,
+      hintVisible: this.state.hint,
+      hintGone: !this.state.hint,
+      togglePop: () => this.setState(p => ({ pop: !p.pop })),
+      dismissHint: () => this.setState({ hint: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>

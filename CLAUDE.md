@@ -74,15 +74,21 @@
 
 ### 다음 작업 (우선순위)
 
-0. **공용 패턴 4부작 + Navigation** — 새 횡단 핸드오프 5종(Form·Feedback·Loading·Empty·
-   Navigation). **작업 순서·근거는 `Docs/Development/SharedPatternsPlan.md`**(2026-07-18 정리).
-   요지: Form·Feedback 먼저(아래 입력 기능들을 unblock) → Loading·Empty(애드혹 점선 카드 통합)
-   → Navigation(에러 페이지 신규·죽은 링크 감사). 아래 1·2번은 Form·Feedback 위에 올린다.
-1. **경기 결과 입력 UI** (팀 대시보드 "＋ 결과 입력") — 경기 도메인의 마지막 미구현 축(현재는
-   시드로만 입력). 결과 저장 시 `UspRecalculateSoccerTournamentStandings` 자동 호출 필수.
-   → FormPatterns/FeedbackPatterns 선행 권장.
-2. 공개 팀 홈 잔여 탭(모집 공고 스키마·진학진로·리뷰), 팀 정보 수정 UI, 커리어·포트폴리오 입력 UI,
-   온보딩 중복 방지, 공개 페이지 로그인 상태 GNB.
+> **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
+> **모든 UI 작업 전 `Handoff/Design.PatternsIndex/README.md` 필독** — 공용 패턴 15종 목차·결정표.
+> 새 요소가 필요하면 새로 만들지 말고 결정표에서 기존 15종 조합을 먼저 찾는다.
+
+1. **Phase A — 횡단 기반** (다른 모든 작업 unblock): A1 폼 공용 컴포넌트(FormPatterns) →
+   A2 Toast·ConfirmModal(FeedbackPatterns) → A3 스켈레톤·빈 상태(Loading·EmptyStates,
+   기존 애드혹 점선 카드 통합) → A4 내비게이션 배선·에러 페이지(Navigation, 잔여 항목
+   "공개 페이지 로그인 상태 GNB" 흡수).
+2. **Phase B — 입력 UI** (A1·A2 위에): B1 경기 결과 입력(+DatePicker, 저장 시
+   `UspRecalculateSoccerTournamentStandings` 자동 호출 필수) → B2 팀 정보 수정(+ImageUploader)
+   → B3 커리어·포트폴리오 입력 → B4 선수 사진 업로드.
+3. **Phase C — 신규 화면**: 허브 → 팀 탐색 → 설정 → Claim 4스텝·알림 센터 → 공개 팀 홈 잔여 탭
+   (모집·진학진로·리뷰, 탭당 스키마 신설) → 에이전트 열람 승인(최후순위).
+4. **Phase D — 잔여 패턴**: 별도 단계 없이 화면 작업에 얹는다 (AvatarBadge만 Phase C 후 일괄 교체 1회).
+   그 외 잔여: 온보딩 중복 방지.
 
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
 

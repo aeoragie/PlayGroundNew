@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">테이블 · 리스트 패턴 카탈로그</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">원칙: PC에서 열 5개 이상 데이터만 테이블, 그 외는 리스트 행 · <b>모바일에서 테이블은 카드 리스트로 변환</b>(가로 스크롤 금지, 순위표만 예외) · 행 전체가 링크면 셰브론, 행 안에 개별 액션이 있으면 우측 정렬 버튼.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:16px">
+
+  <!-- 데이터 테이블 (순위표) -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">데이터 테이블 — 리그 순위표 (경기기록)</span></div>
+    <div style="padding:16px 20px">
+      <div style="display:grid;grid-template-columns:44px 1fr 52px 52px 52px 60px;padding:0 10px 9px;border-bottom:1.5px solid #e6e8ee">
+        <span style="font-size:11px;font-weight:800;color:#8a93a6">순위</span>
+        <span style="font-size:11px;font-weight:800;color:#8a93a6">팀</span>
+        <span style="font-size:11px;font-weight:800;color:#8a93a6;text-align:center">경기</span>
+        <span style="font-size:11px;font-weight:800;color:#8a93a6;text-align:center">득실</span>
+        <span style="font-size:11px;font-weight:800;color:#8a93a6;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px">승점<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l6-6 6 6"></path></svg></span>
+        <span style="font-size:11px;font-weight:800;color:#8a93a6;text-align:center">최근 5</span>
+      </div>
+      <div style="display:grid;grid-template-columns:44px 1fr 52px 52px 52px 60px;align-items:center;padding:11px 10px;border-bottom:1px solid #f4f6fa;background:rgba(46,196,182,.05)">
+        <span style="font-size:13px;font-weight:800;color:#2EC4B6">1</span>
+        <span style="display:flex;align-items:center;gap:9px;min-width:0"><span style="width:26px;height:26px;border-radius:50%;background:#23408e;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex:none">한</span><span style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FC 한강 유나이티드</span></span>
+        <span style="font-size:12.5px;text-align:center;font-variant-numeric:tabular-nums">12</span>
+        <span style="font-size:12.5px;text-align:center;font-variant-numeric:tabular-nums">+14</span>
+        <span style="font-size:13px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums">28</span>
+        <span style="display:flex;gap:3px;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span><span style="width:8px;height:8px;border-radius:50%;background:#c5cfe4"></span><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span></span>
+      </div>
+      <div style="display:grid;grid-template-columns:44px 1fr 52px 52px 52px 60px;align-items:center;padding:11px 10px;border-bottom:1px solid #f4f6fa">
+        <span style="font-size:13px;font-weight:800;color:#5b6577">2</span>
+        <span style="display:flex;align-items:center;gap:9px;min-width:0"><span style="width:26px;height:26px;border-radius:50%;background:#6d4bd8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex:none">강</span><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">강북 드래곤즈</span></span>
+        <span style="font-size:12.5px;text-align:center;font-variant-numeric:tabular-nums">12</span>
+        <span style="font-size:12.5px;text-align:center;font-variant-numeric:tabular-nums">+9</span>
+        <span style="font-size:13px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums">25</span>
+        <span style="display:flex;gap:3px;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span><span style="width:8px;height:8px;border-radius:50%;background:#e88b7d"></span><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span><span style="width:8px;height:8px;border-radius:50%;background:#c5cfe4"></span><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span></span>
+      </div>
+      <div style="display:grid;grid-template-columns:44px 1fr 52px 52px 52px 60px;align-items:center;padding:11px 10px">
+        <span style="font-size:13px;font-weight:800;color:#5b6577">3</span>
+        <span style="display:flex;align-items:center;gap:9px;min-width:0"><span style="width:26px;height:26px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex:none">마</span><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">마포 리버사이드 FC</span></span>
+        <span style="font-size:12.5px;text-align:center;font-variant-numeric:tabular-nums">12</span>
+        <span style="font-size:12.5px;text-align:center;font-variant-numeric:tabular-nums">+3</span>
+        <span style="font-size:13px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums">22</span>
+        <span style="display:flex;gap:3px;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:#c5cfe4"></span><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span><span style="width:8px;height:8px;border-radius:50%;background:#e88b7d"></span><span style="width:8px;height:8px;border-radius:50%;background:#2EC4B6"></span><span style="width:8px;height:8px;border-radius:50%;background:#c5cfe4"></span></span>
+      </div>
+      <span style="display:block;font-size:11.5px;color:#8a93a6;margin-top:10px;line-height:1.6;word-break:keep-all">숫자열 tabular-nums 우측·중앙 정렬 · 정렬 가능 열은 헤더에 화살표(1열만) · 상위권 하이라이트는 teal 틴트 · 내 팀 행은 네이비 틴트 · 승/무/패 도트 = teal/회색/연한 레드.</span>
+    </div>
+  </div>
+
+  <!-- 리스트 행 3형 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">리스트 행 3형 — 내비게이션 · 액션 · 정보</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:13px 14px;cursor:pointer">
+        <span style="width:36px;height:36px;border-radius:10px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2"></rect><path d="M4 10h16M8 5.5V3M16 5.5V3"></path></svg></span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">서울시장배 유소년 대회 8강</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">3/21(토) 14:00 · 잠실보조경기장</span></span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:13px 14px">
+        <span style="width:36px;height:36px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex:none">박</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap">박지호</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">보호자 연결 요청 · 2시간 전</span></span>
+        <span style="display:flex;gap:7px;flex:none"><button style="height:34px;padding:0 14px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;font-size:11.5px;font-weight:700;color:#5b6577;cursor:pointer;font-family:inherit;white-space:nowrap">거절</button><button style="height:34px;padding:0 14px;border:0;border-radius:9px;background:#23408e;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">승인</button></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:13px 14px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap">vs 강북 드래곤즈</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">리그 12R · 3/14(토)</span></span>
+        <span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap">3 : 1</span>
+        <span style="font-size:10px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">승</span>
+      </div>
+      <span style="font-size:11.5px;color:#8a93a6;line-height:1.6;word-break:keep-all">① 내비게이션형: 행 전체 탭 + 셰브론 ② 액션형: 우측 버튼(행 탭 없음 — 오탭 방지) ③ 정보형: 결과 뱃지(승 teal/무 회색/패 연레드). 한 행에 셰브론+버튼 혼용 금지.</span>
+    </div>
+  </div>
+
+  <!-- 모바일 카드 변환 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">모바일 변환 — 테이블 → 카드 리스트 (390px)</span></div>
+    <div style="padding:16px 20px;display:flex;gap:16px;align-items:flex-start">
+      <div style="width:250px;flex:none;display:flex;flex-direction:column;gap:8px">
+        <div style="border:1px solid #f1f3f8;border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:10px;background:rgba(46,196,182,.05)">
+          <span style="font-size:13px;font-weight:800;color:#2EC4B6;width:18px;flex:none">1</span>
+          <span style="width:26px;height:26px;border-radius:50%;background:#23408e;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex:none">한</span>
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">FC 한강 유나이티드</span><span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">12경기 · 득실 +14</span></span>
+          <span style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;flex:none">28</span>
+        </div>
+        <div style="border:1px solid #f1f3f8;border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:13px;font-weight:800;color:#5b6577;width:18px;flex:none">2</span>
+          <span style="width:26px;height:26px;border-radius:50%;background:#6d4bd8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex:none">강</span>
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">강북 드래곤즈</span><span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">12경기 · 득실 +9</span></span>
+          <span style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;flex:none">25</span>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#8a93a6;line-height:1.7;word-break:keep-all">핵심 지표 1개(승점)만 우측 크게, 나머지는 메타 줄로 강등("12경기 · 득실 +14"). 열을 전부 옮기지 말 것 — 무엇을 버릴지가 설계. 상세는 행 탭 → 팀 기록 페이지. 순위표 풀버전이 꼭 필요하면 가로 스크롤 허용(순위·팀명 좌측 고정) — 유일한 예외.</span>
+    </div>
+  </div>
+
+  <!-- 페이지네이션 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">더 불러오기 — 페이지네이션 대신 버튼</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+      <button style="height:44px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">더 보기 (24개 남음)</button>
+      <span style="font-size:11.5px;color:#8a93a6;line-height:1.6;word-break:keep-all">기본 20개 로드 + "더 보기" 버튼(남은 수 표시). 무한 스크롤 금지 — 푸터 도달 가능해야 하고 위치 공유(URL)와 충돌. 숫자 페이지네이션은 관리자 테이블에만.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">적용 화면: 경기기록 순위표·일정(테이블/정보형 행) · 팀 대시보드 선수단 관리·승인 요청(액션형 행) · 알림 센터(내비게이션형 행) · 팀 공개홈 경기 결과(정보형). 빈·로딩·0건은 EmptyStates/LoadingStates 패턴 연결.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1250}}"></script>
+</body>
+</html>

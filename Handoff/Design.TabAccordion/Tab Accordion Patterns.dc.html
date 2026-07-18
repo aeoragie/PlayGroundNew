@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">탭 · 아코디언 패턴 카탈로그</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">결정표: <b>탭 = 동급 뷰 전환</b>(2~6개, URL 동기화 필수) · <b>세그먼트 = 데이터 축 전환</b>(SearchFilter — 같은 뷰의 조건) · <b>아코디언 = 한 페이지 안 긴 목록 접기</b>(뷰 전환 아님). 중첩은 탭 1단 + 세그먼트 1단까지 — 탭 안에 탭 금지.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 페이지 탭 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">페이지 탭 — 언더라인형 (팀 공개홈 6탭)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:2px;border-bottom:1.5px solid #e6e8ee;overflow-x:auto">
+        <sc-for list="{{ pageTabs }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+        </sc-for>
+      </div>
+      <div style="border:1px dashed #e6e8ee;border-radius:11px;padding:16px;font-size:12.5px;color:#5b6577;word-break:keep-all">{{ pageBody }}</div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">선택 = 800 + 네이비 2.5px 언더라인 / 비선택 = 700 `#8a93a6` · URL 동기화(`/team/hangang/players` — 딥링크·뒤로가기) · 모바일 = 같은 바 가로 스크롤(스크롤바 숨김, 선택 탭 자동 스크롤 인) · 탭당 카운트 뱃지는 승인 대기류만.</span>
+    </div>
+  </div>
+
+  <!-- 아코디언 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">아코디언 — Records 지난 회차 (다중 열림)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ accs }}" as="a" hint-placeholder-count="3">
+        <div style="border:1px solid #f1f3f8;border-radius:12px;overflow:hidden">
+          <button onClick="{{ a.go }}" style="width:100%;border:0;background:#fff;cursor:pointer;font-family:inherit;padding:13px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:13px;font-weight:700;flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.title }}</span>
+            <span style="font-size:11px;color:#8a93a6;white-space:nowrap">{{ a.meta }}</span>
+            <span style="{{ a.chev }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></span>
+          </button>
+          <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid #f4f6fa;padding:12px 14px;font-size:12px;color:#5b6577;line-height:1.6;word-break:keep-all">{{ a.body }}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <span style="font-size:11px;color:#8a93a6;padding-top:4px;line-height:1.6;word-break:keep-all">여러 개 동시 열림 허용(단일 강제 금지 — 비교하며 봄) · 셰브론 180° 회전 · 기본 = 최신 1개만 열림 · 헤더 행 전체 탭 · 열림 상태는 URL에 넣지 않음(임시 상태).</span>
+    </div>
+  </div>
+
+  <!-- 결정표 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">결정표 + 조합 규칙</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:11px">
+      <sc-for list="{{ rules }}" as="r" hint-placeholder-count="3">
+        <div style="display:flex;gap:11px;align-items:flex-start;border:1px solid #f1f3f8;border-radius:11px;padding:11px 13px">
+          <span style="font-size:11px;font-weight:800;color:#23408e;background:#f1f3f8;border-radius:7px;padding:4px 9px;white-space:nowrap;flex:none">{{ r.name }}</span>
+          <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+            <span style="font-size:12.5px;font-weight:700;word-break:keep-all">{{ r.when }}</span>
+            <span style="font-size:11px;color:#8a93a6;word-break:keep-all">{{ r.ex }}</span>
+          </span>
+        </div>
+      </sc-for>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">조합 사례(경기기록): 페이지 탭 없음 → 연령 세그먼트 + 대회/리그 세그먼트 + 회차 아코디언. 탭+세그먼트 조합은 팀 공개홈 기록 탭(탭 1단 + 시즌 세그먼트)이 상한 — 3단계 중첩 금지.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">적용 화면: 팀 공개홈 6탭·선수 프로필 4뷰(페이지 탭) · 설정 모바일(다크 GNB 탭 — teal 언더라인, Settings 참조) · Records 지난 회차·FAQ(아코디언). 탭 전환 시 스크롤 최상단 복귀, 아코디언 열림은 스크롤 유지.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1000}}">
+class Component extends DCLogic {
+  state = { tab: 0, open: [true, false, false] };
+  renderVals() {
+    const s = this.state;
+    const labels = ['소개', '선수단', '일정', '기록', '경기영상', '리뷰'];
+    const bodies = ['핵심가치·코칭스태프', '선수 카드 그리드', '다가오는 경기', '시즌 성적·순위', '유튜브 링크 그리드', '학부모 리뷰'];
+    return {
+      pageTabs: labels.map((label, i) => ({
+        label, go: () => this.setState({ tab: i }),
+        style: 'height:40px;padding:0 14px;border:0;background:none;cursor:pointer;font-family:inherit;font-size:13px;white-space:nowrap;flex:none;border-bottom:2.5px solid ' +
+          (s.tab === i ? '#23408e;color:#1c2b4a;font-weight:800' : 'transparent;color:#8a93a6;font-weight:700'),
+      })),
+      pageBody: bodies[s.tab] + ' 콘텐츠 영역 — URL: /team/hangang/' + ['about', 'players', 'schedule', 'records', 'videos', 'reviews'][s.tab],
+      accs: [
+        { title: '서울시장배 유소년 대회', meta: '2026 · 8강 진출', body: '경기 결과 리스트 (정보형 행 — TableList 패턴)' },
+        { title: '춘계 한강리그', meta: '2026 · 3위', body: '순위표 + 경기 결과' },
+        { title: '전국 유소년 챔피언십', meta: '2025 · 16강', body: '경기 결과 리스트' },
+      ].map((a, i) => ({
+        ...a, open: s.open[i],
+        go: () => this.setState(p => ({ open: p.open.map((o, j) => (j === i ? !o : o)) })),
+        chev: 'display:flex;flex:none;transition:transform .2s;' + (s.open[i] ? 'transform:rotate(180deg)' : ''),
+      })),
+      rules: [
+        { name: '탭', when: '동급 뷰 전환 (2~6개, URL 동기화 필수)', ex: '팀 공개홈 6탭 · 선수 프로필 4뷰' },
+        { name: '세그먼트', when: '같은 뷰의 데이터 축 전환', ex: '대회/리그 · 연령대 (SearchFilter)' },
+        { name: '아코디언', when: '한 페이지 안 긴 목록 접기 (뷰 전환 아님)', ex: 'Records 지난 회차 · FAQ' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">토글 · 스위치 패턴 정리</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">선택 컨트롤 4종의 역할 분담 — <b>스위치 = 즉시 적용되는 켬/끔</b>(설정) · <b>체크박스 = 폼 안의 동의·다중 선택</b>(제출로 저장) · <b>라디오 카드 = 폼 안의 상호배타 ≤4</b> · <b>세그먼트 = 화면 데이터의 축 전환</b>(SearchFilter). 역할 혼용 금지.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 스위치 상태 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">스위치 — 상태 5종 (44×26, knob 22)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ switches }}" as="s" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f8f9fb">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+            <span style="font-size:13px;font-weight:700;white-space:nowrap">{{ s.label }}</span>
+            <span style="font-size:11px;color:#8a93a6;word-break:keep-all">{{ s.desc }}</span>
+          </span>
+          <sc-if value="{{ s.locked }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:10px;font-weight:700;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap">항상 켜짐</span>
+          </sc-if>
+          <sc-if value="{{ s.hasSwitch }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ s.toggle }}" style="{{ s.style }}"><span style="{{ s.knob }}"></span></button>
+          </sc-if>
+        </div>
+      </sc-for>
+      <span style="font-size:11px;color:#8a93a6;padding-top:10px;line-height:1.6;word-break:keep-all">켬 = teal `#2EC4B6` / 끔 = `#d5d9e2` / 비활성 = 50% 투명+사유 캡션 / 잠금 = 스위치 대신 "항상 켜짐" 뱃지(승인형 알림 — Settings 규칙) / 저장 중 = 낙관적 반영 후 실패 시 롤백+오류 토스트.</span>
+    </div>
+  </div>
+
+  <!-- 사용 결정표 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">사용 결정표 — 4종 역할 분담</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:11px">
+      <sc-for list="{{ rules }}" as="r" hint-placeholder-count="4">
+        <div style="display:flex;gap:11px;align-items:flex-start;border:1px solid #f1f3f8;border-radius:11px;padding:11px 13px">
+          <span style="font-size:11px;font-weight:800;color:#23408e;background:#f1f3f8;border-radius:7px;padding:4px 9px;white-space:nowrap;flex:none">{{ r.name }}</span>
+          <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+            <span style="font-size:12.5px;font-weight:700;word-break:keep-all">{{ r.when }}</span>
+            <span style="font-size:11px;color:#8a93a6;word-break:keep-all">{{ r.ex }}</span>
+          </span>
+        </div>
+      </sc-for>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">경계 규칙: 폼 안(저장 버튼이 있는 화면)에서는 스위치 금지 — 즉시 적용처럼 오해됨. 반대로 설정 화면의 켬/끔에 체크박스 금지.</span>
+    </div>
+  </div>
+
+  <!-- 공개 범위 (서비스 핵심 사례) -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">사례 — 선수 프로필 공개 범위 (보호자 설정)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:2px">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f8f9fb">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:700;white-space:nowrap">프로필 공개</span>
+          <span style="font-size:11px;color:#8a93a6;word-break:keep-all">끄면 검색·팀 선수단에서 숨겨져요</span>
+        </span>
+        <button onClick="{{ vis.toggle }}" style="{{ vis.style }}"><span style="{{ vis.knob }}"></span></button>
+      </div>
+      <div style="{{ subStyle }}">
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f8f9fb">
+          <span style="font-size:12.5px;font-weight:700;flex:1;white-space:nowrap">경기별 상세 기록</span>
+          <button onClick="{{ det.toggle }}" style="{{ det.style }}"><span style="{{ det.knob }}"></span></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0">
+          <span style="font-size:12.5px;font-weight:700;flex:1;white-space:nowrap">학교·학년 표시</span>
+          <button onClick="{{ sch.toggle }}" style="{{ sch.style }}"><span style="{{ sch.knob }}"></span></button>
+        </div>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;padding-top:10px;line-height:1.6;word-break:keep-all">상위 스위치 끄면 하위 그룹 접힘+비활성(들여쓰기 16px) · 끄기는 파괴적이지 않으므로 모달 없이 즉시 + 실행취소 토스트.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">적용 화면: 설정 알림(스위치+잠금) · 선수 프로필 공개 범위(계층 스위치) · 온보딩 동의(체크박스) · 선수 등록 포지션(라디오 카드) · 경기기록(세그먼트). 모바일 동일(스위치 44×26 유지 — 터치 타겟은 행 전체 56px).</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1000}}">
+class Component extends DCLogic {
+  state = { push: true, weekly: false, vis: true, det: true, sch: false };
+  renderVals() {
+    const s = this.state;
+    const sw = (on, dis) =>
+      'width:44px;height:26px;border-radius:99px;border:0;cursor:' + (dis ? 'default' : 'pointer') + ';padding:2px;display:flex;flex:none;transition:background .2s;' +
+      (dis ? 'opacity:.5;' : '') + (on ? 'background:#2EC4B6;justify-content:flex-end' : 'background:#d5d9e2;justify-content:flex-start');
+    const knob = 'width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)';
+    const mk = key => ({ toggle: () => this.setState(p => ({ [key]: !p[key] })), style: sw(s[key]), knob });
+    return {
+      switches: [
+        Object.assign({ label: '앱 푸시', desc: '즉시 적용 — 저장 버튼 없음', locked: false, hasSwitch: true }, mk('push')),
+        Object.assign({ label: '주간 요약 이메일', desc: '끔 상태', locked: false, hasSwitch: true }, mk('weekly')),
+        { label: '연결 요청 알림', desc: '승인형 — 끌 수 없음', locked: true, hasSwitch: false },
+        { label: '팀 공개 (팀 삭제 절차 중)', desc: '비활성 — 사유를 캡션으로', locked: false, hasSwitch: true, toggle: () => {}, style: sw(true, true), knob },
+        Object.assign({ label: '방문 통계 수집', desc: '기본 켬', locked: false, hasSwitch: true }, { toggle: () => {}, style: sw(true), knob }),
+      ],
+      rules: [
+        { name: '스위치', when: '즉시 적용되는 켬/끔 (설정 화면)', ex: '알림 수신 · 프로필 공개 — 저장 버튼 없는 화면 전용' },
+        { name: '체크박스', when: '폼 안의 동의·다중 선택 (제출로 저장)', ex: '약관 동의 · 관심 지역 다중 선택' },
+        { name: '라디오 카드', when: '폼 안의 상호배타 선택 ≤4개', ex: '포지션 GK/DF/MF/FW · 역할 선택' },
+        { name: '세그먼트', when: '화면 데이터의 축 전환 (항상 1개 선택)', ex: '대회/리그 · 연령대 — SearchFilter 참조' },
+      ],
+      vis: mk('vis'),
+      det: Object.assign({}, mk('det'), s.vis ? {} : { style: sw(s.det, true), toggle: () => {} }),
+      sch: Object.assign({}, mk('sch'), s.vis ? {} : { style: sw(s.sch, true), toggle: () => {} }),
+      subStyle: 'padding-left:16px;border-left:2px solid #f1f3f8;margin-left:2px;' + (s.vis ? '' : 'opacity:.45'),
+    };
+  }
+}
+</script>
+</body>
+</html>

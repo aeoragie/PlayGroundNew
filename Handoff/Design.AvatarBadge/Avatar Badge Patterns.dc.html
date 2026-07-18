@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">아바타 · 뱃지 정리</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">아바타 = 이니셜 원(사진 없으면 항상 이니셜 — 빈 이미지 상태 없음, ImageUploader와 일치). 배경색은 <b>주체 유형별 고정</b>(랜덤 금지): 팀 네이비 · 개인(선수·보호자) teal · 에이전트 violet. PC·모바일 공용(크기 토큰 동일 — 모바일판 없음).</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 아바타 크기 스케일 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">아바타 — 크기 5단 · 유형 색</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:flex-end;gap:14px">
+        <sc-for list="{{ sizes }}" as="a" hint-placeholder-count="5">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+            <span style="{{ a.style }}">김</span>
+            <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">{{ a.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;gap:14px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <span style="width:44px;height:44px;border-radius:50%;background:#23408e;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">한</span>
+          <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">팀 네이비</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <span style="width:44px;height:44px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">김</span>
+          <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">개인 teal</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <span style="width:44px;height:44px;border-radius:50%;background:#6d4bd8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">이</span>
+          <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">에이전트 violet</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <span style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#8fa0c8,#7288bd);border:1.5px solid #e6e8ee"></span>
+          <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">사진(1:1 크롭)</span>
+        </div>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">크기 5단: 24(인라인)·32(행)·44(카드)·56(헤더)·84(프로필). 폰트 = 지름×0.36 반올림, 800. 이니셜은 성 첫 글자 1자.</span>
+    </div>
+  </div>
+
+  <!-- 아바타 그룹 + 카운트 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">아바타 그룹 · 카운트 뱃지</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex">
+          <span style="width:32px;height:32px;border-radius:50%;background:#2EC4B6;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff">김</span>
+          <span style="width:32px;height:32px;border-radius:50%;background:#23408e;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;margin-left:-8px">박</span>
+          <span style="width:32px;height:32px;border-radius:50%;background:#6d4bd8;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;margin-left:-8px">이</span>
+          <span style="width:32px;height:32px;border-radius:50%;background:#f1f3f8;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#5b6577;margin-left:-8px">+5</span>
+        </div>
+        <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">겹침 -8px · 최대 3+N</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px">
+        <span style="position:relative;width:38px;height:38px;border-radius:10px;background:#f1f3f8;display:flex;align-items:center;justify-content:center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3c465a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6"></path><path d="M10 19a2.2 2.2 0 004 0"></path></svg>
+          <span style="position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:99px;background:#FF6B35;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 5px">3</span>
+        </span>
+        <span style="position:relative;width:38px;height:38px;border-radius:10px;background:#f1f3f8;display:flex;align-items:center;justify-content:center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3c465a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6"></path><path d="M10 19a2.2 2.2 0 004 0"></path></svg>
+          <span style="position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:99px;background:#FF6B35;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 5px">99+</span>
+        </span>
+        <span style="font-size:11.5px;color:#8a93a6;word-break:keep-all">카운트 뱃지 = 오렌지 유일 허용처 · 100 이상 "99+" · 0이면 숨김(0 표시 금지)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 상태 뱃지 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">상태 뱃지 — 캡슐 (전 서비스 통일)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ badges }}" as="b" hint-placeholder-count="9">
+          <span style="{{ b.style }}">{{ b.label }}</span>
+        </sc-for>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">긍정·완료 = teal 톤 / 대기·주의 = 오렌지 톤 / 중립·잠금 = 회색 / 정보 = 네이비 톤 / 에이전트 = violet 톤 / 패·오류 = 연레드. 10px 700, radius 99, 패딩 3×9. <b>행당 뱃지 1개</b> — 두 개 필요하면 하나는 메타 텍스트로 강등.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">적용: 전 화면 공통 (허브 Claim 상태·설정 연결됨·선수단 카드·순위표 승무패·알림 유형 칩·인증팀). 인증팀 뱃지는 팀명 옆 고정(✓+teal 톤), 위조 방지를 위해 사용자 입력으로 만들 수 없는 형태 유지. 모바일판 없음 — 크기 토큰 PC·모바일 공용, 터치 대상이 아닌 표시 요소.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const av = d => 'width:' + d + 'px;height:' + d + 'px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:' + Math.round(d * 0.36) + 'px';
+    const badge = (fg, bg) => 'font-size:10px;font-weight:700;color:' + fg + ';background:' + bg + ';border-radius:99px;padding:3px 9px;white-space:nowrap';
+    return {
+      sizes: [24, 32, 44, 56, 84].map(d => ({ style: av(d), label: d + 'px' })),
+      badges: [
+        { label: '연결됨', style: badge('#1b8579', 'rgba(46,196,182,.12)') },
+        { label: '✓ 인증팀', style: badge('#1b8579', 'rgba(46,196,182,.12)') },
+        { label: '승', style: badge('#1b8579', 'rgba(46,196,182,.12)') },
+        { label: '승인 대기', style: badge('#c24a1c', '#fff0e9') },
+        { label: '모집중', style: badge('#c24a1c', '#fff0e9') },
+        { label: '항상 켜짐', style: badge('#8a93a6', '#f1f3f8') },
+        { label: '무', style: badge('#8a93a6', '#f1f3f8') },
+        { label: '내 팀', style: badge('#23408e', 'rgba(35,64,142,.08)') },
+        { label: '열람 요청', style: badge('#6d4bd8', 'rgba(109,75,216,.1)') },
+        { label: '패', style: badge('#c0392b', '#fdeceb') },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
