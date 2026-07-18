@@ -1,0 +1,183 @@
+@* 공용 셀렉트 — 선택지 5개 이상용(4개 이하는 RadioCards). Design.FormPatterns 선택 컨트롤.
+   모바일은 네이티브 셀렉트 금지 → 바텀시트 목록(옵션 부가정보 표시 가능). *@
+@using PlayGround.Client.Styles
+@typeparam TValue
+@implements IFormFieldRegistration
+@implements IDisposable
+@inject IJSRuntime Js
+
+<div class="@($"{Css.Form.FieldWrapper} {Class}")">
+    <label class="@Css.Form.Label">
+        @Label@if (IsOptional)
+        {
+            <span class="@Css.Form.OptionalMark"> (선택)</span>
+        }
+    </label>
+
+    <button type="button" @ref="mElement" disabled="@Disabled"
+            class="@($"{Css.Form.Input(HasVisibleError, Disabled)} flex items-center justify-between text-left")"
+            @onclick="OpenAsync">
+        <span class="@(HasSelection ? "text-navy-deep" : "text-text-muted")">@DisplayText</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" class="text-text-muted shrink-0"><path d="M6 9l6 6 6-6"></path></svg>
+    </button>
+
+    @if (HasVisibleError)
+    {
+        <span class="@Css.Form.ErrorMessage">@mErrorMessage</span>
+    }
+    else if (Helper is not null)
+    {
+        <span class="@Css.Form.Helper">@Helper</span>
+    }
+    else if (Disabled && DisabledReason is not null)
+    {
+        <span class="@Css.Form.Helper">@DisabledReason</span>
+    }
+</div>
+
+@* 바텀시트(모바일)·중앙 목록(PC 이하 동일 컴포넌트) — 앵커 팝업 대신 시트 (전역 규칙 4) *@
+@if (mIsOpen)
+{
+    <div class="fixed inset-0 z-[60] flex items-end md:items-center md:justify-center">
+        <div class="absolute inset-0 bg-navy-deep/45" @onclick="Close"></div>
+        <div class="relative w-full md:w-[360px] bg-white rounded-t-[18px] md:rounded-[18px] max-h-[70vh] overflow-y-auto
+                    pb-[env(safe-area-inset-bottom)]">
+            <div class="md:hidden flex justify-center pt-2.5 pb-1">
+                <span class="w-9 h-1 rounded-full bg-border"></span>
+            </div>
+            <div class="px-5 pt-3 pb-2">
+                <span class="text-[15px] font-extrabold text-navy-deep">@Label</span>
+            </div>
+            <div class="flex flex-col pb-2">
+                @foreach (SelectOption<TValue> option in Options)
+                {
+                    SelectOption<TValue> current = option;
+                    <button type="button" class="@OptionClass(current)" @onclick="() => SelectAsync(current)">
+                        <span class="flex flex-col gap-0.5 flex-1 min-w-0 text-left">
+                            <span class="text-[15px] md:text-sm font-bold">@current.Label</span>
+                            @if (current.Description is not null)
+                            {
+                                <span class="text-[12px] text-text-muted break-keep">@current.Description</span>
+                            }
+                        </span>
+                        @if (EqualityComparer<TValue>.Default.Equals(current.Value, Value))
+                        {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                                 stroke-linecap="round" stroke-linejoin="round" class="text-navy shrink-0"><path d="M20 6.5l-11 11-5-5"></path></svg>
+                        }
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ElementReference mElement;
+    private string? mErrorMessage;
+    private bool mTouched;
+    private bool mIsOpen;
+
+    [CascadingParameter]
+    public FormFieldContext? Form { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public TValue? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TValue?> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public List<SelectOption<TValue>> Options { get; set; } = new();
+
+    [Parameter]
+    public Func<TValue?, string?>? Validator { get; set; }
+
+    /// <summary>미선택 시 표시 문구 — 예시 전용(레이블 대체 아님).</summary>
+    [Parameter]
+    public string Placeholder { get; set; } = "선택해 주세요";
+
+    [Parameter]
+    public string? Helper { get; set; }
+
+    [Parameter]
+    public bool IsOptional { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public string? DisabledReason { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    public bool HasVisibleError => mTouched && mErrorMessage is not null;
+
+    private bool HasSelection => Options.Any(o => EqualityComparer<TValue>.Default.Equals(o.Value, Value));
+
+    private string DisplayText =>
+        Options.FirstOrDefault(o => EqualityComparer<TValue>.Default.Equals(o.Value, Value))?.Label ?? Placeholder;
+
+    protected override void OnInitialized()
+    {
+        Form?.Register(this);
+    }
+
+    public void Dispose()
+    {
+        Form?.Unregister(this);
+    }
+
+    private Task OpenAsync()
+    {
+        if (!Disabled)
+        {
+            mIsOpen = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void Close()
+    {
+        mIsOpen = false;
+        // 시트를 닫는 것도 blur에 해당 — 첫 검증 시점
+        mTouched = true;
+        mErrorMessage = Validator?.Invoke(Value);
+    }
+
+    private async Task SelectAsync(SelectOption<TValue> option)
+    {
+        mIsOpen = false;
+        await ValueChanged.InvokeAsync(option.Value);
+
+        // 선택은 곧 확정이므로 즉시 검증(오류 중이었다면 그 자리에서 해제)
+        mTouched = true;
+        mErrorMessage = Validator?.Invoke(option.Value);
+    }
+
+    private string OptionClass(SelectOption<TValue> option)
+    {
+        bool selected = EqualityComparer<TValue>.Default.Equals(option.Value, Value);
+        return "w-full min-h-[52px] px-5 py-3 flex items-center gap-3 transition-colors " +
+               (selected ? "bg-navy/[.06] text-navy" : "text-navy-deep hover:bg-surface-soft");
+    }
+
+    public bool ValidateOnSubmit()
+    {
+        mTouched = true;
+        mErrorMessage = Validator?.Invoke(Value);
+        StateHasChanged();
+        return mErrorMessage is null;
+    }
+
+    public async Task FocusAsync()
+    {
+        await FormScrollInterop.ScrollIntoViewAndFocusAsync(Js, mElement);
+    }
+}

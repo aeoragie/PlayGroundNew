@@ -30,6 +30,9 @@ namespace PlayGround.Client
         public const string RecordsDetailTemplate = "/records/{TournamentId:guid}";
         public const string NotFound = "/not-found";
 
+        /// <summary>공용 폼 컴포넌트 데모 (Design.FormPatterns 검증용 — 개발 전용).</summary>
+        public const string DevFormPatterns = "/dev/form-patterns";
+
         //.// 링크 생성 헬퍼 (파라미터 라우트)
 
         public static string TeamDashboardSection(SoccerTeamDashboardSection section)

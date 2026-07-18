@@ -25,7 +25,10 @@ module.exports = {
         navy: {
           DEFAULT: 'rgb(var(--color-navy) / <alpha-value>)',
           deep: 'rgb(var(--color-navy-deep) / <alpha-value>)',
+          muted: 'rgb(var(--color-navy-muted) / <alpha-value>)',
         },
+        // 폼 오류 상태 (Design.FormPatterns) — 파괴적 액션에도 사용
+        danger: 'rgb(var(--color-danger) / <alpha-value>)',
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',

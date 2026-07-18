@@ -78,8 +78,8 @@
 > **모든 UI 작업 전 `Handoff/Design.PatternsIndex/README.md` 필독** — 공용 패턴 15종 목차·결정표.
 > 새 요소가 필요하면 새로 만들지 말고 결정표에서 기존 15종 조합을 먼저 찾는다.
 
-1. **Phase A — 횡단 기반** (다른 모든 작업 unblock): A1 폼 공용 컴포넌트(FormPatterns) →
-   A2 Toast·ConfirmModal(FeedbackPatterns) → A3 스켈레톤·빈 상태(Loading·EmptyStates,
+1. **Phase A — 횡단 기반** (다른 모든 작업 unblock): ~~A1 폼 공용 컴포넌트~~(완료, 아래) →
+   **A2 Toast·ConfirmModal(FeedbackPatterns)** → A3 스켈레톤·빈 상태(Loading·EmptyStates,
    기존 애드혹 점선 카드 통합) → A4 내비게이션 배선·에러 페이지(Navigation, 잔여 항목
    "공개 페이지 로그인 상태 GNB" 흡수).
 2. **Phase B — 입력 UI** (A1·A2 위에): B1 경기 결과 입력(+DatePicker, 저장 시
@@ -89,6 +89,24 @@
    (모집·진학진로·리뷰, 탭당 스키마 신설) → 에이전트 열람 승인(최후순위).
 4. **Phase D — 잔여 패턴**: 별도 단계 없이 화면 작업에 얹는다 (AvatarBadge만 Phase C 후 일괄 교체 1회).
    그 외 잔여: 온보딩 중복 방지.
+
+### Phase A1 — 폼 공용 컴포넌트 완료 (2026-07-19, Design.FormPatterns)
+
+- `Components/Shared/Forms/` 5종: **TextField**(단일·여러 줄·자동 포맷·글자수) · **SelectField**
+  (모바일 바텀시트, 네이티브 셀렉트 금지·옵션 부가정보) · **RadioCards**(4개 이하) ·
+  **CheckboxField**(법적 동의, 기본 체크 금지) · **SubmitButton**(스피너 허용 유일처).
+- **검증 타이밍 3단계**는 `FormFieldContext`가 담당 — 필드가 자기를 등록(등록 순서=화면 순서),
+  제출 시 전체 검증 후 **첫 오류 필드로 스크롤·포커스**(`wwwroot/js/forms.js`, 모바일은 고정 바
+  오프셋 96px). 필드는 blur에 첫 검증 → 오류 중에는 입력 즉시 재검증.
+- **사전 비활성 금지** — 미입력이어도 제출 버튼을 누를 수 있고, 눌러야 인라인 오류가 보인다.
+  비활성은 제출 진행 중(이중 제출 잠금)에만. **폼 오류는 인라인만**(토스트 금지).
+- 스타일은 `Styles/Css.Form.cs`에 모음. **주의: Tailwind `content` 글롭이 `Styles/**/*.cs`만
+  스캔** — 클래스 문자열을 담은 .cs는 반드시 `Styles/`에 둘 것(Components/에 두면 클래스가
+  생성되지 않아 색이 죽는다. 실제로 겪음). 토큰 신설: `danger`(#c0392b)·`navy-muted`(#c6cede).
+- 데모 `/dev/form-patterns`(개발 전용)로 검증 완료: 입력 중 무지적 → blur 검증 → 수정 즉시 해제
+  → 빈 제출 시 첫 오류 포커스 → 로딩("저장 중…") → 완료. 자동 포맷(2011. 03. 14 / 010-1234-5678),
+  inputmode(numeric·tel), 모바일 46px·16px, 바텀시트 부가정보 전부 확인.
+- **기존 화면은 아직 교체 전** — 온보딩·설정 등 실폼 적용은 A2(Feedback) 이후 함께.
 
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
 

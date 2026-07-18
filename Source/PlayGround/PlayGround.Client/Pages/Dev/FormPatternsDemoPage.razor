@@ -1,0 +1,162 @@
+@* 공용 폼 컴포넌트 데모 (Design.FormPatterns 검증용 — 개발 전용, 기존 화면 교체 아님).
+   검증 시나리오: blur 첫 검증 → 오류 중 입력 즉시 해제 → 빈 제출 시 첫 오류 필드로 스크롤·포커스. *@
+@attribute [Route(Routes.DevFormPatterns)]
+@layout LandingLayout
+
+<PageTitle>폼 패턴 데모 — PlayGround</PageTitle>
+
+<CascadingValue Value="@mForm" IsFixed="true">
+    <div class="min-h-screen bg-surface-alt text-navy-deep">
+        <div class="max-w-[560px] mx-auto px-4 md:px-8 pt-8 pb-[140px] md:pb-20 flex flex-col gap-5">
+            <header class="flex flex-col gap-1.5">
+                <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em]">폼 패턴 데모</h1>
+                <p class="m-0 text-[13px] text-text-body leading-[1.7] break-keep">
+                    Design.FormPatterns 공용 컴포넌트 5종 검증용 화면이에요.
+                    빈 상태로 저장을 누르면 첫 오류 필드로 이동하고, 고치는 순간 오류가 사라져요.
+                </p>
+            </header>
+
+            <div class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7 flex flex-col gap-[18px]">
+                <TextField Label="선수 이름" @bind-Value="mName" Placeholder="김민준"
+                           Validator="ValidateName" Helper="공개 프로필에 표시돼요" />
+
+                <TextField Label="생년월일" @bind-Value="mBirthDate" Placeholder="2011. 03. 14"
+                           Format="FormInputFormat.BirthDate" Validator="ValidateBirthDate"
+                           Helper="숫자만 입력하면 자동으로 구분돼요 (20110314 → 2011. 03. 14)" />
+
+                <TextField Label="보호자 연락처" @bind-Value="mPhone" Placeholder="010-1234-5678"
+                           Format="FormInputFormat.PhoneNumber" Validator="ValidatePhone"
+                           Helper="하이픈 자동 입력 · 프로필에 노출되지 않아요" />
+
+                <RadioCards TValue="string" Label="주 포지션" @bind-Value="mPosition"
+                            Options="mPositions" Validator="ValidatePosition" />
+
+                <SelectField TValue="string" Label="연령대" @bind-Value="mAgeGroup"
+                             Options="mAgeGroups" Validator="ValidateAgeGroup"
+                             Helper="탭하면 목록이 열려요 (모바일은 바텀시트)" />
+
+                <TextField Label="팀 소개" @bind-Value="mIntro" IsOptional="true" Multiline="true"
+                           MaxLength="200" Placeholder="기본기와 인성을 함께 키우는 U15 클럽입니다."
+                           Helper="공개 홈페이지 소개 탭 상단에 보여요" />
+
+                <TextField Label="등번호" Value="@("9")" Disabled="true"
+                           DisabledReason="등번호는 팀 관리자만 수정할 수 있어요" />
+
+                <CheckboxField Label="만 14세 미만 자녀의 프로필 공개에 동의합니다"
+                               @bind-Value="mAgreed" Validator="ValidateAgreement">
+                    <a href="#" class="font-bold"> 약관 보기</a>
+                </CheckboxField>
+            </div>
+
+            @if (mSavedMessage is not null)
+            {
+                <div class="bg-surface-teal border-1.5 border-teal/35 rounded-card-xs px-5 py-4">
+                    <span class="text-[13px] font-bold text-teal-ink break-keep">@mSavedMessage</span>
+                </div>
+            }
+
+            @* PC는 흐름 안 버튼 *@
+            <div class="hidden md:block">
+                <SubmitButton Label="저장" IsBusy="@mForm.IsSubmitting" OnClick="SubmitAsync" />
+            </div>
+        </div>
+
+        @* 모바일은 하단 고정 바 (키보드 위 부착은 브라우저 기본 동작) *@
+        <div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-border px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] z-50">
+            <SubmitButton Label="저장" IsBusy="@mForm.IsSubmitting" OnClick="SubmitAsync" />
+        </div>
+    </div>
+</CascadingValue>
+
+@code {
+    private readonly FormFieldContext mForm = new();
+
+    private string? mName;
+    private string? mBirthDate;
+    private string? mPhone;
+    private string? mPosition;
+    private string? mAgeGroup;
+    private string? mIntro;
+    private bool mAgreed;
+    private string? mSavedMessage;
+
+    private readonly List<SelectOption<string>> mPositions =
+    [
+        new("GK", "GK"), new("DF", "DF"), new("MF", "MF"), new("FW", "FW"),
+    ];
+
+    private readonly List<SelectOption<string>> mAgeGroups =
+    [
+        new("U12", "U12", "초등 · 11~12세"),
+        new("U15", "U15", "중등 · 14~15세"),
+        new("U18", "U18", "고등 · 17~18세"),
+    ];
+
+    //.// 검증 규칙 — 문구는 "~해 주세요" 행동형
+
+    private static string? ValidateName(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "선수 이름을 입력해 주세요";
+        }
+
+        return value.Trim().Length < 2 ? "이름을 2자 이상 입력해 주세요" : null;
+    }
+
+    private static string? ValidateBirthDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "생년월일을 입력해 주세요";
+        }
+
+        // 자동 포맷 결과가 "2011. 03. 14" 형태(숫자 8자리)인지
+        int digits = value.Count(char.IsAsciiDigit);
+        return digits == 8 ? null : "생년월일 8자리를 입력해 주세요 (예: 20110314)";
+    }
+
+    private static string? ValidatePhone(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "보호자 연락처를 입력해 주세요";
+        }
+
+        int digits = value.Count(char.IsAsciiDigit);
+        return digits is >= 9 and <= 11 ? null : "연락처를 정확히 입력해 주세요";
+    }
+
+    private static string? ValidatePosition(string? value)
+    {
+        return string.IsNullOrEmpty(value) ? "주 포지션을 선택해 주세요" : null;
+    }
+
+    private static string? ValidateAgeGroup(string? value)
+    {
+        return string.IsNullOrEmpty(value) ? "연령대를 선택해 주세요" : null;
+    }
+
+    private static string? ValidateAgreement(bool value)
+    {
+        return value ? null : "동의가 필요해요";
+    }
+
+    private async Task SubmitAsync()
+    {
+        mSavedMessage = null;
+
+        await mForm.SubmitAsync(
+            onValid: async () =>
+            {
+                // 저장 지연을 흉내내 로딩 상태(스피너·이중 제출 잠금)를 확인한다
+                await Task.Delay(900);
+                mSavedMessage = "저장됐어요 (데모 — 실제 저장은 하지 않아요)";
+            },
+            onStateChanged: () =>
+            {
+                StateHasChanged();
+                return Task.CompletedTask;
+            });
+    }
+}

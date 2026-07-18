@@ -36,6 +36,10 @@
   --color-orange-ink: 194 74 28;           /* #c24a1c orange 틴트 위 텍스트 (인증팀·Pending) */
   --color-surface-soft: 248 249 251;       /* #f8f9fb 테이블 헤더·가치 카드 배경 */
   --color-surface-orange-badge: 255 240 233; /* #fff0e9 orange 틴트 뱃지 배경 */
+
+  /* 폼 (Design.FormPatterns) — 오류 상태, 제출 버튼 비활성 */
+  --color-danger: 192 57 43;               /* #c0392b 필드 오류 보더·인라인 메시지 (파괴적 액션에도 사용) */
+  --color-navy-muted: 198 206 222;         /* #c6cede 제출 버튼 비활성 배경 */
 }
 
 @tailwind base;

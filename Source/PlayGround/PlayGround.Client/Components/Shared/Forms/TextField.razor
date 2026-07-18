@@ -1,0 +1,166 @@
+@* 공용 텍스트 입력 — Design.FormPatterns 필드 공통 + 검증 타이밍 3단계.
+   레이블 상단 고정(placeholder는 예시 전용) · 필수 표시(*) 대신 선택 항목에만 "(선택)" ·
+   blur 첫 검증 → 오류 중 입력 즉시 재검증 → 제출 시 첫 오류 필드로 스크롤·포커스. *@
+@using PlayGround.Client.Styles
+@implements IFormFieldRegistration
+@implements IDisposable
+@inject IJSRuntime Js
+
+<div class="@($"{Css.Form.FieldWrapper} {Class}")">
+    <div class="flex justify-between items-baseline gap-2.5">
+        <label for="@mFieldId" class="@Css.Form.Label">
+            @Label@if (IsOptional)
+            {
+                <span class="@Css.Form.OptionalMark"> (선택)</span>
+            }
+        </label>
+        @if (MaxLength is not null)
+        {
+            <span class="@(CurrentLength > MaxLength ? Css.Form.CounterOver : Css.Form.Counter)">@CurrentLength / @MaxLength</span>
+        }
+    </div>
+
+    @if (Multiline)
+    {
+        <textarea id="@mFieldId" @ref="mElement" class="@Css.Form.TextArea(HasVisibleError, Disabled)"
+                  placeholder="@Placeholder" disabled="@Disabled" rows="@Rows"
+                  value="@Value" @oninput="OnInputAsync" @onblur="OnBlurAsync"></textarea>
+    }
+    else
+    {
+        <input id="@mFieldId" @ref="mElement" type="@InputType" class="@Css.Form.Input(HasVisibleError, Disabled)"
+               placeholder="@Placeholder" disabled="@Disabled" inputmode="@InputMode"
+               value="@Value" @oninput="OnInputAsync" @onblur="OnBlurAsync" />
+    }
+
+    @if (HasVisibleError)
+    {
+        <span class="@Css.Form.ErrorMessage">@mErrorMessage</span>
+    }
+    else if (Helper is not null)
+    {
+        <span class="@Css.Form.Helper">@Helper</span>
+    }
+    else if (Disabled && DisabledReason is not null)
+    {
+        @* 비활성은 사유를 함께 — 왜 못 고치는지 알려준다 *@
+        <span class="@Css.Form.Helper">@DisabledReason</span>
+    }
+</div>
+
+@code {
+    private ElementReference mElement;
+    private readonly string mFieldId = $"tf-{Guid.NewGuid():N}";
+    private string? mErrorMessage;
+    private bool mTouched;   // blur 이후에만 오류를 노출 (입력 중 지적 금지)
+
+    [CascadingParameter]
+    public FormFieldContext? Form { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>검증 규칙 — 오류 문구 반환(정상이면 null). "~해 주세요" 행동형으로 작성.</summary>
+    [Parameter]
+    public Func<string?, string?>? Validator { get; set; }
+
+    /// <summary>placeholder는 예시 전용 — 레이블 대체 금지.</summary>
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    [Parameter]
+    public string? Helper { get; set; }
+
+    /// <summary>선택 항목만 true — 필수 표시(*)는 쓰지 않는다.</summary>
+    [Parameter]
+    public bool IsOptional { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public string? DisabledReason { get; set; }
+
+    [Parameter]
+    public bool Multiline { get; set; }
+
+    [Parameter]
+    public int Rows { get; set; } = 3;
+
+    /// <summary>글자수 카운터 상한 — 초과해도 입력은 막지 않고 카운터만 레드.</summary>
+    [Parameter]
+    public int? MaxLength { get; set; }
+
+    /// <summary>자동 포맷(생년월일·전화) — inputmode도 함께 설정된다.</summary>
+    [Parameter]
+    public FormInputFormat Format { get; set; } = FormInputFormat.None;
+
+    [Parameter]
+    public string InputType { get; set; } = "text";
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    public bool HasVisibleError => mTouched && mErrorMessage is not null;
+
+    private int CurrentLength => Value?.Length ?? 0;
+
+    private string? InputMode => FormInputFormatter.InputModeOf(Format);
+
+    protected override void OnInitialized()
+    {
+        Form?.Register(this);
+    }
+
+    public void Dispose()
+    {
+        Form?.Unregister(this);
+    }
+
+    private async Task OnInputAsync(ChangeEventArgs args)
+    {
+        string raw = args.Value?.ToString() ?? string.Empty;
+        string formatted = FormInputFormatter.Apply(raw, Format);
+
+        await ValueChanged.InvokeAsync(formatted);
+
+        // 오류 상태에서는 입력 즉시 재검증 — 고치는 순간 해제
+        if (mTouched)
+        {
+            mErrorMessage = Validate(formatted);
+        }
+    }
+
+    private async Task OnBlurAsync()
+    {
+        // 첫 검증은 blur 시
+        mTouched = true;
+        mErrorMessage = Validate(Value);
+        await Task.CompletedTask;
+    }
+
+    private string? Validate(string? value)
+    {
+        return Validator?.Invoke(value);
+    }
+
+    public bool ValidateOnSubmit()
+    {
+        mTouched = true;
+        mErrorMessage = Validate(Value);
+        StateHasChanged();
+        return mErrorMessage is null;
+    }
+
+    public async Task FocusAsync()
+    {
+        // 모바일 하단 고정 바에 가리지 않도록 스크롤 오프셋을 준다
+        await FormScrollInterop.ScrollIntoViewAndFocusAsync(Js, mElement);
+    }
+}

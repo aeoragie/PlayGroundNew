@@ -1,0 +1,44 @@
+@* 공용 제출 버튼 — Design.FormPatterns 제출 버튼.
+   상태 3종: 기본(네이비) / 로딩(스피너 + "저장 중…", 이중 제출 잠금) / 비활성(제출 직후에만).
+   **필수 미입력이라고 사전 비활성하지 않는다** — 누르게 두고 인라인 오류로 무엇이 빠졌는지 보여준다.
+   스피너가 허용되는 유일한 자리(페이지·목록 로딩은 스켈레톤). *@
+@using PlayGround.Client.Styles
+
+<button type="button" class="@Css.Form.Submit(IsBusy)" disabled="@IsBusy" @onclick="OnClickAsync">
+    @if (IsBusy)
+    {
+        @* 스피너 — 흰 링 + 상단만 불투명하게 회전 *@
+        <span class="w-4 h-4 rounded-full border-[2.5px] border-white/[.35] border-t-white animate-spin"></span>
+        <span>@BusyLabel</span>
+    }
+    else
+    {
+        <span>@Label</span>
+    }
+</button>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "저장";
+
+    /// <summary>로딩 중 레이블 — 동작을 유지해 무엇이 진행 중인지 알린다.</summary>
+    [Parameter]
+    public string BusyLabel { get; set; } = "저장 중…";
+
+    /// <summary>제출 진행 중 — 이 동안만 비활성(이중 제출 잠금).</summary>
+    [Parameter]
+    public bool IsBusy { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private async Task OnClickAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        await OnClick.InvokeAsync();
+    }
+}
