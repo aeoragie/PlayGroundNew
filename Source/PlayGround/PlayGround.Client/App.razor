@@ -5,4 +5,8 @@
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
     </Router>
+
+    @* 전역 피드백 호스트 — 레이아웃(Main·Auth·Landing) 무관하게 항상 1개씩만 존재 *@
+    <ToastHost />
+    <ConfirmDialogHost />
 </CascadingAuthenticationState>

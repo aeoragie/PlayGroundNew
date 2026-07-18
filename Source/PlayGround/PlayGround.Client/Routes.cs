@@ -33,6 +33,9 @@ namespace PlayGround.Client
         /// <summary>공용 폼 컴포넌트 데모 (Design.FormPatterns 검증용 — 개발 전용).</summary>
         public const string DevFormPatterns = "/dev/form-patterns";
 
+        /// <summary>토스트·확인 모달 데모 (Design.FeedbackPatterns 검증용 — 개발 전용).</summary>
+        public const string DevFeedbackPatterns = "/dev/feedback-patterns";
+
         //.// 링크 생성 헬퍼 (파라미터 라우트)
 
         public static string TeamDashboardSection(SoccerTeamDashboardSection section)

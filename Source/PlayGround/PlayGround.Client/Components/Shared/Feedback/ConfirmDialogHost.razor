@@ -1,0 +1,130 @@
+@* 전역 확인 모달 호스트 — App.razor에 1개만 둔다. PC 중앙 모달 / 모바일 바텀시트(파괴 버튼이 위).
+   Enter=주 버튼, Esc=취소. 파괴적·고위험은 기본 포커스=취소. *@
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@implements IDisposable
+@inject ConfirmService Confirm
+
+@if (Confirm.Current is ConfirmRequest request)
+{
+    <div class="@Css.Feedback.Overlay" role="dialog" aria-modal="true" @onkeydown="OnKeyDownAsync" tabindex="-1">
+        @* 오버레이 클릭 = 취소 *@
+        <div class="absolute inset-0" @onclick="() => Complete(false)"></div>
+
+        <div class="@Css.Feedback.Card">
+            <span class="@Css.Feedback.GrabBar"></span>
+            <span class="@Css.Feedback.Title">@request.Title</span>
+
+            @if (request.Description is not null)
+            {
+                <span class="@Css.Feedback.Description">@request.Description</span>
+            }
+
+            @if (request.Kind == ConfirmKind.HighRisk && request.RequiredPhrase is not null)
+            {
+                <input class="@Css.Feedback.PhraseInput" placeholder="@request.RequiredPhrase"
+                       value="@mPhrase" @oninput="OnPhraseInput" @ref="mPhraseInput" />
+            }
+
+            <div class="@Css.Feedback.Actions">
+                @* 모바일은 flex-col-reverse — 마크업상 취소가 먼저지만 화면에서는 파괴 버튼이 위 *@
+                <button type="button" class="@Css.Feedback.CancelButton" @ref="mCancelButton"
+                        @onclick="() => Complete(false)">@request.CancelLabel</button>
+                <button type="button" class="@Css.Feedback.ConfirmButton(IsDestructive(request), IsLocked(request))"
+                        disabled="@IsLocked(request)" @ref="mConfirmButton"
+                        @onclick="() => Complete(true)">@request.ConfirmLabel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ElementReference mCancelButton;
+    private ElementReference mConfirmButton;
+    private ElementReference mPhraseInput;
+    private string mPhrase = string.Empty;
+    private bool mNeedsFocus;
+
+    protected override void OnInitialized()
+    {
+        Confirm.OnChanged += OnConfirmChanged;
+    }
+
+    public void Dispose()
+    {
+        Confirm.OnChanged -= OnConfirmChanged;
+    }
+
+    private void OnConfirmChanged()
+    {
+        // 새 요청이 열릴 때 입력값 초기화 + 포커스 예약
+        if (Confirm.Current is not null)
+        {
+            mPhrase = string.Empty;
+            mNeedsFocus = true;
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!mNeedsFocus || Confirm.Current is not ConfirmRequest request)
+        {
+            return;
+        }
+
+        mNeedsFocus = false;
+
+        // 고위험은 입력칸으로, 파괴적은 취소(안전한 쪽), 일반은 주 버튼
+        if (request.Kind == ConfirmKind.HighRisk)
+        {
+            await mPhraseInput.FocusAsync();
+        }
+        else if (request.Kind == ConfirmKind.Destructive)
+        {
+            await mCancelButton.FocusAsync();
+        }
+        else
+        {
+            await mConfirmButton.FocusAsync();
+        }
+    }
+
+    private void OnPhraseInput(ChangeEventArgs args)
+    {
+        mPhrase = args.Value?.ToString() ?? string.Empty;
+    }
+
+    private static bool IsDestructive(ConfirmRequest request) =>
+        request.Kind is ConfirmKind.Destructive or ConfirmKind.HighRisk;
+
+    /// <summary>고위험 — 확인 문구가 정확히 일치하기 전까지 주 버튼 잠금.</summary>
+    private bool IsLocked(ConfirmRequest request) =>
+        request.Kind == ConfirmKind.HighRisk
+        && !string.Equals(mPhrase.Trim(), request.RequiredPhrase, StringComparison.Ordinal);
+
+    private async Task OnKeyDownAsync(KeyboardEventArgs args)
+    {
+        if (Confirm.Current is not ConfirmRequest request)
+        {
+            return;
+        }
+
+        if (args.Key == "Escape")
+        {
+            Complete(false);
+        }
+        else if (args.Key == "Enter" && !IsLocked(request))
+        {
+            Complete(true);
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private void Complete(bool confirmed)
+    {
+        Confirm.Complete(confirmed);
+    }
+}

@@ -1,0 +1,64 @@
+@* 전역 토스트 호스트 — App.razor에 1개만 둔다(동시 1개·교체식).
+   PC 좌하단 / 모바일 하단 중앙(탭바 위). 오류는 자동 소멸하지 않아 닫기 버튼을 준다. *@
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@implements IDisposable
+@inject ToastService Toasts
+
+@if (Toasts.Current is ToastMessage toast)
+{
+    <div class="@Css.Feedback.ToastLayer">
+        <div class="@Css.Feedback.ToastCapsule" role="status" aria-live="polite">
+            <span class="@Css.Feedback.ToastDot(toast.Kind == ToastKind.Success, toast.Kind == ToastKind.Error)">@IconOf(toast.Kind)</span>
+            <span class="@Css.Feedback.ToastMessage">@toast.Message</span>
+
+            @if (toast.HasAction)
+            {
+                <button type="button" class="@Css.Feedback.ToastAction" @onclick="() => InvokeActionAsync(toast)">@toast.ActionLabel</button>
+            }
+
+            @if (toast.Kind == ToastKind.Error)
+            {
+                @* 오류는 자동 소멸하지 않으므로 수동 닫기 제공 *@
+                <button type="button" class="@Css.Feedback.ToastClose" aria-label="닫기" @onclick="Toasts.Dismiss">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Toasts.OnChanged += OnToastChanged;
+    }
+
+    public void Dispose()
+    {
+        Toasts.OnChanged -= OnToastChanged;
+    }
+
+    private void OnToastChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private static string IconOf(ToastKind kind) => kind switch
+    {
+        ToastKind.Success => "✓",
+        ToastKind.Error => "!",
+        _ => "i",
+    };
+
+    // 액션 실행 후 토스트를 닫는다 (실행 취소 등 — 액션은 1회성)
+    private async Task InvokeActionAsync(ToastMessage toast)
+    {
+        Toasts.Dismiss();
+        if (toast.OnAction is not null)
+        {
+            await toast.OnAction();
+        }
+    }
+}

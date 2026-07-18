@@ -3,6 +3,7 @@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
 @inject PlayerClient Players
+@inject ToastService Toasts
 
 <div class="flex flex-col gap-3.5">
     <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-4")">
@@ -139,7 +140,11 @@
         if (await Players.SetFieldVisibilityAsync(visibility.FieldName, next))
         {
             visibility.IsPublic = next;
+            return;
         }
+
+        // 토글은 결과가 화면에 즉시 보이므로 성공 토스트는 생략, 실패만 알린다
+        Toasts.ShowError("공개 설정을 저장하지 못했어요.", "재시도", () => ToggleAsync(visibility));
     }
 
     private static string MobileToggleClass(bool isPublic) =>

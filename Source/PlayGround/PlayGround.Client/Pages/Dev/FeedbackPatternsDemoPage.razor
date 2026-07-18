@@ -1,0 +1,147 @@
+@* 토스트·확인 모달 데모 (Design.FeedbackPatterns 검증용 — 개발 전용).
+   핵심 시나리오: 삭제 확인(파괴 모달) → 삭제 → 실행취소 토스트 → 복구 왕복. *@
+@attribute [Route(Routes.DevFeedbackPatterns)]
+@layout LandingLayout
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+
+<PageTitle>피드백 패턴 데모 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt text-navy-deep">
+    <div class="max-w-[560px] mx-auto px-4 md:px-8 pt-8 pb-[140px] md:pb-20 flex flex-col gap-5">
+        <header class="flex flex-col gap-1.5">
+            <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em]">피드백 패턴 데모</h1>
+            <p class="m-0 text-[13px] text-text-body leading-[1.7] break-keep">
+                토스트는 동시에 1개만 뜨고 새 토스트가 이전 것을 밀어내요.
+                아래 영상 목록에서 삭제를 눌러 삭제 → 실행취소 왕복을 확인해 주세요.
+            </p>
+        </header>
+
+        @* 삭제 → 실행취소 왕복 (핵심 시나리오) *@
+        <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7 flex flex-col gap-3">
+            <span class="text-sm font-extrabold">경기 영상</span>
+
+            @if (mVideos.Count == 0)
+            {
+                <span class="text-[13px] text-text-muted break-keep">영상이 모두 삭제됐어요.</span>
+            }
+
+            @foreach (string video in mVideos)
+            {
+                <div class="flex items-center justify-between gap-3 border-1.5 border-border rounded-[11px] px-3.5 py-3">
+                    <span class="text-[13px] font-bold break-keep">@video</span>
+                    <button type="button" @onclick="() => DeleteAsync(video)"
+                            class="shrink-0 h-[34px] px-3.5 rounded-[9px] border-1.5 border-danger bg-white text-[12.5px] font-bold text-danger whitespace-nowrap cursor-pointer">삭제</button>
+                </div>
+            }
+        </section>
+
+        @* 토스트 3종 *@
+        <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7 flex flex-col gap-2.5">
+            <span class="text-sm font-extrabold">토스트</span>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" class="@DemoButton" @onclick="@(() => Toasts.ShowSuccess("프로필이 저장됐어요."))">성공 (3.5초)</button>
+                <button type="button" class="@DemoButton" @onclick="@(() => Toasts.ShowInfo("초대코드를 복사했어요."))">정보</button>
+                <button type="button" class="@DemoButton" @onclick="@(() => Toasts.ShowError("저장하지 못했어요.", "재시도", RetryAsync))">오류 (자동 소멸 없음)</button>
+            </div>
+        </section>
+
+        @* 모달 3종 *@
+        <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7 flex flex-col gap-2.5">
+            <span class="text-sm font-extrabold">확인 모달</span>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" class="@DemoButton" @onclick="ConfirmNormalAsync">일반 (동사형)</button>
+                <button type="button" class="@DemoButton" @onclick="ConfirmDestructiveAsync">파괴적 (기본 포커스=취소)</button>
+                <button type="button" class="@DemoButton" @onclick="ConfirmHighRiskAsync">고위험 (입력 잠금)</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+@code {
+    private const string DemoButton =
+        "h-[38px] px-4 rounded-[10px] border-1.5 border-border bg-white text-[12.5px] font-bold text-navy-deep whitespace-nowrap cursor-pointer";
+
+    private readonly List<string> mVideos = new() { "vs 강동 SC 하이라이트", "vs 신답 FC 전반", "훈련 영상 0712" };
+
+    // 삭제 → 실행취소 왕복: 확인 모달 → 목록에서 제거 → 토스트 액션으로 원위치 복구
+    private async Task DeleteAsync(string video)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"'{video}' 영상을 삭제할까요?",
+            Description = "삭제하면 팀 홈페이지에서도 보이지 않아요.",
+            ConfirmLabel = "삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        int index = mVideos.IndexOf(video);
+        mVideos.Remove(video);
+
+        Toasts.ShowSuccess("영상을 삭제했어요.", "실행취소", () =>
+        {
+            mVideos.Insert(Math.Min(index, mVideos.Count), video);
+            StateHasChanged();
+            return Task.CompletedTask;
+        });
+    }
+
+    private Task RetryAsync()
+    {
+        Toasts.ShowSuccess("다시 저장했어요.");
+        return Task.CompletedTask;
+    }
+
+    private async Task ConfirmNormalAsync()
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Title = "프로필을 공개할까요?",
+            Description = "공개하면 팀 관리자와 에이전트가 내 프로필을 볼 수 있어요.",
+            ConfirmLabel = "공개하기",
+        });
+
+        if (confirmed)
+        {
+            Toasts.ShowSuccess("프로필을 공개했어요.");
+        }
+    }
+
+    private async Task ConfirmDestructiveAsync()
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "'김민준' 선수를 로스터에서 뺄까요?",
+            Description = "선수 계정은 유지되고 팀 연결만 끊어져요.",
+            ConfirmLabel = "제외",
+        });
+
+        if (confirmed)
+        {
+            Toasts.ShowSuccess("로스터에서 제외했어요.", "실행취소", () => Task.CompletedTask);
+        }
+    }
+
+    private async Task ConfirmHighRiskAsync()
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.HighRisk,
+            Title = "팀을 삭제할까요?",
+            Description = "선수 24명, 경기 기록 38건, 공개 홈페이지가 함께 사라져요. 되돌릴 수 없어요.",
+            ConfirmLabel = "팀 삭제",
+            RequiredPhrase = "검증fc",
+        });
+
+        if (confirmed)
+        {
+            Toasts.ShowSuccess("팀을 삭제했어요.");
+        }
+    }
+}

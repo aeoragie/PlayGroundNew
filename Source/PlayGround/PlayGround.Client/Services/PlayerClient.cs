@@ -110,7 +110,7 @@ namespace PlayGround.Client.Services
             }
             catch
             {
-                return new PlayerClaimResult(false, null, null, "네트워크 오류로 연결하지 못했어요. 잠시 후 다시 시도해 주세요.");
+                return new PlayerClaimResult(false, null, null, "연결하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
             }
         }
 
@@ -144,5 +144,8 @@ namespace PlayGround.Client.Services
     public record PlayerSaveResult(bool Success, string? AccessToken, string? Error);
 
     /// <summary>초대코드 Claim 결과. AccessToken은 승격 시에만 값이 온다.</summary>
-    public record PlayerClaimResult(bool Success, string? TeamName, string? AccessToken, string? Error);
+    /// <remarks>
+    /// IsNetworkError로 "코드가 틀림"(입력 오류 → 인라인)과 "요청 실패"(시스템 오류 → 토스트+재시도)를 구분한다.
+    /// </remarks>
+    public record PlayerClaimResult(bool Success, string? TeamName, string? AccessToken, string? Error, bool IsNetworkError = false);
 }

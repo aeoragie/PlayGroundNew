@@ -2,6 +2,7 @@
 @using PlayGround.Client.Styles
 @inject PlayerClient Players
 @inject JwtAuthenticationStateProvider AuthProvider
+@inject ToastService Toasts
 
 <div class="@($"{Css.Dashboard.Card} p-[18px] md:p-[22px] flex flex-col gap-3")">
     <div class="flex flex-col gap-1">
@@ -16,7 +17,7 @@
     </div>
     @if (mError is not null)
     {
-        <span role="alert" class="text-xs text-orange-ink break-keep">@mError</span>
+        <span role="alert" class="text-xs text-danger break-keep">@mError</span>
     }
 </div>
 
@@ -53,7 +54,16 @@
 
         if (!result.Success)
         {
-            mError = result.Error;
+            // 코드 오류는 입력 문제 → 인라인. 요청 실패는 시스템 오류 → 토스트 + 재시도
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "연결하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                mError = result.Error;
+            }
+
             return;
         }
 
@@ -63,6 +73,7 @@
             await AuthProvider.MarkUserAuthenticatedAsync(result.AccessToken);
         }
 
+        Toasts.ShowSuccess(result.TeamName is not null ? $"{result.TeamName}에 연결됐어요." : "팀에 연결됐어요.");
         await OnClaimed.InvokeAsync();
     }
 }

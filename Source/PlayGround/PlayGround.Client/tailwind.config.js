@@ -28,7 +28,10 @@ module.exports = {
           muted: 'rgb(var(--color-navy-muted) / <alpha-value>)',
         },
         // 폼 오류 상태 (Design.FormPatterns) — 파괴적 액션에도 사용
-        danger: 'rgb(var(--color-danger) / <alpha-value>)',
+        danger: {
+          DEFAULT: 'rgb(var(--color-danger) / <alpha-value>)',
+          muted: 'rgb(var(--color-danger-muted) / <alpha-value>)',
+        },
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',
@@ -98,6 +101,19 @@ module.exports = {
         authbtn: '0 4px 14px rgba(255,107,53,.3)',
         // 공개 팀 홈페이지 히어로 엠블럼 박스
         'team-emblem': '0 8px 24px rgba(28,43,74,.25)',
+        // 피드백 (Design.FeedbackPatterns) — 토스트 캡슐 / 확인 모달 카드
+        toast: '0 8px 24px rgba(28,43,74,.25)',
+        modal: '0 20px 50px rgba(28,43,74,.3)',
+      },
+      keyframes: {
+        // 토스트 등장 — 슬라이드 업 + 페이드
+        'toast-in': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'toast-in': 'toast-in .18s ease-out',
       },
     },
   },

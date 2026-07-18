@@ -108,6 +108,26 @@
   inputmode(numeric·tel), 모바일 46px·16px, 바텀시트 부가정보 전부 확인.
 - **기존 화면은 아직 교체 전** — 온보딩·설정 등 실폼 적용은 A2(Feedback) 이후 함께.
 
+### Phase A2 — 전역 피드백 완료 (2026-07-19, Design.FeedbackPatterns)
+
+- **DI 싱글톤(Scoped) + App.razor 호스트** 방식 — `ToastService`/`ConfirmService`를 주입받아
+  `Toasts.ShowSuccess(...)` / `await Confirm.ShowAsync(...)`로 호출. CascadingValue를 쓰지 않은
+  이유: 호출부가 깔끔하고, 페이지가 3개 레이아웃(Main·Auth·Landing)으로 나뉘어 MainLayout 슬롯이
+  전부를 못 덮는다. 호스트(`ToastHost`·`ConfirmDialogHost`)는 App.razor에 각 1개.
+- **토스트** — 동시 1개 교체식(새 토스트가 이전 타이머 취소). 3.5초 / 액션 있으면 5초 /
+  **오류는 자동 소멸 안 함**(수동 닫기 X 버튼 제공). PC 좌하단 24px, 모바일 하단 중앙 탭바 위.
+- **확인 모달** — `ConfirmKind` 3종: Normal(네이비·동사형 레이블, 기본 포커스=주 버튼) /
+  Destructive(레드·대상 이름 명시, **기본 포커스=취소**) / HighRisk(`RequiredPhrase` 일치 전까지
+  주 버튼 잠금 `danger-muted`, 기본 포커스=입력칸). Enter=주 버튼, Esc·오버레이 클릭=취소.
+  모바일은 전부 바텀시트(그랩바 36×4, `flex-col-reverse`로 **파괴 버튼이 위**).
+- **애드혹 피드백 교체**: 초대코드 Claim = 코드 오류 → 인라인(`PlayerClaimResult.IsNetworkError`로
+  구분 신설), 요청 실패 → 오류 토스트+재시도, 성공 → "{팀명}에 연결됐어요" 토스트.
+  공개 범위 토글 = 결과가 화면에 즉시 보이므로 **성공 토스트 생략**, 실패만 토스트+재시도(PC·모바일).
+  로스터 "복사됨" 라벨 스왑은 시각 변화가 이미 있어 그대로 둠(결정표: 중복 발송 금지).
+- 스타일 `Styles/Css.Feedback.cs`, 토큰 신설 `danger-muted`(#e8b0a8) · 그림자 `toast`/`modal` ·
+  애니메이션 `toast-in`. 데모 `/dev/feedback-patterns`로 **삭제 → 파괴 모달 → 실행취소 왕복** 검증
+  완료(PC·모바일, 파괴 모달 기본 포커스=취소 확인).
+
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
 
 - `UspGetSoccerPlayerSeasonStatsByUser`(4결과셋: ⓪PlayerId → ①시즌 출전 경기(Appearances+
