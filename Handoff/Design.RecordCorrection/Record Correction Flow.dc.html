@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">공식 기록 수정 신청 플로우 — PC</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">원칙: 공식 기록은 주최측 소유 — PlayGround 쪽은 <b>신청 제출 + 상태 확인까지만</b>, 심사·반영은 별도 대회 서비스에서. 신청 주체 = 팀 관리자(팀 경기 전체) · 보호자(내 자녀 관련 기록만). 상태 3종: 접수 → 반영 / 반려(사유 필수). 같은 경기에 내 미처리 신청이 있으면 중복 신청 불가.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 진입점 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">진입점 — 공식 경기 행 ⋯ 메뉴</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:13px 14px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap">vs 강북 드래곤즈</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">춘계 한강리그 12R · 3/14(토)</span></span>
+        <span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap">3 : 1</span>
+        <span style="font-size:10px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">승</span>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <div style="border:1.5px solid #e6e8ee;border-radius:13px;box-shadow:0 10px 30px rgba(28,43,74,.12);overflow:hidden;max-width:210px;margin-left:auto">
+        <div style="padding:6px">
+          <span style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a;cursor:pointer">경기 상세 보기</span>
+          <span style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a;background:#f8f9fb;cursor:pointer">기록 수정 신청</span>
+        </div>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">공식 경기 행에만 노출(DropdownMenu ⋯ 규칙 — 친선 행은 직접 수정이라 불필요) · 미처리 신청이 이미 있으면 항목 대신 "신청 처리 중" 비활성 표기.</span>
+    </div>
+  </div>
+
+  <!-- 신청 폼 (모달) -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">신청 폼 — 모달 (현재 기록 대비 입력)</span></div>
+    <div style="padding:20px;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+      <div style="background:#fff;border-radius:18px;padding:22px;width:300px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 50px rgba(28,43,74,.3)">
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:15px;font-weight:800;word-break:keep-all">기록 수정 신청</span>
+          <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">춘계 한강리그 12R · vs 강북 드래곤즈</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">오류 항목</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <span style="height:38px;border:1.5px solid #23408e;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#23408e;background:rgba(35,64,142,.06);white-space:nowrap">스코어</span>
+            <span style="height:38px;border:1.5px solid #e6e8ee;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">득점·도움</span>
+            <span style="height:38px;border:1.5px solid #e6e8ee;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">출전 선수</span>
+            <span style="height:38px;border:1.5px solid #e6e8ee;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">기타</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="flex:1;background:#f8f9fb;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">현재 기록</span>
+            <span style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;color:#8a93a6">3 : 1</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          <div style="flex:1;border:1.5px solid #23408e;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;box-shadow:0 0 0 3px rgba(35,64,142,.12)">
+            <span style="font-size:10px;font-weight:700;color:#23408e;white-space:nowrap">올바른 기록</span>
+            <span style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums">3 : 2</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">설명 <span style="font-weight:600;color:#8a93a6">(선택)</span></span>
+          <div style="min-height:56px;border:1.5px solid #e6e8ee;border-radius:10px;padding:9px 11px;font-size:12px;color:#3c465a;line-height:1.5;word-break:keep-all">후반 39분 실점이 기록에서 빠졌어요. 경기 영상 34:20 참고.</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">취소</button>
+          <button style="flex:1;height:42px;border:0;border-radius:11px;background:#23408e;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">신청하기</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">현재 기록 = 자동 표시(읽기, 회색) → 올바른 기록 = 입력(항목별 위젯: 스코어=숫자 2칸, 득점·도움/출전=선수 선택). 항목 선택은 1건 1항목 — 여러 오류면 신청 여러 건(심사 단위 명확화). 성공 = 토스트 + 알림 센터 기록.</div>
+  </div>
+
+  <!-- 상태 추적 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">내 신청 목록 — 상태 3종</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">리그 12R 스코어 3:1 → 3:2</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">3/15 신청 · 주최: 서울축구협회</span></span>
+        <span style="font-size:10px;font-weight:800;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">접수</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">8강 득점자 김민준 → 박지호</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">3/10 신청 · 3/12 반영됨</span></span>
+        <span style="font-size:10px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">반영</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">리그 9R 출전 기록 추가</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">3/2 신청 · 3/5 반려됨</span></span>
+          <span style="font-size:10px;font-weight:800;color:#c0392b;background:#fdeceb;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">반려</span>
+        </div>
+        <div style="background:#f8f9fb;border-radius:9px;padding:9px 11px;font-size:11.5px;color:#5b6577;line-height:1.55;word-break:keep-all"><b>반려 사유</b> — 경기 감독관 기록지와 대조한 결과 출전 기록이 확인되지 않았습니다.</div>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">위치: 팀 대시보드 기록 관리 절 + 보호자는 허브 자녀 카드에서 · 접수=오렌지 톤/반영=teal/반려=연레드+사유 필수 표시 · 상태 변경 시 알림 센터 발송(반영·반려) · 접수 상태에서 신청 취소 가능(⋯).</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">사용 패턴 조합: DropdownMenu(진입 ⋯) + FormPatterns(라디오 카드·인라인 검증) + FeedbackPatterns(모달·토스트) + AvatarBadge(상태 뱃지 톤) + TableList(정보형 행) — 신규 패턴 없음. 데이터: CorrectionRequest(MatchId·항목·현재값·요청값·설명·상태·반려사유), 심사 API는 대회 서비스 몫(PlayGround는 생성·조회·취소만). 증빙 사진 첨부는 P1 보류 — 설명+영상 타임코드로 충분한지 운영 후 판단.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1250}}"></script>
+</body>
+</html>

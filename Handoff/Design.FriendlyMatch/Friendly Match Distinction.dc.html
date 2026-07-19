@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">친선·연습경기 시각 구분 — PC</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">원칙: <b>공식 기록(주최측) = 기본 형태 그대로, 친선·연습만 표시를 얹는다</b>(공식에 "공식" 뱃지를 달지 않음 — 다수가 공식이므로 소수만 마킹). 집계 경계: 순위표·시즌 스탯·공개 프로필 스탯은 <b>공식만</b>, 친선·연습은 집계 제외 + 별도 섹션.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 결과 리스트 행 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">경기 결과 행 — 공식 vs 친선·연습</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:13px 14px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap">vs 강북 드래곤즈</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">춘계 한강리그 12R · 3/14(토)</span></span>
+        <span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap">3 : 1</span>
+        <span style="font-size:10px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">승</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px dashed #d5d9e2;border-radius:12px;padding:13px 14px;background:#fbfcfd">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;color:#3c465a">vs 마포 리버사이드 FC</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap;display:flex;align-items:center;gap:5px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"></path><circle cx="12" cy="12" r="4"></circle></svg>친선경기 · 3/17(화)</span></span>
+        <span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;color:#5b6577">2 : 2</span>
+        <span style="font-size:10px;font-weight:800;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">무</span>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">친선·연습 행 = <b>점선 보더 + `#fbfcfd` 배경 + 대회명 자리에 "친선경기" 회색 라벨</b>(아이콘 11px). 승패 뱃지는 유지하되 친선은 중립 회색 톤(공식의 teal/레드와 구분 — 행당 뱃지 1개 규칙 준수, 구분은 뱃지가 아니라 행 스타일+메타로).</span>
+    </div>
+  </div>
+
+  <!-- 세그먼트 필터 + 집계 경계 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">세그먼트 + 시즌 스탯 집계 경계</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;background:#eef0f4;border-radius:11px;padding:3px;gap:2px;max-width:320px">
+        <span style="flex:1;height:34px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#1c2b4a;box-shadow:0 1px 4px rgba(28,43,74,.12);white-space:nowrap">전체</span>
+        <span style="flex:1;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">공식</span>
+        <span style="flex:1;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">친선경기</span>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1;background:#f8f9fb;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:10.5px;font-weight:700;color:#8a93a6;white-space:nowrap">시즌 득점 (공식)</span>
+          <span style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums">7</span>
+        </div>
+        <div style="flex:1;background:#f8f9fb;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:10.5px;font-weight:700;color:#8a93a6;white-space:nowrap">친선경기 별도</span>
+          <span style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:#8a93a6">+3</span>
+        </div>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">결과 목록 상단 세그먼트(축 전환 — TabAccordion 결정표) · 시즌 스탯 카드 = <b>공식만 집계</b>, 친선·연습분은 회색 "+N" 보조 표기(합산 금지) · 공개 선수 프로필·순위표에는 친선·연습 미노출.</span>
+    </div>
+  </div>
+
+  <!-- 입력 화면 컨텍스트 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">B1 입력 화면 — 용도 명시 (기능 유지)</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:15px;font-weight:800;white-space:nowrap">친선경기 결과 입력</span>
+        <span style="font-size:12px;color:#5b6577;line-height:1.6;word-break:keep-all">대회·리그 공식 기록은 주최측이 입력해요. 기록에 오류가 있다면 수정 신청으로 알려 주세요.</span>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">화면 제목을 "친선경기 결과 입력"으로 변경(구 "결과 입력") + 부제로 공식 기록 원칙 안내 · <b>경기 성격 선택 필드 없음</b>(친선=연습 — 구분 불필요, 저장 시 전부 Friendly) · 대회/리그 선택 필드는 이 화면에서 제거.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">적용 화면: 팀 대시보드 경기 결과·팀 공개홈 기록 탭(행 스타일+세그먼트) · 선수 대시보드·공개 프로필(스탯 집계 경계 — 공개 프로필은 친선 미노출) · B1 입력 화면(용도 명시). 데이터: Match에 MatchType(Official/Friendly 2값) — 기존 B1 저장분은 Friendly로 마이그레이션.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:950}}"></script>
+</body>
+</html>

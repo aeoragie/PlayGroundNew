@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:16px">
+
+<header style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:18px;font-weight:800;letter-spacing:-.02em">친선·연습경기 구분 — 모바일 (390px)</span>
+  <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">PC와 동일 원칙(공식=기본, 친선·연습만 마킹 / 집계는 공식만). 세그먼트는 36px 터치.</span>
+</header>
+
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">결과 목록 — 세그먼트 + 행 구분</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;background:#eef0f4;border-radius:11px;padding:3px;gap:2px">
+      <span style="flex:1;height:36px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#1c2b4a;box-shadow:0 1px 4px rgba(28,43,74,.12);white-space:nowrap">전체</span>
+      <span style="flex:1;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">공식</span>
+      <span style="flex:1;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">친선경기</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;border:1px solid #f1f3f8;border-radius:12px;padding:13px">
+      <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vs 강북 드래곤즈</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">춘계 한강리그 12R · 3/14(토)</span></span>
+      <span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none">3 : 1</span>
+      <span style="font-size:10px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">승</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;border:1px dashed #d5d9e2;border-radius:12px;padding:13px;background:#fbfcfd">
+      <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#3c465a">vs 마포 리버사이드 FC</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">친선경기 · 3/17(화)</span></span>
+      <span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none;color:#5b6577">2 : 2</span>
+      <span style="font-size:10px;font-weight:800;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">무</span>
+    </div>
+  </div>
+</div>
+
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">시즌 스탯 — 집계 경계</span></div>
+  <div style="padding:14px;display:flex;gap:8px">
+    <div style="flex:1;background:#f8f9fb;border-radius:11px;padding:12px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">시즌 득점 (공식)</span>
+      <span style="font-size:18px;font-weight:800;font-variant-numeric:tabular-nums">7</span>
+    </div>
+    <div style="flex:1;background:#f8f9fb;border-radius:11px;padding:12px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:10px;font-weight:700;color:#8a93a6;white-space:nowrap">친선경기 별도</span>
+      <span style="font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;color:#8a93a6">+3</span>
+    </div>
+  </div>
+</div>
+
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">입력 화면 헤더</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <span style="font-size:15px;font-weight:800;white-space:nowrap">친선경기 결과 입력</span>
+      <span style="font-size:12px;color:#5b6577;line-height:1.6;word-break:keep-all">대회·리그 공식 기록은 주최측이 입력해요. 경기 성격 선택 없음 — 전부 친선으로 저장.</span>
+    </div>
+  </div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">공개 선수 프로필·순위표에는 친선·연습 미노출 — PC 카탈로그의 데이터 절(MatchType) 참조.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1000}}"></script>
+</body>
+</html>
