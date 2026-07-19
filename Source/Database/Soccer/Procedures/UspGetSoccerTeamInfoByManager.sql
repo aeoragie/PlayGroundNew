@@ -15,7 +15,7 @@ BEGIN
 
     SELECT
         t.[TeamId], t.[TeamName], t.[ShortName], t.[TeamType], t.[Region], t.[AgeGroup],
-        t.[LogoUrl], t.[Description], t.[Slug], t.[ManagerUserId], t.[IsPublicProfile],
+        t.[LogoUrl], t.[CoverImageUrl], t.[Description], t.[Slug], t.[ManagerUserId], t.[IsPublicProfile],
         t.[IsVerified], t.[FoundedYear], t.[MonthlyFee], t.[IsMonthlyFeePublic], t.[TrainingDays],
         t.[DataSource], t.[ExternalId], t.[CreatedAt], t.[UpdatedAt], t.[DeletedAt]
     FROM [dbo].[SoccerTeams] t WITH (NOLOCK)

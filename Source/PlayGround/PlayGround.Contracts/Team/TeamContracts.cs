@@ -46,6 +46,12 @@ namespace PlayGround.Contracts.Team
         public string? TeamType { get; set; }     // 클럽 | 학교 | 학원
         public string? Region { get; set; }
         public string? LogoUrl { get; set; }
+
+        /// <summary>공개홈 히어로 커버 — 수정 폼 프리필에 쓰인다.</summary>
+        public string? CoverImageUrl { get; set; }
+
+        /// <summary>팀 소개 — 공개홈 소개 탭과 같은 값.</summary>
+        public string? Description { get; set; }
         public string? Slug { get; set; }
         public bool IsVerified { get; set; }
         public int? FoundedYear { get; set; }
@@ -250,6 +256,50 @@ namespace PlayGround.Contracts.Team
     public class CreateTeamMatchResultResponse
     {
         public Guid MatchId { get; set; }
+    }
+
+    /// <summary>
+    /// 팀 정보 수정 요청. 가치·코치는 통째로 교체되므로 **화면에 남아 있는 전체 목록**을 보낸다
+    /// (빠뜨린 항목은 삭제된다). 이미지 URL은 업로드가 끝난 공개 경로.
+    /// </summary>
+    public class UpdateTeamInfoRequest
+    {
+        public string TeamName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string? Region { get; set; }
+        public int? FoundedYear { get; set; }
+        public string? LogoUrl { get; set; }
+        public string? CoverImageUrl { get; set; }
+        public List<TeamValueInput> Values { get; set; } = new();
+        public List<TeamCoachInput> Coaches { get; set; } = new();
+    }
+
+    public class TeamValueInput
+    {
+        public int DisplayOrder { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    public class TeamCoachInput
+    {
+        public int DisplayOrder { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string? Career { get; set; }
+        public string? Certification { get; set; }
+        public string? Quote { get; set; }
+
+        /// <summary>실적 칩 — DB에는 JSON 배열 문자열로 저장된다.</summary>
+        public List<string> Achievements { get; set; } = new();
+        public string? InstagramUrl { get; set; }
+        public string? YoutubeUrl { get; set; }
+    }
+
+    /// <summary>저장 후 공개홈으로 바로 이동할 수 있도록 슬러그를 돌려준다.</summary>
+    public class UpdateTeamInfoResponse
+    {
+        public string? Slug { get; set; }
     }
 
     /// <summary>결과 입력 폼의 대회/리그 선택지.</summary>

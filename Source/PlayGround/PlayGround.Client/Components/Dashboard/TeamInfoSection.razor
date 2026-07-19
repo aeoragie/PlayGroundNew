@@ -7,7 +7,7 @@
 <div class="flex flex-col gap-5">
     <div class="flex justify-between items-center">
         <h1 class="@Css.Dashboard.SectionTitle">팀 정보</h1>
-        <button type="button" class="@Css.Dashboard.SecondaryButton">정보 수정</button>
+        <button type="button" class="@Css.Dashboard.SecondaryButton" @onclick="OnEdit">정보 수정</button>
     </div>
 
     @* 기본 카드 + 공개 홈페이지 카드 *@
@@ -131,6 +131,10 @@
 @code {
     [Parameter, EditorRequired]
     public TeamInfoResponse Info { get; set; } = new();
+
+    /// <summary>"정보 수정" — 페이지가 수정 다이얼로그를 연다.</summary>
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
 
     private static SoccerChannelType ParseChannelType(TeamChannelDto channel)
     {

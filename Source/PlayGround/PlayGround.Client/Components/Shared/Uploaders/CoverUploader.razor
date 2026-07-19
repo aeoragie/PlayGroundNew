@@ -1,0 +1,288 @@
+@* 커버 업로더 (와이드 3:1) — Design.ImageUploader.
+   빈 상태 = 점선 드롭존(PC) / "사진 올리기" 버튼(모바일 — OS 시트에 위임).
+   업로드 후 = 우하단 반투명 캡슐 "교체 / 위치 조정". 위치 조정은 **세로 드래그만**(3:1 크롭 고정). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Auth
+@implements IAsyncDisposable
+@inject IJSRuntime Js
+@inject TokenStore Tokens
+
+<div class="flex flex-col">
+    @if (string.IsNullOrEmpty(Value) && mPendingUrl is null)
+    {
+        @* PC — 드롭존 (끌어다 놓기 지원) *@
+        <div class="@Css.Uploader.DropZone(mDragOver)"
+             @ondragenter:preventDefault="true" @ondragenter="() => mDragOver = true"
+             @ondragover:preventDefault="true" @ondragover="() => mDragOver = true"
+             @ondragleave="() => mDragOver = false"
+             @ondrop:preventDefault="true" @ondrop="OnDropAsync">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" class="text-text-muted">
+                <rect x="3.5" y="5" width="17" height="14" rx="2.5"></rect><circle cx="9" cy="10" r="1.8"></circle>
+                <path d="M3.5 16.5l4.5-4 3.5 3 3.5-3.5 5.5 4.5"></path>
+            </svg>
+            <span class="@Css.Uploader.DropZoneText">
+                사진을 끌어다 놓거나 <span class="@Css.Uploader.DropZonePick" @onclick="PickFileAsync">파일 선택</span>
+            </span>
+            <span class="@Css.Uploader.DropZoneHint">권장 1600×533 이상 · jpg/png/webp · 10MB</span>
+        </div>
+
+        @* 모바일 — 드롭존 대신 버튼 *@
+        <button type="button" class="@Css.Uploader.MobilePickButton" @onclick="PickFileAsync">사진 올리기</button>
+    }
+    else
+    {
+        <div class="@Css.Uploader.CoverFrame"
+             @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove"
+             @onpointerup="OnPointerUp" @onpointercancel="OnPointerUp">
+            <img src="@(mPendingUrl ?? Value)" alt="팀 커버" class="@Css.Uploader.CoverImage"
+                 style="@(mAdjusting ? AdjustStyle : PositionStyle)" />
+
+            @if (mAdjusting)
+            {
+                <span class="@Css.Uploader.CoverAdjustHint">위아래로 끌어 위치를 맞춘 뒤 "적용"을 눌러 주세요</span>
+                <span class="@Css.Uploader.CoverControls">
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="CancelAdjust">취소</button>
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="ApplyAdjustAsync">적용</button>
+                </span>
+            }
+            else
+            {
+                <span class="@Css.Uploader.CoverControls">
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="PickFileAsync">교체</button>
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="StartAdjust">위치 조정</button>
+                </span>
+            }
+        </div>
+    }
+
+    <input type="file" @ref="mFileInput" class="@Css.Uploader.HiddenInput"
+           accept="image/jpeg,image/png,image/webp" @onchange="OnFileChangedAsync" />
+
+    @if (mBusy)
+    {
+        <div class="@Css.Uploader.ProgressRow">
+            <span class="@Css.Uploader.ProgressIcon"><span class="@Css.Uploader.Spinner"></span></span>
+            <span class="@Css.Uploader.ProgressBody">
+                <span class="@Css.Uploader.ProgressName">@mFileName</span>
+            </span>
+        </div>
+    }
+    else if (mError is not null)
+    {
+        <div class="@Css.Uploader.ErrorRow" role="alert">
+            <span class="@Css.Uploader.ErrorIcon">!</span>
+            <span class="@Css.Uploader.ProgressBody">
+                <span class="@Css.Uploader.ErrorTitle">@mError</span>
+                <span class="@Css.Uploader.ErrorHint">@mHint</span>
+            </span>
+            <button type="button" class="@Css.Uploader.ErrorRetry" @onclick="PickFileAsync">다시 선택</button>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>업로드 결과 크기 — 3:1 고정.</summary>
+    private const int OutputWidth = 1600;
+    private const int OutputHeight = 533;
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Category { get; set; } = "team-cover";
+
+    private ElementReference mFileInput;
+    private IJSObjectReference? mModule;
+
+    private string? mPendingUrl;      // 업로드 전 미리보기(위치 조정 대상)
+    private double mNaturalWidth;
+    private double mNaturalHeight;
+
+    /// <summary>세로 위치 0~1 (0=위, 1=아래). object-position으로 반영한다.</summary>
+    private double mFocusY = 0.5;
+    private double mDraftFocusY = 0.5;
+
+    private bool mAdjusting;
+    private bool mDragging;
+    private double mLastY;
+    private bool mDragOver;
+
+    private string? mError;
+    private string? mHint;
+    private string? mFileName;
+    private bool mBusy;
+
+    private string PositionStyle => $"object-position:center {(mFocusY * 100).ToString("0.#")}%";
+
+    private string AdjustStyle => $"object-position:center {(mDraftFocusY * 100).ToString("0.#")}%";
+
+    private async Task<IJSObjectReference> ModuleAsync()
+    {
+        mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/image-uploader.js");
+        return mModule;
+    }
+
+    private async Task PickFileAsync()
+    {
+        mError = null;
+        mHint = null;
+        mDragOver = false;
+        IJSObjectReference module = await ModuleAsync();
+        await module.InvokeVoidAsync("openPicker", mFileInput);
+    }
+
+    // 드롭은 파일 input을 거치지 않으므로 JS가 DataTransfer에서 직접 읽는다
+    private async Task OnDropAsync(DragEventArgs args)
+    {
+        mDragOver = false;
+        await PickFileAsync();
+    }
+
+    private async Task OnFileChangedAsync()
+    {
+        mError = null;
+        mHint = null;
+        mBusy = true;
+
+        IJSObjectReference module = await ModuleAsync();
+        PreparedImage? prepared = await module.InvokeAsync<PreparedImage>("prepareFromInput", mFileInput);
+
+        mFileName = prepared?.FileName;
+
+        if (prepared is null || prepared.Error is not null)
+        {
+            mBusy = false;
+            mError = prepared?.Error ?? "이미지를 열지 못했어요";
+            mHint = prepared?.Hint ?? "다시 선택해 주세요";
+            return;
+        }
+
+        mPendingUrl = prepared.PreviewUrl;
+        mNaturalWidth = prepared.Width;
+        mNaturalHeight = prepared.Height;
+        mDraftFocusY = 0.5;
+        mFocusY = 0.5;
+
+        // 고른 즉시 3:1 중앙으로 올린다 — 위치는 이후 "위치 조정"에서 바꾼다
+        await UploadAsync(mDraftFocusY);
+    }
+
+    private void StartAdjust()
+    {
+        mAdjusting = true;
+        mDraftFocusY = mFocusY;
+    }
+
+    private void CancelAdjust()
+    {
+        mAdjusting = false;
+        mDraftFocusY = mFocusY;
+    }
+
+    private void OnPointerDown(PointerEventArgs args)
+    {
+        if (!mAdjusting)
+        {
+            return;
+        }
+
+        mDragging = true;
+        mLastY = args.ClientY;
+    }
+
+    // 세로 드래그만 — 가로는 3:1로 고정이라 움직일 여지가 없다
+    private void OnPointerMove(PointerEventArgs args)
+    {
+        if (!mDragging)
+        {
+            return;
+        }
+
+        double delta = (args.ClientY - mLastY) / 200.0;
+        mDraftFocusY = Math.Clamp(mDraftFocusY - delta, 0, 1);
+        mLastY = args.ClientY;
+    }
+
+    private void OnPointerUp(PointerEventArgs args) => mDragging = false;
+
+    private async Task ApplyAdjustAsync()
+    {
+        mAdjusting = false;
+        mFocusY = mDraftFocusY;
+
+        if (mPendingUrl is not null)
+        {
+            await UploadAsync(mFocusY);
+        }
+    }
+
+    // 3:1 영역을 잘라 업로드한다. focusY는 세로 크롭 시작 위치를 정한다.
+    private async Task UploadAsync(double focusY)
+    {
+        if (mPendingUrl is null)
+        {
+            return;
+        }
+
+        mBusy = true;
+
+        double cropHeight = Math.Min(mNaturalHeight, mNaturalWidth / 3.0);
+        double maxTop = Math.Max(0, mNaturalHeight - cropHeight);
+        double top = maxTop * focusY;
+
+        var crop = new { x = 0.0, y = top, width = mNaturalWidth, height = cropHeight };
+        string? token = await Tokens.GetTokenAsync();
+
+        IJSObjectReference module = await ModuleAsync();
+        UploadedImage? uploaded = await module.InvokeAsync<UploadedImage>(
+            "cropAndUpload", mPendingUrl, crop, OutputWidth, OutputHeight, Category, token);
+
+        mBusy = false;
+
+        if (uploaded is null || uploaded.Error is not null)
+        {
+            mError = uploaded?.Error ?? "업로드하지 못했어요";
+            mHint = uploaded?.Hint ?? "잠시 후 다시 시도해 주세요";
+            return;
+        }
+
+        Value = uploaded.Url;
+        await ValueChanged.InvokeAsync(uploaded.Url);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (mModule is not null)
+            {
+                await mModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // 페이지 이탈 시 JS 런타임이 먼저 끊긴 경우 — 무시
+        }
+    }
+
+    private sealed class PreparedImage
+    {
+        public string? PreviewUrl { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public string? Error { get; set; }
+        public string? Hint { get; set; }
+        public string? FileName { get; set; }
+    }
+
+    private sealed class UploadedImage
+    {
+        public string? Url { get; set; }
+        public string? Error { get; set; }
+        public string? Hint { get; set; }
+    }
+}

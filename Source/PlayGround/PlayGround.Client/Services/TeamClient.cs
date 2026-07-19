@@ -60,6 +60,27 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>팀 정보 저장. 성공 시 공개홈 슬러그를 돌려준다(즉시 반영 확인용).</summary>
+        public async Task<TeamInfoSaveResult> UpdateTeamInfoAsync(UpdateTeamInfoRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync("api/soccer/team/me/info", request);
+                Envelope<UpdateTeamInfoResponse>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<UpdateTeamInfoResponse>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new TeamInfoSaveResult(true, envelope.Data?.Slug, null);
+                }
+
+                return new TeamInfoSaveResult(false, null, envelope?.Message ?? "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new TeamInfoSaveResult(false, null, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
         /// <summary>결과 입력 폼의 대회/리그 선택지. 미인증·오류 시 null.</summary>
         public async Task<TeamTournamentOptionsResponse?> GetTournamentOptionsAsync(int seasonYear)
         {
@@ -175,4 +196,7 @@ namespace PlayGround.Client.Services
     /// IsNetworkError로 "입력이 잘못됨"(→ 인라인)과 "요청 실패"(→ 토스트+재시도)를 구분한다.
     /// </remarks>
     public record MatchResultSaveResult(bool Success, string? Error, bool IsNetworkError = false);
+
+    /// <summary>Slug는 저장 후 "공개홈 보기"로 바로 이동하기 위한 값.</summary>
+    public record TeamInfoSaveResult(bool Success, string? Slug, string? Error, bool IsNetworkError = false);
 }

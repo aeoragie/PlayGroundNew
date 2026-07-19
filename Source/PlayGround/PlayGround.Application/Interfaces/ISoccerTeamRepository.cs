@@ -27,6 +27,9 @@ namespace PlayGround.Application.Interfaces
         /// <summary>공개 팀 홈 시즌성적(Slug 기준) — 최근 경기·리그 순위·영상. 비공개·미존재 팀은 빈 목록 — 에러가 아니다.</summary>
         Task<Result<TeamSeasonRecordResponse>> GetTeamSeasonRecordBySlugAsync(string slug, int seasonYear, CancellationToken cancellation = default);
 
+        /// <summary>팀 정보 수정 (기본 정보 + 가치 + 코치 통째 교체). 권한 없으면 Success(null).</summary>
+        Task<Result<string?>> UpdateTeamInfoByManagerAsync(Guid managerUserId, UpdateTeamInfoRequest request, CancellationToken cancellation = default);
+
         /// <summary>결과 입력 폼의 대회/리그 선택지 (해당 시즌, 우리 팀 참가 대회 우선).</summary>
         Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsByManagerAsync(Guid managerUserId, int seasonYear, CancellationToken cancellation = default);
 

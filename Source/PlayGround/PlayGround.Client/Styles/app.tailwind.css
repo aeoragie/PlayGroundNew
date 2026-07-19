@@ -50,6 +50,9 @@
   --color-skeleton-deep: 226 231 240;      /* #e2e7f0 썸네일·커버(한 톤 진하게) */
   --color-skeleton-deep-lit: 238 241 247;  /* #eef1f7 썸네일 시머 하이라이트 */
 
+  /* 이미지 업로더 (Design.ImageUploader) — 빈 드롭존 배경 */
+  --color-dropzone: 251 252 254;           /* #fbfcfe 점선 드롭존 안쪽 */
+
   /* 날짜 선택 (Design.DatePicker) — 요일 색·과거 비활성 */
   --color-weekend-sun: 196 106 94;         /* #c46a5e 일요일 */
   --color-weekend-sat: 90 127 192;         /* #5a7fc0 토요일 */

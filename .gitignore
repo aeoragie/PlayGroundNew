@@ -34,3 +34,6 @@ Logs/
 appsettings.Local.json
 appsettings.*.Local.json
 .env
+
+# 업로드된 사용자 이미지 (로컬 저장소 어댑터) — 소스가 아니다
+Source/PlayGround/PlayGround.Server/wwwroot/uploads/

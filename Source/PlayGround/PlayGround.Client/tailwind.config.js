@@ -40,6 +40,8 @@ module.exports = {
           sat: 'rgb(var(--color-weekend-sat) / <alpha-value>)',
         },
         'picker-disabled': 'rgb(var(--color-picker-disabled) / <alpha-value>)',
+        // 이미지 업로더 빈 드롭존 (Design.ImageUploader)
+        dropzone: 'rgb(var(--color-dropzone) / <alpha-value>)',
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',
@@ -117,6 +119,8 @@ module.exports = {
         // 피드백 (Design.FeedbackPatterns) — 토스트 캡슐 / 확인 모달 카드
         // 날짜·시간 팝오버 (Design.DatePicker)
         picker: '0 10px 30px rgba(28,43,74,.12)',
+        // 카메라 뱃지 (Design.ImageUploader)
+        badge: '0 2px 6px rgba(28,43,74,.12)',
         toast: '0 8px 24px rgba(28,43,74,.25)',
         modal: '0 20px 50px rgba(28,43,74,.3)',
       },

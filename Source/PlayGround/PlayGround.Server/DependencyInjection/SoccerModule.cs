@@ -1,9 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
+using PlayGround.Application.Interfaces;
 using PlayGround.Application.Landing.Commands;
 using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Records.Commands;
 using PlayGround.Application.Team.Commands;
 using PlayGround.Persistence;
+using PlayGround.Server.Services;
 
 namespace PlayGround.Server.DependencyInjection
 {
@@ -28,6 +30,10 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerTeamSeasonRecordCommand>();
             services.AddScoped<SoccerTeamMatchesCommand>();
             services.AddScoped<SoccerTeamMatchResultCommand>();
+            services.AddScoped<SoccerTeamInfoUpdateCommand>();
+
+            // 업로드 이미지 저장 — 지금은 로컬 디스크, 오브젝트 스토리지로 갈 때 이 줄만 바꾼다
+            services.AddSingleton<IImageStorage, LocalImageStorageService>();
             services.AddScoped<SoccerTeamVideosCommand>();
             services.AddScoped<SoccerRecordsTournamentsCommand>();
             services.AddScoped<SoccerRecordsTournamentDetailCommand>();

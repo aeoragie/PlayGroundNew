@@ -5,6 +5,12 @@
 @using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-3.5">
+    @* 수정 진입점 — 모바일은 상단 바에 자리가 없어 섹션 헤더에 둔다 *@
+    <div class="flex justify-between items-center">
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">팀 정보</h1>
+        <button type="button" class="@Css.Dashboard.MobileSecondaryButton" @onclick="OnEdit">정보 수정</button>
+    </div>
+
     @* 기본: 뱃지 + 회비/훈련 요약 2칸 *@
     @if (HasBasicBadges || Info.Profile.MonthlyFee is not null || Info.Profile.TrainingDays is not null)
     {
@@ -152,6 +158,10 @@
 @code {
     [Parameter, EditorRequired]
     public TeamInfoResponse Info { get; set; } = new();
+
+    /// <summary>"정보 수정" — 페이지가 수정 다이얼로그를 연다.</summary>
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
 
     private bool HasBasicBadges =>
         Info.Profile.IsVerified || Info.Profile.TeamType is not null ||

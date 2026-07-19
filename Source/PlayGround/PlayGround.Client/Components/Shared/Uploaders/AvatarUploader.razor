@@ -1,0 +1,321 @@
+@* 아바타·엠블럼 업로더 (원형 1:1) — Design.ImageUploader.
+   카메라 뱃지 → 파일 선택 → 원형 크롭(이동·확대만, 회전 없음) → 업로드.
+   삭제하면 이니셜/실드 placeholder로 돌아간다 — "빈 이미지" 상태를 만들지 않는다.
+   실패는 인라인 카드(토스트 금지 — 자리를 지켜야 다시 시도하기 쉽다). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Auth
+@implements IAsyncDisposable
+@inject IJSRuntime Js
+@inject TokenStore Tokens
+
+<div class="flex flex-col items-center">
+    <div class="@Css.Uploader.AvatarWrap">
+        @if (!string.IsNullOrEmpty(Value))
+        {
+            <img src="@Value" alt="@Label" class="@Css.Uploader.AvatarImage" />
+        }
+        else
+        {
+            <span class="@Css.Uploader.AvatarPlaceholder">@Placeholder</span>
+        }
+
+        <button type="button" class="@Css.Uploader.CameraBadge" aria-label="@($"{Label} 변경")" @onclick="PickFileAsync">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8h3l2-2.5h6L17 8h3v11H4z"></path><circle cx="12" cy="13" r="3.2"></circle>
+            </svg>
+        </button>
+    </div>
+
+    @* 모바일에서도 OS 시트에 위임 — 자체 선택 시트를 만들지 않는다 *@
+    <input type="file" @ref="mFileInput" class="@Css.Uploader.HiddenInput"
+           accept="image/jpeg,image/png,image/webp" @onchange="OnFileChangedAsync" />
+
+    @if (!string.IsNullOrEmpty(Value))
+    {
+        <div class="@Css.Uploader.AvatarActions">
+            <button type="button" class="@Css.Uploader.ActionReplace" @onclick="PickFileAsync">교체</button>
+            <button type="button" class="@Css.Uploader.ActionDelete" @onclick="RemoveAsync">삭제</button>
+        </div>
+    }
+</div>
+
+@if (mBusy)
+{
+    <div class="@Css.Uploader.ProgressRow">
+        <span class="@Css.Uploader.ProgressIcon"><span class="@Css.Uploader.Spinner"></span></span>
+        <span class="@Css.Uploader.ProgressBody">
+            <span class="@Css.Uploader.ProgressName">@mFileName</span>
+        </span>
+    </div>
+}
+else if (mError is not null)
+{
+    <div class="@Css.Uploader.ErrorRow" role="alert">
+        <span class="@Css.Uploader.ErrorIcon">!</span>
+        <span class="@Css.Uploader.ProgressBody">
+            <span class="@Css.Uploader.ErrorTitle">@mError</span>
+            <span class="@Css.Uploader.ErrorHint">@mHint</span>
+        </span>
+        <button type="button" class="@Css.Uploader.ErrorRetry" @onclick="PickFileAsync">다시 선택</button>
+    </div>
+}
+
+@* 원형 크롭 — 이동(드래그)·확대(슬라이더·핀치)만, 회전 없음 *@
+@if (mCropUrl is not null)
+{
+    <div class="@Css.Uploader.CropOverlay">
+        <div class="@Css.Uploader.CropCard">
+            <span class="@Css.Uploader.CropTitle">사진 위치 조정</span>
+
+            <div class="@Css.Uploader.CropStage" @ref="mStage"
+                 @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove"
+                 @onpointerup="OnPointerUp" @onpointercancel="OnPointerUp">
+                <img src="@mCropUrl" alt="" class="absolute origin-top-left max-w-none select-none pointer-events-none"
+                     style="@ImageStyle" />
+                <span class="@Css.Uploader.CropMask"></span>
+                <span class="@Css.Uploader.CropRing"></span>
+            </div>
+
+            <div class="@Css.Uploader.ZoomRow">
+                <span class="@Css.Uploader.ZoomLabel">확대</span>
+                <input type="range" class="@Css.Uploader.ZoomSlider" min="1" max="3" step="0.01"
+                       value="@mZoom.ToString("0.00")" @oninput="OnZoomInput" aria-label="확대" />
+            </div>
+
+            <div class="@Css.Uploader.CropActions">
+                <button type="button" class="@Css.Uploader.CropCancel" @onclick="CancelCrop">취소</button>
+                <button type="button" class="@Css.Uploader.CropConfirm" disabled="@mBusy" @onclick="ConfirmCropAsync">적용</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>업로드 결과 이미지의 한 변 — 원형이라 정사각으로 자른다.</summary>
+    private const int OutputSize = 512;
+
+    /// <summary>크롭 무대의 화면 크기(px). 실제 렌더 크기와 맞춰 좌표를 계산한다.</summary>
+    private const double StageSize = 360;
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>이미지가 없을 때 보여줄 이니셜(팀명 첫 글자 등).</summary>
+    [Parameter]
+    public string Placeholder { get; set; } = "?";
+
+    [Parameter]
+    public string Label { get; set; } = "엠블럼";
+
+    /// <summary>업로드 폴더 — 서버 허용 목록과 일치해야 한다.</summary>
+    [Parameter]
+    public string Category { get; set; } = "team-logo";
+
+    private ElementReference mFileInput;
+    private ElementReference mStage;
+    private IJSObjectReference? mModule;
+
+    private string? mCropUrl;
+    private double mNaturalWidth;
+    private double mNaturalHeight;
+    private double mZoom = 1;
+    private double mOffsetX;
+    private double mOffsetY;
+    private bool mDragging;
+    private double mLastX;
+    private double mLastY;
+
+    private string? mError;
+    private string? mHint;
+    private string? mFileName;
+    private bool mBusy;
+
+    // 이미지를 무대에 꽉 채운 뒤(cover) 확대·이동을 얹는다
+    private double BaseScale => Math.Max(StageSize / mNaturalWidth, StageSize / mNaturalHeight);
+
+    private double DisplayWidth => mNaturalWidth * BaseScale * mZoom;
+
+    private double DisplayHeight => mNaturalHeight * BaseScale * mZoom;
+
+    private string ImageStyle =>
+        $"width:{DisplayWidth.ToString("0.##")}px;height:{DisplayHeight.ToString("0.##")}px;" +
+        $"transform:translate({mOffsetX.ToString("0.##")}px,{mOffsetY.ToString("0.##")}px)";
+
+    private async Task<IJSObjectReference> ModuleAsync()
+    {
+        mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/image-uploader.js");
+        return mModule;
+    }
+
+    private async Task PickFileAsync()
+    {
+        mError = null;
+        mHint = null;
+        IJSObjectReference module = await ModuleAsync();
+        await module.InvokeVoidAsync("openPicker", mFileInput);
+    }
+
+    private async Task OnFileChangedAsync()
+    {
+        mError = null;
+        mHint = null;
+        mBusy = true;
+
+        // 리사이즈·EXIF 보정은 JS가 담당 — 큰 파일을 Blazor로 마샬링하지 않는다
+        IJSObjectReference module = await ModuleAsync();
+        PreparedImage? prepared = await module.InvokeAsync<PreparedImage>("prepareFromInput", mFileInput);
+
+        mBusy = false;
+        mFileName = prepared?.FileName;
+
+        if (prepared is null || prepared.Error is not null)
+        {
+            mError = prepared?.Error ?? "이미지를 열지 못했어요";
+            mHint = prepared?.Hint ?? "다시 선택해 주세요";
+            return;
+        }
+
+        mCropUrl = prepared.PreviewUrl;
+        mNaturalWidth = prepared.Width;
+        mNaturalHeight = prepared.Height;
+        mZoom = 1;
+        CenterImage();
+    }
+
+    private void CenterImage()
+    {
+        mOffsetX = (StageSize - DisplayWidth) / 2;
+        mOffsetY = (StageSize - DisplayHeight) / 2;
+    }
+
+    private void OnPointerDown(PointerEventArgs args)
+    {
+        mDragging = true;
+        mLastX = args.ClientX;
+        mLastY = args.ClientY;
+    }
+
+    private void OnPointerMove(PointerEventArgs args)
+    {
+        if (!mDragging)
+        {
+            return;
+        }
+
+        mOffsetX += args.ClientX - mLastX;
+        mOffsetY += args.ClientY - mLastY;
+        mLastX = args.ClientX;
+        mLastY = args.ClientY;
+        ClampOffsets();
+    }
+
+    private void OnPointerUp(PointerEventArgs args) => mDragging = false;
+
+    // 무대에 빈 곳이 생기지 않도록 이동 범위를 가둔다
+    private void ClampOffsets()
+    {
+        mOffsetX = Math.Clamp(mOffsetX, StageSize - DisplayWidth, 0);
+        mOffsetY = Math.Clamp(mOffsetY, StageSize - DisplayHeight, 0);
+    }
+
+    private void OnZoomInput(ChangeEventArgs args)
+    {
+        if (!double.TryParse(args.Value?.ToString(), out double zoom))
+        {
+            return;
+        }
+
+        // 무대 중심을 기준으로 확대해야 보고 있던 곳이 유지된다
+        double centerX = (StageSize / 2) - mOffsetX;
+        double centerY = (StageSize / 2) - mOffsetY;
+        double ratio = zoom / mZoom;
+
+        mZoom = zoom;
+        mOffsetX = (StageSize / 2) - (centerX * ratio);
+        mOffsetY = (StageSize / 2) - (centerY * ratio);
+        ClampOffsets();
+    }
+
+    private void CancelCrop()
+    {
+        mCropUrl = null;
+    }
+
+    private async Task ConfirmCropAsync()
+    {
+        if (mCropUrl is null)
+        {
+            return;
+        }
+
+        mBusy = true;
+
+        // 화면 좌표 → 원본 픽셀 좌표 (무대 한 변이 원본에서 차지하는 크기)
+        double sourceEdge = StageSize / (BaseScale * mZoom);
+        double sourceX = -mOffsetX / (BaseScale * mZoom);
+        double sourceY = -mOffsetY / (BaseScale * mZoom);
+
+        var crop = new { x = sourceX, y = sourceY, width = sourceEdge, height = sourceEdge };
+        string? token = await Tokens.GetTokenAsync();
+
+        IJSObjectReference module = await ModuleAsync();
+        UploadedImage? uploaded = await module.InvokeAsync<UploadedImage>(
+            "cropAndUpload", mCropUrl, crop, OutputSize, OutputSize, Category, token);
+
+        mBusy = false;
+        mCropUrl = null;
+
+        if (uploaded is null || uploaded.Error is not null)
+        {
+            mError = uploaded?.Error ?? "업로드하지 못했어요";
+            mHint = uploaded?.Hint ?? "잠시 후 다시 시도해 주세요";
+            return;
+        }
+
+        Value = uploaded.Url;
+        await ValueChanged.InvokeAsync(uploaded.Url);
+    }
+
+    private async Task RemoveAsync()
+    {
+        Value = null;
+        mError = null;
+        await ValueChanged.InvokeAsync(null);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (mModule is not null)
+            {
+                await mModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // 페이지 이탈 시 JS 런타임이 먼저 끊긴 경우 — 무시
+        }
+    }
+
+    private sealed class PreparedImage
+    {
+        public string? PreviewUrl { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public string? Error { get; set; }
+        public string? Hint { get; set; }
+        public string? FileName { get; set; }
+    }
+
+    private sealed class UploadedImage
+    {
+        public string? Url { get; set; }
+        public string? Error { get; set; }
+        public string? Hint { get; set; }
+    }
+}

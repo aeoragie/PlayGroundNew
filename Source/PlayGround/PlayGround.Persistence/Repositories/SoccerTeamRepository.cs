@@ -90,6 +90,8 @@ namespace PlayGround.Persistence.Repositories
                     TeamType = NullIfEmpty(team.TeamType),
                     Region = NullIfEmpty(team.Region),
                     LogoUrl = NullIfEmpty(team.LogoUrl),
+                    CoverImageUrl = NullIfEmpty(team.CoverImageUrl),
+                    Description = NullIfEmpty(team.Description),
                     Slug = NullIfEmpty(team.Slug),
                     IsVerified = team.IsVerified,
                     FoundedYear = team.FoundedYear,
@@ -422,6 +424,57 @@ namespace PlayGround.Persistence.Repositories
             }
 
             return match.Format == "League" ? "League" : "Cup";
+        }
+
+        public async Task<Result<string?>> UpdateTeamInfoByManagerAsync(
+            Guid managerUserId, UpdateTeamInfoRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team info update requested",
+                ("ManagerUserId", managerUserId), ("ValueCount", request.Values.Count), ("CoachCount", request.Coaches.Count));
+
+            // 실적 칩은 DB에 JSON 배열 문자열로 들어간다 — 조회 쪽 ParseAchievements와 짝이다
+            var coaches = request.Coaches.Select(c => new
+            {
+                c.DisplayOrder,
+                c.Name,
+                c.Role,
+                c.Career,
+                c.Certification,
+                c.Quote,
+                Achievements = c.Achievements.Count > 0 ? JsonSerializer.Serialize(c.Achievements) : null,
+                c.InstagramUrl,
+                c.YoutubeUrl,
+            });
+
+            var procedure = new UspUpdateSoccerTeamInfoByManager(this)
+            {
+                ManagerUserId = managerUserId,
+                TeamName = request.TeamName,
+                Description = request.Description,
+                Region = request.Region,
+                FoundedYear = request.FoundedYear,
+                LogoUrl = request.LogoUrl,
+                CoverImageUrl = request.CoverImageUrl,
+                ValuesJson = request.Values.Count > 0 ? JsonSerializer.Serialize(request.Values) : null,
+                CoachesJson = request.Coaches.Count > 0 ? JsonSerializer.Serialize(coaches) : null,
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerUpdatedTeamRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Team info update failed", ("ResultCode", queryResult.ResultCode));
+                return Result<string?>.Error(ErrorCode.DatabaseError);
+            }
+
+            var row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                Logger.WarnWith("Team info update rejected — no team for manager", ("ManagerUserId", managerUserId));
+                return Result<string?>.Success(null);
+            }
+
+            Logger.InfoWith("Team info updated", ("TeamId", row.TeamId));
+            return Result<string?>.Success(NullIfEmpty(row.Slug) ?? string.Empty);
         }
 
         public async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsByManagerAsync(

@@ -100,6 +100,22 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>팀 정보 수정 — 저장 즉시 공개 홈페이지에 반영된다(같은 테이블을 읽는다).</summary>
+        [HttpPut("me/info")]
+        public async Task<Envelope<UpdateTeamInfoResponse>> UpdateMyTeamInfoAsync(
+            [FromBody] UpdateTeamInfoRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<UpdateTeamInfoResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<UpdateTeamInfoResponse> result = await mGateway.AskAsync<UpdateTeamInfoResponse>(
+                ActorNames.SoccerTeamProfile, new UpdateSoccerTeamInfoMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
         /// <summary>결과 입력 폼의 대회/리그 선택지.</summary>
         [HttpGet("me/tournament-options")]
         public async Task<Envelope<TeamTournamentOptionsResponse>> GetMyTournamentOptionsAsync(

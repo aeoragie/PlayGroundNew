@@ -27,6 +27,12 @@ namespace PlayGround.Server.Actors
     /// <summary>공개 팀 홈 시즌성적 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
     public sealed record GetSoccerTeamSeasonRecordMessage(string Slug, int SeasonYear);
 
+    /// <summary>팀 정보 수정 메시지. ManagerUserId 해시로 순차 처리 — 가치·코치 통째 교체 경합 방지.</summary>
+    public sealed record UpdateSoccerTeamInfoMessage(Guid ManagerUserId, UpdateTeamInfoRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
     /// <summary>결과 입력 폼의 대회 선택지 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTournamentOptionsMessage(Guid ManagerUserId, int SeasonYear);
 

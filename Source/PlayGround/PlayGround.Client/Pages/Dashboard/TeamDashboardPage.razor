@@ -62,7 +62,7 @@
                 default:
                     @if (mInfo is not null)
                     {
-                        <TeamInfoSection Info="@mInfo" />
+                        <TeamInfoSection Info="@mInfo" OnEdit="() => mInfoFormOpen = true" />
                     }
                     break;
             }
@@ -112,7 +112,7 @@
             default:
                 @if (mInfo is not null)
                 {
-                    <MobileTeamInfoSection Info="@mInfo" />
+                    <MobileTeamInfoSection Info="@mInfo" OnEdit="() => mInfoFormOpen = true" />
                 }
                 break;
         }
@@ -127,6 +127,9 @@
                        MatchDays="@ExistingMatchDays"
                        RecentMatchTime="@RecentMatchTime"
                        OnSaved="ReloadAfterResultSavedAsync" />
+
+@* 팀 정보 수정 — 저장하면 공개 홈페이지도 같은 데이터를 읽으므로 즉시 반영된다 *@
+<TeamInfoEditDialog @bind-IsOpen="mInfoFormOpen" Info="@mInfo" OnSaved="ReloadInfoAsync" />
 
 @code {
     [Parameter]
@@ -147,6 +150,7 @@
     private bool mVideosFailed;
 
     private bool mResultFormOpen;
+    private bool mInfoFormOpen;
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
@@ -233,6 +237,12 @@
         }
 
         mResultFormOpen = true;
+    }
+
+    // 팀 정보 저장 후 — 사이드바·상단바까지 새 값으로 갱신된다
+    private async Task ReloadInfoAsync()
+    {
+        mInfo = await Teams.GetTeamInfoAsync();
     }
 
     // 저장 성공 → 경기 목록·순위표를 다시 읽는다 (순위표 재계산은 서버가 이미 끝냈다)

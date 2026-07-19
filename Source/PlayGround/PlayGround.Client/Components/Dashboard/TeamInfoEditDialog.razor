@@ -1,0 +1,294 @@
+@* 팀 정보 수정 — PC 중앙 모달 / 모바일 전체 시트. A1 폼 + 이미지 업로더.
+   가치·코치는 통째로 교체되므로 화면에 남은 목록이 곧 저장 결과다(지운 항목은 사라진다).
+   저장 성공 = A2 토스트, 검증 오류 = 인라인. 저장 즉시 공개 홈페이지에 반영된다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+
+@if (IsOpen)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <h2 class="@Css.MatchForm.Title">팀 정보 수정</h2>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            <CascadingValue Value="@mForm" IsFixed="true">
+                <div class="@Css.MatchForm.Body">
+                    @* 엠블럼 — 삭제 시 이니셜로 복귀 *@
+                    <div class="flex flex-col gap-2">
+                        <label class="@Css.Form.Label">엠블럼</label>
+                        <AvatarUploader @bind-Value="mLogoUrl" Placeholder="@InitialOf(mTeamName)"
+                                        Label="엠블럼" Category="team-logo" />
+                    </div>
+
+                    @* 커버 — 공개홈 히어로에 쓰인다 *@
+                    <div class="flex flex-col gap-2">
+                        <label class="@Css.Form.Label">
+                            커버 사진<span class="@Css.Form.OptionalMark"> (선택)</span>
+                        </label>
+                        <span class="@Css.Form.Helper">공개 홈페이지 상단에 넓게 깔려요.</span>
+                        <CoverUploader @bind-Value="mCoverUrl" Category="team-cover" />
+                    </div>
+
+                    <TextField Label="팀명" @bind-Value="mTeamName" Placeholder="검증fc"
+                               Validator="ValidateTeamName" MaxLength="50" />
+
+                    <TextField Label="지역" @bind-Value="mRegion" Placeholder="서울 강동구"
+                               IsOptional="true" MaxLength="50" />
+
+                    <TextField Label="창단연도" @bind-Value="mFoundedYear" Placeholder="2015"
+                               Validator="ValidateFoundedYear" IsOptional="true" MaxLength="4" InputType="text" />
+
+                    <TextField Label="팀 소개" @bind-Value="mDescription" Multiline="true" Rows="4"
+                               Placeholder="어떤 팀인지 학부모가 알기 쉽게 적어 주세요."
+                               IsOptional="true" MaxLength="500" />
+
+                    @* 핵심가치 — 학부모가 팀을 고르는 첫 기준 *@
+                    <div class="flex flex-col gap-2">
+                        <label class="@Css.Form.Label">핵심가치</label>
+                        <span class="@Css.Form.Helper">공개 홈페이지 소개 탭에 그대로 노출돼요.</span>
+
+                        @foreach (TeamValueInput value in mValues)
+                        {
+                            TeamValueInput current = value;
+                            <div class="@Css.TeamEdit.ItemCard">
+                                <div class="@Css.TeamEdit.ItemHeader">
+                                    <span class="@Css.TeamEdit.ItemIndex">가치 @(mValues.IndexOf(current) + 1)</span>
+                                    <button type="button" class="@Css.TeamEdit.RemoveButton"
+                                            @onclick="() => mValues.Remove(current)">삭제</button>
+                                </div>
+                                <input class="@Css.TeamEdit.Input" placeholder="성장 중심 지도"
+                                       value="@current.Title" @oninput="e => current.Title = e.Value?.ToString() ?? string.Empty" />
+                                <textarea class="@Css.TeamEdit.TextArea" rows="2" placeholder="분기마다 1:1 성장 리뷰를 드려요."
+                                          @oninput="e => current.Description = e.Value?.ToString() ?? string.Empty">@current.Description</textarea>
+                            </div>
+                        }
+
+                        @if (mValues.Count < MaxValues)
+                        {
+                            <button type="button" class="@Css.TeamEdit.AddButton" @onclick="AddValue">＋ 가치 추가</button>
+                        }
+                    </div>
+
+                    @* 코칭스태프 — 가치관(인용문) + SNS 링크 *@
+                    <div class="flex flex-col gap-2">
+                        <label class="@Css.Form.Label">코칭스태프</label>
+                        <span class="@Css.Form.Helper">지도 철학과 SNS는 학부모의 선택 기준이 돼요.</span>
+
+                        @foreach (TeamCoachInput coach in mCoaches)
+                        {
+                            TeamCoachInput current = coach;
+                            <div class="@Css.TeamEdit.ItemCard">
+                                <div class="@Css.TeamEdit.ItemHeader">
+                                    <span class="@Css.TeamEdit.ItemIndex">코치 @(mCoaches.IndexOf(current) + 1)</span>
+                                    <button type="button" class="@Css.TeamEdit.RemoveButton"
+                                            @onclick="() => mCoaches.Remove(current)">삭제</button>
+                                </div>
+                                <div class="@Css.TeamEdit.Pair">
+                                    <input class="@Css.TeamEdit.Input" placeholder="김성호"
+                                           value="@current.Name" @oninput="e => current.Name = e.Value?.ToString() ?? string.Empty" />
+                                    <input class="@Css.TeamEdit.Input" placeholder="감독"
+                                           value="@current.Role" @oninput="e => current.Role = e.Value?.ToString() ?? string.Empty" />
+                                </div>
+                                <input class="@Css.TeamEdit.Input" placeholder="지도 12년차 · 前 K리그 유스 코치"
+                                       value="@current.Career" @oninput="e => current.Career = e.Value?.ToString()" />
+                                <input class="@Css.TeamEdit.Input" placeholder="KFA 1급"
+                                       value="@current.Certification" @oninput="e => current.Certification = e.Value?.ToString()" />
+                                <textarea class="@Css.TeamEdit.TextArea" rows="2" placeholder="지도 철학을 한두 문장으로 적어 주세요."
+                                          @oninput="e => current.Quote = e.Value?.ToString()">@current.Quote</textarea>
+                                <div class="@Css.TeamEdit.Pair">
+                                    <input class="@Css.TeamEdit.Input" placeholder="인스타그램 URL"
+                                           value="@current.InstagramUrl" @oninput="e => current.InstagramUrl = e.Value?.ToString()" />
+                                    <input class="@Css.TeamEdit.Input" placeholder="유튜브 URL"
+                                           value="@current.YoutubeUrl" @oninput="e => current.YoutubeUrl = e.Value?.ToString()" />
+                                </div>
+                            </div>
+                        }
+
+                        @if (mCoaches.Count < MaxCoaches)
+                        {
+                            <button type="button" class="@Css.TeamEdit.AddButton" @onclick="AddCoach">＋ 코치 추가</button>
+                        }
+                    </div>
+                </div>
+
+                <div class="@Css.MatchForm.Footer">
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                    <SubmitButton Label="저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                                  Class="@Css.MatchForm.SubmitWidth" />
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    private const int MaxValues = 6;
+    private const int MaxCoaches = 12;
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>현재 팀 정보 — 열 때 폼 초기값으로 복사한다.</summary>
+    [Parameter]
+    public TeamInfoResponse? Info { get; set; }
+
+    /// <summary>저장 성공 후 — 부모가 팀 정보를 다시 읽는다.</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private readonly FormFieldContext mForm = new();
+
+    private string mTeamName = string.Empty;
+    private string mRegion = string.Empty;
+    private string mFoundedYear = string.Empty;
+    private string mDescription = string.Empty;
+    private string? mLogoUrl;
+    private string? mCoverUrl;
+    private List<TeamValueInput> mValues = new();
+    private List<TeamCoachInput> mCoaches = new();
+
+    private bool mSaving;
+    private bool mLoaded;
+
+    protected override void OnParametersSet()
+    {
+        if (!IsOpen)
+        {
+            mLoaded = false;
+            return;
+        }
+
+        if (mLoaded || Info is null)
+        {
+            return;
+        }
+
+        mLoaded = true;
+        LoadFrom(Info);
+    }
+
+    private void LoadFrom(TeamInfoResponse info)
+    {
+        mTeamName = info.Profile.TeamName;
+        mRegion = info.Profile.Region ?? string.Empty;
+        mFoundedYear = info.Profile.FoundedYear?.ToString() ?? string.Empty;
+        mDescription = info.Profile.Description ?? string.Empty;
+        mLogoUrl = info.Profile.LogoUrl;
+        mCoverUrl = info.Profile.CoverImageUrl;
+
+        mValues = info.Values
+            .Select((v, index) => new TeamValueInput { DisplayOrder = index, Title = v.Title, Description = v.Description })
+            .ToList();
+
+        mCoaches = info.Coaches
+            .Select((c, index) => new TeamCoachInput
+            {
+                DisplayOrder = index,
+                Name = c.Name,
+                Role = c.Role,
+                Career = c.Career,
+                Certification = c.Certification,
+                Quote = c.Quote,
+                Achievements = c.Achievements.ToList(),
+                InstagramUrl = c.InstagramUrl,
+                YoutubeUrl = c.YoutubeUrl,
+            })
+            .ToList();
+    }
+
+    private static string InitialOf(string name) =>
+        string.IsNullOrWhiteSpace(name) ? "?" : name[..1];
+
+    private static string? ValidateTeamName(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "팀명을 입력해 주세요." : null;
+
+    private static string? ValidateFoundedYear(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null; // 선택 항목
+        }
+
+        if (!int.TryParse(value, out int year))
+        {
+            return "숫자 4자리로 입력해 주세요.";
+        }
+
+        return year < 1900 || year > DateTime.Now.Year ? $"1900 ~ {DateTime.Now.Year} 사이로 입력해 주세요." : null;
+    }
+
+    private void AddValue() => mValues.Add(new TeamValueInput());
+
+    private void AddCoach() => mCoaches.Add(new TeamCoachInput());
+
+    private async Task SubmitAsync()
+    {
+        if (!await mForm.ValidateAllAsync())
+        {
+            return;
+        }
+
+        var request = new UpdateTeamInfoRequest
+        {
+            TeamName = mTeamName.Trim(),
+            Region = string.IsNullOrWhiteSpace(mRegion) ? null : mRegion.Trim(),
+            FoundedYear = int.TryParse(mFoundedYear, out int year) ? year : null,
+            Description = string.IsNullOrWhiteSpace(mDescription) ? null : mDescription.Trim(),
+            LogoUrl = mLogoUrl,
+            CoverImageUrl = mCoverUrl,
+            Values = mValues
+                .Where(v => !string.IsNullOrWhiteSpace(v.Title))
+                .Select((v, index) => { v.DisplayOrder = index; return v; })
+                .ToList(),
+            Coaches = mCoaches
+                .Where(c => !string.IsNullOrWhiteSpace(c.Name))
+                .Select((c, index) => { c.DisplayOrder = index; return c; })
+                .ToList(),
+        };
+
+        mSaving = true;
+        TeamInfoSaveResult result = await Teams.UpdateTeamInfoAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+            }
+
+            return;
+        }
+
+        Toasts.ShowSuccess("팀 정보를 저장했어요. 공개 홈페이지에도 반영됐어요.");
+        await CloseAsync();
+        await OnSaved.InvokeAsync();
+    }
+
+    private Task CancelAsync() => CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        mLoaded = false;
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}
