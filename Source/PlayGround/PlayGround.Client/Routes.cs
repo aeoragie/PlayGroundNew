@@ -30,11 +30,20 @@ namespace PlayGround.Client
         public const string RecordsDetailTemplate = "/records/{TournamentId:guid}";
         public const string NotFound = "/not-found";
 
+        /// <summary>권한 없음 — 로그인 상태 전용(게스트는 로그인으로 리다이렉트).</summary>
+        public const string Forbidden = "/forbidden";
+
+        /// <summary>서버 오류 — 전역 예외 경계가 여기로 보낸다.</summary>
+        public const string ServerError = "/error";
+
         /// <summary>공용 폼 컴포넌트 데모 (Design.FormPatterns 검증용 — 개발 전용).</summary>
         public const string DevFormPatterns = "/dev/form-patterns";
 
         /// <summary>토스트·확인 모달 데모 (Design.FeedbackPatterns 검증용 — 개발 전용).</summary>
         public const string DevFeedbackPatterns = "/dev/feedback-patterns";
+
+        /// <summary>전역 예외 경계 확인용 — 예외를 던져 500 화면으로 가는지 본다 (개발 전용).</summary>
+        public const string DevThrow = "/dev/throw";
 
         //.// 링크 생성 헬퍼 (파라미터 라우트)
 
@@ -61,6 +70,31 @@ namespace PlayGround.Client
         public static string TeamPublicHomeTab(string slug, SoccerTeamPublicTab tab)
         {
             return $"/team/{slug}/{tab.ToSlug()}";
+        }
+
+        /// <summary>
+        /// 로그인 진입 — 항상 returnUrl을 보존한다(Design.Navigation 인증 플로우 1).
+        /// returnUrl은 앱 내부 상대 경로만 허용 (외부 도메인으로 튕기는 오픈 리다이렉트 방지).
+        /// </summary>
+        public static string LoginWithReturn(string? returnUrl)
+        {
+            if (!IsSafeReturnUrl(returnUrl))
+            {
+                return Login;
+            }
+
+            return $"{Login}?returnUrl={Uri.EscapeDataString(returnUrl!)}";
+        }
+
+        /// <summary>"/team/abc" 형태의 내부 경로만 true. "//evil.com"·"http://…"는 거부.</summary>
+        public static bool IsSafeReturnUrl(string? returnUrl)
+        {
+            if (string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return false;
+            }
+
+            return returnUrl.StartsWith('/') && !returnUrl.StartsWith("//", StringComparison.Ordinal);
         }
     }
 }

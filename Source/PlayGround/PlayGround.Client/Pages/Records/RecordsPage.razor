@@ -14,7 +14,7 @@
 <PageTitle>경기기록 — PlayGround</PageTitle>
 
 <div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
-    <RecordsGnb UserLabel="@mUserLabel" UserInitial="@mUserInitial" />
+    <PublicGnb SectionLabel="경기기록" />
 
     <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-6 pb-20 flex flex-col gap-3.5">
         <div class="flex items-center gap-3.5 flex-wrap">
@@ -119,8 +119,6 @@
     private string mSearch = string.Empty;
     private bool mMyAgeOnly;
     private string? mMyAge;
-    private string? mUserLabel;
-    private string? mUserInitial;
     private readonly Dictionary<string, bool> mOpenAges = new();
 
     protected override async Task OnInitializedAsync()
@@ -132,13 +130,8 @@
             PlayerInfoResponse? info = await Players.GetMyInfoAsync();
             if (info?.Profile.AgeGroup is not null)
             {
+                // 사용자 표시는 GNB(PublicGnb)가 아바타로 담당 — 여기선 내 연령 개인화만
                 mMyAge = info.Profile.AgeGroup;
-                string? guardian = info.Family.FirstOrDefault(f => f.Role == "Guardian")?.MemberName;
-                if (guardian is not null)
-                {
-                    mUserLabel = $"{guardian} 님 · {mMyAge} 보호자";
-                    mUserInitial = guardian[..1];
-                }
             }
         }
 

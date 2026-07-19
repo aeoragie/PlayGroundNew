@@ -1,10 +1,16 @@
-﻿<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Pages.NotFound)">
-        <Found Context="routeData">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-        </Found>
-    </Router>
+@using PlayGround.Client.Components.Shared.Error
+
+<CascadingAuthenticationState>
+    @* 전역 예외 경계 — 렌더/이벤트에서 처리되지 않은 예외를 500 화면으로 보낸다.
+       경계가 없으면 Blazor WASM은 앱 전체를 중단시켜 흰 화면만 남는다. *@
+    <GlobalErrorBoundary>
+        <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+            <Found Context="routeData">
+                <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+                <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            </Found>
+        </Router>
+    </GlobalErrorBoundary>
 
     @* 전역 피드백 호스트 — 레이아웃(Main·Auth·Landing) 무관하게 항상 1개씩만 존재 *@
     <ToastHost />

@@ -24,6 +24,7 @@ builder.Services.AddScoped<ConfirmService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<TokenStore>();
+builder.Services.AddScoped<ReturnUrlStore>();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(
     sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());

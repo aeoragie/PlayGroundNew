@@ -1,5 +1,6 @@
 @attribute [Route(Routes.PlayerDashboard)]
 @attribute [Route(Routes.PlayerDashboardSectionTemplate)]
+@using System.Security.Claims
 @using PlayGround.Client.Components.Dashboard.Player
 @using PlayGround.Contracts.Player
 @inject NavigationManager Nav
@@ -132,6 +133,9 @@
 
     private SoccerPlayerDashboardSection CurrentSection => SoccerPlayerDashboardSectionExtensions.ParseSlug(Section);
 
+    /// <summary>현재 섹션까지 포함한 경로 — 로그인 왕복 후 같은 자리로 돌아오기 위해.</summary>
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
     // "U15 · FW · #9 · 팀명" — 있는 항목만 조합
     private string SidebarSummary => BuildSummary(includeTeam: true);
     private string MobileSummary => BuildSummary(includeTeam: false);
@@ -153,7 +157,15 @@
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
-            Nav.NavigateTo(Routes.Login, replace: true);
+            // 딥링크 진입 — 로그인 후 이 자리로 돌아온다
+            Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
+            return;
+        }
+
+        // 역할이 다르면 403이 아니라 허브로 — 계정은 맞고 자리만 틀린 상황이다(Design.Navigation 3)
+        if (UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value) != UserRole.Player)
+        {
+            Nav.NavigateTo(Routes.Dashboard, replace: true);
             return;
         }
 

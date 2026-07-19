@@ -16,8 +16,16 @@
 
         <div class="flex-1"></div>
 
-        <a href="@Routes.Login" class="hidden md:block text-[14.5px] font-bold px-4 py-[9px] hover:text-orange transition-colors">로그인</a>
-        <PillButton Href="@Routes.Login" Variant="PillVariant.Orange" Size="PillSize.Small">시작하기</PillButton>
+        @* 랜딩 CTA는 유일하게 오렌지가 허용되는 자리. 로그인 상태면 문구만 "내 대시보드"로 바꾼다 *@
+        <AuthorizeView>
+            <Authorized>
+                <PillButton Href="@Routes.Dashboard" Variant="PillVariant.Orange" Size="PillSize.Small">내 대시보드</PillButton>
+            </Authorized>
+            <NotAuthorized>
+                <a href="@Routes.Login" class="hidden md:block text-[14.5px] font-bold px-4 py-[9px] hover:text-orange transition-colors">로그인</a>
+                <PillButton Href="@Routes.Login" Variant="PillVariant.Orange" Size="PillSize.Small">시작하기</PillButton>
+            </NotAuthorized>
+        </AuthorizeView>
 
         @* 모바일 햄버거 *@
         <button type="button" aria-label="메뉴" @onclick="ToggleMenu"
@@ -35,7 +43,14 @@
             <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">팀</a>
             <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">선수·학부모</a>
             <a href="#features" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">경기기록</a>
-            <a href="@Routes.Login" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">로그인</a>
+            <AuthorizeView>
+                <Authorized>
+                    <a href="@Routes.Dashboard" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">내 대시보드</a>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="@Routes.Login" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">로그인</a>
+                </NotAuthorized>
+            </AuthorizeView>
         </nav>
     }
 </header>

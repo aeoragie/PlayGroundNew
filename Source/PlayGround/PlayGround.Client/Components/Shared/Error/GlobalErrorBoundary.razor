@@ -1,0 +1,49 @@
+@* 전역 예외 경계 — 처리되지 않은 예외를 500 화면으로 넘긴다.
+   ErrorBoundary 기본 UI는 정적 문구라, 오류 코드를 만들어 /error로 이동시킨다. *@
+@inherits ErrorBoundaryBase
+@implements IDisposable
+@inject NavigationManager Nav
+@inject ILogger<GlobalErrorBoundary> Logger
+
+@if (CurrentException is null)
+{
+    @ChildContent
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        // 이동이 끝난 뒤에 경계를 되살린다 — OnErrorAsync 안에서 Recover()를 부르면
+        // 재렌더가 걸리지 않아 이동은 되지만 화면이 비어 버린다(실제로 겪음).
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        if (CurrentException is null)
+        {
+            return;
+        }
+
+        Recover();
+        StateHasChanged();
+    }
+
+    protected override Task OnErrorAsync(Exception exception)
+    {
+        string errorCode = Pages.ServerError.BuildErrorCode();
+
+        // 코드가 로그와 화면을 잇는 유일한 단서 — 사용자에겐 코드만, 로그엔 예외 전체
+        Logger.LogError(exception, "Unhandled client exception. {{ ErrorCode:{ErrorCode}, Path:{Path} }}",
+            errorCode, Nav.Uri);
+
+        string from = "/" + Nav.ToBaseRelativePath(Nav.Uri);
+        Nav.NavigateTo($"{Routes.ServerError}?code={Uri.EscapeDataString(errorCode)}&from={Uri.EscapeDataString(from)}");
+        return Task.CompletedTask;
+    }
+}

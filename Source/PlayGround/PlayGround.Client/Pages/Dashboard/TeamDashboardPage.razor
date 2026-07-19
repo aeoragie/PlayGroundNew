@@ -1,5 +1,6 @@
 @attribute [Route(Routes.TeamDashboard)]
 @attribute [Route(Routes.TeamDashboardSectionTemplate)]
+@using System.Security.Claims
 @using PlayGround.Client.Components.Dashboard
 @using PlayGround.Client.Components.Dashboard.Mobile
 @using PlayGround.Client.Styles
@@ -138,13 +139,24 @@
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
+    /// <summary>현재 섹션까지 포함한 경로 — 로그인 왕복 후 같은 자리로 돌아오기 위해.</summary>
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
     protected override async Task OnInitializedAsync()
     {
         // 직접 URL 진입(새로고침) 대비 — 인증 상태를 먼저 확정 (토큰 복원 + Bearer 헤더 부착)
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
-            Nav.NavigateTo(Routes.Login, replace: true);
+            // 딥링크 진입 — 로그인 후 이 자리로 돌아온다
+            Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
+            return;
+        }
+
+        // 역할이 다르면 403이 아니라 허브로 — 계정은 맞고 자리만 틀린 상황이다(Design.Navigation 3)
+        if (UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value) != UserRole.TeamAdmin)
+        {
+            Nav.NavigateTo(Routes.Dashboard, replace: true);
             return;
         }
 

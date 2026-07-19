@@ -78,9 +78,8 @@
 > **모든 UI 작업 전 `Handoff/Design.PatternsIndex/README.md` 필독** — 공용 패턴 15종 목차·결정표.
 > 새 요소가 필요하면 새로 만들지 말고 결정표에서 기존 15종 조합을 먼저 찾는다.
 
-1. **Phase A — 횡단 기반** (다른 모든 작업 unblock): ~~A1 폼~~ · ~~A2 Toast·ConfirmModal~~ ·
-   ~~A3 스켈레톤·빈 상태~~ 완료(아래) → **A4 내비게이션 배선·에러 페이지**(Navigation, 잔여 항목
-   "공개 페이지 로그인 상태 GNB" 흡수).
+1. ~~**Phase A — 횡단 기반**~~ 완료 (A1 폼 · A2 Toast·ConfirmModal · A3 스켈레톤·빈 상태 ·
+   A4 내비게이션·에러 페이지 — 각 절 아래 참조).
 2. **Phase B — 입력 UI** (A1·A2 위에): B1 경기 결과 입력(+DatePicker, 저장 시
    `UspRecalculateSoccerTournamentStandings` 자동 호출 필수) → B2 팀 정보 수정(+ImageUploader)
    → B3 커리어·포트폴리오 입력 → B4 선수 사진 업로드.
@@ -157,6 +156,36 @@
   API 지연은 스로틀 대신 CDP `Fetch.requestPaused`로 특정 경로만 붙잡는 게 결정적(스로틀은 WASM
   부팅까지 느려져 화면이 안 뜬다). **패턴 등록 시 통과용 기본 핸들러를 반드시 함께 달 것**(없으면
   모든 /api/ 요청이 영구 정지).
+
+### Phase A4 — 내비게이션·에러 페이지 완료 (2026-07-19, Design.Navigation)
+
+- **에러 페이지 3종** — `ErrorPageBody`(공용 본문: 일러스트 120px/모바일 96px + 코드 + 제목 + 설명 +
+  버튼 + 각주)에 `Art` 프리셋 Pitch·Shield·Scoreboard. 페이지는 `NotFound`(`/not-found`) ·
+  `Forbidden`(`/forbidden`) · `ServerError`(`/error`). 스타일 `Styles/Css.Error.cs`.
+  **주 버튼은 네이비**(오렌지는 랜딩 CTA 전용), 기존 404의 이모지·오렌지 버튼은 제거했다.
+  - **403은 로그인 상태 전용** — 게스트가 열면 `/login?returnUrl=`로 되돌린다(권한이 아니라 로그인 문제).
+  - **500은 `ERR-{yyyyMMddHHmm}-{6자리}` 오류 코드**를 만들어 화면에 보여주고 로그에 예외 전체를 남긴다.
+    "다시 시도"는 `?from=` 경로로 **forceLoad 새로고침**(깨진 컴포넌트 상태를 들고 가지 않는다).
+- **전역 예외 경계** `GlobalErrorBoundary`(App.razor에서 Router를 감쌈) — 미처리 예외를 500으로 보낸다.
+  **함정: `OnErrorAsync` 안에서 `Recover()`를 부르면 재렌더가 안 걸려 이동은 되지만 화면이 빈다.**
+  `LocationChanged`에서 복구해야 정상 (실제로 겪음). 검증용 `/dev/throw`(개발 전용).
+- **공용 GNB `Components/Shared/PublicGnb.razor`** — 게스트: 워드마크+경기기록+[로그인](returnUrl 보존),
+  모바일 게스트는 메뉴 숨기고 [로그인]만. 로그인: 그 자리에 **벨 + 아바타 드롭다운**(내 대시보드·로그아웃).
+  기존 `RecordsGnb`는 삭제하고 경기기록 3페이지가 이걸 쓴다. 랜딩 CTA는 로그인 시 "내 대시보드"로 교체.
+  - **공개 팀 홈은 예외 유지** — `PublicTeamGnb`의 좌측 브랜드+팀명 fade-in 구조는 그대로 두고,
+    우측 버튼만 로그인↔내 대시보드로 바꿨다(PlayGround 최소 노출 원칙, 벨·아바타 없음).
+- **returnUrl 왕복** — `Routes.LoginWithReturn()` + `IsSafeReturnUrl()`(내부 상대 경로만 — `//evil.com`
+  차단). `ReturnUrlStore`가 **sessionStorage**에 보관하는 이유: 소셜 로그인은 외부 도메인을 거쳐
+  전체 리로드로 돌아오므로 쿼리·메모리가 살아남지 못한다. 소비 지점은 `/dashboard` **한 곳**
+  (이메일·소셜 두 경로가 모두 여기로 모인다).
+- **접근 가드** — 대시보드 게스트 진입 → `LoginWithReturn(현재경로)` / **역할 불일치 → `/dashboard`**
+  (403이 아니라 허브 — 계정은 맞고 자리만 틀린 상황. README 인증 플로우 3).
+- **라우트 이름 차이**: README는 `/auth`지만 구현은 `/login`(기존 라우트 유지). `/dashboard` 분기는
+  역할 enum이 단일값이라 **0개→역할 선택 / 1개→직행** 2분기까지만 — "2개+ → 허브"는 다역할 모델이
+  생길 때 추가한다.
+- 검증: 404 진입 · 403 게스트 리다이렉트 · 500 코드 생성 · **강제 throw → 500 → 다시 시도 복귀** ·
+  딥링크 `/dashboard/team/roster` → 로그인 → **원래 자리 복귀** · 로그인 GNB(벨+아바타, 로그인 버튼 없음) ·
+  역할 불일치 리다이렉트 · 모바일 전부 확인.
 
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
 

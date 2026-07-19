@@ -1,0 +1,86 @@
+@* 에러 페이지 공통 본문 (404·403·500) — Design.Navigation "Error Pages.dc.html".
+   일러스트 120px(모바일 96px): 외곽 illustration stroke 3 + navy 디테일 stroke 3.5.
+   주 버튼은 네이비 — 오렌지는 랜딩 CTA 전용이라 여기 쓰지 않는다. *@
+@using PlayGround.Client.Styles
+
+<main class="@Css.Error.Main">
+    <div class="@Css.Error.Body">
+        <svg class="@Css.Error.Illustration" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            @RenderArt()
+        </svg>
+
+        @if (StatusCode is not null)
+        {
+            <span class="@Css.Error.Code">@StatusCode</span>
+        }
+
+        <span class="@($"{Css.Error.Title} {(StatusCode is null ? Css.Error.TitleGapNoCode : Css.Error.TitleGapWithCode)}")">@Title</span>
+        <span class="@Css.Error.Description">@Description</span>
+
+        <div class="@Css.Error.Actions">
+            @Actions
+        </div>
+
+        @if (Footnote is not null)
+        {
+            <span class="@Css.Error.Footnote">@Footnote</span>
+        }
+    </div>
+</main>
+
+@code {
+    /// <summary>일러스트 종류 — 카탈로그와 1:1.</summary>
+    public enum Art
+    {
+        /// <summary>404 — 축구장 + 위치 핀.</summary>
+        Pitch,
+
+        /// <summary>403 — 실드 + 자물쇠.</summary>
+        Shield,
+
+        /// <summary>500 — 전광판 + 느낌표(오렌지 스파크).</summary>
+        Scoreboard,
+    }
+
+    [Parameter, EditorRequired]
+    public Art Kind { get; set; }
+
+    /// <summary>"404"·"500". 403은 숫자를 쓰지 않으므로 null.</summary>
+    [Parameter]
+    public string? StatusCode { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public RenderFragment? Description { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment? Actions { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footnote { get; set; }
+
+    private RenderFragment RenderArt() => Kind switch
+    {
+        Art.Pitch => @<g>
+            <rect x="16" y="32" width="88" height="58" rx="7" class="stroke-illustration" stroke-width="3"></rect>
+            <path d="M60 32v14M60 76v14M16 50h12v22H16M104 50H92v22h12" class="stroke-illustration" stroke-width="3" stroke-linejoin="round"></path>
+            <path d="M60 42c-7.2 0-13 5.6-13 12.6C47 64 60 76 60 76s13-12 13-21.4c0-7-5.8-12.6-13-12.6z" class="stroke-navy" stroke-width="3.5" stroke-linejoin="round"></path>
+            <circle cx="60" cy="55" r="3.2" class="fill-navy"></circle>
+        </g>,
+        Art.Shield => @<g>
+            <path d="M60 18l34 14v25c0 21-14.5 36.5-34 45-19.5-8.5-34-24-34-45V32z" class="stroke-illustration" stroke-width="3" stroke-linejoin="round"></path>
+            <rect x="46" y="54" width="28" height="24" rx="5" class="stroke-navy" stroke-width="3.5"></rect>
+            <path d="M52 54v-7a8 8 0 0116 0v7" class="stroke-navy" stroke-width="3.5" stroke-linecap="round"></path>
+            <circle cx="60" cy="66" r="3" class="fill-navy"></circle>
+        </g>,
+        _ => @<g>
+            <rect x="22" y="28" width="76" height="48" rx="7" class="stroke-illustration" stroke-width="3"></rect>
+            <path d="M40 76l-6 18M80 76l6 18M22 42h76" class="stroke-illustration" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M60 50v12" class="stroke-navy" stroke-width="4" stroke-linecap="round"></path>
+            <circle cx="60" cy="69" r="2.6" class="fill-navy"></circle>
+            <path d="M100 18l7-6M104 28l9-2" class="stroke-orange" stroke-width="3.5" stroke-linecap="round"></path>
+        </g>,
+    };
+}

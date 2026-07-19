@@ -4,6 +4,7 @@
 @using PlayGround.Client.Styles
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
+@inject ReturnUrlStore ReturnUrls
 
 <PageTitle>대시보드 — PlayGround</PageTitle>
 
@@ -36,6 +37,15 @@ else
         if (state.User.Identity is not { IsAuthenticated: true })
         {
             Nav.NavigateTo(Routes.Login, replace: true);
+            return;
+        }
+
+        // 딥링크로 들어왔다가 로그인한 경우 — 역할 대시보드보다 원래 가려던 곳이 우선한다.
+        // 이메일·소셜 두 경로 모두 여기로 모이므로 소비 지점은 이 한 곳이면 충분하다.
+        string? returnUrl = await ReturnUrls.ConsumeAsync();
+        if (returnUrl is not null)
+        {
+            Nav.NavigateTo(returnUrl, replace: true);
             return;
         }
 

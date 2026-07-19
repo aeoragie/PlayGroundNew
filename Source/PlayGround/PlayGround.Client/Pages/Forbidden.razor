@@ -1,0 +1,52 @@
+@* 403 — 로그인 상태 전용. 게스트가 열면 로그인으로 돌려보낸다(Design.Navigation). *@
+@attribute [Route(Routes.Forbidden)]
+@layout LandingLayout
+@using PlayGround.Client.Components.Shared.Error
+@using PlayGround.Client.Styles
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+
+<PageTitle>권한이 없어요 — PlayGround</PageTitle>
+
+@if (mAuthenticated)
+{
+    <div class="min-h-screen bg-bg flex flex-col text-navy-deep">
+        <PublicGnb />
+        <ErrorPageBody Kind="ErrorPageBody.Art.Shield" Title="볼 수 있는 권한이 없어요">
+            <Description>이 페이지는 해당 역할의 계정만 열 수 있어요.<br />다른 계정으로 로그인했는지 확인해 보세요.</Description>
+            <Actions>
+                <a href="@Routes.Dashboard" class="@Css.Error.PrimaryButton">내 대시보드로</a>
+                <button type="button" @onclick="SwitchAccountAsync" class="@Css.Error.SecondaryButton">다른 계정으로 로그인</button>
+            </Actions>
+            <Footnote>계속 문제가 있다면 팀 관리자 또는 고객센터에 문의하세요.</Footnote>
+        </ErrorPageBody>
+    </div>
+}
+
+@code {
+    /// <summary>돌아갈 곳 — 권한 가드가 넘겨준 원래 경로(있으면 로그인 후 복귀에 쓴다).</summary>
+    [SupplyParameterFromQuery(Name = "from")]
+    public string? From { get; set; }
+
+    private bool mAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            // 403은 로그인 상태 전용 — 게스트에겐 권한이 아니라 로그인이 필요한 상황이다
+            Nav.NavigateTo(Routes.LoginWithReturn(From), replace: true);
+            return;
+        }
+
+        mAuthenticated = true;
+    }
+
+    // 다른 계정으로 로그인 = 현재 세션을 비우고 로그인 화면으로
+    private async Task SwitchAccountAsync()
+    {
+        await AuthProvider.MarkUserLoggedOutAsync();
+        Nav.NavigateTo(Routes.LoginWithReturn(From));
+    }
+}

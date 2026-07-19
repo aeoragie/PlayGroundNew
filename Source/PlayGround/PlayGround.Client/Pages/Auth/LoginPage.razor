@@ -4,6 +4,7 @@
 @inject NavigationManager Nav
 @inject AuthClient Auth
 @inject JwtAuthenticationStateProvider AuthProvider
+@inject ReturnUrlStore ReturnUrls
 
 <PageTitle>시작하기 — PlayGround</PageTitle>
 
@@ -65,6 +66,10 @@
     private string mPassword = string.Empty;
     private bool mSaving;
 
+    /// <summary>딥링크에서 넘어온 원래 경로 — 인증 완료 지점에서 소비한다.</summary>
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
     protected override void OnInitialized()
     {
         // 콜백 실패 시 /login?error=... 로 리다이렉트된다.
@@ -75,6 +80,16 @@
         {
             string code = query[(index + marker.Length)..].Split('&')[0];
             mError = MapError(Uri.UnescapeDataString(code));
+        }
+    }
+
+    // returnUrl은 sessionStorage로 옮겨 둔다 — 소셜 로그인은 외부 도메인을 거쳐
+    // 전체 리로드로 돌아오므로 쿼리 파라미터가 살아남지 못한다.
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ReturnUrl is not null)
+        {
+            await ReturnUrls.SaveAsync(ReturnUrl);
         }
     }
 

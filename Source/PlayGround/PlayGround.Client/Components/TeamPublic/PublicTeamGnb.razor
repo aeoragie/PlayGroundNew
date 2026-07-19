@@ -2,6 +2,7 @@
    팀명은 첫 화면에선 숨김 → 히어로 통과(PC 300px / 모바일 170px) 시 구분선과 함께 fade-in (자리 유지) *@
 @implements IAsyncDisposable
 @inject IJSRuntime Js
+@inject NavigationManager Nav
 
 <header class="bg-bg border-b border-border sticky top-0 z-50">
     <div class="max-w-[1120px] mx-auto px-4 md:px-8 h-[54px] md:h-[60px] flex items-center gap-2.5 md:gap-3.5">
@@ -13,7 +14,15 @@
         </a>
         <div class="hidden md:block flex-1"></div>
         <a href="@Routes.Records" class="text-[12.5px] md:text-[13.5px] font-bold text-text-strong whitespace-nowrap">경기기록</a>
-        <a href="@Routes.Login" class="text-[12.5px] md:text-[13.5px] font-bold text-white hover:text-white bg-navy hover:bg-navy-deep px-3.5 py-2 md:px-[18px] md:py-[9px] rounded-lg md:rounded-[9px] whitespace-nowrap transition-colors">로그인</a>
+        @* 팀 홈은 PlayGround 최소 노출 원칙 — 로그인해도 벨·아바타를 넣지 않고 텍스트 성격의 버튼 하나만 바꾼다 *@
+        <AuthorizeView>
+            <Authorized>
+                <a href="@Routes.Dashboard" class="@AuthButtonClass">내 대시보드</a>
+            </Authorized>
+            <NotAuthorized>
+                <a href="@LoginHref" class="@AuthButtonClass">로그인</a>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </header>
 
@@ -26,6 +35,13 @@
 
     [Parameter]
     public string? LogoUrl { get; set; }
+
+    private const string AuthButtonClass =
+        "text-[12.5px] md:text-[13.5px] font-bold text-white hover:text-white bg-navy hover:bg-navy-deep " +
+        "px-3.5 py-2 md:px-[18px] md:py-[9px] rounded-lg md:rounded-[9px] whitespace-nowrap transition-colors";
+
+    // 팀 홈에서 로그인하러 가면 이 팀 페이지로 돌아온다
+    private string LoginHref => Routes.LoginWithReturn("/" + Nav.ToBaseRelativePath(Nav.Uri));
 
     private IJSObjectReference? mModule;
     private IJSObjectReference? mScrollHandle;

@@ -34,7 +34,7 @@
     public string ButtonText { get; set; } = string.Empty;
 
     [Parameter]
-    public string ButtonHref { get; set; } = "/login";
+    public string ButtonHref { get; set; } = Routes.Login;
 
     private string CardClass => IsDark
         ? "relative overflow-hidden flex flex-col gap-[13px] md:gap-4 rounded-card-sm md:rounded-card px-6 py-7 md:px-10 md:py-11 bg-navy-deep text-white"

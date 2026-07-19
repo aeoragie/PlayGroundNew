@@ -1,11 +1,19 @@
+@* 404 — Design.Navigation. Router의 NotFoundPage로도 연결된다(App.razor). *@
 @attribute [Route(Routes.NotFound)]
-@layout MainLayout
+@layout LandingLayout
+@using PlayGround.Client.Components.Shared.Error
+@using PlayGround.Client.Styles
 
 <PageTitle>페이지를 찾을 수 없어요 — PlayGround</PageTitle>
 
-<div class="min-h-screen flex flex-col items-center justify-center gap-4 text-center px-6">
-    <div class="text-[64px]">🔍</div>
-    <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">페이지를 찾을 수 없어요</h1>
-    <p class="m-0 text-[14.5px] text-text-body leading-relaxed">주소가 바뀌었거나 삭제된 페이지일 수 있어요.</p>
-    <PillButton Href="@Routes.Landing" Variant="PillVariant.Orange" Size="PillSize.Medium" Class="mt-2">홈으로 가기</PillButton>
+<div class="min-h-screen bg-bg flex flex-col text-navy-deep">
+    <PublicGnb />
+    <ErrorPageBody Kind="ErrorPageBody.Art.Pitch" StatusCode="404" Title="페이지를 찾을 수 없어요">
+        <Description>주소가 바뀌었거나 삭제된 페이지예요.<br />팀·선수를 찾고 있었다면 탐색에서 다시 검색해 보세요.</Description>
+        <Actions>
+            <a href="@Routes.Landing" class="@Css.Error.PrimaryButton">홈으로</a>
+            @* 보조 버튼: 팀 탐색(/teams)이 아직 없어 경기기록으로 — A4 보고 목록 참조 *@
+            <a href="@Routes.Records" class="@Css.Error.SecondaryButton">경기기록</a>
+        </Actions>
+    </ErrorPageBody>
 </div>
