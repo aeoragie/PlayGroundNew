@@ -6,7 +6,7 @@
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
         <h1 class="@Css.Dashboard.SectionTitle">포트폴리오</h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 영상 추가</button>
+        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">＋ 영상 추가</button>
     </div>
 
     @if (Videos.Count > 0)
@@ -14,8 +14,10 @@
         <div class="@(Primary is null ? "flex flex-col gap-3" : "grid grid-cols-[1fr_340px] gap-[18px] items-start")">
             @if (Primary is not null)
             {
-                <div class="@($"{Css.Dashboard.Card} overflow-hidden")">
-                    <a href="@Primary.VideoUrl" target="_blank" rel="noopener" class="block w-full aspect-video relative bg-navy-deep">
+                @* overflow-hidden은 카드가 아니라 썸네일에만 — 카드에 걸면 ⋯ 팝오버가 잘린다 *@
+                <div class="@Css.Dashboard.Card">
+                    <a href="@Primary.VideoUrl" target="_blank" rel="noopener"
+                       class="block w-full aspect-video relative bg-navy-deep overflow-hidden rounded-t-[15px]">
                         @if (Primary.ThumbnailUrl is not null)
                         {
                             <img src="@Primary.ThumbnailUrl" alt="대표 영상 썸네일" class="absolute inset-0 w-full h-full object-cover" />
@@ -30,7 +32,9 @@
                     <div class="px-[22px] py-[18px] flex flex-col gap-[9px]">
                         <div class="flex gap-[7px] items-center">
                             <BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="15" />
-                            <span class="text-[15px] font-extrabold text-navy-deep break-keep">@Primary.Title</span>
+                            <span class="text-[15px] font-extrabold text-navy-deep break-keep flex-1">@Primary.Title</span>
+                            <OverflowMenu Target="@Primary.Title"
+                                          Items="@BuildMenuItems(Primary)" DestructiveItems="@BuildDestructiveItems(Primary)" />
                         </div>
                         @if (Primary.Tags.Count > 0)
                         {
@@ -50,26 +54,30 @@
                 <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">영상 목록 <span class="text-xs font-bold text-text-muted">@(Others.Count)개</span></h3>
                 @foreach (PlayerPortfolioVideoDto clip in Others)
                 {
-                    <a href="@clip.VideoUrl" target="_blank" rel="noopener"
-                       class="@($"{Css.Dashboard.Card} rounded-[13px] p-3 flex gap-3 items-center hover:border-navy transition-colors")">
-                        <div class="w-[110px] aspect-video rounded-lg overflow-hidden relative bg-navy-deep shrink-0">
-                            @if (clip.ThumbnailUrl is not null)
-                            {
-                                <img src="@clip.ThumbnailUrl" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" />
-                            }
-                            @if (clip.DurationSeconds is not null)
-                            {
-                                <span class="absolute bottom-1 right-1 text-[9.5px] font-bold text-white bg-black/75 rounded px-[5px] py-px pointer-events-none">@FormatDuration(clip.DurationSeconds.Value)</span>
-                            }
-                        </div>
-                        <span class="flex flex-col gap-[3px] flex-1 min-w-0">
-                            <span class="text-[12.5px] font-bold text-navy-deep leading-[1.4] break-keep">@clip.Title</span>
-                            @if (clip.RecordedOn is not null)
-                            {
-                                <span class="text-[11px] text-text-muted whitespace-nowrap">@FormatDate(clip.RecordedOn.Value)</span>
-                            }
-                        </span>
-                    </a>
+                    @* ⋯는 링크 밖에 둔다 — 앵커 안에 버튼을 넣으면 클릭이 이동으로 새어 나간다 *@
+                    <div class="@($"{Css.Dashboard.Card} rounded-[13px] p-3 flex gap-3 items-center hover:border-navy transition-colors")">
+                        <a href="@clip.VideoUrl" target="_blank" rel="noopener" class="flex gap-3 items-center flex-1 min-w-0">
+                            <div class="w-[110px] aspect-video rounded-lg overflow-hidden relative bg-navy-deep shrink-0">
+                                @if (clip.ThumbnailUrl is not null)
+                                {
+                                    <img src="@clip.ThumbnailUrl" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" />
+                                }
+                                @if (clip.DurationSeconds is not null)
+                                {
+                                    <span class="absolute bottom-1 right-1 text-[9.5px] font-bold text-white bg-black/75 rounded px-[5px] py-px pointer-events-none">@FormatDuration(clip.DurationSeconds.Value)</span>
+                                }
+                            </div>
+                            <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                                <span class="text-[12.5px] font-bold text-navy-deep leading-[1.4] break-keep">@clip.Title</span>
+                                @if (clip.RecordedOn is not null)
+                                {
+                                    <span class="text-[11px] text-text-muted whitespace-nowrap">@FormatDate(clip.RecordedOn.Value)</span>
+                                }
+                            </span>
+                        </a>
+                        <OverflowMenu Target="@clip.Title"
+                                      Items="@BuildMenuItems(clip)" DestructiveItems="@BuildDestructiveItems(clip)" />
+                    </div>
                 }
             </div>
         </div>
@@ -86,6 +94,26 @@
 @code {
     [Parameter, EditorRequired]
     public List<PlayerPortfolioVideoDto> Videos { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<PlayerPortfolioVideoDto> OnEdit { get; set; }
+
+    /// <summary>삭제 확인 모달·실행취소 토스트는 페이지가 맡는다.</summary>
+    [Parameter]
+    public EventCallback<PlayerPortfolioVideoDto> OnDelete { get; set; }
+
+    internal List<OverflowMenu.MenuItem> BuildMenuItems(PlayerPortfolioVideoDto clip) => new()
+    {
+        new OverflowMenu.MenuItem("영상 수정", () => OnEdit.InvokeAsync(clip)),
+    };
+
+    internal List<OverflowMenu.MenuItem> BuildDestructiveItems(PlayerPortfolioVideoDto clip) => new()
+    {
+        new OverflowMenu.MenuItem("영상 삭제", () => OnDelete.InvokeAsync(clip)),
+    };
 
     internal PlayerPortfolioVideoDto? Primary => Videos.FirstOrDefault(v => v.IsPrimary);
 

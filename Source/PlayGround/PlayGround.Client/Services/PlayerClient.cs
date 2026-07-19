@@ -92,6 +92,64 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>커리어 이력 저장(신규·수정). CareerId 빈 값 = 신규.</summary>
+        public Task<PlayerEntrySaveResult> SaveCareerAsync(SavePlayerCareerRequest request) =>
+            PutAsync("api/soccer/player/me/career", request);
+
+        /// <summary>커리어 이력 삭제·복구(실행취소).</summary>
+        public Task<PlayerEntrySaveResult> DeleteCareerAsync(Guid careerId, bool restore = false) =>
+            PostAsync("api/soccer/player/me/career/delete",
+                new DeletePlayerCareerRequest { CareerId = careerId, Restore = restore });
+
+        /// <summary>포트폴리오 영상 저장(신규·수정). VideoId 빈 값 = 신규.</summary>
+        public Task<PlayerEntrySaveResult> SavePortfolioVideoAsync(SavePlayerPortfolioVideoRequest request) =>
+            PutAsync("api/soccer/player/me/portfolio", request);
+
+        /// <summary>포트폴리오 영상 삭제·복구(실행취소).</summary>
+        public Task<PlayerEntrySaveResult> DeletePortfolioVideoAsync(Guid videoId, bool restore = false) =>
+            PostAsync("api/soccer/player/me/portfolio/delete",
+                new DeletePlayerPortfolioVideoRequest { VideoId = videoId, Restore = restore });
+
+        // 저장 계열은 응답 형태가 같다 — 실패 사유(입력 거부 vs 요청 실패)를 구분해 돌려준다
+        private async Task<PlayerEntrySaveResult> PutAsync<TRequest>(string url, TRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync(url, request);
+                return await ReadSaveResultAsync(response);
+            }
+            catch
+            {
+                return new PlayerEntrySaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        private async Task<PlayerEntrySaveResult> PostAsync<TRequest>(string url, TRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync(url, request);
+                return await ReadSaveResultAsync(response);
+            }
+            catch
+            {
+                return new PlayerEntrySaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        private static async Task<PlayerEntrySaveResult> ReadSaveResultAsync(HttpResponseMessage response)
+        {
+            Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+            if (envelope is { IsSuccess: true })
+            {
+                return new PlayerEntrySaveResult(true, null);
+            }
+
+            // Envelope.Message는 영어 진단 문구다(로그용) — 사용자에게는 우리 문장을 보여준다.
+            // 여기까지 온 입력 오류는 클라이언트 검증이 놓친 경우라 항목을 특정할 수 없다.
+            return new PlayerEntrySaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+        }
+
         /// <summary>선수 사진 설정·삭제(photoUrl null = 삭제). 권한은 서버가 판정 — 거부되면 false.</summary>
         public async Task<bool> SetPlayerPhotoAsync(Guid playerId, string? photoUrl)
         {
@@ -159,6 +217,12 @@ namespace PlayGround.Client.Services
 
     /// <summary>AccessToken은 Player로 승격된 새 토큰 — null이면 기존 토큰 유지.</summary>
     public record PlayerSaveResult(bool Success, string? AccessToken, string? Error);
+
+    /// <summary>커리어·포트폴리오 항목 저장·삭제 결과.</summary>
+    /// <remarks>
+    /// IsNetworkError로 "입력이 잘못됨"(→ 인라인)과 "요청 실패"(→ 토스트+재시도)를 구분한다.
+    /// </remarks>
+    public record PlayerEntrySaveResult(bool Success, string? Error, bool IsNetworkError = false);
 
     /// <summary>초대코드 Claim 결과. AccessToken은 승격 시에만 값이 온다.</summary>
     /// <remarks>

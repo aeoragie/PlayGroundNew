@@ -147,6 +147,47 @@ namespace PlayGround.Contracts.Player
         public bool IsVerified { get; set; }       // 팀 확인됨 / 본인 입력
     }
 
+    /// <summary>커리어 이력 저장 요청 (신규·수정 겸용). CareerId 빈 값 = 신규.
+    /// IsCurrent는 보내지 않는다 — EndDate 유무로 서버가 파생한다(모순 상태 방지).
+    /// IsVerified는 팀이 다는 표시라 클라이언트가 정할 수 없다(수정하면 서버가 0으로 되돌린다).</summary>
+    public class SavePlayerCareerRequest
+    {
+        public Guid CareerId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public DateOnly StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }   // null = 현재 소속
+        public string? Role { get; set; }
+        public string? Note { get; set; }
+        public string? BadgeLabel { get; set; }
+    }
+
+    /// <summary>커리어 이력 삭제·복구 요청. Restore = true면 실행취소(소프트 삭제 되돌리기).</summary>
+    public class DeletePlayerCareerRequest
+    {
+        public Guid CareerId { get; set; }
+        public bool Restore { get; set; }
+    }
+
+    /// <summary>포트폴리오 영상 저장 요청 (신규·수정 겸용). VideoId 빈 값 = 신규.
+    /// 첫 영상은 서버가 자동으로 대표로 만든다 — 영상이 있는데 대표가 없는 상태를 두지 않는다.</summary>
+    public class SavePlayerPortfolioVideoRequest
+    {
+        public Guid VideoId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string VideoUrl { get; set; } = string.Empty;
+        public string? ThumbnailUrl { get; set; }
+        public List<string> Tags { get; set; } = new();
+        public DateOnly? RecordedOn { get; set; }
+        public bool IsPrimary { get; set; }
+    }
+
+    /// <summary>포트폴리오 영상 삭제·복구 요청. Restore = true면 실행취소.</summary>
+    public class DeletePlayerPortfolioVideoRequest
+    {
+        public Guid VideoId { get; set; }
+        public bool Restore { get; set; }
+    }
+
     /// <summary>포트폴리오 영상 목록 (선수 대시보드 포트폴리오 섹션). 대표 영상 분리는 클라이언트에서.</summary>
     public class PlayerPortfolioResponse
     {

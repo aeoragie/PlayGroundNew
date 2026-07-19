@@ -10,6 +10,9 @@ namespace PlayGround.Client.Components.Shared.Forms
         BirthDate,
         /// <summary>전화 — 01012345678 → 010-1234-5678 (inputmode tel)</summary>
         PhoneNumber,
+        /// <summary>연·월 — 202403 → 2024. 03 (inputmode numeric).
+        /// 커리어 기간처럼 과거 연도를 고르는 자리는 캘린더를 쓰지 않는다(Design.DatePicker 3분법).</summary>
+        YearMonth,
     }
 
     public static class FormInputFormatter
@@ -27,6 +30,7 @@ namespace PlayGround.Client.Components.Shared.Forms
             {
                 FormInputFormat.BirthDate => FormatBirthDate(digits),
                 FormInputFormat.PhoneNumber => FormatPhone(digits),
+                FormInputFormat.YearMonth => FormatYearMonth(digits),
                 _ => value,
             };
         }
@@ -36,8 +40,20 @@ namespace PlayGround.Client.Components.Shared.Forms
         {
             FormInputFormat.BirthDate => "numeric",
             FormInputFormat.PhoneNumber => "tel",
+            FormInputFormat.YearMonth => "numeric",
             _ => null,
         };
+
+        // 2024. 03 — 6자리까지만 (연 4 + 월 2)
+        private static string FormatYearMonth(string digits)
+        {
+            if (digits.Length > 6)
+            {
+                digits = digits[..6];
+            }
+
+            return digits.Length <= 4 ? digits : $"{digits[..4]}. {digits[4..]}";
+        }
 
         // 2011. 03. 14 — 자리수만큼만 채운다(입력 중 잘림 없음)
         private static string FormatBirthDate(string digits)

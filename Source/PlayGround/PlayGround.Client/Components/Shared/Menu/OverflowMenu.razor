@@ -1,0 +1,138 @@
+@* 오버플로 메뉴 (⋯) — Design.DropdownMenu §2·§3.
+   PC = 우측 정렬 팝오버 / 모바일 = 바텀시트(앵커 팝업 금지 — 엄지 도달권).
+   파괴 액션은 항상 맨 아래 + 구분선 + 레드이고, 실행 전 확인 모달은 호출부가 건다.
+   액션이 1개뿐이면 이 컴포넌트를 쓰지 않는다 — 행에 직접 버튼을 둔다(카탈로그 규칙).
+   바깥 클릭은 투명 배경으로 잡는다(JS 없이) · 동시에 하나만 열린다(정적 코디네이터). *@
+@using PlayGround.Client.Styles
+@implements IDisposable
+
+<div class="relative shrink-0">
+    <button type="button" class="@Css.Menu.Trigger" aria-label="@($"{Target} 추가 작업")"
+            aria-haspopup="true" aria-expanded="@mIsOpen.ToString().ToLowerInvariant()"
+            @onclick="Toggle" @onclick:stopPropagation="true">⋯</button>
+
+    @if (mIsOpen)
+    {
+        @* PC — 바깥 클릭 배경 + 팝오버 *@
+        <div class="@Css.Menu.Backdrop" @onclick="Close"></div>
+
+        <div class="@Css.Menu.Popover" role="menu" @onkeydown="OnKeyDown" @onclick:stopPropagation="true">
+            @if (Items.Count > 0)
+            {
+                <div class="@Css.Menu.Group">
+                    @foreach (MenuItem item in Items)
+                    {
+                        <button type="button" class="@Css.Menu.Item" role="menuitem"
+                                @onclick="() => InvokeAsync(item)">@item.Label</button>
+                    }
+                </div>
+            }
+            @if (DestructiveItems.Count > 0)
+            {
+                <div class="@Css.Menu.GroupDestructive">
+                    @foreach (MenuItem item in DestructiveItems)
+                    {
+                        <button type="button" class="@Css.Menu.ItemDestructive" role="menuitem"
+                                @onclick="() => InvokeAsync(item)">@item.Label</button>
+                    }
+                </div>
+            }
+        </div>
+
+        @* 모바일 — 바텀시트 *@
+        <div class="@Css.Menu.SheetOverlay" @onclick="Close">
+            <div class="@Css.Menu.SheetCard" @onclick:stopPropagation="true">
+                <span class="@Css.Menu.SheetGrabBar"></span>
+                <span class="@Css.Menu.SheetTitle">@Target</span>
+                @foreach (MenuItem item in Items)
+                {
+                    <button type="button" class="@Css.Menu.SheetItem" @onclick="() => InvokeAsync(item)">@item.Label</button>
+                }
+                @foreach (MenuItem item in DestructiveItems)
+                {
+                    <button type="button" class="@Css.Menu.SheetItemDestructive" @onclick="() => InvokeAsync(item)">@item.Label</button>
+                }
+                <button type="button" class="@Css.Menu.SheetCancel" @onclick="Close">취소</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>메뉴 항목 하나. 파괴 여부는 목록을 나눠서 표현한다(맨 아래 규칙을 컴포넌트가 강제).</summary>
+    public sealed record MenuItem(string Label, Func<Task> OnSelect);
+
+    /// <summary>이 메뉴가 무엇에 대한 것인지 — 모바일 시트 헤더와 aria-label에 쓴다.</summary>
+    [Parameter, EditorRequired]
+    public string Target { get; set; } = string.Empty;
+
+    /// <summary>이동·수정 등 일반 액션.</summary>
+    [Parameter]
+    public List<MenuItem> Items { get; set; } = new();
+
+    /// <summary>삭제 등 파괴 액션 — 항상 맨 아래·레드로 렌더된다. 확인 모달은 호출부 책임.</summary>
+    [Parameter]
+    public List<MenuItem> DestructiveItems { get; set; } = new();
+
+    // 동시에 하나만 열린다 — 다른 인스턴스가 열리면 자기를 닫는다
+    private static event Action? OnAnyOpened;
+
+    private bool mIsOpen;
+
+    protected override void OnInitialized()
+    {
+        OnAnyOpened += CloseFromOther;
+    }
+
+    private void Toggle()
+    {
+        if (mIsOpen)
+        {
+            Close();
+            return;
+        }
+
+        // 자기 구독을 잠시 떼고 알려야 방금 연 메뉴가 스스로 닫히지 않는다
+        OnAnyOpened -= CloseFromOther;
+        OnAnyOpened?.Invoke();
+        OnAnyOpened += CloseFromOther;
+
+        mIsOpen = true;
+    }
+
+    private void Close()
+    {
+        mIsOpen = false;
+    }
+
+    private void CloseFromOther()
+    {
+        if (!mIsOpen)
+        {
+            return;
+        }
+
+        mIsOpen = false;
+        StateHasChanged();
+    }
+
+    private void OnKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            Close();
+        }
+    }
+
+    // 선택하면 메뉴를 먼저 닫는다 — 확인 모달이 메뉴 위에 뜨는 겹침을 피한다
+    private async Task InvokeAsync(MenuItem item)
+    {
+        Close();
+        await item.OnSelect();
+    }
+
+    public void Dispose()
+    {
+        OnAnyOpened -= CloseFromOther;
+    }
+}

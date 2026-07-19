@@ -1,0 +1,246 @@
+@* 커리어 이력 입력 (신규·수정 겸용) — PC 중앙 모달 / 모바일 전체 시트.
+   기간은 연·월 자동 포맷 입력이다 — 과거 연도를 화살표로 넘기게 하지 않는다(Design.DatePicker 3분법 1).
+   "현재 소속"을 켜면 종료 시점 입력이 사라진다 — 서버가 EndDate 유무로 IsCurrent를 파생한다.
+   검증 오류는 인라인만(토스트 금지), 저장 실패만 토스트로 알린다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
+@inject PlayerClient Players
+@inject ToastService Toasts
+
+@if (IsOpen)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <h2 class="@Css.MatchForm.Title">@(IsEdit ? "이력 수정" : "이력 추가")</h2>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            <CascadingValue Value="@mForm" IsFixed="true">
+                <div class="@Css.MatchForm.Body">
+                    <TextField Label="팀 이름" @bind-Value="mTeamName" Validator="ValidateTeamName"
+                               Placeholder="서울신답FC U15" MaxLength="50" />
+
+                    <CheckboxField Label="현재 소속이에요" @bind-Value="mIsCurrent" />
+
+                    <div class="@Css.MatchForm.DateTimeRow">
+                        <TextField Label="시작" @bind-Value="mStartText" Validator="ValidateStart"
+                                   Format="FormInputFormat.YearMonth" Placeholder="2024. 03" />
+                        @if (!mIsCurrent)
+                        {
+                            <TextField Label="종료" @bind-Value="mEndText" Validator="ValidateEnd"
+                                       Format="FormInputFormat.YearMonth" Placeholder="2025. 02" />
+                        }
+                    </div>
+
+                    <TextField Label="역할" @bind-Value="mRole" IsOptional="true"
+                               Placeholder="U15 · FW · 주전" MaxLength="50"
+                               Helper="포지션·학년·출전 상태처럼 그 팀에서 맡은 자리를 적어요." />
+
+                    <TextField Label="메모" @bind-Value="mNote" IsOptional="true" Multiline="true" Rows="3"
+                               MaxLength="200" Placeholder="기억에 남는 경기나 성과를 적어 두면 공개 프로필에 함께 보여요." />
+
+                    @if (IsEdit && WasVerified)
+                    {
+                        @* 팀이 확인한 이력을 고치면 확인이 풀린다 — 저장 전에 알려 준다 *@
+                        <div class="@VerifyNoticeClass" role="note">
+                            내용을 수정하면 "팀 확인됨" 표시가 해제되고 "본인 입력"으로 돌아가요.
+                            팀 관리자가 다시 확인하면 표시가 복구돼요.
+                        </div>
+                    }
+                </div>
+
+                <div class="@Css.MatchForm.Footer">
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                    <SubmitButton Label="저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                                  Class="@Css.MatchForm.SubmitWidth" />
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>선수 커리어가 이보다 이른 해에 시작할 수는 없다고 본다 — 서버 검증과 같은 값.</summary>
+    private const int EarliestYear = 1990;
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>수정 대상 — null이면 신규 등록.</summary>
+    [Parameter]
+    public PlayerCareerEntryDto? Entry { get; set; }
+
+    /// <summary>저장 성공 후 상위(페이지)가 목록을 다시 읽는다.</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private readonly FormFieldContext mForm = new();
+
+    private string? mTeamName;
+    private string? mStartText;
+    private string? mEndText;
+    private string? mRole;
+    private string? mNote;
+    private bool mIsCurrent;
+    private bool mSaving;
+    private bool mLoaded;
+
+    private bool IsEdit => Entry is not null;
+
+    private bool WasVerified => Entry?.IsVerified == true;
+
+    // 열 때 한 번만 초기값을 채운다 (입력 중 재렌더에 값이 되돌아가지 않도록)
+    protected override void OnParametersSet()
+    {
+        if (!IsOpen)
+        {
+            mLoaded = false;
+            return;
+        }
+
+        if (mLoaded)
+        {
+            return;
+        }
+
+        mLoaded = true;
+        mTeamName = Entry?.TeamName;
+        mStartText = Entry is null ? null : ToYearMonth(Entry.StartDate);
+        mEndText = Entry?.EndDate is null ? null : ToYearMonth(Entry.EndDate.Value);
+        mRole = Entry?.Role;
+        mNote = Entry?.Note;
+        mIsCurrent = Entry is null || Entry.EndDate is null;
+    }
+
+    private static string ToYearMonth(DateOnly date) => $"{date.Year}. {date.Month:00}";
+
+    /// <summary>"2024. 03" → 2024-03-01. 형태가 아니면 null.</summary>
+    private static DateOnly? ParseYearMonth(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        string digits = new(text.Where(char.IsAsciiDigit).ToArray());
+        if (digits.Length != 6)
+        {
+            return null;
+        }
+
+        int year = int.Parse(digits[..4]);
+        int month = int.Parse(digits[4..]);
+        if (month < 1 || month > 12)
+        {
+            return null;
+        }
+
+        return new DateOnly(year, month, 1);
+    }
+
+    private static string? ValidateTeamName(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "팀 이름을 입력해 주세요." : null;
+
+    private string? ValidateStart(string? value)
+    {
+        DateOnly? parsed = ParseYearMonth(value);
+        if (parsed is null)
+        {
+            return "시작 시점을 연·월 6자리로 입력해 주세요. (예: 2024. 03)";
+        }
+
+        if (parsed.Value.Year < EarliestYear || parsed.Value.Year > DateTime.Now.Year + 1)
+        {
+            return $"{EarliestYear}년부터 입력할 수 있어요.";
+        }
+
+        return null;
+    }
+
+    private string? ValidateEnd(string? value)
+    {
+        if (mIsCurrent)
+        {
+            return null;
+        }
+
+        DateOnly? parsed = ParseYearMonth(value);
+        if (parsed is null)
+        {
+            return "종료 시점을 연·월 6자리로 입력해 주세요. (예: 2025. 02)";
+        }
+
+        DateOnly? start = ParseYearMonth(mStartText);
+        if (start is not null && parsed < start)
+        {
+            return "종료 시점이 시작보다 빨라요.";
+        }
+
+        return null;
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (!await mForm.ValidateAllAsync())
+        {
+            return;
+        }
+
+        var request = new SavePlayerCareerRequest
+        {
+            CareerId = Entry?.CareerId ?? Guid.Empty,
+            TeamName = mTeamName!.Trim(),
+            StartDate = ParseYearMonth(mStartText)!.Value,
+            EndDate = mIsCurrent ? null : ParseYearMonth(mEndText),
+            Role = mRole,
+            Note = mNote,
+            BadgeLabel = Entry?.BadgeLabel
+        };
+
+        mSaving = true;
+        PlayerEntrySaveResult result = await Players.SaveCareerAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+            }
+
+            return;
+        }
+
+        Toasts.ShowSuccess(IsEdit ? "이력을 수정했어요." : "이력을 등록했어요.");
+        await CloseAsync();
+        await OnSaved.InvokeAsync();
+    }
+
+    private Task CancelAsync() => CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        mLoaded = false;
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+
+    private const string VerifyNoticeClass =
+        "rounded-xl bg-surface-orange border border-orange/30 px-3.5 py-3 " +
+        "text-[12px] text-text-strong leading-[1.6] break-keep";
+}

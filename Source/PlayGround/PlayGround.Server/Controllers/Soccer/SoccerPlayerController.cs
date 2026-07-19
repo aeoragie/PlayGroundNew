@@ -82,6 +82,70 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>커리어 이력 저장(신규·수정). 본인 프로필만 — 소유 판정은 서버가 UserId로 한다.</summary>
+        [HttpPut("me/career")]
+        public async Task<Envelope<bool>> SaveMyCareerAsync(
+            [FromBody] SavePlayerCareerRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new SaveSoccerPlayerCareerMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>커리어 이력 삭제·복구(실행취소). 소프트 삭제라 되돌릴 수 있다.</summary>
+        [HttpPost("me/career/delete")]
+        public async Task<Envelope<bool>> DeleteMyCareerAsync(
+            [FromBody] DeletePlayerCareerRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new DeleteSoccerPlayerCareerMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>포트폴리오 영상 저장(신규·수정). 링크는 유튜브만 — 서버가 정규화하고 썸네일을 파생한다.</summary>
+        [HttpPut("me/portfolio")]
+        public async Task<Envelope<bool>> SaveMyPortfolioVideoAsync(
+            [FromBody] SavePlayerPortfolioVideoRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new SaveSoccerPlayerPortfolioVideoMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>포트폴리오 영상 삭제·복구(실행취소).</summary>
+        [HttpPost("me/portfolio/delete")]
+        public async Task<Envelope<bool>> DeleteMyPortfolioVideoAsync(
+            [FromBody] DeletePlayerPortfolioVideoRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new DeleteSoccerPlayerPortfolioVideoMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/portfolio")]
         public async Task<Envelope<PlayerPortfolioResponse>> GetMyPortfolioAsync(CancellationToken cancellation)
         {

@@ -28,6 +28,18 @@ namespace PlayGround.Application.Interfaces
         /// <summary>관리 주체(UserId) 기준 포트폴리오 영상 목록 조회. 없으면 빈 목록 — 에러가 아니다.</summary>
         Task<Result<PlayerPortfolioResponse>> GetPortfolioByUserAsync(Guid userId, CancellationToken cancellation = default);
 
+        /// <summary>커리어 이력 저장(신규·수정). 소유 선수 행이 아니면 Success(false).</summary>
+        Task<Result<bool>> SaveCareerAsync(Guid userId, SavePlayerCareerRequest request, CancellationToken cancellation = default);
+
+        /// <summary>커리어 이력 소프트 삭제·복구(실행취소). 대상이 없거나 소유가 아니면 Success(false).</summary>
+        Task<Result<bool>> DeleteCareerAsync(Guid userId, Guid careerId, bool restore, CancellationToken cancellation = default);
+
+        /// <summary>포트폴리오 영상 저장(신규·수정). 소유 선수 행이 아니면 Success(false).</summary>
+        Task<Result<bool>> SavePortfolioVideoAsync(Guid userId, SavePlayerPortfolioVideoRequest request, CancellationToken cancellation = default);
+
+        /// <summary>포트폴리오 영상 소프트 삭제·복구(실행취소). 대상이 없거나 소유가 아니면 Success(false).</summary>
+        Task<Result<bool>> DeletePortfolioVideoAsync(Guid userId, Guid videoId, bool restore, CancellationToken cancellation = default);
+
         /// <summary>관리 주체(UserId) 기준 시즌 통계(경기별 기록·팀 관점 변환) 조회. 출전 없으면 빈 목록 — 에러가 아니다.</summary>
         Task<Result<PlayerSeasonStatsResponse>> GetSeasonStatsByUserAsync(Guid userId, int seasonYear, CancellationToken cancellation = default);
     }

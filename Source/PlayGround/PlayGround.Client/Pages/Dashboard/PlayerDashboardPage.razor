@@ -2,10 +2,13 @@
 @attribute [Route(Routes.PlayerDashboardSectionTemplate)]
 @using System.Security.Claims
 @using PlayGround.Client.Components.Dashboard.Player
+@using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject PlayerClient Players
+@inject ToastService Toasts
+@inject ConfirmService Confirm
 
 <PageTitle>선수 대시보드 — PlayGround</PageTitle>
 
@@ -31,7 +34,7 @@
                                 <SkeletonSection><SkeletonRows Count="3" /></SkeletonSection>
                             </Skeleton>
                             <ChildContent>
-                                <PlayerCareerSection Entries="@mCareer!.Entries" />
+                                <PlayerCareerSection Entries="@mCareer!.Entries" OnAdd="OpenCareerAdd" OnEdit="OpenCareerEdit" OnDelete="DeleteCareerAsync" />
                             </ChildContent>
                         </LoadingGate>
                         break;
@@ -54,7 +57,7 @@
                                 <SkeletonSection><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection>
                             </Skeleton>
                             <ChildContent>
-                                <PlayerPortfolioSection Videos="@mPortfolio!.Videos" />
+                                <PlayerPortfolioSection Videos="@mPortfolio!.Videos" OnAdd="OpenPortfolioAdd" OnEdit="OpenPortfolioEdit" OnDelete="DeletePortfolioAsync" />
                             </ChildContent>
                         </LoadingGate>
                         break;
@@ -81,7 +84,7 @@
                             <SkeletonSection Compact="true"><SkeletonRows Count="3" /></SkeletonSection>
                         </Skeleton>
                         <ChildContent>
-                            <MobilePlayerCareerSection Entries="@mCareer!.Entries" />
+                            <MobilePlayerCareerSection Entries="@mCareer!.Entries" OnAdd="OpenCareerAdd" OnEdit="OpenCareerEdit" OnDelete="DeleteCareerAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -104,7 +107,7 @@
                             <SkeletonSection Compact="true"><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection>
                         </Skeleton>
                         <ChildContent>
-                            <MobilePlayerPortfolioSection Videos="@mPortfolio!.Videos" />
+                            <MobilePlayerPortfolioSection Videos="@mPortfolio!.Videos" OnAdd="OpenPortfolioAdd" OnEdit="OpenPortfolioEdit" OnDelete="DeletePortfolioAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -116,6 +119,11 @@
         <PlayerMobileTabBar ActiveSection="@CurrentSection" />
     }
 </div>
+
+@* 입력 다이얼로그 — PC·모바일 공용 (다이얼로그가 스스로 반응형이라 두 트리 밖에 하나만 둔다) *@
+<CareerFormDialog @bind-IsOpen="mCareerFormOpen" Entry="@mEditingCareer" OnSaved="ReloadCareerAsync" />
+<PortfolioFormDialog @bind-IsOpen="mPortfolioFormOpen" Entry="@mEditingVideo"
+                     ExistingVideoCount="@(mPortfolio?.Videos.Count ?? 0)" OnSaved="ReloadPortfolioAsync" />
 
 @code {
     [Parameter]
@@ -130,6 +138,12 @@
     private bool mCareerFailed;
     private bool mPortfolioFailed;
     private bool mStatsFailed;
+
+    // 입력 다이얼로그 — 편집 대상이 null이면 신규 등록
+    private bool mCareerFormOpen;
+    private bool mPortfolioFormOpen;
+    private PlayerCareerEntryDto? mEditingCareer;
+    private PlayerPortfolioVideoDto? mEditingVideo;
 
     private SoccerPlayerDashboardSection CurrentSection => SoccerPlayerDashboardSectionExtensions.ParseSlug(Section);
 
@@ -194,6 +208,126 @@
         mCareerFailed = false;
         mCareer = await Players.GetMyCareerAsync();
         mCareerFailed = mCareer is null;
+    }
+
+    //.// 커리어 입력 — 추가·수정은 다이얼로그, 삭제는 확인 모달 + 실행취소 토스트
+
+    private void OpenCareerAdd()
+    {
+        mEditingCareer = null;
+        mCareerFormOpen = true;
+    }
+
+    private void OpenCareerEdit(PlayerCareerEntryDto entry)
+    {
+        mEditingCareer = entry;
+        mCareerFormOpen = true;
+    }
+
+    private Task ReloadCareerAsync() => LoadCareerAsync();
+
+    // 되돌릴 수 있어도 확인은 받는다(DropdownMenu: 파괴 액션 → 확인 모달). 소프트 삭제라 실행취소를 함께 준다
+    private async Task DeleteCareerAsync(PlayerCareerEntryDto entry)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"{entry.TeamName} 이력을 삭제할까요?",
+            Description = "공개 프로필에서도 사라져요.",
+            ConfirmLabel = "삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        PlayerEntrySaveResult result = await Players.DeleteCareerAsync(entry.CareerId);
+        if (!result.Success)
+        {
+            Toasts.ShowError(result.Error ?? "삭제하지 못했어요.", "재시도", () => DeleteCareerAsync(entry));
+            return;
+        }
+
+        await LoadCareerAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess($"{entry.TeamName} 이력을 삭제했어요.", "실행취소", () => RestoreCareerAsync(entry));
+    }
+
+    private async Task RestoreCareerAsync(PlayerCareerEntryDto entry)
+    {
+        PlayerEntrySaveResult result = await Players.DeleteCareerAsync(entry.CareerId, restore: true);
+        if (!result.Success)
+        {
+            Toasts.ShowError(result.Error ?? "되돌리지 못했어요.", "재시도", () => RestoreCareerAsync(entry));
+            return;
+        }
+
+        await LoadCareerAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess("삭제를 되돌렸어요.");
+    }
+
+    //.// 포트폴리오 입력
+
+    private void OpenPortfolioAdd()
+    {
+        mEditingVideo = null;
+        mPortfolioFormOpen = true;
+    }
+
+    private void OpenPortfolioEdit(PlayerPortfolioVideoDto clip)
+    {
+        mEditingVideo = clip;
+        mPortfolioFormOpen = true;
+    }
+
+    private Task ReloadPortfolioAsync() => LoadPortfolioAsync();
+
+    private async Task DeletePortfolioAsync(PlayerPortfolioVideoDto clip)
+    {
+        // 대표 영상을 지우면 다른 영상이 대표로 올라온다 — 미리 알려 준다
+        string description = clip.IsPrimary
+            ? "대표 영상이라 다음 영상이 대표로 올라와요."
+            : "공개 프로필에서도 사라져요.";
+
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"\"{clip.Title}\" 영상을 삭제할까요?",
+            Description = description,
+            ConfirmLabel = "삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        PlayerEntrySaveResult result = await Players.DeletePortfolioVideoAsync(clip.VideoId);
+        if (!result.Success)
+        {
+            Toasts.ShowError(result.Error ?? "삭제하지 못했어요.", "재시도", () => DeletePortfolioAsync(clip));
+            return;
+        }
+
+        await LoadPortfolioAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess("영상을 삭제했어요.", "실행취소", () => RestorePortfolioAsync(clip));
+    }
+
+    private async Task RestorePortfolioAsync(PlayerPortfolioVideoDto clip)
+    {
+        PlayerEntrySaveResult result = await Players.DeletePortfolioVideoAsync(clip.VideoId, restore: true);
+        if (!result.Success)
+        {
+            Toasts.ShowError(result.Error ?? "되돌리지 못했어요.", "재시도", () => RestorePortfolioAsync(clip));
+            return;
+        }
+
+        await LoadPortfolioAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess("삭제를 되돌렸어요.");
     }
 
     private async Task LoadPortfolioAsync()

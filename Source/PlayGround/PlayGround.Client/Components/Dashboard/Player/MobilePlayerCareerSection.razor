@@ -6,7 +6,7 @@
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
         <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">커리어</h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 이력 추가</button>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">＋ 이력 추가</button>
     </div>
 
     @if (Entries.Count == 0)
@@ -46,6 +46,8 @@
                         }
                         <span class="@PlayerCareerSection.VerifyClass(entry.IsVerified)">@(entry.IsVerified ? "팀 확인됨" : "본인 입력")</span>
                     </span>
+                    <OverflowMenu Target="@entry.TeamName"
+                                  Items="@BuildMenuItems(entry)" DestructiveItems="@BuildDestructiveItems(entry)" />
                 </div>
             }
             <span class="text-[11px] text-text-muted pt-3 break-keep">팀 소속 이력은 팀 관리자가 확인하면 "팀 확인됨"으로 표시돼요.</span>
@@ -56,4 +58,23 @@
 @code {
     [Parameter, EditorRequired]
     public List<PlayerCareerEntryDto> Entries { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<PlayerCareerEntryDto> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<PlayerCareerEntryDto> OnDelete { get; set; }
+
+    private List<OverflowMenu.MenuItem> BuildMenuItems(PlayerCareerEntryDto entry) => new()
+    {
+        new OverflowMenu.MenuItem("이력 수정", () => OnEdit.InvokeAsync(entry)),
+    };
+
+    private List<OverflowMenu.MenuItem> BuildDestructiveItems(PlayerCareerEntryDto entry) => new()
+    {
+        new OverflowMenu.MenuItem("이력 삭제", () => OnDelete.InvokeAsync(entry)),
+    };
 }

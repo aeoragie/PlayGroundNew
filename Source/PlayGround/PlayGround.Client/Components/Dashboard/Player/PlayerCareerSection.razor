@@ -6,7 +6,7 @@
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
         <h1 class="@Css.Dashboard.SectionTitle">커리어</h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 이력 추가</button>
+        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">＋ 이력 추가</button>
     </div>
 
     @if (Entries.Count == 0)
@@ -46,6 +46,8 @@
                         }
                     </span>
                     <span class="@VerifyClass(entry.IsVerified)">@(entry.IsVerified ? "팀 확인됨" : "본인 입력")</span>
+                    <OverflowMenu Target="@entry.TeamName"
+                                  Items="@BuildMenuItems(entry)" DestructiveItems="@BuildDestructiveItems(entry)" />
                 </div>
             }
             <span class="text-xs text-text-muted pt-3.5 break-keep">팀 소속 이력은 팀 관리자가 확인하면 "팀 확인됨"으로 표시돼요. 확인된 이력은 공개 프로필에서 신뢰 표시와 함께 노출됩니다.</span>
@@ -56,6 +58,27 @@
 @code {
     [Parameter, EditorRequired]
     public List<PlayerCareerEntryDto> Entries { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<PlayerCareerEntryDto> OnEdit { get; set; }
+
+    /// <summary>삭제 확인 모달·실행취소 토스트는 페이지가 맡는다 — 섹션은 의도만 올려보낸다.</summary>
+    [Parameter]
+    public EventCallback<PlayerCareerEntryDto> OnDelete { get; set; }
+
+    // 수정·삭제 둘 다 ⋯ 안에 둔다 (카탈로그 오버플로 예시와 같은 구성)
+    private List<OverflowMenu.MenuItem> BuildMenuItems(PlayerCareerEntryDto entry) => new()
+    {
+        new OverflowMenu.MenuItem("이력 수정", () => OnEdit.InvokeAsync(entry)),
+    };
+
+    private List<OverflowMenu.MenuItem> BuildDestructiveItems(PlayerCareerEntryDto entry) => new()
+    {
+        new OverflowMenu.MenuItem("이력 삭제", () => OnDelete.InvokeAsync(entry)),
+    };
 
     // "2024.3 ~ 현재 · U15 · FW · 주전" — 기간 + 역할(있으면)
     internal static string MetaLine(PlayerCareerEntryDto entry)

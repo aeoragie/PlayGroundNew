@@ -274,6 +274,112 @@ namespace PlayGround.Persistence.Repositories
             return Result<PlayerPortfolioResponse>.Success(response);
         }
 
+        public async Task<Result<bool>> SaveCareerAsync(Guid userId, SavePlayerCareerRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player career save requested",
+                ("UserId", userId), ("CareerId", request.CareerId), ("IsNew", request.CareerId == Guid.Empty));
+
+            var procedure = new UspSaveSoccerPlayerCareer(this)
+            {
+                UserId = userId,
+                CareerId = request.CareerId,
+                TeamName = request.TeamName,
+                StartDate = request.StartDate.ToDateTime(TimeOnly.MinValue),
+                EndDate = request.EndDate?.ToDateTime(TimeOnly.MinValue),
+                Role = request.Role!,
+                Note = request.Note!,
+                BadgeLabel = request.BadgeLabel!
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerPlayerCareerSaveRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player career save failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Player career save completed", ("UserId", userId), ("Applied", applied));
+            return Result<bool>.Success(applied);
+        }
+
+        public async Task<Result<bool>> DeleteCareerAsync(Guid userId, Guid careerId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player career delete requested",
+                ("UserId", userId), ("CareerId", careerId), ("Restore", restore));
+
+            var procedure = new UspDeleteSoccerPlayerCareer(this)
+            {
+                UserId = userId,
+                CareerId = careerId,
+                Restore = restore
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerPlayerCareerDeleteRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player career delete failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Player career delete completed", ("UserId", userId), ("Applied", applied));
+            return Result<bool>.Success(applied);
+        }
+
+        public async Task<Result<bool>> SavePortfolioVideoAsync(Guid userId, SavePlayerPortfolioVideoRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player portfolio video save requested",
+                ("UserId", userId), ("VideoId", request.VideoId), ("IsNew", request.VideoId == Guid.Empty));
+
+            var procedure = new UspSaveSoccerPlayerPortfolioVideo(this)
+            {
+                UserId = userId,
+                VideoId = request.VideoId,
+                Title = request.Title,
+                VideoUrl = request.VideoUrl,
+                ThumbnailUrl = request.ThumbnailUrl!,
+                Tags = request.Tags.Count > 0 ? JsonSerializer.Serialize(request.Tags) : null!,
+                RecordedOn = request.RecordedOn?.ToDateTime(TimeOnly.MinValue),
+                IsPrimary = request.IsPrimary
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioSaveRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player portfolio video save failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Player portfolio video save completed", ("UserId", userId), ("Applied", applied));
+            return Result<bool>.Success(applied);
+        }
+
+        public async Task<Result<bool>> DeletePortfolioVideoAsync(Guid userId, Guid videoId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player portfolio video delete requested",
+                ("UserId", userId), ("VideoId", videoId), ("Restore", restore));
+
+            var procedure = new UspDeleteSoccerPlayerPortfolioVideo(this)
+            {
+                UserId = userId,
+                VideoId = videoId,
+                Restore = restore
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioDeleteRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player portfolio video delete failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Player portfolio video delete completed", ("UserId", userId), ("Applied", applied));
+            return Result<bool>.Success(applied);
+        }
+
         public async Task<Result<PlayerSeasonStatsResponse>> GetSeasonStatsByUserAsync(Guid userId, int seasonYear, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player season stats requested", ("UserId", userId), ("SeasonYear", seasonYear));

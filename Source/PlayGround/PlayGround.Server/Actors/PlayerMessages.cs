@@ -39,6 +39,30 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
+    /// <summary>커리어 이력 저장 메시지 (쓰기 — UserId 해시로 사용자별 순차).</summary>
+    public sealed record SaveSoccerPlayerCareerMessage(Guid UserId, SavePlayerCareerRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>커리어 이력 삭제·복구 메시지 (쓰기 — UserId 해시).</summary>
+    public sealed record DeleteSoccerPlayerCareerMessage(Guid UserId, DeletePlayerCareerRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>포트폴리오 영상 저장 메시지 (쓰기 — UserId 해시. 대표 지정이 다른 행을 건드려 순차성이 중요하다).</summary>
+    public sealed record SaveSoccerPlayerPortfolioVideoMessage(Guid UserId, SavePlayerPortfolioVideoRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>포트폴리오 영상 삭제·복구 메시지 (쓰기 — UserId 해시).</summary>
+    public sealed record DeleteSoccerPlayerPortfolioVideoMessage(Guid UserId, DeletePlayerPortfolioVideoRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>커리어 목록 조회 메시지 (같은 사용자 쓰기와 순차 처리 — UserId 해시).</summary>
     public sealed record GetSoccerPlayerCareerMessage(Guid UserId) : IConsistentHashable
     {
