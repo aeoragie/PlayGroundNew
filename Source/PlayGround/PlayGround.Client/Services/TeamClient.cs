@@ -60,6 +60,43 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>결과 입력 폼의 대회/리그 선택지. 미인증·오류 시 null.</summary>
+        public async Task<TeamTournamentOptionsResponse?> GetTournamentOptionsAsync(int seasonYear)
+        {
+            try
+            {
+                Envelope<TeamTournamentOptionsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamTournamentOptionsResponse>>(
+                        $"api/soccer/team/me/tournament-options?season={seasonYear}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>경기 결과 저장. 성공 시 순위표는 서버에서 이미 재계산돼 있다(D5).</summary>
+        public async Task<MatchResultSaveResult> CreateMatchResultAsync(CreateTeamMatchResultRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me/matches", request);
+                Envelope<CreateTeamMatchResultResponse>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<CreateTeamMatchResultResponse>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new MatchResultSaveResult(true, null);
+                }
+
+                return new MatchResultSaveResult(false, envelope?.Message ?? "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new MatchResultSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
         /// <summary>본인 팀 경기영상 목록 조회. 미인증·오류 시 null.</summary>
         public async Task<TeamVideosResponse?> GetTeamVideosAsync()
         {
@@ -133,4 +170,9 @@ namespace PlayGround.Client.Services
 
     /// <summary>AccessToken은 TeamAdmin으로 승격된 새 토큰 — null이면 기존 토큰 유지.</summary>
     public record TeamSaveResult(bool Success, string? Slug, int PlayerCount, string? AccessToken, string? Error);
+
+    /// <remarks>
+    /// IsNetworkError로 "입력이 잘못됨"(→ 인라인)과 "요청 실패"(→ 토스트+재시도)를 구분한다.
+    /// </remarks>
+    public record MatchResultSaveResult(bool Success, string? Error, bool IsNetworkError = false);
 }

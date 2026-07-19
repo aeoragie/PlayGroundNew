@@ -1,0 +1,313 @@
+@* 경기 결과 입력 — PC 중앙 모달 / 모바일 전체 시트. A1 폼 + Calendar/TimeList 조합.
+   날짜는 과거만 선택 가능(이미 치른 경기의 결과) — 일정 추가와 반대 방향이다.
+   저장 성공 = 토스트(A2), 검증 오류 = 인라인(폼 오류에 토스트 금지). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+
+@if (IsOpen)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <h2 class="@Css.MatchForm.Title">경기 결과 입력</h2>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            <CascadingValue Value="@mForm" IsFixed="true">
+                <div class="@Css.MatchForm.Body">
+                    @* 대회/리그 — 선택 안 하면 친선 경기 *@
+                    <SelectField TValue="Guid?" Label="대회 · 리그" @bind-Value="mTournamentId"
+                                 Options="@TournamentOptions" Placeholder="친선 경기"
+                                 Helper="대회를 고르면 저장과 동시에 순위표가 갱신돼요" IsOptional="true" />
+
+                    <TextField Label="상대 팀" @bind-Value="mOpponentName" Placeholder="강동 SC"
+                               Validator="ValidateOpponent" MaxLength="50" />
+
+                    @* 홈/원정 — 2개뿐이라 RadioCards *@
+                    <RadioCards TValue="bool" Label="장소" @bind-Value="mIsHome" Options="@HomeAwayOptions" />
+
+                    @* 스코어 — 좌: 우리, 우: 상대 *@
+                    <div class="@Css.MatchForm.ScoreRow">
+                        <TextField Label="@($"{TeamName} 득점")" @bind-Value="mOurScore" Placeholder="3"
+                                   Validator="ValidateScore" InputType="text" MaxLength="2" Class="flex-1" />
+                        <span class="@Css.MatchForm.ScoreColon">:</span>
+                        <TextField Label="상대 득점" @bind-Value="mOpponentScore" Placeholder="1"
+                                   Validator="ValidateScore" InputType="text" MaxLength="2" Class="flex-1" />
+                    </div>
+
+                    @* 날짜·시간은 별도 필드 (한 팝오버에 합치지 않는다 — Design.DatePicker) *@
+                    <div class="@Css.MatchForm.DateTimeRow">
+                        <div class="@Css.MatchForm.PickerField">
+                            <label class="@Css.Form.Label">경기 날짜</label>
+                            <Calendar @bind-Value="mMatchDate" Range="Calendar.DateRange.PastOnly"
+                                      MatchDays="@MatchDays" HasError="@(mShowErrors && mMatchDate is null)" />
+                            @if (mShowErrors && mMatchDate is null)
+                            {
+                                <span class="@Css.Form.ErrorMessage">경기 날짜를 선택해 주세요.</span>
+                            }
+                        </div>
+                        <div class="@Css.MatchForm.PickerField">
+                            <label class="@Css.Form.Label">경기 시각</label>
+                            <TimeList @bind-Value="mMatchTime" HasError="@(mShowErrors && mMatchTime is null)" />
+                            @if (mShowErrors && mMatchTime is null)
+                            {
+                                <span class="@Css.Form.ErrorMessage">경기 시각을 선택해 주세요.</span>
+                            }
+                        </div>
+                    </div>
+
+                    <TextField Label="장소" @bind-Value="mVenueName" Placeholder="강동구민운동장"
+                               IsOptional="true" MaxLength="50" />
+
+                    @* 득점자(선택) — 로스터에서 고르거나 비워 둔다 *@
+                    @if (Players.Count > 0)
+                    {
+                        <div class="@Css.MatchForm.ScorerBlock">
+                            <label class="@Css.Form.Label">
+                                득점자<span class="@Css.Form.OptionalMark"> (선택)</span>
+                            </label>
+                            <span class="@Css.Form.Helper">고른 선수의 시즌 통계에 자동 반영돼요. 몰라도 비워 두면 돼요.</span>
+                            <div class="@Css.MatchForm.ScorerChips">
+                                @foreach (TeamRosterPlayerDto player in Players)
+                                {
+                                    TeamRosterPlayerDto target = player;
+                                    int count = CountOf(target.PlayerId);
+                                    <button type="button" class="@Css.MatchForm.ScorerChip(count > 0)"
+                                            @onclick="() => AddScorer(target)">
+                                        @target.Name@if (count > 0)
+                                        {
+                                            <span class="@Css.MatchForm.ScorerCount">@count</span>
+                                        }
+                                    </button>
+                                }
+                            </div>
+                            @if (mScorers.Count > 0)
+                            {
+                                <button type="button" class="@Css.MatchForm.ScorerReset" @onclick="ClearScorers">득점자 비우기</button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="@Css.MatchForm.Footer">
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                    <SubmitButton Label="결과 저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                                  Class="@Css.MatchForm.SubmitWidth" />
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>우리 팀 이름 — 스코어 라벨에 쓴다.</summary>
+    [Parameter]
+    public string TeamName { get; set; } = "우리 팀";
+
+    /// <summary>득점자 후보 (로스터). 비어 있으면 득점자 블록을 숨긴다.</summary>
+    [Parameter]
+    public List<TeamRosterPlayerDto> Players { get; set; } = new();
+
+    /// <summary>이미 결과가 있는 날 — 캘린더 도트.</summary>
+    [Parameter]
+    public IReadOnlyCollection<DateTime>? MatchDays { get; set; }
+
+    /// <summary>저장 성공 후 — 부모가 목록·순위표를 다시 불러온다.</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private readonly FormFieldContext mForm = new();
+    private List<SelectOption<Guid?>> mTournamentOptions = new();
+    private Dictionary<Guid, string> mTournamentFormats = new();
+    private readonly List<TeamMatchScorerDto> mScorers = new();
+
+    private Guid? mTournamentId;
+    private string mOpponentName = string.Empty;
+    private bool mIsHome = true;
+    private string mOurScore = string.Empty;
+    private string mOpponentScore = string.Empty;
+    private DateTime? mMatchDate;
+    private TimeOnly? mMatchTime;
+    private string mVenueName = string.Empty;
+    private bool mSaving;
+    private bool mShowErrors;
+    private bool mOptionsLoaded;
+
+    private static readonly List<SelectOption<bool>> HomeAwayOptions = new()
+    {
+        new SelectOption<bool>(true, "홈"),
+        new SelectOption<bool>(false, "원정"),
+    };
+
+    private List<SelectOption<Guid?>> TournamentOptions => mTournamentOptions;
+
+    /// <summary>고른 대회가 리그면 저장과 동시에 순위표가 갱신된다(D5).</summary>
+    private bool UpdatesStandings =>
+        mTournamentId is Guid id && mTournamentFormats.GetValueOrDefault(id) == "League";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!IsOpen)
+        {
+            return;
+        }
+
+        if (!mOptionsLoaded)
+        {
+            mOptionsLoaded = true;
+            await LoadTournamentsAsync();
+        }
+
+        // 시각 기본값 = 그 팀의 최근 경기와 같은 시각 (팀 루틴 반복 — Design.DatePicker)
+        mMatchTime ??= DefaultTime;
+    }
+
+    /// <summary>최근 경기 시각이 있으면 그걸, 없으면 유소년 경기가 가장 흔한 시각.</summary>
+    [Parameter]
+    public TimeOnly? RecentMatchTime { get; set; }
+
+    private TimeOnly DefaultTime => RecentMatchTime ?? new TimeOnly(14, 0);
+
+    private async Task LoadTournamentsAsync()
+    {
+        TeamTournamentOptionsResponse? options = await Teams.GetTournamentOptionsAsync(DateTime.Now.Year);
+        if (options is null)
+        {
+            return; // 선택지를 못 불러와도 친선 경기로는 저장할 수 있다
+        }
+
+        mTournamentOptions = options.Tournaments
+            .Select(t => new SelectOption<Guid?>(t.TournamentId, t.Name, DescriptionOf(t)))
+            .ToList();
+
+        mTournamentFormats = options.Tournaments.ToDictionary(t => t.TournamentId, t => t.Format);
+    }
+
+    private static string? DescriptionOf(TeamTournamentOptionDto tournament)
+    {
+        string format = tournament.Format switch
+        {
+            "League" => "리그",
+            "Split" => "스플릿",
+            _ => "대회",
+        };
+
+        return tournament.AgeGroup is null ? format : $"{format} · {tournament.AgeGroup}";
+    }
+
+    private static string? ValidateOpponent(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "상대 팀 이름을 입력해 주세요." : null;
+
+    private static string? ValidateScore(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "득점을 입력해 주세요.";
+        }
+
+        if (!int.TryParse(value, out int score) || score < 0)
+        {
+            return "0 이상의 숫자로 입력해 주세요.";
+        }
+
+        return score > 99 ? "99점을 넘을 수 없어요." : null;
+    }
+
+    private int CountOf(Guid playerId) => mScorers.Count(s => s.PlayerId == playerId);
+
+    private void AddScorer(TeamRosterPlayerDto player)
+    {
+        mScorers.Add(new TeamMatchScorerDto { PlayerId = player.PlayerId, PlayerName = player.Name });
+    }
+
+    private void ClearScorers() => mScorers.Clear();
+
+    private async Task SubmitAsync()
+    {
+        mShowErrors = true;
+
+        // 날짜·시간은 폼 컨텍스트 밖(별도 컴포넌트)이라 여기서 함께 판정한다
+        bool fieldsValid = await mForm.ValidateAllAsync();
+        if (!fieldsValid || mMatchDate is null || mMatchTime is null)
+        {
+            return;
+        }
+
+        var request = new CreateTeamMatchResultRequest
+        {
+            TournamentId = mTournamentId,
+            OpponentName = mOpponentName.Trim(),
+            IsHome = mIsHome,
+            OurScore = int.Parse(mOurScore),
+            OpponentScore = int.Parse(mOpponentScore),
+            MatchedAt = mMatchDate.Value.Date.Add(mMatchTime.Value.ToTimeSpan()),
+            VenueName = string.IsNullOrWhiteSpace(mVenueName) ? null : mVenueName.Trim(),
+            Scorers = mScorers.ToList(),
+        };
+
+        mSaving = true;
+        MatchResultSaveResult result = await Teams.CreateMatchResultAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            // 요청 실패는 토스트 + 재시도, 입력 문제는 인라인 (폼 오류에 토스트 금지)
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+            }
+
+            return;
+        }
+
+        // 순위표는 리그에서만 갱신된다 — 컵·스플릿은 조(組)를 아직 입력받지 않아 스코프를 특정할 수 없다
+        Toasts.ShowSuccess(UpdatesStandings
+            ? "경기 결과를 저장했어요. 순위표도 갱신됐어요."
+            : "경기 결과를 저장했어요.");
+
+        await CloseAsync();
+        await OnSaved.InvokeAsync();
+    }
+
+    private Task CancelAsync() => CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        ResetForm();
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+
+    private void ResetForm()
+    {
+        mTournamentId = null;
+        mOpponentName = string.Empty;
+        mIsHome = true;
+        mOurScore = string.Empty;
+        mOpponentScore = string.Empty;
+        mMatchDate = null;
+        mMatchTime = DefaultTime;
+        mVenueName = string.Empty;
+        mScorers.Clear();
+        mShowErrors = false;
+    }
+}

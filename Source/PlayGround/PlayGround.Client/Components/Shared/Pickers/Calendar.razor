@@ -1,0 +1,262 @@
+@* 날짜 선택 — Design.DatePicker. PC 팝오버 300px / 모바일 바텀시트(셀 44px, 지연 적용).
+   일요일 시작 · 요일 색 · 오늘 teal 링 · 선택 네이비 원 · 경기 있는 날 teal 도트 · 퀵버튼.
+   네이티브 <input type="date">는 쓰지 않는다(브라우저별 편차).
+   ※ 선택 가능 범위는 Range로 정한다 — 일정 추가는 미래만, 경기 결과 입력은 과거만. *@
+@using PlayGround.Client.Styles
+@implements IAsyncDisposable
+@inject IJSRuntime Js
+
+<div class="relative">
+    <button type="button" class="@Css.Picker.Trigger(mIsOpen, HasError)" @onclick="Toggle">
+        @if (Value is DateTime selected)
+        {
+            <span>@FormatDisplay(selected)</span>
+        }
+        else
+        {
+            <span class="@Css.Picker.TriggerPlaceholder">@Placeholder</span>
+        }
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" class="text-text-muted shrink-0">
+            <rect x="4" y="5.5" width="16" height="15" rx="2"></rect><path d="M4 10h16M8 5.5V3M16 5.5V3"></path>
+        </svg>
+    </button>
+
+    @if (mIsOpen)
+    {
+        @* PC — 팝오버 (바깥 클릭으로 닫기) *@
+        <div class="hidden md:block">
+            <div class="fixed inset-0 z-40" @onclick="Close"></div>
+            <div class="@Css.Picker.Popover" @ref="mPopover">
+                @RenderCalendar(compact: true)
+            </div>
+        </div>
+
+        @* 모바일 — 바텀시트. 확정 버튼을 누르기 전에는 값이 적용되지 않는다(지연 적용) *@
+        <div class="@Css.Picker.SheetOverlay" @onclick="Close">
+            <div class="@Css.Picker.Sheet" @onclick:stopPropagation="true">
+                <span class="@Css.Picker.GrabBar"></span>
+                <div class="mt-3">
+                    @RenderCalendar(compact: false)
+                </div>
+                <button type="button" class="@Css.Picker.SheetConfirm" disabled="@(mDraft is null)" @onclick="ConfirmDraft">
+                    @(mDraft is DateTime draft ? $"{FormatDisplay(draft)}로 선택" : "날짜를 선택해 주세요")
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>선택 가능 범위.</summary>
+    public enum DateRange
+    {
+        /// <summary>제한 없음.</summary>
+        Any,
+
+        /// <summary>오늘 이후만 (일정 추가) — 과거는 비활성.</summary>
+        FutureOnly,
+
+        /// <summary>오늘까지만 (경기 결과 입력) — 미래는 비활성.</summary>
+        PastOnly,
+    }
+
+    private static readonly string[] WeekdayNames = { "일", "월", "화", "수", "목", "금", "토" };
+
+    [Parameter]
+    public DateTime? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> ValueChanged { get; set; }
+
+    [Parameter]
+    public DateRange Range { get; set; } = DateRange.Any;
+
+    [Parameter]
+    public string Placeholder { get; set; } = "날짜 선택";
+
+    [Parameter]
+    public bool HasError { get; set; }
+
+    /// <summary>경기 있는 날 — 셀 하단 teal 도트.</summary>
+    [Parameter]
+    public IReadOnlyCollection<DateTime>? MatchDays { get; set; }
+
+    private bool mIsOpen;
+    private DateTime mMonth = DateTime.Today;
+    private DateTime? mDraft;
+    private ElementReference mPopover;
+    private IJSObjectReference? mModule;
+    private bool mNeedsReveal;
+
+    // 모달 본문처럼 스크롤되는 부모 안에서 팝오버가 잘리지 않게 한 번 스크롤해 준다
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!mNeedsReveal)
+        {
+            return;
+        }
+
+        mNeedsReveal = false;
+        mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/forms.js");
+        await mModule.InvokeVoidAsync("revealPopover", mPopover);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (mModule is not null)
+            {
+                await mModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // 페이지 이탈 시 JS 런타임이 먼저 끊긴 경우 — 무시
+        }
+    }
+
+    private static DateTime Today => DateTime.Today;
+
+    private void Toggle()
+    {
+        if (mIsOpen)
+        {
+            Close();
+            return;
+        }
+
+        // 열 때마다 현재 값 기준으로 달을 맞춘다 (값이 없으면 이번 달)
+        mMonth = new DateTime((Value ?? Today).Year, (Value ?? Today).Month, 1);
+        mDraft = Value;
+        mIsOpen = true;
+        mNeedsReveal = true;
+    }
+
+    private void Close() => mIsOpen = false;
+
+    private void PrevMonth() => mMonth = mMonth.AddMonths(-1);
+
+    private void NextMonth() => mMonth = mMonth.AddMonths(1);
+
+    // PC는 즉시 적용, 모바일은 확정 버튼까지 보류 — 시트 규칙(FeedbackPatterns)과 같다
+    private async Task SelectAsync(DateTime day, bool immediate)
+    {
+        mDraft = day;
+        if (immediate)
+        {
+            await ApplyAsync(day);
+        }
+    }
+
+    private async Task ConfirmDraft()
+    {
+        if (mDraft is DateTime draft)
+        {
+            await ApplyAsync(draft);
+        }
+    }
+
+    private async Task ApplyAsync(DateTime day)
+    {
+        Value = day;
+        mIsOpen = false;
+        await ValueChanged.InvokeAsync(day);
+    }
+
+    private async Task QuickTodayAsync()
+    {
+        if (!IsSelectable(Today))
+        {
+            return;
+        }
+
+        mMonth = new DateTime(Today.Year, Today.Month, 1);
+        await SelectAsync(Today, immediate: true);
+    }
+
+    // "이번 주말" = 이번 주 토요일 (지나갔으면 과거 허용 여부에 따라 판단)
+    private async Task QuickWeekendAsync()
+    {
+        int daysUntilSaturday = ((int)DayOfWeek.Saturday - (int)Today.DayOfWeek + 7) % 7;
+        DateTime saturday = Today.AddDays(daysUntilSaturday);
+
+        if (Range == DateRange.PastOnly && saturday > Today)
+        {
+            // 결과 입력에선 아직 오지 않은 주말을 고를 수 없다 → 지난 토요일
+            saturday = saturday.AddDays(-7);
+        }
+
+        if (!IsSelectable(saturday))
+        {
+            return;
+        }
+
+        mMonth = new DateTime(saturday.Year, saturday.Month, 1);
+        await SelectAsync(saturday, immediate: true);
+    }
+
+    private bool IsSelectable(DateTime day) => Range switch
+    {
+        DateRange.FutureOnly => day.Date >= Today,
+        DateRange.PastOnly => day.Date <= Today,
+        _ => true,
+    };
+
+    private bool HasMatch(DateTime day) =>
+        MatchDays is not null && MatchDays.Any(d => d.Date == day.Date);
+
+    private static string FormatDisplay(DateTime day) =>
+        $"{day.Month}/{day.Day} ({WeekdayNames[(int)day.DayOfWeek]})";
+
+    private RenderFragment RenderCalendar(bool compact) => __builder =>
+    {
+        <div class="@Css.Picker.MonthRow">
+            <button type="button" class="@Css.Picker.MonthNav" aria-label="이전 달" @onclick="PrevMonth">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                     stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+            </button>
+            <span class="@Css.Picker.MonthLabel">(@mMonth.Year)년 (@mMonth.Month)월</span>
+            <button type="button" class="@Css.Picker.MonthNav" aria-label="다음 달" @onclick="NextMonth">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                     stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+        </div>
+
+        <div class="@Css.Picker.WeekdayRow">
+            @for (int i = 0; i < 7; i++)
+            {
+                <span class="@Css.Picker.Weekday(i)">@WeekdayNames[i]</span>
+            }
+        </div>
+
+        <div class="@Css.Picker.Grid">
+            @* 1일의 요일만큼 앞을 비운다 (일요일 시작) *@
+            @for (int blank = 0; blank < (int)new DateTime(mMonth.Year, mMonth.Month, 1).DayOfWeek; blank++)
+            {
+                <span></span>
+            }
+            @for (int dayNumber = 1; dayNumber <= DateTime.DaysInMonth(mMonth.Year, mMonth.Month); dayNumber++)
+            {
+                DateTime day = new(mMonth.Year, mMonth.Month, dayNumber);
+                bool disabled = !IsSelectable(day);
+                bool isSelected = mDraft?.Date == day.Date;
+                <button type="button" disabled="@disabled"
+                        class="@Css.Picker.Cell((int)day.DayOfWeek, isSelected, day.Date == Today, disabled)"
+                        @onclick="() => SelectAsync(day, compact)">
+                    @dayNumber
+                    @if (HasMatch(day))
+                    {
+                        <span class="@Css.Picker.MatchDot"></span>
+                    }
+                </button>
+            }
+        </div>
+
+        <div class="@Css.Picker.QuickRow">
+            <button type="button" class="@Css.Picker.QuickButton" @onclick="QuickTodayAsync">오늘</button>
+            <button type="button" class="@Css.Picker.QuickButton" @onclick="QuickWeekendAsync">이번 주말</button>
+        </div>
+    };
+}

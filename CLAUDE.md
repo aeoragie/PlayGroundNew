@@ -80,9 +80,9 @@
 
 1. ~~**Phase A — 횡단 기반**~~ 완료 (A1 폼 · A2 Toast·ConfirmModal · A3 스켈레톤·빈 상태 ·
    A4 내비게이션·에러 페이지 — 각 절 아래 참조).
-2. **Phase B — 입력 UI** (A1·A2 위에): B1 경기 결과 입력(+DatePicker, 저장 시
-   `UspRecalculateSoccerTournamentStandings` 자동 호출 필수) → B2 팀 정보 수정(+ImageUploader)
-   → B3 커리어·포트폴리오 입력 → B4 선수 사진 업로드.
+2. **Phase B — 입력 UI** (A1·A2 위에): ~~B1 경기 결과 입력(+DatePicker)~~ 완료(아래) →
+   **B2 팀 정보 수정(+ImageUploader)** → B3 커리어·포트폴리오 입력 → B4 선수 사진 업로드.
+   (B1 잔여: 대회 경기의 **스테이지·조 선택** — 현재는 리그만 순위표가 갱신된다.)
 3. **Phase C — 신규 화면**: 허브 → 팀 탐색 → 설정 → Claim 4스텝·알림 센터 → 공개 팀 홈 잔여 탭
    (모집·진학진로·리뷰, 탭당 스키마 신설) → 에이전트 열람 승인(최후순위).
 4. **Phase D — 잔여 패턴**: 별도 단계 없이 화면 작업에 얹는다 (AvatarBadge만 Phase C 후 일괄 교체 1회).
@@ -186,6 +186,37 @@
 - 검증: 404 진입 · 403 게스트 리다이렉트 · 500 코드 생성 · **강제 throw → 500 → 다시 시도 복귀** ·
   딥링크 `/dashboard/team/roster` → 로그인 → **원래 자리 복귀** · 로그인 GNB(벨+아바타, 로그인 버튼 없음) ·
   역할 불일치 리다이렉트 · 모바일 전부 확인.
+
+### Phase B1 — 경기 결과 입력 + 날짜/시간 선택 완료 (2026-07-19, Design.DatePicker)
+
+- **`UspCreateSoccerTeamMatchResult`** — 경기 1행 + 우리 팀 득점 이벤트 N행(OPENJSON)을 한 트랜잭션으로
+  저장하고 **이어서 `UspRecalculateSoccerTournamentStandings`를 호출한다**(D5 — 수동 재계산 경로 없음).
+  득점자는 우리 팀 것만 받는다(상대 선수 명단을 알 수 없음). `UspGetSoccerTournamentOptionsByManager`는
+  결과 입력 폼의 대회 선택지(우리 팀 참가 대회 우선 정렬).
+- **재계산은 League일 때만 실행한다** — 순위표 스코프는 (대회+스테이지+조)인데 Cup·Split은 조를
+  입력받기 전이라 특정할 수 없다. **없는 스코프를 만들어 엉뚱한 순위표를 찍느니 경기만 저장한다.**
+  토스트 문구도 이에 맞춰 갈린다(리그: "순위표도 갱신됐어요" / 그 외: "저장했어요"). 조 입력은 후속.
+- **Calendar** `Components/Shared/Pickers/` — PC 팝오버 300px / 모바일 바텀시트(셀 44px, 확정 버튼에
+  선택 날짜 표시 = 지연 적용). 일요일 시작·요일 색(일 `weekend-sun`/토 `weekend-sat`)·오늘 teal 링·
+  선택 네이비 원·경기 있는 날 teal 도트·퀵버튼(오늘·이번 주말). **네이티브 `input[type=date]` 0건.**
+  - **`Range` 파라미터로 선택 범위를 나눈다**: 일정 추가=`FutureOnly`(과거 비활성, 핸드오프 원문) /
+    **결과 입력=`PastOnly`(미래 비활성)** — 이미 치른 경기의 결과라 방향이 반대다.
+  - 팝오버가 모달 본문(overflow-y-auto) 안에서 잘려 퀵버튼이 가려졌다 → `forms.js`의 `revealPopover`로
+    열릴 때 `scrollIntoView({block:'nearest'})`.
+- **TimeList** — 15분 단위 96개 + 직접 입력(유효한 형태일 때만 반영). 날짜와 **별도 필드**.
+  기본값 = 그 팀의 **최근 경기와 같은 시각**(페이지가 `RecentMatchTime`으로 주입, 없으면 14:00).
+- **`MatchResultFormDialog`** — PC 중앙 모달 / 모바일 전체 시트. A1 폼(TextField·SelectField·RadioCards·
+  SubmitButton) + Calendar/TimeList. 득점자는 로스터 칩(같은 선수 2번 = 2골). 저장 성공 = A2 토스트,
+  **검증 오류는 인라인만**(토스트 금지). 저장 후 페이지가 경기 목록을 재조회한다.
+- 제너레이터 두 가지 함정: **파라미터 줄 꼬리 주석**(기본값 없는 경우)이면 그 파라미터가 누락된다 →
+  주석은 프로시저 헤더로. **BIT 기본값 `= 0/1`이 `bool x = 1`로 생성돼 컴파일 에러** → 제너레이터
+  `ProcedureGenerator.GetParameterDefaultValue`에서 Boolean만 true/false로 매핑하도록 수정(기존 생성물 변화 0).
+- `SubmitButton`에 `Class` 파라미터 추가 — 없는 파라미터를 넘기면 렌더 예외 → A4 예외 경계가 500으로
+  보내 화면이 그냥 사라진다(디버깅에 시간 걸림).
+- 검증(스크래치패드 `shot-b1.js`): 빈 제출 → 인라인 3종·토스트 0 / 캘린더 31칸 중 미래 12칸 비활성·
+  오늘 링·경기일 도트 / 시간 96개 / 리그 선택 저장 → 토스트 "순위표도 갱신됐어요" →
+  **리그 순위 API가 null → 2로 변경**(DB 순위표에도 검증fc 2위 3점 4-1 반영) / 모바일 시트 셀 44px.
+  검증 후 테스트 데이터·순위표는 원상 복구.
 
 ### 선수 시즌 통계 연동 — 완료 (2026-07-16, 선수 대시보드 4섹션 전부 실데이터)
 

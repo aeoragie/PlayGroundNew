@@ -6,7 +6,8 @@
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
         <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">경기</h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">@(IsResults ? "＋ 결과 입력" : "＋ 영상 등록")</button>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton"
+                @onclick="@(IsResults ? OnAddResult : EventCallback.Empty)">@(IsResults ? "＋ 결과 입력" : "＋ 영상 등록")</button>
     </div>
 
     @* 결과/영상 세그먼트 — 선택 = 흰 배경 + 그림자 *@
@@ -133,6 +134,10 @@
     /// <summary>경기 카드의 아군 팀명 (페이지가 팀 프로필에서 전달).</summary>
     [Parameter, EditorRequired]
     public string TeamName { get; set; } = string.Empty;
+
+    /// <summary>"＋ 결과 입력" — 페이지가 입력 다이얼로그를 연다(영상 등록은 B 단계 이후).</summary>
+    [Parameter]
+    public EventCallback OnAddResult { get; set; }
 
     private bool IsResults => ActiveSection != SoccerTeamDashboardSection.Videos;
 

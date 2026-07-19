@@ -4,7 +4,7 @@
    스피너가 허용되는 유일한 자리(페이지·목록 로딩은 스켈레톤). *@
 @using PlayGround.Client.Styles
 
-<button type="button" class="@Css.Form.Submit(IsBusy)" disabled="@IsBusy" @onclick="OnClickAsync">
+<button type="button" class="@($"{Css.Form.Submit(IsBusy)} {Class}")" disabled="@IsBusy" @onclick="OnClickAsync">
     @if (IsBusy)
     {
         @* 스피너 — 흰 링 + 상단만 불투명하게 회전 *@
@@ -31,6 +31,10 @@
 
     [Parameter]
     public EventCallback OnClick { get; set; }
+
+    /// <summary>배치용 추가 클래스 (폭·정렬 등).</summary>
+    [Parameter]
+    public string? Class { get; set; }
 
     private async Task OnClickAsync()
     {

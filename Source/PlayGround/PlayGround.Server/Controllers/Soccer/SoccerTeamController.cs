@@ -100,6 +100,38 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>결과 입력 폼의 대회/리그 선택지.</summary>
+        [HttpGet("me/tournament-options")]
+        public async Task<Envelope<TeamTournamentOptionsResponse>> GetMyTournamentOptionsAsync(
+            [FromQuery] int season, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamTournamentOptionsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamTournamentOptionsResponse> result = await mGateway.AskAsync<TeamTournamentOptionsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTournamentOptionsMessage(userId, season), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>경기 결과 입력. 대회 경기면 저장 시 순위표가 함께 재계산된다(D5).</summary>
+        [HttpPost("me/matches")]
+        public async Task<Envelope<CreateTeamMatchResultResponse>> CreateMyTeamMatchAsync(
+            [FromBody] CreateTeamMatchResultRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<CreateTeamMatchResultResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<CreateTeamMatchResultResponse> result = await mGateway.AskAsync<CreateTeamMatchResultResponse>(
+                ActorNames.SoccerTeamProfile, new CreateSoccerMatchResultMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/videos")]
         public async Task<Envelope<TeamVideosResponse>> GetMyTeamVideosAsync(CancellationToken cancellation)
         {

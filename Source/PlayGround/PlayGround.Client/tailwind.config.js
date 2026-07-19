@@ -34,6 +34,12 @@ module.exports = {
         },
         // 빈 상태 Tier A 일러스트 외곽선 (Design.EmptyStates)
         illustration: 'rgb(var(--color-illustration) / <alpha-value>)',
+        // 날짜 선택 (Design.DatePicker) — 주말 요일 색·선택 불가 날짜
+        weekend: {
+          sun: 'rgb(var(--color-weekend-sun) / <alpha-value>)',
+          sat: 'rgb(var(--color-weekend-sat) / <alpha-value>)',
+        },
+        'picker-disabled': 'rgb(var(--color-picker-disabled) / <alpha-value>)',
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',
@@ -109,6 +115,8 @@ module.exports = {
         // 공개 팀 홈페이지 히어로 엠블럼 박스
         'team-emblem': '0 8px 24px rgba(28,43,74,.25)',
         // 피드백 (Design.FeedbackPatterns) — 토스트 캡슐 / 확인 모달 카드
+        // 날짜·시간 팝오버 (Design.DatePicker)
+        picker: '0 10px 30px rgba(28,43,74,.12)',
         toast: '0 8px 24px rgba(28,43,74,.25)',
         modal: '0 20px 50px rgba(28,43,74,.3)',
       },

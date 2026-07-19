@@ -6,7 +6,7 @@
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
         <h1 class="@Css.Dashboard.SectionTitle">경기 결과</h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 결과 입력</button>
+        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAddResult">＋ 결과 입력</button>
     </div>
 
     @if (Data.Matches.Count == 0)
@@ -99,6 +99,10 @@
     /// <summary>경기 카드의 아군 팀명 (페이지가 팀 프로필에서 전달).</summary>
     [Parameter, EditorRequired]
     public string TeamName { get; set; } = string.Empty;
+
+    /// <summary>"＋ 결과 입력" — 페이지가 입력 다이얼로그를 연다(로스터·재조회를 페이지가 쥐고 있다).</summary>
+    [Parameter]
+    public EventCallback OnAddResult { get; set; }
 
     private static readonly SoccerCompetitionType?[] FilterTabs =
         [null, SoccerCompetitionType.League, SoccerCompetitionType.Cup, SoccerCompetitionType.Friendly];

@@ -213,6 +213,59 @@ namespace PlayGround.Contracts.Team
         public List<TeamVideoDto> Videos { get; set; } = new();
     }
 
+    /// <summary>경기 결과 입력 요청 (팀 대시보드 "＋ 결과 입력").
+    /// 상대 팀은 이름만 받는다 — 외부 팀이 대부분이라 TeamId를 요구할 수 없다.</summary>
+    public class CreateTeamMatchResultRequest
+    {
+        /// <summary>참가 대회. null이면 친선 경기.</summary>
+        public Guid? TournamentId { get; set; }
+
+        public string OpponentName { get; set; } = string.Empty;
+
+        /// <summary>true = 우리 팀이 홈.</summary>
+        public bool IsHome { get; set; } = true;
+
+        public int OurScore { get; set; }
+        public int OpponentScore { get; set; }
+
+        /// <summary>경기 일시 (날짜 + 시각).</summary>
+        public DateTime MatchedAt { get; set; }
+
+        public string? VenueName { get; set; }
+
+        /// <summary>우리 팀 득점자 (선택). 스코어와 개수가 달라도 허용 — 미상 득점이 있을 수 있다.</summary>
+        public List<TeamMatchScorerDto> Scorers { get; set; } = new();
+    }
+
+    /// <summary>득점 한 건. 로스터에서 고른 선수면 PlayerId, 직접 입력이면 이름만.</summary>
+    public class TeamMatchScorerDto
+    {
+        public Guid? PlayerId { get; set; }
+        public string? PlayerName { get; set; }
+        public Guid? AssistPlayerId { get; set; }
+        public string? AssistPlayerName { get; set; }
+        public int? MinuteOfPlay { get; set; }
+    }
+
+    public class CreateTeamMatchResultResponse
+    {
+        public Guid MatchId { get; set; }
+    }
+
+    /// <summary>결과 입력 폼의 대회/리그 선택지.</summary>
+    public class TeamTournamentOptionDto
+    {
+        public Guid TournamentId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Format { get; set; } = string.Empty;   // SoccerTournamentFormat 멤버 이름
+        public string? AgeGroup { get; set; }
+    }
+
+    public class TeamTournamentOptionsResponse
+    {
+        public List<TeamTournamentOptionDto> Tournaments { get; set; } = new();
+    }
+
     /// <summary>공식 채널 한 개. ChannelType은 SoccerChannelType enum 멤버 이름 문자열.</summary>
     public class TeamChannelDto
     {

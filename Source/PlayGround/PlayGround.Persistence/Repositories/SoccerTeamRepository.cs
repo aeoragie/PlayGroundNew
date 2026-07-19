@@ -424,6 +424,80 @@ namespace PlayGround.Persistence.Repositories
             return match.Format == "League" ? "League" : "Cup";
         }
 
+        public async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsByManagerAsync(
+            Guid managerUserId, int seasonYear, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Tournament options requested", ("ManagerUserId", managerUserId), ("SeasonYear", seasonYear));
+
+            var procedure = new UspGetSoccerTournamentOptionsByManager(this)
+            {
+                ManagerUserId = managerUserId,
+                SeasonYear = seasonYear
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerTournamentOptionRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Tournament options query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<TeamTournamentOptionsResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new TeamTournamentOptionsResponse
+            {
+                Tournaments = queryResult.Values1.Select(row => new TeamTournamentOptionDto
+                {
+                    TournamentId = row.TournamentId,
+                    Name = row.Name,
+                    Format = row.Format,
+                    AgeGroup = NullIfEmpty(row.AgeGroup)
+                }).ToList()
+            };
+
+            return Result<TeamTournamentOptionsResponse>.Success(response);
+        }
+
+        public async Task<Result<Guid?>> CreateMatchResultByManagerAsync(
+            Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Match result save requested",
+                ("ManagerUserId", managerUserId), ("TournamentId", request.TournamentId), ("IsHome", request.IsHome));
+
+            // 득점자는 JSON으로 넘겨 프로시저가 한 트랜잭션에 삽입한다 (경기 1행 + 이벤트 N행)
+            string? scorers = request.Scorers.Count > 0 ? JsonSerializer.Serialize(request.Scorers) : null;
+
+            var procedure = new UspCreateSoccerTeamMatchResult(this)
+            {
+                ManagerUserId = managerUserId,
+                TournamentId = request.TournamentId,
+                OpponentName = request.OpponentName,
+                IsHome = request.IsHome,
+                OurScore = request.OurScore,
+                OpponentScore = request.OpponentScore,
+                MatchedAt = request.MatchedAt,
+                VenueName = request.VenueName,
+                Scorers = scorers
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerCreatedMatchRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Match result save failed", ("ResultCode", queryResult.ResultCode));
+                return Result<Guid?>.Error(ErrorCode.DatabaseError);
+            }
+
+            var row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                // 팀 없음·없는 대회 — 프로시저가 빈 결과셋으로 알린다
+                Logger.WarnWith("Match result rejected — no team or unknown tournament", ("ManagerUserId", managerUserId));
+                return Result<Guid?>.Success(null);
+            }
+
+            // 대회 경기면 이 시점에 순위표 재계산까지 끝나 있다 (프로시저 내부에서 호출 — D5)
+            Logger.InfoWith("Match result saved", ("MatchId", row.MatchId), ("TournamentId", request.TournamentId));
+            return Result<Guid?>.Success(row.MatchId);
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

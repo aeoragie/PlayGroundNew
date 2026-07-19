@@ -26,5 +26,14 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>공개 팀 홈 시즌성적(Slug 기준) — 최근 경기·리그 순위·영상. 비공개·미존재 팀은 빈 목록 — 에러가 아니다.</summary>
         Task<Result<TeamSeasonRecordResponse>> GetTeamSeasonRecordBySlugAsync(string slug, int seasonYear, CancellationToken cancellation = default);
+
+        /// <summary>결과 입력 폼의 대회/리그 선택지 (해당 시즌, 우리 팀 참가 대회 우선).</summary>
+        Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsByManagerAsync(Guid managerUserId, int seasonYear, CancellationToken cancellation = default);
+
+        /// <summary>
+        /// 경기 결과 저장. 대회 경기면 저장 프로시저가 순위표 재계산까지 한 경로에서 수행한다(D5).
+        /// 팀 미존재·없는 대회는 Success(null) — 호출자가 NotFound로 변환한다.
+        /// </summary>
+        Task<Result<Guid?>> CreateMatchResultByManagerAsync(Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default);
     }
 }

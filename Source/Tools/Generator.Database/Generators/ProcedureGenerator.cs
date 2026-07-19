@@ -118,7 +118,15 @@ public class {CLASS_NAME}(RepositoryBase repository) : ProcedureBase(repository)
                     return $"\"{strValue}\"";
                 }
 
-                if (int.TryParse(raw, out _) || double.TryParse(raw, out _))
+                // BIT 기본값은 0/1로 오지만 C# bool은 숫자를 못 받는다 (bool x = 1 → 컴파일 에러)
+                if (valueType == CSharpTypeConverter.ValueType.Boolean)
+                {
+                    if (raw == "0" || raw == "1")
+                    {
+                        return raw == "1" ? "true" : "false";
+                    }
+                }
+                else if (int.TryParse(raw, out _) || double.TryParse(raw, out _))
                 {
                     return raw;
                 }

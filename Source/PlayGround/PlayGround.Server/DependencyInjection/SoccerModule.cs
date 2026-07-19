@@ -27,6 +27,7 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerTeamPublicHomeCommand>();
             services.AddScoped<SoccerTeamSeasonRecordCommand>();
             services.AddScoped<SoccerTeamMatchesCommand>();
+            services.AddScoped<SoccerTeamMatchResultCommand>();
             services.AddScoped<SoccerTeamVideosCommand>();
             services.AddScoped<SoccerRecordsTournamentsCommand>();
             services.AddScoped<SoccerRecordsTournamentDetailCommand>();

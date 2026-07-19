@@ -1,0 +1,101 @@
+@* 시간 선택 — Design.DatePicker. 날짜와 별도 필드(한 팝오버에 합치지 않는다).
+   15분 단위 리스트 + 직접 입력. 기본값은 호출부가 "그 팀의 최근 일정과 같은 시각"으로 넣어 준다. *@
+@using PlayGround.Client.Styles
+
+<div class="relative">
+    <button type="button" class="@Css.Picker.Trigger(mIsOpen, HasError)" @onclick="Toggle">
+        @if (Value is TimeOnly selected)
+        {
+            <span class="tabular-nums">@Format(selected)</span>
+        }
+        else
+        {
+            <span class="@Css.Picker.TriggerPlaceholder">@Placeholder</span>
+        }
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" class="text-text-muted shrink-0">
+            <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path>
+        </svg>
+    </button>
+
+    @if (mIsOpen)
+    {
+        <div class="fixed inset-0 z-40" @onclick="Close"></div>
+        <div class="@Css.Picker.TimeList">
+            @* 직접 입력 — 15분 격자에 없는 시각(19:05 등)을 위해 *@
+            <input class="@Css.Picker.TimeInput" placeholder="19:05" inputmode="numeric" maxlength="5"
+                   value="@mTyped" @oninput="OnTypedAsync" aria-label="시간 직접 입력" />
+
+            @foreach (TimeOnly option in Options)
+            {
+                TimeOnly value = option;
+                <button type="button" class="@Css.Picker.TimeOption(Value == value)"
+                        @onclick="() => SelectAsync(value)">@Format(value)</button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>15분 간격 — 00:00부터 23:45까지.</summary>
+    private static readonly TimeOnly[] Options = BuildOptions();
+
+    [Parameter]
+    public TimeOnly? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TimeOnly?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = "시간 선택";
+
+    [Parameter]
+    public bool HasError { get; set; }
+
+    private bool mIsOpen;
+    private string mTyped = string.Empty;
+
+    private static TimeOnly[] BuildOptions()
+    {
+        var options = new List<TimeOnly>();
+        for (int minutes = 0; minutes < 24 * 60; minutes += 15)
+        {
+            options.Add(new TimeOnly(minutes / 60, minutes % 60));
+        }
+
+        return options.ToArray();
+    }
+
+    private static string Format(TimeOnly time) => time.ToString("HH\\:mm");
+
+    private void Toggle()
+    {
+        mIsOpen = !mIsOpen;
+        if (mIsOpen)
+        {
+            mTyped = Value is TimeOnly current ? Format(current) : string.Empty;
+        }
+    }
+
+    private void Close() => mIsOpen = false;
+
+    private async Task SelectAsync(TimeOnly time)
+    {
+        Value = time;
+        mIsOpen = false;
+        await ValueChanged.InvokeAsync(time);
+    }
+
+    // 직접 입력은 유효한 형태가 될 때만 반영한다 — 입력 도중에는 값을 건드리지 않는다
+    private async Task OnTypedAsync(ChangeEventArgs args)
+    {
+        mTyped = args.Value?.ToString() ?? string.Empty;
+
+        if (TimeOnly.TryParseExact(mTyped, "H:mm", out TimeOnly parsed)
+            || TimeOnly.TryParseExact(mTyped, "HH:mm", out parsed))
+        {
+            Value = parsed;
+            await ValueChanged.InvokeAsync(parsed);
+        }
+    }
+}

@@ -41,7 +41,8 @@
                             </SkeletonSection>
                         </Skeleton>
                         <ChildContent>
-                            <MatchResultsSection Data="@(mMatches!)" TeamName="@(mInfo?.Profile.TeamName ?? "")" />
+                            <MatchResultsSection Data="@(mMatches!)" TeamName="@(mInfo?.Profile.TeamName ?? "")"
+                                                 OnAddResult="OpenResultFormAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -101,7 +102,7 @@
                     </Skeleton>
                     <ChildContent>
                         <MobileMatchSection ActiveSection="@CurrentSection" Matches="@(mMatches!)" Videos="@(mVideos!)"
-                                            TeamName="@(mInfo?.Profile.TeamName ?? "")" />
+                                            TeamName="@(mInfo?.Profile.TeamName ?? "")" OnAddResult="OpenResultFormAsync" />
                     </ChildContent>
                 </LoadingGate>
                 break;
@@ -118,6 +119,14 @@
     </main>
     <MobileTabBar ActiveSection="@CurrentSection" />
 </div>
+
+@* 경기 결과 입력 — PC·모바일 공용 (다이얼로그가 스스로 반응형) *@
+<MatchResultFormDialog @bind-IsOpen="mResultFormOpen"
+                       TeamName="@(mInfo?.Profile.TeamName ?? "우리 팀")"
+                       Players="@(mRoster?.Players ?? new List<TeamRosterPlayerDto>())"
+                       MatchDays="@ExistingMatchDays"
+                       RecentMatchTime="@RecentMatchTime"
+                       OnSaved="ReloadAfterResultSavedAsync" />
 
 @code {
     [Parameter]
@@ -136,6 +145,8 @@
     private bool mRosterFailed;
     private bool mMatchesFailed;
     private bool mVideosFailed;
+
+    private bool mResultFormOpen;
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
@@ -189,6 +200,46 @@
                 await LoadVideosAsync();
             }
         }
+    }
+
+    /// <summary>이미 결과가 있는 날 — 캘린더 도트로 중복 입력을 눈으로 막는다.</summary>
+    private IReadOnlyCollection<DateTime> ExistingMatchDays =>
+        mMatches?.Matches
+            .Where(m => m.MatchedAt.HasValue)
+            .Select(m => m.MatchedAt!.Value.Date)
+            .Distinct()
+            .ToList() ?? new List<DateTime>();
+
+    /// <summary>시각 기본값 = 최근 경기와 같은 시각 (팀 루틴 반복 — Design.DatePicker).</summary>
+    private TimeOnly? RecentMatchTime
+    {
+        get
+        {
+            DateTime? recent = mMatches?.Matches
+                .Where(m => m.MatchedAt.HasValue)
+                .OrderByDescending(m => m.MatchedAt)
+                .Select(m => m.MatchedAt)
+                .FirstOrDefault();
+            return recent is null ? null : TimeOnly.FromDateTime(recent.Value);
+        }
+    }
+
+    // 득점자 칩은 로스터가 있어야 뜬다 — 경기 섹션에서 바로 열면 아직 안 불러왔을 수 있다
+    private async Task OpenResultFormAsync()
+    {
+        if (mRoster is null && !mRosterRequested)
+        {
+            await LoadRosterAsync();
+        }
+
+        mResultFormOpen = true;
+    }
+
+    // 저장 성공 → 경기 목록·순위표를 다시 읽는다 (순위표 재계산은 서버가 이미 끝냈다)
+    private async Task ReloadAfterResultSavedAsync()
+    {
+        mMatchesRequested = false;
+        await LoadMatchesAsync();
     }
 
     private async Task LoadRosterAsync()
