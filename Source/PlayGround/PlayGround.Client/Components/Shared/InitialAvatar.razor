@@ -1,0 +1,40 @@
+@* 이니셜 아바타 — Design.AvatarBadge. 사진이 없으면 "빈 이미지"가 아니라 항상 이니셜(성 첫 글자 1자).
+   배경색은 주체 유형별 고정(랜덤 금지): 팀 네이비 / 개인(선수·보호자) teal / 에이전트 violet.
+   글자 크기 = 지름×0.36, 800. 아바타·뱃지 전면 통일 교체는 Phase C 이후 일괄 — 여기서는 사진 슬롯 폴백만 쓴다. *@
+@using PlayGround.Client.Styles
+
+<span class="@($"{Css.Avatar.Base} {ToneClass}")" style="@SizeStyle" aria-hidden="true">@Initial</span>
+
+@code {
+    /// <summary>주체 유형 — 색은 유형이 결정한다(개인은 teal 고정).</summary>
+    public enum AvatarTone
+    {
+        Team,
+        Person,
+        Agent,
+    }
+
+    /// <summary>표시 이름. 성 첫 글자 1자만 쓴다.</summary>
+    [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
+    public AvatarTone Tone { get; set; } = AvatarTone.Person;
+
+    /// <summary>지름(px). 카탈로그 5단 = 24·32·44·56·84.</summary>
+    [Parameter]
+    public int Size { get; set; } = 44;
+
+    private string ToneClass => Tone switch
+    {
+        AvatarTone.Team => "bg-navy",
+        AvatarTone.Agent => "bg-agent",
+        _ => "bg-teal",
+    };
+
+    // 폰트 = 지름×0.36 반올림 (카탈로그 규칙)
+    private string SizeStyle =>
+        $"width:{Size}px;height:{Size}px;font-size:{Math.Round(Size * 0.36)}px";
+
+    private string Initial => string.IsNullOrWhiteSpace(Name) ? "?" : Name.Trim()[..1];
+}

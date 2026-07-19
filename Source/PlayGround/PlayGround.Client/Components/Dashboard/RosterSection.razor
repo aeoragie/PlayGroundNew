@@ -73,9 +73,19 @@
                         }
                         else
                         {
-                            <span class="absolute inset-0 flex items-center justify-center text-xs text-text-faint">선수 사진</span>
+                            <span class="absolute inset-0 flex items-center justify-center">
+                                <InitialAvatar Name="@player.Name" Size="44" />
+                            </span>
                         }
                         <span class="absolute top-2 left-2 w-[30px] h-[30px] rounded-full bg-navy-deep/85 flex items-center justify-center text-[13px] font-extrabold text-white pointer-events-none">@(player.JerseyNumber ?? "-")</span>
+                        @* 사진 변경은 팀 관리자 화면에서만 — 이 섹션 자체가 관리자 전용이다 *@
+                        <button type="button" class="@Css.Uploader.CameraBadge !right-2 !bottom-2"
+                                aria-label="@($"{player.Name} 선수 사진 변경")" @onclick="() => OpenPhotoDialog(player)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 8h3l2-2.5h6L17 8h3v11H4z"></path><circle cx="12" cy="13" r="3.2"></circle>
+                            </svg>
+                        </button>
                     </div>
                     <span class="flex flex-col gap-[3px]">
                         <a href="#" class="text-[15.5px] font-extrabold text-navy-deep hover:text-orange transition-colors">@player.Name</a>
@@ -97,6 +107,9 @@
         </div>
     }
 </div>
+
+@* 사진 변경 — 카드가 공유하는 다이얼로그 하나 (카드마다 업로더를 두지 않는다) *@
+<PlayerPhotoDialog @bind-IsOpen="mPhotoDialogOpen" Player="@mPhotoPlayer" />
 
 @code {
     private const string RowGrid = "grid grid-cols-[56px_1.4fr_.8fr_.8fr_1fr_110px] gap-3 px-5 py-[13px]";
@@ -141,6 +154,15 @@
 
     private Guid? mOpenCodePlayerId;
     private string? mCopiedCode;
+
+    private bool mPhotoDialogOpen;
+    private TeamRosterPlayerDto? mPhotoPlayer;
+
+    private void OpenPhotoDialog(TeamRosterPlayerDto player)
+    {
+        mPhotoPlayer = player;
+        mPhotoDialogOpen = true;
+    }
 
     private static string ActionLabel(SoccerClaimStatus status) => status switch
     {

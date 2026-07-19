@@ -1,0 +1,89 @@
+@* 선수 사진 변경 (팀 관리자 경로) — Design.ImageUploader.
+   로스터 카드마다 업로더를 두면 화면이 무거워져서, 카드의 카메라 뱃지가 이 다이얼로그를 연다.
+   선수 프로필 슬롯과 같은 3:4로 자른다 (한 장을 두 화면이 공유한다).
+   미성년자 보호 규칙상 이 다이얼로그는 팀 관리자·보호자 화면에서만 열린다 — 권한은 서버가 다시 판정한다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Contracts.Team
+@inject PlayerClient Players
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+
+@if (IsOpen && Player is not null)
+{
+    <div class="@Css.Uploader.CropOverlay" @onclick="CloseAsync">
+        <div class="w-full md:w-[360px] bg-white rounded-[18px] p-5 flex flex-col gap-4" @onclick:stopPropagation="true">
+            <div class="flex flex-col gap-1">
+                <span class="text-[15px] font-extrabold text-navy-deep">선수 사진</span>
+                <span class="text-[12px] text-text-muted break-keep">@Player.Name 선수의 사진을 등록해요. 선수·보호자 화면에도 함께 보여요.</span>
+            </div>
+
+            <AvatarUploader Value="@mPhotoUrl" ValueChanged="SaveAsync"
+                            Shape="AvatarUploader.CropShape.Portrait" FrameClass="w-[132px] aspect-[3/4] mx-auto"
+                            Placeholder="@Player.Name" InitialSize="56"
+                            Label="선수 사진" Category="player-photo" ConfirmDelete="ConfirmDeleteAsync" />
+
+            <button type="button" class="@Css.Uploader.CropCancel" @onclick="CloseAsync">닫기</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    [Parameter]
+    public TeamRosterPlayerDto? Player { get; set; }
+
+    /// <summary>저장·삭제가 끝나면 상위가 로스터를 다시 읽는다.</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private string? mPhotoUrl;
+    private Guid mBoundPlayerId;
+
+    protected override void OnParametersSet()
+    {
+        // 다른 선수로 열렸으면 편집 값을 새로 받는다
+        if (Player is not null && mBoundPlayerId != Player.PlayerId)
+        {
+            mBoundPlayerId = Player.PlayerId;
+            mPhotoUrl = Player.PhotoUrl;
+        }
+    }
+
+    private async Task SaveAsync(string? photoUrl)
+    {
+        if (Player is null)
+        {
+            return;
+        }
+
+        if (await Players.SetPlayerPhotoAsync(Player.PlayerId, photoUrl))
+        {
+            mPhotoUrl = photoUrl;
+            Player.PhotoUrl = photoUrl;
+            Toasts.ShowSuccess(photoUrl is null ? "사진을 삭제했어요." : "사진을 저장했어요.");
+            await OnSaved.InvokeAsync();
+            return;
+        }
+
+        Toasts.ShowError("사진을 저장하지 못했어요.", "재시도", () => SaveAsync(photoUrl));
+    }
+
+    private Task<bool> ConfirmDeleteAsync()
+    {
+        return Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"{Player?.Name} 선수의 사진을 삭제할까요?",
+            Description = "삭제하면 이니셜 아바타로 돌아가요. 되돌릴 수 없어요.",
+            ConfirmLabel = "삭제",
+        });
+    }
+
+    private Task CloseAsync() => IsOpenChanged.InvokeAsync(false);
+}

@@ -92,6 +92,23 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>선수 사진 설정·삭제(photoUrl null = 삭제). 권한은 서버가 판정 — 거부되면 false.</summary>
+        public async Task<bool> SetPlayerPhotoAsync(Guid playerId, string? photoUrl)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync(
+                    "api/soccer/player/photo",
+                    new SetPlayerPhotoRequest { PlayerId = playerId, PhotoUrl = photoUrl });
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>초대코드 Claim — 성공 시 연결된 팀 이름과 (승격 시) 새 토큰.</summary>
         public async Task<PlayerClaimResult> ClaimInviteAsync(string code)
         {

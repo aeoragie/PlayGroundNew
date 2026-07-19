@@ -28,7 +28,9 @@
                     }
                     else
                     {
-                        <span class="absolute inset-0 flex items-center justify-center text-xs text-text-faint">선수 사진</span>
+                        <span class="absolute inset-0 flex items-center justify-center">
+                            <InitialAvatar Name="@player.Name" Size="44" />
+                        </span>
                     }
                     <span class="absolute top-[7px] left-[7px] w-7 h-7 rounded-full bg-navy-deep/85 flex items-center justify-center text-xs font-extrabold text-white pointer-events-none">@(player.JerseyNumber ?? "-")</span>
                 </div>

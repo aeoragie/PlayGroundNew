@@ -111,6 +111,23 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>선수 사진 설정·삭제. 대상이 본인 프로필이 아닐 수 있어(팀 관리자 경로) me/ 아래에 두지 않는다.
+        /// 권한(보호자·소속팀 관리자)은 서버가 판정하며 거부는 403 — 선수 존재 여부는 흘리지 않는다.</summary>
+        [HttpPut("photo")]
+        public async Task<Envelope<bool>> SetPlayerPhotoAsync(
+            [FromBody] SetPlayerPhotoRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new SetSoccerPlayerPhotoMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpPut("me/profile/visibility")]
         public async Task<Envelope<bool>> SetMyFieldVisibilityAsync(
             [FromBody] SetPlayerFieldVisibilityRequest request, CancellationToken cancellation)

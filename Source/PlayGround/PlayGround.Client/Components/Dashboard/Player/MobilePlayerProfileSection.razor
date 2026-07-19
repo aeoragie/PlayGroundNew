@@ -1,23 +1,38 @@
 @* 프로필(모바일): 세로 스택 — 기본 카드(사진+수정 버튼) → 항목별 공개 설정 → 가족 계정 — SPEC §1
    공개 프로필 카드(URL·방문 통계)는 공개 선수 프로필 구현 전이라 미노출 (빈 데이터 노출 금지) *@
 @using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
 @inject PlayerClient Players
 @inject ToastService Toasts
+@inject ConfirmService Confirm
 
 <div class="flex flex-col gap-3.5">
     <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-4")">
         <div class="flex gap-3.5">
-            <div class="w-[92px] aspect-[3/4] rounded-xl overflow-hidden bg-surface-icon shrink-0">
-                @if (Info.Profile.PhotoUrl is not null)
-                {
-                    <img src="@Info.Profile.PhotoUrl" alt="프로필 사진" class="w-full h-full object-cover" />
-                }
-                else
-                {
-                    <span class="w-full h-full flex items-center justify-center text-xs text-text-faint">프로필 사진</span>
-                }
-            </div>
+            @* 사진 업로드는 보호자만 — 권한이 없으면 버튼을 렌더하지 않는다 *@
+            @if (Info.Profile.CanEditPhoto)
+            {
+                <AvatarUploader Value="@Info.Profile.PhotoUrl" ValueChanged="SavePhotoAsync"
+                                Shape="AvatarUploader.CropShape.Portrait" FrameClass="w-[92px] aspect-[3/4]"
+                                Placeholder="@Info.Profile.Name" InitialSize="44"
+                                Label="선수 사진" Category="player-photo" ConfirmDelete="ConfirmPhotoDeleteAsync" />
+            }
+            else
+            {
+                <div class="w-[92px] aspect-[3/4] rounded-xl overflow-hidden bg-surface-icon shrink-0">
+                    @if (Info.Profile.PhotoUrl is not null)
+                    {
+                        <img src="@Info.Profile.PhotoUrl" alt="@Info.Profile.Name" class="w-full h-full object-cover" />
+                    }
+                    else
+                    {
+                        <span class="w-full h-full flex items-center justify-center">
+                            <InitialAvatar Name="@Info.Profile.Name" Size="44" />
+                        </span>
+                    }
+                </div>
+            }
             <div class="flex flex-col gap-2 flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-lg font-extrabold text-navy-deep whitespace-nowrap">@Info.Profile.Name</span>
@@ -103,6 +118,11 @@
     public EventCallback OnClaimed { get; set; }
 
     private List<PlayerProfileSection.FieldRow> FieldRows => PlayerProfileSection.BuildFieldRows(Info);
+
+    // 저장·확인 로직은 PC 섹션과 공유 (같은 Info 인스턴스를 갱신한다)
+    private Task SavePhotoAsync(string? photoUrl) => PlayerProfileSection.SavePhotoAsync(Players, Toasts, Info, photoUrl);
+
+    private Task<bool> ConfirmPhotoDeleteAsync() => PlayerProfileSection.ConfirmPhotoDeleteAsync(Confirm, Info.Profile.Name);
 
     // "FW · 등번호 9 · 2012 · 중2" — 있는 항목만 조합
     private string? SummaryLine

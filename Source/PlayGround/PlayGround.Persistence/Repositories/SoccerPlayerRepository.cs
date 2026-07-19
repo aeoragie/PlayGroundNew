@@ -16,6 +16,9 @@ namespace PlayGround.Persistence.Repositories
     /// <summary>선수 프로필 저장 (Soccer DB). 생성된 프로시저 객체 + SoccerCreatePlayerRecord 사용.</summary>
     public class SoccerPlayerRepository : RepositoryBase, IPlayerRepository
     {
+        /// <summary>가족 계정 연결의 관리 역할 — SoccerPlayerFamilyLinks.Role 저장 문자열.</summary>
+        private const string GuardianRole = "Guardian";
+
         public override DatabaseTypes Database => DatabaseTypes.Soccer;
 
         public SoccerPlayerRepository(IOptions<DatabaseConfiguration> options) : base(options)
@@ -94,7 +97,11 @@ namespace PlayGround.Persistence.Repositories
                     PreferredFoot = NullIfEmpty(player.PreferredFoot),
                     SchoolName = NullIfEmpty(player.SchoolName),
                     GuardianPhoneMasked = MaskPhone(NullIfEmpty(player.GuardianPhone)),
-                    IsGuardianManaged = player.IsGuardianManaged
+                    IsGuardianManaged = player.IsGuardianManaged,
+                    // 사진 편집은 보호자만 — UspSetSoccerPlayerPhoto의 보호자 판정 2갈래와 같은 규칙.
+                    // (팀 관리자 갈래는 이 경로에 없다 — 여기 조회 주체는 프로필 관리 계정이다)
+                    CanEditPhoto = player.IsGuardianManaged
+                                   || family.Any(f => f.UserId == userId && f.Role == GuardianRole)
                 },
                 // 저장값이 없는 항목은 기본값으로 채워 5개 항목 전부 내려준다
                 Visibilities = Enum.GetValues<SoccerPlayerProfileField>()
@@ -142,6 +149,33 @@ namespace PlayGround.Persistence.Repositories
 
             bool applied = queryResult.Values1.Any();
             Logger.InfoWith("Player field visibility change completed", ("UserId", userId), ("Applied", applied));
+            return Result<bool>.Success(applied);
+        }
+
+        public async Task<Result<bool>> SetPhotoAsync(Guid userId, Guid playerId, string? photoUrl, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player photo change requested",
+                ("UserId", userId), ("PlayerId", playerId), ("IsRemoval", photoUrl is null));
+
+            // 권한 판정(보호자·팀 관리자)은 프로시저 안에 있다 — 거부되면 빈 결과가 돌아온다
+            var procedure = new UspSetSoccerPlayerPhoto(this)
+            {
+                UserId = userId,
+                PlayerId = playerId,
+                PhotoUrl = photoUrl!
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerPlayerPhotoRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player photo change failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Player photo change completed",
+                ("UserId", userId), ("PlayerId", playerId), ("Applied", applied));
+
             return Result<bool>.Success(applied);
         }
 

@@ -65,9 +65,19 @@
                         }
                         else
                         {
-                            <span class="absolute inset-0 flex items-center justify-center text-xs text-text-faint">선수 사진</span>
+                            <span class="absolute inset-0 flex items-center justify-center">
+                                <InitialAvatar Name="@player.Name" Size="32" />
+                            </span>
                         }
                         <span class="absolute top-1.5 left-1.5 w-[26px] h-[26px] rounded-full bg-navy-deep/85 flex items-center justify-center text-[11.5px] font-extrabold text-white pointer-events-none">@(player.JerseyNumber ?? "-")</span>
+                        @* 사진 변경 — 팀 관리자 전용 섹션 *@
+                        <button type="button" class="@Css.Uploader.CameraBadge !right-1.5 !bottom-1.5"
+                                aria-label="@($"{player.Name} 선수 사진 변경")" @onclick="() => OpenPhotoDialog(player)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 8h3l2-2.5h6L17 8h3v11H4z"></path><circle cx="12" cy="13" r="3.2"></circle>
+                            </svg>
+                        </button>
                     </div>
                     <span class="flex flex-col gap-0.5">
                         <a href="#" class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@player.Name</a>
@@ -88,12 +98,24 @@
     }
 </div>
 
+@* 사진 변경 — 카드가 공유하는 다이얼로그 하나 *@
+<PlayerPhotoDialog @bind-IsOpen="mPhotoDialogOpen" Player="@mPhotoPlayer" />
+
 @code {
     [Parameter]
     public List<TeamRosterPlayerDto> Players { get; set; } = new();
 
     private SoccerAgeGroup? mAgeTab;
     private bool mIsListView = true;
+
+    private bool mPhotoDialogOpen;
+    private TeamRosterPlayerDto? mPhotoPlayer;
+
+    private void OpenPhotoDialog(TeamRosterPlayerDto player)
+    {
+        mPhotoPlayer = player;
+        mPhotoDialogOpen = true;
+    }
 
     // 연령 탭은 전원이 AgeGroup을 가질 때만 (혼합·전부 null이면 탭 없이 전체 표시)
     private bool HasAgeTabs => Players.Count > 0 && Players.All(p => AgeOf(p) is not null);

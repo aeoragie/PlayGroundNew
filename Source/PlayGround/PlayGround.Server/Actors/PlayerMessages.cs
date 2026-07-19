@@ -21,6 +21,12 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
+    /// <summary>선수 사진 설정·삭제 메시지 (쓰기 — UserId 해시). 대상 PlayerId는 본인이 아닐 수 있다(팀 관리자 경로).</summary>
+    public sealed record SetSoccerPlayerPhotoMessage(Guid UserId, SetPlayerPhotoRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>시즌 통계 조회 메시지 (같은 사용자 쓰기와 순차 처리 — UserId 해시).</summary>
     public sealed record GetSoccerPlayerSeasonStatsMessage(Guid UserId, int SeasonYear) : IConsistentHashable
     {

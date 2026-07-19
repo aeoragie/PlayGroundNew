@@ -2,9 +2,11 @@
    공개 프로필 카드(URL·방문 통계)는 공개 선수 프로필 구현 전이라 미노출 (빈 데이터 노출 금지).
    공개 토글은 관리 주체 계정으로만 저장된다 (서버가 UserId로 소유 선수 해석). *@
 @using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
 @inject PlayerClient Players
 @inject ToastService Toasts
+@inject ConfirmService Confirm
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
@@ -15,16 +17,29 @@
     <div class="grid grid-cols-[1fr_340px] gap-[18px] items-start">
         <div class="@($"{Css.Dashboard.Card} p-[26px] flex flex-col gap-5")">
             <div class="flex gap-5 items-start">
-                <div class="w-[120px] aspect-[3/4] rounded-[14px] overflow-hidden bg-surface-icon shrink-0">
-                    @if (Info.Profile.PhotoUrl is not null)
-                    {
-                        <img src="@Info.Profile.PhotoUrl" alt="프로필 사진" class="w-full h-full object-cover" />
-                    }
-                    else
-                    {
-                        <span class="w-full h-full flex items-center justify-center text-xs text-text-faint">프로필 사진</span>
-                    }
-                </div>
+                @* 사진 업로드는 보호자만 — 권한이 없으면 버튼을 비활성이 아니라 아예 렌더하지 않는다 *@
+                @if (Info.Profile.CanEditPhoto)
+                {
+                    <AvatarUploader Value="@Info.Profile.PhotoUrl" ValueChanged="SavePhotoAsync"
+                                    Shape="AvatarUploader.CropShape.Portrait" FrameClass="w-[120px] aspect-[3/4]"
+                                    Placeholder="@Info.Profile.Name" InitialSize="56"
+                                    Label="선수 사진" Category="player-photo" ConfirmDelete="ConfirmPhotoDeleteAsync" />
+                }
+                else
+                {
+                    <div class="w-[120px] aspect-[3/4] rounded-[14px] overflow-hidden bg-surface-icon shrink-0">
+                        @if (Info.Profile.PhotoUrl is not null)
+                        {
+                            <img src="@Info.Profile.PhotoUrl" alt="@Info.Profile.Name" class="w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <span class="w-full h-full flex items-center justify-center">
+                                <InitialAvatar Name="@Info.Profile.Name" Size="56" />
+                            </span>
+                        }
+                    </div>
+                }
                 <div class="flex flex-col gap-2.5 flex-1">
                     <div class="flex items-center gap-2.5 flex-wrap">
                         <span class="text-[21px] font-extrabold text-navy-deep whitespace-nowrap">@Info.Profile.Name</span>
@@ -159,6 +174,38 @@
 
         // 토글은 결과가 화면에 즉시 보이므로 성공 토스트는 생략, 실패만 알린다
         Toasts.ShowError("공개 설정을 저장하지 못했어요.", "재시도", () => ToggleAsync(visibility));
+    }
+
+    private Task SavePhotoAsync(string? photoUrl) => SavePhotoAsync(Players, Toasts, Info, photoUrl);
+
+    private Task<bool> ConfirmPhotoDeleteAsync() => ConfirmPhotoDeleteAsync(Confirm, Info.Profile.Name);
+
+    /// <summary>사진 저장·삭제는 즉시 반영된다(폼이 없다) — 성공 시에만 공유 DTO를 갱신한다.
+    /// PC·모바일이 같은 Info 인스턴스를 참조하므로 한쪽에서 바꾸면 양쪽이 맞는다.</summary>
+    internal static async Task SavePhotoAsync(PlayerClient players, ToastService toasts,
+        PlayerInfoResponse info, string? photoUrl)
+    {
+        if (await players.SetPlayerPhotoAsync(info.Profile.PlayerId, photoUrl))
+        {
+            info.Profile.PhotoUrl = photoUrl;
+            toasts.ShowSuccess(photoUrl is null ? "사진을 삭제했어요." : "사진을 저장했어요.");
+            return;
+        }
+
+        // 업로드 실패는 업로더가 인라인으로 알린다 — 여기는 "저장" 단계 실패다
+        toasts.ShowError("사진을 저장하지 못했어요.", "재시도", () => SavePhotoAsync(players, toasts, info, photoUrl));
+    }
+
+    /// <summary>삭제는 즉시 서버에 반영되므로 사전 확인을 건다 (Design.FeedbackPatterns — 대상 이름 명시).</summary>
+    internal static Task<bool> ConfirmPhotoDeleteAsync(ConfirmService confirm, string playerName)
+    {
+        return confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"{playerName} 선수의 사진을 삭제할까요?",
+            Description = "삭제하면 이니셜 아바타로 돌아가요. 되돌릴 수 없어요.",
+            ConfirmLabel = "삭제",
+        });
     }
 
     internal static bool IsGuardian(PlayerFamilyMemberDto member) => member.Role == "Guardian";

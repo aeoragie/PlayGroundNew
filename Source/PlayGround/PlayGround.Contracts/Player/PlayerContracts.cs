@@ -48,6 +48,10 @@ namespace PlayGround.Contracts.Player
         public string? SchoolName { get; set; }
         public string? GuardianPhoneMasked { get; set; }
         public bool IsGuardianManaged { get; set; }
+
+        /// <summary>사진 업로드·삭제 가능 여부 (미성년자 보호 — 보호자·팀 관리자만).
+        /// false면 클라이언트는 업로드 버튼을 비활성이 아니라 아예 렌더하지 않는다.</summary>
+        public bool CanEditPhoto { get; set; }
     }
 
     /// <summary>항목 공개 여부. FieldName은 SoccerPlayerProfileField enum 멤버 이름 문자열.</summary>
@@ -70,6 +74,14 @@ namespace PlayGround.Contracts.Player
     {
         public string FieldName { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
+    }
+
+    /// <summary>선수 사진 설정·삭제 요청. PhotoUrl null = 삭제(이니셜 아바타로 복귀).
+    /// 대상이 본인 프로필이 아닐 수 있어(팀 관리자 경로) PlayerId를 명시한다 — 권한은 서버가 판정.</summary>
+    public class SetPlayerPhotoRequest
+    {
+        public Guid PlayerId { get; set; }
+        public string? PhotoUrl { get; set; }
     }
 
     /// <summary>초대코드 Claim 요청 — 팀이 발급한 코드로 로스터 선수 프로필을 내 계정에 연결.</summary>

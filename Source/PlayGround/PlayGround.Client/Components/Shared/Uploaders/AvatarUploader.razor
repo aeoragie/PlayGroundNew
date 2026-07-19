@@ -9,14 +9,21 @@
 @inject TokenStore Tokens
 
 <div class="flex flex-col items-center">
-    <div class="@Css.Uploader.AvatarWrap">
+    <div class="@WrapClass">
         @if (!string.IsNullOrEmpty(Value))
         {
-            <img src="@Value" alt="@Label" class="@Css.Uploader.AvatarImage" />
+            <img src="@Value" alt="@Label" class="@ImageClass" />
+        }
+        else if (Shape == CropShape.Circle)
+        {
+            <span class="@Css.Uploader.AvatarPlaceholder">@Placeholder</span>
         }
         else
         {
-            <span class="@Css.Uploader.AvatarPlaceholder">@Placeholder</span>
+            @* 사각 슬롯의 빈 상태 — 이니셜 아바타(Design.AvatarBadge) *@
+            <span class="@Css.Uploader.FramePlaceholder">
+                <InitialAvatar Name="@Placeholder" Tone="InitialAvatar.AvatarTone.Person" Size="@InitialSize" />
+            </span>
         }
 
         <button type="button" class="@Css.Uploader.CameraBadge" aria-label="@($"{Label} 변경")" @onclick="PickFileAsync">
@@ -68,13 +75,20 @@ else if (mError is not null)
         <div class="@Css.Uploader.CropCard">
             <span class="@Css.Uploader.CropTitle">사진 위치 조정</span>
 
-            <div class="@Css.Uploader.CropStage" @ref="mStage"
+            <div class="@(Shape == CropShape.Circle ? Css.Uploader.CropStage : Css.Uploader.CropStagePortrait)" @ref="mStage"
                  @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove"
                  @onpointerup="OnPointerUp" @onpointercancel="OnPointerUp">
                 <img src="@mCropUrl" alt="" class="absolute origin-top-left max-w-none select-none pointer-events-none"
                      style="@ImageStyle" />
-                <span class="@Css.Uploader.CropMask"></span>
-                <span class="@Css.Uploader.CropRing"></span>
+                @if (Shape == CropShape.Circle)
+                {
+                    <span class="@Css.Uploader.CropMask"></span>
+                    <span class="@Css.Uploader.CropRing"></span>
+                }
+                else
+                {
+                    <span class="@Css.Uploader.CropRingRect"></span>
+                }
             </div>
 
             <div class="@Css.Uploader.ZoomRow">
@@ -92,11 +106,26 @@ else if (mError is not null)
 }
 
 @code {
+    /// <summary>크롭 슬롯 모양. Circle = 카탈로그 기본(엠블럼·아바타), Portrait = 선수 사진 3:4(SPEC 슬롯).</summary>
+    public enum CropShape
+    {
+        Circle,
+        Portrait,
+    }
+
     /// <summary>업로드 결과 이미지의 한 변 — 원형이라 정사각으로 자른다.</summary>
     private const int OutputSize = 512;
 
+    /// <summary>3:4 결과 크기 — 프로필 슬롯이 최대 120px이라 여유 있게.</summary>
+    private const int PortraitOutputWidth = 600;
+    private const int PortraitOutputHeight = 800;
+
     /// <summary>크롭 무대의 화면 크기(px). 실제 렌더 크기와 맞춰 좌표를 계산한다.</summary>
     private const double StageSize = 360;
+
+    /// <summary>3:4 무대 — CropStagePortrait의 렌더 크기와 같아야 좌표가 맞는다.</summary>
+    private const double PortraitStageWidth = 270;
+    private const double PortraitStageHeight = 360;
 
     [Parameter]
     public string? Value { get; set; }
@@ -114,6 +143,33 @@ else if (mError is not null)
     /// <summary>업로드 폴더 — 서버 허용 목록과 일치해야 한다.</summary>
     [Parameter]
     public string Category { get; set; } = "team-logo";
+
+    [Parameter]
+    public CropShape Shape { get; set; } = CropShape.Circle;
+
+    /// <summary>사각 프레임의 크기 클래스. SPEC이 PC·모바일로 다른 크기를 요구해서 호출부가 준다.</summary>
+    [Parameter]
+    public string? FrameClass { get; set; }
+
+    /// <summary>사각 프레임 빈 상태의 이니셜 아바타 지름(px).</summary>
+    [Parameter]
+    public int InitialSize { get; set; } = 44;
+
+    /// <summary>삭제 직전 확인 — false를 돌려주면 삭제하지 않는다. 즉시 저장되는 화면에서만 건다.</summary>
+    [Parameter]
+    public Func<Task<bool>>? ConfirmDelete { get; set; }
+
+    private string WrapClass => Shape == CropShape.Circle
+        ? Css.Uploader.AvatarWrap
+        : $"{Css.Uploader.FrameWrap} {FrameClass}";
+
+    private string ImageClass => Shape == CropShape.Circle
+        ? Css.Uploader.AvatarImage
+        : Css.Uploader.FrameImage;
+
+    private double StageWidth => Shape == CropShape.Circle ? StageSize : PortraitStageWidth;
+
+    private double StageHeight => Shape == CropShape.Circle ? StageSize : PortraitStageHeight;
 
     private ElementReference mFileInput;
     private ElementReference mStage;
@@ -135,7 +191,7 @@ else if (mError is not null)
     private bool mBusy;
 
     // 이미지를 무대에 꽉 채운 뒤(cover) 확대·이동을 얹는다
-    private double BaseScale => Math.Max(StageSize / mNaturalWidth, StageSize / mNaturalHeight);
+    private double BaseScale => Math.Max(StageWidth / mNaturalWidth, StageHeight / mNaturalHeight);
 
     private double DisplayWidth => mNaturalWidth * BaseScale * mZoom;
 
@@ -188,8 +244,8 @@ else if (mError is not null)
 
     private void CenterImage()
     {
-        mOffsetX = (StageSize - DisplayWidth) / 2;
-        mOffsetY = (StageSize - DisplayHeight) / 2;
+        mOffsetX = (StageWidth - DisplayWidth) / 2;
+        mOffsetY = (StageHeight - DisplayHeight) / 2;
     }
 
     private void OnPointerDown(PointerEventArgs args)
@@ -218,8 +274,8 @@ else if (mError is not null)
     // 무대에 빈 곳이 생기지 않도록 이동 범위를 가둔다
     private void ClampOffsets()
     {
-        mOffsetX = Math.Clamp(mOffsetX, StageSize - DisplayWidth, 0);
-        mOffsetY = Math.Clamp(mOffsetY, StageSize - DisplayHeight, 0);
+        mOffsetX = Math.Clamp(mOffsetX, StageWidth - DisplayWidth, 0);
+        mOffsetY = Math.Clamp(mOffsetY, StageHeight - DisplayHeight, 0);
     }
 
     private void OnZoomInput(ChangeEventArgs args)
@@ -230,13 +286,13 @@ else if (mError is not null)
         }
 
         // 무대 중심을 기준으로 확대해야 보고 있던 곳이 유지된다
-        double centerX = (StageSize / 2) - mOffsetX;
-        double centerY = (StageSize / 2) - mOffsetY;
+        double centerX = (StageWidth / 2) - mOffsetX;
+        double centerY = (StageHeight / 2) - mOffsetY;
         double ratio = zoom / mZoom;
 
         mZoom = zoom;
-        mOffsetX = (StageSize / 2) - (centerX * ratio);
-        mOffsetY = (StageSize / 2) - (centerY * ratio);
+        mOffsetX = (StageWidth / 2) - (centerX * ratio);
+        mOffsetY = (StageHeight / 2) - (centerY * ratio);
         ClampOffsets();
     }
 
@@ -254,17 +310,21 @@ else if (mError is not null)
 
         mBusy = true;
 
-        // 화면 좌표 → 원본 픽셀 좌표 (무대 한 변이 원본에서 차지하는 크기)
-        double sourceEdge = StageSize / (BaseScale * mZoom);
-        double sourceX = -mOffsetX / (BaseScale * mZoom);
-        double sourceY = -mOffsetY / (BaseScale * mZoom);
+        // 화면 좌표 → 원본 픽셀 좌표 (무대가 원본에서 차지하는 크기)
+        double scale = BaseScale * mZoom;
+        double sourceWidth = StageWidth / scale;
+        double sourceHeight = StageHeight / scale;
+        double sourceX = -mOffsetX / scale;
+        double sourceY = -mOffsetY / scale;
 
-        var crop = new { x = sourceX, y = sourceY, width = sourceEdge, height = sourceEdge };
+        var crop = new { x = sourceX, y = sourceY, width = sourceWidth, height = sourceHeight };
+        int outputWidth = Shape == CropShape.Circle ? OutputSize : PortraitOutputWidth;
+        int outputHeight = Shape == CropShape.Circle ? OutputSize : PortraitOutputHeight;
         string? token = await Tokens.GetTokenAsync();
 
         IJSObjectReference module = await ModuleAsync();
         UploadedImage? uploaded = await module.InvokeAsync<UploadedImage>(
-            "cropAndUpload", mCropUrl, crop, OutputSize, OutputSize, Category, token);
+            "cropAndUpload", mCropUrl, crop, outputWidth, outputHeight, Category, token);
 
         mBusy = false;
         mCropUrl = null;
@@ -282,6 +342,12 @@ else if (mError is not null)
 
     private async Task RemoveAsync()
     {
+        // 즉시 저장되는 화면은 확인을 건다 — 폼 안(취소 가능)에서는 걸지 않는다
+        if (ConfirmDelete is not null && !await ConfirmDelete())
+        {
+            return;
+        }
+
         Value = null;
         mError = null;
         await ValueChanged.InvokeAsync(null);

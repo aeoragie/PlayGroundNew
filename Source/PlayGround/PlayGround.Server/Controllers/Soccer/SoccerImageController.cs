@@ -27,7 +27,7 @@ namespace PlayGround.Server.Controllers.Soccer
         /// <summary>업로드를 허용하는 용도 — 임의 경로 생성을 막는다.</summary>
         private static readonly HashSet<string> AllowedCategories = new(StringComparer.OrdinalIgnoreCase)
         {
-            "team-logo", "team-cover",
+            "team-logo", "team-cover", "player-photo",
         };
 
         private readonly IImageStorage mStorage;

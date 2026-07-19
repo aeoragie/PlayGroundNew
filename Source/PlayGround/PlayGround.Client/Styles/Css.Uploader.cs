@@ -20,6 +20,17 @@ namespace PlayGround.Client.Styles
                 "w-[84px] h-[84px] rounded-full bg-navy flex items-center justify-center " +
                 "text-[26px] font-extrabold text-white select-none";
 
+            //.// 사각 프레임 (선수 사진 3:4 등) — SPEC이 정사각/원형이 아닌 슬롯을 요구하는 곳
+
+            /// <summary>프레임 래퍼. 크기는 호출부가 Class로 준다(SPEC이 PC 120px·모바일 92px로 다르다).</summary>
+            public const string FrameWrap = "relative shrink-0";
+
+            public const string FrameImage = "w-full h-full object-cover rounded-[14px] bg-surface-icon";
+
+            /// <summary>사각 프레임의 빈 상태 — 이니셜 아바타가 안에 들어간다(Design.AvatarBadge).</summary>
+            public const string FramePlaceholder =
+                "w-full h-full rounded-[14px] bg-surface-icon flex items-center justify-center select-none";
+
             /// <summary>우하단 카메라 뱃지 30px.</summary>
             public const string CameraBadge =
                 "absolute -right-0.5 -bottom-0.5 w-[30px] h-[30px] rounded-full bg-white border-1.5 border-border " +
@@ -121,6 +132,10 @@ namespace PlayGround.Client.Styles
             public const string CropStage =
                 "relative w-full aspect-square rounded-[12px] overflow-hidden bg-navy-deep touch-none cursor-move select-none";
 
+            /// <summary>크롭 무대(3:4) — 선수 사진처럼 세로 슬롯일 때. 잘릴 영역을 그대로 보여준다.</summary>
+            public const string CropStagePortrait =
+                "relative w-[270px] mx-auto aspect-[3/4] rounded-[12px] overflow-hidden bg-navy-deep touch-none cursor-move select-none";
+
             /// <summary>원형 마스크 — 바깥을 어둡게 덮는다.</summary>
             public const string CropMask =
                 "absolute inset-0 pointer-events-none " +
@@ -128,6 +143,10 @@ namespace PlayGround.Client.Styles
 
             public const string CropRing =
                 "absolute inset-0 m-auto w-full h-full rounded-full border-2 border-white/70 pointer-events-none";
+
+            /// <summary>사각 크롭에는 마스크 대신 테두리만 — 무대 전체가 곧 결과다.</summary>
+            public const string CropRingRect =
+                "absolute inset-0 rounded-[12px] border-2 border-white/70 pointer-events-none";
 
             public const string ZoomRow = "flex items-center gap-2.5";
 
