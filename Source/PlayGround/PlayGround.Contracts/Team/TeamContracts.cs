@@ -331,6 +331,54 @@ namespace PlayGround.Contracts.Team
         public string? Description { get; set; }
     }
 
+    /// <summary>"처리가 필요해요" 목록 (Design.DashboardHub §3).
+    /// **알림 테이블이 아니라 현재 상태에서 파생한다** — 읽음 상태가 없고, 처리하면 사라진다.</summary>
+    public class ActionItemsResponse
+    {
+        /// <summary>잘라내기 전 전체 건수 — 벨 카운트가 "상위 3건"이 되면 안 된다.</summary>
+        public int TotalCount { get; set; }
+
+        /// <summary>허브에 보여줄 상위 항목(최대 3건).</summary>
+        public List<ActionItemDto> Items { get; set; } = new();
+    }
+
+    /// <summary>액션 항목 한 건. 항목 전체가 딥링크라 이동 대상 Id를 함께 준다.</summary>
+    public class ActionItemDto
+    {
+        /// <summary>SoccerActionKind 멤버 이름 ('Invite' | 'Correction') — 유형 칩 색을 정한다.</summary>
+        public string Kind { get; set; } = string.Empty;
+
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+
+        /// <summary>이동 대상 — Invite는 팀 선수단, Correction은 팀 경기 결과.</summary>
+        public Guid? TeamId { get; set; }
+        public Guid? MatchId { get; set; }
+
+        /// <summary>정렬 기준 (초대 발급일 / 심사일).</summary>
+        public DateTime OccurredAt { get; set; }
+    }
+
+    /// <summary>내가 관리하는 팀의 미처리 초대 목록. "처리가 필요해요"의 원천 중 하나 —
+    /// 알림 테이블 없이 현재 상태에서 파생한다(생산자 없는 이벤트 로그를 만들지 않는다).</summary>
+    public class PendingInvitesResponse
+    {
+        public List<PendingInviteDto> Invites { get; set; } = new();
+    }
+
+    /// <summary>아직 연결되지 않은 초대 한 건.</summary>
+    public class PendingInviteDto
+    {
+        public Guid InviteId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? PlayerId { get; set; }
+
+        /// <summary>초대 대상 선수 이름 — 로스터에서 만든 미연결 프로필.</summary>
+        public string? PlayerName { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
     //.// 공식 기록 수정 신청 (Design.RecordCorrection)
     // PlayGround는 생성·조회·취소만 한다 — 심사·반영은 주최측(대회 운영 서비스) 몫이다(설계 결정 6·7).
 

@@ -45,6 +45,9 @@ namespace PlayGround.Application.Interfaces
         /// </summary>
         Task<Result<Guid?>> CreateRecordCorrectionAsync(Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default);
 
+        /// <summary>내가 관리하는 팀의 미처리 초대 — "처리가 필요해요" 파생 원천. 없으면 빈 목록.</summary>
+        Task<Result<PendingInvitesResponse>> GetPendingInvitesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
         /// <summary>내가 올린 수정 신청 목록. 없으면 빈 목록 — 에러가 아니다.</summary>
         Task<Result<RecordCorrectionsResponse>> GetRecordCorrectionsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
 

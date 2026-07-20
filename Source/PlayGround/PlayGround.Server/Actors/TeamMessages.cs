@@ -55,6 +55,9 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
+    /// <summary>"처리가 필요해요" 항목 조회 메시지 (읽기 — RoundRobin). 현재 상태에서 파생한다.</summary>
+    public sealed record GetSoccerActionItemsMessage(Guid UserId);
+
     /// <summary>내 기록 수정 신청 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerRecordCorrectionsMessage(Guid ManagerUserId);
 }

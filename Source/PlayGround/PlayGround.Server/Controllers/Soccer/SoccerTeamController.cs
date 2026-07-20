@@ -168,6 +168,22 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>"처리가 필요해요" 항목 (대시보드 허브).
+        /// **알림 테이블이 아니라 현재 상태에서 파생한다** — 읽음 상태가 없고, 처리하면 사라진다.</summary>
+        [HttpGet("me/action-items")]
+        public async Task<Envelope<ActionItemsResponse>> GetMyActionItemsAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<ActionItemsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<ActionItemsResponse> result = await mGateway.AskAsync<ActionItemsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerActionItemsMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
         /// <summary>내가 올린 기록 수정 신청 목록.</summary>
         [HttpGet("me/corrections")]
         public async Task<Envelope<RecordCorrectionsResponse>> GetMyRecordCorrectionsAsync(CancellationToken cancellation)

@@ -118,6 +118,21 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>"처리가 필요해요" 항목 (허브). 현재 상태에서 파생 — 읽음 상태가 없다. 오류 시 null.</summary>
+        public async Task<ActionItemsResponse?> GetActionItemsAsync()
+        {
+            try
+            {
+                Envelope<ActionItemsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<ActionItemsResponse>>("api/soccer/team/me/action-items");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         /// <summary>기록 수정 신청 목록 조회. 미인증·오류 시 null.</summary>
         public async Task<RecordCorrectionsResponse?> GetRecordCorrectionsAsync()
         {

@@ -588,6 +588,40 @@ namespace PlayGround.Persistence.Repositories
             return Result<Guid?>.Success(row.CorrectionId);
         }
 
+        public async Task<Result<PendingInvitesResponse>> GetPendingInvitesByManagerAsync(
+            Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Pending invites requested", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerPendingInvitesByManager(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerPendingInviteRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Pending invites query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<PendingInvitesResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new PendingInvitesResponse
+            {
+                Invites = queryResult.Values1
+                    .Select(i => new PendingInviteDto
+                    {
+                        InviteId = i.InviteId,
+                        TeamId = i.TeamId,
+                        TeamName = i.TeamName,
+                        PlayerId = i.PlayerId,
+                        PlayerName = NullIfEmpty(i.Name),
+                        CreatedAt = i.CreatedAt
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Pending invites received",
+                ("ManagerUserId", managerUserId), ("Invites", response.Invites.Count));
+
+            return Result<PendingInvitesResponse>.Success(response);
+        }
+
         public async Task<Result<RecordCorrectionsResponse>> GetRecordCorrectionsByManagerAsync(
             Guid managerUserId, CancellationToken cancellation = default)
         {

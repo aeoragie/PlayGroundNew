@@ -75,3 +75,20 @@ sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -E -Q "DELETE FROM SoccerRecordCorre
 
 검증에 쓴 데이터는 **끝나고 시드 상태로 되돌린다.** 스크립트가 스스로 정리하거나(‑b3·b5),
 정리 SQL을 따로 돌린다. 검증 흔적이 다음 검증의 전제를 흔들면 안 된다.
+
+## 프로시저 배포 함정 (실제로 겪음)
+
+**SQL 파일을 고친 뒤 DB에 다시 배포하지 않으면 조용히 어긋난다.** 컴파일도 통과하고
+생성 코드도 최신이라 티가 안 나는데, Dapper가 없는 컬럼을 null로 채워 로직이 잘못 분기한다.
+(B6 `UspGetSoccerRecordCorrectionsByManager`에 `TeamId`를 나중에 추가하고 재배포를 빠뜨려
+상대팀 이름이 우리 팀으로 나왔다 — 화면에는 안 쓰이던 필드라 B6 검수에서도 안 걸렸다.)
+
+배포 상태 확인은 `LIKE`가 아니라 `CHARINDEX`로 한다 — **`[TeamId]`는 LIKE에서 문자 클래스**라
+`'%c.[TeamId]%'`가 엉뚱하게 매칭된다:
+
+```sql
+SELECT CASE WHEN CHARINDEX('c.[TeamId]', OBJECT_DEFINITION(OBJECT_ID('프로시저명'))) > 0
+            THEN '포함' ELSE 'stale' END;
+```
+
+같은 이유로 테스트 스크립트에서 `Name LIKE '[MC]%'`도 의도대로 동작하지 않는다(M 또는 C로 시작하는 이름과 매칭).
