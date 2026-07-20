@@ -33,6 +33,14 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `shot-b6.js` | B6 진입점(친선 행 ⋯ 0건)·신청 폼·중복 시 "신청 처리 중"·취소 |
 | `sql-b6.sql` | B6 상태 3종 심기 — **주최측이 채우는 값을 흉내 낸다** (아래 참고) |
 | `shot-b6-status.js` | B6 반영·반려 렌더 + 반려 사유 표시 (sql-b6.sql 실행 후) |
+| `sql-multichild.sql` | 자녀 N명 — 프로시저가 `@TargetPlayerId`로 갈라지는지 |
+| `sql-twochildren.sql` | 자녀 2명 만들기 (선수 대시보드 전환 · 허브 표시 조건) |
+| `shot-childswitch.js` | 자녀 전환 시 화면 데이터가 실제로 갈아끼워지는지 |
+| `api-actionitems.js` | "처리가 필요해요" 파생 — 팀 단위 묶음 · 접수 상태 제외 · TotalCount |
+| `sql-hub.sql` | 허브 표시 조건 — **팀 관리자이면서 보호자**인 계정 만들기 |
+| `api-hub.js` | 허브 묶음 + 라우팅 3분기의 근거(관리 대상 수) · 자녀 스탯 = 선수 대시보드 |
+| `shot-hub.js` | 라우팅 3분기 실제 도착지 · 허브 PC/모바일 · **역할 가드 제거로 튕김 없음** |
+| `shot-hub-roles.js` | General → 역할 선택 · 자녀 2명 카드 반복 (역할 일시 변경 후 복구) |
 
 `.sql`은 sqlcmd로 돌린다:
 

@@ -1,38 +1,139 @@
 @attribute [Route(Routes.Dashboard)]
-@layout AuthLayout
+@layout MainLayout
 @using System.Security.Claims
+@using PlayGround.Contracts.Team
+@using PlayGround.Client.Components.Dashboard.Hub
 @using PlayGround.Client.Styles
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject ReturnUrlStore ReturnUrls
+@inject DashboardClient Dashboards
 
 <PageTitle>대시보드 — PlayGround</PageTitle>
 
-@* 로그인·온보딩 후 공통 진입 지점 — 역할에 맞는 대시보드로 분기.
-   TeamAdmin → 팀 대시보드, Player → 선수 대시보드. 역할 없으면 선택 안내. *@
+@* 로그인·온보딩 후 공통 진입 지점. 라우팅 3분기 (Design.DashboardHub):
+   역할 미설정 → 역할 선택 / 관리 대상 1개 → 그 대시보드로 스킵 리다이렉트 / 2개 이상 → 허브.
+
+   SPEC은 "역할 2개 이상"이라고 하지만 역할은 단일 컬럼이라 2개를 표현할 수 없다.
+   그래서 역할이 아니라 **실제로 관리하는 대상의 수**(팀 + 자녀)로 센다 — 규칙의 의도가
+   "여러 자리를 오갈 일이 있을 때만 현관을 보여준다"이므로 이쪽이 그 의도에 맞다. *@
 @if (mChecking)
 {
-    <div class="w-[480px] max-w-full flex items-center justify-center py-24 text-text-muted text-sm">확인 중…</div>
+    <div class="min-h-screen flex items-center justify-center text-text-muted text-sm">확인 중…</div>
+}
+else if (mFailed)
+{
+    @* 허브 조회 실패 — 이동하지 않고 그 자리에서 다시 시도한다(A3 규칙) *@
+    <div class="min-h-screen flex items-center justify-center px-5">
+        <div class="@($"w-[480px] max-w-full {Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-4 text-center")">
+            <h1 class="m-0 text-xl font-extrabold tracking-[-.02em] text-navy-deep">잠시 문제가 있었어요</h1>
+            <p class="m-0 text-[14px] text-text-body leading-[1.7]">대시보드를 불러오지 못했어요.<br />잠시 후 다시 시도해 주세요.</p>
+            <button type="button" @onclick="RetryAsync"
+                    class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton} border-0 cursor-pointer")">다시 시도</button>
+        </div>
+    </div>
+}
+else if (mHub is null)
+{
+    @* 역할 미설정(General) *@
+    <div class="min-h-screen flex items-center justify-center px-5">
+        <div class="@($"w-[480px] max-w-full {Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-4 text-center")">
+            <div class="w-[72px] h-[72px] rounded-full bg-surface-icon flex items-center justify-center text-[34px]">👋</div>
+            <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">환영해요!</h1>
+            <p class="m-0 text-[14.5px] text-text-body leading-[1.7]">
+                <text>아직 역할을 선택하지 않았어요.<br />역할을 선택하면 맞춤 대시보드가 열려요.</text>
+            </p>
+            <a href="@Routes.SelectRole" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">역할 선택하기</a>
+        </div>
+    </div>
 }
 else
 {
-    <div class="@($"w-[480px] max-w-full {Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-4 text-center")">
-        <div class="w-[72px] h-[72px] rounded-full bg-surface-icon flex items-center justify-center text-[34px]">👋</div>
-        <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">환영해요!</h1>
-        <p class="m-0 text-[14.5px] text-text-body leading-[1.7]">
-            <text>아직 역할을 선택하지 않았어요.<br />역할을 선택하면 맞춤 대시보드가 열려요.</text>
-        </p>
-        <a href="@Routes.SelectRole" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">역할 선택하기</a>
+    <div class="@Css.Hub.Page">
+        <HubGnb DisplayName="@DisplayName" ActionCount="@mHub.Actions.TotalCount" />
+
+        <div class="@Css.Hub.Container">
+            @* 인사 + 오늘 요약 *@
+            <div class="flex items-start gap-4">
+                <div class="flex-1 min-w-0">
+                    <h1 class="m-0 text-[20px] md:text-2xl font-extrabold tracking-[-.02em] text-navy-deep break-keep">안녕하세요, @DisplayName 님</h1>
+                    <p class="m-0 mt-1.5 text-[13px] md:text-[13.5px] text-text-muted break-keep">@SummarySentence</p>
+                </div>
+                <span class="hidden md:block text-[12.5px] font-bold text-text-faint whitespace-nowrap pt-1">@Today</span>
+            </div>
+
+            @* 처리가 필요해요 — 0건이면 섹션 자체를 렌더하지 않는다 *@
+            @if (mHub.Actions.TotalCount > 0)
+            {
+                <HubActionSection Items="@mHub.Actions" />
+            }
+
+            @if (mHub.Teams.Count > 0)
+            {
+                <section class="flex flex-col gap-3.5">
+                    <div class="flex items-center gap-2">
+                        <h2 class="@Css.Hub.SectionTitle">내 팀</h2>
+                        <span class="@Css.Hub.RoleLabel">팀 관리자</span>
+                    </div>
+                    @foreach (HubTeamDto team in mHub.Teams)
+                    {
+                        <HubTeamCard Team="@team" />
+                    }
+                </section>
+            }
+
+            @if (mHub.Children.Count > 0)
+            {
+                <section class="flex flex-col gap-3.5">
+                    <div class="flex items-center gap-2">
+                        <h2 class="@Css.Hub.SectionTitle">내 자녀</h2>
+                        <span class="@Css.Hub.RoleLabel">보호자</span>
+                    </div>
+                    <div class="@Css.Hub.ChildGrid">
+                        @foreach (HubChildDto child in mHub.Children)
+                        {
+                            <HubChildCard Child="@child" />
+                        }
+                    </div>
+                </section>
+            }
+
+            @* 바로가기 — 팀 탐색·계정 설정은 화면이 없어 경기기록만 (갈 곳 없는 카드를 두지 않는다) *@
+            <section class="flex flex-col gap-3.5">
+                <h2 class="@Css.Hub.SectionTitle">바로가기</h2>
+                <div class="@Css.Hub.ShortcutGrid">
+                    <a href="@Routes.Records" class="@Css.Hub.Shortcut">
+                        <span class="w-9 h-9 rounded-[10px] bg-surface-icon flex items-center justify-center shrink-0">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" class="text-navy"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0012 0V2z"></path></svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="@($"block {Css.Hub.ShortcutTitle}")">경기기록</span>
+                            <span class="@($"block {Css.Hub.ShortcutSub}")">대회 · 리그 결과 보기</span>
+                        </span>
+                    </a>
+                </div>
+            </section>
+        </div>
     </div>
 }
 
 @code {
     private bool mChecking = true;
-    private UserRole mRole = UserRole.General;
+    private bool mFailed;
+    private DashboardHubResponse? mHub;
+    private string mClaimName = string.Empty;
+
+    private async Task RetryAsync()
+    {
+        mFailed = false;
+        mChecking = true;
+        await OnInitializedAsync();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        // 인증 상태를 먼저 확정 (토큰 복원 + Bearer 헤더 부착) — 역할은 JWT 클레임에서 직접 읽는다.
+        // 인증 상태를 먼저 확정 (토큰 복원 + Bearer 헤더 부착) — 안 하면 허브 조회가 401로 샌다.
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
@@ -40,7 +141,7 @@ else
             return;
         }
 
-        // 딥링크로 들어왔다가 로그인한 경우 — 역할 대시보드보다 원래 가려던 곳이 우선한다.
+        // 딥링크로 들어왔다가 로그인한 경우 — 허브보다 원래 가려던 곳이 우선한다.
         // 이메일·소셜 두 경로 모두 여기로 모이므로 소비 지점은 이 한 곳이면 충분하다.
         string? returnUrl = await ReturnUrls.ConsumeAsync();
         if (returnUrl is not null)
@@ -49,19 +150,72 @@ else
             return;
         }
 
-        mRole = UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
-        if (mRole == UserRole.TeamAdmin)
+        mClaimName = state.User.Identity.Name ?? string.Empty;
+
+        // 역할이 없으면 관리 대상도 없다 — 조회하지 않고 바로 역할 선택으로 보낸다.
+        UserRole role = UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
+        if (role == UserRole.General)
         {
-            Nav.NavigateTo(Routes.TeamDashboard, replace: true);
+            mChecking = false;
             return;
         }
 
-        if (mRole == UserRole.Player)
+        DashboardHubResponse? hub = await Dashboards.GetHubAsync();
+
+        // **조회 실패에는 이동하지 않는다.** 실패를 "관리 대상 0개"로 읽으면 역할 선택으로 보내 버리고,
+        // 역할 기준으로 튕기면 대시보드가 다시 여기로 돌려보내 무한히 오간다(대시보드도 "없음"과
+        // "실패"를 구분하지 못한다). 그 자리에서 재시도할 수 있게 두는 것이 유일하게 안전한 선택이다.
+        if (hub is null)
         {
-            Nav.NavigateTo(Routes.PlayerDashboard, replace: true);
+            mFailed = true;
+            mChecking = false;
             return;
         }
 
+        // 관리 대상이 1개뿐이면 허브는 거쳐 갈 이유가 없다 — 바로 그 대시보드로.
+        if (hub.ManagedCount <= 1)
+        {
+            if (hub.Teams.Count == 1)
+            {
+                Nav.NavigateTo(Routes.TeamDashboard, replace: true);
+                return;
+            }
+
+            if (hub.Children.Count == 1)
+            {
+                Nav.NavigateTo(Routes.PlayerDashboard, replace: true);
+                return;
+            }
+
+            // 역할은 있는데 관리 대상이 하나도 없다(온보딩 중단 등) — 역할 기준으로 보낸다.
+            RedirectByRole(role);
+            return;
+        }
+
+        mHub = hub;
         mChecking = false;
     }
+
+    private void RedirectByRole(UserRole role)
+    {
+        string target = role == UserRole.TeamAdmin ? Routes.TeamDashboard : Routes.PlayerDashboard;
+        Nav.NavigateTo(target, replace: true);
+    }
+
+    private string DisplayName =>
+        !string.IsNullOrWhiteSpace(mHub?.DisplayName) ? mHub!.DisplayName : mClaimName;
+
+    // 동적 조립 — 값이 0인 조각은 빼고, 전부 0이면 대체 문구.
+    // "이번 주말 경기"는 일정이 아직 목데이터라 넣지 않는다(빈 데이터 노출 금지).
+    private string SummarySentence
+    {
+        get
+        {
+            int actions = mHub?.Actions.TotalCount ?? 0;
+            return actions > 0 ? $"처리할 알림 {actions}건이 있어요" : "오늘도 좋은 하루 보내세요";
+        }
+    }
+
+    private static string Today => DateTime.Now.ToString("M월 d일 (ddd)",
+        System.Globalization.CultureInfo.GetCultureInfo("ko-KR"));
 }

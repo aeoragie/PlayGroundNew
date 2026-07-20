@@ -14,6 +14,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<LandingContentClient>();
 builder.Services.AddScoped<PlayerClient>();
 builder.Services.AddScoped<TeamClient>();
+builder.Services.AddScoped<DashboardClient>();
 builder.Services.AddScoped<AuthClient>();
 builder.Services.AddScoped<RecordsClient>();
 builder.Services.AddScoped<OnboardingState>();

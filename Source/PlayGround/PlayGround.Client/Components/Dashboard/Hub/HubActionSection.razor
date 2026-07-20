@@ -1,0 +1,46 @@
+@* "처리가 필요해요" — 허브에서 유일하게 오렌지 테두리가 허용되는 카드.
+   0건이면 페이지가 이 컴포넌트를 아예 렌더하지 않는다(빈 상태 카드 금지 — SPEC "0건 시 섹션 숨김"). *@
+@using PlayGround.Contracts.Team
+@using PlayGround.Client.Styles
+
+<section class="@Css.Hub.ActionCard">
+    <div class="flex items-center gap-2">
+        <h2 class="@Css.Hub.SectionTitle">처리가 필요해요</h2>
+        <span class="@Css.Hub.ActionCount">@Items.TotalCount</span>
+        @* "알림 센터 전체 보기 →"는 /notifications가 생길 때 붙인다 — 갈 곳 없는 링크를 두지 않는다 *@
+    </div>
+
+    <div class="@Css.Hub.ActionGrid">
+        @foreach (ActionItemDto item in Items.Items)
+        {
+            <a href="@LinkOf(item)" class="@Css.Hub.ActionItem">
+                <span class="@Css.Hub.ActionChip(item.Kind)">@ChipLabel(item.Kind)</span>
+                <span class="flex-1 min-w-0">
+                    <span class="@($"block {Css.Hub.ActionTitle}")">@item.Title</span>
+                    <span class="@($"block {Css.Hub.ActionDesc}")">@item.Description</span>
+                </span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" class="text-text-faint shrink-0"><path d="M9 18l6-6-6-6"></path></svg>
+            </a>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public ActionItemsResponse Items { get; set; } = new();
+
+    private static string ChipLabel(string kind) => kind switch
+    {
+        "Invite" => "연결",
+        "View" => "열람",
+        _ => "결과",
+    };
+
+    // 항목 전체가 딥링크 — 초대는 선수단 섹션, 수정 신청은 경기 결과 섹션이 목적지다.
+    private static string LinkOf(ActionItemDto item) => item.Kind switch
+    {
+        "Invite" => Routes.TeamDashboardSection(SoccerTeamDashboardSection.Roster),
+        _ => Routes.TeamDashboardSection(SoccerTeamDashboardSection.Results),
+    };
+}

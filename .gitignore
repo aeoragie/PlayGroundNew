@@ -37,3 +37,6 @@ appsettings.*.Local.json
 
 # 업로드된 사용자 이미지 (로컬 저장소 어댑터) — 소스가 아니다
 Source/PlayGround/PlayGround.Server/wwwroot/uploads/
+
+# 검증 스크린샷 — 산출물이지 소스가 아니다
+Source/Tools/Verification/*.png

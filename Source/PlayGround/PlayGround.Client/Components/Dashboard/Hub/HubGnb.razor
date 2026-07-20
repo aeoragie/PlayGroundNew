@@ -1,0 +1,31 @@
+@* 허브 GNB — 네이비 sticky. 워드마크 + 벨(미처리 카운트) + 아바타.
+   퀵서치는 검색 화면이 없어 렌더하지 않는다(동작 없는 입력칸을 두지 않는다). *@
+@using PlayGround.Client.Styles
+
+<header class="sticky top-0 z-40 h-[54px] md:h-[60px] bg-navy-deep flex items-center gap-3 md:gap-3.5 px-5 md:px-6 text-white">
+    <BrandLogo Href="@Routes.Landing" InheritColor="true" />
+    <div class="flex-1"></div>
+
+    @* 알림 센터(/notifications)가 아직 없어 카운트만 보여주고 이동은 걸지 않는다 *@
+    <div class="relative flex items-center justify-center text-white/70" aria-label="알림">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+        </svg>
+        @if (ActionCount > 0)
+        {
+            <span class="absolute -top-1.5 -right-2 min-w-[17px] h-[17px] px-1 rounded-full bg-orange text-white text-[10.5px] font-extrabold flex items-center justify-center">@ActionCount</span>
+        }
+    </div>
+
+    <InitialAvatar Name="@DisplayName" Size="32" />
+</header>
+
+@code {
+    [Parameter]
+    public string DisplayName { get; set; } = string.Empty;
+
+    /// <summary>벨 카운트 = "처리가 필요해요" 전체 건수(상위 3건이 아니라 전체).</summary>
+    [Parameter]
+    public int ActionCount { get; set; }
+}

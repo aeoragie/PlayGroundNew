@@ -331,6 +331,51 @@ namespace PlayGround.Contracts.Team
         public string? Description { get; set; }
     }
 
+    //.// 대시보드 허브 (Design.DashboardHub)
+
+    /// <summary>허브 묶음. **분기 판단의 근거이기도 하다** — 관리 대상(팀+자녀) 합이
+    /// 0이면 역할 선택, 1이면 해당 대시보드로 직행, 2 이상이면 허브를 보여준다.</summary>
+    public class DashboardHubResponse
+    {
+        public string DisplayName { get; set; } = string.Empty;
+
+        public List<HubTeamDto> Teams { get; set; } = new();
+        public List<HubChildDto> Children { get; set; } = new();
+
+        public ActionItemsResponse Actions { get; set; } = new();
+
+        /// <summary>팀 + 자녀. 이 수로 허브를 보여줄지 건너뛸지 정한다.</summary>
+        public int ManagedCount => Teams.Count + Children.Count;
+    }
+
+    /// <summary>허브의 팀 카드.</summary>
+    public class HubTeamDto
+    {
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public string? Slug { get; set; }
+        public bool IsVerified { get; set; }
+        public int PlayerCount { get; set; }
+
+        /// <summary>미처리 연결 요청 — 0이면 요약 문장에서 뺀다(빈 데이터 노출 금지).</summary>
+        public int PendingInviteCount { get; set; }
+    }
+
+    /// <summary>허브의 자녀 카드. 스탯은 선수 대시보드와 같은 경로로 집계한다(공식 경기만).</summary>
+    public class HubChildDto
+    {
+        public Guid PlayerId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? AgeGroup { get; set; }
+        public string? TeamName { get; set; }
+        public string? Position { get; set; }
+        public string? JerseyNumber { get; set; }
+
+        public int Appearances { get; set; }
+        public int Goals { get; set; }
+        public int Assists { get; set; }
+    }
+
     /// <summary>"처리가 필요해요" 목록 (Design.DashboardHub §3).
     /// **알림 테이블이 아니라 현재 상태에서 파생한다** — 읽음 상태가 없고, 처리하면 사라진다.</summary>
     public class ActionItemsResponse

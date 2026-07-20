@@ -8,5 +8,6 @@ namespace PlayGround.Server.Actors
         public const string SoccerTeamProfile = "Soccer_TeamProfile";
         public const string SoccerTeamInfo = "Soccer_TeamInfo";
         public const string SoccerRecords = "Soccer_Records";
+        public const string SoccerDashboard = "Soccer_Dashboard";
     }
 }

@@ -1,0 +1,55 @@
+@* 내 자녀 — 이니셜 아바타 + Claim 뱃지 + 시즌 3스탯 + [선수 대시보드].
+   SPEC의 Pending 분기(스탯 "–", 공개 프로필 숨김)는 여기 데이터로는 만들어지지 않는다 —
+   자녀 목록은 이미 연결된 프로필만 돌려주므로 전부 "연결됨"이다. 대기 상태가 생기면 그때 분기한다. *@
+@using PlayGround.Contracts.Team
+@using PlayGround.Client.Styles
+
+<article class="@Css.Hub.ChildCard">
+    <div class="flex items-center gap-3">
+        <InitialAvatar Name="@Child.Name" Size="44" />
+        <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="@Css.Hub.ChildName">@Child.Name</h3>
+                @* 허브 카피는 "연결됨" — 팀 대시보드의 ClaimBadge는 영문 표기(SPEC.TEAMDASHBOARD)라 쓰지 않는다 *@
+                <span class="text-[11.5px] font-bold rounded-full px-[11px] py-1 w-fit whitespace-nowrap text-teal-ink bg-teal/[.12]">연결됨</span>
+            </div>
+            @if (Meta is not null)
+            {
+                <p class="@Css.Hub.ChildMeta">@Meta</p>
+            }
+        </div>
+    </div>
+
+    <div class="@Css.Hub.StatGrid">
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@Child.Appearances</span><span class="@Css.Hub.StatKey">출전</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@Child.Goals</span><span class="@Css.Hub.StatKey">득점</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@Child.Assists</span><span class="@Css.Hub.StatKey">도움</span></div>
+    </div>
+
+    @* 공개 프로필 버튼은 공개 선수 프로필 화면이 생길 때 붙인다 *@
+    <div class="flex gap-2">
+        <a href="@ChildDashboardHref" class="@Css.Hub.ChildPrimary">선수 대시보드</a>
+    </div>
+</article>
+
+@code {
+    [Parameter]
+    public HubChildDto Child { get; set; } = new();
+
+    private string ChildDashboardHref => $"{Routes.PlayerDashboard}?playerId={Child.PlayerId}";
+
+    // 값이 있는 조각만 잇는다 — "U15 · FW · #9 · 팀명"
+    private string? Meta
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(Child.AgeGroup)) { parts.Add(Child.AgeGroup); }
+            if (!string.IsNullOrWhiteSpace(Child.Position)) { parts.Add(Child.Position); }
+            if (!string.IsNullOrWhiteSpace(Child.JerseyNumber)) { parts.Add($"#{Child.JerseyNumber}"); }
+            if (!string.IsNullOrWhiteSpace(Child.TeamName)) { parts.Add(Child.TeamName); }
+
+            return parts.Count == 0 ? null : string.Join(" · ", parts);
+        }
+    }
+}

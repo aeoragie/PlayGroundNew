@@ -195,15 +195,19 @@
             return;
         }
 
-        // 역할이 다르면 403이 아니라 허브로 — 계정은 맞고 자리만 틀린 상황이다(Design.Navigation 3)
-        if (UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value) != UserRole.Player)
+        // 관리 중인 자녀를 먼저 안다 — 어느 자녀를 보여줄지(그리고 전환 컨트롤을 낼지) 이걸로 정한다
+        mChildren = await Players.GetMyPlayersAsync();
+
+        // 자리가 틀리면 403이 아니라 허브로 — 계정은 맞고 자리만 틀린 상황이다(Design.Navigation 3).
+        // **역할 클레임이 아니라 선수 프로필 보유 여부로 판정한다**: 역할은 단일 컬럼이라 팀 관리자이면서
+        // 보호자인 계정을 표현하지 못하고, 역할로 막으면 허브 ↔ 대시보드가 무한히 튕긴다.
+        // null(조회 실패)에는 이동하지 않는다 — 실패로 튕기면 허브와 무한히 오갈 수 있다.
+        if (mChildren is not null && mChildren.Players.Count == 0)
         {
             Nav.NavigateTo(Routes.Dashboard, replace: true);
             return;
         }
 
-        // 관리 중인 자녀를 먼저 안다 — 어느 자녀를 보여줄지(그리고 전환 컨트롤을 낼지) 이걸로 정한다
-        mChildren = await Players.GetMyPlayersAsync();
         mInfo = await Players.GetMyInfoAsync(SelectedPlayerId == Guid.Empty ? null : SelectedPlayerId);
         mLoadedPlayerId = SelectedPlayerId;
     }
