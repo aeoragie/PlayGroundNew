@@ -113,6 +113,10 @@
     [Parameter, EditorRequired]
     public PlayerInfoResponse Info { get; set; } = new();
 
+    /// <summary>어느 자녀의 프로필인지.</summary>
+    [Parameter]
+    public Guid? PlayerId { get; set; }
+
     /// <summary>초대코드 Claim 성공 시 상위(페이지)로 전달 — 프로필 재로드.</summary>
     [Parameter]
     public EventCallback OnClaimed { get; set; }
@@ -157,7 +161,7 @@
     private async Task ToggleAsync(PlayerFieldVisibilityDto visibility)
     {
         bool next = !visibility.IsPublic;
-        if (await Players.SetFieldVisibilityAsync(visibility.FieldName, next))
+        if (await Players.SetFieldVisibilityAsync(visibility.FieldName, next, PlayerId))
         {
             visibility.IsPublic = next;
             return;

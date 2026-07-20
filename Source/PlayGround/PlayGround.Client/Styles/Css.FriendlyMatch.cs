@@ -27,20 +27,11 @@ namespace PlayGround.Client.Styles
             /// <summary>친선 행의 스코어는 한 톤 죽인다 (공식이 눈에 먼저 들어오도록).</summary>
             public const string Score = "text-text-body";
 
-            //.// 세그먼트 (전체 / 공식 / 친선경기)
+            //.// 세그먼트 (전체 / 공식 / 친선경기) — 모양은 공용 Css.Segment에 있다(자녀 전환과 공유)
 
-            /// <summary>트랙 — 선택 항목만 흰 카드 + 그림자 (Design.SearchFilter 세그먼트 규칙).</summary>
-            public const string SegmentTrack =
-                "flex bg-surface-segment rounded-[11px] p-[3px] gap-0.5 max-w-[320px] w-full md:w-auto";
+            public const string SegmentTrack = Segment.Track;
 
-            public static string SegmentItem(bool isActive)
-            {
-                return "flex-1 md:min-w-[92px] h-9 md:h-[34px] rounded-[9px] text-xs font-bold whitespace-nowrap " +
-                       "border-0 cursor-pointer transition-colors flex items-center justify-center " +
-                       (isActive
-                           ? "bg-white text-navy-deep shadow-[0_1px_4px_rgba(28,43,74,.12)] font-extrabold"
-                           : "bg-transparent text-text-muted");
-            }
+            public static string SegmentItem(bool isActive) => Segment.Item(isActive);
 
             //.// 집계 경계 표기
 

@@ -81,6 +81,10 @@
     [Parameter]
     public PlayerCareerEntryDto? Entry { get; set; }
 
+    /// <summary>어느 자녀의 이력인지 — 보호자가 자녀를 여러 명 관리할 수 있다.</summary>
+    [Parameter]
+    public Guid? PlayerId { get; set; }
+
     /// <summary>저장 성공 후 상위(페이지)가 목록을 다시 읽는다.</summary>
     [Parameter]
     public EventCallback OnSaved { get; set; }
@@ -209,7 +213,7 @@
         };
 
         mSaving = true;
-        PlayerEntrySaveResult result = await Players.SaveCareerAsync(request);
+        PlayerEntrySaveResult result = await Players.SaveCareerAsync(request, PlayerId);
         mSaving = false;
 
         if (!result.Success)

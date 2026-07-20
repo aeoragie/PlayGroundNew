@@ -1,0 +1,33 @@
+@* 자녀 전환 — 보호자가 자녀를 여러 명 관리할 때만 나타난다.
+   **자녀가 1명이면 렌더하지 않는다** — 고를 게 없는데 컨트롤을 두면 화면만 시끄러워진다.
+   선택 상태는 URL(?playerId=)에 있어 새로고침·공유·뒤로가기에도 유지된다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
+
+@if (Players.Count > 1)
+{
+    <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="text-[11.5px] font-bold text-text-muted whitespace-nowrap">관리 중인 자녀</span>
+        <div class="@Css.Segment.Track" role="tablist">
+            @foreach (ManagedPlayerDto player in Players)
+            {
+                ManagedPlayerDto target = player;
+                bool isActive = target.PlayerId == SelectedPlayerId;
+                <button type="button" role="tab" aria-selected="@isActive.ToString().ToLowerInvariant()"
+                        class="@Css.Segment.Item(isActive, wide: false)"
+                        @onclick="() => SelectedPlayerIdChanged.InvokeAsync(target.PlayerId)">@target.Name</button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public List<ManagedPlayerDto> Players { get; set; } = new();
+
+    [Parameter]
+    public Guid SelectedPlayerId { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> SelectedPlayerIdChanged { get; set; }
+}
