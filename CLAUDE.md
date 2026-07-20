@@ -160,7 +160,7 @@
   진행중 대회 0건, 대회 상세 뉴스(Tier B, "없습니다"→"~해요"체 통일).
 - 토큰 신설: `skeleton`/`skeleton-lit`/`skeleton-deep`/`skeleton-deep-lit`·`illustration`(#c5cfe4),
   `bg-shimmer`/`bg-shimmer-deep` + `animate-shimmer`(1.6s linear).
-- 검증(스크래치패드 `shot-states.js`): **120ms 시점 스켈레톤 없음** → 표시 → 3초 문구 →
+- 검증(`Source/Tools/Verification/shot-states.js`): **120ms 시점 스켈레톤 없음** → 표시 → 3초 문구 →
   섹션 top 90px가 스켈레톤·실물 동일(**점프 0**) → EmptyFC 빈 상태 3종 + 모바일.
   **헤드리스 팁**: 스크린샷 직후 `waitForFunction`의 기본 rAF 폴링이 멈춘다 — `{ polling: 300 }` 필수.
   API 지연은 스로틀 대신 CDP `Fetch.requestPaused`로 특정 경로만 붙잡는 게 결정적(스로틀은 WASM
@@ -223,7 +223,7 @@
   `UspGetSoccerTeamInfoByManager` SELECT와 `TeamProfileDto`에 추가.
 - **"연혁"은 스키마·SPEC·코드 어디에도 없다** — 창단연도(`FoundedYear`) 편집으로 대체했다.
   연도별 타임라인이 필요하면 테이블 + 공개홈 노출 설계가 함께 있어야 한다(선반영 금지 규칙).
-- 검증(스크래치패드 `shot-b2.js`): **12MB → 인라인 "파일이 12.0MB예요 — 10MB 이하로 줄여 주세요" +
+- 검증(`Source/Tools/Verification/shot-b2.js`): **12MB → 인라인 "파일이 12.0MB예요 — 10MB 이하로 줄여 주세요" +
   다시 선택, 토스트 0건** / **세로 900×1600 → 크롭 모달에서 세로 유지(눕지 않음)** /
   업로드 → 저장 토스트 → **공개홈 엠블럼 URL 일치(즉시 반영)**. 검증 후 시드·업로드 파일 원상 복구.
 
@@ -256,7 +256,7 @@
   선수 통계 PC·모바일) 같은 규칙 — 집계 헬퍼는 `MatchResultsSection.OfficialOf`/`PlayerStatsSection.OfficialOf`로 공유.
 - **함정: `bg-white`와 `bg-surface-friendly`를 같이 넘기면 배경이 안 먹는다.** Tailwind는 클래스 문자열
   순서가 아니라 스타일시트 순서로 이긴다 — 친선 행 base에서 `bg-white`를 빼야 한다. 실제로 겪음(계산된 배경이 흰색).
-- 검증(스크래치패드 `sql-b5.sql` + `shot-b5.js`): 순위표 양방향 + UI(요약 "(공식)" 라벨 · 친선 별도 안내 ·
+- 검증(`Source/Tools/Verification/sql-b5.sql` + `shot-b5.js`): 순위표 양방향 + UI(요약 "(공식)" 라벨 · 친선 별도 안내 ·
   **점선 보더·배경 rgb(251,252,253) 계산값 확인** · 세그먼트 `?type=official`→`?type=friendly` **새로고침 후 유지** ·
   입력 화면 제목/부제 교체·**대회 필드 0건**). 검증 후 순위표·경기 데이터 원복.
 - **미해결로 남긴 것**: ① 공개 선수 프로필은 아직 없어서 "친선 미노출"은 구현할 자리가 없다(생길 때 `MatchType` 필터 필수).
@@ -299,7 +299,7 @@
 - `PlayerEntrySaveResult` 신설 — 기존 `PlayerSaveResult`(온보딩 승격 토큰용)와 **이름이 겹쳐** 별도 타입.
   `IsNetworkError`로 "입력 거부"(인라인)와 "요청 실패"(토스트+재시도)를 가른다.
   **`Envelope.Message`는 영어 진단 문구라 사용자에게 보여주지 않는다**(B2 저장 경로에는 아직 남아 있다 — 아래 미해결).
-- 검증(스크래치패드 `api-b3.js` + `shot-b3.js`): API 왕복(추가→수정→기간역전 거부→삭제→실행취소,
+- 검증(`Source/Tools/Verification/api-b3.js` + `shot-b3.js`): API 왕복(추가→수정→기간역전 거부→삭제→실행취소,
   유튜브 아닌 링크 거부·URL 정규화·대표 승계) + UI(**빈 상태 → 추가 → 빈 상태 소멸 → ⋯ → 수정 →
   확인 모달 → 삭제 → 빈 상태 복귀 → 실행취소 → 목록 복원**, 잘못된 링크 인라인·토스트 0건,
   썸네일 미리보기, 연·월 포맷, 모바일 바텀시트 하단 정렬·전체 폭). 검증 후 시드 상태로 원복.
@@ -337,7 +337,7 @@
   **아바타·뱃지 전면 통일 교체는 여전히 Phase C 이후 일괄** — 여기서는 사진 슬롯 폴백만 손댔다.
 - **로스터는 카드마다 업로더를 두지 않는다** — 카드 카메라 뱃지 → 공유 `PlayerPhotoDialog` 하나.
   42명 카드에 업로더 42개를 심는 구조를 피했다.
-- 검증(스크래치패드 `perm-b4.js` + `shot-b4.js`): **보호자 허용 / 소속팀 관리자 허용 / 무관한 팀 관리자 차단 /
+- 검증(`Source/Tools/Verification/perm-b4.js` + `shot-b4.js`): **보호자 허용 / 소속팀 관리자 허용 / 무관한 팀 관리자 차단 /
   다른 선수의 보호자 차단** 4종 + 외부 URL 저장 거부 + 삭제→null 왕복. UI는 보호자 뱃지 1개 ·
   **본인관리 계정 뱃지 0개**(`canEditPhoto:false`) · 관리자 로스터 뱃지 42개 · 다이얼로그 · **공개 홈 뱃지 0개** ·
   모바일. 검증용으로 신준우를 본인관리로 바꿨다가 시드 상태로 원복.
@@ -378,7 +378,7 @@
   `ProcedureGenerator.GetParameterDefaultValue`에서 Boolean만 true/false로 매핑하도록 수정(기존 생성물 변화 0).
 - `SubmitButton`에 `Class` 파라미터 추가 — 없는 파라미터를 넘기면 렌더 예외 → A4 예외 경계가 500으로
   보내 화면이 그냥 사라진다(디버깅에 시간 걸림).
-- 검증(스크래치패드 `shot-b1.js`): 빈 제출 → 인라인 3종·토스트 0 / 캘린더 31칸 중 미래 12칸 비활성·
+- 검증(`Source/Tools/Verification/shot-b1.js`): 빈 제출 → 인라인 3종·토스트 0 / 캘린더 31칸 중 미래 12칸 비활성·
   오늘 링·경기일 도트 / 시간 96개 / 리그 선택 저장 → 토스트 "순위표도 갱신됐어요" →
   **리그 순위 API가 null → 2로 변경**(DB 순위표에도 검증fc 2위 3점 4-1 반영) / 모바일 시트 셀 44px.
   검증 후 테스트 데이터·순위표는 원상 복구.
@@ -449,13 +449,15 @@
 - 로컬 검증 계정: `verify-teamadmin-0713@test.local` / `password123!` (검증fc 팀, 팀 정보
   시드 주입됨), `verify-empty-0714@test.local` (EmptyFC — 빈 상태 확인용). 로컬 DB 전용.
   시드: `Source/Database/Soccer/Seeds/VerificationTeamInfo.Seed.sql`.
-- 화면 검증: 헤드리스 Edge + playwright-core/puppeteer-core(스크래치패드에 설치), localStorage
-  `pg.accessToken`에 토큰 주입 후 진입. `python`은 스토어 스텁 — 스크립트는 PowerShell
-  (한글 포함 .ps1은 UTF-8 BOM 필수).
+- **검증 스크립트는 `Source/Tools/Verification/`에 있다** — 각 Phase에서 실제로 돌린 것들이고,
+  README에 실행법·계정·헤드리스 함정을 정리해 뒀다. 새 검증은 여기서 시작하면 된다
+  (`npm install` 한 번 필요, 앱 빌드와 무관).
+- 화면 검증: 헤드리스 Edge + puppeteer-core, localStorage `pg.accessToken`에 토큰 주입 후 진입.
+  `python`은 스토어 스텁 — 스크립트는 PowerShell (한글 포함 .ps1은 UTF-8 BOM 필수).
 - **Edge 150부터 `puppeteer.launch()`가 "Failed to launch... Code: 0"으로 실패**(헤드리스
   시그널링 변경). 우회: `msedge.exe --headless=new --remote-debugging-port=PORT --user-data-dir=고유`로
   직접 띄우고 `puppeteer.connect({browserWSEndpoint})`로 붙는다(`/json/version`의 webSocketDebuggerUrl).
-  참고 스크립트 `scratchpad/shot-connect.js`. userDataDir는 실행마다 고유(Date.now())로 — 락 충돌 방지.
+  참고 스크립트 `Source/Tools/Verification/shot-connect.js`. userDataDir는 실행마다 고유(Date.now())로 — 락 충돌 방지.
 
 ### 새 PC 환경 재구축 체크리스트 (gitignore 항목 — 클론만으로 안 되는 것)
 

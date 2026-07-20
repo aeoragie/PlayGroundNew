@@ -1,0 +1,10 @@
+{
+  "name": "playground-verification",
+  "version": "1.0.0",
+  "private": true,
+  "description": "화면·API 검증 스크립트 (헤드리스 Edge). 앱 빌드와 무관 — 필요할 때만 npm install.",
+  "type": "commonjs",
+  "dependencies": {
+    "puppeteer-core": "^25.3.0"
+  }
+}
