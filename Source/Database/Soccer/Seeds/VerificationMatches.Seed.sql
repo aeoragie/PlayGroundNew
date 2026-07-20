@@ -129,11 +129,12 @@ INSERT INTO [dbo].[SoccerMatches]
 
 --.// 친선 — 검증fc (대회 무관, 팀 대시보드 경기 결과용)
 
+-- MatchType은 명시한다 — 컬럼 기본값이 'Official'이라 빠뜨리면 친선이 순위표·시즌 스탯에 섞인다
 INSERT INTO [dbo].[SoccerMatches]
-    ([MatchId], [TournamentId], [HomeTeamId], [HomeTeamName], [AwayTeamId], [AwayTeamName],
+    ([MatchId], [MatchType], [TournamentId], [HomeTeamId], [HomeTeamName], [AwayTeamId], [AwayTeamName],
      [HomeScore], [AwayScore], [Status], [MatchedAt], [VenueName], [DataSource]) VALUES
-('E0000000-0000-0000-0000-000000000F01', NULL, @VerifyFcTeam, '검증FC', NULL, '강동 SC', 3, 1, 'Completed', '2026-07-05 16:00', '강동구민운동장', 'Seed'),
-('E0000000-0000-0000-0000-000000000F02', NULL, @VerifyFcTeam, '검증FC', NULL, '마포 유나이티드', 1, 1, 'Completed', '2026-06-28 16:00', '상암보조구장', 'Seed');
+('E0000000-0000-0000-0000-000000000F01', 'Friendly', NULL, @VerifyFcTeam, '검증FC', NULL, '강동 SC', 3, 1, 'Completed', '2026-07-05 16:00', '강동구민운동장', 'Seed'),
+('E0000000-0000-0000-0000-000000000F02', 'Friendly', NULL, @VerifyFcTeam, '검증FC', NULL, '마포 유나이티드', 1, 1, 'Completed', '2026-06-28 16:00', '상암보조구장', 'Seed');
 
 --.// 득점 이벤트 (김정현 = 광주 GK — 검증용 득점 2·도움 1, 신준우 1골)
 

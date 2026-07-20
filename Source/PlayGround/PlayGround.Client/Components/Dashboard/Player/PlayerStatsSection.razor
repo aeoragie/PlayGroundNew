@@ -30,17 +30,25 @@
     {
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
             <div class="bg-gradient-navy rounded-[14px] px-[22px] py-5 flex flex-col gap-[3px] text-white">
-                <span class="text-xs font-bold text-white/60">출전</span>
-                <span class="text-[23px] font-extrabold whitespace-nowrap">@(Stats.Matches.Count)경기 @if (TotalMinutes > 0)
+                <span class="text-xs font-bold text-white/60">출전 (공식)</span>
+                <span class="text-[23px] font-extrabold whitespace-nowrap">@(OfficialMatches.Count)경기 @if (TotalMinutes > 0)
                     {<span class="text-[13px] font-bold text-white/60">@(TotalMinutes)'</span>}</span>
             </div>
             <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-5 flex flex-col gap-[3px]")">
-                <span class="text-xs font-bold text-text-muted">득점</span>
+                <span class="text-xs font-bold text-text-muted">시즌 득점 (공식)</span>
                 <span class="text-[23px] font-extrabold text-navy-deep">@TotalGoals</span>
+                @if (FriendlyGoals > 0)
+                {
+                    <span class="text-[11.5px] font-bold @Css.FriendlyMatch.SupplementValue">친선경기 별도 +@FriendlyGoals</span>
+                }
             </div>
             <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-5 flex flex-col gap-[3px]")">
-                <span class="text-xs font-bold text-text-muted">도움</span>
+                <span class="text-xs font-bold text-text-muted">도움 (공식)</span>
                 <span class="text-[23px] font-extrabold text-navy-deep">@TotalAssists</span>
+                @if (FriendlyAssists > 0)
+                {
+                    <span class="text-[11.5px] font-bold @Css.FriendlyMatch.SupplementValue">친선경기 별도 +@FriendlyAssists</span>
+                }
             </div>
             @if (AverageMinutes is not null)
             {
@@ -61,10 +69,20 @@
             </div>
             @foreach (PlayerMatchStatDto match in Stats.Matches)
             {
-                <div class="@($"{RowGrid} items-center py-[13px] border-b border-surface-icon")">
+                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                <div class="@($"{RowGrid} items-center py-[13px] border-b border-surface-icon {(isFriendly ? "bg-surface-friendly" : "")}")">
                     <span class="text-[12.5px] text-text-muted whitespace-nowrap">@DateLabel(match)</span>
                     <span class="text-[13.5px] font-bold text-navy-deep break-keep">@TitleLabel(match)</span>
-                    <span><span class="@CompClass(CompetitionOf(match).ToLabel())">@CompetitionOf(match).ToLabel()</span></span>
+                    <span>
+                        @if (isFriendly)
+                        {
+                            <span class="@Css.FriendlyMatch.Label">친선경기</span>
+                        }
+                        else
+                        {
+                            <span class="@CompClass(CompetitionOf(match).ToLabel())">@CompetitionOf(match).ToLabel()</span>
+                        }
+                    </span>
                     <span class="text-[13.5px] font-extrabold text-navy-deep text-center">@match.Goals</span>
                     <span class="text-[13.5px] font-extrabold text-navy-deep text-center">@match.Assists</span>
                     <span class="text-[12.5px] text-text-body text-center whitespace-nowrap">@(match.MinutesPlayed is null ? "-" : $"{match.MinutesPlayed}'")</span>
@@ -83,16 +101,28 @@
     [Parameter]
     public EventCallback<int> OnSeasonSelected { get; set; }
 
-    private int TotalGoals => Stats.Matches.Sum(m => m.Goals);
-    private int TotalAssists => Stats.Matches.Sum(m => m.Assists);
-    private int TotalMinutes => Stats.Matches.Sum(m => m.MinutesPlayed ?? 0);
+    // 집계는 공식 경기만 — 친선분은 합산하지 않고 "별도 +N"으로 보여 준다(Design.FriendlyMatch)
+    internal List<PlayerMatchStatDto> OfficialMatches => OfficialOf(Stats.Matches);
 
-    // 분이 기록된 경기 기준 평균 (전부 미상이면 카드 숨김)
+    private int TotalGoals => OfficialMatches.Sum(m => m.Goals);
+    private int TotalAssists => OfficialMatches.Sum(m => m.Assists);
+    private int TotalMinutes => OfficialMatches.Sum(m => m.MinutesPlayed ?? 0);
+
+    private int FriendlyGoals => FriendlyOf(Stats.Matches).Sum(m => m.Goals);
+    private int FriendlyAssists => FriendlyOf(Stats.Matches).Sum(m => m.Assists);
+
+    internal static List<PlayerMatchStatDto> OfficialOf(IEnumerable<PlayerMatchStatDto> matches) =>
+        matches.Where(m => !SoccerMatchTypeExtensions.IsFriendly(m.MatchType)).ToList();
+
+    internal static List<PlayerMatchStatDto> FriendlyOf(IEnumerable<PlayerMatchStatDto> matches) =>
+        matches.Where(m => SoccerMatchTypeExtensions.IsFriendly(m.MatchType)).ToList();
+
+    // 분이 기록된 경기 기준 평균 (전부 미상이면 카드 숨김) — 공식 경기만
     private int? AverageMinutes
     {
         get
         {
-            List<int> minutes = Stats.Matches.Where(m => m.MinutesPlayed is not null).Select(m => m.MinutesPlayed!.Value).ToList();
+            List<int> minutes = OfficialMatches.Where(m => m.MinutesPlayed is not null).Select(m => m.MinutesPlayed!.Value).ToList();
             return minutes.Count == 0 ? null : (int)Math.Round(minutes.Average());
         }
     }

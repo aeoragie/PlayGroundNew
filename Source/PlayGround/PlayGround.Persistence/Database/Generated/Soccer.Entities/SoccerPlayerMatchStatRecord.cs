@@ -41,5 +41,9 @@ public class SoccerPlayerMatchStatRecord
 
 	[Required]
 	[StringLength(20)]
+	public string MatchType { get; set; } = String.Empty;
+
+	[Required]
+	[StringLength(20)]
 	public string Format { get; set; } = String.Empty;
 }

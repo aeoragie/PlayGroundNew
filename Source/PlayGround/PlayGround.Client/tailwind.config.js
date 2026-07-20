@@ -55,10 +55,14 @@ module.exports = {
           orange: 'rgb(var(--color-surface-orange) / <alpha-value>)',
           soft: 'rgb(var(--color-surface-soft) / <alpha-value>)',
           'orange-badge': 'rgb(var(--color-surface-orange-badge) / <alpha-value>)',
+          // 친선경기 행 배경·세그먼트 트랙 (Design.FriendlyMatch)
+          friendly: 'rgb(var(--color-surface-friendly) / <alpha-value>)',
+          segment: 'rgb(var(--color-surface-segment) / <alpha-value>)',
         },
         border: {
           DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
           soft: 'rgb(var(--color-border-soft) / <alpha-value>)',
+          friendly: 'rgb(var(--color-border-friendly) / <alpha-value>)',
         },
         text: {
           body: 'rgb(var(--color-text-body) / <alpha-value>)',

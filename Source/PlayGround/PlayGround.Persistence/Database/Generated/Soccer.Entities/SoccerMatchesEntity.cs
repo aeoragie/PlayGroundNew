@@ -18,6 +18,10 @@ public class SoccerMatchesEntity
 	[Required]
 	public Guid MatchId { get; set; } = Guid.Empty;
 
+	[Required]
+	[StringLength(20)]
+	public string MatchType { get; set; } = String.Empty;
+
 	public Guid? TournamentId { get; set; } = null;
 
 	[StringLength(20)]

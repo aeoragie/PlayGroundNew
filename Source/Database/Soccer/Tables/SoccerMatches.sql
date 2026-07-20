@@ -3,6 +3,9 @@
 CREATE TABLE [dbo].[SoccerMatches]
 (
     [MatchId]        UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    -- 공식/친선. 집계(순위표·시즌 스탯·공개 프로필)는 Official만 — 설계 결정 7 + Design.FriendlyMatch.
+    -- 팀이 직접 입력하는 경기는 항상 Friendly다(공식 기록의 주체는 주최측).
+    [MatchType]      VARCHAR(20)      NOT NULL DEFAULT 'Official', -- 'Official','Friendly'
     [TournamentId]   UNIQUEIDENTIFIER NULL,              -- SoccerTournaments.TournamentId (앱 계층 참조). NULL = 친선
     [StageType]      VARCHAR(20)      NULL,              -- 'Group','Split1','Split2','Knockout','League' — 상세 탭 배치. 친선은 NULL
     [GroupName]      VARCHAR(30)      NULL,              -- UTF-8 (한글 10자) 조별 스테이지의 조 ('1조'~'14조')

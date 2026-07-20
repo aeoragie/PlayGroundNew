@@ -6,8 +6,10 @@ using PlayGround.Application.Interfaces;
 namespace PlayGround.Application.Team.Commands
 {
     /// <summary>
-    /// 경기 결과 입력 유즈케이스 (팀 대시보드).
-    /// 저장 프로시저가 경기 저장 + 순위표 재계산을 한 경로에서 처리한다 — 여기서 따로 재계산을 부르지 않는다(D5).
+    /// 친선경기 결과 입력 유즈케이스 (팀 대시보드).
+    /// **팀이 입력하는 경기는 항상 친선이다** — 공식 기록의 주체는 주최측이다(설계 결정 7).
+    /// 프로시저가 MatchType='Friendly'로 저장하고, 순위표는 Official만 집계하므로 재계산 경로가 없다.
+    /// (순위표 재계산 D5는 주최측 입력 경로의 책임으로 옮겨갔다 — UspRecalculateSoccerTournamentStandings 참조.)
     /// </summary>
     public class SoccerTeamMatchResultCommand
     {
@@ -59,6 +61,10 @@ namespace PlayGround.Application.Team.Commands
                 new CreateTeamMatchResultResponse { MatchId = saved.Value.Value });
         }
 
+        /// <remarks>
+        /// 팀 입력 화면에서 대회 선택이 사라져(설계 결정 7) 현재 클라이언트는 이 경로를 쓰지 않는다.
+        /// 주최측 입력 경로(대회 운영 서비스, Server 공유)가 쓸 자리라 남겨 둔다.
+        /// </remarks>
         public async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsAsync(
             Guid managerUserId, int seasonYear, CancellationToken cancellation = default)
         {

@@ -23,6 +23,9 @@ namespace PlayGround.Client.Styles
 
             public const string Title = "m-0 text-[15.5px] md:text-base font-extrabold text-navy-deep";
 
+            /// <summary>부제 — 공식 기록은 주최측 몫이라는 원칙 안내(설계 결정 7).</summary>
+            public const string Subtitle = "text-[12px] text-text-body leading-[1.6] break-keep";
+
             public const string CloseButton =
                 "w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-navy-deep " +
                 "border-0 bg-transparent cursor-pointer transition-colors";

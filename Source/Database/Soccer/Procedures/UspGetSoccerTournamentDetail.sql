@@ -34,7 +34,7 @@ BEGIN
         m.[MatchId], m.[TournamentId], m.[StageType], m.[GroupName], m.[RoundName],
         m.[HomeTeamId], m.[HomeTeamName], m.[AwayTeamId], m.[AwayTeamName],
         m.[HomeScore], m.[AwayScore], m.[HomePkScore], m.[AwayPkScore],
-        m.[Status], m.[MatchedAt], m.[VenueName], m.[DataSource], m.[ExternalId], m.[SyncStatus],
+        m.[Status], m.[MatchedAt], m.[VenueName], m.[MatchType], m.[DataSource], m.[ExternalId], m.[SyncStatus],
         m.[CreatedAt], m.[UpdatedAt], m.[DeletedAt]
     FROM [dbo].[SoccerMatches] m WITH (NOLOCK)
     WHERE m.[TournamentId] = @TournamentId AND m.[DeletedAt] IS NULL

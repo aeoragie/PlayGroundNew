@@ -26,10 +26,10 @@
         }
         else
         {
-            @* 요약 2카드 (시즌 전적 / 득실·순위) *@
+            @* 요약 2카드 (시즌 전적 / 득실·순위) — 공식 경기만 집계 *@
             <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-navy-deep rounded-[13px] px-[15px] py-[13px] flex flex-col gap-0.5 text-white">
-                    <span class="text-[11px] font-bold text-white/60">@(Matches.SeasonYear) 시즌</span>
+                    <span class="text-[11px] font-bold text-white/60">@(Matches.SeasonYear) 시즌 (공식)</span>
                     <span class="text-[16.5px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
                 </div>
                 <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex flex-col gap-0.5")">
@@ -38,18 +38,34 @@
                 </div>
             </div>
 
-            @foreach (TeamMatchDto match in Matches.Matches)
+            @if (FriendlyCount > 0)
             {
-                <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-3.5 flex flex-col gap-2.5")">
+                <span class="@Css.FriendlyMatch.Note">친선경기 @(FriendlyCount)경기는 별도예요 — 순위표와 시즌 기록에는 반영되지 않아요.</span>
+            }
+
+            @* 공식/친선 세그먼트 — 상태는 URL에 있다 *@
+            <MatchSegment Value="@Segment" ValueChanged="OnSegmentChanged" />
+
+            @foreach (TeamMatchDto match in FilteredMatches)
+            {
+                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                <div class="@Css.FriendlyMatch.Row(isFriendly, $"{(isFriendly ? "rounded-[13px]" : Css.Dashboard.Card + " rounded-[13px]")} px-4 py-3.5 flex flex-col gap-2.5")">
                     <div class="flex items-center gap-[9px]">
-                        <span class="@CompetitionClass(MatchResultsSection.CompetitionOf(match))">@MatchResultsSection.CompetitionOf(match).ToLabel()</span>
+                        @if (isFriendly)
+                        {
+                            <span class="@Css.FriendlyMatch.Label">친선경기</span>
+                        }
+                        else
+                        {
+                            <span class="@CompetitionClass(MatchResultsSection.CompetitionOf(match))">@MatchResultsSection.CompetitionOf(match).ToLabel()</span>
+                        }
                         <span class="text-[11.5px] text-text-muted whitespace-nowrap">@MatchResultsSection.MetaLine(match)</span>
                         <div class="flex-1"></div>
-                        <span class="@OutcomeClass(MatchResultsSection.OutcomeOf(match))">@MatchResultsSection.OutcomeOf(match).ToLabel()</span>
+                        <span class="@OutcomeClass(MatchResultsSection.OutcomeOf(match), isFriendly)">@MatchResultsSection.OutcomeOf(match).ToLabel()</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="text-[13px] font-extrabold text-navy-deep flex-1 text-right break-keep">@TeamName</span>
-                        <span class="text-lg font-extrabold text-navy-deep bg-surface-alt rounded-[9px] px-[13px] py-1 whitespace-nowrap">@match.TeamScore : @match.OpponentScore</span>
+                        <span class="@($"text-lg font-extrabold rounded-[9px] px-[13px] py-1 whitespace-nowrap {(isFriendly ? $"{Css.FriendlyMatch.Score} bg-surface-icon" : "text-navy-deep bg-surface-alt")}")">@match.TeamScore : @match.OpponentScore</span>
                         <span class="text-[13px] font-bold text-text-body flex-1 break-keep">@match.OpponentName</span>
                     </div>
                     @{
@@ -139,13 +155,28 @@
     [Parameter]
     public EventCallback OnAddResult { get; set; }
 
+    /// <summary>목록 세그먼트 — 값은 URL에 있고 페이지가 내려 준다.</summary>
+    [Parameter]
+    public SoccerMatchSegment Segment { get; set; } = SoccerMatchSegment.All;
+
+    [Parameter]
+    public EventCallback<SoccerMatchSegment> OnSegmentChanged { get; set; }
+
     private bool IsResults => ActiveSection != SoccerTeamDashboardSection.Videos;
 
-    private int Wins => Matches.Matches.Count(m => m.TeamScore > m.OpponentScore);
-    private int Draws => Matches.Matches.Count(m => m.TeamScore == m.OpponentScore);
-    private int Losses => Matches.Matches.Count(m => m.TeamScore < m.OpponentScore);
-    private int GoalsFor => Matches.Matches.Sum(m => m.TeamScore);
-    private int GoalsAgainst => Matches.Matches.Sum(m => m.OpponentScore);
+    private IEnumerable<TeamMatchDto> FilteredMatches =>
+        Matches.Matches.Where(match => Segment.Matches(match.MatchType));
+
+    // 요약은 공식만 — PC 섹션과 같은 규칙을 쓴다
+    private List<TeamMatchDto> OfficialMatches => MatchResultsSection.OfficialOf(Matches.Matches);
+
+    private int FriendlyCount => MatchResultsSection.FriendlyCountOf(Matches.Matches);
+
+    private int Wins => OfficialMatches.Count(m => m.TeamScore > m.OpponentScore);
+    private int Draws => OfficialMatches.Count(m => m.TeamScore == m.OpponentScore);
+    private int Losses => OfficialMatches.Count(m => m.TeamScore < m.OpponentScore);
+    private int GoalsFor => OfficialMatches.Sum(m => m.TeamScore);
+    private int GoalsAgainst => OfficialMatches.Sum(m => m.OpponentScore);
 
     private string SegmentClass(bool forResults) =>
         "flex-1 h-[38px] rounded-[9px] text-[13px] font-bold flex items-center justify-center "
@@ -161,13 +192,21 @@
             _ => "text-teal-ink bg-teal/[.12]",
         };
 
-    private static string OutcomeClass(SoccerMatchOutcome outcome) =>
-        "text-[11.5px] font-extrabold rounded-[7px] px-2.5 py-[3px] whitespace-nowrap " + outcome switch
+    private static string OutcomeClass(SoccerMatchOutcome outcome, bool isFriendly = false)
+    {
+        const string Shape = "text-[11.5px] font-extrabold rounded-[7px] px-2.5 py-[3px] whitespace-nowrap ";
+        if (isFriendly)
+        {
+            return Shape + "text-text-muted bg-surface-icon";
+        }
+
+        return Shape + outcome switch
         {
             SoccerMatchOutcome.Win => "text-white bg-teal",
             SoccerMatchOutcome.Draw => "text-text-strong bg-surface-icon",
             _ => "text-white bg-text-muted",
         };
+    }
 
     private static string VideoTypeClass(SoccerVideoType type) =>
         "text-[10.5px] font-bold rounded-full px-[9px] py-0.5 whitespace-nowrap " + type switch

@@ -1,0 +1,26 @@
+@* 경기 목록 세그먼트 (전체 / 공식 / 친선경기) — Design.FriendlyMatch + Design.SearchFilter.
+   세그먼트 = 데이터 축 전환이라 칩과 역할을 섞지 않는다.
+   상태는 URL에 두므로(공유·뒤로가기·새로고침 유지) 이 컴포넌트는 값을 갖지 않고 알리기만 한다. *@
+@using PlayGround.Client.Models
+@using PlayGround.Client.Styles
+
+<div class="@Css.FriendlyMatch.SegmentTrack" role="tablist">
+    @foreach (SoccerMatchSegment option in Segments)
+    {
+        SoccerMatchSegment target = option;
+        <button type="button" role="tab" aria-selected="@((Value == target).ToString().ToLowerInvariant())"
+                class="@Css.FriendlyMatch.SegmentItem(Value == target)"
+                @onclick="() => ValueChanged.InvokeAsync(target)">@target.ToLabel()</button>
+    }
+</div>
+
+@code {
+    private static readonly SoccerMatchSegment[] Segments =
+        [SoccerMatchSegment.All, SoccerMatchSegment.Official, SoccerMatchSegment.Friendly];
+
+    [Parameter]
+    public SoccerMatchSegment Value { get; set; } = SoccerMatchSegment.All;
+
+    [Parameter]
+    public EventCallback<SoccerMatchSegment> ValueChanged { get; set; }
+}

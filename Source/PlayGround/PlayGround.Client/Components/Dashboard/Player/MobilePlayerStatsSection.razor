@@ -29,12 +29,16 @@
     {
         <div class="grid grid-cols-2 gap-2.5">
             <div class="bg-gradient-navy rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5 text-white">
-                <span class="text-[11px] font-bold text-white/60">출전</span>
-                <span class="text-[17px] font-extrabold whitespace-nowrap">@(Stats.Matches.Count)경기@(TotalMinutes > 0 ? $" · {TotalMinutes}'" : "")</span>
+                <span class="text-[11px] font-bold text-white/60">출전 (공식)</span>
+                <span class="text-[17px] font-extrabold whitespace-nowrap">@(OfficialMatches.Count)경기@(TotalMinutes > 0 ? $" · {TotalMinutes}'" : "")</span>
             </div>
             <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5")">
-                <span class="text-[11px] font-bold text-text-muted">득점 · 도움</span>
+                <span class="text-[11px] font-bold text-text-muted">득점 · 도움 (공식)</span>
                 <span class="text-[17px] font-extrabold text-navy-deep whitespace-nowrap">@(TotalGoals)골 · @(TotalAssists)도움</span>
+                @if (FriendlyGoals + FriendlyAssists > 0)
+                {
+                    <span class="text-[10.5px] font-bold @Css.FriendlyMatch.SupplementValue">친선경기 별도 +@(FriendlyGoals)골 · +@(FriendlyAssists)도움</span>
+                }
             </div>
         </div>
 
@@ -45,9 +49,17 @@
             </div>
             @foreach (PlayerMatchStatDto match in Stats.Matches)
             {
-                <div class="flex flex-col gap-[7px] px-4 py-[13px] border-b border-surface-icon">
+                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                <div class="@($"flex flex-col gap-[7px] px-4 py-[13px] border-b border-surface-icon {(isFriendly ? "bg-surface-friendly" : "")}")">
                     <div class="flex items-center gap-2">
-                        <span class="@PlayerStatsSection.CompClass(PlayerStatsSection.CompetitionOf(match).ToLabel())">@PlayerStatsSection.CompetitionOf(match).ToLabel()</span>
+                        @if (isFriendly)
+                        {
+                            <span class="@Css.FriendlyMatch.Label">친선경기</span>
+                        }
+                        else
+                        {
+                            <span class="@PlayerStatsSection.CompClass(PlayerStatsSection.CompetitionOf(match).ToLabel())">@PlayerStatsSection.CompetitionOf(match).ToLabel()</span>
+                        }
                         <span class="text-[11px] text-text-muted whitespace-nowrap">@PlayerStatsSection.DateLabel(match)</span>
                         <div class="flex-1"></div>
                         @if (match.MinutesPlayed is not null)
@@ -72,9 +84,15 @@
     [Parameter]
     public EventCallback<int> OnSeasonSelected { get; set; }
 
-    private int TotalGoals => Stats.Matches.Sum(m => m.Goals);
-    private int TotalAssists => Stats.Matches.Sum(m => m.Assists);
-    private int TotalMinutes => Stats.Matches.Sum(m => m.MinutesPlayed ?? 0);
+    // 집계는 공식만 — PC 섹션과 같은 규칙
+    private List<PlayerMatchStatDto> OfficialMatches => PlayerStatsSection.OfficialOf(Stats.Matches);
+
+    private int TotalGoals => OfficialMatches.Sum(m => m.Goals);
+    private int TotalAssists => OfficialMatches.Sum(m => m.Assists);
+    private int TotalMinutes => OfficialMatches.Sum(m => m.MinutesPlayed ?? 0);
+
+    private int FriendlyGoals => PlayerStatsSection.FriendlyOf(Stats.Matches).Sum(m => m.Goals);
+    private int FriendlyAssists => PlayerStatsSection.FriendlyOf(Stats.Matches).Sum(m => m.Assists);
 
     private static string StatLabel(PlayerMatchStatDto match)
     {

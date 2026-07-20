@@ -17,7 +17,6 @@ public class UspCreateSoccerTeamMatchResult(RepositoryBase repository) : Procedu
     public override string Procedure => "[dbo].[UspCreateSoccerTeamMatchResult]";
 
 	public Guid ManagerUserId { get; set; } = Guid.Empty;
-	public Guid? TournamentId { get; set; } = null;
 	public string OpponentName { get; set; } = null;
 	public bool IsHome { get; set; } = true;
 	public int OurScore { get; set; } = 0;
@@ -28,7 +27,6 @@ public class UspCreateSoccerTeamMatchResult(RepositoryBase repository) : Procedu
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@ManagerUserId", ManagerUserId);
-		Parameters.Add("@TournamentId", TournamentId);
 		Parameters.Add("@OpponentName", OpponentName);
 		Parameters.Add("@IsHome", IsHome);
 		Parameters.Add("@OurScore", OurScore);

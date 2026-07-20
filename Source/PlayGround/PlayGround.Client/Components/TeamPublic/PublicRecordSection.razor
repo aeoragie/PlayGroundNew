@@ -20,15 +20,15 @@
         @* 요약 4카드 *@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
             <div class="bg-gradient-navy rounded-[14px] px-5 py-5 flex flex-col gap-[3px] text-white">
-                <span class="text-xs font-bold text-white/60">전적</span>
+                <span class="text-xs font-bold text-white/60">전적 (공식)</span>
                 <span class="text-[21px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">득점</span>
+                <span class="text-xs font-bold text-text-muted">득점 (공식)</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsFor</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">실점</span>
+                <span class="text-xs font-bold text-text-muted">실점 (공식)</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsAgainst</span>
             </div>
             @if (Data.LeagueRank is not null)
@@ -49,15 +49,29 @@
             </div>
             @foreach (TeamMatchDto match in Data.Matches)
             {
-                <div class="flex items-center gap-4 px-6 py-[15px] border-b border-surface-icon">
-                    <span class="@MatchResultsSection.CompetitionClass(MatchResultsSection.CompetitionOf(match))">@MatchResultsSection.CompetitionOf(match).ToLabel()</span>
+                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                <div class="@($"flex items-center gap-4 px-6 py-[15px] border-b border-surface-icon {(isFriendly ? "bg-surface-friendly" : "")}")">
+                    @if (isFriendly)
+                    {
+                        <span class="@Css.FriendlyMatch.Label">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"></path>
+                                <circle cx="12" cy="12" r="4"></circle>
+                            </svg>친선경기
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="@MatchResultsSection.CompetitionClass(MatchResultsSection.CompetitionOf(match))">@MatchResultsSection.CompetitionOf(match).ToLabel()</span>
+                    }
                     <span class="text-[12.5px] text-text-muted whitespace-nowrap">@MatchResultsSection.MetaLine(match)</span>
                     <span class="flex-1 flex items-center gap-3 justify-center">
                         <span class="text-[13.5px] font-extrabold text-navy-deep text-right flex-1 break-keep">@Data.TeamName</span>
-                        <span class="text-base font-extrabold bg-surface-alt rounded-lg px-3.5 py-1 whitespace-nowrap">@match.TeamScore : @match.OpponentScore</span>
+                        <span class="@($"text-base font-extrabold rounded-lg px-3.5 py-1 whitespace-nowrap {(isFriendly ? $"{Css.FriendlyMatch.Score} bg-surface-icon" : "bg-surface-alt")}")">@match.TeamScore : @match.OpponentScore</span>
                         <span class="text-[13.5px] font-bold text-text-body flex-1 break-keep">@match.OpponentName</span>
                     </span>
-                    <span class="@MatchResultsSection.OutcomeClass(MatchResultsSection.OutcomeOf(match))">@MatchResultsSection.OutcomeOf(match).ToLabel()</span>
+                    <span class="@MatchResultsSection.OutcomeClass(MatchResultsSection.OutcomeOf(match), isFriendly)">@MatchResultsSection.OutcomeOf(match).ToLabel()</span>
                 </div>
             }
         </div>
@@ -113,9 +127,12 @@
     private const string SummaryCardClass =
         "bg-white border-1.5 border-border rounded-[14px] px-5 py-5 flex flex-col gap-[3px]";
 
-    private int Wins => Data.Matches.Count(m => m.TeamScore > m.OpponentScore);
-    private int Draws => Data.Matches.Count(m => m.TeamScore == m.OpponentScore);
-    private int Losses => Data.Matches.Count(m => m.TeamScore < m.OpponentScore);
-    private int GoalsFor => Data.Matches.Sum(m => m.TeamScore);
-    private int GoalsAgainst => Data.Matches.Sum(m => m.OpponentScore);
+    // 요약은 공식 경기만 — 친선은 합산하지 않는다(Design.FriendlyMatch)
+    private List<TeamMatchDto> OfficialMatches => MatchResultsSection.OfficialOf(Data.Matches);
+
+    private int Wins => OfficialMatches.Count(m => m.TeamScore > m.OpponentScore);
+    private int Draws => OfficialMatches.Count(m => m.TeamScore == m.OpponentScore);
+    private int Losses => OfficialMatches.Count(m => m.TeamScore < m.OpponentScore);
+    private int GoalsFor => OfficialMatches.Sum(m => m.TeamScore);
+    private int GoalsAgainst => OfficialMatches.Sum(m => m.OpponentScore);
 }

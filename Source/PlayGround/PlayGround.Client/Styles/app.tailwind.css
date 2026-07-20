@@ -53,6 +53,11 @@
   /* 이미지 업로더 (Design.ImageUploader) — 빈 드롭존 배경 */
   --color-dropzone: 251 252 254;           /* #fbfcfe 점선 드롭존 안쪽 */
 
+  /* 친선경기 구분 (Design.FriendlyMatch) — 공식은 기본 형태 그대로, 친선 행에만 마킹 */
+  --color-surface-friendly: 251 252 253;   /* #fbfcfd 친선 행 배경 */
+  --color-border-friendly: 213 217 226;    /* #d5d9e2 친선 행 점선 보더 */
+  --color-surface-segment: 238 240 244;    /* #eef0f4 세그먼트 트랙 */
+
   /* 날짜 선택 (Design.DatePicker) — 요일 색·과거 비활성 */
   --color-weekend-sun: 196 106 94;         /* #c46a5e 일요일 */
   --color-weekend-sat: 90 127 192;         /* #5a7fc0 토요일 */

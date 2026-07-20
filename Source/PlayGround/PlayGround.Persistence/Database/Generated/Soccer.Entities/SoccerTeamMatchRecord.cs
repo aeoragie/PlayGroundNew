@@ -48,6 +48,10 @@ public class SoccerTeamMatchRecord
 	public string VenueName { get; set; } = String.Empty;
 
 	[Required]
+	[StringLength(20)]
+	public string MatchType { get; set; } = String.Empty;
+
+	[Required]
 	[StringLength(300)]
 	public string Name { get; set; } = String.Empty;
 

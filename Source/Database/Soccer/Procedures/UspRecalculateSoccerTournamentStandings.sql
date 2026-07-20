@@ -2,7 +2,9 @@
 -- 스코프(대회+스테이지+조) 단위: Completed 경기에서 승점(승3·무1·패0)·득실을 집계해
 -- 기존 행 갱신 + 신규 팀 삽입 후, 스코프 전체(0전 보존 행 포함) 순위를 재부여한다.
 -- 정렬 = 승점 → 득실차 → 다득점 → 팀명. 승자승 등 특수 규칙·IsQualified는 수동 보정 영역 — 건드리지 않는다.
--- 호출: 경기 결과 저장 유즈케이스(자동) / 추후 Agent 대시보드 버튼(수동).
+-- **MatchType = 'Official'만 집계한다** (Design.FriendlyMatch) — 친선경기는 순위표에 영향을 주지 않는다.
+-- 호출: 주최측 경기 기록 입력 경로(자동) / 추후 Agent 대시보드 버튼(수동).
+--       팀 입력 경로(UspCreateSoccerTeamMatchResult)는 친선만 저장하므로 더 이상 호출하지 않는다(설계 결정 7).
 CREATE PROCEDURE [dbo].[UspRecalculateSoccerTournamentStandings]
     @TournamentId UNIQUEIDENTIFIER,
     @StageType VARCHAR(20),
@@ -21,7 +23,7 @@ BEGIN
         FROM [dbo].[SoccerMatches] m WITH (NOLOCK)
         WHERE m.[TournamentId] = @TournamentId AND m.[StageType] = @StageType
           AND ((@GroupName IS NULL AND m.[GroupName] IS NULL) OR m.[GroupName] = @GroupName)
-          AND m.[Status] = 'Completed' AND m.[DeletedAt] IS NULL
+          AND m.[Status] = 'Completed' AND m.[DeletedAt] IS NULL AND m.[MatchType] = 'Official'
           AND m.[HomeScore] IS NOT NULL AND m.[AwayScore] IS NOT NULL
 
         UNION ALL
@@ -32,7 +34,7 @@ BEGIN
         FROM [dbo].[SoccerMatches] m WITH (NOLOCK)
         WHERE m.[TournamentId] = @TournamentId AND m.[StageType] = @StageType
           AND ((@GroupName IS NULL AND m.[GroupName] IS NULL) OR m.[GroupName] = @GroupName)
-          AND m.[Status] = 'Completed' AND m.[DeletedAt] IS NULL
+          AND m.[Status] = 'Completed' AND m.[DeletedAt] IS NULL AND m.[MatchType] = 'Official'
           AND m.[HomeScore] IS NOT NULL AND m.[AwayScore] IS NOT NULL
     ),
     Totals AS

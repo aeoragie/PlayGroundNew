@@ -20,7 +20,7 @@ BEGIN
 
     SELECT TOP 8
         m.[MatchId], m.[TournamentId], m.[HomeTeamId], m.[HomeTeamName], m.[AwayTeamId], m.[AwayTeamName],
-        m.[HomeScore], m.[AwayScore], m.[HomePkScore], m.[AwayPkScore], m.[Status], m.[MatchedAt], m.[VenueName],
+        m.[HomeScore], m.[AwayScore], m.[HomePkScore], m.[AwayPkScore], m.[Status], m.[MatchedAt], m.[VenueName], m.[MatchType],
         t.[Name], t.[Format]
     FROM [dbo].[SoccerMatches] m WITH (NOLOCK)
     LEFT JOIN [dbo].[SoccerTournaments] t WITH (NOLOCK)

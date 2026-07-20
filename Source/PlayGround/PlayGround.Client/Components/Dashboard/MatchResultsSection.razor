@@ -1,5 +1,7 @@
-@* 경기 결과 섹션: 시즌 요약 4카드 + 대회 필터 + 경기 카드 — SPEC.TEAMDASHBOARD.md §4
-   결과 없으면 현재 상태 + 등록 가이드 안내. 승무패·요약은 팀 관점 스코어에서 파생 *@
+@* 경기 결과 섹션: 시즌 요약 4카드 + 세그먼트 + 경기 카드 — SPEC.TEAMDASHBOARD.md §4
+   결과 없으면 현재 상태 + 등록 가이드 안내. 승무패·요약은 팀 관점 스코어에서 파생.
+   **요약은 공식 경기만 집계한다** — 친선은 합산하지 않고 아래 한 줄로 따로 알린다(Design.FriendlyMatch). *@
+@using PlayGround.Client.Models
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
 
@@ -18,18 +20,18 @@
     }
     else
     {
-        @* 시즌 요약 *@
+        @* 시즌 요약 — 공식 경기만 *@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="bg-navy-deep rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px] text-white">
-                <span class="text-xs font-bold text-white/60">@(Data.SeasonYear) 시즌</span>
+                <span class="text-xs font-bold text-white/60">@(Data.SeasonYear) 시즌 (공식)</span>
                 <span class="text-[21px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">득점</span>
+                <span class="text-xs font-bold text-text-muted">득점 (공식)</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsFor</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">실점</span>
+                <span class="text-xs font-bold text-text-muted">실점 (공식)</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsAgainst</span>
             </div>
             @if (Data.LeagueRank is not null)
@@ -41,30 +43,44 @@
             }
         </div>
 
-        @* 대회 필터 (null = 전체) *@
-        <div class="flex gap-2">
-            @foreach (SoccerCompetitionType? tab in FilterTabs)
-            {
-                SoccerCompetitionType? filter = tab;
-                <button type="button" class="@(mFilter == filter ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
-                        @onclick="() => mFilter = filter">@FilterLabel(filter)</button>
-            }
-        </div>
+        @* 요약에 합산되지 않은 친선 — 왜 목록과 수가 다른지 알려 준다 *@
+        @if (FriendlyCount > 0)
+        {
+            <span class="@Css.FriendlyMatch.Note">친선경기 @(FriendlyCount)경기는 별도예요 — 순위표와 시즌 기록에는 반영되지 않아요.</span>
+        }
+
+        @* 세그먼트 (전체 / 공식 / 친선경기) — 상태는 URL에 있다 *@
+        <MatchSegment Value="@Segment" ValueChanged="OnSegmentChanged" />
 
         @* 경기 카드 *@
         <div class="flex flex-col gap-3">
             @foreach (TeamMatchDto match in FilteredMatches)
             {
-                <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-[22px] py-[18px] flex flex-col gap-3")">
+                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                <div class="@Css.FriendlyMatch.Row(isFriendly, $"{(isFriendly ? "rounded-[14px]" : Css.Dashboard.Card + " rounded-[14px]")} px-[22px] py-[18px] flex flex-col gap-3")">
                     <div class="flex items-center gap-3.5">
-                        <span class="@CompetitionClass(CompetitionOf(match))">@CompetitionOf(match).ToLabel()</span>
+                        @if (isFriendly)
+                        {
+                            @* 대회명 자리에 회색 라벨 — 뱃지를 하나 더 붙이지 않는다(행당 1개 규칙) *@
+                            <span class="@Css.FriendlyMatch.Label">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"></path>
+                                    <circle cx="12" cy="12" r="4"></circle>
+                                </svg>친선경기
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="@CompetitionClass(CompetitionOf(match))">@CompetitionOf(match).ToLabel()</span>
+                        }
                         <span class="text-[12.5px] text-text-muted">@MetaLine(match)</span>
                         <div class="flex-1"></div>
-                        <span class="@OutcomeClass(OutcomeOf(match))">@OutcomeOf(match).ToLabel()</span>
+                        <span class="@OutcomeClass(OutcomeOf(match), isFriendly)">@OutcomeOf(match).ToLabel()</span>
                     </div>
                     <div class="flex items-center justify-center gap-[22px]">
                         <span class="text-[15.5px] font-extrabold text-navy-deep flex-1 text-right break-keep">@TeamName</span>
-                        <span class="text-2xl font-extrabold text-navy-deep bg-surface-alt rounded-[10px] px-[18px] py-1.5 whitespace-nowrap">@match.TeamScore : @match.OpponentScore</span>
+                        <span class="@($"text-2xl font-extrabold rounded-[10px] px-[18px] py-1.5 whitespace-nowrap {(isFriendly ? $"{Css.FriendlyMatch.Score} bg-surface-icon" : "text-navy-deep bg-surface-alt")}")">@match.TeamScore : @match.OpponentScore</span>
                         <span class="text-[15.5px] font-bold text-text-body flex-1 break-keep">@match.OpponentName</span>
                     </div>
                     @{
@@ -91,10 +107,15 @@
     private const string SummaryCardClass =
         "bg-white border-1.5 border-border rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px]";
 
-    private SoccerCompetitionType? mFilter;
-
     [Parameter, EditorRequired]
     public TeamMatchesResponse Data { get; set; } = new();
+
+    /// <summary>목록 세그먼트 — 값은 URL에 있고 페이지가 내려 준다.</summary>
+    [Parameter]
+    public SoccerMatchSegment Segment { get; set; } = SoccerMatchSegment.All;
+
+    [Parameter]
+    public EventCallback<SoccerMatchSegment> OnSegmentChanged { get; set; }
 
     /// <summary>경기 카드의 아군 팀명 (페이지가 팀 프로필에서 전달).</summary>
     [Parameter, EditorRequired]
@@ -104,19 +125,27 @@
     [Parameter]
     public EventCallback OnAddResult { get; set; }
 
-    private static readonly SoccerCompetitionType?[] FilterTabs =
-        [null, SoccerCompetitionType.League, SoccerCompetitionType.Cup, SoccerCompetitionType.Friendly];
-
     private IEnumerable<TeamMatchDto> FilteredMatches =>
-        mFilter is null ? Data.Matches : Data.Matches.Where(match => CompetitionOf(match) == mFilter);
+        Data.Matches.Where(match => Segment.Matches(match.MatchType));
 
-    //.// 요약 집계 (팀 관점 스코어)
+    //.// 요약 집계 (팀 관점 스코어) — 공식만. 친선을 섞으면 순위표와 숫자가 어긋난다
 
-    private int Wins => Data.Matches.Count(m => m.TeamScore > m.OpponentScore);
-    private int Draws => Data.Matches.Count(m => m.TeamScore == m.OpponentScore);
-    private int Losses => Data.Matches.Count(m => m.TeamScore < m.OpponentScore);
-    private int GoalsFor => Data.Matches.Sum(m => m.TeamScore);
-    private int GoalsAgainst => Data.Matches.Sum(m => m.OpponentScore);
+    private List<TeamMatchDto> OfficialMatches => OfficialOf(Data.Matches);
+
+    private int FriendlyCount => Data.Matches.Count(m => SoccerMatchTypeExtensions.IsFriendly(m.MatchType));
+
+    private int Wins => OfficialMatches.Count(m => m.TeamScore > m.OpponentScore);
+    private int Draws => OfficialMatches.Count(m => m.TeamScore == m.OpponentScore);
+    private int Losses => OfficialMatches.Count(m => m.TeamScore < m.OpponentScore);
+    private int GoalsFor => OfficialMatches.Sum(m => m.TeamScore);
+    private int GoalsAgainst => OfficialMatches.Sum(m => m.OpponentScore);
+
+    /// <summary>집계 대상 = 공식 경기. 모바일·공개홈 요약도 같은 규칙을 쓴다.</summary>
+    internal static List<TeamMatchDto> OfficialOf(IEnumerable<TeamMatchDto> matches) =>
+        matches.Where(m => !SoccerMatchTypeExtensions.IsFriendly(m.MatchType)).ToList();
+
+    internal static int FriendlyCountOf(IEnumerable<TeamMatchDto> matches) =>
+        matches.Count(m => SoccerMatchTypeExtensions.IsFriendly(m.MatchType));
 
     //.// 표시 파생 — PC·모바일 공유
 
@@ -157,8 +186,6 @@
         return chips;
     }
 
-    private static string FilterLabel(SoccerCompetitionType? filter) => filter?.ToLabel() ?? "전체";
-
     internal static string CompetitionClass(SoccerCompetitionType competition) =>
         "text-[11.5px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap " + competition switch
         {
@@ -167,11 +194,20 @@
             _ => "text-teal-ink bg-teal/[.12]",
         };
 
-    internal static string OutcomeClass(SoccerMatchOutcome outcome) =>
-        "text-[12.5px] font-extrabold rounded-lg px-[13px] py-[5px] whitespace-nowrap " + outcome switch
+    /// <summary>친선은 중립 회색 톤 — 공식의 teal/레드와 눈으로 구분된다(뱃지를 늘리지 않고 톤으로).</summary>
+    internal static string OutcomeClass(SoccerMatchOutcome outcome, bool isFriendly = false)
+    {
+        const string Shape = "text-[12.5px] font-extrabold rounded-lg px-[13px] py-[5px] whitespace-nowrap ";
+        if (isFriendly)
+        {
+            return Shape + "text-text-muted bg-surface-icon";
+        }
+
+        return Shape + outcome switch
         {
             SoccerMatchOutcome.Win => "text-white bg-teal",
             SoccerMatchOutcome.Draw => "text-text-strong bg-surface-icon",
             _ => "text-white bg-text-muted",
         };
+    }
 }

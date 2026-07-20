@@ -411,6 +411,7 @@ namespace PlayGround.Persistence.Repositories
                             MatchId = a.MatchId,
                             MatchedAt = a.MatchedAt,
                             CompetitionType = CompetitionTypeOf(a),
+                            MatchType = a.MatchType,
                             OpponentName = isHome ? a.AwayTeamName : a.HomeTeamName,
                             TeamScore = (isHome ? a.HomeScore : a.AwayScore) ?? 0,
                             OpponentScore = (isHome ? a.AwayScore : a.HomeScore) ?? 0,

@@ -167,6 +167,10 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>SoccerCompetitionType 멤버 이름 — 친선=대회 없음, League=리그 대회, 그 외 Cup (서버 파생).</summary>
         public string CompetitionType { get; set; } = string.Empty;
+
+        /// <summary>SoccerMatchType 멤버 이름 ('Official' | 'Friendly').
+        /// 집계(승무패·득실·순위표)는 Official만 — 친선은 별도 표기한다(Design.FriendlyMatch).</summary>
+        public string MatchType { get; set; } = string.Empty;
         public string? TournamentName { get; set; }
         public DateTime? MatchedAt { get; set; }
         public string? VenueName { get; set; }
@@ -221,11 +225,12 @@ namespace PlayGround.Contracts.Team
 
     /// <summary>경기 결과 입력 요청 (팀 대시보드 "＋ 결과 입력").
     /// 상대 팀은 이름만 받는다 — 외부 팀이 대부분이라 TeamId를 요구할 수 없다.</summary>
+    /// <remarks>
+    /// 팀이 입력하는 경기는 **항상 친선경기**다 — 공식 기록의 주체는 주최측이다(설계 결정 7).
+    /// 그래서 대회 선택도, 경기 성격 선택도 받지 않는다.
+    /// </remarks>
     public class CreateTeamMatchResultRequest
     {
-        /// <summary>참가 대회. null이면 친선 경기.</summary>
-        public Guid? TournamentId { get; set; }
-
         public string OpponentName { get; set; } = string.Empty;
 
         /// <summary>true = 우리 팀이 홈.</summary>

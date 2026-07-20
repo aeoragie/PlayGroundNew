@@ -360,6 +360,7 @@ namespace PlayGround.Persistence.Repositories
             {
                 MatchId = match.MatchId,
                 CompetitionType = CompetitionTypeOf(match),
+                MatchType = match.MatchType,
                 TournamentName = NullIfEmpty(match.Name),
                 MatchedAt = match.MatchedAt,
                 VenueName = NullIfEmpty(match.VenueName),
@@ -512,8 +513,8 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<Guid?>> CreateMatchResultByManagerAsync(
             Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Match result save requested",
-                ("ManagerUserId", managerUserId), ("TournamentId", request.TournamentId), ("IsHome", request.IsHome));
+            Logger.InfoWith("Friendly match result save requested",
+                ("ManagerUserId", managerUserId), ("IsHome", request.IsHome));
 
             // 득점자는 JSON으로 넘겨 프로시저가 한 트랜잭션에 삽입한다 (경기 1행 + 이벤트 N행)
             string? scorers = request.Scorers.Count > 0 ? JsonSerializer.Serialize(request.Scorers) : null;
@@ -521,7 +522,6 @@ namespace PlayGround.Persistence.Repositories
             var procedure = new UspCreateSoccerTeamMatchResult(this)
             {
                 ManagerUserId = managerUserId,
-                TournamentId = request.TournamentId,
                 OpponentName = request.OpponentName,
                 IsHome = request.IsHome,
                 OurScore = request.OurScore,
@@ -546,8 +546,8 @@ namespace PlayGround.Persistence.Repositories
                 return Result<Guid?>.Success(null);
             }
 
-            // 대회 경기면 이 시점에 순위표 재계산까지 끝나 있다 (프로시저 내부에서 호출 — D5)
-            Logger.InfoWith("Match result saved", ("MatchId", row.MatchId), ("TournamentId", request.TournamentId));
+            // 친선으로 저장된다 — 순위표(Official만 집계)에는 영향이 없다
+            Logger.InfoWith("Friendly match result saved", ("MatchId", row.MatchId));
             return Result<Guid?>.Success(row.MatchId);
         }
 

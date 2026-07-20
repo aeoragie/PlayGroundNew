@@ -119,6 +119,10 @@ namespace PlayGround.Contracts.Player
 
         /// <summary>SoccerCompetitionType 멤버 이름 — 친선=대회 없음, League=리그, 그 외 Cup (서버 파생).</summary>
         public string CompetitionType { get; set; } = string.Empty;
+
+        /// <summary>SoccerMatchType 멤버 이름 ('Official' | 'Friendly').
+        /// 시즌 요약은 Official만 집계하고 친선은 "별도"로 표기한다(Design.FriendlyMatch).</summary>
+        public string MatchType { get; set; } = string.Empty;
         public string OpponentName { get; set; } = string.Empty;
         public int TeamScore { get; set; }
         public int OpponentScore { get; set; }

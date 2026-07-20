@@ -39,7 +39,11 @@
   단위**이므로 한글 컬럼은 글자수×3으로 잡고 주석에 의도 글자수를 남긴다
   (예: `VARCHAR(300) -- UTF-8 (한글 100자)`).
 - 스키마 변경은 반드시 이 SQL 파일을 먼저 수정한다.
-- 각 DB 폴더: `Schema/ Tables/ Procedures/ Queries/ Indexes/ Seeds/`.
+- 각 DB 폴더: `Schema/ Tables/ Procedures/ Queries/ Indexes/ Seeds/ Migrations/`.
+- **`Migrations/`는 이미 만들어진 DB를 따라오게 하는 스크립트**다. `Tables/`는 `CREATE`문이라 기존 DB에는
+  적용되지 않으므로, 컬럼 추가처럼 신규 DB와 기존 DB가 갈라지는 변경은 여기에 멱등 스크립트를 함께 남긴다.
+  **새 DB를 처음부터 만들 때는 실행할 필요가 없다** (`Tables/`에 이미 반영돼 있다).
+  파일명 `YYYY-MM-DD_대상.변경.sql`.
 
 ## 로컬 개발 DB (SQLEXPRESS) 셋업
 

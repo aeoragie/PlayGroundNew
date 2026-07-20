@@ -84,15 +84,7 @@
    B3 커리어·포트폴리오 입력+DropdownMenu · B4 선수 사진 업로드 — 각 절 아래 참조).
    - B1은 **친선경기 전용으로 용도 축소**됐다(설계 결정 7). 화면 정리는 B5에서 마무리한다.
    - B1의 "스테이지·조 선택" 잔여 항목은 **폐기** — 대회 경기를 팀이 입력하지 않으므로 필요 없어졌다.
-3. **B5 — 친선경기 구분** (`Handoff/Design.FriendlyMatch`, 7/19 수령). 설계 결정 7의 후속 명세다.
-   - `SoccerMatches.MatchType`(Official/Friendly) 신설 + **기존 B1 저장분은 Friendly로 마이그레이션**,
-     `UspRecalculateSoccerTournamentStandings`가 **Official만 집계**하도록 수정.
-   - **집계 경계가 핵심**: 순위표·시즌 스탯·공개 선수 프로필은 공식만. 친선은 합산하지 않고 별도 표기
-     ("시즌 득점 (공식) 7" + "친선경기 별도 +3"), 공개 프로필엔 아예 안 나온다.
-   - **공식에 "공식" 뱃지를 달지 않는다** — 다수가 공식이므로 소수인 친선에만 마킹(점선 보더 + 회색
-     "친선경기" 라벨 + 중립 회색 승패 뱃지). 행당 뱃지 1개 규칙은 유지.
-   - B1 입력 화면 정리(제목·부제 교체, **대회/리그 필드 제거**, 저장은 Friendly 고정) — B1 절의
-     "정리 필요" 4항목이 여기서 해소된다. 결과 목록에 세그먼트(전체/공식/친선, URL 동기화) 추가.
+3. ~~**B5 — 친선경기 구분**~~ 완료(아래).
 4. **B6 — 공식 기록 수정 신청** (`Handoff/Design.RecordCorrection`, 7/19 수령). B5 다음.
    - **PlayGround는 생성·조회·취소까지만 만든다. 심사·반영 API를 만들지 않는다** — 주최측(대회 운영
      서비스) 몫이고 DB를 공유한다(설계 결정 6). 이 경계를 넘으면 결정 7이 무너진다.
@@ -234,6 +226,43 @@
 - 검증(스크래치패드 `shot-b2.js`): **12MB → 인라인 "파일이 12.0MB예요 — 10MB 이하로 줄여 주세요" +
   다시 선택, 토스트 0건** / **세로 900×1600 → 크롭 모달에서 세로 유지(눕지 않음)** /
   업로드 → 저장 토스트 → **공개홈 엠블럼 URL 일치(즉시 반영)**. 검증 후 시드·업로드 파일 원상 복구.
+
+### Phase B5 — 친선경기 구분 완료 (2026-07-20, Design.FriendlyMatch)
+
+- **설계 결정 7의 후속 정리.** B1이 남겨 둔 "정리 필요" 4항목이 여기서 전부 해소됐다.
+- **`SoccerMatches.MatchType`**(Official/Friendly) 신설. 기존 DB는 `CREATE TABLE`만 있어 적용이 안 되므로
+  **`Source/Database/Soccer/Migrations/2026-07-20_SoccerMatches.MatchType.sql` 신설**(멱등, ALTER + 분류 UPDATE).
+  **다른 PC에서는 이 스크립트를 반드시 돌려야 한다** — 안 돌리면 조회는 되는데 저장이 깨진다.
+  분류 규칙: `DataSource='User'`(=B1 저장분) 또는 `TournamentId IS NULL` → Friendly, 나머지 → Official.
+  시드도 친선 2건에 `MatchType`을 **명시**했다 — 컬럼 기본값이 'Official'이라 빠뜨리면 조용히 섞인다.
+- **집계 경계가 이 작업의 본체다.** `UspRecalculateSoccerTournamentStandings`의 UNION 양쪽 WHERE에
+  `MatchType='Official'` 추가 → 친선은 순위표에 영향을 주지 않는다.
+  검증도 **양방향으로** 했다: 리그 스코프에 친선 10:0을 넣어도 순위표 무변화(침입 행 0) →
+  **같은 경기를 Official로 바꾸면 반영(침입 행 1)**. 한쪽만 보면 "필터가 아니라 그냥 안 돌았을" 가능성을 못 지운다.
+- **팀 입력 경로는 이제 항상 친선이다** — `UspCreateSoccerTeamMatchResult`에서 `@TournamentId` 파라미터·
+  StageType 파생·**순위표 재계산 블록을 통째로 제거**하고 `MatchType='Friendly'` 고정 삽입으로 바꿨다.
+  `CreateTeamMatchResultRequest.TournamentId`도 삭제. **D5(저장 시 자동 재계산)는 주최측 입력 경로의 책임으로
+  옮겨갔고, 지금은 재계산 호출자가 없다** — 정상이다(공식 기록을 쓰는 주체가 아직 없다).
+- **공식에 "공식" 뱃지를 달지 않는다** — 다수가 공식이므로 소수인 친선에만 마킹한다. 친선 행 =
+  점선 보더 `border-friendly` · 배경 `surface-friendly`(#fbfcfd) · 대회명 자리에 회색 "친선경기" 라벨(공 아이콘 11px) ·
+  **중립 회색 승패 뱃지**. 행당 뱃지 1개 규칙 유지 — 구분은 뱃지 추가가 아니라 행 스타일·메타로 한다.
+- **세그먼트(전체/공식/친선경기) + URL 동기화** — `MatchSegment` 공용 컴포넌트 신설.
+  **이 저장소 최초의 URL 쿼리 동기화 필터**다(`?type=official`): 페이지가 `[SupplyParameterFromQuery]`로 읽고
+  `GetUriWithQueryParameter` + `replace:true`로 쓴다. 전체는 기본값이라 쿼리에서 뺀다.
+  기존 대회 필터 칩(전체/리그/컵/친선)은 **삭제** — 같은 축을 칩과 세그먼트가 나눠 갖는 건 SearchFilter 규칙 위반이다.
+- **요약은 공식만, 친선은 합산하지 않고 별도 표기**: 팀 요약 카드 라벨에 "(공식)" 명시 + 목록 위 한 줄
+  ("친선경기 N경기는 별도예요 — 순위표와 시즌 기록에는 반영되지 않아요"). 선수 시즌 통계는 카탈로그대로
+  "시즌 득점 (공식) 7" + 회색 "친선경기 별도 +3". **6개 화면 전부**(대시보드 PC·모바일, 공개홈 PC·모바일,
+  선수 통계 PC·모바일) 같은 규칙 — 집계 헬퍼는 `MatchResultsSection.OfficialOf`/`PlayerStatsSection.OfficialOf`로 공유.
+- **함정: `bg-white`와 `bg-surface-friendly`를 같이 넘기면 배경이 안 먹는다.** Tailwind는 클래스 문자열
+  순서가 아니라 스타일시트 순서로 이긴다 — 친선 행 base에서 `bg-white`를 빼야 한다. 실제로 겪음(계산된 배경이 흰색).
+- 검증(스크래치패드 `sql-b5.sql` + `shot-b5.js`): 순위표 양방향 + UI(요약 "(공식)" 라벨 · 친선 별도 안내 ·
+  **점선 보더·배경 rgb(251,252,253) 계산값 확인** · 세그먼트 `?type=official`→`?type=friendly` **새로고침 후 유지** ·
+  입력 화면 제목/부제 교체·**대회 필드 0건**). 검증 후 순위표·경기 데이터 원복.
+- **미해결로 남긴 것**: ① 공개 선수 프로필은 아직 없어서 "친선 미노출"은 구현할 자리가 없다(생길 때 `MatchType` 필터 필수).
+  ② `UspGetSoccerTournamentOptionsByManager`·`GET me/tournament-options`·`GetTournamentOptionsAsync`는
+  **미사용 상태로 남겨 뒀다** — 삭제하지 않은 건 주최측 입력 경로(대회 운영 서비스, Server 공유)가 쓸 자리이기 때문이다.
+  ③ Records 대회 상세는 TournamentId로 조회하므로 친선이 애초에 섞이지 않는다(별도 필터 불필요).
 
 ### Phase B3 — 커리어·포트폴리오 입력 완료 (2026-07-20, Design.PlayerDashboard §2·§4 + DropdownMenu)
 

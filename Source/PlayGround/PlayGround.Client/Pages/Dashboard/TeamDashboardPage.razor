@@ -42,6 +42,7 @@
                         </Skeleton>
                         <ChildContent>
                             <MatchResultsSection Data="@(mMatches!)" TeamName="@(mInfo?.Profile.TeamName ?? "")"
+                                                 Segment="@CurrentSegment" OnSegmentChanged="ApplySegment"
                                                  OnAddResult="OpenResultFormAsync" />
                         </ChildContent>
                     </LoadingGate>
@@ -102,7 +103,9 @@
                     </Skeleton>
                     <ChildContent>
                         <MobileMatchSection ActiveSection="@CurrentSection" Matches="@(mMatches!)" Videos="@(mVideos!)"
-                                            TeamName="@(mInfo?.Profile.TeamName ?? "")" OnAddResult="OpenResultFormAsync" />
+                                            TeamName="@(mInfo?.Profile.TeamName ?? "")"
+                                            Segment="@CurrentSegment" OnSegmentChanged="ApplySegment"
+                                            OnAddResult="OpenResultFormAsync" />
                     </ChildContent>
                 </LoadingGate>
                 break;
@@ -135,6 +138,10 @@
     [Parameter]
     public string? Section { get; set; }
 
+    /// <summary>결과 목록 세그먼트 — URL에 둬서 공유·뒤로가기·새로고침에도 유지된다(Design.SearchFilter).</summary>
+    [Parameter, SupplyParameterFromQuery(Name = "type")]
+    public string? MatchTypeQuery { get; set; }
+
     private TeamInfoResponse? mInfo;
     private TeamRosterResponse? mRoster;
     private TeamMatchesResponse? mMatches;
@@ -153,6 +160,15 @@
     private bool mInfoFormOpen;
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
+
+    private SoccerMatchSegment CurrentSegment => SoccerMatchTypeExtensions.ParseSegment(MatchTypeQuery);
+
+    // 전체는 기본값이라 쿼리에서 지운다 — 주소가 불필요하게 길어지지 않게
+    private void ApplySegment(SoccerMatchSegment segment)
+    {
+        string uri = Nav.GetUriWithQueryParameter("type", segment.ToQuery());
+        Nav.NavigateTo(uri, replace: true);
+    }
 
     /// <summary>현재 섹션까지 포함한 경로 — 로그인 왕복 후 같은 자리로 돌아오기 위해.</summary>
     private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);

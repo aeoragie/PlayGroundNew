@@ -1,7 +1,7 @@
 -- @entity: SoccerPlayerMatchStatRecord
 -- @source: join
 -- @join: SoccerMatchAppearances AS a (MatchId, TeamId, MinutesPlayed)
--- @join: SoccerMatches AS m (HomeTeamId, HomeTeamName, AwayTeamName, HomeScore, AwayScore, TournamentId, MatchedAt)
+-- @join: SoccerMatches AS m (HomeTeamId, HomeTeamName, AwayTeamName, HomeScore, AwayScore, TournamentId, MatchedAt, MatchType)
 -- @join: SoccerTournaments AS t (Format)
 -- 관리 주체(UserId) 기준 선수 시즌 통계 조회 (선수 대시보드 시즌 통계 섹션 — 팀 경기 결과에서 자동 집계).
 -- 결과셋 4개: ⓪선수 PlayerId(득점/도움 구분용, 없으면 NULL) → ①시즌 출전 경기(출전+종료 경기+대회 형식)
@@ -24,7 +24,7 @@ BEGIN
 
     SELECT
         a.[MatchId], a.[TeamId], a.[MinutesPlayed],
-        m.[HomeTeamId], m.[HomeTeamName], m.[AwayTeamName], m.[HomeScore], m.[AwayScore], m.[TournamentId], m.[MatchedAt],
+        m.[HomeTeamId], m.[HomeTeamName], m.[AwayTeamName], m.[HomeScore], m.[AwayScore], m.[TournamentId], m.[MatchedAt], m.[MatchType],
         t.[Format]
     FROM [dbo].[SoccerMatchAppearances] a WITH (NOLOCK)
     JOIN [dbo].[SoccerMatches] m WITH (NOLOCK)

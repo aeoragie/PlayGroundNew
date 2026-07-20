@@ -20,7 +20,7 @@
         @* 요약 2카드 *@
         <div class="grid grid-cols-2 gap-2.5">
             <div class="bg-gradient-navy rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5 text-white">
-                <span class="text-[11px] font-bold text-white/60">전적</span>
+                <span class="text-[11px] font-bold text-white/60">전적 (공식)</span>
                 <span class="text-[17px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
             </div>
             <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5")">
@@ -38,16 +38,24 @@
             </div>
             @foreach (TeamMatchDto match in Data.Matches)
             {
-                <div class="flex flex-col gap-2 px-4 py-[13px] border-b border-surface-icon">
+                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                <div class="@($"flex flex-col gap-2 px-4 py-[13px] border-b border-surface-icon {(isFriendly ? "bg-surface-friendly" : "")}")">
                     <div class="flex items-center gap-2">
-                        <span class="@MatchResultsSection.CompetitionClass(MatchResultsSection.CompetitionOf(match))">@MatchResultsSection.CompetitionOf(match).ToLabel()</span>
+                        @if (isFriendly)
+                        {
+                            <span class="@Css.FriendlyMatch.Label">친선경기</span>
+                        }
+                        else
+                        {
+                            <span class="@MatchResultsSection.CompetitionClass(MatchResultsSection.CompetitionOf(match))">@MatchResultsSection.CompetitionOf(match).ToLabel()</span>
+                        }
                         <span class="text-[11px] text-text-muted whitespace-nowrap">@MatchResultsSection.MetaLine(match)</span>
                         <div class="flex-1"></div>
-                        <span class="@MatchResultsSection.OutcomeClass(MatchResultsSection.OutcomeOf(match))">@MatchResultsSection.OutcomeOf(match).ToLabel()</span>
+                        <span class="@MatchResultsSection.OutcomeClass(MatchResultsSection.OutcomeOf(match), isFriendly)">@MatchResultsSection.OutcomeOf(match).ToLabel()</span>
                     </div>
                     <div class="flex items-center gap-2.5">
                         <span class="text-[12.5px] font-extrabold text-navy-deep flex-1 text-right break-keep">@Data.TeamName</span>
-                        <span class="text-[15px] font-extrabold bg-surface-alt rounded-lg px-3 py-[3px] whitespace-nowrap">@match.TeamScore : @match.OpponentScore</span>
+                        <span class="@($"text-[15px] font-extrabold rounded-lg px-3 py-[3px] whitespace-nowrap {(isFriendly ? $"{Css.FriendlyMatch.Score} bg-surface-icon" : "bg-surface-alt")}")">@match.TeamScore : @match.OpponentScore</span>
                         <span class="text-[12.5px] font-bold text-text-body flex-1 break-keep">@match.OpponentName</span>
                     </div>
                 </div>
@@ -98,9 +106,12 @@
     [Parameter, EditorRequired]
     public TeamSeasonRecordResponse Data { get; set; } = new();
 
-    private int Wins => Data.Matches.Count(m => m.TeamScore > m.OpponentScore);
-    private int Draws => Data.Matches.Count(m => m.TeamScore == m.OpponentScore);
-    private int Losses => Data.Matches.Count(m => m.TeamScore < m.OpponentScore);
-    private int GoalsFor => Data.Matches.Sum(m => m.TeamScore);
-    private int GoalsAgainst => Data.Matches.Sum(m => m.OpponentScore);
+    // 요약은 공식 경기만 — 친선은 합산하지 않는다(Design.FriendlyMatch)
+    private List<TeamMatchDto> OfficialMatches => MatchResultsSection.OfficialOf(Data.Matches);
+
+    private int Wins => OfficialMatches.Count(m => m.TeamScore > m.OpponentScore);
+    private int Draws => OfficialMatches.Count(m => m.TeamScore == m.OpponentScore);
+    private int Losses => OfficialMatches.Count(m => m.TeamScore < m.OpponentScore);
+    private int GoalsFor => OfficialMatches.Sum(m => m.TeamScore);
+    private int GoalsAgainst => OfficialMatches.Sum(m => m.OpponentScore);
 }

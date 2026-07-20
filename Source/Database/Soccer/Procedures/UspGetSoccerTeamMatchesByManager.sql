@@ -1,6 +1,6 @@
 -- @entity: SoccerTeamMatchRecord
 -- @source: join
--- @join: SoccerMatches AS m (MatchId, TournamentId, HomeTeamId, HomeTeamName, AwayTeamId, AwayTeamName, HomeScore, AwayScore, HomePkScore, AwayPkScore, Status, MatchedAt, VenueName)
+-- @join: SoccerMatches AS m (MatchId, TournamentId, HomeTeamId, HomeTeamName, AwayTeamId, AwayTeamName, HomeScore, AwayScore, HomePkScore, AwayPkScore, Status, MatchedAt, VenueName, MatchType)
 -- @join: SoccerTournaments AS t (Name, Format)
 -- 팀 관리자 기준 시즌 경기 결과 조회 (팀 대시보드 경기 결과 섹션).
 -- 결과셋 4개: ⓪우리 팀 TeamId(IsHome 판별용, 팀 없으면 NULL) → ①종료 경기+대회명·형식(친선은 NULL)
@@ -23,7 +23,7 @@ BEGIN
 
     SELECT
         m.[MatchId], m.[TournamentId], m.[HomeTeamId], m.[HomeTeamName], m.[AwayTeamId], m.[AwayTeamName],
-        m.[HomeScore], m.[AwayScore], m.[HomePkScore], m.[AwayPkScore], m.[Status], m.[MatchedAt], m.[VenueName],
+        m.[HomeScore], m.[AwayScore], m.[HomePkScore], m.[AwayPkScore], m.[Status], m.[MatchedAt], m.[VenueName], m.[MatchType],
         t.[Name], t.[Format]
     FROM [dbo].[SoccerMatches] m WITH (NOLOCK)
     LEFT JOIN [dbo].[SoccerTournaments] t WITH (NOLOCK)
