@@ -14,7 +14,8 @@ CREATE PROCEDURE [dbo].[UspSaveSoccerPlayerPortfolioVideo]
     @ThumbnailUrl VARCHAR(2048) = NULL,
     @Tags VARCHAR(600) = NULL,
     @RecordedOn DATE = NULL,
-    @IsPrimary BIT = 0
+    @IsPrimary BIT = 0,
+    @TargetPlayerId UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -23,7 +24,8 @@ BEGIN
         SELECT TOP 1 [PlayerId]
         FROM [dbo].[SoccerPlayers] WITH (NOLOCK)
         WHERE [UserId] = @UserId AND [DeletedAt] IS NULL
-        ORDER BY [CreatedAt] DESC);
+          AND (@TargetPlayerId IS NULL OR [PlayerId] = @TargetPlayerId)
+        ORDER BY [CreatedAt]);
 
     IF @PlayerId IS NULL
     BEGIN

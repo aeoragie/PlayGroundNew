@@ -24,6 +24,7 @@ public class UspSaveSoccerPlayerPortfolioVideo(RepositoryBase repository) : Proc
 	public string Tags { get; set; } = null;
 	public DateTime? RecordedOn { get; set; } = null;
 	public bool IsPrimary { get; set; } = false;
+	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);
@@ -34,6 +35,7 @@ public class UspSaveSoccerPlayerPortfolioVideo(RepositoryBase repository) : Proc
 		Parameters.Add("@Tags", Tags);
 		Parameters.Add("@RecordedOn", RecordedOn);
 		Parameters.Add("@IsPrimary", IsPrimary);
+		Parameters.Add("@TargetPlayerId", TargetPlayerId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

@@ -9,7 +9,8 @@
 -- 팀 관점 변환·요약 집계는 Persistence/클라이언트 몫.
 CREATE PROCEDURE [dbo].[UspGetSoccerPlayerSeasonStatsByUser]
     @UserId UNIQUEIDENTIFIER,
-    @SeasonYear INT
+    @SeasonYear INT,
+    @TargetPlayerId UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -18,7 +19,8 @@ BEGIN
         SELECT TOP 1 [PlayerId]
         FROM [dbo].[SoccerPlayers] WITH (NOLOCK)
         WHERE [UserId] = @UserId AND [DeletedAt] IS NULL
-        ORDER BY [CreatedAt] DESC);
+          AND (@TargetPlayerId IS NULL OR [PlayerId] = @TargetPlayerId)
+        ORDER BY [CreatedAt]);
 
     SELECT @PlayerId AS [PlayerId];
 

@@ -19,11 +19,13 @@ public class UspSetSoccerPlayerFieldVisibility(RepositoryBase repository) : Proc
 	public Guid UserId { get; set; } = Guid.Empty;
 	public string FieldName { get; set; } = String.Empty;
 	public bool IsPublic { get; set; } = false;
+	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);
 		Parameters.Add("@FieldName", FieldName);
 		Parameters.Add("@IsPublic", IsPublic);
+		Parameters.Add("@TargetPlayerId", TargetPlayerId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

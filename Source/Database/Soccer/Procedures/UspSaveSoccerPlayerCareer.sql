@@ -15,7 +15,8 @@ CREATE PROCEDURE [dbo].[UspSaveSoccerPlayerCareer]
     @EndDate DATE = NULL,
     @Role VARCHAR(150) = NULL,
     @Note VARCHAR(600) = NULL,
-    @BadgeLabel VARCHAR(150) = NULL
+    @BadgeLabel VARCHAR(150) = NULL,
+    @TargetPlayerId UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -24,7 +25,8 @@ BEGIN
         SELECT TOP 1 [PlayerId]
         FROM [dbo].[SoccerPlayers] WITH (NOLOCK)
         WHERE [UserId] = @UserId AND [DeletedAt] IS NULL
-        ORDER BY [CreatedAt] DESC);
+          AND (@TargetPlayerId IS NULL OR [PlayerId] = @TargetPlayerId)
+        ORDER BY [CreatedAt]);
 
     IF @PlayerId IS NULL
     BEGIN

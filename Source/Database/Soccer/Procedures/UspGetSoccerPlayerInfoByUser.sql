@@ -7,16 +7,19 @@
 -- 결과셋 3개: 선수+소속(최신 1건) → 항목별 공개 설정 → 가족 계정.
 -- 호출측은 ProcedureMultipleAsync + MultiQueryReader로 소비. 보호자 연락처 마스킹은 Persistence 매핑에서.
 CREATE PROCEDURE [dbo].[UspGetSoccerPlayerInfoByUser]
-    @UserId UNIQUEIDENTIFIER
+    @UserId UNIQUEIDENTIFIER,
+    @TargetPlayerId UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- @TargetPlayerId 없으면 첫 자녀 — 있으면 그 자녀(단, 내가 관리하는 선수여야 한다)
     DECLARE @PlayerId UNIQUEIDENTIFIER = (
         SELECT TOP 1 [PlayerId]
         FROM [dbo].[SoccerPlayers] WITH (NOLOCK)
         WHERE [UserId] = @UserId AND [DeletedAt] IS NULL
-        ORDER BY [CreatedAt] DESC);
+          AND (@TargetPlayerId IS NULL OR [PlayerId] = @TargetPlayerId)
+        ORDER BY [CreatedAt]);
 
     SELECT
         p.[PlayerId], p.[Name], p.[PhotoUrl], p.[BirthDate], p.[AgeGroup],

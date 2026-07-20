@@ -10,20 +10,18 @@ using PlayGround.Infrastructure.Database.Base;
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
 /// <summary>
-/// UspGetSoccerPlayerSeasonStatsByUser
+/// UspGetSoccerPlayersByUser
 /// </summary>
-public class UspGetSoccerPlayerSeasonStatsByUser(RepositoryBase repository) : ProcedureBase(repository)
+public class UspGetSoccerPlayersByUser(RepositoryBase repository) : ProcedureBase(repository)
 {
-    public override string Procedure => "[dbo].[UspGetSoccerPlayerSeasonStatsByUser]";
+    public override string Procedure => "[dbo].[UspGetSoccerPlayersByUser]";
 
 	public Guid UserId { get; set; } = Guid.Empty;
 	public int SeasonYear { get; set; } = 0;
-	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);
 		Parameters.Add("@SeasonYear", SeasonYear);
-		Parameters.Add("@TargetPlayerId", TargetPlayerId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

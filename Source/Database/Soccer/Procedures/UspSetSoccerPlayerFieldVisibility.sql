@@ -6,16 +6,19 @@
 CREATE PROCEDURE [dbo].[UspSetSoccerPlayerFieldVisibility]
     @UserId UNIQUEIDENTIFIER,
     @FieldName VARCHAR(30),
-    @IsPublic BIT
+    @IsPublic BIT,
+    @TargetPlayerId UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- @TargetPlayerId 없으면 첫 자녀 — 있으면 그 자녀(단, 내가 관리하는 선수여야 한다)
     DECLARE @PlayerId UNIQUEIDENTIFIER = (
         SELECT TOP 1 [PlayerId]
         FROM [dbo].[SoccerPlayers] WITH (NOLOCK)
         WHERE [UserId] = @UserId AND [DeletedAt] IS NULL
-        ORDER BY [CreatedAt] DESC);
+          AND (@TargetPlayerId IS NULL OR [PlayerId] = @TargetPlayerId)
+        ORDER BY [CreatedAt]);
 
     IF @PlayerId IS NOT NULL
     BEGIN

@@ -19,11 +19,13 @@ public class UspDeleteSoccerPlayerPortfolioVideo(RepositoryBase repository) : Pr
 	public Guid UserId { get; set; } = Guid.Empty;
 	public Guid VideoId { get; set; } = Guid.Empty;
 	public bool Restore { get; set; } = false;
+	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);
 		Parameters.Add("@VideoId", VideoId);
 		Parameters.Add("@Restore", Restore);
+		Parameters.Add("@TargetPlayerId", TargetPlayerId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

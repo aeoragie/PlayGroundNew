@@ -24,6 +24,7 @@ public class UspSaveSoccerPlayerCareer(RepositoryBase repository) : ProcedureBas
 	public string Role { get; set; } = null;
 	public string Note { get; set; } = null;
 	public string BadgeLabel { get; set; } = null;
+	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);
@@ -34,6 +35,7 @@ public class UspSaveSoccerPlayerCareer(RepositoryBase repository) : ProcedureBas
 		Parameters.Add("@Role", Role);
 		Parameters.Add("@Note", Note);
 		Parameters.Add("@BadgeLabel", BadgeLabel);
+		Parameters.Add("@TargetPlayerId", TargetPlayerId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

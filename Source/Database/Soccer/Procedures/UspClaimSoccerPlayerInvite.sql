@@ -4,7 +4,12 @@
 -- @join: SoccerTeams AS t (TeamName)
 -- 초대코드로 로스터 선수 프로필을 계정에 연결(Claim).
 -- 유효 조건: Pending·미만료 코드 + 대상 선수 미연결. 실패 시 빈 결과 (사유 구분은 서버 로그).
--- 같은 계정의 기존(온보딩) 프로필 행이 있으면 값을 이전(COALESCE)하고 소프트 삭제 — 계정당 활성 연결 1행 유지.
+--
+-- **한 계정이 자녀를 여러 명 관리할 수 있다** (보호자 대리 관리가 P0 시나리오).
+-- 다만 "온보딩으로 만든 내 임시 프로필"과 "이미 연결된 다른 자녀"는 구분해야 한다:
+--   · 로스터에 없는 프로필 = 온보딩 임시본. 같은 사람의 로스터 행을 Claim한 것이므로 값을 옮기고 소프트 삭제.
+--   · 로스터에 있는 프로필 = 이미 연결된 다른 자녀. 건드리지 않는다.
+-- 예전에는 무조건 소프트 삭제해서 둘째 자녀를 연결하면 첫째가 사라졌다.
 CREATE PROCEDURE [dbo].[UspClaimSoccerPlayerInvite]
     @UserId UNIQUEIDENTIFIER,
     @Code VARCHAR(12)
@@ -32,12 +37,17 @@ BEGIN
         BEGIN TRY
             BEGIN TRANSACTION;
 
-            --.// 기존(온보딩) 프로필 병합 — 로스터 행에 없는 값만 이전 후 소프트 삭제
+            --.// 온보딩 임시 프로필만 병합 — 이미 연결된 다른 자녀는 건드리지 않는다.
+            -- 판별: 로스터(SoccerTeamPlayers)에 없는 프로필 = 온보딩으로 만든 임시본.
+            -- 연결된 자녀는 팀 로스터에서 온 행이라 반드시 로스터 행이 있다.
 
             DECLARE @OldPlayerId UNIQUEIDENTIFIER = (
-                SELECT TOP 1 [PlayerId] FROM [dbo].[SoccerPlayers]
-                WHERE [UserId] = @UserId AND [DeletedAt] IS NULL AND [PlayerId] <> @PlayerId
-                ORDER BY [CreatedAt] DESC);
+                SELECT TOP 1 p.[PlayerId] FROM [dbo].[SoccerPlayers] p
+                WHERE p.[UserId] = @UserId AND p.[DeletedAt] IS NULL AND p.[PlayerId] <> @PlayerId
+                  AND NOT EXISTS (
+                      SELECT 1 FROM [dbo].[SoccerTeamPlayers] tp WITH (NOLOCK)
+                      WHERE tp.[PlayerId] = p.[PlayerId] AND tp.[DeletedAt] IS NULL)
+                ORDER BY p.[CreatedAt] DESC);
 
             IF @OldPlayerId IS NOT NULL
             BEGIN

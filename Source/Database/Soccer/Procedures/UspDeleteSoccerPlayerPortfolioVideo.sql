@@ -8,7 +8,8 @@
 CREATE PROCEDURE [dbo].[UspDeleteSoccerPlayerPortfolioVideo]
     @UserId UNIQUEIDENTIFIER,
     @VideoId UNIQUEIDENTIFIER,
-    @Restore BIT = 0
+    @Restore BIT = 0,
+    @TargetPlayerId UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -17,7 +18,8 @@ BEGIN
         SELECT TOP 1 [PlayerId]
         FROM [dbo].[SoccerPlayers] WITH (NOLOCK)
         WHERE [UserId] = @UserId AND [DeletedAt] IS NULL
-        ORDER BY [CreatedAt] DESC);
+          AND (@TargetPlayerId IS NULL OR [PlayerId] = @TargetPlayerId)
+        ORDER BY [CreatedAt]);
 
     IF @PlayerId IS NULL
     BEGIN

@@ -17,9 +17,11 @@ public class UspGetSoccerPlayerPortfolioByUser(RepositoryBase repository) : Proc
     public override string Procedure => "[dbo].[UspGetSoccerPlayerPortfolioByUser]";
 
 	public Guid UserId { get; set; } = Guid.Empty;
+	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);
+		Parameters.Add("@TargetPlayerId", TargetPlayerId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }
