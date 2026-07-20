@@ -56,11 +56,44 @@ namespace PlayGround.Persistence.Repositories
             return Result<Guid>.Success(row.PlayerId);
         }
 
-        public async Task<Result<PlayerInfoResponse?>> GetInfoByUserAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<ManagedPlayersResponse>> GetManagedPlayersAsync(Guid userId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Managed players requested", ("UserId", userId));
+
+            var procedure = new UspGetSoccerPlayersByUser(this) { UserId = userId };
+            var queryResult = await procedure.QueryAsync<SoccerManagedPlayerRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Managed players query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<ManagedPlayersResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new ManagedPlayersResponse
+            {
+                Players = queryResult.Values1
+                    .Select(p => new ManagedPlayerDto
+                    {
+                        PlayerId = p.PlayerId,
+                        Name = p.Name,
+                        AgeGroup = NullIfEmpty(p.AgeGroup),
+                        PhotoUrl = NullIfEmpty(p.PhotoUrl),
+                        TeamName = NullIfEmpty(p.TeamName),
+                        JerseyNumber = NullIfEmpty(p.JerseyNumber),
+                        Position = NullIfEmpty(p.Position),
+                        IsGuardianManaged = p.IsGuardianManaged
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Managed players received", ("UserId", userId), ("Players", response.Players.Count));
+            return Result<ManagedPlayersResponse>.Success(response);
+        }
+
+        public async Task<Result<PlayerInfoResponse?>> GetInfoByUserAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player info requested", ("UserId", userId));
 
-            var procedure = new UspGetSoccerPlayerInfoByUser(this) { UserId = userId };
+            var procedure = new UspGetSoccerPlayerInfoByUser(this) { UserId = userId, TargetPlayerId = playerId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
@@ -128,7 +161,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<PlayerInfoResponse?>.Success(response);
         }
 
-        public async Task<Result<bool>> SetFieldVisibilityAsync(Guid userId, string fieldName, bool isPublic, CancellationToken cancellation = default)
+        public async Task<Result<bool>> SetFieldVisibilityAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player field visibility change requested",
                 ("UserId", userId), ("FieldName", fieldName), ("IsPublic", isPublic));
@@ -137,7 +170,8 @@ namespace PlayGround.Persistence.Repositories
             {
                 UserId = userId,
                 FieldName = fieldName,
-                IsPublic = isPublic
+                IsPublic = isPublic,
+                TargetPlayerId = playerId
             };
 
             var queryResult = await procedure.QueryAsync<SoccerPlayerVisibilitySetRecord>(cancellation: cancellation);
@@ -207,11 +241,11 @@ namespace PlayGround.Persistence.Repositories
             });
         }
 
-        public async Task<Result<PlayerCareerResponse>> GetCareersByUserAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<PlayerCareerResponse>> GetCareersByUserAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player careers requested", ("UserId", userId));
 
-            var procedure = new UspGetSoccerPlayerCareersByUser(this) { UserId = userId };
+            var procedure = new UspGetSoccerPlayerCareersByUser(this) { UserId = userId, TargetPlayerId = playerId };
             var queryResult = await procedure.QueryAsync<SoccerPlayerCareersEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
@@ -241,11 +275,11 @@ namespace PlayGround.Persistence.Repositories
             return Result<PlayerCareerResponse>.Success(response);
         }
 
-        public async Task<Result<PlayerPortfolioResponse>> GetPortfolioByUserAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<PlayerPortfolioResponse>> GetPortfolioByUserAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player portfolio requested", ("UserId", userId));
 
-            var procedure = new UspGetSoccerPlayerPortfolioByUser(this) { UserId = userId };
+            var procedure = new UspGetSoccerPlayerPortfolioByUser(this) { UserId = userId, TargetPlayerId = playerId };
             var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioVideosEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
@@ -274,7 +308,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<PlayerPortfolioResponse>.Success(response);
         }
 
-        public async Task<Result<bool>> SaveCareerAsync(Guid userId, SavePlayerCareerRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> SaveCareerAsync(Guid userId, SavePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player career save requested",
                 ("UserId", userId), ("CareerId", request.CareerId), ("IsNew", request.CareerId == Guid.Empty));
@@ -288,7 +322,8 @@ namespace PlayGround.Persistence.Repositories
                 EndDate = request.EndDate?.ToDateTime(TimeOnly.MinValue),
                 Role = request.Role!,
                 Note = request.Note!,
-                BadgeLabel = request.BadgeLabel!
+                BadgeLabel = request.BadgeLabel!,
+                TargetPlayerId = playerId
             };
 
             var queryResult = await procedure.QueryAsync<SoccerPlayerCareerSaveRecord>(cancellation: cancellation);
@@ -303,7 +338,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
-        public async Task<Result<bool>> DeleteCareerAsync(Guid userId, Guid careerId, bool restore, CancellationToken cancellation = default)
+        public async Task<Result<bool>> DeleteCareerAsync(Guid userId, Guid careerId, bool restore, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player career delete requested",
                 ("UserId", userId), ("CareerId", careerId), ("Restore", restore));
@@ -312,7 +347,8 @@ namespace PlayGround.Persistence.Repositories
             {
                 UserId = userId,
                 CareerId = careerId,
-                Restore = restore
+                Restore = restore,
+                TargetPlayerId = playerId
             };
 
             var queryResult = await procedure.QueryAsync<SoccerPlayerCareerDeleteRecord>(cancellation: cancellation);
@@ -327,7 +363,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
-        public async Task<Result<bool>> SavePortfolioVideoAsync(Guid userId, SavePlayerPortfolioVideoRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> SavePortfolioVideoAsync(Guid userId, SavePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player portfolio video save requested",
                 ("UserId", userId), ("VideoId", request.VideoId), ("IsNew", request.VideoId == Guid.Empty));
@@ -341,7 +377,8 @@ namespace PlayGround.Persistence.Repositories
                 ThumbnailUrl = request.ThumbnailUrl!,
                 Tags = request.Tags.Count > 0 ? JsonSerializer.Serialize(request.Tags) : null!,
                 RecordedOn = request.RecordedOn?.ToDateTime(TimeOnly.MinValue),
-                IsPrimary = request.IsPrimary
+                IsPrimary = request.IsPrimary,
+                TargetPlayerId = playerId
             };
 
             var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioSaveRecord>(cancellation: cancellation);
@@ -356,7 +393,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
-        public async Task<Result<bool>> DeletePortfolioVideoAsync(Guid userId, Guid videoId, bool restore, CancellationToken cancellation = default)
+        public async Task<Result<bool>> DeletePortfolioVideoAsync(Guid userId, Guid videoId, bool restore, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player portfolio video delete requested",
                 ("UserId", userId), ("VideoId", videoId), ("Restore", restore));
@@ -365,7 +402,8 @@ namespace PlayGround.Persistence.Repositories
             {
                 UserId = userId,
                 VideoId = videoId,
-                Restore = restore
+                Restore = restore,
+                TargetPlayerId = playerId
             };
 
             var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioDeleteRecord>(cancellation: cancellation);
@@ -380,11 +418,11 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
-        public async Task<Result<PlayerSeasonStatsResponse>> GetSeasonStatsByUserAsync(Guid userId, int seasonYear, CancellationToken cancellation = default)
+        public async Task<Result<PlayerSeasonStatsResponse>> GetSeasonStatsByUserAsync(Guid userId, int seasonYear, Guid? playerId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player season stats requested", ("UserId", userId), ("SeasonYear", seasonYear));
 
-            var procedure = new UspGetSoccerPlayerSeasonStatsByUser(this) { UserId = userId, SeasonYear = seasonYear };
+            var procedure = new UspGetSoccerPlayerSeasonStatsByUser(this) { UserId = userId, SeasonYear = seasonYear, TargetPlayerId = playerId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
@@ -393,7 +431,8 @@ namespace PlayGround.Persistence.Repositories
             }
 
             using MultiQueryReader reader = opened.Value;
-            Guid? playerId = await reader.ReadSingleOrDefaultAsync<Guid?>();
+            // 결과셋 ⓪ = 프로시저가 실제로 고른 선수 (지정 없으면 첫 자녀)
+            Guid? resolvedPlayerId = await reader.ReadSingleOrDefaultAsync<Guid?>();
             var appearances = (await reader.ReadAsync<SoccerPlayerMatchStatRecord>()).ToList();
             var events = (await reader.ReadAsync<SoccerMatchEventsEntity>()).ToList();
             var seasonYears = (await reader.ReadAsync<int>()).ToList();
@@ -415,8 +454,8 @@ namespace PlayGround.Persistence.Repositories
                             OpponentName = isHome ? a.AwayTeamName : a.HomeTeamName,
                             TeamScore = (isHome ? a.HomeScore : a.AwayScore) ?? 0,
                             OpponentScore = (isHome ? a.AwayScore : a.HomeScore) ?? 0,
-                            Goals = events.Count(e => e.MatchId == a.MatchId && e.PlayerId == playerId && e.EventType != "OwnGoal"),
-                            Assists = events.Count(e => e.MatchId == a.MatchId && e.AssistPlayerId == playerId),
+                            Goals = events.Count(e => e.MatchId == a.MatchId && e.PlayerId == resolvedPlayerId && e.EventType != "OwnGoal"),
+                            Assists = events.Count(e => e.MatchId == a.MatchId && e.AssistPlayerId == resolvedPlayerId),
                             MinutesPlayed = a.MinutesPlayed
                         };
                     })

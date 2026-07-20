@@ -17,7 +17,7 @@ namespace PlayGround.Application.Player.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task<Result<bool>> ExecuteAsync(Guid userId, string fieldName, bool isPublic, CancellationToken cancellation = default)
+        public async Task<Result<bool>> ExecuteAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -32,7 +32,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<bool>.Error(ErrorCode.InvalidInput, "unknown field name");
             }
 
-            Result<bool> applied = await mRepository.SetFieldVisibilityAsync(userId, field.ToString(), isPublic, cancellation);
+            Result<bool> applied = await mRepository.SetFieldVisibilityAsync(userId, field.ToString(), isPublic, playerId, cancellation);
             if (applied.IsError)
             {
                 return applied;

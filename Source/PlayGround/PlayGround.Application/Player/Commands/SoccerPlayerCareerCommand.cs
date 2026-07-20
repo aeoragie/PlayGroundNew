@@ -16,14 +16,14 @@ namespace PlayGround.Application.Player.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task<Result<PlayerCareerResponse>> ExecuteAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<PlayerCareerResponse>> ExecuteAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
                 return Result<PlayerCareerResponse>.Error(ErrorCode.Unauthorized, "userId is empty");
             }
 
-            return await mRepository.GetCareersByUserAsync(userId, cancellation);
+            return await mRepository.GetCareersByUserAsync(userId, playerId, cancellation);
         }
     }
 }

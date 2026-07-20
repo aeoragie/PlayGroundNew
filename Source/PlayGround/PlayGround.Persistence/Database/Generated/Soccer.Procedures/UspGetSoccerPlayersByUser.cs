@@ -17,11 +17,9 @@ public class UspGetSoccerPlayersByUser(RepositoryBase repository) : ProcedureBas
     public override string Procedure => "[dbo].[UspGetSoccerPlayersByUser]";
 
 	public Guid UserId { get; set; } = Guid.Empty;
-	public int SeasonYear { get; set; } = 0;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);
-		Parameters.Add("@SeasonYear", SeasonYear);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

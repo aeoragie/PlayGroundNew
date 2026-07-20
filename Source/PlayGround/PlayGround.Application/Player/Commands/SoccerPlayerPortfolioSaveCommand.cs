@@ -22,7 +22,7 @@ namespace PlayGround.Application.Player.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task<Result<bool>> ExecuteAsync(Guid userId, SavePlayerPortfolioVideoRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> ExecuteAsync(Guid userId, SavePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -56,7 +56,7 @@ namespace PlayGround.Application.Player.Commands
                 .Take(MaxTags)
                 .ToList();
 
-            Result<bool> applied = await mRepository.SavePortfolioVideoAsync(userId, request, cancellation);
+            Result<bool> applied = await mRepository.SavePortfolioVideoAsync(userId, request, playerId, cancellation);
             if (applied.IsError)
             {
                 return applied;
@@ -70,7 +70,7 @@ namespace PlayGround.Application.Player.Commands
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> DeleteAsync(Guid userId, DeletePlayerPortfolioVideoRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> DeleteAsync(Guid userId, DeletePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -84,7 +84,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<bool>.Error(ErrorCode.InvalidInput, "videoId is empty");
             }
 
-            Result<bool> applied = await mRepository.DeletePortfolioVideoAsync(userId, request.VideoId, request.Restore, cancellation);
+            Result<bool> applied = await mRepository.DeletePortfolioVideoAsync(userId, request.VideoId, request.Restore, playerId, cancellation);
             if (applied.IsError)
             {
                 return applied;

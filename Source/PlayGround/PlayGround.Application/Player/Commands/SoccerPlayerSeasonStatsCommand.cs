@@ -19,7 +19,7 @@ namespace PlayGround.Application.Player.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task<Result<PlayerSeasonStatsResponse>> ExecuteAsync(Guid userId, int seasonYear, CancellationToken cancellation = default)
+        public async Task<Result<PlayerSeasonStatsResponse>> ExecuteAsync(Guid userId, int seasonYear, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -31,7 +31,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<PlayerSeasonStatsResponse>.Error(ErrorCode.OutOfRange, "seasonYear is out of range");
             }
 
-            return await mRepository.GetSeasonStatsByUserAsync(userId, seasonYear, cancellation);
+            return await mRepository.GetSeasonStatsByUserAsync(userId, seasonYear, playerId, cancellation);
         }
     }
 }

@@ -15,13 +15,34 @@ namespace PlayGround.Client.Services
             mHttp = http;
         }
 
+        /// <summary>자녀 지정 쿼리 — 주지 않으면 서버가 첫 자녀를 쓴다.
+        /// first=false면 이미 쿼리가 있는 URL이라 ?가 아니라 &amp;로 잇는다.</summary>
+        private static string Q(Guid? playerId, bool first = true) =>
+            playerId is null ? string.Empty : $"{(first ? '?' : '&')}playerId={playerId}";
+
+        /// <summary>이 계정이 관리하는 선수(자녀) 목록. 보호자는 여러 명일 수 있다. 미인증·오류 시 null.</summary>
+        public async Task<ManagedPlayersResponse?> GetMyPlayersAsync()
+        {
+            try
+            {
+                Envelope<ManagedPlayersResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<ManagedPlayersResponse>>(
+                        "api/soccer/player/me/players");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         /// <summary>본인(관리 주체) 선수 프로필 묶음 조회. 미인증·미존재·오류 시 null.</summary>
-        public async Task<PlayerInfoResponse?> GetMyInfoAsync()
+        public async Task<PlayerInfoResponse?> GetMyInfoAsync(Guid? playerId = null)
         {
             try
             {
                 Envelope<PlayerInfoResponse>? envelope =
-                    await mHttp.GetFromJsonAsync<Envelope<PlayerInfoResponse>>("api/soccer/player/me/info");
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerInfoResponse>>($"api/soccer/player/me/info{Q(playerId)}");
                 return envelope is { IsSuccess: true } ? envelope.Data : null;
             }
             catch
@@ -31,12 +52,12 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>본인(관리 주체) 커리어 목록 조회. 미인증·오류 시 null.</summary>
-        public async Task<PlayerCareerResponse?> GetMyCareerAsync()
+        public async Task<PlayerCareerResponse?> GetMyCareerAsync(Guid? playerId = null)
         {
             try
             {
                 Envelope<PlayerCareerResponse>? envelope =
-                    await mHttp.GetFromJsonAsync<Envelope<PlayerCareerResponse>>("api/soccer/player/me/career");
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerCareerResponse>>($"api/soccer/player/me/career{Q(playerId)}");
                 return envelope is { IsSuccess: true } ? envelope.Data : null;
             }
             catch
@@ -46,12 +67,12 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>본인(관리 주체) 포트폴리오 영상 목록 조회. 미인증·오류 시 null.</summary>
-        public async Task<PlayerPortfolioResponse?> GetMyPortfolioAsync()
+        public async Task<PlayerPortfolioResponse?> GetMyPortfolioAsync(Guid? playerId = null)
         {
             try
             {
                 Envelope<PlayerPortfolioResponse>? envelope =
-                    await mHttp.GetFromJsonAsync<Envelope<PlayerPortfolioResponse>>("api/soccer/player/me/portfolio");
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerPortfolioResponse>>($"api/soccer/player/me/portfolio{Q(playerId)}");
                 return envelope is { IsSuccess: true } ? envelope.Data : null;
             }
             catch
@@ -61,12 +82,12 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>본인(관리 주체) 시즌 통계 조회. 미인증·오류 시 null.</summary>
-        public async Task<PlayerSeasonStatsResponse?> GetMySeasonStatsAsync(int seasonYear)
+        public async Task<PlayerSeasonStatsResponse?> GetMySeasonStatsAsync(int seasonYear, Guid? playerId = null)
         {
             try
             {
                 Envelope<PlayerSeasonStatsResponse>? envelope =
-                    await mHttp.GetFromJsonAsync<Envelope<PlayerSeasonStatsResponse>>($"api/soccer/player/me/season-stats?season={seasonYear}");
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerSeasonStatsResponse>>($"api/soccer/player/me/season-stats?season={seasonYear}{Q(playerId, first: false)}");
                 return envelope is { IsSuccess: true } ? envelope.Data : null;
             }
             catch
@@ -76,12 +97,12 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>항목 공개 설정 변경. 성공 여부 반환.</summary>
-        public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic)
+        public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic, Guid? playerId = null)
         {
             try
             {
                 HttpResponseMessage response = await mHttp.PutAsJsonAsync(
-                    "api/soccer/player/me/profile/visibility",
+                     $"api/soccer/player/me/profile/visibility{Q(playerId)}",
                     new SetPlayerFieldVisibilityRequest { FieldName = fieldName, IsPublic = isPublic });
                 Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
                 return envelope is { IsSuccess: true };
@@ -93,21 +114,21 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>커리어 이력 저장(신규·수정). CareerId 빈 값 = 신규.</summary>
-        public Task<PlayerEntrySaveResult> SaveCareerAsync(SavePlayerCareerRequest request) =>
-            PutAsync("api/soccer/player/me/career", request);
+        public Task<PlayerEntrySaveResult> SaveCareerAsync(SavePlayerCareerRequest request, Guid? playerId = null) =>
+            PutAsync($"api/soccer/player/me/career{Q(playerId)}", request);
 
         /// <summary>커리어 이력 삭제·복구(실행취소).</summary>
-        public Task<PlayerEntrySaveResult> DeleteCareerAsync(Guid careerId, bool restore = false) =>
-            PostAsync("api/soccer/player/me/career/delete",
+        public Task<PlayerEntrySaveResult> DeleteCareerAsync(Guid careerId, bool restore = false, Guid? playerId = null) =>
+            PostAsync($"api/soccer/player/me/career/delete{Q(playerId)}",
                 new DeletePlayerCareerRequest { CareerId = careerId, Restore = restore });
 
         /// <summary>포트폴리오 영상 저장(신규·수정). VideoId 빈 값 = 신규.</summary>
-        public Task<PlayerEntrySaveResult> SavePortfolioVideoAsync(SavePlayerPortfolioVideoRequest request) =>
-            PutAsync("api/soccer/player/me/portfolio", request);
+        public Task<PlayerEntrySaveResult> SavePortfolioVideoAsync(SavePlayerPortfolioVideoRequest request, Guid? playerId = null) =>
+            PutAsync($"api/soccer/player/me/portfolio{Q(playerId)}", request);
 
         /// <summary>포트폴리오 영상 삭제·복구(실행취소).</summary>
-        public Task<PlayerEntrySaveResult> DeletePortfolioVideoAsync(Guid videoId, bool restore = false) =>
-            PostAsync("api/soccer/player/me/portfolio/delete",
+        public Task<PlayerEntrySaveResult> DeletePortfolioVideoAsync(Guid videoId, bool restore = false, Guid? playerId = null) =>
+            PostAsync($"api/soccer/player/me/portfolio/delete{Q(playerId)}",
                 new DeletePlayerPortfolioVideoRequest { VideoId = videoId, Restore = restore });
 
         // 저장 계열은 응답 형태가 같다 — 실패 사유(입력 거부 vs 요청 실패)를 구분해 돌려준다

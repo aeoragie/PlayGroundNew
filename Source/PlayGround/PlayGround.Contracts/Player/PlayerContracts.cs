@@ -20,6 +20,26 @@ namespace PlayGround.Contracts.Player
         public string? AccessToken { get; set; }
     }
 
+    /// <summary>이 계정이 관리하는 선수(자녀) 목록. **보호자는 자녀가 여러 명일 수 있다.**
+    /// 대시보드 자녀 전환·허브 카드가 이 목록을 쓴다.</summary>
+    public class ManagedPlayersResponse
+    {
+        public List<ManagedPlayerDto> Players { get; set; } = new();
+    }
+
+    /// <summary>관리 중인 선수 한 명. 시즌 스탯은 선수 대시보드와 같은 경로로 따로 읽는다(숫자 불일치 방지).</summary>
+    public class ManagedPlayerDto
+    {
+        public Guid PlayerId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? AgeGroup { get; set; }
+        public string? PhotoUrl { get; set; }
+        public string? TeamName { get; set; }
+        public string? JerseyNumber { get; set; }
+        public string? Position { get; set; }
+        public bool IsGuardianManaged { get; set; }
+    }
+
     /// <summary>선수 대시보드 프로필 묶음 (기본 카드 + 항목별 공개 설정 + 가족 계정).</summary>
     public class PlayerInfoResponse
     {

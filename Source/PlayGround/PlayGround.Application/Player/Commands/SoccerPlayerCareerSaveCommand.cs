@@ -20,7 +20,7 @@ namespace PlayGround.Application.Player.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task<Result<bool>> ExecuteAsync(Guid userId, SavePlayerCareerRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> ExecuteAsync(Guid userId, SavePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -51,7 +51,7 @@ namespace PlayGround.Application.Player.Commands
             request.Note = NullIfBlank(request.Note);
             request.BadgeLabel = NullIfBlank(request.BadgeLabel);
 
-            Result<bool> applied = await mRepository.SaveCareerAsync(userId, request, cancellation);
+            Result<bool> applied = await mRepository.SaveCareerAsync(userId, request, playerId, cancellation);
             if (applied.IsError)
             {
                 return applied;
@@ -66,7 +66,7 @@ namespace PlayGround.Application.Player.Commands
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> DeleteAsync(Guid userId, DeletePlayerCareerRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> DeleteAsync(Guid userId, DeletePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -80,7 +80,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<bool>.Error(ErrorCode.InvalidInput, "careerId is empty");
             }
 
-            Result<bool> applied = await mRepository.DeleteCareerAsync(userId, request.CareerId, request.Restore, cancellation);
+            Result<bool> applied = await mRepository.DeleteCareerAsync(userId, request.CareerId, request.Restore, playerId, cancellation);
             if (applied.IsError)
             {
                 return applied;

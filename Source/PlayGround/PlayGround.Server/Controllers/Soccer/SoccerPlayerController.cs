@@ -37,8 +37,24 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>이 계정이 관리하는 선수(자녀) 목록. **보호자는 자녀가 여러 명일 수 있다** —
+        /// 다른 조회는 playerId로 어느 자녀인지 지정한다(생략하면 첫 자녀).</summary>
+        [HttpGet("me/players")]
+        public async Task<Envelope<ManagedPlayersResponse>> GetMyPlayersAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<ManagedPlayersResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<ManagedPlayersResponse> result = await mGateway.AskAsync<ManagedPlayersResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerManagedPlayersMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/info")]
-        public async Task<Envelope<PlayerInfoResponse>> GetMyInfoAsync(CancellationToken cancellation)
+        public async Task<Envelope<PlayerInfoResponse>> GetMyInfoAsync([FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -47,7 +63,7 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<PlayerInfoResponse> result = await mGateway.AskAsync<PlayerInfoResponse>(
-                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerInfoMessage(userId), cancellation);
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerInfoMessage(userId, playerId), cancellation);
             return result.ToEnvelope();
         }
 
@@ -69,7 +85,7 @@ namespace PlayGround.Server.Controllers.Soccer
         }
 
         [HttpGet("me/career")]
-        public async Task<Envelope<PlayerCareerResponse>> GetMyCareerAsync(CancellationToken cancellation)
+        public async Task<Envelope<PlayerCareerResponse>> GetMyCareerAsync([FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -78,14 +94,14 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<PlayerCareerResponse> result = await mGateway.AskAsync<PlayerCareerResponse>(
-                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerCareerMessage(userId), cancellation);
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerCareerMessage(userId, playerId), cancellation);
             return result.ToEnvelope();
         }
 
         /// <summary>커리어 이력 저장(신규·수정). 본인 프로필만 — 소유 판정은 서버가 UserId로 한다.</summary>
         [HttpPut("me/career")]
         public async Task<Envelope<bool>> SaveMyCareerAsync(
-            [FromBody] SavePlayerCareerRequest request, CancellationToken cancellation)
+            [FromBody] SavePlayerCareerRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -94,14 +110,14 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<bool> result = await mGateway.AskAsync<bool>(
-                ActorNames.SoccerPlayerProfile, new SaveSoccerPlayerCareerMessage(userId, request), cancellation);
+                ActorNames.SoccerPlayerProfile, new SaveSoccerPlayerCareerMessage(userId, request, playerId), cancellation);
             return result.ToEnvelope();
         }
 
         /// <summary>커리어 이력 삭제·복구(실행취소). 소프트 삭제라 되돌릴 수 있다.</summary>
         [HttpPost("me/career/delete")]
         public async Task<Envelope<bool>> DeleteMyCareerAsync(
-            [FromBody] DeletePlayerCareerRequest request, CancellationToken cancellation)
+            [FromBody] DeletePlayerCareerRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -110,14 +126,14 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<bool> result = await mGateway.AskAsync<bool>(
-                ActorNames.SoccerPlayerProfile, new DeleteSoccerPlayerCareerMessage(userId, request), cancellation);
+                ActorNames.SoccerPlayerProfile, new DeleteSoccerPlayerCareerMessage(userId, request, playerId), cancellation);
             return result.ToEnvelope();
         }
 
         /// <summary>포트폴리오 영상 저장(신규·수정). 링크는 유튜브만 — 서버가 정규화하고 썸네일을 파생한다.</summary>
         [HttpPut("me/portfolio")]
         public async Task<Envelope<bool>> SaveMyPortfolioVideoAsync(
-            [FromBody] SavePlayerPortfolioVideoRequest request, CancellationToken cancellation)
+            [FromBody] SavePlayerPortfolioVideoRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -126,14 +142,14 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<bool> result = await mGateway.AskAsync<bool>(
-                ActorNames.SoccerPlayerProfile, new SaveSoccerPlayerPortfolioVideoMessage(userId, request), cancellation);
+                ActorNames.SoccerPlayerProfile, new SaveSoccerPlayerPortfolioVideoMessage(userId, request, playerId), cancellation);
             return result.ToEnvelope();
         }
 
         /// <summary>포트폴리오 영상 삭제·복구(실행취소).</summary>
         [HttpPost("me/portfolio/delete")]
         public async Task<Envelope<bool>> DeleteMyPortfolioVideoAsync(
-            [FromBody] DeletePlayerPortfolioVideoRequest request, CancellationToken cancellation)
+            [FromBody] DeletePlayerPortfolioVideoRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -142,12 +158,12 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<bool> result = await mGateway.AskAsync<bool>(
-                ActorNames.SoccerPlayerProfile, new DeleteSoccerPlayerPortfolioVideoMessage(userId, request), cancellation);
+                ActorNames.SoccerPlayerProfile, new DeleteSoccerPlayerPortfolioVideoMessage(userId, request, playerId), cancellation);
             return result.ToEnvelope();
         }
 
         [HttpGet("me/portfolio")]
-        public async Task<Envelope<PlayerPortfolioResponse>> GetMyPortfolioAsync(CancellationToken cancellation)
+        public async Task<Envelope<PlayerPortfolioResponse>> GetMyPortfolioAsync([FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -156,13 +172,13 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<PlayerPortfolioResponse> result = await mGateway.AskAsync<PlayerPortfolioResponse>(
-                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerPortfolioMessage(userId), cancellation);
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerPortfolioMessage(userId, playerId), cancellation);
             return result.ToEnvelope();
         }
 
         [HttpGet("me/season-stats")]
         public async Task<Envelope<PlayerSeasonStatsResponse>> GetMySeasonStatsAsync(
-            [FromQuery] int season, CancellationToken cancellation)
+            [FromQuery] int season, [FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -171,7 +187,7 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<PlayerSeasonStatsResponse> result = await mGateway.AskAsync<PlayerSeasonStatsResponse>(
-                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerSeasonStatsMessage(userId, season), cancellation);
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerSeasonStatsMessage(userId, season, playerId), cancellation);
             return result.ToEnvelope();
         }
 
@@ -194,7 +210,7 @@ namespace PlayGround.Server.Controllers.Soccer
 
         [HttpPut("me/profile/visibility")]
         public async Task<Envelope<bool>> SetMyFieldVisibilityAsync(
-            [FromBody] SetPlayerFieldVisibilityRequest request, CancellationToken cancellation)
+            [FromBody] SetPlayerFieldVisibilityRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
@@ -203,7 +219,7 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<bool> result = await mGateway.AskAsync<bool>(
-                ActorNames.SoccerPlayerProfile, new SetSoccerPlayerFieldVisibilityMessage(userId, request), cancellation);
+                ActorNames.SoccerPlayerProfile, new SetSoccerPlayerFieldVisibilityMessage(userId, request, playerId), cancellation);
             return result.ToEnvelope();
         }
     }

@@ -13,6 +13,7 @@ namespace PlayGround.Server.Actors
         public SoccerPlayerProfileActor(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             RegisterHandlerAsync<CreatePlayerProfileMessage>(HandleCreateAsync);
+            RegisterHandlerAsync<GetSoccerManagedPlayersMessage>(HandleGetManagedPlayersAsync);
             RegisterHandlerAsync<GetSoccerPlayerInfoMessage>(HandleGetInfoAsync);
             RegisterHandlerAsync<SetSoccerPlayerFieldVisibilityMessage>(HandleSetVisibilityAsync);
             RegisterHandlerAsync<SetSoccerPlayerPhotoMessage>(HandleSetPhotoAsync);
@@ -36,12 +37,21 @@ namespace PlayGround.Server.Actors
             sender.Tell(result);
         }
 
+        private async Task HandleGetManagedPlayersAsync(GetSoccerManagedPlayersMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerManagedPlayersCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerManagedPlayersCommand>();
+            Result<ManagedPlayersResponse> result = await useCase.ExecuteAsync(message.UserId);
+            sender.Tell(result);
+        }
+
         private async Task HandleGetInfoAsync(GetSoccerPlayerInfoMessage message)
         {
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerInfoCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerInfoCommand>();
-            Result<PlayerInfoResponse> result = await useCase.ExecuteAsync(message.UserId);
+            Result<PlayerInfoResponse> result = await useCase.ExecuteAsync(message.UserId, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -50,7 +60,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerFieldVisibilityCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerFieldVisibilityCommand>();
-            Result<bool> result = await useCase.ExecuteAsync(message.UserId, message.Data.FieldName, message.Data.IsPublic);
+            Result<bool> result = await useCase.ExecuteAsync(message.UserId, message.Data.FieldName, message.Data.IsPublic, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -77,7 +87,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerCareerCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerCareerCommand>();
-            Result<PlayerCareerResponse> result = await useCase.ExecuteAsync(message.UserId);
+            Result<PlayerCareerResponse> result = await useCase.ExecuteAsync(message.UserId, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -86,7 +96,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerCareerSaveCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerCareerSaveCommand>();
-            Result<bool> result = await useCase.ExecuteAsync(message.UserId, message.Data);
+            Result<bool> result = await useCase.ExecuteAsync(message.UserId, message.Data, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -95,7 +105,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerCareerSaveCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerCareerSaveCommand>();
-            Result<bool> result = await useCase.DeleteAsync(message.UserId, message.Data);
+            Result<bool> result = await useCase.DeleteAsync(message.UserId, message.Data, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -104,7 +114,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerPortfolioSaveCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerPortfolioSaveCommand>();
-            Result<bool> result = await useCase.ExecuteAsync(message.UserId, message.Data);
+            Result<bool> result = await useCase.ExecuteAsync(message.UserId, message.Data, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -113,7 +123,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerPortfolioSaveCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerPortfolioSaveCommand>();
-            Result<bool> result = await useCase.DeleteAsync(message.UserId, message.Data);
+            Result<bool> result = await useCase.DeleteAsync(message.UserId, message.Data, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -122,7 +132,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerPortfolioCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerPortfolioCommand>();
-            Result<PlayerPortfolioResponse> result = await useCase.ExecuteAsync(message.UserId);
+            Result<PlayerPortfolioResponse> result = await useCase.ExecuteAsync(message.UserId, message.PlayerId);
             sender.Tell(result);
         }
 
@@ -131,7 +141,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerPlayerSeasonStatsCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerSeasonStatsCommand>();
-            Result<PlayerSeasonStatsResponse> result = await useCase.ExecuteAsync(message.UserId, message.SeasonYear);
+            Result<PlayerSeasonStatsResponse> result = await useCase.ExecuteAsync(message.UserId, message.SeasonYear, message.PlayerId);
             sender.Tell(result);
         }
     }
