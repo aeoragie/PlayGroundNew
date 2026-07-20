@@ -41,4 +41,20 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => ManagerUserId;
     }
+
+    /// <summary>기록 수정 신청 생성 메시지. **중복 신청 차단이 프로시저 안에 있어 순차 처리가 중요하다** —
+    /// 동시에 두 번 누르면 검사와 삽입 사이가 벌어질 수 있다(ManagerUserId 해시).</summary>
+    public sealed record CreateSoccerRecordCorrectionMessage(Guid ManagerUserId, CreateRecordCorrectionRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>기록 수정 신청 취소 메시지 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record CancelSoccerRecordCorrectionMessage(Guid ManagerUserId, Guid CorrectionId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>내 기록 수정 신청 목록 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerRecordCorrectionsMessage(Guid ManagerUserId);
 }

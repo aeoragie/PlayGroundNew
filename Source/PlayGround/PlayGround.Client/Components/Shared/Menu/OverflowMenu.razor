@@ -17,13 +17,18 @@
         <div class="@Css.Menu.Backdrop" @onclick="Close"></div>
 
         <div class="@Css.Menu.Popover" role="menu" @onkeydown="OnKeyDown" @onclick:stopPropagation="true">
-            @if (Items.Count > 0)
+            @if (Items.Count > 0 || DisabledItems.Count > 0)
             {
                 <div class="@Css.Menu.Group">
                     @foreach (MenuItem item in Items)
                     {
                         <button type="button" class="@Css.Menu.Item" role="menuitem"
                                 @onclick="() => InvokeAsync(item)">@item.Label</button>
+                    }
+                    @* 지금은 할 수 없는 액션 — 항목을 감추지 않고 왜 못 하는지를 남긴다 *@
+                    @foreach (string label in DisabledItems)
+                    {
+                        <span class="@Css.Menu.ItemDisabled" role="menuitem" aria-disabled="true">@label</span>
                     }
                 </div>
             }
@@ -47,6 +52,10 @@
                 @foreach (MenuItem item in Items)
                 {
                     <button type="button" class="@Css.Menu.SheetItem" @onclick="() => InvokeAsync(item)">@item.Label</button>
+                }
+                @foreach (string label in DisabledItems)
+                {
+                    <span class="@Css.Menu.SheetItemDisabled" aria-disabled="true">@label</span>
                 }
                 @foreach (MenuItem item in DestructiveItems)
                 {
@@ -73,6 +82,11 @@
     /// <summary>삭제 등 파괴 액션 — 항상 맨 아래·레드로 렌더된다. 확인 모달은 호출부 책임.</summary>
     [Parameter]
     public List<MenuItem> DestructiveItems { get; set; } = new();
+
+    /// <summary>지금은 할 수 없는 액션의 라벨("신청 처리 중" 등). 감추지 않고 비활성으로 두어
+    /// 왜 못 하는지를 남긴다 — 사라지면 사용자는 기능이 없는 줄 안다.</summary>
+    [Parameter]
+    public List<string> DisabledItems { get; set; } = new();
 
     // 동시에 하나만 열린다 — 다른 인스턴스가 열리면 자기를 닫는다
     private static event Action? OnAnyOpened;

@@ -38,5 +38,17 @@ namespace PlayGround.Application.Interfaces
         /// 팀 미존재·없는 대회는 Success(null) — 호출자가 NotFound로 변환한다.
         /// </summary>
         Task<Result<Guid?>> CreateMatchResultByManagerAsync(Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default);
+
+        /// <summary>
+        /// 기록 수정 신청 생성. 남의 경기·친선경기·중복 신청은 전부 Success(null) —
+        /// 프로시저가 사유를 구분하지 않고 거부하므로 호출자도 구분해 알리지 않는다.
+        /// </summary>
+        Task<Result<Guid?>> CreateRecordCorrectionAsync(Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default);
+
+        /// <summary>내가 올린 수정 신청 목록. 없으면 빈 목록 — 에러가 아니다.</summary>
+        Task<Result<RecordCorrectionsResponse>> GetRecordCorrectionsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
+        /// <summary>수정 신청 취소(소프트 삭제). 접수 상태가 아니거나 내 것이 아니면 Success(false).</summary>
+        Task<Result<bool>> CancelRecordCorrectionAsync(Guid managerUserId, Guid correctionId, CancellationToken cancellation = default);
     }
 }

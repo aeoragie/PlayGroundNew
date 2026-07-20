@@ -148,6 +148,57 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>공식 기록 수정 신청 생성. 남의 경기·친선경기·중복 신청은 403 — 사유를 구분해 알리지 않는다.</summary>
+        /// <remarks>
+        /// **심사·반영 엔드포인트는 여기에 만들지 않는다** — 주최측(대회 운영 서비스)이 DB를 공유해 처리한다
+        /// (설계 결정 6·7). PlayGround가 제공하는 것은 생성·조회·취소뿐이다.
+        /// </remarks>
+        [HttpPost("me/corrections")]
+        public async Task<Envelope<Guid>> CreateMyRecordCorrectionAsync(
+            [FromBody] CreateRecordCorrectionRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<Guid>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<Guid> result = await mGateway.AskAsync<Guid>(
+                ActorNames.SoccerTeamProfile, new CreateSoccerRecordCorrectionMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>내가 올린 기록 수정 신청 목록.</summary>
+        [HttpGet("me/corrections")]
+        public async Task<Envelope<RecordCorrectionsResponse>> GetMyRecordCorrectionsAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<RecordCorrectionsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<RecordCorrectionsResponse> result = await mGateway.AskAsync<RecordCorrectionsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerRecordCorrectionsMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>신청 취소 — 접수 상태의 내 신청만. 심사가 끝난 건은 취소할 수 없다.</summary>
+        [HttpPost("me/corrections/{correctionId:guid}/cancel")]
+        public async Task<Envelope<bool>> CancelMyRecordCorrectionAsync(
+            Guid correctionId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new CancelSoccerRecordCorrectionMessage(userId, correctionId), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/videos")]
         public async Task<Envelope<TeamVideosResponse>> GetMyTeamVideosAsync(CancellationToken cancellation)
         {

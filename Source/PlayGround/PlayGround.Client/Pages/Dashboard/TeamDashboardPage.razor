@@ -3,11 +3,15 @@
 @using System.Security.Claims
 @using PlayGround.Client.Components.Dashboard
 @using PlayGround.Client.Components.Dashboard.Mobile
+@using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
+@using PlayGround.Domain.Soccer
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject TeamClient Teams
+@inject ToastService Toasts
+@inject ConfirmService Confirm
 
 <PageTitle>팀 대시보드 — PlayGround</PageTitle>
 
@@ -43,7 +47,10 @@
                         <ChildContent>
                             <MatchResultsSection Data="@(mMatches!)" TeamName="@(mInfo?.Profile.TeamName ?? "")"
                                                  Segment="@CurrentSegment" OnSegmentChanged="ApplySegment"
-                                                 OnAddResult="OpenResultFormAsync" />
+                                                 OnAddResult="OpenResultFormAsync"
+                                                 PendingCorrectionMatchIds="@PendingCorrectionMatchIds"
+                                                 OnRequestCorrection="OpenCorrectionForm"
+                                                 Corrections="@CorrectionList" OnCancelCorrection="CancelCorrectionAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -105,7 +112,10 @@
                         <MobileMatchSection ActiveSection="@CurrentSection" Matches="@(mMatches!)" Videos="@(mVideos!)"
                                             TeamName="@(mInfo?.Profile.TeamName ?? "")"
                                             Segment="@CurrentSegment" OnSegmentChanged="ApplySegment"
-                                            OnAddResult="OpenResultFormAsync" />
+                                            OnAddResult="OpenResultFormAsync"
+                                            PendingCorrectionMatchIds="@PendingCorrectionMatchIds"
+                                            OnRequestCorrection="OpenCorrectionForm"
+                                            Corrections="@CorrectionList" OnCancelCorrection="CancelCorrectionAsync" />
                     </ChildContent>
                 </LoadingGate>
                 break;
@@ -134,6 +144,10 @@
 @* 팀 정보 수정 — 저장하면 공개 홈페이지도 같은 데이터를 읽으므로 즉시 반영된다 *@
 <TeamInfoEditDialog @bind-IsOpen="mInfoFormOpen" Info="@mInfo" OnSaved="ReloadInfoAsync" />
 
+@* 기록 수정 신청 — 여기서 기록이 바뀌지 않는다. 주최측에 전달될 뿐이다(설계 결정 7) *@
+<CorrectionFormDialog @bind-IsOpen="mCorrectionFormOpen" Match="@mCorrectionMatch"
+                      TeamName="@(mInfo?.Profile.TeamName ?? "우리 팀")" OnSubmitted="LoadCorrectionsAsync" />
+
 @code {
     [Parameter]
     public string? Section { get; set; }
@@ -158,6 +172,20 @@
 
     private bool mResultFormOpen;
     private bool mInfoFormOpen;
+
+    // 기록 수정 신청 — 목록은 경기 섹션과 함께 읽는다(같은 화면에 붙어 있다)
+    private RecordCorrectionsResponse? mCorrections;
+    private bool mCorrectionFormOpen;
+    private TeamMatchDto? mCorrectionMatch;
+
+    private List<RecordCorrectionDto> CorrectionList => mCorrections?.Corrections ?? new List<RecordCorrectionDto>();
+
+    /// <summary>미처리(접수) 신청이 걸린 경기 — 그 행은 중복 신청을 막는다.</summary>
+    private HashSet<Guid> PendingCorrectionMatchIds =>
+        CorrectionList
+            .Where(c => c.Status == nameof(SoccerCorrectionStatus.Pending))
+            .Select(c => c.MatchId)
+            .ToHashSet();
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
@@ -218,6 +246,12 @@
             if (!mVideosRequested)
             {
                 await LoadVideosAsync();
+            }
+
+            // 신청 목록은 경기 결과 화면 안에 붙어 있어 같이 읽는다 (없으면 렌더되지 않는다)
+            if (mCorrections is null)
+            {
+                await LoadCorrectionsAsync();
             }
         }
     }
@@ -282,6 +316,48 @@
         mMatchesFailed = false;
         mMatches = await Teams.GetTeamMatchesAsync(DateTime.Now.Year);
         mMatchesFailed = mMatches is null;
+    }
+
+    //.// 기록 수정 신청 — 진입점이 경기 행이라 경기 섹션과 같은 시점에 읽는다
+
+    private async Task LoadCorrectionsAsync()
+    {
+        mCorrections = await Teams.GetRecordCorrectionsAsync();
+    }
+
+    private void OpenCorrectionForm(TeamMatchDto match)
+    {
+        mCorrectionMatch = match;
+        mCorrectionFormOpen = true;
+    }
+
+    // 취소는 되돌릴 수 없다(신청이 사라진다) — 확인을 받는다
+    private async Task CancelCorrectionAsync(RecordCorrectionDto correction)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "이 수정 신청을 취소할까요?",
+            Description = $"{CorrectionListSection.SummaryOf(correction)} — 주최측에 전달된 신청이 철회돼요.",
+            ConfirmLabel = "신청 취소",
+            CancelLabel = "닫기",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        CorrectionSaveResult result = await Teams.CancelRecordCorrectionAsync(correction.CorrectionId);
+        if (!result.Success)
+        {
+            Toasts.ShowError(result.Error ?? "취소하지 못했어요.", "재시도", () => CancelCorrectionAsync(correction));
+            return;
+        }
+
+        await LoadCorrectionsAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess("수정 신청을 취소했어요.");
     }
 
     private async Task LoadVideosAsync()

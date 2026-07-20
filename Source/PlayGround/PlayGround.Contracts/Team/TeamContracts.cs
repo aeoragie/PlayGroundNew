@@ -330,4 +330,52 @@ namespace PlayGround.Contracts.Team
         public string Url { get; set; } = string.Empty;
         public string? Description { get; set; }
     }
+
+    //.// 공식 기록 수정 신청 (Design.RecordCorrection)
+    // PlayGround는 생성·조회·취소만 한다 — 심사·반영은 주최측(대회 운영 서비스) 몫이다(설계 결정 6·7).
+
+    /// <summary>기록 수정 신청 요청. **1건 1항목** — 여러 오류는 신청을 여러 건 올린다.</summary>
+    public class CreateRecordCorrectionRequest
+    {
+        public Guid MatchId { get; set; }
+
+        /// <summary>SoccerCorrectionField 멤버 이름 ('Score' | 'GoalAssist' | 'Appearance' | 'Other').</summary>
+        public string FieldType { get; set; } = string.Empty;
+
+        /// <summary>신청 시점의 기록 — 심사 시 대조용. 화면이 자동으로 채운다.</summary>
+        public string? CurrentValue { get; set; }
+
+        public string RequestedValue { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+
+    public class RecordCorrectionsResponse
+    {
+        public List<RecordCorrectionDto> Corrections { get; set; } = new();
+    }
+
+    /// <summary>신청 한 건. 요약 문구("리그 12R 스코어 3:1 → 3:2")는 클라이언트 조립.</summary>
+    public class RecordCorrectionDto
+    {
+        public Guid CorrectionId { get; set; }
+        public Guid MatchId { get; set; }
+        public string FieldType { get; set; } = string.Empty;
+        public string? CurrentValue { get; set; }
+        public string RequestedValue { get; set; } = string.Empty;
+        public string? Description { get; set; }
+
+        /// <summary>SoccerCorrectionStatus 멤버 이름 ('Pending' | 'Accepted' | 'Rejected').</summary>
+        public string Status { get; set; } = string.Empty;
+
+        /// <summary>반려 시 주최측이 남긴 사유 — 반려 행에는 반드시 표시한다.</summary>
+        public string? RejectReason { get; set; }
+
+        public DateTime RequestedAt { get; set; }
+        public DateTime? ReviewedAt { get; set; }
+
+        /// <summary>경기 맥락 — "리그 12R · vs 강북 드래곤즈" 조립용.</summary>
+        public string? TournamentName { get; set; }
+        public string OpponentName { get; set; } = string.Empty;
+        public DateTime? MatchedAt { get; set; }
+    }
 }

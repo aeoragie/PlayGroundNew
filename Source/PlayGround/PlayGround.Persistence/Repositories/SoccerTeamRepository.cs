@@ -551,6 +551,109 @@ namespace PlayGround.Persistence.Repositories
             return Result<Guid?>.Success(row.MatchId);
         }
 
+        //.// 공식 기록 수정 신청 — 생성·조회·취소만 (심사·반영은 주최측 몫)
+
+        public async Task<Result<Guid?>> CreateRecordCorrectionAsync(
+            Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Record correction requested",
+                ("ManagerUserId", managerUserId), ("MatchId", request.MatchId), ("FieldType", request.FieldType));
+
+            var procedure = new UspCreateSoccerRecordCorrection(this)
+            {
+                ManagerUserId = managerUserId,
+                MatchId = request.MatchId,
+                FieldType = request.FieldType,
+                CurrentValue = request.CurrentValue!,
+                RequestedValue = request.RequestedValue,
+                Description = request.Description!
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerCorrectionCreatedRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Record correction create failed", ("ResultCode", queryResult.ResultCode));
+                return Result<Guid?>.Error(ErrorCode.DatabaseError);
+            }
+
+            var row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                // 남의 경기 / 친선 / 중복 신청 — 프로시저가 사유를 구분하지 않는다
+                Logger.WarnWith("Record correction rejected", ("ManagerUserId", managerUserId), ("MatchId", request.MatchId));
+                return Result<Guid?>.Success(null);
+            }
+
+            Logger.InfoWith("Record correction created", ("CorrectionId", row.CorrectionId));
+            return Result<Guid?>.Success(row.CorrectionId);
+        }
+
+        public async Task<Result<RecordCorrectionsResponse>> GetRecordCorrectionsByManagerAsync(
+            Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Record corrections requested", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerRecordCorrectionsByManager(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerCorrectionRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Record corrections query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<RecordCorrectionsResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            var response = new RecordCorrectionsResponse
+            {
+                Corrections = queryResult.Values1
+                    .Select(c => new RecordCorrectionDto
+                    {
+                        CorrectionId = c.CorrectionId,
+                        MatchId = c.MatchId,
+                        FieldType = c.FieldType,
+                        CurrentValue = NullIfEmpty(c.CurrentValue),
+                        RequestedValue = c.RequestedValue,
+                        Description = NullIfEmpty(c.Description),
+                        Status = c.Status,
+                        RejectReason = NullIfEmpty(c.RejectReason),
+                        RequestedAt = c.CreatedAt,
+                        ReviewedAt = c.ReviewedAt,
+                        TournamentName = NullIfEmpty(c.Name),
+                        // 신청자 관점의 상대 — 우리가 홈이면 원정팀이 상대다
+                        OpponentName = c.HomeTeamId == c.TeamId ? c.AwayTeamName : c.HomeTeamName,
+                        MatchedAt = c.MatchedAt
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Record corrections received",
+                ("ManagerUserId", managerUserId), ("Corrections", response.Corrections.Count));
+
+            return Result<RecordCorrectionsResponse>.Success(response);
+        }
+
+        public async Task<Result<bool>> CancelRecordCorrectionAsync(
+            Guid managerUserId, Guid correctionId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Record correction cancel requested",
+                ("ManagerUserId", managerUserId), ("CorrectionId", correctionId));
+
+            var procedure = new UspCancelSoccerRecordCorrection(this)
+            {
+                ManagerUserId = managerUserId,
+                CorrectionId = correctionId
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerCorrectionCancelRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Record correction cancel failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Record correction cancel completed", ("CorrectionId", correctionId), ("Applied", applied));
+            return Result<bool>.Success(applied);
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

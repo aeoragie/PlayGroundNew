@@ -1,0 +1,292 @@
+@* 공식 기록 수정 신청 — PC 중앙 모달 / 모바일 전체 시트 (Design.RecordCorrection).
+   현재 기록(자동 표시·회색 읽기) → 올바른 기록(입력·네이비) 대비가 이 화면의 핵심이다.
+   **1건 1항목** — 여러 오류는 신청을 여러 건 올린다(심사 단위를 명확히 하기 위해).
+   신청은 주최측에 전달될 뿐 여기서 기록이 바뀌지 않는다 — 문구로 분명히 한다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@using PlayGround.Domain.Soccer
+@inject TeamClient Teams
+@inject ToastService Toasts
+
+@if (IsOpen && Match is not null)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <span class="flex flex-col gap-1 min-w-0">
+                    <h2 class="@Css.MatchForm.Title">기록 수정 신청</h2>
+                    <span class="@Css.MatchForm.Subtitle">@MatchContext</span>
+                </span>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            <CascadingValue Value="@mForm" IsFixed="true">
+                <div class="@Css.MatchForm.Body">
+                    @* 오류 항목 — 4개뿐이라 라디오 카드 격자 *@
+                    <div class="flex flex-col gap-1.5">
+                        <label class="@Css.Form.Label">오류 항목</label>
+                        <div class="@Css.Correction.FieldGrid">
+                            @foreach (SoccerCorrectionField option in FieldOptions)
+                            {
+                                SoccerCorrectionField target = option;
+                                <button type="button" class="@Css.Correction.FieldOption(mField == target)"
+                                        @onclick="() => SelectField(target)">@target.ToLabel()</button>
+                            }
+                        </div>
+                    </div>
+
+                    @* 현재 → 올바른 *@
+                    <div class="flex flex-col gap-1.5">
+                        <label class="@Css.Form.Label">기록</label>
+                        <div class="@Css.Correction.CompareRow">
+                            <div class="@Css.Correction.CurrentBox">
+                                <span class="@Css.Correction.CurrentLabel">현재 기록</span>
+                                <span class="@Css.Correction.CurrentValue">@CurrentValueText</span>
+                            </div>
+                            <svg class="@Css.Correction.CompareArrow" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14M13 6l6 6-6 6"></path>
+                            </svg>
+                            <div class="@Css.Correction.TargetBox">
+                                <span class="@Css.Correction.TargetLabel">올바른 기록</span>
+                                @if (mField == SoccerCorrectionField.Score)
+                                {
+                                    <span class="@Css.Correction.ScoreInputs">
+                                        <input class="@Css.Correction.ScoreInput" inputmode="numeric" maxlength="2"
+                                               aria-label="우리 팀 득점" value="@mTeamScore" @oninput="OnTeamScoreInput" />
+                                        <span class="@Css.Correction.ScoreColon">:</span>
+                                        <input class="@Css.Correction.ScoreInput" inputmode="numeric" maxlength="2"
+                                               aria-label="상대 득점" value="@mOpponentScore" @oninput="OnOpponentScoreInput" />
+                                    </span>
+                                }
+                                else
+                                {
+                                    <input class="@Css.Correction.TargetInput" maxlength="100"
+                                           aria-label="올바른 기록" placeholder="@TargetPlaceholder"
+                                           value="@mRequestedValue" @oninput="OnRequestedInput" />
+                                }
+                            </div>
+                        </div>
+                        @if (mShowErrors && RequestedValue.Length == 0)
+                        {
+                            <span class="@Css.Form.ErrorMessage">@EmptyValueMessage</span>
+                        }
+                        else if (mShowErrors && !IsChanged)
+                        {
+                            <span class="@Css.Form.ErrorMessage">현재 기록과 같아요. 고쳐야 할 값을 적어 주세요.</span>
+                        }
+                    </div>
+
+                    <TextField Label="설명" @bind-Value="mDescription" IsOptional="true" Multiline="true" Rows="3"
+                               MaxLength="500" Placeholder="후반 39분 실점이 기록에서 빠졌어요. 경기 영상 34:20 참고."
+                               Helper="근거가 있으면 심사가 빨라져요. 영상 타임코드나 기록지 내용을 적어 주세요." />
+
+                    @* 여기서 기록이 바뀌지 않는다는 점을 분명히 — 오해하면 반영된 줄 알고 넘어간다 *@
+                    <div class="@NoticeClass" role="note">
+                        신청은 주최측에 전달돼요. 검토 후 반영되며, 결과는 신청 목록에서 확인할 수 있어요.
+                    </div>
+                </div>
+
+                <div class="@Css.MatchForm.Footer">
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                    <SubmitButton Label="신청하기" BusyLabel="신청 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                                  Class="@Css.MatchForm.SubmitWidth" />
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly SoccerCorrectionField[] FieldOptions =
+        [SoccerCorrectionField.Score, SoccerCorrectionField.GoalAssist,
+         SoccerCorrectionField.Appearance, SoccerCorrectionField.Other];
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>신청 대상 경기 — 현재 기록을 여기서 읽어 자동 표시한다.</summary>
+    [Parameter]
+    public TeamMatchDto? Match { get; set; }
+
+    [Parameter]
+    public string TeamName { get; set; } = "우리 팀";
+
+    /// <summary>신청 성공 후 상위가 목록을 다시 읽는다.</summary>
+    [Parameter]
+    public EventCallback OnSubmitted { get; set; }
+
+    private readonly FormFieldContext mForm = new();
+
+    private SoccerCorrectionField mField = SoccerCorrectionField.Score;
+    private string mTeamScore = string.Empty;
+    private string mOpponentScore = string.Empty;
+    private string mRequestedValue = string.Empty;
+    private string? mDescription;
+    private bool mSaving;
+    private bool mShowErrors;
+    private bool mLoaded;
+
+    // 열 때 한 번만 현재 스코어로 채운다 (고칠 자리를 미리 보여 준다)
+    protected override void OnParametersSet()
+    {
+        if (!IsOpen)
+        {
+            mLoaded = false;
+            return;
+        }
+
+        if (mLoaded || Match is null)
+        {
+            return;
+        }
+
+        mLoaded = true;
+        mField = SoccerCorrectionField.Score;
+        mTeamScore = Match.TeamScore.ToString();
+        mOpponentScore = Match.OpponentScore.ToString();
+        mRequestedValue = string.Empty;
+        mDescription = null;
+        mShowErrors = false;
+    }
+
+    private string MatchContext
+    {
+        get
+        {
+            string competition = Match?.TournamentName ?? "공식 경기";
+            return $"{competition} · vs {Match?.OpponentName}";
+        }
+    }
+
+    /// <summary>항목에 따라 "현재 기록"에 보여줄 값이 달라진다.</summary>
+    private string CurrentValueText => mField switch
+    {
+        SoccerCorrectionField.Score => $"{Match?.TeamScore} : {Match?.OpponentScore}",
+        SoccerCorrectionField.GoalAssist => ScorerSummary,
+        SoccerCorrectionField.Appearance => "출전 기록",
+        _ => "현재 기록",
+    };
+
+    // "김민준 ×2, 정하준" — 기록이 없으면 그 사실 자체가 신청 사유일 수 있다
+    private string ScorerSummary
+    {
+        get
+        {
+            List<string> names = (Match?.Events ?? new List<TeamMatchEventDto>())
+                .Where(e => e.EventType != "OwnGoal" && e.PlayerName is not null)
+                .GroupBy(e => e.PlayerName!)
+                .Select(g => g.Count() > 1 ? $"{g.Key} ×{g.Count()}" : g.Key)
+                .ToList();
+
+            return names.Count == 0 ? "기록 없음" : string.Join(", ", names);
+        }
+    }
+
+    private string TargetPlaceholder => mField switch
+    {
+        SoccerCorrectionField.GoalAssist => "김민준 ×2, 정하준",
+        SoccerCorrectionField.Appearance => "박지호 출전 추가",
+        _ => "고쳐야 할 내용",
+    };
+
+    private string EmptyValueMessage => mField == SoccerCorrectionField.Score
+        ? "올바른 스코어를 입력해 주세요."
+        : "올바른 기록을 입력해 주세요.";
+
+    /// <summary>서버로 보낼 최종 값 — 스코어는 두 칸을 합쳐 "3:2" 형태로.</summary>
+    private string RequestedValue => mField == SoccerCorrectionField.Score
+        ? (mTeamScore.Length > 0 && mOpponentScore.Length > 0 ? $"{mTeamScore}:{mOpponentScore}" : string.Empty)
+        : mRequestedValue.Trim();
+
+    private string CurrentStoredValue => mField == SoccerCorrectionField.Score
+        ? $"{Match?.TeamScore}:{Match?.OpponentScore}"
+        : CurrentValueText;
+
+    /// <summary>고친 게 없으면 신청할 이유가 없다 — 빈 신청으로 심사를 낭비시키지 않는다.</summary>
+    private bool IsChanged => RequestedValue != CurrentStoredValue;
+
+    private void SelectField(SoccerCorrectionField field)
+    {
+        mField = field;
+        mShowErrors = false;
+    }
+
+    private void OnTeamScoreInput(ChangeEventArgs args) => mTeamScore = DigitsOf(args.Value?.ToString());
+
+    private void OnOpponentScoreInput(ChangeEventArgs args) => mOpponentScore = DigitsOf(args.Value?.ToString());
+
+    private void OnRequestedInput(ChangeEventArgs args) => mRequestedValue = args.Value?.ToString() ?? string.Empty;
+
+    private static string DigitsOf(string? value) =>
+        new((value ?? string.Empty).Where(char.IsAsciiDigit).Take(2).ToArray());
+
+    private async Task SubmitAsync()
+    {
+        mShowErrors = true;
+
+        if (RequestedValue.Length == 0 || !IsChanged)
+        {
+            return;
+        }
+
+        if (!await mForm.ValidateAllAsync())
+        {
+            return;
+        }
+
+        var request = new CreateRecordCorrectionRequest
+        {
+            MatchId = Match!.MatchId,
+            FieldType = mField.ToString(),
+            CurrentValue = CurrentStoredValue,
+            RequestedValue = RequestedValue,
+            Description = string.IsNullOrWhiteSpace(mDescription) ? null : mDescription!.Trim(),
+        };
+
+        mSaving = true;
+        CorrectionSaveResult result = await Teams.CreateRecordCorrectionAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "신청하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                Toasts.ShowError(result.Error ?? "신청하지 못했어요.");
+            }
+
+            return;
+        }
+
+        Toasts.ShowSuccess("수정 신청을 보냈어요. 주최측 검토 후 반영돼요.");
+        await CloseAsync();
+        await OnSubmitted.InvokeAsync();
+    }
+
+    private Task CancelAsync() => CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        mLoaded = false;
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+
+    private const string NoticeClass =
+        "rounded-xl bg-surface-soft border border-border px-3.5 py-3 " +
+        "text-[12px] text-text-body leading-[1.6] break-keep";
+}

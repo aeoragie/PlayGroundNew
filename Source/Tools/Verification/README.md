@@ -29,11 +29,23 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `perm-b4.js` | B4 권한 4종(보호자/팀 관리자/제3자 2종) + 외부 URL 거부 |
 | `shot-b5.js` | B5 친선 행 마킹 · 세그먼트 URL 동기화 · 요약 공식만 |
 | `sql-b5.sql` | B5 집계 경계 — 친선을 리그 스코프에 넣어도 순위표 무변화(양방향) |
+| `api-b6.js` | B6 신청 경계 — 중복·친선·남의 경기 거부 / 취소 후 재신청 |
+| `shot-b6.js` | B6 진입점(친선 행 ⋯ 0건)·신청 폼·중복 시 "신청 처리 중"·취소 |
+| `sql-b6.sql` | B6 상태 3종 심기 — **주최측이 채우는 값을 흉내 낸다** (아래 참고) |
+| `shot-b6-status.js` | B6 반영·반려 렌더 + 반려 사유 표시 (sql-b6.sql 실행 후) |
 
-`sql-b5.sql`만 sqlcmd로 돌린다:
+`.sql`은 sqlcmd로 돌린다:
 
 ```powershell
 sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -E -b -f 65001 -i sql-b5.sql -W
+```
+
+**`sql-b6.sql`은 성격이 다르다.** PlayGround에는 심사 API가 없어서(설계 결정 6·7 — 공식 기록의
+주체는 주최측) 반영·반려 상태를 앱에서 만들 수 없다. 그 상태의 화면을 보려면 DB에 직접 심어야 하고,
+이 스크립트가 하는 일이 곧 **"우리가 만들지 않기로 한 것"의 범위**다. 끝나면 지운다:
+
+```powershell
+sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -E -Q "DELETE FROM SoccerRecordCorrections"
 ```
 
 ## 검증 계정 (로컬 전용)

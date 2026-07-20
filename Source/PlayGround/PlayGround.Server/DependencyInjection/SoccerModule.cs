@@ -34,6 +34,7 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerTeamMatchesCommand>();
             services.AddScoped<SoccerTeamMatchResultCommand>();
             services.AddScoped<SoccerTeamInfoUpdateCommand>();
+            services.AddScoped<SoccerRecordCorrectionCommand>();
 
             // 업로드 이미지 저장 — 지금은 로컬 디스크, 오브젝트 스토리지로 갈 때 이 줄만 바꾼다
             services.AddSingleton<IImageStorage, LocalImageStorageService>();

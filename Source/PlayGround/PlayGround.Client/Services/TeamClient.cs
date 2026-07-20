@@ -118,6 +118,63 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>기록 수정 신청 목록 조회. 미인증·오류 시 null.</summary>
+        public async Task<RecordCorrectionsResponse?> GetRecordCorrectionsAsync()
+        {
+            try
+            {
+                Envelope<RecordCorrectionsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<RecordCorrectionsResponse>>("api/soccer/team/me/corrections");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>기록 수정 신청 생성. 거부 사유는 서버가 구분해 주지 않는다(남의 경기·친선·중복).</summary>
+        public async Task<CorrectionSaveResult> CreateRecordCorrectionAsync(CreateRecordCorrectionRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me/corrections", request);
+                Envelope<Guid>? envelope = await response.Content.ReadFromJsonAsync<Envelope<Guid>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new CorrectionSaveResult(true, null);
+                }
+
+                // Envelope.Message는 영어 진단 문구라 사용자에게 보여주지 않는다
+                return new CorrectionSaveResult(false, "신청하지 못했어요. 이미 처리 중인 신청이 있는지 확인해 주세요.");
+            }
+            catch
+            {
+                return new CorrectionSaveResult(false, "신청하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>기록 수정 신청 취소 — 접수 상태만 가능.</summary>
+        public async Task<CorrectionSaveResult> CancelRecordCorrectionAsync(Guid correctionId)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync(
+                    $"api/soccer/team/me/corrections/{correctionId}/cancel", new { });
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new CorrectionSaveResult(true, null);
+                }
+
+                return new CorrectionSaveResult(false, "취소하지 못했어요. 이미 심사가 시작됐을 수 있어요.");
+            }
+            catch
+            {
+                return new CorrectionSaveResult(false, "취소하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
         /// <summary>본인 팀 경기영상 목록 조회. 미인증·오류 시 null.</summary>
         public async Task<TeamVideosResponse?> GetTeamVideosAsync()
         {
@@ -196,6 +253,9 @@ namespace PlayGround.Client.Services
     /// IsNetworkError로 "입력이 잘못됨"(→ 인라인)과 "요청 실패"(→ 토스트+재시도)를 구분한다.
     /// </remarks>
     public record MatchResultSaveResult(bool Success, string? Error, bool IsNetworkError = false);
+
+    /// <summary>기록 수정 신청 결과. 거부 사유(남의 경기·친선·중복)는 서버가 구분해 주지 않는다.</summary>
+    public record CorrectionSaveResult(bool Success, string? Error, bool IsNetworkError = false);
 
     /// <summary>Slug는 저장 후 "공개홈 보기"로 바로 이동하기 위한 값.</summary>
     public record TeamInfoSaveResult(bool Success, string? Slug, string? Error, bool IsNetworkError = false);

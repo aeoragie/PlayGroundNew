@@ -36,6 +36,11 @@ namespace PlayGround.Client.Styles
                 "bg-transparent border-0 w-full text-left cursor-pointer whitespace-nowrap " +
                 "hover:bg-surface-alt transition-colors";
 
+            /// <summary>비활성 항목 — 감추는 대신 왜 못 하는지를 남긴다("신청 처리 중").</summary>
+            public const string ItemDisabled =
+                "flex items-center gap-2.5 px-2.5 py-[9px] rounded-lg text-[12.5px] font-bold text-text-faint " +
+                "whitespace-nowrap cursor-default select-none";
+
             public const string ItemDestructive =
                 "flex items-center gap-2.5 px-2.5 py-[9px] rounded-lg text-[12.5px] font-bold text-danger " +
                 "bg-transparent border-0 w-full text-left cursor-pointer whitespace-nowrap " +
@@ -57,6 +62,10 @@ namespace PlayGround.Client.Styles
             public const string SheetItem =
                 "flex items-center min-h-12 px-1 text-sm font-bold text-navy-deep bg-transparent border-0 " +
                 "border-b border-surface-soft w-full text-left cursor-pointer whitespace-nowrap";
+
+            public const string SheetItemDisabled =
+                "flex items-center min-h-12 px-1 text-sm font-bold text-text-faint " +
+                "border-b border-surface-soft cursor-default select-none";
 
             public const string SheetItemDestructive =
                 "flex items-center min-h-12 px-1 text-sm font-bold text-danger bg-transparent border-0 " +
