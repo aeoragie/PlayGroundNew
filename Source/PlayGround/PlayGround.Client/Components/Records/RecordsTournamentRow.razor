@@ -1,6 +1,7 @@
 @* 대회/리그 목록 행 — 상태 컬러 바 + 범위 뱃지 + 대회명 + 형식·팀수 + 상태 뱃지 → 클릭 시 상세.
    PC 1줄 / 모바일 2줄(이름 위, 뱃지·메타 아래). 종료 행은 opacity .55 *@
 @using PlayGround.Client.Models
+@using PlayGround.Client.Styles
 @using PlayGround.Contracts.Records
 
 <a href="@Routes.RecordsDetail(Tournament.TournamentId)"
@@ -38,10 +39,13 @@
         _ => "bg-border",
     };
 
-    private string StatusBadgeClass =>
-        "text-[11px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap shrink-0 " +
-        (Status == SoccerTournamentStatus.InProgress ? "text-white bg-teal" : "text-navy bg-surface-icon") +
-        (Status == SoccerTournamentStatus.Completed ? " !text-text-muted" : "");
+    // 상태 뱃지 캡슐 통일 (Design.AvatarBadge): 진행중 teal 틴트 / 예정 네이비 틴트 / 종료 회색
+    private string StatusBadgeClass => "shrink-0 " + Status switch
+    {
+        SoccerTournamentStatus.InProgress => Css.Badge.Positive,
+        SoccerTournamentStatus.Scheduled => Css.Badge.Info,
+        _ => Css.Badge.Neutral,
+    };
 
     private string ScopeBadgeClass =>
         "text-[10.5px] font-bold rounded-md px-[9px] py-[3px] whitespace-nowrap shrink-0 " +

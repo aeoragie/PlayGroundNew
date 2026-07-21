@@ -1,15 +1,17 @@
-@* 선수 프로필 연결(Claim) 상태 뱃지: Claimed(teal) / Pending(오렌지톤) / Unclaimed(회색) *@
+@* 선수 프로필 연결(Claim) 상태 뱃지: Claimed(teal) / Pending(오렌지톤) / Unclaimed(회색)
+   — 시각은 StatusBadge 톤 상수(Design.AvatarBadge 캡슐 통일) *@
+@using PlayGround.Client.Styles
+
 <span class="@BadgeClass">@Status</span>
 
 @code {
     [Parameter, EditorRequired]
     public SoccerClaimStatus Status { get; set; }
 
-    private string BadgeClass =>
-        "text-[11.5px] font-bold rounded-full px-[11px] py-1 w-fit whitespace-nowrap " + Status switch
-        {
-            SoccerClaimStatus.Claimed => "text-teal-ink bg-teal/[.12]",
-            SoccerClaimStatus.Pending => "text-orange-ink bg-surface-orange-badge",
-            _ => "text-text-muted bg-surface-icon",
-        };
+    private string BadgeClass => Status switch
+    {
+        SoccerClaimStatus.Claimed => Css.Badge.Positive,
+        SoccerClaimStatus.Pending => Css.Badge.Pending,
+        _ => Css.Badge.Neutral,
+    };
 }

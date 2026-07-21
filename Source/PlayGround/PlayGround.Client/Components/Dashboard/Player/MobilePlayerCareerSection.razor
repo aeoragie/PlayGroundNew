@@ -32,11 +32,11 @@
                             <span class="text-sm font-extrabold text-navy-deep break-keep">@entry.TeamName</span>
                             @if (entry.IsCurrent)
                             {
-                                <span class="text-[10px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2 py-0.5 whitespace-nowrap">현재 소속</span>
+                                <span class="@Css.Badge.Positive">현재 소속</span>
                             }
                             @if (entry.BadgeLabel is not null)
                             {
-                                <span class="text-[10px] font-bold text-orange-ink bg-surface-orange border border-orange/40 rounded-full px-2 py-0.5 whitespace-nowrap">@entry.BadgeLabel</span>
+                                <span class="@Css.Badge.Pending">@entry.BadgeLabel</span>
                             }
                         </span>
                         <span class="text-[11.5px] text-text-body whitespace-nowrap">@PlayerCareerSection.MetaLine(entry)</span>

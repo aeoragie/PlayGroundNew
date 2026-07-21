@@ -1,5 +1,6 @@
 @* 모집 탭(PC): 모집중 공고 카드 + 마감 공고(회색 .75) + 문의 카드 — SPEC.TEAMPUBLICHOME §④
    "지원하기"·"입단 문의 남기기"는 지원·문의 플로우 미구현이라 무동작 버튼 (# 링크 금지 — 랜딩 오이동 방지). *@
+@using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-4">
@@ -15,7 +16,7 @@
                     <div class="bg-white border-1.5 border-border rounded-2xl p-[26px] flex flex-col gap-3">
                         <div class="flex items-center gap-[9px]">
                             <span class="text-[16.5px] font-extrabold text-navy-deep">@item.Title</span>
-                            <span class="text-[11px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2.5 py-[3px] whitespace-nowrap">모집중</span>
+                            <span class="@Css.Badge.Pending">모집중</span>
                         </div>
                         <p class="m-0 text-[13.5px] text-text-body leading-[1.7] break-keep">@item.Description</p>
                         @if (item.Conditions.Count > 0 || item.DeadlineDate is not null)
@@ -39,7 +40,7 @@
                     <div class="bg-surface-soft border-1.5 border-border rounded-2xl p-[26px] flex flex-col gap-3 opacity-75">
                         <div class="flex items-center gap-[9px]">
                             <span class="text-[16.5px] font-extrabold text-navy-deep">@item.Title</span>
-                            <span class="text-[11px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">마감</span>
+                            <span class="@Css.Badge.Neutral">마감</span>
                         </div>
                         <p class="m-0 text-[13.5px] text-text-body leading-[1.7] break-keep">@item.Description</p>
                     </div>

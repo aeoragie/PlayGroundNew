@@ -65,7 +65,8 @@
                         <p class="@Css.Claim.Subtitle">@(mCard.TeamName)@(SubjectParticle(mCard.TeamName)) 등록한 선수 정보예요.</p>
                     </div>
                     <div class="@Css.Claim.PlayerCard">
-                        <span class="@Css.Claim.PlayerAvatar">@InitialOf(mCard.Name)</span>
+                        @* 선수 = 개인 teal (Design.AvatarBadge 유형 색 — dc의 네이비에서 카탈로그로 통일) *@
+                        <Avatar Name="@mCard.Name" Size="56" Class="flex-none" />
                         <span class="flex flex-col gap-[3px] flex-1 min-w-0">
                             <span class="text-base font-extrabold text-navy-deep whitespace-nowrap">@mCard.Name</span>
                             @if (PlayerMeta is not null)
@@ -107,7 +108,7 @@
                         <p class="@Css.Claim.Subtitle">@mRequest.TeamName 관리자에게 요청을 보냈어요.<br />승인되면 알림으로 알려드릴게요. 보통 1~2일 안에 처리돼요.</p>
                     </div>
                     <div class="@Css.Claim.SummaryCard">
-                        <span class="@Css.Claim.SummaryAvatar">@InitialOf(mRequest.PlayerName)</span>
+                        <Avatar Name="@mRequest.PlayerName" Size="44" Class="flex-none" />
                         <span class="flex flex-col gap-0.5 flex-1 min-w-0">
                             <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@mRequest.PlayerName · 보호자(@RelationLabel(ParseRelation(mRequest.Relation)))</span>
                             <span class="text-[11.5px] text-text-muted whitespace-nowrap">@RequestedAtText 요청</span>

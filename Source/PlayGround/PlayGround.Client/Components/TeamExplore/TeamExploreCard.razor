@@ -14,7 +14,8 @@
         }
         @if (Team.IsRecruiting)
         {
-            <span class="absolute top-2.5 right-3 text-[10px] md:text-[10.5px] font-bold text-white bg-orange rounded-full px-2.5 py-[3px] whitespace-nowrap">모집중</span>
+            @* 오렌지 채움은 카운트 뱃지 전용 (Design.AvatarBadge) — 커버 위도 대기·주의 캡슐 톤으로 통일 *@
+            <span class="@($"absolute top-2.5 right-3 {Css.Badge.Pending}")">모집중</span>
         }
     </div>
     <div class="px-[15px] md:px-[18px] pb-[15px] md:pb-[18px] flex flex-col gap-2.5 md:gap-[11px]">
@@ -34,7 +35,7 @@
                     <span class="text-[14.5px] md:text-[15.5px] font-extrabold whitespace-nowrap overflow-hidden text-ellipsis">@Team.TeamName</span>
                     @if (Team.IsVerified)
                     {
-                        <span class="text-[9.5px] md:text-[10px] font-bold text-orange-ink bg-surface-orange rounded-full px-2 py-0.5 whitespace-nowrap shrink-0">✓ 인증팀</span>
+                        <span class="@($"{Css.Badge.Positive} shrink-0")">✓ 인증팀</span>
                     }
                 </span>
                 @if (Meta.Length > 0)

@@ -17,15 +17,8 @@ namespace PlayGround.Client.Styles
             public const string CardTitle =
                 "text-base font-extrabold text-navy-deep";
 
-            // teal 틴트 — "공개 홈페이지 노출중" 등
-            public const string BadgeTeal =
-                "text-[11.5px] font-bold text-teal-ink bg-teal/[.12] border border-teal/[.35] " +
-                "rounded-full px-[11px] py-[3px] whitespace-nowrap";
-
-            // orange 틴트 — 인증팀 · Pending
-            public const string BadgeOrange =
-                "text-[11.5px] font-bold text-orange-ink bg-surface-orange-badge border border-orange/40 " +
-                "rounded-full px-2.5 py-[3px] whitespace-nowrap";
+            // teal 틴트 — "공개 홈페이지 노출중" 등. 상태 뱃지 캡슐 통일 (Design.AvatarBadge)
+            public const string BadgeTeal = Badge.Positive;
 
             public const string BadgeGray =
                 "text-[11.5px] font-bold text-text-strong bg-surface-icon " +

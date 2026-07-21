@@ -74,6 +74,9 @@
 
   /* 알림 센터 — 미처리 액션형 카드 강조 배경 (Design.ClaimFlow 알림 절) */
   --color-surface-action: 255 253 251;     /* #fffdfb */
+
+  /* 상태 뱃지 패·오류 톤 배경 (Design.AvatarBadge — 텍스트는 danger) */
+  --color-surface-danger-badge: 253 236 235; /* #fdeceb */
 }
 
 @tailwind base;

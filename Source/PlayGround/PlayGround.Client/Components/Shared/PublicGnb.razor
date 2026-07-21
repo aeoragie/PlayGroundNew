@@ -36,7 +36,9 @@
                 @* 아바타 드롭다운 — 대시보드 / 설정 / 로그아웃 (Design.Navigation GNB 매트릭스) *@
                 <div class="relative">
                     <button type="button" @onclick="ToggleMenu" aria-haspopup="true" aria-expanded="@mMenuOpen"
-                            class="w-[30px] h-[30px] rounded-full bg-teal flex items-center justify-center text-[12px] font-extrabold text-white border-0 cursor-pointer">@InitialOf(context.User)</button>
+                            class="p-0 bg-transparent border-0 cursor-pointer flex">
+                        <Avatar Name="@InitialOf(context.User)" Size="32" />
+                    </button>
 
                     @if (mMenuOpen)
                     {

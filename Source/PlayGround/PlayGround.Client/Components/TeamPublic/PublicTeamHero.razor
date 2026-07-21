@@ -1,5 +1,6 @@
 @* 팀 히어로: 커버 사진(그라디언트 오버레이) + 엠블럼(커버와 겹침) + 팀명·인증 뱃지·메타 + PC CTA(입단 문의·공유).
    텍스트 블록은 커버 아래 흰 배경에서 시작 — relative+z-index로 엠블럼이 커버 뒤로 깔리는 버그 방지 (SPEC) *@
+@using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
 
 <section class="relative">
@@ -19,7 +20,8 @@
                 <h1 class="m-0 text-xl md:text-[30px] font-extrabold tracking-[-.02em] text-navy-deep whitespace-nowrap">@Profile.TeamName</h1>
                 @if (Profile.IsVerified)
                 {
-                    <span class="text-[10.5px] md:text-xs font-bold text-orange-ink bg-surface-orange border border-orange/40 rounded-full px-[9px] py-[3px] md:px-3 md:py-1 whitespace-nowrap">✓ 인증팀</span>
+                    @* 인증팀 = ✓+teal 톤 고정 (Design.AvatarBadge — 기존 오렌지 톤은 카탈로그 위반이라 교정) *@
+                    <span class="@Css.Badge.Positive">✓ 인증팀</span>
                 }
             </div>
             @if (Meta.Length > 0)

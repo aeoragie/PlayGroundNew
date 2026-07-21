@@ -29,7 +29,7 @@
                     else
                     {
                         <span class="w-full h-full flex items-center justify-center">
-                            <InitialAvatar Name="@Info.Profile.Name" Size="44" />
+                            <Avatar Name="@Info.Profile.Name" Size="44" />
                         </span>
                     }
                 </div>
@@ -39,7 +39,7 @@
                     <span class="text-lg font-extrabold text-navy-deep whitespace-nowrap">@Info.Profile.Name</span>
                     @if (Info.Family.Any(m => m.HasAccount))
                     {
-                        <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] border border-teal/[.35] rounded-full px-[9px] py-0.5 whitespace-nowrap">가족 연결됨</span>
+                        <span class="@Css.Badge.Positive">가족 연결됨</span>
                     }
                 </div>
                 <div class="flex flex-col gap-[5px]">
@@ -96,18 +96,18 @@
             @foreach (PlayerFamilyMemberDto member in Info.Family)
             {
                 <div class="flex items-center gap-[11px]">
-                    <span class="w-9 h-9 rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy shrink-0">@(member.MemberName[..1])</span>
+                    <Avatar Name="@member.MemberName" Size="32" Class="shrink-0" />
                     <span class="flex flex-col gap-px flex-1 min-w-0">
                         <span class="text-[12.5px] font-extrabold text-navy-deep whitespace-nowrap">@member.MemberName (@PlayerProfileSection.RoleSuffix(member))</span>
                         <span class="text-[11px] text-text-muted break-keep">@PlayerProfileSection.RoleDescription(member)</span>
                     </span>
                     @if (PlayerProfileSection.IsGuardian(member))
                     {
-                        <span class="text-[10px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] py-[3px] whitespace-nowrap">관리자</span>
+                        <span class="@Css.Badge.Positive">관리자</span>
                     }
                     else
                     {
-                        <span class="text-[10px] font-bold text-text-muted bg-surface-icon rounded-full px-[9px] py-[3px] whitespace-nowrap">열람</span>
+                        <span class="@Css.Badge.Neutral">열람</span>
                     }
                 </div>
             }

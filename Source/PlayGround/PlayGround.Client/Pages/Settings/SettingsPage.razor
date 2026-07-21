@@ -28,7 +28,7 @@
             <span class="text-[13px] font-bold text-white/85 whitespace-nowrap">설정</span>
             <div class="flex-1"></div>
             <a href="@Routes.Dashboard" class="text-[13px] font-bold text-white/75 hover:text-white whitespace-nowrap transition-colors">대시보드로</a>
-            <span class="w-[34px] h-[34px] rounded-full bg-teal flex items-center justify-center text-[13px] font-extrabold text-white flex-none">@mInitial</span>
+            <Avatar Name="@mInitial" Size="32" Class="flex-none" />
         </div>
     </header>
 
@@ -61,7 +61,7 @@
             </a>
             <span class="text-[15px] font-extrabold text-white">설정</span>
             <div class="flex-1"></div>
-            <span class="w-8 h-8 rounded-full bg-teal flex items-center justify-center text-xs font-extrabold text-white flex-none">@mInitial</span>
+            <Avatar Name="@mInitial" Size="32" Class="flex-none" />
         </div>
         <div class="flex gap-0.5 px-3 bg-navy-deep">
             @foreach (SettingsSection section in Enum.GetValues<SettingsSection>())

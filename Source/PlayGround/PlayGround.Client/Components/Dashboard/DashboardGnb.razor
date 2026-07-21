@@ -13,7 +13,7 @@
         </a>
     }
     <NotificationBell ContextLabel="@TeamName" />
-    <span class="w-8 h-8 rounded-full bg-teal flex items-center justify-center text-[13px] font-extrabold text-white">관</span>
+    <Avatar Name="@DisplayName" Size="32" />
 </header>
 
 @code {
@@ -24,4 +24,8 @@
     /// <summary>알림 패널 컨텍스트(팀명). null이면 표시하지 않는다.</summary>
     [Parameter]
     public string? TeamName { get; set; }
+
+    /// <summary>아바타 이니셜용 사용자 표시 이름.</summary>
+    [Parameter]
+    public string? DisplayName { get; set; }
 }

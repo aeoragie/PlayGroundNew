@@ -7,8 +7,10 @@
 -- 되돌리기: 이 파일 맨 아래 ROLLBACK 절을 주석 해제해 다시 실행.
 SET NOCOUNT ON;
 
--- verify-teamadmin-0713 — 이 계정의 UserId는 랜덤 GUID라 이메일로 찾는다(Account DB는 별도라 조인 불가).
-DECLARE @TeamAdmin UNIQUEIDENTIFIER = '55E9A639-83E2-45F8-B9E4-C717C276678F';
+-- verify-teamadmin-0713 — 이 계정의 UserId는 랜덤 GUID라 PC마다 다르다. 실행 전 반드시 확인:
+--   sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -E -Q "SELECT UserId FROM Users WHERE Email='verify-teamadmin-0713@test.local'"
+-- (2026-07-21 스테일 GUID로 삽입해 아무 화면에도 안 뜨는 데이터를 만든 적 있음 — 현재 값으로 갱신해 둠)
+DECLARE @TeamAdmin UNIQUEIDENTIFIER = '7D5432C8-9B94-4011-A028-D59090A6D251';
 DECLARE @HubKid UNIQUEIDENTIFIER = 'E0000000-0000-0000-0000-00000000B001';
 
 PRINT '--- 사전 상태 ---';

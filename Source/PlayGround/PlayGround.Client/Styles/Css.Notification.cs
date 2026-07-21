@@ -23,14 +23,6 @@ namespace PlayGround.Client.Styles
                 "relative w-9 h-9 rounded-[10px] flex items-center justify-center bg-transparent border-0 " +
                 "cursor-pointer text-text-muted hover:text-navy transition-colors";
 
-            public const string BellBadge =
-                "absolute -top-1.5 -right-2 min-w-[17px] h-[17px] px-1 rounded-full bg-orange text-white " +
-                "text-[10.5px] font-extrabold flex items-center justify-center";
-
-            public const string BellBadgeBox =
-                "absolute top-0.5 right-0.5 min-w-[15px] h-[15px] px-0.5 rounded-full bg-orange text-white " +
-                "text-[9.5px] font-extrabold flex items-center justify-center";
-
             //.// 패널 — 벨 아래 카드 (PC 우측 고정 420px / 모바일 좌우 12px)
 
             public const string Overlay = "fixed inset-0 z-[70]";
@@ -106,9 +98,8 @@ namespace PlayGround.Client.Styles
 
             public const string MoveIconViolet = "w-[38px] h-[38px] rounded-full bg-agent/10 flex items-center justify-center flex-none text-agent";
 
-            // 에이전트 관련 알림 병기 뱃지 (Design.ClaimFlow)
-            public const string AgentBadge =
-                "text-[9.5px] font-bold text-agent bg-agent/10 border border-agent/30 rounded-full px-[7px] py-px whitespace-nowrap";
+            // 에이전트 관련 알림 병기 뱃지 — 상태 뱃지 캡슐 통일 (Design.AvatarBadge)
+            public const string AgentBadge = Badge.Agent;
 
             public const string MoveTitle = "text-[13px] font-extrabold text-navy-deep break-keep";
 

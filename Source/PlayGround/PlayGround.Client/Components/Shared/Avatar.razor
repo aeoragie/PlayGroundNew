@@ -1,9 +1,18 @@
-@* 이니셜 아바타 — Design.AvatarBadge. 사진이 없으면 "빈 이미지"가 아니라 항상 이니셜(성 첫 글자 1자).
+@* 아바타 — Design.AvatarBadge. 사진이 없으면 "빈 이미지"가 아니라 항상 이니셜(성 첫 글자 1자).
    배경색은 주체 유형별 고정(랜덤 금지): 팀 네이비 / 개인(선수·보호자) teal / 에이전트 violet.
-   글자 크기 = 지름×0.36, 800. 아바타·뱃지 전면 통일 교체는 Phase C 이후 일괄 — 여기서는 사진 슬롯 폴백만 쓴다. *@
+   크기 5단 = 24(인라인)·32(행)·44(카드)·56(헤더)·84(프로필), 글자 = 지름×0.36 반올림 800.
+   사진은 1:1 원형 크롭 + 1.5px border 보더. *@
 @using PlayGround.Client.Styles
 
-<span class="@($"{Css.Avatar.Base} {ToneClass}")" style="@SizeStyle" aria-hidden="true">@Initial</span>
+@if (!string.IsNullOrEmpty(PhotoUrl))
+{
+    <img src="@PhotoUrl" alt="@(Name ?? "")" style="@SizeStyle"
+         class="@($"rounded-full object-cover border-1.5 border-border shrink-0 {Class}")" />
+}
+else
+{
+    <span class="@($"{Css.Avatar.Base} {ToneClass} {Class}")" style="@SizeStyle" aria-hidden="true">@Initial</span>
+}
 
 @code {
     /// <summary>주체 유형 — 색은 유형이 결정한다(개인은 teal 고정).</summary>
@@ -24,6 +33,14 @@
     /// <summary>지름(px). 카탈로그 5단 = 24·32·44·56·84.</summary>
     [Parameter]
     public int Size { get; set; } = 44;
+
+    /// <summary>사진 — 있으면 1:1 원형 크롭, 없으면 이니셜 (빈 이미지 상태 없음).</summary>
+    [Parameter]
+    public string? PhotoUrl { get; set; }
+
+    /// <summary>배치용 추가 클래스 (반응형 표시 전환 등).</summary>
+    [Parameter]
+    public string? Class { get; set; }
 
     private string ToneClass => Tone switch
     {

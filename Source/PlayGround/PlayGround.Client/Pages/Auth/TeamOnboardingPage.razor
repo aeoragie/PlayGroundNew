@@ -65,7 +65,7 @@
                             <span class="w-[34px] h-[34px] rounded-full bg-surface-icon flex items-center justify-center text-sm font-extrabold text-navy flex-none">@entry.Number</span>
                             <span class="text-[14.5px] font-bold flex-1 text-navy-deep">@entry.Name</span>
                             <span class="text-[13px] text-text-body">@entry.Position</span>
-                            <span class="text-[11px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">Unclaimed</span>
+                            <span class="@Css.Badge.Neutral">Unclaimed</span>
                             <button type="button" @onclick="@(() => State.Roster.Remove(captured))" class="border-0 bg-transparent text-text-faint hover:text-[#e0532f] text-[15px] cursor-pointer p-0.5 transition-colors">✕</button>
                         </div>
                     }

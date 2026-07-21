@@ -64,6 +64,8 @@ module.exports = {
           segment: 'rgb(var(--color-surface-segment) / <alpha-value>)',
           // 알림 센터 미처리 액션형 카드 (Design.ClaimFlow)
           action: 'rgb(var(--color-surface-action) / <alpha-value>)',
+          // 상태 뱃지 패·오류 톤 배경 (Design.AvatarBadge)
+          'danger-badge': 'rgb(var(--color-surface-danger-badge) / <alpha-value>)',
         },
         border: {
           DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',

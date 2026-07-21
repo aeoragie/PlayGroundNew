@@ -37,8 +37,7 @@ namespace PlayGround.Client.Styles
 
             //.// 잠금 — 스위치 대신 "항상 켜짐" 뱃지 (승인형 알림)
 
-            public const string LockedBadge =
-                "text-[10px] font-bold text-text-muted bg-surface-icon rounded-full px-[9px] py-[3px] whitespace-nowrap";
+            public const string LockedBadge = Badge.Neutral; // 상태 뱃지 캡슐 통일 (Design.AvatarBadge)
 
             //.// 계층 — 상위 끄면 하위 그룹 비활성+dimmed (들여쓰기 16px + 좌측 2px 보더)
 

@@ -50,7 +50,7 @@
             {
                 <div class="border border-border rounded-[13px] p-4 flex flex-col gap-2.5">
                     <div class="flex items-center gap-[11px]">
-                        <span class="w-[42px] h-[42px] rounded-full bg-navy-deep flex items-center justify-center text-[15px] font-extrabold text-white shrink-0">@(coach.Name[..1])</span>
+                        <Avatar Name="@coach.Name" Tone="Avatar.AvatarTone.Team" Size="44" Class="shrink-0" />
                         <span class="flex flex-col gap-0.5 flex-1 min-w-0">
                             <span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@coach.Name <span class="text-[11.5px] font-bold text-text-body">@coach.Role</span></span>
                             @if (coach.Career is not null)

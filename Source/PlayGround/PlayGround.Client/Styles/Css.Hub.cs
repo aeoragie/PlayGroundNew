@@ -41,6 +41,7 @@ namespace PlayGround.Client.Styles
             public const string TeamDecor = "absolute -right-10 -top-14 w-[180px] h-[180px] rounded-full bg-white/[.06] pointer-events-none";
             public const string TeamIconBox = "w-12 h-12 md:w-[58px] md:h-[58px] rounded-[14px] bg-white/10 flex items-center justify-center shrink-0";
             public const string TeamName = "m-0 text-[15.5px] md:text-[18px] font-extrabold tracking-[-.01em] whitespace-nowrap";
+            // 다크 네이비 카드 위라 캡슐 틴트가 묻힌다 — 밝은 teal 텍스트 유지 (Records 히어로와 같은 예외)
             public const string TeamVerified = "text-[11px] font-bold text-teal whitespace-nowrap";
             public const string TeamSummary = "m-0 mt-1 text-[12.5px] text-white/70 leading-relaxed break-keep";
             public const string TeamPrimary = "h-[42px] px-5 rounded-btn bg-orange hover:bg-orange-hover text-white text-[13.5px] font-extrabold flex items-center justify-center whitespace-nowrap no-underline transition-colors";

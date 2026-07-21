@@ -1,0 +1,41 @@
+@* 상태 뱃지 캡슐 — Design.AvatarBadge (전 서비스 통일: 10px 700 · radius 99 · 패딩 3×9).
+   **행당 뱃지 1개** — 두 개가 필요하면 하나는 메타 텍스트로 강등한다.
+   톤 6종: 긍정 teal / 대기 오렌지 톤 / 중립 회색 / 정보 네이비 톤 / 에이전트 violet / 패·오류 연레드.
+   조건부 톤이 필요한 자리는 Css.Badge 상수를 직접 써도 된다 (같은 시각 패턴). *@
+@using PlayGround.Client.Styles
+
+<span class="@ToneClass">@ChildContent</span>
+
+@code {
+    public enum BadgeTone
+    {
+        /// <summary>긍정·완료 — 연결됨 · ✓ 인증팀 · 승.</summary>
+        Positive,
+        /// <summary>대기·주의 — 승인 대기 · 모집중.</summary>
+        Pending,
+        /// <summary>중립·잠금 — 항상 켜짐 · 무 · 마감.</summary>
+        Neutral,
+        /// <summary>정보 — 내 팀.</summary>
+        Info,
+        /// <summary>에이전트 전용 violet.</summary>
+        Agent,
+        /// <summary>패·오류.</summary>
+        Negative,
+    }
+
+    [Parameter]
+    public BadgeTone Tone { get; set; } = BadgeTone.Neutral;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string ToneClass => Tone switch
+    {
+        BadgeTone.Positive => Css.Badge.Positive,
+        BadgeTone.Pending => Css.Badge.Pending,
+        BadgeTone.Info => Css.Badge.Info,
+        BadgeTone.Agent => Css.Badge.Agent,
+        BadgeTone.Negative => Css.Badge.Negative,
+        _ => Css.Badge.Neutral,
+    };
+}

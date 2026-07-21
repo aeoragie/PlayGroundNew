@@ -53,6 +53,7 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `sql-agent-seed.sql` | 에이전트 열람 요청 시드 — **에이전트 서비스(프로필·요청 생성)를 흉내 낸다**(sql-b6 성격). 실행마다 Pending 요청 1건, RequestId 출력. 끝나면 SoccerAgent* 4테이블 + ViewRequest 알림 DELETE로 원복 |
 | `api-agent.js` | 열람 승인 API — 알림 지연 생성 · 승인(+30일·로그·알림 읽음) · **재승인/남의 계정/미지 액션 거부** · 거절 · 차단(대기 요청 함께 거절). `node api-agent.js <id1> <id2> <id3>` |
 | `shot-agent.js` | 열람 승인 UI — **FeatureFlags.AgentApproval을 true로 켜고 빌드해야 한다**. phase1: 알림 패널(violet 뱃지) 딥링크→pending(신원·범위·연락처 제외 문구)→승인→카운트다운·모바일 / phase2: (SQL 만료·로그 적재 후) "만료됨"→철회 모달→denied |
+| `shot-avatarbadge.js` | Avatar·CountBadge·StatusBadge 일괄 교체 — 허브(자녀 teal·연결됨 캡슐·벨 99+)·선수단(Claim 캡슐·카드 아바타)·팀 정보(코치 네이비)·경기(승 teal 틴트)·Records(진행중/예정 캡슐)·모바일. 사전: 벨 99+용 알림 105건 삽입(스크립트 헤더 참고), 허브용 sql-hub.sql — **UserId는 PC마다 다르니 파일 헤더의 조회 명령으로 먼저 확인** |
 
 `.sql`은 sqlcmd로 돌린다:
 

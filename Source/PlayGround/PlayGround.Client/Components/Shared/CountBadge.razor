@@ -1,0 +1,13 @@
+@* 카운트 뱃지 — Design.AvatarBadge. **오렌지 유일 허용처**. 0이면 렌더하지 않고(0 표시 금지),
+   100 이상은 "99+". 아이콘 우상단 -4px 오프셋 — 부모가 relative여야 한다. *@
+@using PlayGround.Client.Styles
+
+@if (Count > 0)
+{
+    <span class="@Css.Badge.Count">@(Count > 99 ? "99+" : Count.ToString())</span>
+}
+
+@code {
+    [Parameter]
+    public int Count { get; set; }
+}

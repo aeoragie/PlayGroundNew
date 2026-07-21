@@ -63,8 +63,7 @@ namespace PlayGround.Client.Styles
             public const string LoginRowUnlinked =
                 "flex items-center gap-2.5 md:gap-[11px] border border-dashed border-border rounded-[11px] px-[13px] py-[11px] md:px-[15px] md:py-3";
 
-            public const string LinkedBadge =
-                "text-[10px] md:text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] md:px-2.5 py-[3px] whitespace-nowrap";
+            public const string LinkedBadge = Badge.Positive; // 상태 뱃지 캡슐 통일 (Design.AvatarBadge)
 
             public const string SmallOutlineButton =
                 "h-[30px] md:h-8 px-3 md:px-[13px] border-1.5 border-border rounded-lg bg-white " +
@@ -101,11 +100,9 @@ namespace PlayGround.Client.Styles
                 "w-[38px] h-[38px] md:w-10 md:h-10 rounded-[10px] md:rounded-[11px] bg-agent/[.08] " +
                 "flex items-center justify-center flex-none";
 
-            public const string RoleActiveBadge =
-                "text-[10px] md:text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] md:px-2.5 py-[3px] whitespace-nowrap";
+            public const string RoleActiveBadge = Badge.Positive;
 
-            public const string RolePendingBadge =
-                "text-[10px] md:text-[10.5px] font-bold text-text-muted bg-surface-icon rounded-full px-[9px] md:px-2.5 py-[3px] whitespace-nowrap";
+            public const string RolePendingBadge = Badge.Neutral;
 
             //.// 알림 탭 — 분류 칩 (승인=orange / 경기·모집·리뷰=navy / 열람=violet)
 

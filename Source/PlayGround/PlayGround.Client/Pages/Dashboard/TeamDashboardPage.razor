@@ -17,7 +17,7 @@
 
 @* PC (≥768px): GNB + 사이드바 *@
 <div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
-    <DashboardGnb Slug="@mInfo?.Profile.Slug" TeamName="@mInfo?.Profile.TeamName" />
+    <DashboardGnb Slug="@mInfo?.Profile.Slug" TeamName="@mInfo?.Profile.TeamName" DisplayName="@mUserName" />
     <div class="flex-1 flex items-stretch">
         <TeamDashboardSidebar ActiveSection="@CurrentSection" Team="@mInfo?.Profile" />
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
@@ -176,6 +176,7 @@
     private TeamVideosResponse? mVideos;
     private TeamRecruitmentsResponse? mRecruitments;
     private bool mAuthenticated;
+    private string? mUserName;
     private bool mRosterRequested;
     private bool mMatchesRequested;
     private bool mVideosRequested;
@@ -230,6 +231,7 @@
         }
 
         mAuthenticated = true;
+        mUserName = state.User.Identity?.Name;
         mInfo = await Teams.GetTeamInfoAsync();
 
         // 자리가 틀리면 403이 아니라 허브로 — 계정은 맞고 자리만 틀린 상황이다(Design.Navigation 3).

@@ -287,6 +287,35 @@
   진입점 4곳 이동 · 소속/무소속 분기 · 관리자 본인만 "관리"(남의 팀·게스트 미노출) · 로스터·로그인
   # 링크 0건 · returnUrl 보존 · 허브 PC 3카드/모바일 2카드. 검증 데이터 원복.
 
+### Phase D — AvatarBadge 일괄 교체 완료 (2026-07-21, Design.AvatarBadge)
+
+- **공용 3종 신설** `Components/Shared/`: **Avatar**(유형 고정 색 — 팀 네이비/개인 teal/에이전트 violet,
+  사진 없으면 항상 이니셜 성 첫 글자, 폰트=지름×0.36, 크기 5단 24/32/44/56/84 스냅) ·
+  **CountBadge**(**오렌지 채움 유일 허용처** — 99+ 상한·0이면 렌더 안 함, 벨이 사용) ·
+  **StatusBadge**(캡슐 10px·700·radius 99·패딩 3×9, 톤 6종 = Positive/Pending/Neutral/Info/Agent/Negative).
+  스타일은 `Styles/Css.Badge.cs`, 토큰 신설 `surface-danger-badge`(#fdeceb — 패·오류 연레드).
+  기존 `InitialAvatar`는 삭제하고 전 사용처 치환. AvatarGroup은 사용처가 없어 미구현(YAGNI).
+- **교체 규모 54파일** — 아바타 하드코딩 15곳 + 인라인 뱃지 ~30곳. **기존 Css 뱃지 상수 9종**
+  (Settings.LinkedBadge·RoleActiveBadge·RolePendingBadge / Toggle.LockedBadge / Claim.UnclaimedBadge·
+  PendingBadge / Dashboard.BadgeTeal / Notification.AgentBadge / Hub.TeamVerified)은 **정의만
+  Css.Badge 톤으로 위임**해 사용처 무변경. 승무패(`MatchResultsSection.OutcomeClass`)·ClaimBadge도
+  톤 상수 반환으로 전환. `DashboardGnb`에 `DisplayName` 파라미터 신설(기존 "관" 리터럴 제거).
+- **카탈로그 우선으로 교정한 것** (개별 화면 dc와 어긋나면 카탈로그가 이긴다):
+  ① **✓ 인증팀 = teal**(기존 오렌지 톤은 위반 — 팀 정보·공개홈 히어로·팀 탐색 카드 교정)
+  ② **모집중 = 오렌지 톤**(카탈로그 "대기·주의 = 승인 대기·모집중" — teal에서 교정, 팀 탐색 커버 위
+  오렌지 **채움**도 캡슐 틴트로) ③ 승무패 채움 → 틴트 캡슐(친선 중립 회색은 B5 유지)
+  ④ Records 상태 뱃지: 진행중 teal 채움 → 틴트, 예정 → 네이비 틴트 ⑤ 선수·가족 아바타 navy-deep·회색 → teal.
+- **다크 배경 예외 2곳 유지** — 허브 팀 카드 "✓ 인증팀"(밝은 teal 텍스트)과 Records 히어로 뱃지
+  (흰 반투명)는 네이비 배경 위라 틴트 캡슐이 묻힌다(주석 명시). 대상 아닌 것: 등번호 원·분류 칩
+  (알림 설정·전국/지방·팀 유형 메타)·"N개" 카운트 표기·형식 outline 칩.
+- 검증(`shot-avatarbadge.js` 13 PASS / 0 FAIL): 허브(자녀 teal·"연결됨" 캡슐·**벨 99+ 오렌지**·
+  0건 숨김) · 선수단(Claim 캡슐 규격·카드 뷰 teal 아바타·"선수 사진" 잔재 0) · 팀 정보(코치 네이비) ·
+  경기(승 teal 틴트) · Records(진행중/예정 캡슐) · 모바일. 검증 데이터(알림 105건·허브 자녀) 원복.
+  **함정: `sql-hub.sql`의 하드코딩 UserId가 이전 PC 값이라 아무 화면에도 안 뜨는 데이터가 들어갔었다**
+  — 검증 계정 GUID는 PC마다 다르니 파일 헤더의 조회 명령으로 먼저 확인(파일 갱신해 둠).
+- **미해결**: 계정 메뉴(DropdownMenu §1) 추출은 안 했다 — PublicGnb 인라인 유지(아바타는 교체됨).
+  패 뱃지·종료 대회는 시드에 데이터가 없어 화면 확인 스킵(연레드는 CSS 생성 확인으로 갈음).
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
@@ -306,9 +335,8 @@
    **진학·진로 → 리뷰** 탭(지시 예정). 랜딩 역할 카드 배선(팀→/teams?)은 **팀 탐색의 검색 주체
    (선수·팀·에이전트) 재검토와 함께 보류**. Design.BannerStepper의 **배너 3톤·온보딩 스텝 표시
    교체**는 미착수(스텝퍼 절만 소비됨).
-6. **Phase D — 잔여 패턴**: 별도 단계 없이 화면 작업에 얹는다 (AvatarBadge만 Phase C 후 일괄 교체 1회).
-   그 외 잔여: 온보딩 중복 방지. **DropdownMenu ⋯(OverflowMenu)는 B3에서 만들고 B6가 확장했다**
-   (`DisabledItems`). 남은 건 계정 메뉴(§1) 추출뿐이고 Phase C 아바타 교체 때 함께 한다.
+6. **Phase D — 잔여 패턴**: ~~AvatarBadge 일괄 교체~~ 완료(위). 남은 잔여: 온보딩 중복 방지 ·
+   계정 메뉴(DropdownMenu §1) 추출(PublicGnb 인라인 유지 중 — 아바타는 교체됨).
 
 ### Phase C — 팀 탐색 완료 (2026-07-21, Design.TeamExplore + Design.SearchFilter)
 

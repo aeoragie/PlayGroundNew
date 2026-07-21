@@ -20,7 +20,7 @@
                 <div class="flex gap-2 flex-wrap">
                     @if (Info.Profile.IsVerified)
                     {
-                        <span class="@Css.Dashboard.BadgeOrange">✓ 인증팀</span>
+                        <span class="@Css.Badge.Positive">✓ 인증팀</span>
                     }
                     @if (Info.Profile.TeamType is not null)
                     {
@@ -90,7 +90,7 @@
             {
                 <div class="border border-border rounded-[13px] p-4 flex flex-col gap-[11px]">
                     <div class="flex items-center gap-3">
-                        <span class="w-[42px] h-[42px] rounded-full bg-navy-deep flex items-center justify-center text-base font-extrabold text-white shrink-0">@(coach.Name[..1])</span>
+                        <Avatar Name="@coach.Name" Tone="Avatar.AvatarTone.Team" Size="44" Class="shrink-0" />
                         <span class="flex flex-col gap-0.5 flex-1 min-w-0">
                             <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@coach.Name <span class="text-xs font-bold text-text-body">@coach.Role</span></span>
                             @if (coach.Career is not null)

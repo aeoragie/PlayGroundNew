@@ -237,19 +237,20 @@
         };
 
     /// <summary>친선은 중립 회색 톤 — 공식의 teal/레드와 눈으로 구분된다(뱃지를 늘리지 않고 톤으로).</summary>
+    // 승무패 = 상태 뱃지 캡슐 (Design.AvatarBadge 통일: 승 teal / 무 회색 / 패 연레드).
+    // 친선은 승패 무관 중립 회색 유지 (Design.FriendlyMatch — 행당 뱃지 1개 규칙도 그대로).
     internal static string OutcomeClass(SoccerMatchOutcome outcome, bool isFriendly = false)
     {
-        const string Shape = "text-[12.5px] font-extrabold rounded-lg px-[13px] py-[5px] whitespace-nowrap ";
         if (isFriendly)
         {
-            return Shape + "text-text-muted bg-surface-icon";
+            return Css.Badge.Neutral;
         }
 
-        return Shape + outcome switch
+        return outcome switch
         {
-            SoccerMatchOutcome.Win => "text-white bg-teal",
-            SoccerMatchOutcome.Draw => "text-text-strong bg-surface-icon",
-            _ => "text-white bg-text-muted",
+            SoccerMatchOutcome.Win => Css.Badge.Positive,
+            SoccerMatchOutcome.Draw => Css.Badge.Neutral,
+            _ => Css.Badge.Negative,
         };
     }
 }

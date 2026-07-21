@@ -63,8 +63,7 @@ namespace PlayGround.Client.Styles
             public const string PlayerAvatar =
                 "w-[54px] h-[54px] rounded-full bg-navy-deep flex items-center justify-center text-[19px] font-extrabold text-white flex-none";
 
-            public const string UnclaimedBadge =
-                "text-[10.5px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap";
+            public const string UnclaimedBadge = Badge.Neutral; // 상태 뱃지 캡슐 통일 (Design.AvatarBadge)
 
             public const string RelationButton =
                 "flex-1 h-10 rounded-[10px] text-[13px] font-bold cursor-pointer whitespace-nowrap " +
@@ -89,8 +88,7 @@ namespace PlayGround.Client.Styles
             public const string SummaryAvatar =
                 "w-10 h-10 rounded-full bg-navy-deep flex items-center justify-center text-[15px] font-extrabold text-white flex-none";
 
-            public const string PendingBadge =
-                "text-[10.5px] font-bold text-orange-ink bg-surface-orange-badge rounded-full px-2.5 py-[3px] whitespace-nowrap";
+            public const string PendingBadge = Badge.Pending;
 
             public const string NextCard = "flex items-center gap-2.5 border-1.5 border-border rounded-xl px-[15px] py-[13px] text-left w-full bg-white cursor-pointer";
         }

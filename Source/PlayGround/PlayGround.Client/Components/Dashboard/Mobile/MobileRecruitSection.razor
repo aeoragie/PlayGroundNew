@@ -29,11 +29,11 @@
                     <span class="text-[14.5px] font-extrabold text-navy-deep">@item.Title</span>
                     @if (item.IsOpen)
                     {
-                        <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] py-0.5 whitespace-nowrap">모집중</span>
+                        <span class="@Css.Badge.Pending">모집중</span>
                     }
                     else
                     {
-                        <span class="text-[10.5px] font-bold text-text-muted bg-surface-icon rounded-full px-[9px] py-0.5 whitespace-nowrap">마감</span>
+                        <span class="@Css.Badge.Neutral">마감</span>
                     }
                     <div class="flex-1"></div>
                     <OverflowMenu Target="@item.Title"

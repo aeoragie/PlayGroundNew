@@ -36,7 +36,7 @@
                         else
                         {
                             <span class="w-full h-full flex items-center justify-center">
-                                <InitialAvatar Name="@Info.Profile.Name" Size="56" />
+                                <Avatar Name="@Info.Profile.Name" Size="56" />
                             </span>
                         }
                     </div>
@@ -105,18 +105,19 @@
                 @foreach (PlayerFamilyMemberDto member in Info.Family)
                 {
                     <div class="flex items-center gap-[11px]">
-                        <span class="w-[38px] h-[38px] rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy shrink-0">@(member.MemberName[..1])</span>
+                        @* 가족 구성원 = 개인 teal (Design.AvatarBadge — 기존 회색 원은 유형 색 규칙 위반이라 교정) *@
+                        <Avatar Name="@member.MemberName" Size="32" Class="shrink-0" />
                         <span class="flex flex-col gap-px flex-1 min-w-0">
                             <span class="text-[13px] font-extrabold text-navy-deep whitespace-nowrap">@member.MemberName (@RoleSuffix(member))</span>
                             <span class="text-[11.5px] text-text-muted whitespace-nowrap">@RoleDescription(member)</span>
                         </span>
                         @if (IsGuardian(member))
                         {
-                            <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2.5 py-[3px] whitespace-nowrap">관리자</span>
+                            <span class="@Css.Badge.Positive">관리자</span>
                         }
                         else
                         {
-                            <span class="text-[10.5px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">열람</span>
+                            <span class="@Css.Badge.Neutral">열람</span>
                         }
                     </div>
                 }

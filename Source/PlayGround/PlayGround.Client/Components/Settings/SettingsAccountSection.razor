@@ -7,7 +7,7 @@
     <div class="@($"{Css.Settings.Card} gap-3.5 md:gap-4")">
         @* 프로필 *@
         <div class="flex items-center gap-[13px] md:gap-3.5">
-            <span class="@Css.Settings.ProfileAvatar">@Initial</span>
+            <Avatar Name="@Initial" Size="56" Class="flex-none" />
             <span class="flex flex-col gap-0.5 flex-1 min-w-0">
                 <span class="text-[15px] md:text-base font-extrabold text-navy-deep whitespace-nowrap">@Settings.DisplayName</span>
                 <span class="text-xs md:text-[12.5px] text-text-muted whitespace-nowrap">@Settings.MaskedEmail</span>
