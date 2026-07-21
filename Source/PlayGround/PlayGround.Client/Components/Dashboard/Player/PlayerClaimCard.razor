@@ -19,6 +19,13 @@
     {
         <span role="alert" class="text-xs text-danger break-keep">@mError</span>
     }
+
+    @* 무소속 선수의 팀 탐색 진입 (Design.Navigation 7/21 보강 ②) — 이 카드 자체가 무소속일 때만 뜬다 *@
+    <div class="border-t border-dashed border-border pt-3 flex items-center gap-2.5">
+        <span class="text-xs text-text-muted break-keep flex-1">받은 코드가 없다면 우리 지역 팀을 둘러보세요.</span>
+        <a href="@Routes.TeamExplore"
+           class="h-9 px-3.5 flex items-center rounded-[9px] bg-navy hover:bg-navy-deep text-xs font-bold text-white whitespace-nowrap transition-colors">팀 찾아보기</a>
+    </div>
 </div>
 
 @code {

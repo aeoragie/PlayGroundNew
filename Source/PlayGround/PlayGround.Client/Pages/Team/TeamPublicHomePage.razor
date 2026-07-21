@@ -6,6 +6,7 @@
 @using PlayGround.Contracts.Team
 @inject TeamClient Teams
 @inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
 
 <PageTitle>@(mHome?.Profile.TeamName ?? "팀 홈페이지") — PlayGround</PageTitle>
 
@@ -23,7 +24,7 @@
 else if (mHome is not null)
 {
     <div class="min-h-screen bg-bg text-navy-deep">
-        <PublicTeamGnb Slug="@Slug" TeamName="@mHome.Profile.TeamName" LogoUrl="@mHome.Profile.LogoUrl" />
+        <PublicTeamGnb Slug="@Slug" TeamName="@mHome.Profile.TeamName" LogoUrl="@mHome.Profile.LogoUrl" IsManager="@mHome.IsManager" />
         <PublicTeamHero Profile="@mHome.Profile" AgeGroups="@mAgeGroups" OnInquire="GoRecruit" />
         <PublicTeamTabs Slug="@Slug" Active="@CurrentTab" />
 
@@ -130,6 +131,10 @@ else if (mHome is not null)
 
     protected override async Task OnInitializedAsync()
     {
+        // 게스트도 허용하는 공개 화면이지만, 로그인 상태면 인증을 먼저 확정해야 조회에 토큰이 실린다
+        // (관리자 본인 판정 IsManager — 헤더 레이스가 있으면 관리자가 게스트로 보인다)
+        await AuthProvider.GetAuthenticationStateAsync();
+
         mHome = await Teams.GetTeamHomeAsync(Slug);
         mLoaded = true;
 

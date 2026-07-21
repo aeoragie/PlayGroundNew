@@ -176,7 +176,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<TeamRosterResponse>.Success(response);
         }
 
-        public async Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, CancellationToken cancellation = default)
+        public async Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Team public home requested", ("Slug", slug));
 
@@ -203,6 +203,8 @@ namespace PlayGround.Persistence.Repositories
 
             var response = new TeamPublicHomeResponse
             {
+                // 관리자 본인이 자기 팀을 열람 중인지 — ManagerUserId 자체는 계속 비노출, bool만 파생
+                IsManager = viewerUserId is not null && team.ManagerUserId == viewerUserId,
                 Profile = new TeamPublicProfileDto
                 {
                     TeamName = team.TeamName,

@@ -32,6 +32,8 @@
 
         <div class="flex flex-col md:flex-row gap-2.5 md:gap-3.5 mt-1.5 md:mt-2 w-full max-w-[300px] md:w-auto md:max-w-none">
             <PillButton Href="@Routes.Login" Variant="PillVariant.Orange" Size="PillSize.Large" Class="pointer-events-auto [text-shadow:none]">무료로 시작하기</PillButton>
+            @* 게스트 가치 체험 동선 (Design.Navigation 7/21 보강 ①) — 모바일은 히어로 아래 콘텐츠 카드가 담당 *@
+            <PillButton Href="@Routes.TeamExplore" Variant="PillVariant.Ghost" Size="PillSize.Large" Class="pointer-events-auto [text-shadow:none] !hidden md:!inline-flex">우리 동네 팀 둘러보기</PillButton>
             <PillButton Href="#how" Variant="PillVariant.Ghost" Size="PillSize.Large" Class="pointer-events-auto [text-shadow:none]">작동 방식 보기</PillButton>
         </div>
     </div>

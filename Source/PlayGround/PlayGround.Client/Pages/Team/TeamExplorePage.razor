@@ -118,7 +118,8 @@
                         <span class="text-[16.5px] md:text-[19px] font-extrabold text-white break-keep">우리 팀이 아직 없나요?</span>
                         <span class="text-[12.5px] md:text-[13.5px] text-white/[.68] leading-[1.6] break-keep">팀을 등록하면 홈페이지가 자동으로 생성되고, 학부모들이 이 목록에서 찾을 수 있어요.</span>
                     </span>
-                    <a href="@Routes.Login" class="relative flex items-center justify-center h-[46px] md:h-auto md:py-3.5 md:px-7 text-sm md:text-[14.5px] font-bold text-white hover:text-white bg-orange hover:bg-orange-hover rounded-[11px] whitespace-nowrap shadow-cta-orange-sm transition-colors">팀 홈페이지 만들기</a>
+                    @* 게스트가 팀 만들기 — returnUrl 보존 (Design.Navigation 배선: /auth?returnUrl=/teams) *@
+                    <a href="@Routes.LoginWithReturn(Routes.TeamExplore)" class="relative flex items-center justify-center h-[46px] md:h-auto md:py-3.5 md:px-7 text-sm md:text-[14.5px] font-bold text-white hover:text-white bg-orange hover:bg-orange-hover rounded-[11px] whitespace-nowrap shadow-cta-orange-sm transition-colors">팀 홈페이지 만들기</a>
                 </div>
             </ChildContent>
         </LoadingGate>

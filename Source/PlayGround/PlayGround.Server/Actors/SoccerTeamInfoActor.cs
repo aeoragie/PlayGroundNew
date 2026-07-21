@@ -104,7 +104,7 @@ namespace PlayGround.Server.Actors
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerTeamPublicHomeCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPublicHomeCommand>();
-            Result<TeamPublicHomeResponse> result = await useCase.ExecuteAsync(message.Slug);
+            Result<TeamPublicHomeResponse> result = await useCase.ExecuteAsync(message.Slug, message.ViewerUserId);
             sender.Tell(result);
         }
 

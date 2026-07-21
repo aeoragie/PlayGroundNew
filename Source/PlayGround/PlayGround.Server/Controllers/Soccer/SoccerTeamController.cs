@@ -61,12 +61,14 @@ namespace PlayGround.Server.Controllers.Soccer
         }
 
         // 공개 팀 홈페이지 — 비로그인 읽기전용. 'me' 리터럴 라우트가 {slug}보다 우선 매칭된다.
+        // 로그인 열람자면 UserId를 실어 보낸다 — 관리자 본인 판정(IsManager, "관리" 텍스트 링크)에만 쓴다.
         [AllowAnonymous]
         [HttpGet("{slug}/home")]
         public async Task<Envelope<TeamPublicHomeResponse>> GetTeamHomeAsync(string slug, CancellationToken cancellation)
         {
+            Guid? viewerUserId = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : null;
             Result<TeamPublicHomeResponse> result = await mGateway.AskAsync<TeamPublicHomeResponse>(
-                ActorNames.SoccerTeamInfo, new GetSoccerTeamHomeMessage(slug), cancellation);
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamHomeMessage(slug, viewerUserId), cancellation);
             return result.ToEnvelope();
         }
 

@@ -21,15 +21,19 @@
 
         <AuthorizeView>
             <Authorized>
-                @* 경기기록 링크는 로그인 상태에서도 유지 (현재 섹션이면 숨김) *@
+                @* 경기기록·팀 탐색 링크는 로그인 상태에서도 유지 (현재 섹션이면 숨김) *@
                 @if (SectionLabel != RecordsLabel)
                 {
                     <a href="@Routes.Records" class="@NavLinkClass">경기기록</a>
                 }
+                @if (SectionLabel != ExploreLabel)
+                {
+                    <a href="@Routes.TeamExplore" class="@NavLinkClass">팀 탐색</a>
+                }
 
                 <NotificationBell Appearance="NotificationBell.BellAppearance.Light" />
 
-                @* 아바타 드롭다운 — 내 대시보드 / 로그아웃 (설정은 /settings 미구현이라 제외) *@
+                @* 아바타 드롭다운 — 대시보드 / 설정 / 로그아웃 (Design.Navigation GNB 매트릭스) *@
                 <div class="relative">
                     <button type="button" @onclick="ToggleMenu" aria-haspopup="true" aria-expanded="@mMenuOpen"
                             class="w-[30px] h-[30px] rounded-full bg-teal flex items-center justify-center text-[12px] font-extrabold text-white border-0 cursor-pointer">@InitialOf(context.User)</button>
@@ -40,6 +44,7 @@
                         <div class="fixed inset-0 z-40" @onclick="CloseMenu"></div>
                         <div class="absolute right-0 top-[38px] z-50 min-w-[148px] bg-white border-1.5 border-border rounded-xl shadow-menu py-1.5 flex flex-col">
                             <a href="@Routes.Dashboard" @onclick="CloseMenu" class="@MenuItemClass">내 대시보드</a>
+                            <a href="@Routes.Settings" @onclick="CloseMenu" class="@MenuItemClass">설정</a>
                             <button type="button" @onclick="LogoutAsync" class="@($"{MenuItemClass} text-left border-0 bg-transparent cursor-pointer")">로그아웃</button>
                         </div>
                     }
@@ -50,6 +55,10 @@
                 {
                     <a href="@Routes.Records" class="@($"hidden md:block {NavLinkClass}")">경기기록</a>
                 }
+                @if (SectionLabel != ExploreLabel)
+                {
+                    <a href="@Routes.TeamExplore" class="@($"hidden md:block {NavLinkClass}")">팀 탐색</a>
+                }
                 <a href="@LoginHref" class="text-[12.5px] md:text-[13.5px] font-bold text-white hover:text-white bg-navy hover:bg-navy-deep px-3.5 py-2 md:px-[18px] md:py-[9px] rounded-lg md:rounded-[9px] whitespace-nowrap transition-colors">로그인</a>
             </NotAuthorized>
         </AuthorizeView>
@@ -58,6 +67,7 @@
 
 @code {
     internal const string RecordsLabel = "경기기록";
+    internal const string ExploreLabel = "팀 탐색";
 
     private const string NavLinkClass =
         "text-[12.5px] md:text-[13.5px] font-bold text-text-strong hover:text-navy whitespace-nowrap transition-colors";

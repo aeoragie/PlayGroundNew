@@ -16,14 +16,15 @@ namespace PlayGround.Application.Team.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task<Result<TeamPublicHomeResponse>> ExecuteAsync(string slug, CancellationToken cancellation = default)
+        /// <param name="viewerUserId">로그인 열람자 — 관리자 본인 판정(IsManager)에만 쓴다. 게스트는 null.</param>
+        public async Task<Result<TeamPublicHomeResponse>> ExecuteAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
                 return Result<TeamPublicHomeResponse>.Error(ErrorCode.InvalidInput, "slug is empty");
             }
 
-            Result<TeamPublicHomeResponse?> home = await mRepository.GetTeamHomeBySlugAsync(slug.Trim(), cancellation);
+            Result<TeamPublicHomeResponse?> home = await mRepository.GetTeamHomeBySlugAsync(slug.Trim(), viewerUserId, cancellation);
             if (home.IsError)
             {
                 return Result<TeamPublicHomeResponse>.Failure(home.ResultData);

@@ -167,6 +167,9 @@ namespace PlayGround.Contracts.Team
     /// <summary>공개 팀 홈페이지 묶음 (비로그인, Slug 기준). 관리 정보(Claim·UserId 등)는 포함하지 않는다.</summary>
     public class TeamPublicHomeResponse
     {
+        /// <summary>열람자 = 이 팀의 관리자 본인 (GNB "관리" 텍스트 링크용 — ManagerUserId는 비노출).</summary>
+        public bool IsManager { get; set; }
+
         public TeamPublicProfileDto Profile { get; set; } = new();
         public List<TeamValueDto> Values { get; set; } = new();
         public List<TeamCoachDto> Coaches { get; set; } = new();

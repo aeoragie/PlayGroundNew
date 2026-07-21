@@ -50,7 +50,8 @@
             {
                 <div class="@($"{RowGrid} border-b border-surface-icon items-center")">
                     <span class="w-8 h-8 rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy">@(player.JerseyNumber ?? "-")</span>
-                    <a href="#" class="text-[14.5px] font-bold text-navy-deep hover:text-orange transition-colors">@player.Name</a>
+                    @* 선수 상세 화면이 없어 링크가 아니다 (# 링크는 랜딩 오이동) *@
+                    <span class="text-[14.5px] font-bold text-navy-deep">@player.Name</span>
                     <span class="text-[13.5px] text-text-body">@(player.Position ?? "-")</span>
                     <span class="text-[13.5px] text-text-body">@(player.Grade ?? "-")</span>
                     <ClaimBadge Status="@ClaimOf(player)" />
@@ -88,7 +89,7 @@
                         </button>
                     </div>
                     <span class="flex flex-col gap-[3px]">
-                        <a href="#" class="text-[15.5px] font-extrabold text-navy-deep hover:text-orange transition-colors">@player.Name</a>
+                        <span class="text-[15.5px] font-extrabold text-navy-deep">@player.Name</span>
                         <span class="text-[12.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
                     <ClaimBadge Status="@ClaimOf(player)" />

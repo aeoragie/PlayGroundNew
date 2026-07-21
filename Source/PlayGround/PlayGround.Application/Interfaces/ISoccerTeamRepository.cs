@@ -16,7 +16,7 @@ namespace PlayGround.Application.Interfaces
         Task<Result<TeamRosterResponse>> GetTeamRosterByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
 
         /// <summary>공개 팀 홈페이지 묶음 조회 (Slug 기준). 미존재·비공개 팀은 Success(null) — 에러가 아니다.</summary>
-        Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, CancellationToken cancellation = default);
+        Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default);
 
         /// <summary>팀 탐색 공개 목록 (핵심가치·선수단 수·올해 전적 포함). 0건은 빈 목록.</summary>
         Task<Result<TeamExploreResponse>> GetExploreTeamsAsync(CancellationToken cancellation = default);

@@ -44,7 +44,8 @@
                 <div class="flex items-center gap-[11px] px-[15px] py-[13px] border-b border-surface-icon">
                     <span class="w-[34px] h-[34px] rounded-full bg-surface-icon flex items-center justify-center text-[12.5px] font-extrabold text-navy shrink-0">@(player.JerseyNumber ?? "-")</span>
                     <span class="flex flex-col gap-px flex-1 min-w-0">
-                        <a href="#" class="text-sm font-bold text-navy-deep whitespace-nowrap">@player.Name</a>
+                        @* 선수 상세 화면이 없어 링크가 아니다 (# 링크는 랜딩 오이동) *@
+                        <span class="text-sm font-bold text-navy-deep whitespace-nowrap">@player.Name</span>
                         <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
                     <ClaimBadge Status="@ClaimOf(player)" />
@@ -80,7 +81,7 @@
                         </button>
                     </div>
                     <span class="flex flex-col gap-0.5">
-                        <a href="#" class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@player.Name</a>
+                        <span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@player.Name</span>
                         <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
                     <ClaimBadge Status="@ClaimOf(player)" />

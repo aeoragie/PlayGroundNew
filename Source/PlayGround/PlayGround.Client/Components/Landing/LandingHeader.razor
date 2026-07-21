@@ -7,10 +7,11 @@
     <div class="@($"{Css.Landing.Container} h-14 md:h-[68px] flex items-center gap-3 md:gap-9")">
         <BrandLogo Href="#top" InheritColor="true" />
 
-        @* PC 메뉴 *@
+        @* PC 메뉴 — 팀 탐색은 실링크 (Design.Navigation 7/21 보강 ①) *@
         <nav class="hidden md:flex gap-[26px]">
             <a href="#roles" class="@Css.Landing.NavLink">팀</a>
             <a href="#roles" class="@Css.Landing.NavLink">선수·학부모</a>
+            <a href="@Routes.TeamExplore" class="@Css.Landing.NavLink">팀 탐색</a>
             <a href="#features" class="@Css.Landing.NavLink">경기기록</a>
         </nav>
 
@@ -42,6 +43,7 @@
         <nav class="md:hidden bg-bg/[.98] border-t border-border shadow-menu flex flex-col py-2">
             <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">팀</a>
             <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">선수·학부모</a>
+            <a href="@Routes.TeamExplore" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">팀 탐색</a>
             <a href="#features" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">경기기록</a>
             <AuthorizeView>
                 <Authorized>

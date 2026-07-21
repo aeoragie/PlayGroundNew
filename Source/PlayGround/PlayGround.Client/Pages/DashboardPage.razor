@@ -79,6 +79,9 @@ else
                     {
                         <HubTeamCard Team="@team" />
                     }
+                    @* ＋ 팀 만들기 (PC 점선 — SPEC §내 팀) — 팀 온보딩으로 직행 *@
+                    <a href="@Routes.TeamOnboarding"
+                       class="hidden md:flex self-start items-center h-[34px] px-3.5 border-1.5 border-dashed border-switch-track rounded-[9px] text-xs font-bold text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors">＋ 팀 만들기</a>
                 </section>
             }
 
@@ -95,10 +98,13 @@ else
                             <HubChildCard Child="@child" />
                         }
                     </div>
+                    @* ＋ 자녀 연결 → Claim 플로우 (SPEC §내 자녀 — 배선표 명시) *@
+                    <a href="@Routes.Claim"
+                       class="self-start flex items-center h-[30px] md:h-[34px] px-3 md:px-3.5 border-1.5 border-dashed border-switch-track rounded-lg md:rounded-[9px] text-[11px] md:text-xs font-bold text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors">＋ 자녀 연결</a>
                 </section>
             }
 
-            @* 바로가기 — 팀 탐색·계정 설정은 화면이 없어 경기기록만 (갈 곳 없는 카드를 두지 않는다) *@
+            @* 바로가기 — 경기기록·팀 탐색(전체) + 계정 설정(PC만 — SPEC 카드 구성) *@
             <section class="flex flex-col gap-3.5">
                 <h2 class="@Css.Hub.SectionTitle">바로가기</h2>
                 <div class="@Css.Hub.ShortcutGrid">
@@ -110,6 +116,26 @@ else
                         <span class="min-w-0">
                             <span class="@($"block {Css.Hub.ShortcutTitle}")">경기기록</span>
                             <span class="@($"block {Css.Hub.ShortcutSub}")">대회 · 리그 결과 보기</span>
+                        </span>
+                    </a>
+                    <a href="@Routes.TeamExplore" class="@Css.Hub.Shortcut">
+                        <span class="w-9 h-9 rounded-[10px] bg-surface-icon flex items-center justify-center shrink-0">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" class="text-navy"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="@($"block {Css.Hub.ShortcutTitle}")">팀 탐색</span>
+                            <span class="@($"block {Css.Hub.ShortcutSub}")">우리 지역 팀 찾기</span>
+                        </span>
+                    </a>
+                    <a href="@Routes.Settings" class="@($"!hidden md:!flex {Css.Hub.Shortcut}")">
+                        <span class="w-9 h-9 rounded-[10px] bg-surface-icon flex items-center justify-center shrink-0">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" class="text-navy"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="@($"block {Css.Hub.ShortcutTitle}")">계정 설정</span>
+                            <span class="@($"block {Css.Hub.ShortcutSub}")">역할 · 가족 · 알림 설정</span>
                         </span>
                     </a>
                 </div>

@@ -16,7 +16,7 @@ namespace PlayGround.Server.Actors
     public sealed record GetSoccerTeamRosterMessage(Guid ManagerUserId);
 
     /// <summary>공개 팀 홈페이지 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
-    public sealed record GetSoccerTeamHomeMessage(string Slug);
+    public sealed record GetSoccerTeamHomeMessage(string Slug, Guid? ViewerUserId = null);
 
     /// <summary>팀 탐색 공개 목록 조회 메시지 (비로그인 — RoundRobin).</summary>
     public sealed record GetSoccerTeamExploreMessage;
