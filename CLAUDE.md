@@ -127,12 +127,30 @@
    - B1의 "스테이지·조 선택" 잔여 항목은 **폐기** — 대회 경기를 팀이 입력하지 않으므로 필요 없어졌다.
 3. ~~**B5 — 친선경기 구분**~~ 완료(아래).
 4. ~~**B6 — 공식 기록 수정 신청**~~ 완료(아래).
-5. **Phase C — 신규 화면**: ~~허브~~ 완료 → 팀 탐색 → 설정 → Claim 4스텝·알림 센터 → 공개 팀 홈 잔여 탭
+5. **Phase C — 신규 화면**: ~~허브~~ ~~팀 탐색~~ 완료 → 설정 → Claim 4스텝·알림 센터 → 공개 팀 홈 잔여 탭
    (모집·진학진로·리뷰, 탭당 스키마 신설) → 에이전트 열람 승인(최후순위).
 6. **Phase D — 잔여 패턴**: 별도 단계 없이 화면 작업에 얹는다 (AvatarBadge만 Phase C 후 일괄 교체 1회).
    그 외 잔여: 온보딩 중복 방지. **DropdownMenu ⋯(OverflowMenu)는 B3에서 만들고 B6가 확장했다**
    (`DisabledItems`). 남은 건 계정 메뉴(§1) 추출뿐이고 Phase C 아바타 교체 때 함께 한다.
-   - **Phase B 라인이 전부 끝났다** — 다음은 Phase C(허브부터)다.
+
+### Phase C — 팀 탐색 완료 (2026-07-21, Design.TeamExplore + Design.SearchFilter)
+
+- **SearchFilter 공용 5종** `Components/Shared/SearchFilter/` + `Styles/Css.SearchFilter.cs`:
+  SearchBar(디바운스 300ms·X·Esc·모바일 16px) · FilterChipRow("전체" 상호배타, 선택=네이비+X) ·
+  TogglePill(teal) · ResultHeader(카운트·조건부 초기화·정렬 슬롯) · FilterBottomSheet(**시트만
+  지연 적용** — draft는 호출부 관리, 하단 버튼에 결과 수 실시간). EmptyState에 Search 아트 추가.
+  **원칙: 즉시 적용 + 상태는 URL 쿼리 동기화**(공유 재진입·뒤로가기·새로고침 유지 — 전부 검증).
+  다음 적용 대상: 경기기록 상태 칩, 팀 대시보드 선수단 검색, GNB 퀵서치(미구현).
+- **/teams** — `SoccerTeams.IsRecruiting` 신설(마이그레이션 `2026-07-21_SoccerTeams.IsRecruiting.sql`,
+  모집 공고 스키마 도입 시 파생으로 대체) + `UspGetSoccerTeamExplore`(4결과셋 — 집계는 C#,
+  전적은 올해 종료·공식만) → `GET api/soccer/teams`(AllowAnonymous) → 목록 1회 로드 후
+  필터·정렬·페이징(더 보기 20)은 클라이언트. 카드 커버 폴백: 인증=네이비 미드톤 고정 /
+  비인증=파스텔 3종 결정적 해시. 지역·유형 칩은 데이터 파생(있는 값만).
+- **미노출로 남긴 것**: 리뷰 스탯·리뷰순 정렬(리뷰 스키마 도입 전), 로그인 개인화 정렬(문구만),
+  초성 검색(부분 일치만). **진입점 링크는 어디에도 연결 안 됨** — 허브 바로가기·PublicGnb·
+  선수 대시보드 등 후보가 있고, **디자인쪽에서 설계 후 작업 지시 예정**(대기).
+- **PC 이동 시 DB 동기화 절차 신설** — `Docs/Development/LocalVerification.md` "DB 동기화 기준
+  커밋" 절 참조 (이번에 로컬 DB가 6일치 뒤처진 채 프로시저만 배포돼 실행 시점 오류로 발견).
 
 ### Phase A1 — 폼 공용 컴포넌트 완료 (2026-07-19, Design.FormPatterns)
 
