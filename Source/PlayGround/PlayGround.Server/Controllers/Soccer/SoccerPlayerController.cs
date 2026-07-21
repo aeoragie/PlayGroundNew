@@ -193,13 +193,15 @@ namespace PlayGround.Server.Controllers.Soccer
 
         // 공개 선수 프로필 — 비로그인 읽기전용. 'me' 리터럴 라우트가 {slug}보다 우선 매칭된다.
         // 미존재·프로필 비공개는 NotFound 하나 — 비공개 여부를 흘리지 않는다.
+        // 로그인 열람자면 UserId를 실어 보낸다 — 승인된 에이전트 판정(권한 뷰)에만 쓴다 (공개홈 IsManager 패턴).
         [AllowAnonymous]
         [HttpGet("{slug}/profile")]
         public async Task<Envelope<PlayerPublicProfileResponse>> GetPublicProfileAsync(
             string slug, [FromQuery] int season, CancellationToken cancellation)
         {
+            Guid? viewerUserId = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : null;
             Result<PlayerPublicProfileResponse> result = await mGateway.AskAsync<PlayerPublicProfileResponse>(
-                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerPublicProfileMessage(slug, season), cancellation);
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerPublicProfileMessage(slug, season, viewerUserId), cancellation);
             return result.ToEnvelope();
         }
 

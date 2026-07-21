@@ -232,8 +232,8 @@ namespace PlayGround.Contracts.Player
     }
 
     /// <summary>
-    /// 공개 선수 프로필 (/player/{slug}, 비로그인 읽기전용 — 디테일 공개 뷰).
-    /// 비공개 항목은 서버에서 제외돼 응답에 실리지 않는다 (학교·연락처는 공개 뷰에 아예 없음).
+    /// 공개 선수 프로필 (/player/{slug} — 디테일 공개/권한 뷰).
+    /// 비공개 항목은 서버에서 제외돼 응답에 실리지 않는다 (학교는 권한 뷰에만, 연락처는 어디에도 없음).
     /// </summary>
     public class PlayerPublicProfileResponse
     {
@@ -249,6 +249,19 @@ namespace PlayGround.Contracts.Player
         public int VideoCount { get; set; }
 
         public List<PlayerCareerEntryDto> Careers { get; set; } = new();
+
+        /// <summary>열람 승인 (권한 뷰) — 뷰어가 승인된 에이전트가 아니면 null.</summary>
+        public PlayerPublicGrantDto? Grant { get; set; }
+
+        /// <summary>경기별 상세 기록 (권한 뷰 전용, 친선 포함) — 권한이 없으면 null.</summary>
+        public List<PlayerMatchStatDto>? Matches { get; set; }
+    }
+
+    /// <summary>열람 승인 정보 — 상단 배너("승인일 · 30일 후 만료") 표시용.</summary>
+    public class PlayerPublicGrantDto
+    {
+        public DateTime ApprovedAt { get; set; }
+        public DateTime ExpiresAt { get; set; }
     }
 
     /// <summary>공개 프로필 히어로. 키·몸무게·주발은 공개 설정이 켜진 항목만 값이 실린다.</summary>
@@ -268,6 +281,9 @@ namespace PlayGround.Contracts.Player
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
         public string? PreferredFoot { get; set; }
+
+        /// <summary>학교 — 권한 뷰(승인된 에이전트)에만 값이 실린다. 공개 뷰는 항상 null.</summary>
+        public string? SchoolName { get; set; }
     }
 
     /// <summary>공개 프로필 시즌 요약 — 공식 경기만 집계 (친선 미포함, Design.FriendlyMatch).</summary>

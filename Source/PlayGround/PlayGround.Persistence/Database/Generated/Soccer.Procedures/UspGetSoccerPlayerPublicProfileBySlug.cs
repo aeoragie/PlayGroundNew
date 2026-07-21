@@ -18,10 +18,12 @@ public class UspGetSoccerPlayerPublicProfileBySlug(RepositoryBase repository) : 
 
 	public string Slug { get; set; } = String.Empty;
 	public int SeasonYear { get; set; } = 0;
+	public Guid? ViewerUserId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@Slug", Slug);
 		Parameters.Add("@SeasonYear", SeasonYear);
+		Parameters.Add("@ViewerUserId", ViewerUserId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

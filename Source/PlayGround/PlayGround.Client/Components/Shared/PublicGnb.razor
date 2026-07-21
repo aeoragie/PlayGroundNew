@@ -21,14 +21,14 @@
 
         <AuthorizeView>
             <Authorized>
-                @* 경기기록·팀 탐색 링크는 로그인 상태에서도 유지 (현재 섹션이면 숨김) *@
+                @* 경기기록·팀 탐색 링크는 PC만 — 모바일은 게스트와 같은 규칙(폭 부족: 레이블+벨+아바타가 우선) *@
                 @if (SectionLabel != RecordsLabel)
                 {
-                    <a href="@Routes.Records" class="@NavLinkClass">경기기록</a>
+                    <a href="@Routes.Records" class="@($"hidden md:block {NavLinkClass}")">경기기록</a>
                 }
                 @if (SectionLabel != ExploreLabel)
                 {
-                    <a href="@Routes.TeamExplore" class="@NavLinkClass">팀 탐색</a>
+                    <a href="@Routes.TeamExplore" class="@($"hidden md:block {NavLinkClass}")">팀 탐색</a>
                 }
 
                 <NotificationBell Appearance="NotificationBell.BellAppearance.Light" />

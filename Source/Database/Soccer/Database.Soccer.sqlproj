@@ -64,6 +64,7 @@
     <Folder Include="Queries" />
     <Folder Include="Indexes" />
     <Folder Include="Seeds" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
   <!-- 빌드 대상 스키마(CREATE 구문) -->
   <ItemGroup>

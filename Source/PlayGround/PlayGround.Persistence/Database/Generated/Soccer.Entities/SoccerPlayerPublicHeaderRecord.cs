@@ -35,6 +35,9 @@ public class SoccerPlayerPublicHeaderRecord
 	[StringLength(20)]
 	public string PreferredFoot { get; set; } = String.Empty;
 
+	[StringLength(300)]
+	public string SchoolName { get; set; } = String.Empty;
+
 	[Required]
 	public bool IsGuardianManaged { get; set; } = false;
 

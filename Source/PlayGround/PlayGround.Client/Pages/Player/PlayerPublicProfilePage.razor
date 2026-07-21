@@ -9,9 +9,11 @@
 
 <PageTitle>@(mData?.Profile.Name ?? "선수 프로필") — PlayGround</PageTitle>
 
-@* 공개 선수 프로필 — 디테일 공개 뷰 (Design.PlayerPublicProfile, 비로그인 읽기전용).
-   권한 뷰(승인 배너·경기별 기록)·카드 뷰는 다음 단계 — 이 화면은 공개 항목 + 잠금 안내까지.
+@* 공개 선수 프로필 — 디테일 공개/권한 뷰 (Design.PlayerPublicProfile). 카드 뷰는 다음 단계.
+   뷰는 수동 전환이 아니라 서버 판정(Grant — 승인된 에이전트 + 미만료)으로 자동 결정된다.
+   권한 뷰: 상단 teal 배너 + 학교 칩 + 경기별 상세 기록(친선 포함) + "보호자에게 연락하기".
    "상세 정보 열람 요청"은 무동작 — 요청 생성은 에이전트 서비스의 몫이다(결정 6·7, AgentViewApproval 경계).
+   "보호자에게 연락하기"도 무동작 — 플랫폼 메시지 미구현(캡션 카피는 원문 유지).
    "선수 카드 공유"는 카드 뷰가 없어 미노출(A4 — 없는 화면으로 가는 진입점을 만들지 않는다). *@
 @if (mLoaded && mData is null)
 {
@@ -27,6 +29,20 @@ else if (mData is not null)
 {
     <div class="min-h-screen bg-surface-alt text-navy-deep flex flex-col">
         <PublicGnb SectionLabel="선수 프로필" />
+
+        @* 권한 뷰 상단 배너 — 승인 상태·만료·열람 기록 고지 *@
+        @if (mData.Grant is PlayerPublicGrantDto grant)
+        {
+            <div class="@Css.PlayerPublic.GrantBanner">
+                <div class="@Css.PlayerPublic.GrantBannerInner">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-ink flex-none mt-0.5 md:mt-0"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                    <span class="@($"{Css.PlayerPublic.GrantBannerText} hidden md:inline")">보호자 승인으로 상세 정보 열람 중 — 에이전트 계정 · 승인일 @(grant.ApprovedAt.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture)) · @(RemainingDays(grant))일 후 만료</span>
+                    <span class="@($"{Css.PlayerPublic.GrantBannerText} md:hidden")">보호자 승인 열람 중 — 에이전트 계정 · @(RemainingDays(grant))일 후 만료 · 열람 기록이 보호자에게 표시됩니다</span>
+                    <div class="hidden md:block flex-1"></div>
+                    <span class="@Css.PlayerPublic.GrantBannerNote">열람 기록이 보호자에게 표시됩니다</span>
+                </div>
+            </div>
+        }
 
         <main class="w-full max-w-[1000px] mx-auto px-4 md:px-8 pt-4 md:pt-[26px] pb-[110px] md:pb-[70px] flex flex-col gap-[13px] md:gap-[18px] flex-1">
 
@@ -81,21 +97,34 @@ else if (mData is not null)
                                 </span>
                             }
                         }
-                        @if (FieldChips.Count > 0)
+                        @if (FieldChips.Count > 0 || mData.Profile.SchoolName is not null)
                         {
                             <div class="flex gap-[7px] md:gap-[9px] flex-wrap">
                                 @foreach (string chip in FieldChips)
                                 {
                                     <span class="@Css.PlayerPublic.FieldChip">@chip</span>
                                 }
+                                @if (mData.Profile.SchoolName is not null)
+                                {
+                                    @* 학교 = 승인 열람 항목 — teal 톤으로 공개 칩과 구분 *@
+                                    <span class="@Css.PlayerPublic.SchoolChip">@mData.Profile.SchoolName</span>
+                                }
                             </div>
                         }
                     </div>
                 </div>
-                @* CTA — PC만 히어로 우측 (모바일은 하단 고정 바) *@
+                @* CTA — PC만 히어로 우측 (모바일은 하단 고정 바). 권한 뷰는 보호자 연락으로 교체 *@
                 <div class="hidden md:flex flex-col gap-[9px] justify-center">
-                    <button type="button" class="@Css.PlayerPublic.RequestButton">상세 정보 열람 요청</button>
-                    <span class="@Css.PlayerPublic.RequestCaption">보호자 승인 후 열람 가능</span>
+                    @if (mData.Grant is not null)
+                    {
+                        <button type="button" class="@Css.PlayerPublic.RequestButton">보호자에게 연락하기</button>
+                        <span class="@Css.PlayerPublic.RequestCaption">연락은 플랫폼 내 메시지로 시작됩니다</span>
+                    }
+                    else
+                    {
+                        <button type="button" class="@Css.PlayerPublic.RequestButton">상세 정보 열람 요청</button>
+                        <span class="@Css.PlayerPublic.RequestCaption">보호자 승인 후 열람 가능</span>
+                    }
                 </div>
             </div>
 
@@ -192,7 +221,42 @@ else if (mData is not null)
                 </div>
             }
 
-            @* 공개 뷰 전용: 잠금 안내 *@
+            @* 권한 뷰 전용: 경기별 상세 기록 (친선 포함 — teal 보더로 승인 영역 구분) *@
+            @if (mData.Matches is { Count: > 0 } matches)
+            {
+                <div class="@Css.PlayerPublic.RecordCard">
+                    <div class="@Css.PlayerPublic.RecordHeader">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-ink flex-none"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                        <h2 class="@Css.PlayerPublic.RecordTitle">경기별 상세 기록 <span class="text-[10.5px] md:text-[11.5px] font-bold text-teal-ink">승인 열람</span></h2>
+                    </div>
+                    @foreach (PlayerMatchStatDto match in matches)
+                    {
+                        <div class="@Css.PlayerPublic.RecordRowPc">
+                            <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@CompLabel(match)</span>
+                            <span class="text-xs text-text-muted w-11 whitespace-nowrap">@(match.MatchedAt?.ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
+                            <span class="@($"{Css.PlayerPublic.RecordMatchTitle} flex-1")">@MatchTitle(match)</span>
+                            <span class="@Css.PlayerPublic.RecordStatChip">@StatLabel(match)</span>
+                            <span class="@($"{Css.PlayerPublic.RecordMinutes} w-16 text-right")">@MinutesLabel(match)</span>
+                        </div>
+                        <div class="@Css.PlayerPublic.RecordRowMobile">
+                            <div class="flex items-center gap-[7px]">
+                                <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@CompLabel(match)</span>
+                                <span class="text-[10.5px] text-text-muted whitespace-nowrap">@(match.MatchedAt?.ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
+                                <div class="flex-1"></div>
+                                <span class="@Css.PlayerPublic.RecordMinutes">@MinutesLabel(match)</span>
+                            </div>
+                            <div class="flex items-center gap-[9px]">
+                                <span class="@($"{Css.PlayerPublic.RecordMatchTitle} flex-1")">@MatchTitle(match)</span>
+                                <span class="@Css.PlayerPublic.RecordStatChip">@StatLabel(match)</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* 공개 뷰 전용: 잠금 안내 — 권한 뷰에서는 잠긴 것이 없다 *@
+            @if (mData.Grant is null)
+            {
             <div class="@Css.PlayerPublic.LockBox">
                 <span class="flex items-center gap-[9px] md:contents">
                     <span class="@Css.PlayerPublic.LockIconBox">
@@ -206,6 +270,7 @@ else if (mData is not null)
                 </span>
                 <button type="button" class="@Css.PlayerPublic.LockRequestButton">열람 요청하기</button>
             </div>
+            }
 
             <span class="md:hidden text-[11px] text-text-muted text-center break-keep">이 프로필은 PlayGround에서 자동 생성되었습니다 · <a href="@Routes.Landing" class="font-bold text-navy">내 아이 프로필 만들기</a></span>
         </main>
@@ -218,9 +283,9 @@ else if (mData is not null)
             </div>
         </footer>
 
-        @* 모바일 하단 고정 CTA — 카드 공유 아이콘은 카드 뷰가 생길 때 (A4) *@
+        @* 모바일 하단 고정 CTA — 카드 공유 아이콘은 카드 뷰가 생길 때 (A4). 권한 뷰는 보호자 연락 *@
         <div class="@Css.PlayerPublic.MobileCtaBar">
-            <button type="button" class="@Css.PlayerPublic.MobileCtaButton">상세 정보 열람 요청</button>
+            <button type="button" class="@Css.PlayerPublic.MobileCtaButton">@(mData.Grant is not null ? "보호자에게 연락하기" : "상세 정보 열람 요청")</button>
         </div>
     </div>
 }
@@ -277,6 +342,58 @@ else if (mData is not null)
             return parts.Count > 0 ? string.Join(" · ", parts) : null;
         }
     }
+
+    //.// 권한 뷰 헬퍼
+
+    // 만료까지 남은 일수 (올림 — 승인 직후 30일). 최소 0
+    private static int RemainingDays(PlayerPublicGrantDto grant)
+    {
+        double days = (grant.ExpiresAt - DateTime.UtcNow).TotalDays;
+        return Math.Max(0, (int)Math.Ceiling(days));
+    }
+
+    // 대회 pill — 리그 네이비 / 컵 오렌지 톤 / 친선 teal 톤 (dc comp 함수 그대로)
+    private static string CompLabel(PlayerMatchStatDto match) => match.CompetitionType switch
+    {
+        "League" => "리그",
+        "Cup" => "컵",
+        _ => "친선",
+    };
+
+    private static string CompPillClass(PlayerMatchStatDto match) => match.CompetitionType switch
+    {
+        "League" => "text-navy bg-surface-icon",
+        "Cup" => "text-orange-ink bg-surface-orange-badge",
+        _ => "text-teal-ink bg-teal/[.12]",
+    };
+
+    // "vs 강동 SC (3:1 승)" — 시즌 통계 섹션과 같은 조립 규칙
+    private static string MatchTitle(PlayerMatchStatDto match)
+    {
+        string outcome = match.TeamScore > match.OpponentScore ? "승"
+            : match.TeamScore < match.OpponentScore ? "패" : "무";
+        return $"vs {match.OpponentName} ({match.TeamScore}:{match.OpponentScore} {outcome})";
+    }
+
+    // "2골 1도움" / "기록 없음"
+    private static string StatLabel(PlayerMatchStatDto match)
+    {
+        List<string> parts = new();
+        if (match.Goals > 0)
+        {
+            parts.Add($"{match.Goals}골");
+        }
+
+        if (match.Assists > 0)
+        {
+            parts.Add($"{match.Assists}도움");
+        }
+
+        return parts.Count > 0 ? string.Join(" ", parts) : "기록 없음";
+    }
+
+    private static string MinutesLabel(PlayerMatchStatDto match) =>
+        match.MinutesPlayed is int minutes ? $"출전 {minutes}'" : "출전 -";
 
     // 공개 항목 칩 — 서버가 비공개 항목을 null로 내려 클라이언트는 값 유무만 본다
     private List<string> FieldChips

@@ -468,11 +468,11 @@ namespace PlayGround.Persistence.Repositories
             return Result<PlayerSeasonStatsResponse>.Success(response);
         }
 
-        public async Task<Result<PlayerPublicProfileResponse?>> GetPublicProfileBySlugAsync(string slug, int seasonYear, CancellationToken cancellation = default)
+        public async Task<Result<PlayerPublicProfileResponse?>> GetPublicProfileBySlugAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player public profile requested", ("Slug", slug), ("SeasonYear", seasonYear));
 
-            var procedure = new UspGetSoccerPlayerPublicProfileBySlug(this) { Slug = slug, SeasonYear = seasonYear };
+            var procedure = new UspGetSoccerPlayerPublicProfileBySlug(this) { Slug = slug, SeasonYear = seasonYear, ViewerUserId = viewerUserId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
@@ -487,6 +487,7 @@ namespace PlayGround.Persistence.Repositories
             var events = (await reader.ReadAsync<SoccerMatchEventsEntity>()).ToList();
             var videos = (await reader.ReadAsync<SoccerPlayerPortfolioVideosEntity>()).ToList();
             var careers = (await reader.ReadAsync<SoccerPlayerCareersEntity>()).ToList();
+            SoccerAgentViewRequestsEntity? grant = await reader.ReadSingleOrDefaultAsync<SoccerAgentViewRequestsEntity>();
 
             // 미존재·프로필 비공개는 프로시저가 빈 결과 — 사유를 구분하지 않는다
             if (header is null)
@@ -502,20 +503,24 @@ namespace PlayGround.Persistence.Repositories
                 return row?.IsPublic ?? field.DefaultIsPublic();
             }
 
-            // 시즌 요약 — 공식 경기만 (프로시저 필터). 평균은 분 기록이 있는 경기 기준 (대시보드와 같은 규칙)
+            bool isGranted = grant is not null;
+
+            // 시즌 요약 — 항상 공식만 (권한 뷰는 ②에 친선이 섞여 오므로 여기서 거른다).
+            // 평균은 분 기록이 있는 경기 기준 (대시보드와 같은 규칙)
+            var officialAppearances = appearances.Where(a => a.MatchType == "Official").ToList();
             PlayerPublicSeasonDto? season = null;
-            if (appearances.Count > 0)
+            if (officialAppearances.Count > 0)
             {
-                var withMinutes = appearances.Where(a => a.MinutesPlayed is not null).ToList();
+                var withMinutes = officialAppearances.Where(a => a.MinutesPlayed is not null).ToList();
                 season = new PlayerPublicSeasonDto
                 {
                     SeasonYear = seasonYear,
-                    MatchCount = appearances.Count,
+                    MatchCount = officialAppearances.Count,
                     TotalMinutes = withMinutes.Sum(a => a.MinutesPlayed!.Value),
                     Goals = events.Count(e => e.PlayerId == header.PlayerId && e.EventType != "OwnGoal"
-                        && appearances.Any(a => a.MatchId == e.MatchId)),
+                        && officialAppearances.Any(a => a.MatchId == e.MatchId)),
                     Assists = events.Count(e => e.AssistPlayerId == header.PlayerId
-                        && appearances.Any(a => a.MatchId == e.MatchId)),
+                        && officialAppearances.Any(a => a.MatchId == e.MatchId)),
                     AverageMinutes = withMinutes.Count > 0
                         ? (int)Math.Round((double)withMinutes.Sum(a => a.MinutesPlayed!.Value) / withMinutes.Count)
                         : null
@@ -540,9 +545,36 @@ namespace PlayGround.Persistence.Repositories
                     TeamIsVerified = header.IsVerified,
                     HeightCm = IsPublic(SoccerPlayerProfileField.Height) ? header.HeightCm : null,
                     WeightKg = IsPublic(SoccerPlayerProfileField.Weight) ? header.WeightKg : null,
-                    PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? NullIfEmpty(header.PreferredFoot) : null
+                    PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? NullIfEmpty(header.PreferredFoot) : null,
+                    // 학교는 권한 뷰(승인된 에이전트)에만 — 공개 뷰는 가시성과 무관하게 항상 null
+                    SchoolName = isGranted ? NullIfEmpty(header.SchoolName) : null
                 },
                 Season = season,
+                Grant = isGranted ? new PlayerPublicGrantDto
+                {
+                    ApprovedAt = grant!.ReviewedAt!.Value,
+                    ExpiresAt = grant.ExpiresAt!.Value
+                } : null,
+                // 경기별 상세 기록 (권한 뷰 전용) — 친선 포함, 팀 관점 변환·골/도움 매칭은 시즌 통계와 같은 규칙
+                Matches = isGranted ? appearances
+                    .Select(a =>
+                    {
+                        bool isHome = a.HomeTeamId == a.TeamId;
+                        return new PlayerMatchStatDto
+                        {
+                            MatchId = a.MatchId,
+                            MatchedAt = a.MatchedAt,
+                            CompetitionType = CompetitionTypeOf(a),
+                            MatchType = a.MatchType,
+                            OpponentName = isHome ? a.AwayTeamName : a.HomeTeamName,
+                            TeamScore = (isHome ? a.HomeScore : a.AwayScore) ?? 0,
+                            OpponentScore = (isHome ? a.AwayScore : a.HomeScore) ?? 0,
+                            Goals = events.Count(e => e.MatchId == a.MatchId && e.PlayerId == header.PlayerId && e.EventType != "OwnGoal"),
+                            Assists = events.Count(e => e.MatchId == a.MatchId && e.AssistPlayerId == header.PlayerId),
+                            MinutesPlayed = a.MinutesPlayed
+                        };
+                    })
+                    .ToList() : null,
                 PrimaryVideo = primary is null ? null : new PlayerPortfolioVideoDto
                 {
                     VideoId = primary.VideoId,
@@ -572,7 +604,7 @@ namespace PlayGround.Persistence.Repositories
             };
 
             Logger.InfoWith("Player public profile received",
-                ("Slug", slug), ("Matches", appearances.Count), ("Careers", careers.Count));
+                ("Slug", slug), ("Matches", appearances.Count), ("Careers", careers.Count), ("Granted", isGranted));
 
             return Result<PlayerPublicProfileResponse?>.Success(response);
         }

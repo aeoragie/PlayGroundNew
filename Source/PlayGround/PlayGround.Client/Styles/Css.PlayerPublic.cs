@@ -71,6 +71,48 @@ namespace PlayGround.Client.Styles
 
             public const string CareerMeta = "text-[11px] md:text-[11.5px] text-text-body whitespace-nowrap";
 
+            //.// 권한 뷰 (승인된 에이전트 — Design.PlayerPublicProfile 디테일 권한)
+
+            // 상단 승인 배너 — GNB 바로 아래 풀폭 teal 틴트
+            public const string GrantBanner = "bg-teal/10 border-b border-teal/30";
+
+            public const string GrantBannerInner =
+                "max-w-[1000px] mx-auto px-4 md:px-8 py-2.5 md:py-[11px] flex items-start md:items-center gap-2.5 flex-wrap";
+
+            public const string GrantBannerText = "text-[11.5px] md:text-[12.5px] font-bold text-teal-ink break-keep leading-[1.55]";
+
+            public const string GrantBannerNote = "hidden md:block text-[11.5px] text-text-body whitespace-nowrap";
+
+            // 학교 칩 — 승인 열람 항목이라 공개 칩과 톤을 가른다 (teal 틴트+보더)
+            public const string SchoolChip =
+                "text-xs md:text-[12.5px] font-bold text-teal-ink bg-teal/[.12] border border-teal/[.35] rounded-full " +
+                "px-3 py-1 md:px-3.5 md:py-[5px] whitespace-nowrap";
+
+            // 경기별 상세 기록 카드 — teal 보더로 승인 영역을 시각 구분
+            public const string RecordCard =
+                "bg-white border-1.5 border-teal/40 rounded-[15px] md:rounded-2xl overflow-hidden";
+
+            public const string RecordHeader =
+                "px-4 py-[13px] md:px-[22px] md:py-4 border-b border-surface-icon flex items-center gap-2 md:gap-2.5";
+
+            public const string RecordTitle = "m-0 text-[13.5px] md:text-[15.5px] font-extrabold text-navy-deep";
+
+            public const string RecordRowPc =
+                "hidden md:flex items-center gap-3.5 px-[22px] py-3 border-b border-surface-icon last:border-b-0";
+
+            public const string RecordRowMobile =
+                "md:hidden flex flex-col gap-1.5 px-4 py-[11px] border-b border-surface-icon last:border-b-0";
+
+            public const string CompPillBase =
+                "text-[10px] md:text-[10.5px] font-bold rounded-full px-2 md:px-[9px] py-0.5 whitespace-nowrap shrink-0";
+
+            public const string RecordMatchTitle = "text-xs md:text-[13px] font-bold text-navy-deep break-keep";
+
+            public const string RecordStatChip =
+                "text-[11px] md:text-xs font-extrabold text-navy-deep bg-surface-alt rounded-[6px] md:rounded-[7px] px-[9px] md:px-2.5 py-0.5 whitespace-nowrap";
+
+            public const string RecordMinutes = "text-[11px] md:text-xs text-text-body whitespace-nowrap";
+
             //.// 잠금 안내 (공개 뷰 전용)
 
             public const string LockBox =

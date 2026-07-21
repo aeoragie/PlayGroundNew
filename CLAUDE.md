@@ -341,9 +341,33 @@
   몫 — 결정 6·7) ② "선수 카드 공유" **미노출**(카드 뷰 없음 — A4) ③ 강점 태그·"리그 2위" 미노출
   (저장처·산출 데이터 없음) ④ 인증팀 뱃지 teal 캡슐(AvatarBadge 우선 — dc는 오렌지) ⑤ "영상 N개 더"
   링크 아닌 카운트 텍스트 ⑥ 모바일 GNB "선수 프로필" 레이블은 PublicGnb 공통 동작 유지.
-- **후속(2차·3차 — README 권장 순서)**: 디테일 권한 뷰(승인 배너·학교 칩·경기별 상세 기록·보호자에게
-  연락하기 — AgentViewApproval IsExpired 연동, 미해결 ① 해소) → 카드 뷰 2종(1080×1350 PNG·QR·
-  워터마크). OG 메타는 WASM SPA라 서버 렌더 필요 — 별도 설계.
+- **후속(3차)**: 카드 뷰 2종(1080×1350 PNG·QR·워터마크). OG 메타는 WASM SPA라 서버 렌더 필요 — 별도 설계.
+
+### 공개 선수 프로필 2차 — 디테일 권한 뷰 완료 (2026-07-21, Design.PlayerPublicProfile)
+
+- **권한 판정 = 데이터가 곧 가드** (feature flag 안 씀 — 승인 데이터 존재가 곧 도달 조건). 같은
+  엔드포인트에 로그인 열람자 UserId를 실어(공개홈 IsManager 패턴) SP가 `SoccerAgentProfiles.UserId
+  → SoccerAgentViewRequests`에서 **Approved + 미만료(ExpiresAt 저장값 — AgentViewApproval과 같은
+  기준, 미해결 ① 해소)**를 판정. 미승인·만료·보호자 본인·게스트는 전부 공개 뷰 그대로 —
+  권한 존재 여부를 흘리지 않는다.
+- **열람 로그**: 권한 조회마다 SP가 `SoccerAgentViewLogs`에 **'ProfileView' 적재** — "열람 기록이
+  보호자에게 표시됩니다"의 실데이터. 테이블 주석 갱신(권한 뷰가 PlayGround 화면이 된 이상
+  ProfileView 적재 주체는 PlayGround — RecordView는 여전히 에이전트 서비스 몫).
+- **서버가 자름**: 학교는 권한일 때만 값(공개 뷰는 가시성 무관 항상 null) · **경기별 상세 기록은
+  친선 포함**(dc '친선' pill) · **시즌 요약 4카드는 항상 공식만**(Persistence가 걸러 계산 —
+  공개·권한 어느 뷰든 요약 수치 동일, 검증: 친선 삽입 후 불변). 응답: Grant(승인·만료일)·
+  Matches(기존 PlayerMatchStatDto 재사용)·SchoolName.
+- **화면**: 상단 teal 배너(PC 승인일+"N일 후 만료"+열람 기록 고지 / 모바일 축약 — dc "30일 후
+  만료" 리터럴 대신 실제 남은 일수) → 학교 칩(teal 톤 — 공개 칩과 구분) → 경기별 상세 기록 카드
+  (teal 보더+"승인 열람", 대회 pill 리그/컵/친선 톤, PC 행/모바일 2줄) → CTA "보호자에게
+  연락하기"(무동작 — 플랫폼 메시지 미구현) → 잠금 안내 미노출.
+- **회귀 수정: PublicGnb 로그인 모바일 가로 넘침** — 레이블+메뉴 링크+벨+아바타가 390px 초과
+  (1차는 게스트라 미발견). 경기기록·팀 탐색 링크를 모바일에서 숨겨 게스트와 같은 규칙으로 통일.
+  날짜 `M/d` 포맷이 ko-KR 구분자("7. 21")로 치환되던 것 Invariant 고정.
+- 검증(`shot-playerpublic2.js` 18 PASS / 0 FAIL): 승인 전 공개 뷰 → SQL 승인 → 권한 뷰(친선 포함
+  5경기·요약 공식만·**ProfileView 로그 +1**) → 보호자/게스트 공개 뷰 → SQL 만료 → 폴백. 임시
+  데이터 전량 원복. **함정: Client 수정 후 UI 검증 전 서버 재시작 필수** — dotnet run이 시작 시점
+  WASM을 계속 서빙해 API만 새 코드로 도는 반쪽 상태가 된다(실제로 겪음 — UI만 전부 FAIL).
 
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 

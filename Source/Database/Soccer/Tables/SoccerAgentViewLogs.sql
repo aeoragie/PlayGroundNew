@@ -1,7 +1,7 @@
--- 에이전트 열람 기록 (Design.AgentViewApproval — 신뢰의 핵심). 적재는 에이전트 서비스,
--- PlayGround(보호자 심사 화면)는 읽기 + 승인 이벤트 1건만 직접 남긴다.
--- EventType: 'Approved'(승인 완료 — 심사 프로시저가 남김) / 'ProfileView'(디테일 권한 뷰 방문) /
---            'RecordView'(경기별 상세 기록 열람) — 표시 문구는 클라이언트가 유형으로 조립.
+-- 에이전트 열람 기록 (Design.AgentViewApproval — 신뢰의 핵심).
+-- EventType: 'Approved'(승인 완료 — 심사 프로시저가 남김) / 'ProfileView'(디테일 권한 뷰 방문 —
+--            공개 선수 프로필 조회 프로시저가 남김, 2026-07-21 권한 뷰 구현으로 적재 주체가 PlayGround로 확정) /
+--            'RecordView'(에이전트 서비스 내 열람 — 그쪽이 적재). 표시 문구는 클라이언트가 유형으로 조립.
 CREATE TABLE [dbo].[SoccerAgentViewLogs]
 (
     [LogId]      UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),

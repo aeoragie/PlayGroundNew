@@ -17,7 +17,8 @@ namespace PlayGround.Application.Player.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task<Result<PlayerPublicProfileResponse>> ExecuteAsync(string slug, int seasonYear, CancellationToken cancellation = default)
+        /// <param name="viewerUserId">로그인 열람자 — 승인된 에이전트면 권한 뷰. 게스트는 null.</param>
+        public async Task<Result<PlayerPublicProfileResponse>> ExecuteAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -25,7 +26,7 @@ namespace PlayGround.Application.Player.Commands
             }
 
             Result<PlayerPublicProfileResponse?> profile =
-                await mRepository.GetPublicProfileBySlugAsync(slug.Trim(), seasonYear, cancellation);
+                await mRepository.GetPublicProfileBySlugAsync(slug.Trim(), seasonYear, viewerUserId, cancellation);
             if (profile.IsError)
             {
                 return Result<PlayerPublicProfileResponse>.Failure(profile.ResultData);
