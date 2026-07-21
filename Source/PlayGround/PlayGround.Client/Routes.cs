@@ -26,6 +26,7 @@ namespace PlayGround.Client
         public const string TeamPublicHomeTemplate = "/team/{Slug}";
         public const string TeamPublicHomeTabTemplate = "/team/{Slug}/{Tab}";
         public const string PlayerPublicProfileTemplate = "/player/{Slug}";
+        public const string PlayerPublicCardTemplate = "/player/{Slug}/card";
         public const string TeamExplore = "/teams";
         public const string Claim = "/claim";
         public const string AgentApprovalTemplate = "/approvals/agent/{RequestId:guid}";
@@ -91,6 +92,11 @@ namespace PlayGround.Client
         public static string PlayerPublicProfile(string slug)
         {
             return $"/player/{slug}";
+        }
+
+        public static string PlayerPublicCard(string slug)
+        {
+            return $"/player/{slug}/card";
         }
 
         /// <summary>

@@ -546,8 +546,10 @@ namespace PlayGround.Persistence.Repositories
                     HeightCm = IsPublic(SoccerPlayerProfileField.Height) ? header.HeightCm : null,
                     WeightKg = IsPublic(SoccerPlayerProfileField.Weight) ? header.WeightKg : null,
                     PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? NullIfEmpty(header.PreferredFoot) : null,
-                    // 학교는 권한 뷰(승인된 에이전트)에만 — 공개 뷰는 가시성과 무관하게 항상 null
-                    SchoolName = isGranted ? NullIfEmpty(header.SchoolName) : null
+                    // 학교·학년·보호자명은 권한 뷰(승인된 에이전트)에만 — 공개 뷰는 가시성과 무관하게 항상 null
+                    SchoolName = isGranted ? NullIfEmpty(header.SchoolName) : null,
+                    Grade = isGranted ? NullIfEmpty(header.Grade) : null,
+                    GuardianDisplayName = isGranted ? MaskName(NullIfEmpty(header.MemberName)) : null
                 },
                 Season = season,
                 Grant = isGranted ? new PlayerPublicGrantDto
@@ -641,6 +643,17 @@ namespace PlayGround.Persistence.Repositories
             {
                 return new List<string>();
             }
+        }
+
+        // 보호자 이름 마스킹 — 성만 남김 (김민아 → 김OO). 권한 카드도 실명은 노출하지 않는다
+        private static string? MaskName(string? name)
+        {
+            if (name is null)
+            {
+                return null;
+            }
+
+            return name.Length <= 1 ? name : name[..1] + new string('O', name.Length - 1);
         }
 
         // 보호자 연락처 마스킹 — 가운데 자리 감춤 (010-1234-5678 → 010-****-5678)

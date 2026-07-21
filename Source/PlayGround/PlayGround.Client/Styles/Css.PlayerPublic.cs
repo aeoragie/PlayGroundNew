@@ -130,6 +130,44 @@ namespace PlayGround.Client.Styles
                 "hidden md:flex items-center h-[42px] px-[22px] border-1.5 border-navy rounded-[10px] bg-transparent " +
                 "text-[13px] font-bold text-navy hover:bg-navy hover:text-white whitespace-nowrap cursor-pointer transition-colors";
 
+            //.// 카드 뷰 (공유용 — 네이비 그라디언트, dc 카드 360/모바일 340)
+
+            public const string CardStage =
+                "min-h-screen flex flex-col items-center justify-center gap-4 px-5 py-10 " +
+                "bg-[linear-gradient(160deg,#eef1f7,rgb(var(--color-surface-alt)))]";
+
+            public const string CardShell =
+                "w-full max-w-[340px] md:max-w-[360px] rounded-[20px] md:rounded-[22px] overflow-hidden relative " +
+                "text-white bg-gradient-navy shadow-player-card";
+
+            public const string CardDecorLarge =
+                "absolute -top-[70px] -right-[70px] w-[210px] h-[210px] md:w-[220px] md:h-[220px] border-1.5 border-white/[.09] rounded-full pointer-events-none";
+
+            public const string CardDecorSmall =
+                "absolute top-5 -right-10 w-[140px] h-[140px] md:w-[150px] md:h-[150px] border-1.5 border-teal/25 rounded-full pointer-events-none";
+
+            public const string CardStatChip =
+                "flex-1 bg-white/[.08] rounded-[10px] md:rounded-[11px] py-[9px] md:py-2.5 flex flex-col items-center gap-px";
+
+            public const string CardGrantedBlock =
+                "mx-[22px] md:mx-6 border-t border-dashed border-white/20 py-3 md:py-3.5 flex flex-col gap-1.5 relative";
+
+            public const string CardFooterBar =
+                "bg-[rgba(15,20,30,.35)] px-[22px] md:px-6 py-3 md:py-[13px] flex items-center gap-[9px] relative";
+
+            public const string CardSaveButton =
+                "flex-1 md:flex-none flex items-center justify-center gap-[7px] h-[46px] md:h-11 px-0 md:px-[22px] rounded-[11px] " +
+                "bg-orange hover:bg-orange-hover text-[13px] md:text-[13.5px] font-bold text-white whitespace-nowrap " +
+                "shadow-cta-orange-sm border-0 cursor-pointer transition-colors";
+
+            public const string CardShareButton =
+                "flex-1 md:flex-none flex items-center justify-center gap-[7px] h-[46px] md:h-11 px-0 md:px-[22px] rounded-[11px] " +
+                "border-1.5 border-border bg-white text-[13px] md:text-[13.5px] font-bold text-text-strong " +
+                "hover:border-navy hover:text-navy whitespace-nowrap cursor-pointer transition-colors";
+
+            public const string CardCaption =
+                "text-xs md:text-[11.5px] text-text-muted text-center break-keep max-w-[340px] md:max-w-[360px] leading-[1.6]";
+
             //.// 모바일 하단 고정 CTA 바
 
             public const string MobileCtaBar =

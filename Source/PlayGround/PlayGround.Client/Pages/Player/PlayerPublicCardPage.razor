@@ -1,0 +1,332 @@
+@attribute [Route(Routes.PlayerPublicCardTemplate)]
+@layout LandingLayout
+@using PlayGround.Client.Models
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
+@inject PlayerClient Players
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject IJSRuntime Js
+@inject ToastService Toasts
+@implements IAsyncDisposable
+
+<PageTitle>@(mData?.Profile.Name ?? "선수 카드") — PlayGround</PageTitle>
+
+@* 선수 카드 뷰 — SNS·메신저 공유용 (Design.PlayerPublicProfile 카드 공개/권한).
+   공개/권한은 디테일과 같은 서버 판정(Grant) — 수동 전환 UI 없음. dc대로 GNB 없이 카드 중앙 배치.
+   이미지 저장은 player-card.js가 1080×1350 캔버스로 직접 렌더(권한 카드는 워터마크 포함). *@
+@if (mLoaded && mData is null)
+{
+    <div class="min-h-screen bg-bg flex items-center justify-center px-4">
+        <div class="@($"{Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-3 text-center max-w-[420px]")">
+            <h1 class="m-0 text-xl font-extrabold text-navy-deep">선수 프로필을 찾을 수 없어요</h1>
+            <p class="m-0 text-sm text-text-body leading-[1.7] break-keep">주소가 잘못되었거나 비공개로 전환된 프로필이에요.</p>
+            <a href="@Routes.Landing" class="mt-1 text-[13.5px] font-bold text-navy">PlayGround 홈으로 →</a>
+        </div>
+    </div>
+}
+else if (mData is not null)
+{
+    <div class="@Css.PlayerPublic.CardStage">
+        <div class="@Css.PlayerPublic.CardShell">
+            <span class="@Css.PlayerPublic.CardDecorLarge"></span>
+            <span class="@Css.PlayerPublic.CardDecorSmall"></span>
+
+            @* 헤더 — 팀 크레스트 + 팀명·시즌 + 등번호 *@
+            <div class="px-[22px] md:px-6 pt-5 md:pt-[22px] flex items-center gap-[9px] relative">
+                <svg width="20" height="23" viewBox="0 0 44 50" class="flex-none"><path d="M22 1l19 6.5v14c0 12.5-8.2 21-19 26.5C11.2 42.5 3 34 3 21.5v-14z" fill="#fff" opacity=".15"></path><path d="M22 5l15 5.1v11.6c0 10.3-6.5 17.4-15 22.2-8.5-4.8-15-11.9-15-22.2V10.1z" fill="#2EC4B6" opacity=".7"></path></svg>
+                <span class="flex flex-col min-w-0">
+                    <span class="text-[11.5px] md:text-xs font-extrabold whitespace-nowrap overflow-hidden text-ellipsis">@(mData.Profile.TeamName ?? "PlayGround")</span>
+                    <span class="text-[9.5px] md:text-[10px] text-white/55 whitespace-nowrap">@SeasonLabel</span>
+                </span>
+                <div class="flex-1"></div>
+                @if (mData.Profile.JerseyNumber is not null)
+                {
+                    <span class="text-2xl md:text-[26px] font-extrabold text-white/25">#@mData.Profile.JerseyNumber</span>
+                }
+            </div>
+
+            @* 사진 + 이름 블록 *@
+            <div class="flex items-end gap-3.5 md:gap-4 px-[22px] md:px-6 pt-3.5 relative">
+                <div class="w-[118px] md:w-[132px] aspect-[3/4] rounded-xl md:rounded-[13px] overflow-hidden bg-white/[.08] border border-white/15 flex-none">
+                    @if (mData.Profile.PhotoUrl is not null)
+                    {
+                        <img src="@mData.Profile.PhotoUrl" alt="@mData.Profile.Name" class="w-full h-full object-cover" />
+                    }
+                    else
+                    {
+                        <span class="w-full h-full flex items-center justify-center">
+                            <Avatar Name="@mData.Profile.Name" Size="56" />
+                        </span>
+                    }
+                </div>
+                <div class="flex flex-col gap-1.5 md:gap-[7px] pb-1.5 min-w-0">
+                    <span class="text-[21px] md:text-2xl font-extrabold tracking-[-.02em] whitespace-nowrap">@mData.Profile.Name</span>
+                    @if (CardMeta is not null)
+                    {
+                        <span class="text-[11.5px] md:text-[12.5px] font-bold text-teal whitespace-nowrap">@CardMeta</span>
+                    }
+                    <span class="flex flex-col gap-1">
+                        @if (BodyLine is not null)
+                        {
+                            <span class="text-[10.5px] md:text-[11px] text-white/60 whitespace-nowrap">@BodyLine</span>
+                        }
+                        @if (CurrentBadgeLabel is not null)
+                        {
+                            <span class="text-[10.5px] md:text-[11px] text-white/60 whitespace-nowrap">@CurrentBadgeLabel</span>
+                        }
+                    </span>
+                </div>
+            </div>
+
+            @* 4스탯 칩 — 시즌 데이터가 없으면 행 자체를 넣지 않는다 *@
+            @if (mData.Season is PlayerPublicSeasonDto season)
+            {
+                <div class="flex gap-[7px] md:gap-2 px-[22px] md:px-6 py-3.5 md:py-4 relative">
+                    <span class="@Css.PlayerPublic.CardStatChip"><span class="text-[15.5px] md:text-[17px] font-extrabold">@season.MatchCount</span><span class="text-[9px] md:text-[9.5px] font-bold text-white/55">출전</span></span>
+                    <span class="@Css.PlayerPublic.CardStatChip"><span class="text-[15.5px] md:text-[17px] font-extrabold text-teal">@season.Goals</span><span class="text-[9px] md:text-[9.5px] font-bold text-white/55">득점</span></span>
+                    <span class="@Css.PlayerPublic.CardStatChip"><span class="text-[15.5px] md:text-[17px] font-extrabold">@season.Assists</span><span class="text-[9px] md:text-[9.5px] font-bold text-white/55">도움</span></span>
+                    <span class="@Css.PlayerPublic.CardStatChip"><span class="text-[15.5px] md:text-[17px] font-extrabold">@(season.TotalMinutes)'</span><span class="text-[9px] md:text-[9.5px] font-bold text-white/55">시간</span></span>
+                </div>
+            }
+            else
+            {
+                <div class="pt-3.5 md:pt-4"></div>
+            }
+
+            @* 권한 카드 전용 — 승인 열람 정보 *@
+            @if (mData.Grant is not null)
+            {
+                <div class="@Css.PlayerPublic.CardGrantedBlock">
+                    <span class="flex items-center gap-1.5 text-[10.5px] font-bold text-teal">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>승인 열람 정보
+                    </span>
+                    @if (GrantedSchoolLine is not null)
+                    {
+                        <span class="text-[11.5px] md:text-xs text-white/80 whitespace-nowrap">@GrantedSchoolLine</span>
+                    }
+                    <span class="text-[11.5px] md:text-xs text-white/80 whitespace-nowrap">플랫폼 메시지로 연락 가능</span>
+                </div>
+            }
+
+            @* 하단 바 — QR + URL + 워터마크 *@
+            <div class="@Css.PlayerPublic.CardFooterBar">
+                <span class="w-8 h-8 md:w-[34px] md:h-[34px] rounded-lg bg-white flex items-center justify-center flex-none">
+                    <canvas @ref="mQrCanvas" width="100" height="100" class="w-[26px] h-[26px] md:w-7 md:h-7"></canvas>
+                </span>
+                <span class="flex flex-col gap-px min-w-0">
+                    <span class="text-[10.5px] md:text-[11px] font-bold whitespace-nowrap overflow-hidden text-ellipsis">@UrlLabel</span>
+                    <span class="text-[9.5px] md:text-[10px] text-white/50 whitespace-nowrap">@FooterNote</span>
+                </span>
+                <div class="flex-1"></div>
+                <span class="text-[9.5px] md:text-[10px] font-bold text-white/40 whitespace-nowrap">PlayGround</span>
+            </div>
+        </div>
+
+        <div class="flex gap-2.5 w-full max-w-[340px] md:max-w-none md:w-auto">
+            <button type="button" class="@Css.PlayerPublic.CardSaveButton" @onclick="SaveImageAsync">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"></path><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>이미지로 저장
+            </button>
+            <button type="button" class="@Css.PlayerPublic.CardShareButton" @onclick="CopyLinkAsync">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>링크 공유
+            </button>
+        </div>
+
+        <span class="@Css.PlayerPublic.CardCaption">@Caption</span>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private PlayerPublicProfileResponse? mData;
+    private bool mLoaded;
+    private bool mQrRendered;
+    private ElementReference mQrCanvas;
+    private IJSObjectReference? mModule;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 게스트 허용 화면 — 로그인 상태면 인증 선확정 (권한 카드 판정에 토큰이 실려야 한다)
+        await AuthProvider.GetAuthenticationStateAsync();
+        mData = await Players.GetPublicProfileAsync(Slug, DateTime.Now.Year);
+        mLoaded = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (mData is null || mQrRendered)
+        {
+            return;
+        }
+
+        mQrRendered = true;
+        IJSObjectReference module = await ModuleAsync();
+        await module.InvokeVoidAsync("renderQr", mQrCanvas, ProfileUrl);
+    }
+
+    private async Task<IJSObjectReference> ModuleAsync()
+    {
+        mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/player-card.js");
+        return mModule;
+    }
+
+    /// <summary>QR·공유 링크 = 디테일 공개 프로필 절대 URL.</summary>
+    private string ProfileUrl => Nav.ToAbsoluteUri(Routes.PlayerPublicProfile(Slug)).ToString();
+
+    private string UrlLabel => $"playground.kr{Routes.PlayerPublicProfile(Slug)}";
+
+    private string SeasonLabel
+    {
+        get
+        {
+            string season = $"{DateTime.Now.Year} 시즌";
+            return mData!.Profile.AgeGroup is null ? season : $"{season} · {mData.Profile.AgeGroup}";
+        }
+    }
+
+    // "FW · 왼발 · 2012" — 있는 항목만
+    private string? CardMeta
+    {
+        get
+        {
+            List<string> parts = new();
+            if (mData!.Profile.Position is not null)
+            {
+                parts.Add(mData.Profile.Position);
+            }
+
+            if (SoccerPreferredFootExtensions.ParseLabelOrNull(mData.Profile.PreferredFoot) is string foot)
+            {
+                parts.Add(foot);
+            }
+
+            if (mData.Profile.BirthYear is not null)
+            {
+                parts.Add(mData.Profile.BirthYear.ToString()!);
+            }
+
+            return parts.Count > 0 ? string.Join(" · ", parts) : null;
+        }
+    }
+
+    // "키 168cm · 몸무게 54kg" — 공개 항목만 (카드 캡션 "공개 설정된 정보만" 그대로)
+    private string? BodyLine
+    {
+        get
+        {
+            List<string> parts = new();
+            if (mData!.Profile.HeightCm is int height)
+            {
+                parts.Add($"키 {height}cm");
+            }
+
+            if (mData.Profile.WeightKg is int weight)
+            {
+                parts.Add($"몸무게 {weight}kg");
+            }
+
+            return parts.Count > 0 ? string.Join(" · ", parts) : null;
+        }
+    }
+
+    // 특이사항 — 현재 소속 커리어의 특이 뱃지 (예: "서울 지역 대표 선발")
+    private string? CurrentBadgeLabel =>
+        mData!.Careers.FirstOrDefault(c => c.IsCurrent)?.BadgeLabel;
+
+    // "강동중학교 2학년 · 보호자 김OO" — 있는 조각만
+    private string? GrantedSchoolLine
+    {
+        get
+        {
+            List<string> parts = new();
+            string school = string.Join(" ", new[] { mData!.Profile.SchoolName, mData.Profile.Grade }.Where(v => v is not null));
+            if (school.Length > 0)
+            {
+                parts.Add(school);
+            }
+
+            if (mData.Profile.GuardianDisplayName is not null)
+            {
+                parts.Add($"보호자 {mData.Profile.GuardianDisplayName}");
+            }
+
+            return parts.Count > 0 ? string.Join(" · ", parts) : null;
+        }
+    }
+
+    private string FooterNote => mData!.Grant is null ? "QR 스캔으로 전체 프로필 열람" : "승인 열람 카드 · 재공유 금지";
+
+    private string Caption => mData!.Grant is null
+        ? "카드에는 공개 설정된 정보만 담깁니다. 이미지 저장 시 1080×1350 크기로 만들어져요."
+        : "승인 열람 카드는 워터마크가 포함되며 승인된 계정 외 재공유가 제한됩니다.";
+
+    private async Task SaveImageAsync()
+    {
+        IJSObjectReference module = await ModuleAsync();
+        var payload = new
+        {
+            name = mData!.Profile.Name,
+            meta = CardMeta,
+            teamName = mData.Profile.TeamName ?? "PlayGround",
+            seasonLabel = SeasonLabel,
+            jersey = mData.Profile.JerseyNumber is null ? null : $"#{mData.Profile.JerseyNumber}",
+            photoUrl = mData.Profile.PhotoUrl,
+            bodyLines = new[] { BodyLine, CurrentBadgeLabel }.Where(v => v is not null).ToArray(),
+            stats = mData.Season is PlayerPublicSeasonDto s
+                ? new object[]
+                {
+                    new { value = s.MatchCount.ToString(), label = "출전", teal = false },
+                    new { value = s.Goals.ToString(), label = "득점", teal = true },
+                    new { value = s.Assists.ToString(), label = "도움", teal = false },
+                    new { value = $"{s.TotalMinutes}'", label = "시간", teal = false },
+                }
+                : null,
+            granted = mData.Grant is null ? null : new
+            {
+                lines = new[] { GrantedSchoolLine, "플랫폼 메시지로 연락 가능" }.Where(v => v is not null).ToArray(),
+            },
+            url = ProfileUrl,
+            urlLabel = UrlLabel,
+            footerNote = FooterNote,
+            fileName = $"{mData.Profile.Name}-선수카드.png",
+        };
+
+        bool saved = await module.InvokeAsync<bool>("saveCardImage", payload);
+        if (!saved)
+        {
+            Toasts.ShowError("이미지를 만들지 못했어요. 다시 시도해 주세요.");
+        }
+    }
+
+    private async Task CopyLinkAsync()
+    {
+        IJSObjectReference module = await ModuleAsync();
+        bool copied = await module.InvokeAsync<bool>("copyLink", ProfileUrl);
+        if (copied)
+        {
+            Toasts.ShowSuccess("프로필 링크를 복사했어요.");
+        }
+        else
+        {
+            Toasts.ShowError("링크를 복사하지 못했어요. 주소창의 URL을 직접 복사해 주세요.");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (mModule is not null)
+        {
+            try
+            {
+                await mModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // 페이지 이탈로 회로가 이미 끊긴 경우 — 무시
+            }
+        }
+    }
+}

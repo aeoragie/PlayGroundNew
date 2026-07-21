@@ -343,6 +343,27 @@
   링크 아닌 카운트 텍스트 ⑥ 모바일 GNB "선수 프로필" 레이블은 PublicGnb 공통 동작 유지.
 - **후속(3차)**: 카드 뷰 2종(1080×1350 PNG·QR·워터마크). OG 메타는 WASM SPA라 서버 렌더 필요 — 별도 설계.
 
+### 공개 선수 프로필 3차 — 카드 뷰 2종 완료 (2026-07-21) → **PlayerPublicProfile 4뷰 전부 완료**
+
+- **`/player/{slug}/card`** — 공개/권한은 디테일과 같은 서버 판정(Grant) 자동 결정, dc대로 GNB 없이
+  카드 중앙 배치. 네이비 그라디언트 카드(크레스트·#등번호·3:4 사진·teal 메타·**공개 항목만**·
+  특이사항=현재 커리어 BadgeLabel·4스탯 칩) + QR 하단 바. 권한 카드 = 점선 "승인 열람 정보" 블록
+  (학교·학년·**보호자 이름 서버 마스킹 "김OO"** — SP 헤더에 Grade·FamilyLinks Guardian MemberName
+  추가, 권한 뷰에만 DTO) + "재공유 금지" 캡션.
+- **QR 실동작** — `qrcode-generator`(MIT) → `wwwroot/js/qrcode.vendor.js` vendored. 화면·저장 모두
+  캔버스 셀 직접 렌더. QR 내용 = 디테일 프로필 절대 URL.
+- **이미지 저장** — `wwwroot/js/player-card.js`가 **1080×1350 고정 PNG** 캔버스 직접 렌더
+  (html2canvas류 없음 — 레이아웃 고정이라 직접이 결정적. 가변 높이로 만들면 1170이 나온다 — 고정 후
+  내부 여백으로 흡수). 사진 CORS 실패 시 이니셜 폴백, **권한 카드는 대각 워터마크**. 링크 공유 =
+  클립보드+토스트.
+- **진입점 복원**(1차 A4 미노출분): 디테일 PC "선수 카드 공유" 아웃라인 + 모바일 하단 공유 아이콘.
+- 검증(`shot-playerpublic3.js` 14 PASS): 공개 카드(공개 항목만·QR 픽셀 검사) · **CDP 다운로드로
+  PNG IHDR 1080×1350 실검사** · 클립보드 토스트 · 진입점 2곳 · 권한 카드(김OO 마스킹·재공유 금지) ·
+  Profile off → 카드도 NotFound · 모바일. **wwwroot JS 수정도 서버 재시작 필수**(WASM 함정 동일).
+- **잔여**: 강점 태그(저장처·입력 UI 없음 — 스키마 설계 필요) · OG 메타(WASM SPA — 서버 렌더 별도
+  설계). HandoffAudit·IntegrationTestPlan의 해당 갭(S2 공개 프로필 반영·S3 친선 미노출·S6 권한 뷰)
+  해소 처리됨.
+
 ### 공개 선수 프로필 2차 — 디테일 권한 뷰 완료 (2026-07-21, Design.PlayerPublicProfile)
 
 - **권한 판정 = 데이터가 곧 가드** (feature flag 안 씀 — 승인 데이터 존재가 곧 도달 조건). 같은

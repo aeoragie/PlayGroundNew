@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
 /// <summary>
-/// SoccerPlayerPublicHeaderRecord (JOIN: SoccerPlayers + SoccerTeamPlayers + SoccerTeams)
+/// SoccerPlayerPublicHeaderRecord (JOIN: SoccerPlayers + SoccerTeamPlayers + SoccerTeams + SoccerPlayerFamilyLinks)
 /// </summary>
 public class SoccerPlayerPublicHeaderRecord
 {
@@ -47,6 +47,9 @@ public class SoccerPlayerPublicHeaderRecord
 	[StringLength(60)]
 	public string Position { get; set; } = String.Empty;
 
+	[StringLength(60)]
+	public string Grade { get; set; } = String.Empty;
+
 	[Required]
 	[StringLength(300)]
 	public string TeamName { get; set; } = String.Empty;
@@ -56,4 +59,8 @@ public class SoccerPlayerPublicHeaderRecord
 
 	[StringLength(100)]
 	public string Slug { get; set; } = String.Empty;
+
+	[Required]
+	[StringLength(300)]
+	public string MemberName { get; set; } = String.Empty;
 }

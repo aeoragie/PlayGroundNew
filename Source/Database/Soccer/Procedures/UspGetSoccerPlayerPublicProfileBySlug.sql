@@ -1,8 +1,9 @@
 -- @entity: SoccerPlayerPublicHeaderRecord
 -- @source: join
 -- @join: SoccerPlayers AS p (PlayerId, Name, PhotoUrl, BirthDate, AgeGroup, HeightCm, WeightKg, PreferredFoot, SchoolName, IsGuardianManaged)
--- @join: SoccerTeamPlayers AS tp (JerseyNumber, Position)
+-- @join: SoccerTeamPlayers AS tp (JerseyNumber, Position, Grade)
 -- @join: SoccerTeams AS t (TeamName, IsVerified, Slug)
+-- @join: SoccerPlayerFamilyLinks AS fl (MemberName)
 -- 공개 선수 프로필 조회 (Slug 기준 — Design.PlayerPublicProfile 디테일 공개/권한 뷰).
 -- 프로필 공개(FieldName='Profile')를 끈 선수·미존재는 빈 결과 (공개홈 로스터와 같은 기준).
 -- 결과셋 7개: ⓪선수+소속팀 헤더 → ①필드 가시성(기본값 병합은 Persistence) → ②시즌 출전 경기
@@ -47,17 +48,24 @@ BEGIN
     END
 
     -- Slug = 팀 공개홈 슬러그 (선수 slug는 요청 파라미터와 같아 내리지 않는다). 팀 홈 비공개면 NULL.
+    -- MemberName = 보호자 표시 이름 (권한 카드 "보호자 김OO"용 — 마스킹은 Persistence).
     SELECT
         p.[PlayerId], p.[Name], p.[PhotoUrl], p.[BirthDate], p.[AgeGroup],
         p.[HeightCm], p.[WeightKg], p.[PreferredFoot], p.[SchoolName], p.[IsGuardianManaged],
-        tp.[JerseyNumber], tp.[Position],
+        tp.[JerseyNumber], tp.[Position], tp.[Grade],
         t.[TeamName], t.[IsVerified],
-        CASE WHEN t.[IsPublicProfile] = 1 THEN t.[Slug] END AS [Slug]
+        CASE WHEN t.[IsPublicProfile] = 1 THEN t.[Slug] END AS [Slug],
+        fl.[MemberName]
     FROM [dbo].[SoccerPlayers] p WITH (NOLOCK)
     LEFT JOIN [dbo].[SoccerTeamPlayers] tp WITH (NOLOCK)
         ON tp.[PlayerId] = p.[PlayerId] AND tp.[Status] = 'Active' AND tp.[DeletedAt] IS NULL
     LEFT JOIN [dbo].[SoccerTeams] t WITH (NOLOCK)
         ON t.[TeamId] = tp.[TeamId] AND t.[DeletedAt] IS NULL
+    OUTER APPLY (
+        SELECT TOP 1 f.[MemberName]
+        FROM [dbo].[SoccerPlayerFamilyLinks] f WITH (NOLOCK)
+        WHERE f.[PlayerId] = p.[PlayerId] AND f.[Role] = 'Guardian' AND f.[DeletedAt] IS NULL
+        ORDER BY f.[DisplayOrder], f.[CreatedAt]) fl
     WHERE p.[PlayerId] = @PlayerId;
 
     SELECT

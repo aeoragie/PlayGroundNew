@@ -56,6 +56,7 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `shot-avatarbadge.js` | Avatar·CountBadge·StatusBadge 일괄 교체 — 허브(자녀 teal·연결됨 캡슐·벨 99+)·선수단(Claim 캡슐·카드 아바타)·팀 정보(코치 네이비)·경기(승 teal 틴트)·Records(진행중/예정 캡슐)·모바일. 사전: 벨 99+용 알림 105건 삽입(스크립트 헤더 참고), 허브용 sql-hub.sql — **UserId는 PC마다 다르니 파일 헤더의 조회 명령으로 먼저 확인** |
 | `shot-playerpublic.js` | 공개 선수 프로필 /player/{slug} — API(공개 범위 필터·**친선 삽입→집계 불변**·Profile off→NotFound·무소속 임시 선수·없는 slug) + UI(히어로 캡슐·칩·잠금 안내 카피·오렌지 2곳만·팀 링크 왕복·**공개홈 로스터 "공개 프로필 →" 복원**·모바일 하단 CTA·가로 스크롤 0). 임시 데이터는 스크립트가 sqlcmd로 넣고 지운다 |
 | `shot-playerpublic2.js` | 공개 선수 프로필 **권한 뷰** — 에이전트 임시 계정(find-or-create)+시드 요청 → 승인 전 공개 뷰 → SQL 승인 → 권한 뷰(Grant·학교·**경기별 기록 친선 포함**·요약은 공식만·**ProfileView 로그 +1**) → 보호자/게스트는 공개 뷰 → SQL 만료 → 폴백 · UI(teal 배너·학교 칩·승인 열람 카드·보호자 연락 CTA·잠금 안내 미노출·모바일). **UI 검증 전 서버 재시작 필수**(Client 수정이 옛 WASM에 안 실림 — 실제로 겪음). 끝나면 전부 원복(임시 계정 물리 삭제 포함) |
+| `shot-playerpublic3.js` | 공개 선수 프로필 **카드 뷰 2종** (/player/{slug}/card) — 공개 카드(공개 항목만·QR 캔버스 실렌더 픽셀 검사·스탯 4칩) · **이미지 저장 = CDP 다운로드로 PNG 1080×1350 IHDR 검사** · 링크 공유 클립보드 · 디테일 진입점(PC 버튼·모바일 아이콘) · 권한 카드(승인 열람 블록·보호자 이름 마스킹 김OO·재공유 금지 캡션) · Profile off = 카드도 NotFound. wwwroot JS 수정도 서버 재시작 필수. 전부 원복 |
 
 `.sql`은 sqlcmd로 돌린다:
 

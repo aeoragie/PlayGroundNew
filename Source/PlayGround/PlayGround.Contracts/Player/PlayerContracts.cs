@@ -284,6 +284,12 @@ namespace PlayGround.Contracts.Player
 
         /// <summary>학교 — 권한 뷰(승인된 에이전트)에만 값이 실린다. 공개 뷰는 항상 null.</summary>
         public string? SchoolName { get; set; }
+
+        /// <summary>학년 ('초4'~'고3') — 권한 카드 "승인 열람 정보" 블록용. 공개 뷰는 항상 null.</summary>
+        public string? Grade { get; set; }
+
+        /// <summary>보호자 표시 이름 (마스킹 — "김OO") — 권한 카드 전용. 공개 뷰는 항상 null.</summary>
+        public string? GuardianDisplayName { get; set; }
     }
 
     /// <summary>공개 프로필 시즌 요약 — 공식 경기만 집계 (친선 미포함, Design.FriendlyMatch).</summary>

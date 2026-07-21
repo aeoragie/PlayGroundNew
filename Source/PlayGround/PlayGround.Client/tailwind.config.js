@@ -135,6 +135,8 @@ module.exports = {
         authbtn: '0 4px 14px rgba(255,107,53,.3)',
         // 공개 팀 홈페이지 히어로 엠블럼 박스
         'team-emblem': '0 8px 24px rgba(28,43,74,.25)',
+        // 공개 선수 프로필 카드 뷰 (Design.PlayerPublicProfile)
+        'player-card': '0 24px 60px rgba(28,43,74,.28)',
         // 피드백 (Design.FeedbackPatterns) — 토스트 캡슐 / 확인 모달 카드
         // 날짜·시간 팝오버 (Design.DatePicker)
         picker: '0 10px 30px rgba(28,43,74,.12)',
