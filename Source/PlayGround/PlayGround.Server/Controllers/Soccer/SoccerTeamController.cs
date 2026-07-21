@@ -50,6 +50,16 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        // 팀 탐색 공개 목록 — 비로그인. 검색 리소스 규칙(api/{sport}/teams)이라 복수형 절대 경로.
+        [AllowAnonymous]
+        [HttpGet("~/api/soccer/teams")]
+        public async Task<Envelope<TeamExploreResponse>> GetExploreTeamsAsync(CancellationToken cancellation)
+        {
+            Result<TeamExploreResponse> result = await mGateway.AskAsync<TeamExploreResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamExploreMessage(), cancellation);
+            return result.ToEnvelope();
+        }
+
         // 공개 팀 홈페이지 — 비로그인 읽기전용. 'me' 리터럴 라우트가 {slug}보다 우선 매칭된다.
         [AllowAnonymous]
         [HttpGet("{slug}/home")]

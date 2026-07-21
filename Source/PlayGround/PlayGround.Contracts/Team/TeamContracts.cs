@@ -107,6 +107,35 @@ namespace PlayGround.Contracts.Team
         public string? InviteCode { get; set; }
     }
 
+    /// <summary>팀 탐색 공개 목록 (비로그인). 필터·정렬·페이징은 클라이언트 담당.</summary>
+    public class TeamExploreResponse
+    {
+        public List<TeamExploreItemDto> Teams { get; set; } = new();
+    }
+
+    /// <summary>팀 탐색 카드 한 장 — 공개 정보만.</summary>
+    public class TeamExploreItemDto
+    {
+        public string TeamName { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string? TeamType { get; set; }      // 클럽 | 학교 | 학원
+        public string? Region { get; set; }
+        public string? AgeGroup { get; set; }      // 'U12' | 'U15' | 'U18'
+        public string? LogoUrl { get; set; }
+        public string? CoverImageUrl { get; set; }
+        public bool IsVerified { get; set; }
+        public bool IsRecruiting { get; set; }
+
+        /// <summary>핵심가치 제목 — 카드 teal 칩용 상위 2개.</summary>
+        public List<string> Values { get; set; } = new();
+        public int PlayerCount { get; set; }
+
+        /// <summary>올해 종료된 공식 경기 전적 (승/무/패). 경기 없으면 전부 0.</summary>
+        public int Wins { get; set; }
+        public int Draws { get; set; }
+        public int Losses { get; set; }
+    }
+
     /// <summary>공개 팀 홈페이지 묶음 (비로그인, Slug 기준). 관리 정보(Claim·UserId 등)는 포함하지 않는다.</summary>
     public class TeamPublicHomeResponse
     {

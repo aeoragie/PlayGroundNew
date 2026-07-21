@@ -220,6 +220,21 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>팀 탐색 공개 목록 (비로그인 가능). 오류 시 null — 페이지가 실패 상태로 구분한다.</summary>
+        public async Task<TeamExploreResponse?> GetExploreTeamsAsync()
+        {
+            try
+            {
+                Envelope<TeamExploreResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamExploreResponse>>("api/soccer/teams");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 네트워크 오류 → null (LoadingGate 실패 처리)
+            }
+        }
+
         /// <summary>공개 팀 홈페이지 조회 (비로그인 가능). 미존재·비공개·오류 시 null.</summary>
         public async Task<TeamPublicHomeResponse?> GetTeamHomeAsync(string slug)
         {

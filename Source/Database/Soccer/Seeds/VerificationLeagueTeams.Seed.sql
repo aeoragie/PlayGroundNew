@@ -404,3 +404,9 @@ SELECT UPPER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 8)), [PlayerI
 FROM @roster
 WHERE [IsClaimed] = 0;
 GO
+--.// 팀 탐색 검증용 — 모집중 플래그 (신답·광주·군산. Migrations/2026-07-21_SoccerTeams.IsRecruiting.sql 선행)
+
+UPDATE [dbo].[SoccerTeams]
+SET [IsRecruiting] = 1, [UpdatedAt] = GETUTCDATE()
+WHERE [TeamId] IN ('B0000000-0000-0000-0000-000000000001', 'B0000000-0000-0000-0000-000000000004', 'B0000000-0000-0000-0000-000000000006');
+GO

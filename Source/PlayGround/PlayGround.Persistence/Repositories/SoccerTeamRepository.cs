@@ -688,6 +688,99 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
+        public async Task<Result<TeamExploreResponse>> GetExploreTeamsAsync(CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team explore list requested");
+
+            var procedure = new UspGetSoccerTeamExplore(this);
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Team explore query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<TeamExploreResponse>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            var teams = (await reader.ReadAsync<SoccerTeamExploreRecord>()).ToList();
+            var values = (await reader.ReadAsync<SoccerTeamValuesEntity>()).ToList();
+            var memberships = (await reader.ReadAsync<SoccerTeamPlayersEntity>()).ToList();
+            var matches = (await reader.ReadAsync<SoccerMatchesEntity>()).ToList();
+
+            // 팀별 집계 — 핵심가치 상위 2 / 선수단 수 / 올해 종료·공식 경기 전적
+            var valuesByTeam = values
+                .GroupBy(v => v.TeamId)
+                .ToDictionary(g => g.Key, g => g.OrderBy(v => v.DisplayOrder).Take(2).Select(v => v.Title).ToList());
+            var playerCounts = memberships
+                .GroupBy(m => m.TeamId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            Dictionary<Guid, (int Wins, int Draws, int Losses)> records = new();
+            foreach (SoccerMatchesEntity match in matches)
+            {
+                if (match.HomeScore is null || match.AwayScore is null)
+                {
+                    continue;
+                }
+
+                Accumulate(records, match.HomeTeamId, match.HomeScore.Value, match.AwayScore.Value);
+                Accumulate(records, match.AwayTeamId, match.AwayScore.Value, match.HomeScore.Value);
+            }
+
+            var response = new TeamExploreResponse
+            {
+                Teams = teams
+                    .Select(t =>
+                    {
+                        (int wins, int draws, int losses) = records.GetValueOrDefault(t.TeamId);
+                        return new TeamExploreItemDto
+                        {
+                            TeamName = t.TeamName,
+                            Slug = t.Slug,
+                            TeamType = NullIfEmpty(t.TeamType),
+                            Region = NullIfEmpty(t.Region),
+                            AgeGroup = NullIfEmpty(t.AgeGroup),
+                            LogoUrl = NullIfEmpty(t.LogoUrl),
+                            CoverImageUrl = NullIfEmpty(t.CoverImageUrl),
+                            IsVerified = t.IsVerified,
+                            IsRecruiting = t.IsRecruiting,
+                            Values = valuesByTeam.GetValueOrDefault(t.TeamId) ?? new List<string>(),
+                            PlayerCount = playerCounts.GetValueOrDefault(t.TeamId),
+                            Wins = wins,
+                            Draws = draws,
+                            Losses = losses
+                        };
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Team explore list received", ("Teams", response.Teams.Count));
+            return Result<TeamExploreResponse>.Success(response);
+        }
+
+        private static void Accumulate(Dictionary<Guid, (int Wins, int Draws, int Losses)> records, Guid? teamId, int scored, int conceded)
+        {
+            if (teamId is null)
+            {
+                return;
+            }
+
+            (int wins, int draws, int losses) = records.GetValueOrDefault(teamId.Value);
+            if (scored > conceded)
+            {
+                wins++;
+            }
+            else if (scored == conceded)
+            {
+                draws++;
+            }
+            else
+            {
+                losses++;
+            }
+
+            records[teamId.Value] = (wins, draws, losses);
+        }
+
         private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

@@ -16,6 +16,7 @@ END
 
 UPDATE [dbo].[SoccerTeams]
 SET [IsVerified] = 1,
+    [IsRecruiting] = 1,
     [TeamType] = '클럽',
     [Region] = '서울 강동구',
     [FoundedYear] = 2018,

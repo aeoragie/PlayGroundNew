@@ -16,6 +16,7 @@ CREATE TABLE [dbo].[SoccerTeams]
 
     -- 대시보드 팀 정보 (공개 홈페이지 소개 탭과 공유)
     [IsVerified]         BIT            NOT NULL DEFAULT 0, -- 인증팀 뱃지
+    [IsRecruiting]       BIT            NOT NULL DEFAULT 0, -- 선수 모집중 (팀 탐색 뱃지·필터 — 모집 공고 스키마 도입 전 단순 플래그)
     [FoundedYear]        INT            NULL,              -- 창단연도
     [MonthlyFee]         INT            NULL,              -- 월 회비(원)
     [IsMonthlyFeePublic] BIT            NOT NULL DEFAULT 1, -- 회비 공개 여부

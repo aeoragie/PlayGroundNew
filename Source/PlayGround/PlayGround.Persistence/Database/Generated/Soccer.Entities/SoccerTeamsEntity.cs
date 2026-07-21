@@ -54,6 +54,9 @@ public class SoccerTeamsEntity
 	[Required]
 	public bool IsVerified { get; set; } = false;
 
+	[Required]
+	public bool IsRecruiting { get; set; } = false;
+
 	public int? FoundedYear { get; set; } = null;
 
 	public int? MonthlyFee { get; set; } = null;

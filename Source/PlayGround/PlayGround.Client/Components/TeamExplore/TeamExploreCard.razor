@@ -1,0 +1,120 @@
+@* 팀 탐색 카드 — Design.TeamExplore. 커버(사진+오버레이 / 폴백: 인증=네이비 미드톤 고정, 비인증=파스텔) +
+   모집중 오렌지 뱃지(커버 우상단, 카드 내 유일한 오렌지) + 엠블럼만 커버에 걸침(텍스트는 아래 여백) +
+   핵심가치 teal 칩(최대 2) + 스탯(올해 전적·선수단 — 없는 값은 셀 미노출, 리뷰는 스키마 도입 전 미노출). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+
+<a href="@Routes.TeamPublicHome(Team.Slug)"
+   class="bg-white border-1.5 border-border rounded-[15px] md:rounded-[16px] overflow-hidden flex flex-col text-navy-deep hover:border-navy hover:shadow-menu transition-all">
+    <div class="@($"h-14 md:h-16 relative mb-6 {CoverFallbackClass}")">
+        @if (Team.CoverImageUrl is not null)
+        {
+            <img src="@Team.CoverImageUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
+            <span class="absolute inset-0 bg-explore-cover-overlay"></span>
+        }
+        @if (Team.IsRecruiting)
+        {
+            <span class="absolute top-2.5 right-3 text-[10px] md:text-[10.5px] font-bold text-white bg-orange rounded-full px-2.5 py-[3px] whitespace-nowrap">모집중</span>
+        }
+    </div>
+    <div class="px-[15px] md:px-[18px] pb-[15px] md:pb-[18px] flex flex-col gap-2.5 md:gap-[11px]">
+        <div class="flex items-end gap-3 -mt-6 relative">
+            <span class="w-[46px] h-[46px] md:w-[52px] md:h-[52px] rounded-xl md:rounded-[14px] bg-navy-deep border-[3px] border-white flex items-center justify-center overflow-hidden shrink-0 shadow-[0_3px_10px_rgba(28,43,74,.15)]">
+                @if (Team.LogoUrl is not null)
+                {
+                    <img src="@Team.LogoUrl" alt="팀 엠블럼" class="w-full h-full object-cover" />
+                }
+                else
+                {
+                    <span class="text-sm md:text-base font-extrabold text-white">@(Team.TeamName[..1])</span>
+                }
+            </span>
+            <span class="flex flex-col gap-px min-w-0 pt-[26px] md:pt-[30px]">
+                <span class="flex items-center gap-1.5">
+                    <span class="text-[14.5px] md:text-[15.5px] font-extrabold whitespace-nowrap overflow-hidden text-ellipsis">@Team.TeamName</span>
+                    @if (Team.IsVerified)
+                    {
+                        <span class="text-[9.5px] md:text-[10px] font-bold text-orange-ink bg-surface-orange rounded-full px-2 py-0.5 whitespace-nowrap shrink-0">✓ 인증팀</span>
+                    }
+                </span>
+                @if (Meta.Length > 0)
+                {
+                    <span class="text-[11px] md:text-[11.5px] text-text-muted whitespace-nowrap">@Meta</span>
+                }
+            </span>
+        </div>
+        @if (Team.Values.Count > 0)
+        {
+            <div class="flex gap-[5px] md:gap-1.5 flex-wrap">
+                @foreach (string value in Team.Values)
+                {
+                    <span class="text-[10.5px] md:text-[11px] font-bold text-teal-ink bg-teal/10 rounded-full px-2.5 py-[3px] whitespace-nowrap">@value</span>
+                }
+            </div>
+        }
+        @if (HasRecord || Team.PlayerCount > 0)
+        {
+            <div class="flex gap-1.5 md:gap-[7px]">
+                @if (HasRecord)
+                {
+                    <span class="@StatCell">
+                        <span class="@StatValue">@(Team.Wins)승 @(Team.Draws)무 @(Team.Losses)패</span>
+                        <span class="@StatLabel">올해 전적</span>
+                    </span>
+                }
+                @if (Team.PlayerCount > 0)
+                {
+                    <span class="@StatCell">
+                        <span class="@StatValue">@(Team.PlayerCount)명</span>
+                        <span class="@StatLabel">선수단</span>
+                    </span>
+                }
+            </div>
+        }
+    </div>
+</a>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamExploreItemDto Team { get; set; } = new();
+
+    private bool HasRecord => Team.Wins + Team.Draws + Team.Losses > 0;
+
+    // "서울 강동구 · 클럽 · U15" — 있는 항목만
+    private string Meta
+    {
+        get
+        {
+            string?[] parts = [Team.Region, Team.TeamType, Team.AgeGroup];
+            return string.Join(" · ", parts.Where(p => p is not null));
+        }
+    }
+
+    // 커버 폴백: 인증팀 = 네이비 미드톤 고정 / 비인증 = 팀명 해시로 파스텔 3종 중 결정적 선택
+    private string CoverFallbackClass
+    {
+        get
+        {
+            if (Team.CoverImageUrl is not null)
+            {
+                return "bg-navy-deep";
+            }
+
+            if (Team.IsVerified)
+            {
+                return "bg-explore-cover-navy";
+            }
+
+            return ((Team.TeamName.Length + Team.Slug.Length) % 3) switch
+            {
+                0 => "bg-explore-cover-teal",
+                1 => "bg-explore-cover-lavender",
+                _ => "bg-explore-cover-apricot",
+            };
+        }
+    }
+
+    private const string StatCell = "flex-1 bg-surface-soft rounded-lg md:rounded-[9px] py-[7px] md:py-2 flex flex-col items-center gap-px";
+    private const string StatValue = "text-[12.5px] md:text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap";
+    private const string StatLabel = "text-[9.5px] md:text-[10px] font-bold text-text-muted whitespace-nowrap";
+}

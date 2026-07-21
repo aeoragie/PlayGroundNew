@@ -29,6 +29,21 @@
   선수 대시보드는 미구현 — 현재는 로그인 시 `/dashboard`에서 "선수 대시보드 준비 중" 안내가
   뜨는 것까지가 정상이고, 선수 대시보드(Handoff/Design.PlayerDashboard) 개발·검증용 계정이다.
 
+## DB 동기화 기준 커밋 (PC 이동 시 필독)
+
+다른 PC에서 작업하고 돌아오면 **로컬 DB가 리포보다 뒤처져 있다** — 시드 몇 개만 돌리면
+된다고 넘겨짚지 말 것 (실제로 경기 도메인 테이블 전체가 빠진 채 프로시저만 배포돼
+실행 시점 오류로 발견된 적 있음). 아래 절차로 미반영 산출물을 전부 뽑아 반영한다:
+
+1. 미반영 목록: `git diff --name-status <기준 커밋>..HEAD -- Source/Database`
+2. 적용 순서: **Tables(신규 CREATE) → Indexes → Migrations(멱등 ALTER — 기존 테이블
+   컬럼 추가는 여기) → Procedures(변경분은 `DROP PROCEDURE` 후 재생성) → Seeds**
+3. 반영을 마치면 아래 기준 커밋을 갱신하고 함께 커밋한다.
+
+> **기준 커밋: `12a5a02` (2026-07-21, 팀 탐색 DB 변경분까지 로컬 반영됨)**
+> — 이 줄은 "이 커밋까지의 DB 산출물이 로컬 SQLEXPRESS에 반영돼 있다"는 뜻이다.
+> DB 산출물이 포함된 커밋을 만들고 로컬에 반영했다면 그 해시로 갱신할 것.
+
 ## 재구축 절차 (새 PC · DB 재생성 후)
 
 1. 서버 실행: `dotnet run --project Source/PlayGround/PlayGround.Server`

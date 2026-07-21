@@ -101,6 +101,13 @@ module.exports = {
           'linear-gradient(180deg, rgba(28,43,74,.25) 0%, rgba(28,43,74,.78) 100%)',
         'team-cover-overlay-m':
           'linear-gradient(180deg, rgba(28,43,74,.2) 0%, rgba(28,43,74,.7) 100%)',
+        // 팀 탐색 카드 커버 (Design.TeamExplore): 사진 위 오버레이 + 폴백(인증=네이비 미드톤 고정, 비인증=파스텔 3종)
+        'explore-cover-overlay':
+          'linear-gradient(180deg, rgba(28,43,74,.08), rgba(28,43,74,.35))',
+        'explore-cover-navy': 'linear-gradient(160deg, #8fa0c8, #7288bd)',
+        'explore-cover-teal': 'linear-gradient(160deg, #bfe2dd, #a3d8d1)',
+        'explore-cover-lavender': 'linear-gradient(160deg, #d5cdec, #c4b8e5)',
+        'explore-cover-apricot': 'linear-gradient(160deg, #eed6c6, #e8c3ab)',
         // 로딩 스켈레톤 시머 (Design.LoadingStates) — deep는 썸네일·커버 전용
         shimmer:
           'linear-gradient(90deg, rgb(var(--color-skeleton)) 25%, rgb(var(--color-skeleton-lit)) 50%, rgb(var(--color-skeleton)) 75%)',

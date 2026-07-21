@@ -25,6 +25,7 @@ namespace PlayGround.Client
         public const string PlayerDashboardSectionTemplate = "/dashboard/player/{Section}";
         public const string TeamPublicHomeTemplate = "/team/{Slug}";
         public const string TeamPublicHomeTabTemplate = "/team/{Slug}/{Tab}";
+        public const string TeamExplore = "/teams";
         public const string Records = "/records";
         public const string RecordsArchive = "/records/archive";
         public const string RecordsDetailTemplate = "/records/{TournamentId:guid}";

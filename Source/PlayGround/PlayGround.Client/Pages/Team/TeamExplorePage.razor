@@ -1,0 +1,401 @@
+@attribute [Route(Routes.TeamExplore)]
+@layout LandingLayout
+@using PlayGround.Client.Components.TeamExplore
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject NavigationManager Nav
+@inject TeamClient Teams
+
+<PageTitle>팀 탐색 — PlayGround</PageTitle>
+
+@* 공개 탐색 페이지 (비로그인 접근) — Design.TeamExplore + Design.SearchFilter.
+   필터는 즉시 적용(모바일 시트만 지연), 상태는 전부 URL 쿼리 동기화(공유·뒤로가기·새로고침 유지).
+   목록은 1회 로드 후 클라이언트에서 필터·정렬·페이징(더 보기 20개). *@
+<div class="min-h-screen bg-surface-alt text-navy-deep">
+    <PublicGnb SectionLabel="팀 탐색" />
+
+    @* 모바일 sticky 검색·필터 (GNB 54px 아래) *@
+    <div class="md:hidden sticky top-[54px] z-40 bg-bg border-b border-border px-4 pt-2.5 pb-3 flex flex-col gap-2.5">
+        <div class="flex gap-2">
+            <SearchBar Value="@CurrentSearch" ValueChanged="OnSearchChanged" Placeholder="팀 이름으로 검색" Class="flex-1 min-w-0" />
+            <button type="button" class="@(SheetFilterCount > 0 || mSheetOpen ? Css.SearchFilter.FilterButtonOn : Css.SearchFilter.FilterButtonOff)"
+                    @onclick="OpenSheet">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>필터
+                @if (SheetFilterCount > 0)
+                {
+                    <span class="@Css.SearchFilter.FilterBadge">@SheetFilterCount</span>
+                }
+            </button>
+        </div>
+        <div class="@Css.SearchFilter.ChipScrollRow">
+            <FilterChipRow Options="@AgeOptions" Selected="@CurrentAge" SelectedChanged="OnAgeChanged" />
+            <span class="w-px h-5 bg-border shrink-0 self-center"></span>
+            <TogglePill Label="인증팀만" Active="@CurrentVerified" ActiveChanged="OnVerifiedChanged" />
+            <TogglePill Label="모집중만" Active="@CurrentRecruiting" ActiveChanged="OnRecruitingChanged" />
+        </div>
+    </div>
+
+    <main class="max-w-[1120px] mx-auto px-4 md:px-8 pt-4 md:pt-7 pb-14 md:pb-[70px] flex flex-col gap-3 md:gap-[18px]">
+
+        @* PC 헤더 + 검색 + 정렬 *@
+        <div class="hidden md:flex flex-col gap-3.5">
+            <div class="flex items-baseline gap-3 flex-wrap">
+                <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] whitespace-nowrap">우리 지역 팀 찾기</h1>
+                <span class="text-[13px] text-text-body break-keep">홈페이지·리뷰·성적을 비교하고 정보로 결정하세요</span>
+            </div>
+            <div class="flex gap-2.5 flex-wrap">
+                <SearchBar Value="@CurrentSearch" ValueChanged="OnSearchChanged" Placeholder="팀 이름으로 검색" Class="flex-1 min-w-[280px]" />
+                <div class="flex gap-2">
+                    @foreach ((string label, string? key) in SortOptions)
+                    {
+                        string? sortKey = key;
+                        <button type="button" class="@(CurrentSort == sortKey ? Css.SearchFilter.ChipOn : Css.SearchFilter.ChipOff) !h-8 md:!h-8"
+                                @onclick="() => OnSortChanged(sortKey)">@label</button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* PC 필터 바 (2줄 카드) *@
+        <div class="hidden md:flex bg-white border-1.5 border-border rounded-[14px] px-[18px] py-3.5 flex-col gap-[11px]">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="@AxisLabel w-[34px]">연령</span>
+                <FilterChipRow Options="@AgeOptions" Selected="@CurrentAge" SelectedChanged="OnAgeChanged" />
+                <span class="w-px h-[18px] bg-border mx-1"></span>
+                <span class="@AxisLabel">지역</span>
+                <FilterChipRow Options="@RegionOptions" Selected="@CurrentRegion" SelectedChanged="OnRegionChanged" />
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="@AxisLabel w-[34px]">유형</span>
+                <FilterChipRow Options="@TypeOptions" Selected="@CurrentType" SelectedChanged="OnTypeChanged" />
+                <span class="w-px h-[18px] bg-border mx-1"></span>
+                <TogglePill Label="인증팀만" Active="@CurrentVerified" ActiveChanged="OnVerifiedChanged">
+                    <Icon><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5 9-10"></path></svg></Icon>
+                </TogglePill>
+                <TogglePill Label="모집중만" Active="@CurrentRecruiting" ActiveChanged="OnRecruitingChanged">
+                    <Icon><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg></Icon>
+                </TogglePill>
+            </div>
+        </div>
+
+        <LoadingGate IsLoading="@(mAll is null && !mFailed)" HasFailed="@mFailed" OnRetry="ReloadAsync">
+            <Skeleton><SkeletonPlayerCards /></Skeleton>
+            <ChildContent>
+                <div class="hidden md:block">
+                    <ResultHeader Count="@Filtered.Count" Unit="팀" Description="@ResultDescription(false)"
+                                  ShowReset="@HasAnyFilter" OnReset="ResetFilters" />
+                </div>
+                <div class="md:hidden">
+                    <ResultHeader Count="@Filtered.Count" Unit="팀" Description="@ResultDescription(true)"
+                                  ShowReset="@HasAnyFilter" OnReset="ResetFilters" />
+                </div>
+
+                @if (Filtered.Count == 0)
+                {
+                    <EmptyState Kind="EmptyState.Art.Search" Title="조건에 맞는 팀이 없어요">
+                        <Description>지역이나 연령 필터를 넓혀서 다시 찾아보세요.</Description>
+                        <Cta><button type="button" class="@Css.State.EmptyCtaGhost" @onclick="ResetFilters">필터 초기화</button></Cta>
+                    </EmptyState>
+                }
+                else
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(330px,1fr))] gap-3 md:gap-4">
+                        @foreach (TeamExploreItemDto team in Visible)
+                        {
+                            <TeamExploreCard Team="@team" />
+                        }
+                    </div>
+                    @if (Filtered.Count > mVisibleCount)
+                    {
+                        <button type="button" class="@MoreButton" @onclick="ShowMore">더 보기 (@(Filtered.Count - mVisibleCount)개 남음)</button>
+                    }
+                }
+
+                @* 팀 획득 훅 *@
+                <div class="bg-gradient-navy rounded-[16px] md:rounded-[18px] px-[22px] py-6 md:px-9 md:py-8 flex flex-col md:flex-row md:items-center gap-3 md:gap-5 relative overflow-hidden">
+                    <div class="absolute -top-[70px] -right-[50px] md:-top-[90px] md:-right-[70px] w-[180px] h-[180px] md:w-60 md:h-60 border-1.5 border-white/[.08] rounded-full"></div>
+                    <span class="flex flex-col gap-1 md:gap-[5px] flex-1 md:min-w-[260px] relative">
+                        <span class="text-[16.5px] md:text-[19px] font-extrabold text-white break-keep">우리 팀이 아직 없나요?</span>
+                        <span class="text-[12.5px] md:text-[13.5px] text-white/[.68] leading-[1.6] break-keep">팀을 등록하면 홈페이지가 자동으로 생성되고, 학부모들이 이 목록에서 찾을 수 있어요.</span>
+                    </span>
+                    <a href="@Routes.Login" class="relative flex items-center justify-center h-[46px] md:h-auto md:py-3.5 md:px-7 text-sm md:text-[14.5px] font-bold text-white hover:text-white bg-orange hover:bg-orange-hover rounded-[11px] whitespace-nowrap shadow-cta-orange-sm transition-colors">팀 홈페이지 만들기</a>
+                </div>
+            </ChildContent>
+        </LoadingGate>
+    </main>
+
+    @* 모바일 필터 시트 — 시트 안에서만 지연 적용 *@
+    <FilterBottomSheet Open="@mSheetOpen" ApplyLabel="@($"{DraftCount}개 팀 보기")"
+                       OnApply="ApplySheet" OnClose="CloseSheet" OnReset="ResetSheetDraft">
+        <span class="@Css.SearchFilter.SheetSectionLabel">지역</span>
+        <div class="flex gap-1.5 flex-wrap mt-[7px]">
+            <FilterChipRow Options="@RegionOptions" Selected="@mDraftRegion" SelectedChanged="v => mDraftRegion = v" />
+        </div>
+        <span class="@Css.SearchFilter.SheetSectionLabel">유형</span>
+        <div class="flex gap-1.5 flex-wrap mt-[7px]">
+            <FilterChipRow Options="@TypeOptions" Selected="@mDraftType" SelectedChanged="v => mDraftType = v" />
+        </div>
+        <span class="@Css.SearchFilter.SheetSectionLabel">정렬</span>
+        <div class="flex gap-1.5 flex-wrap mt-[7px]">
+            @foreach ((string label, string? key) in SortOptions)
+            {
+                string? sortKey = key;
+                <button type="button" class="@(mDraftSort == sortKey ? Css.SearchFilter.ChipOn : Css.SearchFilter.ChipOff)"
+                        @onclick="() => mDraftSort = sortKey">@label</button>
+            }
+        </div>
+    </FilterBottomSheet>
+</div>
+
+@code {
+    private const string AxisLabel = "text-[11.5px] font-extrabold text-text-muted whitespace-nowrap";
+    private const string MoreButton =
+        "h-11 md:h-12 rounded-xl border-1.5 border-border bg-white hover:border-navy text-[13px] md:text-sm " +
+        "font-bold text-navy-deep cursor-pointer transition-colors";
+
+    private static readonly string[] AgeOptions = ["U12", "U15", "U18"];
+
+    // 리뷰순은 리뷰 스키마 도입 전이라 제외 — 기본 추천순(인증 → 선수단 수)
+    private static readonly (string Label, string? Key)[] SortOptions = [("추천순", null), ("선수단순", "players")];
+
+    //.// URL 쿼리 동기화 — 공유·뒤로가기·새로고침에도 유지
+
+    [Parameter, SupplyParameterFromQuery(Name = "q")]
+    public string? QuerySearch { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "age")]
+    public string? QueryAge { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "region")]
+    public string? QueryRegion { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "type")]
+    public string? QueryType { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "verified")]
+    public string? QueryVerified { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "recruiting")]
+    public string? QueryRecruiting { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "sort")]
+    public string? QuerySort { get; set; }
+
+    private string CurrentSearch => QuerySearch ?? string.Empty;
+    private string? CurrentAge => AgeOptions.FirstOrDefault(a => string.Equals(a, QueryAge, StringComparison.OrdinalIgnoreCase));
+    private string? CurrentRegion => RegionOptions.FirstOrDefault(r => r == QueryRegion);
+    private string? CurrentType => TypeOptions.FirstOrDefault(t => t == QueryType);
+    private bool CurrentVerified => QueryVerified == "1";
+    private bool CurrentRecruiting => QueryRecruiting == "1";
+    private string? CurrentSort => SortOptions.Any(s => s.Key == QuerySort) ? QuerySort : null;
+
+    private List<TeamExploreItemDto>? mAll;
+    private bool mFailed;
+    private int mVisibleCount = PageSize;
+    private const int PageSize = 20;
+
+    private bool mSheetOpen;
+    private string? mDraftRegion;
+    private string? mDraftType;
+    private string? mDraftSort;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        // 필터가 바뀌면(URL 변화 포함) 페이징 리셋 — 뒤로가기 재진입에도 일관
+        mVisibleCount = PageSize;
+    }
+
+    private async Task ReloadAsync()
+    {
+        mFailed = false;
+        mAll = null;
+        TeamExploreResponse? response = await Teams.GetExploreTeamsAsync();
+        if (response is null)
+        {
+            mFailed = true;
+            return;
+        }
+
+        mAll = response.Teams;
+    }
+
+    //.// 파생 목록 — 옵션은 데이터에 있는 값만 (Design.SearchFilter)
+
+    private List<string> RegionOptions =>
+        (mAll ?? [])
+        .Select(t => RegionCityOf(t.Region))
+        .OfType<string>()
+        .Distinct()
+        .OrderBy(r => r)
+        .ToList();
+
+    private List<string> TypeOptions =>
+        (mAll ?? [])
+        .Select(t => t.TeamType)
+        .OfType<string>()
+        .Distinct()
+        .OrderBy(t => t)
+        .ToList();
+
+    private List<TeamExploreItemDto> Filtered => ApplyFilters(CurrentRegion, CurrentType, CurrentSort);
+
+    private List<TeamExploreItemDto> Visible => Filtered.Take(mVisibleCount).ToList();
+
+    private bool HasAnyFilter =>
+        CurrentAge is not null || CurrentRegion is not null || CurrentType is not null || CurrentVerified || CurrentRecruiting;
+
+    // 시트 관할 필터(지역·유형·정렬) 적용 개수 — 필터 버튼 뱃지
+    private int SheetFilterCount =>
+        (CurrentRegion is null ? 0 : 1) + (CurrentType is null ? 0 : 1) + (CurrentSort is null ? 0 : 1);
+
+    private int DraftCount => ApplyFilters(mDraftRegion, mDraftType, mDraftSort).Count;
+
+    private List<TeamExploreItemDto> ApplyFilters(string? region, string? type, string? sort)
+    {
+        IEnumerable<TeamExploreItemDto> result = mAll ?? [];
+
+        string search = CurrentSearch.Trim();
+        if (search.Length > 0)
+        {
+            result = result.Where(t => t.TeamName.Contains(search, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (CurrentAge is not null)
+        {
+            result = result.Where(t => t.AgeGroup == CurrentAge);
+        }
+
+        if (region is not null)
+        {
+            result = result.Where(t => RegionCityOf(t.Region) == region);
+        }
+
+        if (type is not null)
+        {
+            result = result.Where(t => t.TeamType == type);
+        }
+
+        if (CurrentVerified)
+        {
+            result = result.Where(t => t.IsVerified);
+        }
+
+        if (CurrentRecruiting)
+        {
+            result = result.Where(t => t.IsRecruiting);
+        }
+
+        // 추천순(기본) = 인증팀 → 선수단 규모 → 팀명 / 선수단순 = 규모
+        return sort == "players"
+            ? result.OrderByDescending(t => t.PlayerCount).ThenBy(t => t.TeamName).ToList()
+            : result.OrderByDescending(t => t.IsVerified).ThenByDescending(t => t.PlayerCount).ThenBy(t => t.TeamName).ToList();
+    }
+
+    // "서울 강동구" → "서울" (시·도 단위 칩)
+    private static string? RegionCityOf(string? region)
+    {
+        if (string.IsNullOrWhiteSpace(region))
+        {
+            return null;
+        }
+
+        return region.Split(' ')[0];
+    }
+
+    private string ResultDescription(bool compact)
+    {
+        List<string> parts = new();
+        if (CurrentAge is not null)
+        {
+            parts.Add(CurrentAge);
+        }
+
+        if (CurrentRegion is not null)
+        {
+            parts.Add(CurrentRegion);
+        }
+
+        if (CurrentType is not null)
+        {
+            parts.Add(CurrentType);
+        }
+
+        if (CurrentVerified)
+        {
+            parts.Add("인증팀");
+        }
+
+        if (CurrentRecruiting)
+        {
+            parts.Add("모집중");
+        }
+
+        if (parts.Count > 0)
+        {
+            return string.Join(" · ", parts) + " 조건";
+        }
+
+        return compact
+            ? "로그인하면 자녀 연령·지역 우선 정렬"
+            : "모든 지역·연령 표시 중 (로그인하면 자녀 연령·지역 우선으로 정렬돼요)";
+    }
+
+    //.// 즉시 적용 — 값 변경 = URL 갱신 (기본값은 쿼리에서 제거)
+
+    private void OnSearchChanged(string value) => Navigate("q", value.Trim().Length > 0 ? value.Trim() : null);
+    private void OnAgeChanged(string? value) => Navigate("age", value);
+    private void OnRegionChanged(string? value) => Navigate("region", value);
+    private void OnTypeChanged(string? value) => Navigate("type", value);
+    private void OnVerifiedChanged(bool value) => Navigate("verified", value ? "1" : null);
+    private void OnRecruitingChanged(bool value) => Navigate("recruiting", value ? "1" : null);
+    private void OnSortChanged(string? value) => Navigate("sort", value);
+
+    private void Navigate(string key, string? value)
+    {
+        Nav.NavigateTo(Nav.GetUriWithQueryParameter(key, value), replace: true);
+    }
+
+    private void ResetFilters()
+    {
+        Nav.NavigateTo(Nav.GetUriWithQueryParameters(new Dictionary<string, object?>
+        {
+            ["age"] = null, ["region"] = null, ["type"] = null,
+            ["verified"] = null, ["recruiting"] = null,
+        }), replace: true);
+    }
+
+    //.// 모바일 시트 — 열 때 현재값 복사, 적용 시에만 URL 반영 (지연 적용)
+
+    private void OpenSheet()
+    {
+        mDraftRegion = CurrentRegion;
+        mDraftType = CurrentType;
+        mDraftSort = CurrentSort;
+        mSheetOpen = true;
+    }
+
+    private void CloseSheet() => mSheetOpen = false;
+
+    private void ResetSheetDraft()
+    {
+        mDraftRegion = null;
+        mDraftType = null;
+        mDraftSort = null;
+    }
+
+    private void ApplySheet()
+    {
+        mSheetOpen = false;
+        Nav.NavigateTo(Nav.GetUriWithQueryParameters(new Dictionary<string, object?>
+        {
+            ["region"] = mDraftRegion, ["type"] = mDraftType, ["sort"] = mDraftSort,
+        }), replace: true);
+    }
+
+    private void ShowMore() => mVisibleCount += PageSize;
+}
