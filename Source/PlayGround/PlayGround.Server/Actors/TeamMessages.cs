@@ -54,6 +54,24 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
+    /// <summary>공개 팀 홈 진학·진로 사례 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerTeamCareerOutcomesMessage(string Slug);
+
+    /// <summary>팀 대시보드 진학·진로 사례 목록 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerTeamCareerOutcomesByManagerMessage(Guid ManagerUserId);
+
+    /// <summary>진학·진로 사례 저장 메시지 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record SaveSoccerTeamCareerOutcomeMessage(Guid ManagerUserId, SaveTeamCareerOutcomeRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>진학·진로 사례 삭제·복구 메시지 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record DeleteSoccerTeamCareerOutcomeMessage(Guid ManagerUserId, Guid OutcomeId, bool Restore) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
     /// <summary>팀 정보 수정 메시지. ManagerUserId 해시로 순차 처리 — 가치·코치 통째 교체 경합 방지.</summary>
     public sealed record UpdateSoccerTeamInfoMessage(Guid ManagerUserId, UpdateTeamInfoRequest Data) : IConsistentHashable
     {

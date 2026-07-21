@@ -910,6 +910,100 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(queryResult.Values1.Count > 0);
         }
 
+        public async Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesBySlugAsync(string slug, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team career outcomes requested", ("Slug", slug));
+
+            var procedure = new UspGetSoccerTeamCareerOutcomesBySlug(this) { Slug = slug };
+            var queryResult = await procedure.QueryAsync<SoccerTeamCareerOutcomesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamCareerOutcomesResponse>.Error(ErrorCode.DatabaseError, "GetCareerOutcomesBySlug");
+            }
+
+            return Result<TeamCareerOutcomesResponse>.Success(new TeamCareerOutcomesResponse
+            {
+                Items = queryResult.Values1.Select(MapCareerOutcome).ToList()
+            });
+        }
+
+        public async Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team career outcomes requested by manager", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerTeamCareerOutcomesByManager(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerTeamCareerOutcomesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamCareerOutcomesResponse>.Error(ErrorCode.DatabaseError, "GetCareerOutcomesByManager");
+            }
+
+            return Result<TeamCareerOutcomesResponse>.Success(new TeamCareerOutcomesResponse
+            {
+                Items = queryResult.Values1.Select(MapCareerOutcome).ToList()
+            });
+        }
+
+        public async Task<Result<TeamCareerOutcomeDto?>> SaveCareerOutcomeByManagerAsync(
+            Guid managerUserId, SaveTeamCareerOutcomeRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team career outcome save requested",
+                ("ManagerUserId", managerUserId), ("OutcomeId", request.OutcomeId));
+
+            var procedure = new UspSaveSoccerTeamCareerOutcome(this)
+            {
+                ManagerUserId = managerUserId,
+                OutcomeId = request.OutcomeId,
+                OutcomeYear = request.OutcomeYear,
+                OutcomeType = request.OutcomeType,
+                Title = request.Title,
+                Detail = request.Detail!,
+                PlayerCount = request.PlayerCount
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamCareerOutcomesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamCareerOutcomeDto?>.Error(ErrorCode.DatabaseError, "SaveCareerOutcome");
+            }
+
+            SoccerTeamCareerOutcomesEntity? row = queryResult.Values1.FirstOrDefault();
+            return Result<TeamCareerOutcomeDto?>.Success(row is null ? null : MapCareerOutcome(row));
+        }
+
+        public async Task<Result<bool>> DeleteCareerOutcomeByManagerAsync(
+            Guid managerUserId, Guid outcomeId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team career outcome delete requested",
+                ("ManagerUserId", managerUserId), ("OutcomeId", outcomeId), ("Restore", restore));
+
+            var procedure = new UspDeleteSoccerTeamCareerOutcome(this)
+            {
+                ManagerUserId = managerUserId,
+                OutcomeId = outcomeId,
+                Restore = restore
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamCareerOutcomesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "DeleteCareerOutcome");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.Any());
+        }
+
+        private static TeamCareerOutcomeDto MapCareerOutcome(SoccerTeamCareerOutcomesEntity row)
+        {
+            return new TeamCareerOutcomeDto
+            {
+                OutcomeId = row.OutcomeId,
+                OutcomeYear = row.OutcomeYear,
+                OutcomeType = row.OutcomeType,
+                Title = row.Title,
+                Detail = NullIfEmpty(row.Detail),
+                PlayerCount = row.PlayerCount
+            };
+        }
+
         // "모집중" 판정을 여기 한 곳에서 파생 — 팀 탐색(SQL EXISTS)과 같은 기준 (Open + 마감일 미경과)
         private static TeamRecruitmentDto MapRecruitment(SoccerTeamRecruitmentsEntity row)
         {

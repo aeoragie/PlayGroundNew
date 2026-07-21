@@ -57,6 +57,7 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `shot-playerpublic.js` | 공개 선수 프로필 /player/{slug} — API(공개 범위 필터·**친선 삽입→집계 불변**·Profile off→NotFound·무소속 임시 선수·없는 slug) + UI(히어로 캡슐·칩·잠금 안내 카피·오렌지 2곳만·팀 링크 왕복·**공개홈 로스터 "공개 프로필 →" 복원**·모바일 하단 CTA·가로 스크롤 0). 임시 데이터는 스크립트가 sqlcmd로 넣고 지운다 |
 | `shot-playerpublic2.js` | 공개 선수 프로필 **권한 뷰** — 에이전트 임시 계정(find-or-create)+시드 요청 → 승인 전 공개 뷰 → SQL 승인 → 권한 뷰(Grant·학교·**경기별 기록 친선 포함**·요약은 공식만·**ProfileView 로그 +1**) → 보호자/게스트는 공개 뷰 → SQL 만료 → 폴백 · UI(teal 배너·학교 칩·승인 열람 카드·보호자 연락 CTA·잠금 안내 미노출·모바일). **UI 검증 전 서버 재시작 필수**(Client 수정이 옛 WASM에 안 실림 — 실제로 겪음). 끝나면 전부 원복(임시 계정 물리 삭제 포함) |
 | `shot-playerpublic3.js` | 공개 선수 프로필 **카드 뷰 2종** (/player/{slug}/card) — 공개 카드(공개 항목만·QR 캔버스 실렌더 픽셀 검사·스탯 4칩) · **이미지 저장 = CDP 다운로드로 PNG 1080×1350 IHDR 검사** · 링크 공유 클립보드 · 디테일 진입점(PC 버튼·모바일 아이콘) · 권한 카드(승인 열람 블록·보호자 이름 마스킹 김OO·재공유 금지 캡션) · Profile off = 카드도 NotFound. wwwroot JS 수정도 서버 재시작 필수. 전부 원복 |
+| `shot-careertab.js` | 공개 팀 홈 **진학·진로 탭** — API(저장 3건→공개 즉시 반영·연도 역순 · 미지 유형/연도 범위/인원 0 거부 · **남의 사례 수정·삭제 거부** · 수정→삭제→복구) + UI(대시보드 팀 정보 관리 카드·폼 RadioCards 3유형·연도 프리필·빈 제출 인라인 · 공개홈 요약 카드 **값 있는 유형만**·태그 3톤·캡션 원문 · 빈 팀 빈 상태 · 모바일). 끝나면 `DELETE FROM SoccerTeamCareerOutcomes`로 원복 |
 
 `.sql`은 sqlcmd로 돌린다:
 

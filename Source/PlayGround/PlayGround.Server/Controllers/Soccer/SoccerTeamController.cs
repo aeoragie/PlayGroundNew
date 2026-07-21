@@ -154,6 +154,62 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        // 공개 팀 홈 진학·진로 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
+        [AllowAnonymous]
+        [HttpGet("{slug}/career-outcomes")]
+        public async Task<Envelope<TeamCareerOutcomesResponse>> GetTeamCareerOutcomesAsync(string slug, CancellationToken cancellation)
+        {
+            Result<TeamCareerOutcomesResponse> result = await mGateway.AskAsync<TeamCareerOutcomesResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamCareerOutcomesMessage(slug), cancellation);
+            return result.ToEnvelope();
+        }
+
+        [HttpGet("me/career-outcomes")]
+        public async Task<Envelope<TeamCareerOutcomesResponse>> GetMyCareerOutcomesAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamCareerOutcomesResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamCareerOutcomesResponse> result = await mGateway.AskAsync<TeamCareerOutcomesResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamCareerOutcomesByManagerMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>진학·진로 사례 저장 (신규·수정 겸용) — 저장 즉시 공개 홈 진학·진로 탭에 반영된다.</summary>
+        [HttpPost("me/career-outcomes")]
+        public async Task<Envelope<TeamCareerOutcomeDto>> SaveMyCareerOutcomeAsync(
+            [FromBody] SaveTeamCareerOutcomeRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamCareerOutcomeDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamCareerOutcomeDto> result = await mGateway.AskAsync<TeamCareerOutcomeDto>(
+                ActorNames.SoccerTeamProfile, new SaveSoccerTeamCareerOutcomeMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>진학·진로 사례 소프트 삭제·복구(restore=true — 실행취소 경로).</summary>
+        [HttpPost("me/career-outcomes/{outcomeId:guid}/delete")]
+        public async Task<Envelope<bool>> DeleteMyCareerOutcomeAsync(
+            Guid outcomeId, [FromQuery] bool restore, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new DeleteSoccerTeamCareerOutcomeMessage(userId, outcomeId, restore), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/roster")]
         public async Task<Envelope<TeamRosterResponse>> GetMyTeamRosterAsync(CancellationToken cancellation)
         {

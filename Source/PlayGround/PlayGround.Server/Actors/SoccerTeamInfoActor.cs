@@ -24,6 +24,26 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerTeamExploreMessage>(HandleGetExploreAsync);
             RegisterHandlerAsync<GetSoccerTeamRecruitmentsMessage>(HandleGetRecruitmentsAsync);
             RegisterHandlerAsync<GetSoccerTeamRecruitmentsByManagerMessage>(HandleGetRecruitmentsByManagerAsync);
+            RegisterHandlerAsync<GetSoccerTeamCareerOutcomesMessage>(HandleGetCareerOutcomesAsync);
+            RegisterHandlerAsync<GetSoccerTeamCareerOutcomesByManagerMessage>(HandleGetCareerOutcomesByManagerAsync);
+        }
+
+        private async Task HandleGetCareerOutcomesAsync(GetSoccerTeamCareerOutcomesMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamCareerOutcomeCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamCareerOutcomeCommand>();
+            Result<TeamCareerOutcomesResponse> result = await useCase.GetBySlugAsync(message.Slug);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetCareerOutcomesByManagerAsync(GetSoccerTeamCareerOutcomesByManagerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamCareerOutcomeCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamCareerOutcomeCommand>();
+            Result<TeamCareerOutcomesResponse> result = await useCase.GetMineAsync(message.ManagerUserId);
+            sender.Tell(result);
         }
 
         private async Task HandleGetRecruitmentsAsync(GetSoccerTeamRecruitmentsMessage message)

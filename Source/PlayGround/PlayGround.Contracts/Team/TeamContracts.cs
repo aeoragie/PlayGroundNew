@@ -135,6 +135,44 @@ namespace PlayGround.Contracts.Team
         public DateTime? DeadlineDate { get; set; }
     }
 
+    /// <summary>진학·진로 사례 목록 — 공개 홈 진학·진로 탭·팀 대시보드 관리 카드 공용.
+    /// 요약 3카드는 클라이언트가 유형별 PlayerCount 합산으로 파생 (타임라인과 어긋날 수 없다).</summary>
+    public class TeamCareerOutcomesResponse
+    {
+        public List<TeamCareerOutcomeDto> Items { get; set; } = new();
+    }
+
+    /// <summary>진학·진로 사례 한 건.</summary>
+    public class TeamCareerOutcomeDto
+    {
+        public Guid OutcomeId { get; set; }
+        public int OutcomeYear { get; set; }
+
+        /// <summary>SoccerCareerOutcomeType 멤버 이름 문자열 ('ProTransfer' | 'SchoolTeam' | 'Promotion').</summary>
+        public string OutcomeType { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string? Detail { get; set; }
+        public int PlayerCount { get; set; }
+    }
+
+    /// <summary>진학·진로 사례 저장 요청 — OutcomeId 빈 GUID = 신규 (B3 규약).</summary>
+    public class SaveTeamCareerOutcomeRequest
+    {
+        public Guid OutcomeId { get; set; }
+        public int OutcomeYear { get; set; }
+        public string OutcomeType { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string? Detail { get; set; }
+        public int PlayerCount { get; set; } = 1;
+    }
+
+    /// <summary>진학·진로 사례 삭제·복구 요청. Restore = true면 실행취소.</summary>
+    public class DeleteTeamCareerOutcomeRequest
+    {
+        public Guid OutcomeId { get; set; }
+        public bool Restore { get; set; }
+    }
+
     /// <summary>팀 탐색 공개 목록 (비로그인). 필터·정렬·페이징은 클라이언트 담당.</summary>
     public class TeamExploreResponse
     {

@@ -51,6 +51,18 @@ namespace PlayGround.Application.Interfaces
         /// <summary>모집 공고 소프트 삭제·복구(실행취소). 소유 아님·대상 없음은 Success(false).</summary>
         Task<Result<bool>> DeleteRecruitmentByManagerAsync(Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default);
 
+        /// <summary>공개 팀 홈 진학·진로 사례 조회 (Slug 기준, 비로그인). 비공개·미존재 팀은 빈 목록.</summary>
+        Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesBySlugAsync(string slug, CancellationToken cancellation = default);
+
+        /// <summary>팀 관리자 기준 진학·진로 사례 목록.</summary>
+        Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
+        /// <summary>진학·진로 사례 저장 (신규·수정 겸용). 소유 아님·미존재는 null.</summary>
+        Task<Result<TeamCareerOutcomeDto?>> SaveCareerOutcomeByManagerAsync(Guid managerUserId, SaveTeamCareerOutcomeRequest request, CancellationToken cancellation = default);
+
+        /// <summary>진학·진로 사례 소프트 삭제·복구(실행취소). 대상 없음·소유 아님은 Success(false).</summary>
+        Task<Result<bool>> DeleteCareerOutcomeByManagerAsync(Guid managerUserId, Guid outcomeId, bool restore, CancellationToken cancellation = default);
+
         /// <summary>
         /// 경기 결과 저장. 대회 경기면 저장 프로시저가 순위표 재계산까지 한 경로에서 수행한다(D5).
         /// 팀 미존재·없는 대회는 Success(null) — 호출자가 NotFound로 변환한다.

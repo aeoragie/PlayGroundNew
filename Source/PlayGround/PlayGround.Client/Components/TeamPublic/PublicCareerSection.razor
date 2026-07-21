@@ -1,0 +1,86 @@
+@* 진학·진로 탭 — SPEC.TEAMPUBLICHOME §⑤ (PC·모바일 반응형 단일).
+   요약 카드는 사례 PlayerCount 합산 파생 — 값이 있는 유형만 렌더한다 (빈 데이터 노출 금지).
+   방문자 뷰 — 사례 0건이면 CTA 없이 안내 문장으로 종료 (공개홈 관례). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@using PlayGround.Domain.Soccer
+
+<div class="flex flex-col gap-3 md:gap-4">
+    <div class="flex flex-col gap-[3px] md:gap-1">
+        <h2 class="m-0 text-base md:text-[19px] font-extrabold text-navy-deep">진학 · 진로</h2>
+        <span class="text-xs md:text-[13px] text-text-muted break-keep">우리 팀 출신 선수들의 다음 무대입니다</span>
+    </div>
+
+    @if (Data.Items.Count == 0)
+    {
+        <div class="bg-white border-1.5 border-border rounded-2xl px-6 py-10 md:py-14 flex flex-col items-center text-center gap-1.5">
+            <span class="text-sm md:text-[15.5px] font-extrabold text-navy-deep break-keep">아직 등록된 진학·진로 사례가 없어요</span>
+            <span class="text-xs md:text-[13px] text-text-body break-keep">사례가 등록되면 이 자리에서 확인할 수 있어요.</span>
+        </div>
+    }
+    else
+    {
+        @if (Summaries.Count > 0)
+        {
+            <div class="grid grid-cols-3 gap-[9px] md:gap-3.5">
+                @foreach ((SoccerCareerOutcomeType type, int count) in Summaries)
+                {
+                    <div class="bg-white border-1.5 border-border rounded-xl md:rounded-[14px] px-2 py-[13px] md:px-[22px] md:py-5 flex flex-col gap-0.5 md:gap-[3px] items-center text-center md:items-start md:text-left">
+                        <span class="text-lg md:text-[21px] font-extrabold text-navy-deep md:order-2">@(count)명</span>
+                        <span class="text-[10.5px] md:text-xs font-bold text-text-muted break-keep md:order-1">
+                            <span class="md:hidden">@MobileSummaryLabel(type)</span>
+                            <span class="hidden md:inline">@type.ToSummaryLabel()</span>
+                        </span>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="bg-white border-1.5 border-border rounded-[15px] md:rounded-2xl px-[18px] py-1.5 md:px-[26px] md:py-3 flex flex-col">
+            @foreach (TeamCareerOutcomeDto item in Data.Items)
+            {
+                <div class="flex gap-3 md:gap-4 py-[13px] md:py-3.5 border-b border-surface-icon">
+                    <span class="text-xs md:text-[13px] font-extrabold text-navy w-[38px] md:w-11 flex-none">@item.OutcomeYear</span>
+                    <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                        <span class="text-[13px] md:text-sm font-bold text-navy-deep break-keep">@item.Title</span>
+                        @if (item.Detail is not null)
+                        {
+                            <span class="text-[11.5px] md:text-[12.5px] text-text-body break-keep">@item.Detail</span>
+                        }
+                    </span>
+                    <span class="@($"{TagClass(item)} self-center")">@TagLabel(item)</span>
+                </div>
+            }
+            <span class="text-[11px] md:text-xs text-text-muted py-3 md:pt-3.5 break-keep">선수 개인이 공개에 동의한 사례만 표시됩니다.</span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamCareerOutcomesResponse Data { get; set; } = new();
+
+    // 유형별 인원 합 — 값이 있는 유형만, enum 선언 순서(프로 산하 → 축구부 → 승격)
+    private List<(SoccerCareerOutcomeType Type, int Count)> Summaries =>
+        Enum.GetValues<SoccerCareerOutcomeType>()
+            .Select(type => (Type: type, Count: Data.Items
+                .Where(i => i.OutcomeType == type.ToString())
+                .Sum(i => i.PlayerCount)))
+            .Where(pair => pair.Count > 0)
+            .ToList();
+
+    // 모바일 요약 라벨 축약 (dc: "상급팀 승격")
+    private static string MobileSummaryLabel(SoccerCareerOutcomeType type) =>
+        type == SoccerCareerOutcomeType.Promotion ? "상급팀 승격" : type.ToSummaryLabel();
+
+    internal static string TagLabel(TeamCareerOutcomeDto item) =>
+        Enum.TryParse(item.OutcomeType, out SoccerCareerOutcomeType type) ? type.ToTagLabel() : item.OutcomeType;
+
+    // 유형 태그 — 프로 산하 오렌지 톤 / 축구부 네이비 톤 / 승격 teal 톤 (상태 뱃지 캡슐 통일)
+    internal static string TagClass(TeamCareerOutcomeDto item) => item.OutcomeType switch
+    {
+        nameof(SoccerCareerOutcomeType.ProTransfer) => Css.Badge.Pending,
+        nameof(SoccerCareerOutcomeType.SchoolTeam) => Css.Badge.Info,
+        _ => Css.Badge.Positive,
+    };
+}

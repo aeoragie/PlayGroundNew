@@ -205,6 +205,74 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>공개 팀 홈 진학·진로 탭 (비로그인 가능). 미존재·오류 시 null.</summary>
+        public async Task<TeamCareerOutcomesResponse?> GetTeamCareerOutcomesAsync(string slug)
+        {
+            try
+            {
+                Envelope<TeamCareerOutcomesResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamCareerOutcomesResponse>>(
+                        $"api/soccer/team/{Uri.EscapeDataString(slug)}/career-outcomes");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>팀 대시보드 진학·진로 관리 카드 — 소유 팀 사례 목록. 오류 시 null.</summary>
+        public async Task<TeamCareerOutcomesResponse?> GetMyCareerOutcomesAsync()
+        {
+            try
+            {
+                Envelope<TeamCareerOutcomesResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamCareerOutcomesResponse>>("api/soccer/team/me/career-outcomes");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>진학·진로 사례 저장 (신규·수정 겸용).</summary>
+        public async Task<RecruitmentSaveResult> SaveCareerOutcomeAsync(SaveTeamCareerOutcomeRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me/career-outcomes", request);
+                Envelope<TeamCareerOutcomeDto>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<TeamCareerOutcomeDto>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new RecruitmentSaveResult(true, null);
+                }
+
+                return new RecruitmentSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new RecruitmentSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>진학·진로 사례 삭제·복구(restore = 실행취소).</summary>
+        public async Task<bool> DeleteCareerOutcomeAsync(Guid outcomeId, bool restore = false)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/career-outcomes/{outcomeId}/delete?restore={(restore ? "true" : "false")}", null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>"처리가 필요해요" 항목 (허브). 현재 상태에서 파생 — 읽음 상태가 없다. 오류 시 null.</summary>
         public async Task<ActionItemsResponse?> GetActionItemsAsync()
         {

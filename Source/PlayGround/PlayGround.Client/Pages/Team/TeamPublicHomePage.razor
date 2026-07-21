@@ -82,8 +82,21 @@ else if (mHome is not null)
                         </ChildContent>
                     </LoadingGate>
                     break;
+                case SoccerTeamPublicTab.Career:
+                    <LoadingGate IsLoading="@(mCareerOutcomes is null && !mCareerOutcomesFailed)" HasFailed="@mCareerOutcomesFailed" OnRetry="LoadCareerOutcomesAsync">
+                        <Skeleton>
+                            <SkeletonSection ShowAction="false">
+                                <SkeletonStatCards Count="3" />
+                                <SkeletonRows Count="4" ShowChip="false" />
+                            </SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <PublicCareerSection Data="@(mCareerOutcomes!)" />
+                        </ChildContent>
+                    </LoadingGate>
+                    break;
                 default:
-                    @* 진학진로·리뷰 탭은 다음 단계에서 구현 *@
+                    @* 리뷰 탭은 다음 단계에서 구현 *@
                     break;
             }
         </main>
@@ -118,13 +131,16 @@ else if (mHome is not null)
     private TeamPublicHomeResponse? mHome;
     private TeamSeasonRecordResponse? mRecord;
     private TeamRecruitmentsResponse? mRecruitments;
+    private TeamCareerOutcomesResponse? mCareerOutcomes;
     private bool mLoaded;
     private bool mRecordRequested;
     private bool mRecruitmentsRequested;
+    private bool mCareerOutcomesRequested;
 
     // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
     private bool mRecordFailed;
     private bool mRecruitmentsFailed;
+    private bool mCareerOutcomesFailed;
     private List<string> mAgeGroups = new();
 
     private SoccerTeamPublicTab CurrentTab => SoccerTeamPublicTabExtensions.ParseSlug(Tab);
@@ -161,6 +177,18 @@ else if (mHome is not null)
             mRecruitmentsRequested = true;
             await LoadRecruitmentsAsync();
         }
+        else if (mHome is not null && CurrentTab == SoccerTeamPublicTab.Career && !mCareerOutcomesRequested)
+        {
+            mCareerOutcomesRequested = true;
+            await LoadCareerOutcomesAsync();
+        }
+    }
+
+    private async Task LoadCareerOutcomesAsync()
+    {
+        mCareerOutcomesFailed = false;
+        mCareerOutcomes = await Teams.GetTeamCareerOutcomesAsync(Slug);
+        mCareerOutcomesFailed = mCareerOutcomes is null;
     }
 
     private async Task LoadRecruitmentsAsync()

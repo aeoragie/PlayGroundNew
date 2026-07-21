@@ -1,0 +1,138 @@
+@* 진학·진로 관리 카드 — 팀 정보 섹션 하단 (PC·모바일 공용, 반응형 내재).
+   사이드바에 자리가 없어 팀 정보에 부속시켰다 (B6 "신청이 시작된 자리" 판단과 같은 논리 —
+   공개홈 소개 탭 데이터를 팀 정보에서 관리하는 기존 결). 데이터는 카드가 직접 지연 로드한다.
+   삭제 = 확인 모달 → 소프트 삭제 → 실행취소 토스트 (B3 규칙). *@
+@using PlayGround.Client.Components.TeamPublic
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+
+<div class="@($"{Css.Dashboard.Card} p-[18px] md:p-[22px] flex flex-col gap-3")">
+    <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="text-[15px] md:text-base font-extrabold text-navy-deep">진학 · 진로</span>
+        <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
+        <div class="flex-1"></div>
+        <button type="button" class="@Css.Dashboard.SecondaryButton" @onclick="OpenCreate">＋ 사례 추가</button>
+    </div>
+    <span class="text-[11.5px] md:text-xs text-text-muted break-keep">선수 개인(보호자)이 공개에 동의한 사례만 등록해 주세요. 공개 홈페이지 진학·진로 탭에 그대로 노출돼요.</span>
+
+    <LoadingGate IsLoading="@(Data is null && !HasFailed)" HasFailed="@HasFailed" OnRetry="OnRetry">
+        <Skeleton><SkeletonRows Count="2" ShowChip="false" /></Skeleton>
+        <ChildContent>
+            @if (Data!.Items.Count == 0)
+            {
+                <EmptySlot Title="아직 등록된 사례가 없어요 — ＋ 사례 추가로 시작해 보세요.">
+                    <Icon><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></Icon>
+                </EmptySlot>
+            }
+            else
+            {
+                <div class="flex flex-col">
+                    @foreach (TeamCareerOutcomeDto item in Data.Items)
+                    {
+                        <div class="flex items-center gap-3 md:gap-3.5 py-2.5 md:py-3 border-b border-surface-icon last:border-b-0">
+                            <span class="text-xs md:text-[13px] font-extrabold text-navy w-[38px] md:w-11 flex-none">@item.OutcomeYear</span>
+                            <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                                <span class="text-[13px] md:text-sm font-bold text-navy-deep break-keep">@item.Title</span>
+                                @if (item.Detail is not null)
+                                {
+                                    <span class="text-[11.5px] md:text-xs text-text-body break-keep">@item.Detail</span>
+                                }
+                            </span>
+                            <span class="@($"{PublicCareerSection.TagClass(item)} shrink-0")">@PublicCareerSection.TagLabel(item)</span>
+                            <OverflowMenu Target="@item.Title"
+                                          Items="@BuildMenuItems(item)"
+                                          DestructiveItems="@BuildDestructiveItems(item)" />
+                        </div>
+                    }
+                </div>
+            }
+        </ChildContent>
+    </LoadingGate>
+</div>
+
+<CareerOutcomeFormDialog @bind-IsOpen="mFormOpen" Editing="@mEditing" OnSaved="NotifyChangedAsync" />
+
+@code {
+    /// <summary>사례 목록 — 페이지가 로드해 내려준다 (PC·모바일 두 트리가 한 데이터를 공유, API 1회).</summary>
+    [Parameter]
+    public TeamCareerOutcomesResponse? Data { get; set; }
+
+    [Parameter]
+    public bool HasFailed { get; set; }
+
+    /// <summary>조회 실패 재시도 — 페이지 재로드 콜백.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>저장·삭제·복구 후 — 페이지가 목록을 다시 불러온다.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    private bool mFormOpen;
+    private TeamCareerOutcomeDto? mEditing;
+
+    private Task NotifyChangedAsync() => OnChanged.InvokeAsync();
+
+    private void OpenCreate()
+    {
+        mEditing = null;
+        mFormOpen = true;
+    }
+
+    private List<OverflowMenu.MenuItem> BuildMenuItems(TeamCareerOutcomeDto item) => new()
+    {
+        new OverflowMenu.MenuItem("사례 수정", () =>
+        {
+            mEditing = item;
+            mFormOpen = true;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }),
+    };
+
+    private List<OverflowMenu.MenuItem> BuildDestructiveItems(TeamCareerOutcomeDto item) => new()
+    {
+        new OverflowMenu.MenuItem("사례 삭제", () => DeleteAsync(item)),
+    };
+
+    private async Task DeleteAsync(TeamCareerOutcomeDto item)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "사례를 삭제할까요?",
+            Description = $"\"{item.Title}\" 사례가 공개 홈페이지에서 내려가요.",
+            ConfirmLabel = "삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        bool deleted = await Teams.DeleteCareerOutcomeAsync(item.OutcomeId);
+        if (!deleted)
+        {
+            Toasts.ShowError("삭제하지 못했어요. 다시 시도해 주세요.");
+            return;
+        }
+
+        await NotifyChangedAsync();
+        Toasts.ShowSuccess("사례를 삭제했어요.", "실행취소", async () =>
+        {
+            bool restored = await Teams.DeleteCareerOutcomeAsync(item.OutcomeId, restore: true);
+            if (restored)
+            {
+                await NotifyChangedAsync();
+            }
+            else
+            {
+                Toasts.ShowError("되돌리지 못했어요. 다시 시도해 주세요.");
+            }
+        });
+    }
+}

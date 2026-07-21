@@ -20,6 +20,26 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<SaveSoccerTeamRecruitmentMessage>(HandleSaveRecruitmentAsync);
             RegisterHandlerAsync<CloseSoccerTeamRecruitmentMessage>(HandleCloseRecruitmentAsync);
             RegisterHandlerAsync<DeleteSoccerTeamRecruitmentMessage>(HandleDeleteRecruitmentAsync);
+            RegisterHandlerAsync<SaveSoccerTeamCareerOutcomeMessage>(HandleSaveCareerOutcomeAsync);
+            RegisterHandlerAsync<DeleteSoccerTeamCareerOutcomeMessage>(HandleDeleteCareerOutcomeAsync);
+        }
+
+        private async Task HandleSaveCareerOutcomeAsync(SaveSoccerTeamCareerOutcomeMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamCareerOutcomeCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamCareerOutcomeCommand>();
+            Result<TeamCareerOutcomeDto> result = await useCase.SaveAsync(message.ManagerUserId, message.Data);
+            sender.Tell(result);
+        }
+
+        private async Task HandleDeleteCareerOutcomeAsync(DeleteSoccerTeamCareerOutcomeMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamCareerOutcomeCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamCareerOutcomeCommand>();
+            Result<bool> result = await useCase.DeleteAsync(message.ManagerUserId, message.OutcomeId, message.Restore);
+            sender.Tell(result);
         }
 
         private async Task HandleSaveRecruitmentAsync(SaveSoccerTeamRecruitmentMessage message)
