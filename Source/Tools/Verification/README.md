@@ -44,6 +44,10 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `api-settings.js` | 설정 API — 이메일 마스킹 · 알림 기본값 병합 · **승인형 저장 거부**(enum 화이트리스트) · 계정 소프트 삭제(임시 계정 — 끝나면 SQL로 물리 삭제) |
 | `shot-settings.js` | 설정 3탭 URL 동기화 · 삭제 모달 문구 입력 잠금 · "항상 켜짐" 뱃지 · **스위치 실패 롤백**(PUT abort → 낙관 반영 → 롤백+오류 토스트) · 모바일 세그먼트 탭. playwright-core 필요 |
 | `shot-hierarchy.js` | 계층 스위치 — 상위 "프로필 공개" off → 하위 dimmed(.45)+비활성 + 실행취소 토스트 → **공개홈 로스터에서 선수 숨김** → 실행취소 복귀. 끝나면 `DELETE FROM SoccerPlayerFieldVisibilities WHERE FieldName='Profile'`로 원복 |
+| `api-claim.js` | Claim 4스텝 API 왕복 — 코드 조회·요청 생성(멱등)·**남의 팀 관리자 거부**·승인(연결+가족+알림+읽음)·**허브 자녀 카드 반영**·거절(코드 미소진)·친선경기 결과 알림(**수신 설정 on/off 필터**). 보호자 계정은 find-or-create — 끝나면 sql-claim-restore로 원복 |
+| `api-correction-noti.js` | 기록 수정 심사 결과 **지연 생성** — `create`로 신청 → SQL로 주최측 심사 흉내(Accepted) → `verify`로 조회 시점 생성+멱등 확인 |
+| `shot-claim.js` | Claim UI 왕복 — 코드 6칸(투명 오버레이 input)·스텝퍼 뒤로+입력 유지·재방문 복원·관리자 벨 배지→패널 인라인 승인→완료 박스·보호자 완료 화면·**General 보호자 허브 자녀 카드**·모바일 진행 바. playwright-core 필요 |
+| `sql-claim-restore.sql` | Claim 검증 원복 — 선수 연결 해제·코드 Pending 복구·요청/알림/친선경기/수정신청 삭제. Account의 보호자 임시 계정은 별도 DELETE |
 
 `.sql`은 sqlcmd로 돌린다:
 

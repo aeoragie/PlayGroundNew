@@ -68,6 +68,12 @@
 
   /* 토글 스위치 (Design.ToggleSwitch) — 끔 상태 트랙 (켬은 teal) */
   --color-switch-track: 213 217 226;       /* #d5d9e2 */
+
+  /* 독립 플로우 화면 배경 (Design.ClaimFlow — /claim 등 카드 중앙 배치 화면) */
+  --color-flow-bg: 233 236 242;            /* #e9ecf2 */
+
+  /* 알림 센터 — 미처리 액션형 카드 강조 배경 (Design.ClaimFlow 알림 절) */
+  --color-surface-action: 255 253 251;     /* #fffdfb */
 }
 
 @tailwind base;

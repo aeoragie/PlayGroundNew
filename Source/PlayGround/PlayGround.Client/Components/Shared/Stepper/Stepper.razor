@@ -1,0 +1,70 @@
+@* 다단계 플로우 스텝퍼 (Design.BannerStepper §2) — 온보딩·Claim 4스텝.
+   PC = 도트 30px(완료 teal ✓ / 현재 네이비 / 미래 회색 테두리) + 연결선(완료 구간만 teal)
+   모바일 = 레이블 + "2 / 4" + 진행 바 5px (도트 나열 금지).
+   클릭 이동은 **완료 스텝만**(뒤로) — 이탈 시 입력 유지는 호출부가 상태를 보존해 책임진다. *@
+@using PlayGround.Client.Styles
+
+<div class="@Css.Stepper.Row">
+    @for (int i = 0; i < Steps.Count; i++)
+    {
+        int index = i;
+        bool done = index < Current;
+        bool now = index == Current;
+        <div class="@Css.Stepper.Item">
+            <button type="button"
+                    class="@($"{Css.Stepper.DotColumn} {(done ? "cursor-pointer" : "cursor-default")}")"
+                    disabled="@(!done)"
+                    @onclick="() => OnDotClickAsync(index)">
+                <span class="@(done ? Css.Stepper.DotDone : now ? Css.Stepper.DotCurrent : Css.Stepper.DotFuture)">
+                    @if (done)
+                    {
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"></path></svg>
+                    }
+                    else
+                    {
+                        @(index + 1)
+                    }
+                </span>
+                <span class="@(now ? Css.Stepper.LabelCurrent : Css.Stepper.LabelOther)">@Steps[index]</span>
+            </button>
+            @if (index < Steps.Count - 1)
+            {
+                <span class="@(index < Current ? Css.Stepper.LineDone : Css.Stepper.LineFuture)"></span>
+            }
+        </div>
+    }
+</div>
+
+<div class="@Css.Stepper.MobileWrap">
+    <div class="@Css.Stepper.MobileHead">
+        <span class="@Css.Stepper.MobileName">@Steps[Math.Clamp(Current, 0, Steps.Count - 1)]</span>
+        <span class="@Css.Stepper.MobileCount">@(Current + 1) / @Steps.Count</span>
+    </div>
+    <div class="@Css.Stepper.MobileTrack">
+        <span class="@Css.Stepper.MobileBar" style="width:@(ProgressPercent)%"></span>
+    </div>
+</div>
+
+@code {
+    /// <summary>스텝 레이블 (2~5개 — 6개 이상은 플로우를 쪼갤 신호).</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Steps { get; set; } = Array.Empty<string>();
+
+    /// <summary>현재 스텝 (0부터).</summary>
+    [Parameter]
+    public int Current { get; set; }
+
+    /// <summary>완료 스텝 클릭(뒤로 이동). 미래 스텝은 클릭할 수 없다.</summary>
+    [Parameter]
+    public EventCallback<int> OnStepClick { get; set; }
+
+    private int ProgressPercent => Steps.Count == 0 ? 0 : (int)Math.Round((Current + 1) * 100.0 / Steps.Count);
+
+    private async Task OnDotClickAsync(int index)
+    {
+        if (index < Current)
+        {
+            await OnStepClick.InvokeAsync(index);
+        }
+    }
+}

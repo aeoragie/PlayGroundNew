@@ -1,4 +1,4 @@
--- 로컬 검증용 선수단 시드 — '검증fc' 로스터를 실감 데이터(사진·연령 그룹·Claim 상태)로 재구성.
+﻿-- 로컬 검증용 선수단 시드 — '검증fc' 로스터를 실감 데이터(사진·연령 그룹·Claim 상태)로 재구성.
 -- 선행 조건: 검증 계정·팀 생성 (VerificationTeamInfo.Seed.sql 헤더 참조).
 -- 재실행 안전: 검증fc의 기존 로스터(선수 본체 포함)를 지우고 다시 삽입 — 이 시드가 로스터의 단일 소스.
 -- Claimed 선수의 UserId는 NEWID() 표시용 더미 (Account에 실제 사용자 없음 — 뱃지 확인 목적).
@@ -58,6 +58,6 @@ FROM @roster;
 
 -- 초대코드는 Unclaimed 선수에게만 발급 (Pending 상태)
 INSERT INTO [dbo].[SoccerPlayerInvites] ([Code], [PlayerId], [TeamId])
-SELECT UPPER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 8)), [PlayerId], @TeamId
+SELECT UPPER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 6)), [PlayerId], @TeamId
 FROM @roster
 WHERE [IsClaimed] = 0;

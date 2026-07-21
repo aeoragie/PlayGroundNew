@@ -31,6 +31,9 @@ public class SoccerPlayerFamilyLinksEntity
 	[StringLength(20)]
 	public string Role { get; set; } = String.Empty;
 
+	[StringLength(20)]
+	public string Relation { get; set; } = String.Empty;
+
 	[Required]
 	public int DisplayOrder { get; set; } = 0;
 

@@ -172,6 +172,29 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(deleted);
         }
 
+        public async Task<Result<Dictionary<Guid, bool>>> GetNotificationStatesAsync(
+            IReadOnlyCollection<Guid> userIds, string itemName, CancellationToken cancellation = default)
+        {
+            if (userIds.Count == 0)
+            {
+                return Result<Dictionary<Guid, bool>>.Success(new Dictionary<Guid, bool>());
+            }
+
+            var procedure = new UspGetNotificationPreferenceStatesByUsers(this)
+            {
+                UserIdsJson = System.Text.Json.JsonSerializer.Serialize(userIds),
+                ItemName = itemName
+            };
+            var queryResult = await procedure.QueryAsync<NotificationPreferenceStateRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<Dictionary<Guid, bool>>.Error(ErrorCode.DatabaseError, "GetNotificationStates");
+            }
+
+            return Result<Dictionary<Guid, bool>>.Success(
+                queryResult.Values1.ToDictionary(p => p.UserId, p => p.IsEnabled));
+        }
+
         /// <summary>이메일 마스킹 — 로컬파트 앞 3자 + *** (kim***@gmail.com). 3자 미만이면 있는 만큼만.</summary>
         private static string MaskEmail(string email)
         {

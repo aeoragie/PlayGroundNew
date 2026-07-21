@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
+using PlayGround.Domain.Account;
+using PlayGround.Domain.Soccer;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Team.Commands
@@ -17,11 +19,18 @@ namespace PlayGround.Application.Team.Commands
         private const int MaxScore = 99;
 
         private readonly ISoccerTeamRepository mRepository;
+        private readonly INotificationRepository mNotificationRepository;
+        private readonly IAccountRepository mAccountRepository;
 
-        public SoccerTeamMatchResultCommand(ISoccerTeamRepository repository)
+        public SoccerTeamMatchResultCommand(
+            ISoccerTeamRepository repository,
+            INotificationRepository notificationRepository,
+            IAccountRepository accountRepository)
         {
-            Debug.Assert(repository != null, "repository is required");
+            Debug.Assert(repository != null && notificationRepository != null && accountRepository != null);
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mNotificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
+            mAccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
         }
 
         public async Task<Result<CreateTeamMatchResultResponse>> ExecuteAsync(
@@ -57,8 +66,48 @@ namespace PlayGround.Application.Team.Commands
                 return Result<CreateTeamMatchResultResponse>.Error(ErrorCode.NotFound, "team or tournament not found");
             }
 
+            // 알림 발송은 부가 작업 — 실패해도 경기 저장 결과에는 영향을 주지 않는다 (오류는 저장소가 로깅)
+            await NotifyGuardiansAsync(managerUserId, saved.Value.Value, request, cancellation);
+
             return Result<CreateTeamMatchResultResponse>.Success(
                 new CreateTeamMatchResultResponse { MatchId = saved.Value.Value });
+        }
+
+        /// <summary>친선경기 결과 반영 알림 — 팀의 Claimed 자녀 보호자에게, 수신 설정(MatchResult)이
+        /// 켜진 계정만 (저장 행이 없으면 enum 기본값). 자녀별 1건, 재시도 멱등은 프로시저가 보장.</summary>
+        private async Task NotifyGuardiansAsync(
+            Guid managerUserId, Guid matchId, CreateTeamMatchResultRequest request, CancellationToken cancellation)
+        {
+            Result<List<NotificationRecipient>> recipients =
+                await mNotificationRepository.GetMatchResultRecipientsAsync(managerUserId, cancellation);
+            if (recipients.IsError || recipients.Value.Count == 0)
+            {
+                return;
+            }
+
+            List<Guid> userIds = recipients.Value.Select(r => r.UserId).Distinct().ToList();
+            Result<Dictionary<Guid, bool>> states = await mAccountRepository.GetNotificationStatesAsync(
+                userIds, NotificationPreferenceItem.MatchResult.ToString(), cancellation);
+            if (states.IsError)
+            {
+                return;
+            }
+
+            bool defaultEnabled = NotificationPreferenceItem.MatchResult.DefaultIsEnabled();
+            string score = $"{request.OurScore}:{request.OpponentScore}";
+
+            foreach (NotificationRecipient recipient in recipients.Value)
+            {
+                bool enabled = states.Value.TryGetValue(recipient.UserId, out bool saved) ? saved : defaultEnabled;
+                if (!enabled)
+                {
+                    continue;
+                }
+
+                await mNotificationRepository.CreateAsync(
+                    recipient.UserId, SoccerNotificationType.MatchResult.ToString(), matchId, recipient.PlayerId,
+                    request.OpponentName, recipient.PlayerName, recipient.TeamName, score, subText: null, cancellation);
+            }
         }
 
         /// <remarks>

@@ -78,6 +78,7 @@
     <Build Include="Procedures\UspGetUserSettings.sql" />
     <Build Include="Procedures\UspGetNotificationPreferences.sql" />
     <Build Include="Procedures\UspSetNotificationPreference.sql" />
+    <Build Include="Procedures\UspGetNotificationPreferenceStatesByUsers.sql" />
     <Build Include="Procedures\UspDeleteUser.sql" />
   </ItemGroup>
   <!-- 빌드 제외(스키마 아님): Seeds(데이터) -->

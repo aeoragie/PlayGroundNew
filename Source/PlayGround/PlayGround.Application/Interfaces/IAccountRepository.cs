@@ -30,5 +30,9 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>계정 소프트 삭제. 이미 삭제·미존재면 Success(false).</summary>
         Task<Result<bool>> SoftDeleteAsync(Guid userId, CancellationToken cancellation = default);
+
+        /// <summary>여러 사용자의 특정 알림 항목 저장값 — **저장 행이 있는 사용자만** 담긴다
+        /// (없는 사용자는 호출측이 enum 기본값 적용). 알림 발송 전 수신 설정 필터용.</summary>
+        Task<Result<Dictionary<Guid, bool>>> GetNotificationStatesAsync(IReadOnlyCollection<Guid> userIds, string itemName, CancellationToken cancellation = default);
     }
 }

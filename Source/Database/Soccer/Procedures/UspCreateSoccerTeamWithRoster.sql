@@ -1,4 +1,4 @@
--- @entity: SoccerCreateTeamRecord
+﻿-- @entity: SoccerCreateTeamRecord
 -- @source: join
 -- @join: SoccerTeams AS t (TeamId, Slug)
 -- 팀 + 로스터(선수 Unclaimed + 소속 + 초대코드)를 한 트랜잭션으로 생성.
@@ -47,7 +47,7 @@ BEGIN
                 j.[Position],
                 j.[Number],
                 NEWID(),
-                UPPER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 8))
+                UPPER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 6))
             FROM OPENJSON(@RosterJson)
                 WITH ([Name] VARCHAR(150) '$.Name',
                       [Position] VARCHAR(60) '$.Position',

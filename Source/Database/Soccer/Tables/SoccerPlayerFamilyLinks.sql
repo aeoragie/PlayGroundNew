@@ -7,6 +7,7 @@ CREATE TABLE [dbo].[SoccerPlayerFamilyLinks]
     [UserId]        UNIQUEIDENTIFIER NULL,              -- Account.Users.UserId (앱 계층 참조)
     [MemberName]    VARCHAR(300)     NOT NULL,          -- UTF-8 (한글 100자) 표시 이름
     [Role]          VARCHAR(20)      NOT NULL,          -- 'Guardian','Self'
+    [Relation]      VARCHAR(20)      NULL,              -- 'Mother','Father','Guardian' — Claim 플로우 관계 선택 (NULL = 미지정)
     [DisplayOrder]  INT              NOT NULL DEFAULT 0,
 
     [CreatedAt]     DATETIME2        NOT NULL DEFAULT GETUTCDATE(),

@@ -27,6 +27,7 @@ namespace PlayGround.Server.Actors
             mAkka.CreateRouter<SoccerDashboardActor>(ActorNames.SoccerDashboard, poolSize: 4);              // 읽기: RoundRobin 풀 (허브)
             mAkka.CreateHashRouter<SoccerPlayerProfileActor>(ActorNames.SoccerPlayerProfile, poolSize: 4);  // 쓰기: UserId 해시(사용자별 순차)
             mAkka.CreateHashRouter<SoccerTeamProfileActor>(ActorNames.SoccerTeamProfile, poolSize: 4);      // 쓰기: ManagerUserId 해시
+            mAkka.CreateHashRouter<SoccerClaimActor>(ActorNames.SoccerClaim, poolSize: 4);                  // 쓰기: UserId 해시 (Claim·알림)
             Logger.InfoWith("Actor topology created",
                 ("Landing", ActorNames.SoccerLanding), ("TeamInfo", ActorNames.SoccerTeamInfo),
                 ("PlayerProfile", ActorNames.SoccerPlayerProfile), ("TeamProfile", ActorNames.SoccerTeamProfile));

@@ -3,7 +3,7 @@
 CREATE TABLE [dbo].[SoccerPlayerInvites]
 (
     [InviteId]         UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    [Code]             VARCHAR(12)      NOT NULL,          -- 짧은 연결 코드
+    [Code]             VARCHAR(12)      NOT NULL,          -- 짧은 연결 코드 — 발급은 6자 (Design.ClaimFlow 코드 박스 6칸)
     [PlayerId]         UNIQUEIDENTIFIER NOT NULL,          -- SoccerPlayers.PlayerId
     [TeamId]           UNIQUEIDENTIFIER NOT NULL,          -- SoccerTeams.TeamId
     [Status]           VARCHAR(20)      NOT NULL DEFAULT 'Pending', -- 'Pending','Claimed','Expired','Revoked'

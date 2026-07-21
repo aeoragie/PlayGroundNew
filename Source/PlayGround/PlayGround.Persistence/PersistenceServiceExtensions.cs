@@ -21,6 +21,8 @@ namespace PlayGround.Persistence
             services.AddScoped<IPlayerRepository, SoccerPlayerRepository>();
             services.AddScoped<ISoccerTeamRepository, SoccerTeamRepository>();
             services.AddScoped<ISoccerRecordsRepository, SoccerRecordsRepository>();
+            services.AddScoped<IClaimRepository, SoccerClaimRepository>();
+            services.AddScoped<INotificationRepository, SoccerNotificationRepository>();
             return services;
         }
     }

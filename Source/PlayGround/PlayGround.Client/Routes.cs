@@ -26,6 +26,7 @@ namespace PlayGround.Client
         public const string TeamPublicHomeTemplate = "/team/{Slug}";
         public const string TeamPublicHomeTabTemplate = "/team/{Slug}/{Tab}";
         public const string TeamExplore = "/teams";
+        public const string Claim = "/claim";
         public const string Settings = "/settings";
         public const string SettingsSectionTemplate = "/settings/{Section}";
         public const string Records = "/records";

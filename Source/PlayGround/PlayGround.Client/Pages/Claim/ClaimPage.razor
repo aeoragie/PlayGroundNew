@@ -1,0 +1,337 @@
+@attribute [Route(Routes.Claim)]
+@* 보호자 Claim 4스텝 (Design.ClaimFlow) — 초대코드 → 프로필 확인 → 승인 대기 → 연결 완료.
+   모바일 우선(카드 420px 중앙) — PC도 동일 카드. 기존 즉시 연결(선수 대시보드 초대코드 카드)과 별개 경로.
+   재방문 복원: 내 최신 요청이 Pending이면 대기, Approved면 완료 화면에서 시작한다.
+   레퍼런스의 "시점 전환" 바·"(프로토타입) →" 버튼은 구현하지 않는다. *@
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Claim
+@using PlayGround.Domain.Soccer
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject ClaimClient Claims
+@inject ToastService Toasts
+
+<PageTitle>자녀 프로필 연결 — PlayGround</PageTitle>
+
+<div class="@Css.Claim.Screen">
+    <div class="@Css.Claim.Column">
+        <Stepper Steps="@StepLabels" Current="@mStep" OnStepClick="GoBackTo" />
+
+        <div class="@Css.Claim.Card">
+            <div class="@Css.Claim.CardTop">
+                <BrandLogo Compact="true" />
+                <div class="flex-1"></div>
+                <span class="@Css.Claim.CardTopLabel">자녀 프로필 연결</span>
+            </div>
+
+            @if (mStep == 0)
+            {
+                @* ── STEP 1: 초대코드 입력 ── *@
+                <div class="@Css.Claim.Body">
+                    <div class="flex flex-col gap-[7px]">
+                        <h1 class="@Css.Claim.Title">초대코드를 입력해 주세요</h1>
+                        <p class="@Css.Claim.Subtitle">팀에서 받은 6자리 코드를 입력하면 자녀의 선수 프로필을 찾아드려요.</p>
+                    </div>
+                    <div class="@Css.Claim.CodeRow" @onclick="FocusCodeAsync">
+                        @for (int i = 0; i < 6; i++)
+                        {
+                            <span class="@(i < mCode.Length ? Css.Claim.CodeCellFilled : Css.Claim.CodeCellEmpty)">@(i < mCode.Length ? mCode[i] : ' ')</span>
+                        }
+                        @* 실제 입력은 투명 오버레이 하나 — 붙여넣기·백스페이스·모바일 키보드가 공짜로 동작한다 *@
+                        <input @ref="mCodeInput" class="@Css.Claim.CodeInput" value="@mCode" @oninput="OnCodeInput"
+                               maxlength="6" autocomplete="one-time-code" spellcheck="false" aria-label="초대코드" />
+                    </div>
+                    @if (mCodeError is not null)
+                    {
+                        <span class="@Css.Claim.InlineError">@mCodeError</span>
+                    }
+                    <button type="button" class="@Css.Claim.OrangeCta" disabled="@mBusy" @onclick="LookupAsync">프로필 찾기</button>
+                    <div class="@Css.Claim.NoCodeSection">
+                        <span class="@Css.Claim.NoCodeHead">코드가 없어요</span>
+                        <span class="@Css.Claim.NoCodeBody">
+                            · 소속팀 감독·코치에게 초대코드를 요청하세요<br />
+                            · 소속팀이 없다면 <a href="@Routes.PlayerOnboarding" class="font-bold">프로필 직접 만들기</a>
+                        </span>
+                    </div>
+                </div>
+            }
+            else if (mStep == 1 && mCard is not null)
+            {
+                @* ── STEP 2: 프로필 확인 ── *@
+                <div class="@($"{Css.Claim.Body} gap-4")">
+                    <div class="flex flex-col gap-[7px]">
+                        <h1 class="@Css.Claim.Title">이 프로필이 맞나요?</h1>
+                        <p class="@Css.Claim.Subtitle">@(mCard.TeamName)@(SubjectParticle(mCard.TeamName)) 등록한 선수 정보예요.</p>
+                    </div>
+                    <div class="@Css.Claim.PlayerCard">
+                        <span class="@Css.Claim.PlayerAvatar">@InitialOf(mCard.Name)</span>
+                        <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                            <span class="text-base font-extrabold text-navy-deep whitespace-nowrap">@mCard.Name</span>
+                            @if (PlayerMeta is not null)
+                            {
+                                <span class="text-[12.5px] text-text-body whitespace-nowrap">@PlayerMeta</span>
+                            }
+                            <span class="text-xs text-text-muted whitespace-nowrap">@mCard.TeamName</span>
+                        </span>
+                        <span class="@Css.Claim.UnclaimedBadge">미연결</span>
+                    </div>
+                    <div class="flex flex-col gap-[9px]">
+                        <span class="text-[12.5px] font-extrabold text-text-strong">자녀와의 관계</span>
+                        <div class="flex gap-2">
+                            @foreach (SoccerClaimRelation relation in Enum.GetValues<SoccerClaimRelation>())
+                            {
+                                SoccerClaimRelation value = relation;
+                                <button type="button"
+                                        class="@(mRelation == value ? Css.Claim.RelationButtonActive : Css.Claim.RelationButton)"
+                                        @onclick="() => mRelation = value">@RelationLabel(value)</button>
+                            }
+                        </div>
+                    </div>
+                    <div class="@Css.Claim.InfoBox">
+                        연결 요청을 보내면 팀 관리자가 확인 후 승인해요. 승인되면 <b>프로필 관리 권한이 보호자에게 넘어오고</b>, 팀은 더 이상 정보를 수정할 수 없어요.
+                    </div>
+                    <button type="button" class="@Css.Claim.OrangeCta" disabled="@mBusy" @onclick="SendRequestAsync">연결 요청 보내기</button>
+                    <button type="button" class="@Css.Claim.GhostButton" @onclick="() => GoBackTo(0)">내 자녀가 아니에요 — 코드 다시 입력</button>
+                </div>
+            }
+            else if (mStep == 2 && mRequest is not null)
+            {
+                @* ── STEP 3: 승인 대기 ── *@
+                <div class="@Css.Claim.BodyCenter">
+                    <span class="@Css.Claim.PendingCircle">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-orange"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                    </span>
+                    <div class="flex flex-col gap-[7px]">
+                        <h1 class="@Css.Claim.TitleCenter">승인을 기다리고 있어요</h1>
+                        <p class="@Css.Claim.Subtitle">@mRequest.TeamName 관리자에게 요청을 보냈어요.<br />승인되면 알림으로 알려드릴게요. 보통 1~2일 안에 처리돼요.</p>
+                    </div>
+                    <div class="@Css.Claim.SummaryCard">
+                        <span class="@Css.Claim.SummaryAvatar">@InitialOf(mRequest.PlayerName)</span>
+                        <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                            <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@mRequest.PlayerName · 보호자(@RelationLabel(ParseRelation(mRequest.Relation)))</span>
+                            <span class="text-[11.5px] text-text-muted whitespace-nowrap">@RequestedAtText 요청</span>
+                        </span>
+                        <span class="@Css.Claim.PendingBadge">승인 대기</span>
+                    </div>
+                </div>
+            }
+            else if (mStep == 3 && mRequest is not null)
+            {
+                @* ── STEP 4: 연결 완료 ── *@
+                <div class="@Css.Claim.BodyCenter">
+                    <span class="@Css.Claim.DoneCircle">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-teal"><path d="M4.5 12.5l5 5 10-11"></path></svg>
+                    </span>
+                    <div class="flex flex-col gap-[7px]">
+                        <h1 class="@Css.Claim.TitleCenter">@mRequest.PlayerName 선수와 연결됐어요</h1>
+                        <p class="@Css.Claim.Subtitle">이제 보호자님이 프로필의 주인이에요.<br />공개 범위를 확인하고 포트폴리오를 채워보세요.</p>
+                    </div>
+                    <div class="w-full flex flex-col gap-2 text-left">
+                        <button type="button" class="@Css.Claim.NextCard" @onclick="() => Nav.NavigateTo(Routes.PlayerDashboardSection(SoccerPlayerDashboardSection.Profile))">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-navy flex-none"><path d="M12 4v10M8 10l4 4 4-4"></path><path d="M5 19h14"></path></svg>
+                            <span class="text-[12.5px] text-text-strong break-keep"><b>항목별 공개 설정</b> — 키·몸무게·학교 공개 여부를 정하세요</span>
+                        </button>
+                        <button type="button" class="@Css.Claim.NextCard" @onclick="() => Nav.NavigateTo(Routes.PlayerDashboardSection(SoccerPlayerDashboardSection.Portfolio))">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-navy flex-none"><rect x="3" y="5" width="18" height="14.5" rx="3"></rect><path d="M10 9.5l5 3-5 3z"></path></svg>
+                            <span class="text-[12.5px] text-text-strong break-keep"><b>대표 영상 등록</b> — 공개 프로필 첫 화면에 노출돼요</span>
+                        </button>
+                    </div>
+                    <button type="button" class="@($"{Css.Claim.OrangeCta} w-full")" @onclick="() => Nav.NavigateTo(Routes.PlayerDashboard)">선수 대시보드로 가기</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private static readonly string[] StepLabels = { "코드", "확인", "대기", "완료" };
+
+    private int mStep;
+    private bool mBusy;
+
+    private string mCode = string.Empty;
+    private string? mCodeError;
+    private ElementReference mCodeInput;
+
+    private ClaimInviteCardResponse? mCard;
+    private SoccerClaimRelation mRelation = SoccerClaimRelation.Mother;
+    private ClaimRequestSummaryResponse? mRequest;
+
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
+    private string? PlayerMeta
+    {
+        get
+        {
+            if (mCard is null)
+            {
+                return null;
+            }
+
+            List<string> parts = new();
+            if (mCard.Position is not null)
+            {
+                parts.Add(mCard.Position);
+            }
+
+            if (mCard.JerseyNumber is not null)
+            {
+                parts.Add($"등번호 {mCard.JerseyNumber}");
+            }
+
+            if (mCard.BirthYear is not null)
+            {
+                parts.Add($"{mCard.BirthYear}년생");
+            }
+
+            if (mCard.AgeGroup is not null)
+            {
+                parts.Add(mCard.AgeGroup);
+            }
+
+            return parts.Count > 0 ? string.Join(" · ", parts) : null;
+        }
+    }
+
+    private string RequestedAtText => mRequest is null
+        ? string.Empty
+        : $"{mRequest.RequestedAt.ToLocalTime():M/d tt h:mm}".Replace("AM", "오전").Replace("PM", "오후");
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 직접 URL 진입(카톡 링크) 대비 — 인증 상태를 먼저 확정, 게스트는 로그인 왕복
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
+            return;
+        }
+
+        // 재방문 복원 — Pending은 대기, Approved는 완료에서 시작 (Rejected·없음은 스텝 ①)
+        ClaimRequestSummaryResponse? existing = await Claims.GetMyRequestAsync();
+        if (existing is not null && existing.Status == "Pending")
+        {
+            mRequest = existing;
+            mStep = 2;
+        }
+        else if (existing is not null && existing.Status == "Approved")
+        {
+            mRequest = existing;
+            mStep = 3;
+        }
+    }
+
+    private void OnCodeInput(ChangeEventArgs e)
+    {
+        string raw = e.Value?.ToString() ?? string.Empty;
+        mCode = new string(raw.ToUpperInvariant().Where(char.IsLetterOrDigit).Take(6).ToArray());
+        mCodeError = null;
+    }
+
+    private async Task FocusCodeAsync()
+    {
+        await mCodeInput.FocusAsync();
+    }
+
+    private async Task LookupAsync()
+    {
+        if (mCode.Length < 6)
+        {
+            mCodeError = "코드를 다시 확인해 주세요";
+            return;
+        }
+
+        mBusy = true;
+        ClaimLookupResult result = await Claims.LookupAsync(mCode);
+        mBusy = false;
+
+        if (result.Card is not null)
+        {
+            mCard = result.Card;
+            mStep = 1;
+            return;
+        }
+
+        if (result.IsNetworkError)
+        {
+            Toasts.ShowError("요청을 보내지 못했어요. 다시 시도해 주세요.", "재시도", LookupAsync);
+            return;
+        }
+
+        mCodeError = "코드를 다시 확인해 주세요";
+    }
+
+    private async Task SendRequestAsync()
+    {
+        mBusy = true;
+        ClaimCreateResult result = await Claims.CreateRequestAsync(mCode, mRelation.ToString());
+        mBusy = false;
+
+        if (result.Request is not null)
+        {
+            mRequest = result.Request;
+            mStep = 2;
+            return;
+        }
+
+        if (result.IsNetworkError)
+        {
+            Toasts.ShowError("요청을 보내지 못했어요. 다시 시도해 주세요.", "재시도", SendRequestAsync);
+            return;
+        }
+
+        // 그사이 코드가 소진·만료됨 — 스텝 ①에서 인라인으로 알린다
+        mStep = 0;
+        mCodeError = "코드를 다시 확인해 주세요";
+    }
+
+    // 완료 스텝 클릭(뒤로) — 입력은 유지된다 (코드·관계 상태 보존). 대기·완료는 서버 상태라 뒤로 없음.
+    private void GoBackTo(int step)
+    {
+        if (mStep <= 1 && step < mStep)
+        {
+            mStep = step;
+        }
+    }
+
+    private static string InitialOf(string name)
+    {
+        return string.IsNullOrEmpty(name) ? "?" : name[^Math.Min(2, name.Length)..][..1];
+    }
+
+    internal static string RelationLabel(SoccerClaimRelation relation)
+    {
+        return relation switch
+        {
+            SoccerClaimRelation.Father => "아버지",
+            SoccerClaimRelation.Guardian => "기타 보호자",
+            _ => "어머니",
+        };
+    }
+
+    internal static SoccerClaimRelation ParseRelation(string? relation)
+    {
+        return !string.IsNullOrEmpty(relation) && !char.IsAsciiDigit(relation[0])
+               && Enum.TryParse(relation, out SoccerClaimRelation parsed)
+            ? parsed
+            : SoccerClaimRelation.Mother;
+    }
+
+    /// <summary>한글 받침 유무로 주격 조사(이/가) 선택 — 팀명이 카피에 들어가는 자리.</summary>
+    private static string SubjectParticle(string word)
+    {
+        if (string.IsNullOrEmpty(word))
+        {
+            return "가";
+        }
+
+        char last = word[^1];
+        if (last is >= '가' and <= '힣')
+        {
+            return (last - '가') % 28 == 0 ? "가" : "이";
+        }
+
+        return "가";
+    }
+}

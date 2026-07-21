@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using PlayGround.Application.Interfaces;
+using PlayGround.Application.Claim.Commands;
 using PlayGround.Application.Landing.Commands;
+using PlayGround.Application.Notification.Commands;
 using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Records.Commands;
 using PlayGround.Application.Team.Commands;
@@ -39,6 +41,9 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerRecordCorrectionCommand>();
             services.AddScoped<SoccerActionItemsCommand>();
             services.AddScoped<SoccerDashboardHubCommand>();
+            services.AddScoped<SoccerClaimFlowCommand>();
+            services.AddScoped<SoccerClaimReviewCommand>();
+            services.AddScoped<SoccerNotificationCommand>();
 
             // 업로드 이미지 저장 — 지금은 로컬 디스크, 오브젝트 스토리지로 갈 때 이 줄만 바꾼다
             services.AddSingleton<IImageStorage, LocalImageStorageService>();

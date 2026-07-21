@@ -44,6 +44,8 @@ module.exports = {
         dropzone: 'rgb(var(--color-dropzone) / <alpha-value>)',
         // 토글 스위치 끔 트랙 (Design.ToggleSwitch)
         'switch-track': 'rgb(var(--color-switch-track) / <alpha-value>)',
+        // 독립 플로우 화면 배경 (Design.ClaimFlow)
+        'flow-bg': 'rgb(var(--color-flow-bg) / <alpha-value>)',
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',
@@ -60,6 +62,8 @@ module.exports = {
           // 친선경기 행 배경·세그먼트 트랙 (Design.FriendlyMatch)
           friendly: 'rgb(var(--color-surface-friendly) / <alpha-value>)',
           segment: 'rgb(var(--color-surface-segment) / <alpha-value>)',
+          // 알림 센터 미처리 액션형 카드 (Design.ClaimFlow)
+          action: 'rgb(var(--color-surface-action) / <alpha-value>)',
         },
         border: {
           DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
@@ -138,6 +142,8 @@ module.exports = {
         modal: '0 20px 50px rgba(28,43,74,.3)',
         // 토글 스위치 knob (Design.ToggleSwitch)
         knob: '0 1px 3px rgba(0,0,0,.2)',
+        // 독립 플로우 카드·알림 패널 (Design.ClaimFlow)
+        flow: '0 12px 40px rgba(28,43,74,.12)',
       },
       keyframes: {
         // 토스트 등장 — 슬라이드 업 + 페이드

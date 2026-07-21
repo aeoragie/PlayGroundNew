@@ -150,6 +150,58 @@
   **PUT abort → 낙관 반영 → 롤백+오류 토스트** · 삭제 모달 문구 입력 잠금 · 계층 off → 하위 .45+
   비활성 → **공개홈 로스터에서 숨김** → 실행취소 복귀 · 모바일 세그먼트 탭·가로 스크롤 없음. 전부 원복.
 
+### Phase C — Claim 4스텝 + 알림 센터 + Stepper 완료 (2026-07-21, Design.ClaimFlow + Design.BannerStepper §2)
+
+- **Stepper 공용** `Components/Shared/Stepper/` + `Css.Stepper.cs` — PC 도트 30px(완료 teal ✓/현재
+  네이비/미래 회색 테두리, 연결선 완료 구간만 teal) / 모바일 레이블+"2 / 4"+진행 바 5px(도트 나열 금지).
+  완료 스텝만 클릭(뒤로), 입력 유지는 호출부 책임. 레이블은 카탈로그 데모 이름("선수 검색…")이 아니라
+  **ClaimFlow dc 원문 "코드·확인·대기·완료"** — 실제 4스텝과 카탈로그 이름이 어긋나 화면 SPEC 우선.
+  배너(3톤)는 이번 범위 밖 — 지시가 스텝퍼 절만 지정했다.
+- **/claim 보호자 4스텝** (`Pages/Claim/ClaimPage.razor`, 모바일 우선 420px 카드) — 코드 6칸은
+  **투명 오버레이 input 하나**(붙여넣기·백스페이스·모바일 키보드가 공짜, 표시는 span 6개).
+  재방문 복원: 최신 요청 Pending→대기 / Approved→완료 / Rejected·없음→스텝 ①. 팀명 조사(이/가)는
+  받침 판별 헬퍼. **기존 즉시 연결(선수 대시보드 초대코드 카드)과 별개 경로로 공존** — 병합하지 않았다.
+- **초대코드 6자리 통일** — SPEC 코드 박스 6칸인데 발급·시드가 8자였다. 발급 프로시저
+  (`UspCreateSoccerTeamWithRoster`)·시드 2종 수정 + 기존 Pending 코드 축소 마이그레이션
+  `2026-07-21_SoccerPlayerInvites.Code6.sql`. **다른 PC 필수 실행.**
+- **상태 모델**: `SoccerPlayerClaimRequests`(Pending→Approved/Rejected) 신설. 승인
+  (`UspReviewSoccerPlayerClaimRequest`)은 **기존 UspClaimSoccerPlayerInvite를 EXEC로 재사용**
+  (INSERT #tmp 흡수 — 연결·코드 소진·온보딩 프로필 병합의 단일 진실 유지)하고 가족 연결
+  (FamilyLinks에 `Relation` 컬럼 신설 — 마이그레이션 `2026-07-21_SoccerPlayerFamilyLinks.Relation.sql`)
+  +IsGuardianManaged+보호자 알림을 같은 트랜잭션으로. 거절은 코드를 소진하지 않는다(재시도 가능).
+  요청 생성은 멱등(같은 계정·선수 Pending이 있으면 그대로 반환). 요청자 이름은 본문이 아니라
+  **JWT 클레임에서** (위조 방지).
+- **알림 센터** — `SoccerNotifications` 신설(유형 5종 + 표시 스냅샷 컬럼 — 알림은 과거 시점의 불변
+  기록이라 스냅샷이 정당. 문구·딥링크는 클라가 유형+스냅샷으로 조립, **라우트 문자열을 DB에 저장하지
+  않는다**). 새 액터 `Soccer_Claim`(UserId 해시 — Claim 쓰기+알림).
+  - **벨 6곳 교체**(NotificationBell — 팀 PC/모바일·선수 PC/모바일·허브·PublicGnb). 벨 카운트와
+    패널 목록이 `GET api/soccer/notifications/me` 응답 하나를 공유 — 수가 어긋날 수 없다.
+    허브 벨의 기존 ActionCount(액션 아이템 수)는 미읽음 알림 수로 교체. "처리가 필요해요" 파생은 유지.
+  - 액션형(ClaimRequest)은 패널 인라인 승인/거절 — 처리 여부는 스냅샷이 아니라 **요청 상태 라이브
+    조인**(RequestStatus)으로 그린다. 처리하면 관리자 알림은 자동 읽음. 이동형은 클릭 시 읽음+딥링크.
+    유형 칩은 데이터 파생(있는 그룹만: 연결 요청/경기/기록).
+  - **생산자 3종 연결**: ① Claim 요청·승인·거절 = 프로시저 트랜잭션 내 발송 ② 친선경기 결과
+    (`SoccerTeamMatchResultCommand` 후처리 — 부가 작업이라 실패해도 저장은 성공) = 팀 Claimed 자녀
+    보호자에게, **수신 설정(MatchResult) 꺼진 계정 제외**(Account 벌크 조회
+    `UspGetNotificationPreferenceStatesByUsers` — 저장 행만 반환, 기본값은 enum) ③ **기록 수정 심사
+    결과는 조회 시점 지연 생성** — 주최측이 DB만 바꿔 발송 훅이 없다(결정 6·7).
+    `UspGetSoccerNotificationsByUser`가 조회 전에 NOT EXISTS로 멱등 INSERT.
+- **회귀 2건 수정**: ① 허브(DashboardPage)의 "General이면 조회 없이 역할 선택" 단락 제거 — 승인이
+  관리자 쪽에서 일어나 **보호자 토큰이 General인 채 자녀가 연결될 수 있다**. General도 허브를 조회해
+  관리 대상 수로 분기, 0일 때만 역할 선택. ② NotificationBell 인증 선확정 — GNB 컴포넌트가 페이지보다
+  먼저 초기화되면 첫 조회가 401로 샌다(헤더 레이스 — TeamDashboardPage와 같은 함정).
+- **미해결**: 승인돼도 보호자 역할은 General 유지(데이터 가드로 전부 동작 — Account에 UserId 조회
+  수단이 없어 무조건 덮어쓰는 UspUpdateUserRole을 못 쓴다. 역할 표시가 필요해지면 조회 프로시저와 함께).
+  "코드가 없어요"의 Records 프로필 경유 연결은 공개 선수 프로필 구현 시. 거절 박스·보호자 측 알림
+  문구는 dc 카피가 없어 실용 작성. 요청 취소 링크 P1. 승인 시점 코드 소진 경합은 롤백+오류 토스트
+  (요청 Pending 유지 — 자동 마감은 안 한다). 배너 3톤·온보딩 스텝 표시 교체는 미착수.
+- 검증(`api-claim.js`·`api-correction-noti.js`·`shot-claim.js`·`sql-claim-restore.sql`): API 26 + 지연
+  동기화 3 + UI 17 전부 통과. 신청→관리자 인라인 승인→보호자 완료 화면→**허브 자녀 카드 반영** 왕복 ·
+  남의 팀 관리자 Forbidden · 멱등 재제출 · 거절 후 재시도 가능 · 설정 필터 on/off · 스텝퍼 뒤로+입력
+  유지 · 모바일 진행 바. 전부 원복(임시 보호자 계정 물리 삭제 포함).
+  **함정: PowerShell로 .js 문자열 치환 금지** — Get-Content가 UTF-8(BOM 없음)을 ANSI로 읽어 한글이
+  전부 깨진다(실제로 겪음). 스크립트 수정은 Edit/Write 도구로.
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
@@ -164,9 +216,10 @@
    - B1의 "스테이지·조 선택" 잔여 항목은 **폐기** — 대회 경기를 팀이 입력하지 않으므로 필요 없어졌다.
 3. ~~**B5 — 친선경기 구분**~~ 완료(아래).
 4. ~~**B6 — 공식 기록 수정 신청**~~ 완료(아래).
-5. **Phase C — 신규 화면**: ~~허브~~ ~~팀 탐색~~ ~~설정~~ 완료 → Claim 4스텝·알림 센터 → 공개 팀 홈 잔여 탭
-   (모집·진학진로·리뷰, 탭당 스키마 신설) → 에이전트 열람 승인(최후순위).
+5. **Phase C — 신규 화면**: ~~허브~~ ~~팀 탐색~~ ~~설정~~ ~~Claim 4스텝·알림 센터~~ 완료 →
+   공개 팀 홈 잔여 탭(모집·진학진로·리뷰, 탭당 스키마 신설) → 에이전트 열람 승인(최후순위).
    팀 탐색·설정 **진입점 연결**은 디자인 보강(Design.Navigation 7/21) 기준 작업 지시 대기.
+   Design.BannerStepper의 **배너 3톤·온보딩 스텝 표시 교체**는 미착수(스텝퍼 절만 소비됨).
 6. **Phase D — 잔여 패턴**: 별도 단계 없이 화면 작업에 얹는다 (AvatarBadge만 Phase C 후 일괄 교체 1회).
    그 외 잔여: 온보딩 중복 방지. **DropdownMenu ⋯(OverflowMenu)는 B3에서 만들고 B6가 확장했다**
    (`DisabledItems`). 남은 건 계정 메뉴(§1) 추출뿐이고 Phase C 아바타 교체 때 함께 한다.

@@ -1,0 +1,92 @@
+@* GNB 벨 + 알림 센터 패널 (Design.ClaimFlow) — 팀·선수 대시보드·허브·공개 GNB 공통.
+   벨 카운트 = 미읽음 알림 수 — 패널 목록과 같은 API 응답을 공유한다 (수가 어긋나면 안 된다).
+   패널을 열 때마다 재조회 — 액션형 처리·읽음이 다른 화면(허브 등)과 어긋나지 않게. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Notification
+@inject NotificationClient Notifications
+@inject JwtAuthenticationStateProvider AuthProvider
+
+<button type="button" aria-label="알림" class="@ButtonClass" @onclick="ToggleAsync">
+    <svg width="@IconSize" height="@IconSize" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+    </svg>
+    @if (mUnread > 0)
+    {
+        <span class="@(Appearance == BellAppearance.Plain ? Css.Notification.BellBadge : Css.Notification.BellBadgeBox)">@mUnread</span>
+    }
+</button>
+
+@if (mOpen)
+{
+    <NotificationPanel Data="@mData" ContextLabel="@ContextLabel"
+                       OnClose="Close" OnChanged="ReloadAsync" />
+}
+
+@code {
+    public enum BellAppearance
+    {
+        /// <summary>네이비 GNB 텍스트형 (PC 대시보드·허브).</summary>
+        Plain,
+        /// <summary>네이비 GNB 박스형 36px (모바일 상단바·선수 GNB).</summary>
+        Box,
+        /// <summary>밝은 배경 (공개 GNB).</summary>
+        Light,
+    }
+
+    [Parameter]
+    public BellAppearance Appearance { get; set; } = BellAppearance.Plain;
+
+    /// <summary>패널 헤더 우측 컨텍스트 (팀명 등). null이면 표시하지 않는다.</summary>
+    [Parameter]
+    public string? ContextLabel { get; set; }
+
+    private bool mOpen;
+    private int mUnread;
+    private NotificationsResponse? mData;
+
+    private string ButtonClass => Appearance switch
+    {
+        BellAppearance.Box => Css.Notification.BellBox,
+        BellAppearance.Light => Css.Notification.BellLight,
+        _ => Css.Notification.BellPlain,
+    };
+
+    private int IconSize => Appearance == BellAppearance.Plain ? 18 : 16;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 페이지보다 먼저 초기화될 수 있다 — 인증 상태를 선확정하지 않으면 첫 조회가 401로 샌다
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            return;
+        }
+
+        await ReloadAsync();
+    }
+
+    private async Task ToggleAsync()
+    {
+        if (mOpen)
+        {
+            Close();
+            return;
+        }
+
+        mOpen = true;
+        await ReloadAsync();
+    }
+
+    private void Close()
+    {
+        mOpen = false;
+    }
+
+    private async Task ReloadAsync()
+    {
+        mData = await Notifications.GetAsync();
+        mUnread = mData?.UnreadCount ?? 0;
+        StateHasChanged();
+    }
+}

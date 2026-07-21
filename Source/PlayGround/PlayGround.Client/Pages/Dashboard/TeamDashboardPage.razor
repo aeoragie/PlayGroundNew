@@ -17,7 +17,7 @@
 
 @* PC (≥768px): GNB + 사이드바 *@
 <div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
-    <DashboardGnb Slug="@mInfo?.Profile.Slug" />
+    <DashboardGnb Slug="@mInfo?.Profile.Slug" TeamName="@mInfo?.Profile.TeamName" />
     <div class="flex-1 flex items-stretch">
         <TeamDashboardSidebar ActiveSection="@CurrentSection" Team="@mInfo?.Profile" />
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px]">
