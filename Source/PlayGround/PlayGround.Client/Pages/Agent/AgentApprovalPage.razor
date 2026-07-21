@@ -365,7 +365,11 @@
     private RenderFragment ScopeCard => __builder =>
     {
         <div class="flex flex-col gap-[9px] md:bg-white md:border-1.5 md:border-border md:rounded-2xl md:p-[18px_20px] md:gap-2.5">
-            <span class="text-[13px] md:text-[13.5px] font-extrabold text-text-strong">승인 시 열람되는 정보</span>
+            <span class="flex items-center gap-1.5">
+                <span class="text-[13px] md:text-[13.5px] font-extrabold text-text-strong">승인 시 열람되는 정보</span>
+                @* 서비스 고유 개념 보조 설명 (Design.TooltipHelp §2 — dc 데모 카피 그대로) *@
+                <InfoPopover Title="에이전트 열람이란?">인증된 에이전트가 자녀의 상세 기록을 보려면 보호자 승인이 필요해요. 승인 후 30일이 지나면 자동 만료돼요.</InfoPopover>
+            </span>
             <div class="border-1.5 border-border rounded-xl px-4 py-1.5 flex flex-col md:border-0 md:rounded-none md:p-0">
                 @foreach ((string label, string note) in Scopes)
                 {

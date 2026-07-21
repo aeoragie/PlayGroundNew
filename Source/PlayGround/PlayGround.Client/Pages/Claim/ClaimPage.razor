@@ -61,7 +61,11 @@
                 @* ── STEP 2: 프로필 확인 ── *@
                 <div class="@($"{Css.Claim.Body} gap-4")">
                     <div class="flex flex-col gap-[7px]">
-                        <h1 class="@Css.Claim.Title">이 프로필이 맞나요?</h1>
+                        <span class="flex items-center gap-1.5">
+                            <h1 class="@Css.Claim.Title">이 프로필이 맞나요?</h1>
+                            @* 서비스 고유 개념 보조 설명 (Design.TooltipHelp §2) *@
+                            <InfoPopover Title="자녀 연결이란?">팀이 등록해 둔 선수 프로필을 보호자 계정과 연결하는 절차예요. 연결하면 기록·알림을 보호자가 직접 관리하고, 공개 범위도 정할 수 있어요.</InfoPopover>
+                        </span>
                         <p class="@Css.Claim.Subtitle">@(mCard.TeamName)@(SubjectParticle(mCard.TeamName)) 등록한 선수 정보예요.</p>
                     </div>
                     <div class="@Css.Claim.PlayerCard">

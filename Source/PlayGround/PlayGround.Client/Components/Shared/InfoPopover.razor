@@ -1,0 +1,55 @@
+@* 인포 팝오버 — ⓘ 탭 열림, PC·모바일 공용 (Design.TooltipHelp §2).
+   필수 정보는 여기 넣지 않는다 — 서비스 고유 개념(Claim·열람 승인·인증팀·Records 집계 기준)의 보조 설명 전용.
+   탭 토글 + 바깥 탭 닫힘(투명 배경 — OverflowMenu와 같은 방식). 제목 + 본문 2~3문장 + 링크 최대 1개. *@
+@using PlayGround.Client.Styles
+
+<span class="relative inline-flex">
+    <button type="button" aria-label="@($"{Title} 설명")" aria-expanded="@mOpen"
+            class="@Css.Popover.Trigger" @onclick="Toggle">
+        <span class="text-[11px] font-extrabold text-text-body not-italic">i</span>
+    </button>
+
+    @if (mOpen)
+    {
+        @* 바깥 클릭으로 닫기 *@
+        <span class="fixed inset-0 z-40" @onclick="Close"></span>
+        <span class="@($"{Css.Popover.Card} {(OpenUp ? Css.Popover.PlaceUp : Css.Popover.PlaceDown)}")">
+            <span class="@Css.Popover.Title">@Title</span>
+            <span class="@Css.Popover.Body">@ChildContent</span>
+            @if (Link is not null)
+            {
+                @Link
+            }
+        </span>
+    }
+</span>
+
+@code {
+    /// <summary>팝오버 제목 (예: "에이전트 열람이란?").</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>본문 2~3문장.</summary>
+    [Parameter, EditorRequired]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>"자세히 보기" 링크 — 최대 1개, 갈 화면이 있을 때만 (Css.Popover.Link 사용).</summary>
+    [Parameter]
+    public RenderFragment? Link { get; set; }
+
+    /// <summary>화면 하단(푸터 등)에서는 위로 연다 — 아래로 열면 뷰포트 밖으로 잘린다.</summary>
+    [Parameter]
+    public bool OpenUp { get; set; }
+
+    private bool mOpen;
+
+    private void Toggle()
+    {
+        mOpen = !mOpen;
+    }
+
+    private void Close()
+    {
+        mOpen = false;
+    }
+}
