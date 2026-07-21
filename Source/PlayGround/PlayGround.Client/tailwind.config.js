@@ -42,6 +42,8 @@ module.exports = {
         'picker-disabled': 'rgb(var(--color-picker-disabled) / <alpha-value>)',
         // 이미지 업로더 빈 드롭존 (Design.ImageUploader)
         dropzone: 'rgb(var(--color-dropzone) / <alpha-value>)',
+        // 토글 스위치 끔 트랙 (Design.ToggleSwitch)
+        'switch-track': 'rgb(var(--color-switch-track) / <alpha-value>)',
         // 뱃지·체크·오버라인 포인트
         teal: {
           DEFAULT: 'rgb(var(--color-teal) / <alpha-value>)',
@@ -134,6 +136,8 @@ module.exports = {
         badge: '0 2px 6px rgba(28,43,74,.12)',
         toast: '0 8px 24px rgba(28,43,74,.25)',
         modal: '0 20px 50px rgba(28,43,74,.3)',
+        // 토글 스위치 knob (Design.ToggleSwitch)
+        knob: '0 1px 3px rgba(0,0,0,.2)',
       },
       keyframes: {
         // 토스트 등장 — 슬라이드 업 + 페이드

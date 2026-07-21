@@ -1,0 +1,217 @@
+@attribute [Route(Routes.Settings)]
+@attribute [Route(Routes.SettingsSectionTemplate)]
+@* 설정 (Design.Settings) — 계정·역할·알림 3탭, URL 동기화(/settings/{section}).
+   PC = 다크 GNB + 좌 sticky 메뉴 210px / 모바일 = 다크 상단바 + 세그먼트 탭(teal 언더라인).
+   계정 삭제 = 고위험 확인 모달(문구 입력 잠금) → 소프트 삭제 → 로그아웃 → 랜딩. *@
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using PlayGround.Client.Components.Settings
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Settings
+@using PlayGround.Contracts.Team
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject AuthClient Auth
+@inject DashboardClient Dashboard
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+
+<PageTitle>설정 — PlayGround</PageTitle>
+
+@* PC (≥768px): 다크 GNB + 좌 메뉴 + 콘텐츠 *@
+<div class="hidden md:block min-h-screen bg-surface-alt text-navy-deep">
+    <header class="bg-navy-deep sticky top-0 z-50">
+        <div class="max-w-[1100px] mx-auto px-8 h-[58px] flex items-center gap-3.5 text-white">
+            <BrandLogo Href="@Routes.Landing" InheritColor="true" />
+            <span class="w-px h-4 bg-white/[.18]"></span>
+            <span class="text-[13px] font-bold text-white/85 whitespace-nowrap">설정</span>
+            <div class="flex-1"></div>
+            <a href="@Routes.Dashboard" class="text-[13px] font-bold text-white/75 hover:text-white whitespace-nowrap transition-colors">대시보드로</a>
+            <span class="w-[34px] h-[34px] rounded-full bg-teal flex items-center justify-center text-[13px] font-extrabold text-white flex-none">@mInitial</span>
+        </div>
+    </header>
+
+    <div class="max-w-[1100px] mx-auto px-8 pt-[26px] pb-[70px] flex gap-[26px] items-start">
+        <nav class="@Css.Settings.SideNav">
+            @foreach (SettingsSection section in Enum.GetValues<SettingsSection>())
+            {
+                <button type="button"
+                        class="@(section == CurrentSection ? Css.Settings.SideMenuButtonActive : Css.Settings.SideMenuButton)"
+                        @onclick="() => GoTo(section)">@section.ToLabel()</button>
+            }
+            <span class="border-t border-surface-icon my-2 mx-1"></span>
+            <button type="button" class="@Css.Settings.SideLogout" @onclick="LogoutAsync">로그아웃</button>
+        </nav>
+
+        <main class="flex-1 min-w-0 flex flex-col gap-4">
+            <h1 class="m-0 text-[21px] font-extrabold tracking-[-.02em]">@CurrentSection.ToLabel()</h1>
+            @SectionBody
+        </main>
+    </div>
+</div>
+
+@* 모바일 (<768px): 다크 상단바 + 세그먼트 탭 *@
+<div class="md:hidden min-h-screen bg-surface-alt max-w-[480px] mx-auto text-navy-deep">
+    <header class="bg-navy-deep sticky top-0 z-50">
+        <div class="px-4 h-[54px] flex items-center gap-2.5">
+            <a href="@Routes.Dashboard" aria-label="뒤로"
+               class="w-9 h-9 rounded-[10px] bg-white/[.08] flex items-center justify-center -ml-1.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+            </a>
+            <span class="text-[15px] font-extrabold text-white">설정</span>
+            <div class="flex-1"></div>
+            <span class="w-8 h-8 rounded-full bg-teal flex items-center justify-center text-xs font-extrabold text-white flex-none">@mInitial</span>
+        </div>
+        <div class="flex gap-0.5 px-3 bg-navy-deep">
+            @foreach (SettingsSection section in Enum.GetValues<SettingsSection>())
+            {
+                <button type="button"
+                        class="@(section == CurrentSection ? Css.Settings.MobileTabActive : Css.Settings.MobileTab)"
+                        @onclick="() => GoTo(section)">@section.ToLabel()</button>
+            }
+        </div>
+    </header>
+
+    <main class="px-4 pt-4 pb-[60px] flex flex-col gap-3.5">
+        @SectionBody
+        @if (CurrentSection == SettingsSection.Account && mSettings is not null)
+        {
+            <button type="button" class="@Css.Settings.MobileLogout" @onclick="LogoutAsync">로그아웃</button>
+        }
+    </main>
+</div>
+
+@code {
+    [Parameter]
+    public string? Section { get; set; }
+
+    private SettingsSection CurrentSection => SettingsSectionExtensions.ParseSlug(Section);
+
+    private bool mAuthenticated;
+    private string mInitial = "?";
+
+    private AccountSettingsResponse? mSettings;
+    private bool mSettingsFailed;
+    private NotificationPreferencesResponse? mNotifications;
+    private bool mNotificationsFailed;
+    private DashboardHubResponse? mHub;
+    private bool mHubFailed;
+
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
+    // 탭 3개가 데이터 소스를 하나씩 가진다 — 탭 렌더 골격은 공유
+    private RenderFragment SectionBody => CurrentSection switch
+    {
+        SettingsSection.Roles => @<LoadingGate IsLoading="@(mHub is null && !mHubFailed)" HasFailed="@mHubFailed" OnRetry="LoadHubAsync">
+            <Skeleton><SkeletonRows Count="3" /></Skeleton>
+            <ChildContent><SettingsRolesSection Hub="@(mHub!)" /></ChildContent>
+        </LoadingGate>,
+        SettingsSection.Notifications => @<LoadingGate IsLoading="@(mNotifications is null && !mNotificationsFailed)" HasFailed="@mNotificationsFailed" OnRetry="LoadNotificationsAsync">
+            <Skeleton><SkeletonRows Count="5" ShowChip="false" /></Skeleton>
+            <ChildContent><SettingsNotificationsSection Preferences="@(mNotifications!)" /></ChildContent>
+        </LoadingGate>,
+        _ => @<LoadingGate IsLoading="@(mSettings is null && !mSettingsFailed)" HasFailed="@mSettingsFailed" OnRetry="LoadSettingsAsync">
+            <Skeleton><SkeletonRows Count="3" ShowChip="false" /></Skeleton>
+            <ChildContent><SettingsAccountSection Settings="@(mSettings!)" Initial="@mInitial" OnDelete="DeleteAccountAsync" /></ChildContent>
+        </LoadingGate>,
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 직접 URL 진입(새로고침) 대비 — 인증 상태를 먼저 확정 (토큰 복원 + Bearer 헤더 부착)
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
+            return;
+        }
+
+        mAuthenticated = true;
+        string? name = state.User.Identity?.Name;
+        mInitial = string.IsNullOrWhiteSpace(name) ? "?" : name[..1];
+    }
+
+    // 탭 진입 시 지연 로드 (한 번만 — 탭 재방문 시 재요청하지 않는다)
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!mAuthenticated)
+        {
+            return;
+        }
+
+        switch (CurrentSection)
+        {
+            case SettingsSection.Roles when mHub is null && !mHubFailed:
+                await LoadHubAsync();
+                break;
+            case SettingsSection.Notifications when mNotifications is null && !mNotificationsFailed:
+                await LoadNotificationsAsync();
+                break;
+            case SettingsSection.Account when mSettings is null && !mSettingsFailed:
+                await LoadSettingsAsync();
+                break;
+        }
+    }
+
+    private void GoTo(SettingsSection section)
+    {
+        Nav.NavigateTo(Routes.SettingsSection(section));
+    }
+
+    private async Task LoadSettingsAsync()
+    {
+        mSettingsFailed = false;
+        mSettings = await Auth.GetSettingsAsync();
+        mSettingsFailed = mSettings is null;
+    }
+
+    private async Task LoadNotificationsAsync()
+    {
+        mNotificationsFailed = false;
+        mNotifications = await Auth.GetNotificationsAsync();
+        mNotificationsFailed = mNotifications is null;
+    }
+
+    private async Task LoadHubAsync()
+    {
+        mHubFailed = false;
+        mHub = await Dashboard.GetHubAsync();
+        mHubFailed = mHub is null;
+    }
+
+    // 계정 삭제 — 고위험: "계정 삭제" 입력 일치 전까지 주 버튼 잠금 (Design.FeedbackPatterns HighRisk)
+    private async Task DeleteAccountAsync()
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.HighRisk,
+            Title = "계정을 삭제할까요?",
+            Description = "자녀 프로필은 다른 보호자에게 이전하거나 함께 삭제돼요. 되돌릴 수 없어요.",
+            ConfirmLabel = "삭제",
+            RequiredPhrase = "계정 삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        bool deleted = await Auth.DeleteAccountAsync();
+        if (!deleted)
+        {
+            Toasts.ShowError("계정을 삭제하지 못했어요. 다시 시도해 주세요.");
+            return;
+        }
+
+        await AuthProvider.MarkUserLoggedOutAsync();
+        Nav.NavigateTo(Routes.Landing);
+    }
+
+    // 로그아웃 → 랜딩 (Design.Navigation 인증 플로우 4)
+    private async Task LogoutAsync()
+    {
+        await AuthProvider.MarkUserLoggedOutAsync();
+        Nav.NavigateTo(Routes.Landing);
+    }
+}

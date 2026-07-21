@@ -69,11 +69,16 @@
   <ItemGroup>
     <Build Include="Tables\Users.sql" />
     <Build Include="Tables\SocialAccounts.sql" />
+    <Build Include="Tables\NotificationPreferences.sql" />
     <Build Include="Procedures\UspGetUserByEmail.sql" />
     <Build Include="Procedures\UspGetUserBySocial.sql" />
     <Build Include="Procedures\UspCreateUserByEmail.sql" />
     <Build Include="Procedures\UspCreateUserWithSocial.sql" />
     <Build Include="Procedures\UspUpdateUserRole.sql" />
+    <Build Include="Procedures\UspGetUserSettings.sql" />
+    <Build Include="Procedures\UspGetNotificationPreferences.sql" />
+    <Build Include="Procedures\UspSetNotificationPreference.sql" />
+    <Build Include="Procedures\UspDeleteUser.sql" />
   </ItemGroup>
   <!-- 빌드 제외(스키마 아님): Seeds(데이터) -->
   <ItemGroup>

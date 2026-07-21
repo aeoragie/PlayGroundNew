@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Auth.Commands;
+using PlayGround.Application.Settings.Commands;
 using PlayGround.Persistence;
 using PlayGround.Server.Services;
 
@@ -25,6 +26,11 @@ namespace PlayGround.Server.DependencyInjection
             //.// 이메일 로그인/가입 + 비밀번호 해시
             services.AddSingleton<IPasswordHasher, PasswordHasherService>();
             services.AddScoped<LoginByEmailCommand>();
+
+            //.// 계정 설정 (설정 화면 — 계정·알림 탭 + 계정 삭제)
+            services.AddScoped<AccountSettingsCommand>();
+            services.AddScoped<NotificationPreferenceCommand>();
+            services.AddScoped<AccountDeleteCommand>();
 
             //.// JWT 발급 + Bearer 검증
             services.AddSingleton<IJwtTokenService, JwtTokenService>();

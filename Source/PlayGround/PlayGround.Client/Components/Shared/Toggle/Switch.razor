@@ -1,0 +1,126 @@
+@* 토글 스위치 행 (Design.ToggleSwitch) — 즉시 적용되는 켬/끔 전용. 폼(저장 버튼 화면) 안 사용 금지.
+   상태 5종: 켬 / 끔 / 비활성(사유 캡션) / 잠금("항상 켜짐" 뱃지) / 저장 중(재클릭 잠금).
+   Save가 있으면 낙관적 반영 — 화면 먼저 바꾸고, 실패하면 되돌린 뒤 오류 토스트. *@
+@using PlayGround.Client.Styles
+@inject ToastService Toasts
+
+<button type="button"
+        class="@Css.Toggle.Row"
+        role="switch"
+        aria-checked="@(DisplayValue ? "true" : "false")"
+        disabled="@(Disabled || Locked || mSaving)"
+        @onclick="ToggleAsync">
+    @if (Prefix is not null)
+    {
+        @Prefix
+    }
+    <span class="@Css.Toggle.TextColumn">
+        <span class="@Css.Toggle.Label">@Label</span>
+        @if (!string.IsNullOrEmpty(CaptionText))
+        {
+            @if (!Disabled && !string.IsNullOrEmpty(MobileDescription))
+            {
+                @* 뷰포트별 카피가 다른 항목 — PC/모바일 dc 카피를 각각 유지한다 *@
+                <span class="@Css.Toggle.Caption">
+                    <span class="hidden md:inline">@CaptionText</span>
+                    <span class="md:hidden">@MobileDescription</span>
+                </span>
+            }
+            else
+            {
+                <span class="@Css.Toggle.Caption">@CaptionText</span>
+            }
+        }
+    </span>
+    @if (Locked)
+    {
+        <span class="@Css.Toggle.LockedBadge">항상 켜짐</span>
+    }
+    else
+    {
+        <span class="@TrackClass">
+            <span class="@Css.Toggle.Knob"></span>
+        </span>
+    }
+</button>
+
+@code {
+    /// <summary>행 레이블 (필수).</summary>
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    /// <summary>레이블 왼쪽 슬롯 — 알림 항목의 분류 칩 등.</summary>
+    [Parameter] public RenderFragment? Prefix { get; set; }
+
+    /// <summary>레이블 아래 설명 캡션. 비활성이면 DisabledReason이 우선한다.</summary>
+    [Parameter] public string? Description { get; set; }
+
+    /// <summary>모바일 전용 캡션 — dc 카피가 뷰포트별로 다를 때만 지정 (없으면 Description 공용).</summary>
+    [Parameter] public string? MobileDescription { get; set; }
+
+    [Parameter] public bool Value { get; set; }
+    [Parameter] public EventCallback<bool> ValueChanged { get; set; }
+
+    /// <summary>서버 저장 콜백 — true면 확정, false면 롤백+오류 토스트.
+    /// null이면 저장 없이 ValueChanged만 (상위가 일괄 처리하는 경우).</summary>
+    [Parameter] public Func<bool, Task<bool>>? Save { get; set; }
+
+    /// <summary>비활성 — 스위치는 보이되 50% 투명. 사유는 DisabledReason 캡션으로.</summary>
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? DisabledReason { get; set; }
+
+    /// <summary>잠금 — 스위치 대신 "항상 켜짐" 뱃지 (승인형 알림 등 끌 수 없는 항목).</summary>
+    [Parameter] public bool Locked { get; set; }
+
+    /// <summary>저장 실패 토스트 문구 (기본: "설정을 저장하지 못했어요. 다시 시도해 주세요.").</summary>
+    [Parameter] public string? ErrorMessage { get; set; }
+
+    private const string DefaultError = "설정을 저장하지 못했어요. 다시 시도해 주세요.";
+
+    // 낙관적 반영 중 표시값 — 실패 시 null로 되돌리면 Value(구값)로 복귀한다
+    private bool? mPendingValue;
+    private bool mSaving;
+
+    private bool DisplayValue => mPendingValue ?? Value;
+
+    private string? CaptionText => Disabled && !string.IsNullOrEmpty(DisabledReason) ? DisabledReason : Description;
+
+    private string TrackClass =>
+        (DisplayValue ? Css.Toggle.TrackOn : Css.Toggle.TrackOff)
+        + (Disabled ? $" {Css.Toggle.TrackDisabled}" : string.Empty);
+
+    private async Task ToggleAsync()
+    {
+        if (Disabled || Locked || mSaving)
+        {
+            return;
+        }
+
+        bool next = !DisplayValue;
+
+        if (Save is null)
+        {
+            await ValueChanged.InvokeAsync(next);
+            return;
+        }
+
+        mPendingValue = next;
+        mSaving = true;
+        try
+        {
+            bool saved = await Save(next);
+            if (saved)
+            {
+                await ValueChanged.InvokeAsync(next);
+            }
+            else
+            {
+                Toasts.ShowError(ErrorMessage ?? DefaultError);
+            }
+        }
+        finally
+        {
+            mPendingValue = null;
+            mSaving = false;
+        }
+    }
+}

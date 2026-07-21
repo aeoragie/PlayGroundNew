@@ -26,6 +26,8 @@ namespace PlayGround.Client
         public const string TeamPublicHomeTemplate = "/team/{Slug}";
         public const string TeamPublicHomeTabTemplate = "/team/{Slug}/{Tab}";
         public const string TeamExplore = "/teams";
+        public const string Settings = "/settings";
+        public const string SettingsSectionTemplate = "/settings/{Section}";
         public const string Records = "/records";
         public const string RecordsArchive = "/records/archive";
         public const string RecordsDetailTemplate = "/records/{TournamentId:guid}";
@@ -56,6 +58,11 @@ namespace PlayGround.Client
         public static string PlayerDashboardSection(SoccerPlayerDashboardSection section)
         {
             return $"{PlayerDashboard}/{section.ToSlug()}";
+        }
+
+        public static string SettingsSection(SettingsSection section)
+        {
+            return $"{Settings}/{section.ToSlug()}";
         }
 
         public static string RecordsDetail(Guid tournamentId)

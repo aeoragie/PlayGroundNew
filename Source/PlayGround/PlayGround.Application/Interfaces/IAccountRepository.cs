@@ -1,4 +1,5 @@
 using PlayGround.Shared.Result;
+using PlayGround.Contracts.Settings;
 using PlayGround.Application.Auth.Models;
 
 namespace PlayGround.Application.Interfaces
@@ -17,5 +18,17 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>역할 변경 후 갱신된 사용자를 반환 (JWT 재발급용).</summary>
         Task<Result<AccountUser>> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default);
+
+        /// <summary>계정 설정 묶음 조회 (마스킹 적용). 미존재·삭제 계정은 Success(null).</summary>
+        Task<Result<AccountSettingsResponse?>> GetSettingsAsync(Guid userId, CancellationToken cancellation = default);
+
+        /// <summary>알림 설정 조회 — 6개 항목 전부(저장값 없는 항목은 기본값).</summary>
+        Task<Result<NotificationPreferencesResponse>> GetNotificationPreferencesAsync(Guid userId, CancellationToken cancellation = default);
+
+        /// <summary>알림 설정 업서트. 사용자 미존재 시 Success(false).</summary>
+        Task<Result<bool>> SetNotificationPreferenceAsync(Guid userId, string itemName, bool isEnabled, CancellationToken cancellation = default);
+
+        /// <summary>계정 소프트 삭제. 이미 삭제·미존재면 Success(false).</summary>
+        Task<Result<bool>> SoftDeleteAsync(Guid userId, CancellationToken cancellation = default);
     }
 }

@@ -1,0 +1,65 @@
+@* 설정 · 역할 탭 (Design.Settings) — 실제 보유한 자리(자녀·팀)로 카드를 그린다.
+   역할 enum이 아니라 허브 데이터 기준 — 팀 관리자이면서 보호자인 계정도 카드가 둘 다 뜬다.
+   "＋ 역할 추가"는 추가 플로우 화면이 없어 렌더하지 않는다(A4 — 없는 화면으로 가는 링크 금지). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+
+<div class="flex flex-col gap-3 md:gap-0">
+    <span class="text-xs md:text-[12.5px] text-text-body break-keep md:hidden">한 계정으로 여러 역할을 가질 수 있어요. 역할을 추가하면 대시보드 허브에서 전환합니다.</span>
+    <div class="@($"{Css.Settings.Card} gap-2.5 md:gap-3")">
+        <span class="hidden md:block text-[12.5px] text-text-body break-keep">한 계정으로 여러 역할을 가질 수 있어요. 역할을 추가하면 대시보드 허브에서 전환합니다.</span>
+
+        @if (Hub.Children.Count > 0)
+        {
+            <div class="@Css.Settings.RoleCard">
+                <span class="@Css.Settings.RoleIconBox">
+                    <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[19px] md:h-[19px] text-navy" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c0-3.5 3-5.8 7-5.8s7 2.3 7 5.8"></path></svg>
+                </span>
+                <span class="flex flex-col gap-px md:gap-0.5 flex-1 min-w-0">
+                    <span class="text-[13.5px] md:text-sm font-extrabold text-navy-deep whitespace-nowrap">보호자</span>
+                    <span class="text-[11px] md:text-xs text-text-muted truncate">
+                        <span class="hidden md:inline">@ChildrenSummary 프로필 관리</span>
+                        <span class="md:hidden">@ChildrenSummary</span>
+                    </span>
+                </span>
+                <span class="@Css.Settings.RoleActiveBadge">사용 중</span>
+            </div>
+        }
+
+        @if (Hub.Teams.Count > 0)
+        {
+            <div class="@Css.Settings.RoleCard">
+                <span class="@Css.Settings.RoleIconBox">
+                    <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[19px] md:h-[19px] text-navy" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path></svg>
+                </span>
+                <span class="flex flex-col gap-px md:gap-0.5 flex-1 min-w-0">
+                    <span class="text-[13.5px] md:text-sm font-extrabold text-navy-deep whitespace-nowrap">팀 관리자</span>
+                    <span class="text-[11px] md:text-xs text-text-muted truncate">@TeamsSummary</span>
+                </span>
+                <span class="@Css.Settings.RoleActiveBadge">사용 중</span>
+            </div>
+        }
+
+        <div class="@Css.Settings.RoleCardPending">
+            <span class="@Css.Settings.RoleIconBoxAgent">
+                <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[19px] md:h-[19px] text-agent" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M15.5 9.5l2 2 4-4.5"></path></svg>
+            </span>
+            <span class="flex flex-col gap-px md:gap-0.5 flex-1 min-w-0">
+                <span class="text-[13.5px] md:text-sm font-extrabold text-text-body whitespace-nowrap">에이전트</span>
+                <span class="text-[11px] md:text-xs text-text-muted break-keep">별도 서비스에서 운영돼요 · 준비 중</span>
+            </span>
+            <span class="@Css.Settings.RolePendingBadge">준비 중</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public DashboardHubResponse Hub { get; set; } = new();
+
+    // "김민준(U15) · 김서연(U12)" — 연령 그룹이 없으면 이름만
+    private string ChildrenSummary => string.Join(" · ", Hub.Children
+        .Select(c => string.IsNullOrEmpty(c.AgeGroup) ? c.Name : $"{c.Name}({c.AgeGroup})"));
+
+    private string TeamsSummary => string.Join(" · ", Hub.Teams.Select(t => t.TeamName));
+}

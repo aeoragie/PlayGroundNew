@@ -6,7 +6,9 @@ using PlayGround.Shared.Http;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Auth;
+using PlayGround.Contracts.Settings;
 using PlayGround.Application.Auth.Commands;
+using PlayGround.Application.Settings.Commands;
 using PlayGround.Server.Services;
 
 namespace PlayGround.Server.Controllers.Auth
@@ -21,13 +23,28 @@ namespace PlayGround.Server.Controllers.Auth
         private readonly OAuthService mOAuth;
         private readonly LoginBySocialCommand mLoginBySocial;
         private readonly LoginByEmailCommand mLoginByEmail;
+        private readonly AccountSettingsCommand mAccountSettings;
+        private readonly NotificationPreferenceCommand mNotificationPreference;
+        private readonly AccountDeleteCommand mAccountDelete;
 
-        public AuthController(OAuthService oauth, LoginBySocialCommand loginBySocial, LoginByEmailCommand loginByEmail)
+        public AuthController(
+            OAuthService oauth,
+            LoginBySocialCommand loginBySocial,
+            LoginByEmailCommand loginByEmail,
+            AccountSettingsCommand accountSettings,
+            NotificationPreferenceCommand notificationPreference,
+            AccountDeleteCommand accountDelete)
         {
             mOAuth = oauth;
             mLoginBySocial = loginBySocial;
             mLoginByEmail = loginByEmail;
+            mAccountSettings = accountSettings;
+            mNotificationPreference = notificationPreference;
+            mAccountDelete = accountDelete;
         }
+
+        private Guid CurrentUserId =>
+            Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : Guid.Empty;
 
         /// <summary>이메일 로그인/가입 (없으면 자동 생성). 성공 시 액세스 토큰 반환.</summary>
         [HttpPost("login/email")]
@@ -57,6 +74,63 @@ namespace PlayGround.Server.Controllers.Auth
                 ProfileImageUrl = User.FindFirstValue("avatar")
             };
             return Result<AuthUserDto>.Success(user).ToEnvelope();
+        }
+
+        /// <summary>계정 설정 묶음 (설정 · 계정 탭). 이메일은 서버에서 마스킹된 값만.</summary>
+        [Authorize]
+        [HttpGet("me/settings")]
+        public async Task<Envelope<AccountSettingsResponse>> GetSettingsAsync(CancellationToken cancellation)
+        {
+            Result<AccountSettingsResponse> result = await mAccountSettings.ExecuteAsync(CurrentUserId, cancellation);
+            if (result.IsError)
+            {
+                result.LogWith(Logger, "GetAccountSettings");
+            }
+
+            return result.ToEnvelope();
+        }
+
+        /// <summary>알림 설정 — 6개 항목 전부(저장값 없으면 기본값). 승인형은 목록에 없다(항상 켜짐).</summary>
+        [Authorize]
+        [HttpGet("me/notifications")]
+        public async Task<Envelope<NotificationPreferencesResponse>> GetNotificationsAsync(CancellationToken cancellation)
+        {
+            Result<NotificationPreferencesResponse> result = await mNotificationPreference.GetAsync(CurrentUserId, cancellation);
+            if (result.IsError)
+            {
+                result.LogWith(Logger, "GetNotificationPreferences");
+            }
+
+            return result.ToEnvelope();
+        }
+
+        /// <summary>알림 설정 변경 — 승인형 항목은 서버가 거부한다(InvalidInput).</summary>
+        [Authorize]
+        [HttpPut("me/notifications")]
+        public async Task<Envelope<bool>> SetNotificationAsync(
+            [FromBody] SetNotificationPreferenceRequest request, CancellationToken cancellation)
+        {
+            Result<bool> result = await mNotificationPreference.SetAsync(CurrentUserId, request, cancellation);
+            if (result.IsError)
+            {
+                result.LogWith(Logger, "SetNotificationPreference");
+            }
+
+            return result.ToEnvelope();
+        }
+
+        /// <summary>계정 삭제 (소프트 삭제). 클라이언트는 성공 시 로그아웃 → 랜딩으로 보낸다.</summary>
+        [Authorize]
+        [HttpDelete("me")]
+        public async Task<Envelope<bool>> DeleteAccountAsync(CancellationToken cancellation)
+        {
+            Result<bool> result = await mAccountDelete.ExecuteAsync(CurrentUserId, cancellation);
+            if (result.IsError)
+            {
+                result.LogWith(Logger, "DeleteAccount");
+            }
+
+            return result.ToEnvelope();
         }
 
         [HttpGet("social/{provider}")]

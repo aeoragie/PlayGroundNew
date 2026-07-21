@@ -44,14 +44,18 @@ BEGIN
     WHERE ch.[TeamId] = @TeamId AND ch.[DeletedAt] IS NULL
     ORDER BY ch.[DisplayOrder];
 
+    -- 프로필 공개(FieldName='Profile')를 끈 선수는 공개 로스터에서 제외 (행 없으면 기본 공개)
     SELECT
         tp.[TeamPlayerId], tp.[JerseyNumber], tp.[Position], tp.[Grade],
         p.[PlayerId], p.[Name], p.[PhotoUrl], p.[AgeGroup], p.[UserId]
     FROM [dbo].[SoccerTeamPlayers] tp WITH (NOLOCK)
     JOIN [dbo].[SoccerPlayers] p WITH (NOLOCK) ON p.[PlayerId] = tp.[PlayerId]
+    LEFT JOIN [dbo].[SoccerPlayerFieldVisibilities] fv WITH (NOLOCK)
+        ON fv.[PlayerId] = p.[PlayerId] AND fv.[FieldName] = 'Profile'
     WHERE tp.[TeamId] = @TeamId
       AND tp.[Status] = 'Active' AND tp.[DeletedAt] IS NULL
       AND p.[DeletedAt] IS NULL
+      AND COALESCE(fv.[IsPublic], 1) = 1
     ORDER BY
         CASE WHEN TRY_CAST(tp.[JerseyNumber] AS INT) IS NULL THEN 1 ELSE 0 END,
         TRY_CAST(tp.[JerseyNumber] AS INT),

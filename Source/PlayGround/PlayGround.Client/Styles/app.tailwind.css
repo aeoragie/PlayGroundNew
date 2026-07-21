@@ -65,6 +65,9 @@
 
   /* 빈 상태 (Design.EmptyStates) — Tier A 일러스트 외곽선 */
   --color-illustration: 197 207 228;       /* #c5cfe4 일러스트 연한 외곽 (디테일은 navy) */
+
+  /* 토글 스위치 (Design.ToggleSwitch) — 끔 상태 트랙 (켬은 teal) */
+  --color-switch-track: 213 217 226;       /* #d5d9e2 */
 }
 
 @tailwind base;

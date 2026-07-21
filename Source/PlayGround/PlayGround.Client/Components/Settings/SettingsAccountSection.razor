@@ -1,0 +1,122 @@
+@* 설정 · 계정 탭 (Design.Settings) — 프로필 + 연결된 로그인 + 계정 관리.
+   이름 변경·Kakao 연결·데이터 내려받기는 화면만(플로우 미구현 — 무동작 버튼, # 링크 금지). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Settings
+
+<div class="flex flex-col gap-3.5 md:gap-4">
+    <div class="@($"{Css.Settings.Card} gap-3.5 md:gap-4")">
+        @* 프로필 *@
+        <div class="flex items-center gap-[13px] md:gap-3.5">
+            <span class="@Css.Settings.ProfileAvatar">@Initial</span>
+            <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                <span class="text-[15px] md:text-base font-extrabold text-navy-deep whitespace-nowrap">@Settings.DisplayName</span>
+                <span class="text-xs md:text-[12.5px] text-text-muted whitespace-nowrap">@Settings.MaskedEmail</span>
+            </span>
+            <button type="button" class="@Css.Settings.OutlineButton">이름 변경</button>
+        </div>
+
+        @* 연결된 로그인 *@
+        <div class="@($"{Css.Settings.DividerTop} pt-3.5 md:pt-4 flex flex-col gap-[9px] md:gap-2.5")">
+            <span class="@Css.Settings.CardHeading">연결된 로그인</span>
+
+            @* Google *@
+            @if (IsLinked("Google"))
+            {
+                <div class="@Css.Settings.LoginRowLinked">
+                    <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[18px] md:h-[18px]"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2 3.7-5 3.7-8.6z"></path><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.7-2.9c-1 .7-2.4 1.2-4.2 1.2-3.1 0-5.8-2.1-6.7-5l-3.9 3C3.4 21.3 7.4 24 12 24z"></path><path fill="#FBBC05" d="M5.3 14.4c-.2-.7-.4-1.5-.4-2.4s.2-1.7.4-2.4l-3.9-3C.5 8.2 0 10 0 12s.5 3.8 1.4 5.4l3.9-3z"></path><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.6l3.9 3c.9-2.9 3.6-4.9 6.7-4.9z"></path></svg>
+                    <span class="flex flex-col gap-px flex-1 min-w-0">
+                        <span class="text-[12.5px] md:text-[13px] font-bold text-navy-deep whitespace-nowrap">Google</span>
+                        @if (LinkedCaption("Google") is string googleCaption)
+                        {
+                            <span class="hidden md:inline text-[11.5px] text-text-muted whitespace-nowrap">@googleCaption</span>
+                        }
+                    </span>
+                    <span class="@Css.Settings.LinkedBadge">연결됨</span>
+                </div>
+            }
+            else
+            {
+                <div class="@Css.Settings.LoginRowUnlinked">
+                    <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[18px] md:h-[18px]"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2 3.7-5 3.7-8.6z"></path><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.7-2.9c-1 .7-2.4 1.2-4.2 1.2-3.1 0-5.8-2.1-6.7-5l-3.9 3C3.4 21.3 7.4 24 12 24z"></path><path fill="#FBBC05" d="M5.3 14.4c-.2-.7-.4-1.5-.4-2.4s.2-1.7.4-2.4l-3.9-3C.5 8.2 0 10 0 12s.5 3.8 1.4 5.4l3.9-3z"></path><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.6l3.9 3c.9-2.9 3.6-4.9 6.7-4.9z"></path></svg>
+                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted flex-1 whitespace-nowrap">Google</span>
+                    <button type="button" class="@Css.Settings.SmallOutlineButton">연결하기</button>
+                </div>
+            }
+
+            @* Kakao *@
+            @if (IsLinked("Kakao"))
+            {
+                <div class="@Css.Settings.LoginRowLinked">
+                    <span class="w-[17px] h-[17px] md:w-[18px] md:h-[18px] rounded bg-[#FEE500] flex items-center justify-center flex-none"><svg width="10" height="10" viewBox="0 0 24 24" class="md:w-[11px] md:h-[11px]"><path fill="#191919" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1.2 4.4c-.1.4.3.7.6.5l5.2-3.5c.2 0 .5.1.7.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"></path></svg></span>
+                    <span class="flex flex-col gap-px flex-1 min-w-0">
+                        <span class="text-[12.5px] md:text-[13px] font-bold text-navy-deep whitespace-nowrap">Kakao</span>
+                        @if (LinkedCaption("Kakao") is string kakaoCaption)
+                        {
+                            <span class="hidden md:inline text-[11.5px] text-text-muted whitespace-nowrap">@kakaoCaption</span>
+                        }
+                    </span>
+                    <span class="@Css.Settings.LinkedBadge">연결됨</span>
+                </div>
+            }
+            else
+            {
+                <div class="@Css.Settings.LoginRowUnlinked">
+                    <span class="w-[17px] h-[17px] md:w-[18px] md:h-[18px] rounded bg-[#FEE500] flex items-center justify-center flex-none"><svg width="10" height="10" viewBox="0 0 24 24" class="md:w-[11px] md:h-[11px]"><path fill="#191919" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1.2 4.4c-.1.4.3.7.6.5l5.2-3.5c.2 0 .5.1.7.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"></path></svg></span>
+                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted flex-1 whitespace-nowrap">Kakao</span>
+                    <button type="button" class="@Css.Settings.SmallOutlineButton">연결하기</button>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* 계정 관리 *@
+    <div class="@($"{Css.Settings.Card} gap-3")">
+        <span class="@Css.Settings.CardHeading">계정 관리</span>
+        <div class="flex items-center gap-2.5">
+            <span class="flex flex-col gap-px flex-1 min-w-0">
+                <span class="text-[13px] font-bold text-navy-deep whitespace-nowrap">데이터 내려받기</span>
+                <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">자녀 프로필·기록 전체를 파일로 받아요</span>
+            </span>
+            <button type="button" class="@Css.Settings.ManageButton">요청</button>
+        </div>
+        <div class="@($"{Css.Settings.DividerTop} pt-3 flex items-center gap-2.5")">
+            <span class="flex flex-col gap-px flex-1 min-w-0">
+                <span class="text-[13px] font-bold text-danger whitespace-nowrap">계정 삭제</span>
+                <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">자녀 프로필은 다른 보호자에게 이전하거나 함께 삭제돼요</span>
+            </span>
+            <button type="button" class="@Css.Settings.DeleteButton" @onclick="OnDelete">삭제</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public AccountSettingsResponse Settings { get; set; } = new();
+
+    /// <summary>아바타 이니셜 — 표시 이름 첫 글자.</summary>
+    [Parameter]
+    public string Initial { get; set; } = "?";
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    private bool IsLinked(string provider)
+    {
+        return Settings.SocialLogins.Any(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>PC 전용 캡션 — "기본 로그인 · 2026.3 연결" 형식 (기본 로그인이 아니면 연결 시점만).</summary>
+    private string? LinkedCaption(string provider)
+    {
+        LinkedLoginDto? login = Settings.SocialLogins
+            .FirstOrDefault(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+        if (login is null)
+        {
+            return null;
+        }
+
+        string linked = $"{login.LinkedAt.Year}.{login.LinkedAt.Month} 연결";
+        bool isPrimary = string.Equals(Settings.AuthProvider, provider, StringComparison.OrdinalIgnoreCase);
+        return isPrimary ? $"기본 로그인 · {linked}" : linked;
+    }
+}

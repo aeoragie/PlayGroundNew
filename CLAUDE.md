@@ -113,6 +113,43 @@
     중간 상태를 잡는다). 경로 비교는 `startsWith` 금지 — `/dashboard/team`이 `/dashboard` 기대를
     통과해 버린다(실제로 겪음). 검증 데이터는 전부 원복.
 
+### Phase C — 설정 + ToggleSwitch 완료 (2026-07-21, Design.Settings + Design.ToggleSwitch)
+
+- **Switch 공용** `Components/Shared/Toggle/Switch.razor` + `Styles/Css.Toggle.cs` — 44×26 teal·knob 22,
+  상태 5종(켬/끔/비활성+사유 캡션/잠금="항상 켜짐" 뱃지/저장 중). **낙관적 반영을 컴포넌트가 전담**:
+  클릭 즉시 표시를 바꾸고 `Save`(`Func<bool, Task<bool>>`)가 false면 롤백+오류 토스트 — 호출부는 성공
+  여부만 돌려주면 된다. `Prefix` 슬롯(알림 분류 칩)·`MobileDescription`(뷰포트별 dc 카피 분기)·
+  계층 상수 `SubGroup`/`SubGroupDimmed`(들여쓰기 16px+좌보더 2px+opacity .45). 행 전체 탭(모바일 56px+).
+  **폼(저장 버튼 화면) 안 스위치 금지** — 결정표: 스위치=설정 즉시 적용 / 체크박스=폼 동의.
+  토큰 신설 `switch-track`(#d5d9e2 끔 트랙)·그림자 `knob`.
+- **알림 설정은 Account DB다**(계정 수준·종목 무관) — `NotificationPreferences` 테이블 + 프로시저 4종
+  (`UspGetUserSettings` 2결과셋 · `UspGetNotificationPreferences` · `UspSetNotificationPreference` ·
+  `UspDeleteUser` 소프트 삭제). 저장 행만 저장하고 기본값은 Domain `NotificationPreferenceItem` enum이
+  병합(푸시·경기·모집·리뷰 켬 / 이메일·방문요약 끔). **승인형(연결·열람 요청)은 enum에 없다 — 이
+  enum이 저장 화이트리스트라서 클라이언트가 우회해도 서버가 InvalidInput으로 거부한다**(UI 잠금이
+  아니라 저장 자체가 불가). API는 Auth 관례대로 액터 미경유, AuthController 직결: `GET api/auth/me/settings`
+  (이메일 마스킹은 서버 — 원본은 API 밖으로 안 나감) · `GET/PUT me/notifications` · `DELETE me`.
+- **설정 화면** `/settings/{account|roles|notifications}` (탭=URL 동기화, 직접 진입·새로고침 유지).
+  PC 다크 GNB+사이드 메뉴 210px+로그아웃 / 모바일 다크 상단바+세그먼트 탭(teal 언더라인 2.5px)+계정
+  탭 하단 풀폭 로그아웃. **역할 탭은 허브 API 재사용** — 역할 enum이 아니라 실제 보유(팀·자녀)로
+  카드를 그린다(자녀 없으면 보호자 카드 없음 — 빈 데이터 노출 금지). 계정 삭제 = HighRisk 모달
+  (RequiredPhrase "계정 삭제") → 소프트 삭제 → 로그아웃 → 랜딩.
+- **선수 프로필 공개 범위 = 계층 스위치** — `SoccerPlayerProfileField`에 상위 `Profile` 멤버 추가
+  (DB 변경 없음 — FieldVisibilities 행으로 저장, 기본 공개. enum 병합·Command 화이트리스트에 자동 편입).
+  상위 off → 하위 5항목 dimmed+비활성 + **실행취소 토스트**(효과가 다른 화면에 있어 화면 내 변화가
+  없기 때문). 캡션 "끄면 검색·팀 선수단에서 숨겨져요"를 실제로 만족시키려고
+  **`UspGetSoccerTeamHomeBySlug` 로스터에 Profile 비공개 필터를 추가**했다(행 없으면 기본 공개).
+  **다른 PC에서는 이 프로시저를 재배포해야 한다.**
+- **미노출·미해결**: 이름 변경·Kakao 연결·데이터 내려받기는 렌더만(무동작 — 각각 별도 플로우 설계
+  필요). "＋ 역할 추가"는 렌더하지 않음(A4 — 추가 플로우 화면이 없고 UspUpdateUserRole은 덮어쓰기라
+  다역할을 표현 못 함). 자녀 프로필 이전·동반 삭제는 후속 플로우. 삭제된 계정의 기존 JWT는 만료
+  전까지 유효(무효화는 세션 저장소 도입 때). **설정 진입점도 미연결** — GNB 아바타 메뉴 연결은
+  팀 탐색 진입점과 함께 디자인 지시 대기(Design.Navigation 7/21 보강 참조).
+- 검증(`api-settings.js`·`shot-settings.js`·`shot-hierarchy.js`): 이메일 마스킹 · 기본값 병합 ·
+  저장 왕복(새로고침 유지) · **승인형 5가지 이름 전부 서버 거부** · 삭제(임시 계정)+중복 삭제 거부 ·
+  **PUT abort → 낙관 반영 → 롤백+오류 토스트** · 삭제 모달 문구 입력 잠금 · 계층 off → 하위 .45+
+  비활성 → **공개홈 로스터에서 숨김** → 실행취소 복귀 · 모바일 세그먼트 탭·가로 스크롤 없음. 전부 원복.
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
@@ -127,8 +164,9 @@
    - B1의 "스테이지·조 선택" 잔여 항목은 **폐기** — 대회 경기를 팀이 입력하지 않으므로 필요 없어졌다.
 3. ~~**B5 — 친선경기 구분**~~ 완료(아래).
 4. ~~**B6 — 공식 기록 수정 신청**~~ 완료(아래).
-5. **Phase C — 신규 화면**: ~~허브~~ ~~팀 탐색~~ 완료 → 설정 → Claim 4스텝·알림 센터 → 공개 팀 홈 잔여 탭
+5. **Phase C — 신규 화면**: ~~허브~~ ~~팀 탐색~~ ~~설정~~ 완료 → Claim 4스텝·알림 센터 → 공개 팀 홈 잔여 탭
    (모집·진학진로·리뷰, 탭당 스키마 신설) → 에이전트 열람 승인(최후순위).
+   팀 탐색·설정 **진입점 연결**은 디자인 보강(Design.Navigation 7/21) 기준 작업 지시 대기.
 6. **Phase D — 잔여 패턴**: 별도 단계 없이 화면 작업에 얹는다 (AvatarBadge만 Phase C 후 일괄 교체 1회).
    그 외 잔여: 온보딩 중복 방지. **DropdownMenu ⋯(OverflowMenu)는 B3에서 만들고 B6가 확장했다**
    (`DisabledItems`). 남은 건 계정 메뉴(§1) 추출뿐이고 Phase C 아바타 교체 때 함께 한다.

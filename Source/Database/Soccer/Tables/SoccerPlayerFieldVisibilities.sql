@@ -4,7 +4,7 @@ CREATE TABLE [dbo].[SoccerPlayerFieldVisibilities]
 (
     [VisibilityId]  UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [PlayerId]      UNIQUEIDENTIFIER NOT NULL,          -- SoccerPlayers.PlayerId (앱 계층 참조)
-    [FieldName]     VARCHAR(30)      NOT NULL,          -- 'Height','Weight','PreferredFoot','School','GuardianPhone'
+    [FieldName]     VARCHAR(30)      NOT NULL,          -- 'Profile'(전체 공개 — 계층 상위),'Height','Weight','PreferredFoot','School','GuardianPhone'
     [IsPublic]      BIT              NOT NULL,
 
     [CreatedAt]     DATETIME2        NOT NULL DEFAULT GETUTCDATE(),

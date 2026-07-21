@@ -1,0 +1,99 @@
+@* 설정 · 알림 탭 (Design.Settings) — 수신 방법 2종 + 알림 항목 5종.
+   승인형(연결 요청·열람 요청)은 스위치 없이 "항상 켜짐" 잠금 — 서버(enum 화이트리스트)도 저장을 거부한다.
+   스위치는 낙관적 반영 — 실패하면 Switch가 롤백+오류 토스트를 처리한다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Settings
+@using PlayGround.Domain.Account
+@inject AuthClient Auth
+
+<div class="flex flex-col gap-3.5 md:gap-4">
+    <div class="@($"{Css.Settings.Card} gap-0.5")">
+        <span class="@($"{Css.Settings.CardHeading} mb-2")">수신 방법</span>
+        <Switch Label="앱 푸시" Description="모바일 앱 설치 시"
+                Value="@ValueOf(NotificationPreferenceItem.PushChannel)"
+                ValueChanged="@(v => SetLocal(NotificationPreferenceItem.PushChannel, v))"
+                Save="@(v => SaveAsync(NotificationPreferenceItem.PushChannel, v))" />
+        <Switch Label="이메일" Description="주간 요약과 중요 알림"
+                Value="@ValueOf(NotificationPreferenceItem.EmailChannel)"
+                ValueChanged="@(v => SetLocal(NotificationPreferenceItem.EmailChannel, v))"
+                Save="@(v => SaveAsync(NotificationPreferenceItem.EmailChannel, v))" />
+    </div>
+
+    <div class="@($"{Css.Settings.Card} gap-0.5")">
+        <span class="@($"{Css.Settings.CardHeading} mb-2")">알림 항목</span>
+
+        <Switch Label="연결 요청 · 열람 요청" Description="자녀 프로필 연결, 에이전트 상세 열람 승인 요청" Locked="true">
+            <Prefix><span class="@Css.Settings.ChipOrange">승인</span></Prefix>
+        </Switch>
+
+        <Switch Label="경기 결과 반영"
+                Description="자녀 기록·팀 성적이 업데이트되면 알려드려요" MobileDescription="자녀 기록·팀 성적 업데이트"
+                Value="@ValueOf(NotificationPreferenceItem.MatchResult)"
+                ValueChanged="@(v => SetLocal(NotificationPreferenceItem.MatchResult, v))"
+                Save="@(v => SaveAsync(NotificationPreferenceItem.MatchResult, v))">
+            <Prefix><span class="@Css.Settings.ChipNavy">경기</span></Prefix>
+        </Switch>
+
+        <Switch Label="모집 공고 · 지원 현황" Description="관심 지역 새 공고, 지원 결과"
+                Value="@ValueOf(NotificationPreferenceItem.Recruit)"
+                ValueChanged="@(v => SetLocal(NotificationPreferenceItem.Recruit, v))"
+                Save="@(v => SaveAsync(NotificationPreferenceItem.Recruit, v))">
+            <Prefix><span class="@Css.Settings.ChipNavy">모집</span></Prefix>
+        </Switch>
+
+        <Switch Label="리뷰 답글" Description="내가 쓴 리뷰에 팀이 답글을 달면"
+                Value="@ValueOf(NotificationPreferenceItem.Review)"
+                ValueChanged="@(v => SetLocal(NotificationPreferenceItem.Review, v))"
+                Save="@(v => SaveAsync(NotificationPreferenceItem.Review, v))">
+            <Prefix><span class="@Css.Settings.ChipNavy">리뷰</span></Prefix>
+        </Switch>
+
+        <Switch Label="프로필 방문 요약" Description="공개 프로필 주간 방문 통계"
+                Value="@ValueOf(NotificationPreferenceItem.VisitSummary)"
+                ValueChanged="@(v => SetLocal(NotificationPreferenceItem.VisitSummary, v))"
+                Save="@(v => SaveAsync(NotificationPreferenceItem.VisitSummary, v))">
+            <Prefix><span class="@Css.Settings.ChipViolet">열람</span></Prefix>
+        </Switch>
+
+        <span class="@Css.Settings.FootCaption">연결 요청·열람 요청 등 승인이 필요한 알림은 안전을 위해 끌 수 없어요.</span>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public NotificationPreferencesResponse Preferences { get; set; } = new();
+
+    // 화면 상태 — 초기값은 서버 응답, 이후 스위치 확정값을 여기에 반영한다
+    private readonly Dictionary<string, bool> mValues = new();
+    private bool mInitialized;
+
+    protected override void OnParametersSet()
+    {
+        if (mInitialized)
+        {
+            return;
+        }
+
+        foreach (NotificationPreferenceDto preference in Preferences.Preferences)
+        {
+            mValues[preference.ItemName] = preference.IsEnabled;
+        }
+
+        mInitialized = true;
+    }
+
+    private bool ValueOf(NotificationPreferenceItem item)
+    {
+        return mValues.TryGetValue(item.ToString(), out bool enabled) ? enabled : item.DefaultIsEnabled();
+    }
+
+    private void SetLocal(NotificationPreferenceItem item, bool value)
+    {
+        mValues[item.ToString()] = value;
+    }
+
+    private async Task<bool> SaveAsync(NotificationPreferenceItem item, bool value)
+    {
+        return await Auth.SetNotificationAsync(item.ToString(), value);
+    }
+}

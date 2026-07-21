@@ -3,6 +3,7 @@
 @using PlayGround.Client.Styles
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
+@using PlayGround.Domain.Soccer
 @inject PlayerClient Players
 @inject ToastService Toasts
 @inject ConfirmService Confirm
@@ -63,22 +64,28 @@
 
     @if (FieldRows.Count > 0)
     {
-        <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-[11px]")">
+        @* 계층 스위치 (Design.ToggleSwitch) — 상위 "프로필 공개"를 끄면 하위 항목이 비활성+dimmed *@
+        <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-1")">
             <div class="flex flex-col gap-0.5">
                 <span class="text-[15px] font-extrabold text-navy-deep">항목별 공개 설정</span>
                 <span class="text-[11.5px] text-text-muted break-keep">보호자만 변경할 수 있어요</span>
             </div>
-            @foreach (PlayerProfileSection.FieldRow row in FieldRows)
+            @if (ProfileVisibility is PlayerFieldVisibilityDto profile)
             {
-                <div class="flex items-center gap-2.5 border border-border rounded-[11px] px-3.5 py-[11px]">
-                    <span class="flex flex-col gap-px flex-1 min-w-0">
-                        <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">@row.Label</span>
-                        <span class="text-xs text-text-muted whitespace-nowrap">@row.Value</span>
-                    </span>
-                    <button type="button" class="@MobileToggleClass(row.Visibility.IsPublic)"
-                            @onclick="() => ToggleAsync(row.Visibility)">@(row.Visibility.IsPublic ? "공개" : "비공개")</button>
-                </div>
+                <Switch Label="프로필 공개" Description="끄면 검색·팀 선수단에서 숨겨져요"
+                        Value="@profile.IsPublic" ValueChanged="@(v => ApplyVisibility(profile, v))"
+                        Save="@(v => SaveVisibilityAsync(profile, v))"
+                        ErrorMessage="공개 설정을 저장하지 못했어요." />
             }
+            <div class="@SubGroupClass">
+                @foreach (PlayerProfileSection.FieldRow row in FieldRows)
+                {
+                    <Switch Label="@row.Label" Description="@row.Value" Disabled="@(!ProfileIsPublic)"
+                            Value="@row.Visibility.IsPublic" ValueChanged="@(v => ApplyVisibility(row.Visibility, v))"
+                            Save="@(v => SaveVisibilityAsync(row.Visibility, v))"
+                            ErrorMessage="공개 설정을 저장하지 못했어요." />
+                }
+            </div>
         </div>
     }
 
@@ -158,20 +165,40 @@
         }
     }
 
-    private async Task ToggleAsync(PlayerFieldVisibilityDto visibility)
+    private PlayerFieldVisibilityDto? ProfileVisibility =>
+        Info.Visibilities.FirstOrDefault(v => v.FieldName == nameof(SoccerPlayerProfileField.Profile));
+
+    private bool ProfileIsPublic => ProfileVisibility?.IsPublic ?? true;
+
+    private string SubGroupClass =>
+        Css.Toggle.SubGroup + (ProfileIsPublic ? string.Empty : $" {Css.Toggle.SubGroupDimmed}");
+
+    // 스위치 Save 콜백 — 실패 롤백·오류 토스트는 Switch가 처리한다
+    private async Task<bool> SaveVisibilityAsync(PlayerFieldVisibilityDto visibility, bool value)
     {
-        bool next = !visibility.IsPublic;
-        if (await Players.SetFieldVisibilityAsync(visibility.FieldName, next, PlayerId))
+        return await Players.SetFieldVisibilityAsync(visibility.FieldName, value, PlayerId);
+    }
+
+    // 저장 확정값을 공유 DTO에 반영 — 상위 끄기는 실행취소 토스트 (PC 섹션과 같은 규칙)
+    private void ApplyVisibility(PlayerFieldVisibilityDto visibility, bool value)
+    {
+        visibility.IsPublic = value;
+
+        if (visibility.FieldName == nameof(SoccerPlayerProfileField.Profile) && !value)
         {
-            visibility.IsPublic = next;
+            Toasts.ShowSuccess("프로필을 비공개로 바꿨어요.", "실행취소", () => RestoreProfileAsync(visibility));
+        }
+    }
+
+    private async Task RestoreProfileAsync(PlayerFieldVisibilityDto visibility)
+    {
+        if (await Players.SetFieldVisibilityAsync(visibility.FieldName, true, PlayerId))
+        {
+            visibility.IsPublic = true;
+            await InvokeAsync(StateHasChanged);
             return;
         }
 
-        // 토글은 결과가 화면에 즉시 보이므로 성공 토스트는 생략, 실패만 알린다
-        Toasts.ShowError("공개 설정을 저장하지 못했어요.", "재시도", () => ToggleAsync(visibility));
+        Toasts.ShowError("공개 설정을 저장하지 못했어요.");
     }
-
-    private static string MobileToggleClass(bool isPublic) =>
-        "h-[30px] px-[13px] rounded-full text-[11px] font-bold whitespace-nowrap shrink-0 border-1.5 cursor-pointer transition-colors " +
-        (isPublic ? "border-teal/40 bg-teal/[.12] text-teal-ink" : "border-border bg-surface-soft text-text-muted");
 }
