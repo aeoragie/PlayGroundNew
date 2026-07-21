@@ -1,0 +1,49 @@
+@* 필터 칩 한 축 — Design.SearchFilter. "전체"(null)는 상호배타, 선택 칩은 네이비 채움 + X(클릭 시 해제).
+   즉시 적용 원칙 — 선택 즉시 알린다. 상태는 호출부가 URL 쿼리에 동기화. *@
+@using PlayGround.Client.Styles
+
+@if (ShowAll)
+{
+    <button type="button" class="@(Selected is null ? Css.SearchFilter.ChipOn : Css.SearchFilter.ChipOff)"
+            @onclick="() => SelectAsync(null)">@AllLabel</button>
+}
+@foreach (string option in Options)
+{
+    string value = option;
+    @if (Selected == value)
+    {
+        <button type="button" class="@Css.SearchFilter.ChipOn" @onclick="() => SelectAsync(null)">
+            @value
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                 class="text-white/75"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+    }
+    else
+    {
+        <button type="button" class="@Css.SearchFilter.ChipOff" @onclick="() => SelectAsync(value)">@value</button>
+    }
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Options { get; set; } = [];
+
+    /// <summary>선택 값 — null = 전체.</summary>
+    [Parameter]
+    public string? Selected { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> SelectedChanged { get; set; }
+
+    [Parameter]
+    public string AllLabel { get; set; } = "전체";
+
+    /// <summary>"전체" 칩 노출 여부 — 모바일 시트처럼 전체 칩 없이 해제형으로만 쓸 때 false.</summary>
+    [Parameter]
+    public bool ShowAll { get; set; } = true;
+
+    private Task SelectAsync(string? value)
+    {
+        return SelectedChanged.InvokeAsync(value);
+    }
+}

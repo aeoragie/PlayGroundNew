@@ -1,0 +1,88 @@
+@* 검색 바 — Design.SearchFilter. 디바운스 300ms 실시간 · 입력 시 지우기(X) · Esc=비우기.
+   모바일 폰트 16px(iOS 줌 방지). 부분 일치 필터링은 호출부 책임 — 이 컴포넌트는 값만 알린다. *@
+@using PlayGround.Client.Styles
+@implements IDisposable
+
+<div class="@($"{Css.SearchFilter.SearchBox} {(mFocused ? Css.SearchFilter.SearchBoxActive : Css.SearchFilter.SearchBoxIdle)} {Class}")">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+         class="@(mFocused ? "text-navy" : "text-text-muted") shrink-0"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+    <input class="@Css.SearchFilter.SearchInput" placeholder="@Placeholder" value="@mText"
+           @oninput="OnInput" @onkeydown="OnKeyDown"
+           @onfocus="() => mFocused = true" @onblur="() => mFocused = false" />
+    @if (mText.Length > 0)
+    {
+        <button type="button" aria-label="지우기" class="@Css.SearchFilter.SearchClear" @onclick="ClearAsync">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                 class="text-text-body"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+    }
+</div>
+
+@code {
+    private const int DebounceMs = 300;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string mText = string.Empty;
+    private bool mFocused;
+    private CancellationTokenSource? mDebounce;
+
+    protected override void OnParametersSet()
+    {
+        // 외부(URL 재진입·초기화)에서 값이 바뀌면 입력창도 따라간다 — 입력 중 디바운스 대기 값은 보존
+        if (mDebounce is null && mText != Value)
+        {
+            mText = Value;
+        }
+    }
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        mText = e.Value?.ToString() ?? string.Empty;
+
+        mDebounce?.Cancel();
+        CancellationTokenSource cts = new();
+        mDebounce = cts;
+        try
+        {
+            await Task.Delay(DebounceMs, cts.Token);
+            mDebounce = null;
+            await ValueChanged.InvokeAsync(mText);
+        }
+        catch (TaskCanceledException)
+        {
+            // 다음 입력이 디바운스를 대체 — 정상 경로
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape" && mText.Length > 0)
+        {
+            await ClearAsync();
+        }
+    }
+
+    private async Task ClearAsync()
+    {
+        mDebounce?.Cancel();
+        mDebounce = null;
+        mText = string.Empty;
+        await ValueChanged.InvokeAsync(string.Empty);
+    }
+
+    public void Dispose()
+    {
+        mDebounce?.Cancel();
+    }
+}

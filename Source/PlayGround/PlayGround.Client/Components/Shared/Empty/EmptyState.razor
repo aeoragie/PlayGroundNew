@@ -32,6 +32,9 @@
 
         /// <summary>진행중 대회 없음 — 트로피.</summary>
         Trophy,
+
+        /// <summary>검색 결과 없음 — 돋보기 (팀 탐색 등 검색·필터 0건).</summary>
+        Search,
     }
 
     [Parameter, EditorRequired]
@@ -60,6 +63,11 @@
         Art.Video => @<g>
             <rect x="22" y="34" width="76" height="52" rx="8" class="stroke-illustration" stroke-width="3"></rect>
             <path d="M54 50l16 10-16 10z" class="stroke-navy" stroke-width="3.5" stroke-linejoin="round"></path>
+        </g>,
+        Art.Search => @<g>
+            <circle cx="54" cy="54" r="26" class="stroke-illustration" stroke-width="3"></circle>
+            <path d="M74 74l16 16" class="stroke-illustration" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M47 54h14M54 47v14" class="stroke-navy" stroke-width="3.5" stroke-linecap="round" transform="rotate(45 54 54)"></path>
         </g>,
         Art.Trophy => @<g>
             <path d="M40 28h40v22a20 20 0 0 1-40 0z" class="stroke-illustration" stroke-width="3" stroke-linejoin="round"></path>

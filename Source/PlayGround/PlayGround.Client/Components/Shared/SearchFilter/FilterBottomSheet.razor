@@ -1,0 +1,44 @@
+@* 모바일 필터 바텀시트 골격 — Design.SearchFilter. 그랩바 + "필터"/초기화 + 섹션(ChildContent) + 하단 [N개 X 보기].
+   **시트 안에서만 지연 적용** — draft 상태는 호출부가 관리하고, 하단 버튼 라벨에 결과 수를 실시간으로 넣는다.
+   오버레이 클릭 = 닫기(미적용). 터치 타겟: 버튼 48px. *@
+@using PlayGround.Client.Styles
+
+@if (Open)
+{
+    <div class="@Css.SearchFilter.SheetOverlay" @onclick="() => OnClose.InvokeAsync()">
+        <div class="@Css.SearchFilter.SheetPanel" @onclick:stopPropagation="true">
+            <span class="@Css.SearchFilter.SheetGrab"></span>
+            <div class="flex items-center mt-3">
+                <span class="text-[15px] font-extrabold text-navy-deep">필터</span>
+                <div class="flex-1"></div>
+                <button type="button" class="@Css.SearchFilter.ResultReset" @onclick="() => OnReset.InvokeAsync()">초기화</button>
+            </div>
+            @ChildContent
+            <button type="button" class="@Css.SearchFilter.SheetApply" @onclick="() => OnApply.InvokeAsync()">@ApplyLabel</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Open { get; set; }
+
+    /// <summary>시트 섹션들 — Css.SearchFilter.SheetSectionLabel + 칩 행 조합을 호출부가 구성.</summary>
+    [Parameter, EditorRequired]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>하단 일괄 적용 버튼 라벨 — 결과 수 실시간 (예: "24개 팀 보기").</summary>
+    [Parameter, EditorRequired]
+    public string ApplyLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnApply { get; set; }
+
+    /// <summary>닫기(오버레이 클릭) — draft 폐기는 호출부 책임.</summary>
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    /// <summary>시트 내 초기화 — draft만 초기화(지연 적용 유지).</summary>
+    [Parameter]
+    public EventCallback OnReset { get; set; }
+}

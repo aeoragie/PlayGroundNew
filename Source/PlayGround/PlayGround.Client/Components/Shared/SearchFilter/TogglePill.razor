@@ -1,0 +1,24 @@
+@* teal 토글 pill (인증팀만·모집중만) — Design.SearchFilter. 켜짐 = teal 틴트, 즉시 적용. *@
+@using PlayGround.Client.Styles
+
+<button type="button" aria-pressed="@Active.ToString().ToLowerInvariant()"
+        class="@(Active ? Css.SearchFilter.ToggleOn : Css.SearchFilter.ToggleOff)"
+        @onclick="() => ActiveChanged.InvokeAsync(!Active)">
+    @Icon
+    @Label
+</button>
+
+@code {
+    [Parameter]
+    public bool Active { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ActiveChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>선행 아이콘 (모노톤 SVG) — 없으면 텍스트만.</summary>
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+}

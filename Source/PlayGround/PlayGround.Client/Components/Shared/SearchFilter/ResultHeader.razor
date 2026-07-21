@@ -1,0 +1,40 @@
+@* 결과 헤더 — Design.SearchFilter. 카운트(네이비) 상시 표시 + 조건 요약 + "필터 초기화"(필터 ≥1일 때만) + 우측 슬롯(정렬). *@
+@using PlayGround.Client.Styles
+
+<div class="flex items-center gap-2 md:gap-2.5 flex-wrap">
+    <span class="@Css.SearchFilter.ResultCount">@Count@("개") @Unit</span>
+    @if (Description is not null)
+    {
+        <span class="text-[11.5px] md:text-xs text-text-muted break-keep">@Description</span>
+    }
+    @if (ShowReset)
+    {
+        <button type="button" class="@Css.SearchFilter.ResultReset" @onclick="() => OnReset.InvokeAsync()">필터 초기화</button>
+    }
+    <div class="flex-1"></div>
+    @Right
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int Count { get; set; }
+
+    /// <summary>카운트 단위 (예: "팀").</summary>
+    [Parameter, EditorRequired]
+    public string Unit { get; set; } = string.Empty;
+
+    /// <summary>적용 조건 요약 또는 기본 안내 문구.</summary>
+    [Parameter]
+    public string? Description { get; set; }
+
+    /// <summary>필터 1개 이상 적용 시에만 true — 초기화 버튼 노출 조건.</summary>
+    [Parameter]
+    public bool ShowReset { get; set; }
+
+    [Parameter]
+    public EventCallback OnReset { get; set; }
+
+    /// <summary>우측 슬롯 (정렬 등).</summary>
+    [Parameter]
+    public RenderFragment? Right { get; set; }
+}
