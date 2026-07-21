@@ -210,6 +210,51 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        // 공개 팀 홈 리뷰 탭 — 비로그인 읽기전용. 로그인 열람자면 UserId를 실어 보낸다
+        // (리뷰 쓰기 자격·내 리뷰 판정에만 쓴다 — 공개홈 IsManager 패턴).
+        [AllowAnonymous]
+        [HttpGet("{slug}/reviews")]
+        public async Task<Envelope<TeamReviewsResponse>> GetTeamReviewsAsync(string slug, CancellationToken cancellation)
+        {
+            Guid? viewerUserId = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : null;
+            Result<TeamReviewsResponse> result = await mGateway.AskAsync<TeamReviewsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamReviewsMessage(slug, viewerUserId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>리뷰 작성·수정 — 재원 이력이 확인된 보호자만 (판정은 프로시저). 계정당 팀 하나에 1건.</summary>
+        [HttpPost("{slug}/reviews")]
+        public async Task<Envelope<bool>> SaveTeamReviewAsync(
+            string slug, [FromBody] SaveTeamReviewRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            request.TeamSlug = slug;
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new SaveSoccerTeamReviewMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>리뷰 소프트 삭제·복구(restore=true — 실행취소) — 작성자 본인만.</summary>
+        [HttpPost("reviews/{reviewId:guid}/delete")]
+        public async Task<Envelope<bool>> DeleteTeamReviewAsync(
+            Guid reviewId, [FromQuery] bool restore, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new DeleteSoccerTeamReviewMessage(userId, reviewId, restore), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/roster")]
         public async Task<Envelope<TeamRosterResponse>> GetMyTeamRosterAsync(CancellationToken cancellation)
         {

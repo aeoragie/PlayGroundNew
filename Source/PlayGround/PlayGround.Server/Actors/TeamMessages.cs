@@ -72,6 +72,21 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
+    /// <summary>공개 팀 홈 리뷰 목록 조회 메시지 (읽기 — RoundRobin). ViewerUserId = 쓰기 자격·내 리뷰 판정.</summary>
+    public sealed record GetSoccerTeamReviewsMessage(string Slug, Guid? ViewerUserId);
+
+    /// <summary>리뷰 작성·수정 메시지 (쓰기 — 작성자 해시. 계정당 1건 멱등을 순차 처리로 보강).</summary>
+    public sealed record SaveSoccerTeamReviewMessage(Guid AuthorUserId, SaveTeamReviewRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => AuthorUserId;
+    }
+
+    /// <summary>리뷰 삭제·복구 메시지 (쓰기 — 작성자 해시).</summary>
+    public sealed record DeleteSoccerTeamReviewMessage(Guid AuthorUserId, Guid ReviewId, bool Restore) : IConsistentHashable
+    {
+        public object ConsistentHashKey => AuthorUserId;
+    }
+
     /// <summary>팀 정보 수정 메시지. ManagerUserId 해시로 순차 처리 — 가치·코치 통째 교체 경합 방지.</summary>
     public sealed record UpdateSoccerTeamInfoMessage(Guid ManagerUserId, UpdateTeamInfoRequest Data) : IConsistentHashable
     {

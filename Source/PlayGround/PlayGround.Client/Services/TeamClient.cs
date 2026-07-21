@@ -273,6 +273,59 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>공개 팀 홈 리뷰 탭 (비로그인 가능 — 로그인 시 쓰기 자격·내 리뷰 판정 포함). 오류 시 null.</summary>
+        public async Task<TeamReviewsResponse?> GetTeamReviewsAsync(string slug)
+        {
+            try
+            {
+                Envelope<TeamReviewsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamReviewsResponse>>(
+                        $"api/soccer/team/{Uri.EscapeDataString(slug)}/reviews");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>리뷰 작성·수정 (재원 확인 보호자만 — 판정은 서버).</summary>
+        public async Task<RecruitmentSaveResult> SaveReviewAsync(SaveTeamReviewRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync(
+                    $"api/soccer/team/{Uri.EscapeDataString(request.TeamSlug)}/reviews", request);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new RecruitmentSaveResult(true, null);
+                }
+
+                return new RecruitmentSaveResult(false, "리뷰를 저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new RecruitmentSaveResult(false, "리뷰를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>리뷰 삭제·복구(restore = 실행취소) — 작성자 본인만.</summary>
+        public async Task<bool> DeleteReviewAsync(Guid reviewId, bool restore = false)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/reviews/{reviewId}/delete?restore={(restore ? "true" : "false")}", null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>"처리가 필요해요" 항목 (허브). 현재 상태에서 파생 — 읽음 상태가 없다. 오류 시 null.</summary>
         public async Task<ActionItemsResponse?> GetActionItemsAsync()
         {

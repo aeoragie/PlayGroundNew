@@ -63,6 +63,15 @@ namespace PlayGround.Application.Interfaces
         /// <summary>진학·진로 사례 소프트 삭제·복구(실행취소). 대상 없음·소유 아님은 Success(false).</summary>
         Task<Result<bool>> DeleteCareerOutcomeByManagerAsync(Guid managerUserId, Guid outcomeId, bool restore, CancellationToken cancellation = default);
 
+        /// <summary>공개 팀 홈 리뷰 목록 + 뷰어 상태 (Slug 기준). viewerUserId = 리뷰 쓰기 자격·내 리뷰 판정용.</summary>
+        Task<Result<TeamReviewsResponse>> GetReviewsBySlugAsync(string slug, Guid? viewerUserId, CancellationToken cancellation = default);
+
+        /// <summary>리뷰 작성·수정 (재원 판정은 프로시저). 자격 없음·남의 리뷰는 null.</summary>
+        Task<Result<bool>> SaveReviewAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default);
+
+        /// <summary>리뷰 소프트 삭제·복구(실행취소) — 작성자 본인만. 대상 없음은 Success(false).</summary>
+        Task<Result<bool>> DeleteReviewAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default);
+
         /// <summary>
         /// 경기 결과 저장. 대회 경기면 저장 프로시저가 순위표 재계산까지 한 경로에서 수행한다(D5).
         /// 팀 미존재·없는 대회는 Success(null) — 호출자가 NotFound로 변환한다.

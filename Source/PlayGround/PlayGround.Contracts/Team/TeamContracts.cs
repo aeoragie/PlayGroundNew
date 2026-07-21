@@ -173,6 +173,39 @@ namespace PlayGround.Contracts.Team
         public bool Restore { get; set; }
     }
 
+    /// <summary>학부모 리뷰 목록 + 뷰어 상태 — 공개 홈 리뷰 탭. 평균·개수는 클라이언트가 목록에서 계산.</summary>
+    public class TeamReviewsResponse
+    {
+        public List<TeamReviewDto> Items { get; set; } = new();
+
+        /// <summary>뷰어가 이 팀 재원 자녀의 보호자인가 — 리뷰 쓰기 버튼 노출 판정.</summary>
+        public bool IsResidentGuardian { get; set; }
+
+        /// <summary>뷰어가 이미 쓴 리뷰 — 있으면 쓰기 대신 수정·삭제(⋯)로 진입.</summary>
+        public Guid? MyReviewId { get; set; }
+    }
+
+    /// <summary>리뷰 한 건. 작성자 표시명·메타는 서버 파생 (이름 마스킹 "이○○ 학부모").</summary>
+    public class TeamReviewDto
+    {
+        public Guid ReviewId { get; set; }
+        public string AuthorDisplayName { get; set; } = string.Empty;
+
+        /// <summary>"U15 · 재원 2년차" — 자녀 연령 + 재원 연차 (서버 파생, 있는 조각만).</summary>
+        public string? Meta { get; set; }
+        public int Rating { get; set; }
+        public string Body { get; set; } = string.Empty;
+    }
+
+    /// <summary>리뷰 작성·수정 요청 — ReviewId 빈 GUID = 신규 (B3 규약). 대상 팀은 공개홈 슬러그.</summary>
+    public class SaveTeamReviewRequest
+    {
+        public Guid ReviewId { get; set; }
+        public string TeamSlug { get; set; } = string.Empty;
+        public int Rating { get; set; }
+        public string Body { get; set; } = string.Empty;
+    }
+
     /// <summary>팀 탐색 공개 목록 (비로그인). 필터·정렬·페이징은 클라이언트 담당.</summary>
     public class TeamExploreResponse
     {

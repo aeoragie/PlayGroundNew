@@ -95,8 +95,19 @@ else if (mHome is not null)
                         </ChildContent>
                     </LoadingGate>
                     break;
+                case SoccerTeamPublicTab.Review:
+                    <LoadingGate IsLoading="@(mReviews is null && !mReviewsFailed)" HasFailed="@mReviewsFailed" OnRetry="LoadReviewsAsync">
+                        <Skeleton>
+                            <SkeletonSection ShowAction="false">
+                                <SkeletonRows Count="3" ShowChip="false" />
+                            </SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <PublicReviewSection Data="@(mReviews!)" Slug="@Slug" OnChanged="LoadReviewsAsync" />
+                        </ChildContent>
+                    </LoadingGate>
+                    break;
                 default:
-                    @* 리뷰 탭은 다음 단계에서 구현 *@
                     break;
             }
         </main>
@@ -132,15 +143,18 @@ else if (mHome is not null)
     private TeamSeasonRecordResponse? mRecord;
     private TeamRecruitmentsResponse? mRecruitments;
     private TeamCareerOutcomesResponse? mCareerOutcomes;
+    private TeamReviewsResponse? mReviews;
     private bool mLoaded;
     private bool mRecordRequested;
     private bool mRecruitmentsRequested;
     private bool mCareerOutcomesRequested;
+    private bool mReviewsRequested;
 
     // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
     private bool mRecordFailed;
     private bool mRecruitmentsFailed;
     private bool mCareerOutcomesFailed;
+    private bool mReviewsFailed;
     private List<string> mAgeGroups = new();
 
     private SoccerTeamPublicTab CurrentTab => SoccerTeamPublicTabExtensions.ParseSlug(Tab);
@@ -182,6 +196,18 @@ else if (mHome is not null)
             mCareerOutcomesRequested = true;
             await LoadCareerOutcomesAsync();
         }
+        else if (mHome is not null && CurrentTab == SoccerTeamPublicTab.Review && !mReviewsRequested)
+        {
+            mReviewsRequested = true;
+            await LoadReviewsAsync();
+        }
+    }
+
+    private async Task LoadReviewsAsync()
+    {
+        mReviewsFailed = false;
+        mReviews = await Teams.GetTeamReviewsAsync(Slug);
+        mReviewsFailed = mReviews is null;
     }
 
     private async Task LoadCareerOutcomesAsync()

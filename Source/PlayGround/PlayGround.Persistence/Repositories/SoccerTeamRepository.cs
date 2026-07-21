@@ -991,6 +991,102 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(queryResult.Values1.Any());
         }
 
+        public async Task<Result<TeamReviewsResponse>> GetReviewsBySlugAsync(string slug, Guid? viewerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team reviews requested", ("Slug", slug));
+
+            var procedure = new UspGetSoccerTeamReviewsBySlug(this) { Slug = slug, ViewerUserId = viewerUserId };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<TeamReviewsResponse>.Error(ErrorCode.DatabaseError, "GetReviewsBySlug");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            var rows = (await reader.ReadAsync<SoccerTeamReviewRecord>()).ToList();
+            var viewer = await reader.ReadSingleOrDefaultAsync<(bool IsResidentGuardian, Guid? MyReviewId)>();
+
+            var response = new TeamReviewsResponse
+            {
+                Items = rows.Select(MapReview).ToList(),
+                IsResidentGuardian = viewer.IsResidentGuardian,
+                MyReviewId = viewer.MyReviewId
+            };
+
+            Logger.InfoWith("Team reviews received", ("Slug", slug), ("Reviews", response.Items.Count));
+            return Result<TeamReviewsResponse>.Success(response);
+        }
+
+        public async Task<Result<bool>> SaveReviewAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team review save requested", ("AuthorUserId", authorUserId), ("ReviewId", request.ReviewId));
+
+            var procedure = new UspSaveSoccerTeamReview(this)
+            {
+                AuthorUserId = authorUserId,
+                TeamSlug = request.TeamSlug,
+                ReviewId = request.ReviewId,
+                Rating = request.Rating,
+                Body = request.Body
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamReviewsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "SaveReview");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.Any());
+        }
+
+        public async Task<Result<bool>> DeleteReviewAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team review delete requested",
+                ("AuthorUserId", authorUserId), ("ReviewId", reviewId), ("Restore", restore));
+
+            var procedure = new UspDeleteSoccerTeamReview(this)
+            {
+                AuthorUserId = authorUserId,
+                ReviewId = reviewId,
+                Restore = restore
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamReviewsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "DeleteReview");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.Any());
+        }
+
+        // "이○○ 학부모 · U15 · 재원 2년차" — 이름은 리뷰에서도 실명을 노출하지 않는다 (dc '○' 마스킹)
+        private static TeamReviewDto MapReview(SoccerTeamReviewRecord row)
+        {
+            List<string> metaParts = new();
+            if (!string.IsNullOrEmpty(row.AgeGroup))
+            {
+                metaParts.Add(row.AgeGroup);
+            }
+
+            if (row.CreatedAt > DateTime.MinValue)
+            {
+                int years = Math.Max(1, DateTime.UtcNow.Year - row.CreatedAt.Year + 1);
+                metaParts.Add($"재원 {years}년차");
+            }
+
+            string masked = string.IsNullOrEmpty(row.MemberName) ? "○○"
+                : row.MemberName.Length <= 1 ? row.MemberName
+                : row.MemberName[..1] + new string('○', row.MemberName.Length - 1);
+
+            return new TeamReviewDto
+            {
+                ReviewId = row.ReviewId,
+                AuthorDisplayName = $"{masked} 학부모",
+                Meta = metaParts.Count > 0 ? string.Join(" · ", metaParts) : null,
+                Rating = row.Rating,
+                Body = row.Body
+            };
+        }
+
         private static TeamCareerOutcomeDto MapCareerOutcome(SoccerTeamCareerOutcomesEntity row)
         {
             return new TeamCareerOutcomeDto

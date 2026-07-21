@@ -26,6 +26,16 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerTeamRecruitmentsByManagerMessage>(HandleGetRecruitmentsByManagerAsync);
             RegisterHandlerAsync<GetSoccerTeamCareerOutcomesMessage>(HandleGetCareerOutcomesAsync);
             RegisterHandlerAsync<GetSoccerTeamCareerOutcomesByManagerMessage>(HandleGetCareerOutcomesByManagerAsync);
+            RegisterHandlerAsync<GetSoccerTeamReviewsMessage>(HandleGetReviewsAsync);
+        }
+
+        private async Task HandleGetReviewsAsync(GetSoccerTeamReviewsMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamReviewCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamReviewCommand>();
+            Result<TeamReviewsResponse> result = await useCase.GetBySlugAsync(message.Slug, message.ViewerUserId);
+            sender.Tell(result);
         }
 
         private async Task HandleGetCareerOutcomesAsync(GetSoccerTeamCareerOutcomesMessage message)

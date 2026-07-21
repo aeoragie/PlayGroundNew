@@ -1,0 +1,167 @@
+@* 리뷰 탭 — SPEC.TEAMPUBLICHOME §⑥ (PC·모바일 반응형 단일).
+   평균·개수는 목록에서 계산 (서버와 어긋날 수 없다). 리뷰 0건이면 평균 블록 미노출(빈 데이터).
+   "리뷰 쓰기"는 재원 확인 보호자(서버 판정)에게만 — 이미 쓴 계정은 내 리뷰 카드의 ⋯(수정/삭제)로.
+   팀 관리자용 삭제 UI는 없다 — "팀은 삭제할 수 없고" 캡션 규칙. *@
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+
+<div class="flex flex-col gap-3 md:gap-4">
+    <div class="flex items-center md:items-end gap-3 md:gap-[18px] flex-wrap">
+        <div class="flex flex-col gap-[3px] md:gap-1 flex-1 md:flex-none">
+            <h2 class="m-0 text-base md:text-[19px] font-extrabold text-navy-deep">학부모 리뷰</h2>
+            <span class="text-[11.5px] md:text-[13px] text-text-muted break-keep">
+                <span class="md:hidden">재원 가족만 작성할 수 있어요</span>
+                <span class="hidden md:inline">재원 중이거나 재원했던 가족만 작성할 수 있어요</span>
+            </span>
+        </div>
+        <div class="hidden md:block flex-1"></div>
+        @if (Data.Items.Count > 0)
+        {
+            <div class="flex items-center gap-2.5 md:gap-2.5">
+                <span class="text-[26px] md:text-[30px] font-extrabold text-navy-deep">@Average.ToString("0.0")</span>
+                <span class="flex flex-col gap-px md:gap-0.5">
+                    <span class="text-orange text-xs md:text-sm tracking-[1.5px] md:tracking-[2px]">@Stars((int)Math.Round(Average))</span>
+                    <span class="text-[11px] md:text-xs text-text-muted whitespace-nowrap">리뷰 @(Data.Items.Count)개</span>
+                </span>
+            </div>
+        }
+        @if (CanWrite)
+        {
+            <button type="button" @onclick="OpenCreate"
+                    class="flex items-center h-10 md:h-[42px] px-5 md:px-[22px] rounded-[10px] bg-navy hover:bg-navy-deep text-[13px] font-bold text-white whitespace-nowrap border-0 cursor-pointer transition-colors">리뷰 쓰기</button>
+        }
+    </div>
+
+    @if (Data.Items.Count == 0)
+    {
+        <div class="bg-white border-1.5 border-border rounded-2xl px-6 py-10 md:py-14 flex flex-col items-center text-center gap-1.5">
+            <span class="text-sm md:text-[15.5px] font-extrabold text-navy-deep break-keep">아직 등록된 리뷰가 없어요</span>
+            <span class="text-xs md:text-[13px] text-text-body break-keep">재원 가족이 리뷰를 남기면 이 자리에서 확인할 수 있어요.</span>
+        </div>
+    }
+    else
+    {
+        <div class="grid md:grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-3 md:gap-3.5">
+            @foreach (TeamReviewDto review in Data.Items)
+            {
+                <div class="bg-white border-1.5 border-border rounded-[15px] md:rounded-2xl p-[18px] md:p-6 flex flex-col gap-[9px] md:gap-[11px]">
+                    <div class="flex items-center gap-[9px] md:gap-2.5">
+                        @* 개인 = teal 이니셜 (Design.AvatarBadge — dc의 회색 원은 유형 색 규칙 위반이라 교정) *@
+                        <Avatar Name="@Initial(review)" Size="34" Class="flex-none" />
+                        <span class="flex flex-col gap-px flex-1 min-w-0">
+                            <span class="text-[12.5px] md:text-[13px] font-extrabold text-navy-deep whitespace-nowrap">@review.AuthorDisplayName</span>
+                            @if (review.Meta is not null)
+                            {
+                                <span class="text-[11px] md:text-[11.5px] text-text-muted whitespace-nowrap">@review.Meta</span>
+                            }
+                        </span>
+                        <StatusBadge Tone="StatusBadge.BadgeTone.Positive">재원 확인됨</StatusBadge>
+                        @if (review.ReviewId == Data.MyReviewId)
+                        {
+                            <OverflowMenu Target="@review.AuthorDisplayName"
+                                          Items="@BuildMenuItems(review)"
+                                          DestructiveItems="@BuildDestructiveItems(review)" />
+                        }
+                    </div>
+                    <span class="text-orange text-xs md:text-[13px] tracking-[1.5px] md:tracking-[2px]">@Stars(review.Rating)</span>
+                    <p class="m-0 text-[12.5px] md:text-[13.5px] text-text-strong leading-[1.7] md:leading-[1.75] break-keep">@review.Body</p>
+                </div>
+            }
+        </div>
+    }
+
+    <span class="text-[11px] md:text-xs text-text-muted break-keep">리뷰는 재원 이력이 확인된 계정만 작성 가능하며, 팀은 삭제할 수 없고 답글만 달 수 있습니다.</span>
+</div>
+
+<ReviewFormDialog @bind-IsOpen="mFormOpen" TeamSlug="@Slug" Editing="@mEditing" OnSaved="NotifyChangedAsync" />
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamReviewsResponse Data { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public string Slug { get; set; } = string.Empty;
+
+    /// <summary>저장·삭제·복구 후 — 페이지가 목록을 다시 불러온다.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    private bool mFormOpen;
+    private TeamReviewDto? mEditing;
+
+    private bool CanWrite => Data.IsResidentGuardian && Data.MyReviewId is null;
+
+    private double Average => Data.Items.Count == 0 ? 0 : Data.Items.Average(r => r.Rating);
+
+    private static string Stars(int rating) =>
+        new string('★', Math.Clamp(rating, 0, 5)) + new string('☆', 5 - Math.Clamp(rating, 0, 5));
+
+    // "이○○ 학부모" → 아바타 이니셜 "이"
+    private static string Initial(TeamReviewDto review) =>
+        review.AuthorDisplayName.Length > 0 ? review.AuthorDisplayName[..1] : "?";
+
+    private Task NotifyChangedAsync() => OnChanged.InvokeAsync();
+
+    private void OpenCreate()
+    {
+        mEditing = null;
+        mFormOpen = true;
+    }
+
+    private List<OverflowMenu.MenuItem> BuildMenuItems(TeamReviewDto review) => new()
+    {
+        new OverflowMenu.MenuItem("리뷰 수정", () =>
+        {
+            mEditing = review;
+            mFormOpen = true;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }),
+    };
+
+    private List<OverflowMenu.MenuItem> BuildDestructiveItems(TeamReviewDto review) => new()
+    {
+        new OverflowMenu.MenuItem("리뷰 삭제", () => DeleteAsync(review)),
+    };
+
+    private async Task DeleteAsync(TeamReviewDto review)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "리뷰를 삭제할까요?",
+            Description = "작성한 리뷰가 공개 홈페이지에서 내려가요.",
+            ConfirmLabel = "삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        bool deleted = await Teams.DeleteReviewAsync(review.ReviewId);
+        if (!deleted)
+        {
+            Toasts.ShowError("삭제하지 못했어요. 다시 시도해 주세요.");
+            return;
+        }
+
+        await NotifyChangedAsync();
+        Toasts.ShowSuccess("리뷰를 삭제했어요.", "실행취소", async () =>
+        {
+            bool restored = await Teams.DeleteReviewAsync(review.ReviewId, restore: true);
+            if (restored)
+            {
+                await NotifyChangedAsync();
+            }
+            else
+            {
+                Toasts.ShowError("되돌리지 못했어요. 다시 시도해 주세요.");
+            }
+        });
+    }
+}
