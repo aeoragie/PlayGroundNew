@@ -104,6 +104,12 @@ namespace PlayGround.Client.Styles
 
             public const string MoveIconMuted = "w-[38px] h-[38px] rounded-full bg-surface-icon flex items-center justify-center flex-none text-text-muted";
 
+            public const string MoveIconViolet = "w-[38px] h-[38px] rounded-full bg-agent/10 flex items-center justify-center flex-none text-agent";
+
+            // 에이전트 관련 알림 병기 뱃지 (Design.ClaimFlow)
+            public const string AgentBadge =
+                "text-[9.5px] font-bold text-agent bg-agent/10 border border-agent/30 rounded-full px-[7px] py-px whitespace-nowrap";
+
             public const string MoveTitle = "text-[13px] font-extrabold text-navy-deep break-keep";
 
             public const string MoveBody = "text-[12.5px] text-text-strong leading-[1.55] break-keep";

@@ -30,6 +30,20 @@ BEGIN
           WHERE n.[RecipientUserId] = @UserId
             AND n.[NotificationType] = 'CorrectionReviewed' AND n.[RefId] = c.[CorrectionId]);
 
+    --.// 에이전트 열람 요청 지연 동기화 — 요청 생성은 에이전트 서비스라 발송 훅이 없다 (Correction과 같은 패턴)
+
+    INSERT INTO [dbo].[SoccerNotifications]
+        ([RecipientUserId], [NotificationType], [RefId], [TargetPlayerId], [ActorName], [PlayerName], [CreatedAt])
+    SELECT r.[GuardianUserId], 'ViewRequest', r.[RequestId], r.[PlayerId], a.[Name], p.[Name], r.[RequestedAt]
+    FROM [dbo].[SoccerAgentViewRequests] r
+    JOIN [dbo].[SoccerAgentProfiles] a ON a.[AgentId] = r.[AgentId] AND a.[DeletedAt] IS NULL
+    JOIN [dbo].[SoccerPlayers] p ON p.[PlayerId] = r.[PlayerId]
+    WHERE r.[GuardianUserId] = @UserId AND r.[Status] = 'Pending' AND r.[DeletedAt] IS NULL
+      AND NOT EXISTS (
+          SELECT 1 FROM [dbo].[SoccerNotifications] n
+          WHERE n.[RecipientUserId] = @UserId
+            AND n.[NotificationType] = 'ViewRequest' AND n.[RefId] = r.[RequestId]);
+
     --.// ⓪ 미읽음 카운트 (벨 뱃지 — 목록 50건 컷과 무관한 전체 수)
 
     SELECT COUNT(*) AS [UnreadCount]

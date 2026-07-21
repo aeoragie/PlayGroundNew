@@ -2,8 +2,10 @@ using Akka.Actor;
 using Microsoft.Extensions.DependencyInjection;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Actor;
+using PlayGround.Contracts.Agent;
 using PlayGround.Contracts.Claim;
 using PlayGround.Contracts.Notification;
+using PlayGround.Application.Agent.Commands;
 using PlayGround.Application.Claim.Commands;
 using PlayGround.Application.Notification.Commands;
 
@@ -20,6 +22,36 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<ReviewClaimRequestMessage>(HandleReviewAsync);
             RegisterHandlerAsync<GetNotificationsMessage>(HandleGetNotificationsAsync);
             RegisterHandlerAsync<MarkNotificationReadMessage>(HandleMarkReadAsync);
+            RegisterHandlerAsync<GetAgentViewRequestMessage>(HandleGetAgentRequestAsync);
+            RegisterHandlerAsync<ReviewAgentViewRequestMessage>(HandleReviewAgentRequestAsync);
+            RegisterHandlerAsync<BlockAgentMessage>(HandleBlockAgentAsync);
+        }
+
+        private async Task HandleGetAgentRequestAsync(GetAgentViewRequestMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerAgentApprovalCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerAgentApprovalCommand>();
+            Result<AgentViewRequestResponse> result = await useCase.GetAsync(message.UserId, message.RequestId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleReviewAgentRequestAsync(ReviewAgentViewRequestMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerAgentApprovalCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerAgentApprovalCommand>();
+            Result<AgentViewRequestResponse> result = await useCase.ReviewAsync(message.UserId, message.Data);
+            sender.Tell(result);
+        }
+
+        private async Task HandleBlockAgentAsync(BlockAgentMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerAgentApprovalCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerAgentApprovalCommand>();
+            Result<bool> result = await useCase.BlockAsync(message.UserId, message.RequestId);
+            sender.Tell(result);
         }
 
         private async Task HandleLookupAsync(GetClaimInviteCardMessage message)

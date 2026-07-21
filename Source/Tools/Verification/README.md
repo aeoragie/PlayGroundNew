@@ -50,6 +50,9 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `sql-claim-restore.sql` | Claim 검증 원복 — 선수 연결 해제·코드 Pending 복구·요청/알림/친선경기/수정신청 삭제. Account의 보호자 임시 계정은 별도 DELETE |
 | `api-recruit.js` | 모집 공고 API 왕복 — 작성→공개 열람→수정→마감(단방향·마감 후 수정 거부)→삭제/복구 · **팀 탐색 IsRecruiting 파생 on/off** · 경계(남의 계정 Forbidden·조건 5개·과거 마감일). 끝나면 `DELETE FROM SoccerTeamRecruitments`로 원복 |
 | `shot-recruit.js` | 모집 탭 UI 왕복 — 대시보드 폼(빈 제출 인라인)→저장 토스트→**게스트 공개홈**(모집중 카드·칩·무동작 지원하기 / 마감 회색 / 문의 카드)→마감 모달(재오픈 불가 명시)→삭제→실행취소·모바일. playwright-core 필요 |
+| `sql-agent-seed.sql` | 에이전트 열람 요청 시드 — **에이전트 서비스(프로필·요청 생성)를 흉내 낸다**(sql-b6 성격). 실행마다 Pending 요청 1건, RequestId 출력. 끝나면 SoccerAgent* 4테이블 + ViewRequest 알림 DELETE로 원복 |
+| `api-agent.js` | 열람 승인 API — 알림 지연 생성 · 승인(+30일·로그·알림 읽음) · **재승인/남의 계정/미지 액션 거부** · 거절 · 차단(대기 요청 함께 거절). `node api-agent.js <id1> <id2> <id3>` |
+| `shot-agent.js` | 열람 승인 UI — **FeatureFlags.AgentApproval을 true로 켜고 빌드해야 한다**. phase1: 알림 패널(violet 뱃지) 딥링크→pending(신원·범위·연락처 제외 문구)→승인→카운트다운·모바일 / phase2: (SQL 만료·로그 적재 후) "만료됨"→철회 모달→denied |
 
 `.sql`은 sqlcmd로 돌린다:
 

@@ -14,5 +14,7 @@ namespace PlayGround.Domain.Soccer
         MatchResult,
         /// <summary>신청자 수신 — 기록 수정 신청 심사 결과 (RefId = CorrectionId, 조회 시점 지연 생성).</summary>
         CorrectionReviewed,
+        /// <summary>보호자 수신 — 에이전트 상세 정보 열람 요청 (RefId = RequestId, 지연 생성 — 딥링크 심사 화면).</summary>
+        ViewRequest,
     }
 }

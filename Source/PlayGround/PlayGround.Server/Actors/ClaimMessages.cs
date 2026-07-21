@@ -1,4 +1,5 @@
 using Akka.Routing;
+using PlayGround.Contracts.Agent;
 using PlayGround.Contracts.Claim;
 
 namespace PlayGround.Server.Actors
@@ -35,6 +36,24 @@ namespace PlayGround.Server.Actors
 
     /// <summary>알림 읽음 처리 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record MarkNotificationReadMessage(Guid UserId, Guid NotificationId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>에이전트 열람 요청 조회 메시지 (보호자 심사 화면 — UserId 해시).</summary>
+    public sealed record GetAgentViewRequestMessage(Guid UserId, Guid RequestId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>에이전트 열람 요청 심사 메시지 (쓰기 — UserId 해시).</summary>
+    public sealed record ReviewAgentViewRequestMessage(Guid UserId, ReviewAgentViewRequestRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>에이전트 차단 메시지 (쓰기 — UserId 해시).</summary>
+    public sealed record BlockAgentMessage(Guid UserId, Guid RequestId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
     }

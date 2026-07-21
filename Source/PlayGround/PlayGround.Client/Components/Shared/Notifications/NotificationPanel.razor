@@ -98,7 +98,14 @@
                             @onclick="() => OpenAsync(item)">
                         <span class="@MoveIconClass(item)">@MoveIcon(item)</span>
                         <span class="flex flex-col gap-[3px] flex-1 min-w-0">
-                            <span class="@Css.Notification.MoveTitle">@MoveTitle(item)</span>
+                            <span class="flex items-center gap-1.5 flex-wrap">
+                                <span class="@Css.Notification.MoveTitle">@MoveTitle(item)</span>
+                                @if (item.Type == nameof(SoccerNotificationType.ViewRequest))
+                                {
+                                    @* 에이전트 관련 알림엔 violet 뱃지 병기 (Design.ClaimFlow 알림 절) *@
+                                    <span class="@Css.Notification.AgentBadge">에이전트</span>
+                                }
+                            </span>
                             <span class="@Css.Notification.MoveBody">@MoveBody(item)</span>
                             <span class="@Css.Notification.MoveTime">@TimeAgo(item.CreatedAt)</span>
                         </span>
@@ -134,16 +141,20 @@
         nameof(SoccerNotificationType.ClaimApproved) or
         nameof(SoccerNotificationType.ClaimRejected) => "연결 요청",
         nameof(SoccerNotificationType.MatchResult) => "경기",
+        nameof(SoccerNotificationType.ViewRequest) => "열람 요청",
         _ => "기록",
     };
 
-    private List<(string Group, int Count)> Groups => Data is null
-        ? new()
-        : Data.Items.GroupBy(GroupOf).Select(g => (g.Key, g.Count())).ToList();
+    // 에이전트 축이 꺼져 있으면 열람 요청 알림은 갈 곳이 없다 — 행 자체를 내리지 않는다
+    private IEnumerable<NotificationDto> Enabled => Data is null
+        ? Enumerable.Empty<NotificationDto>()
+        : Data.Items.Where(i => FeatureFlags.AgentApproval || i.Type != nameof(SoccerNotificationType.ViewRequest));
 
-    private List<NotificationDto> Visible => Data is null
-        ? new()
-        : Data.Items.Where(i => mGroup is null || GroupOf(i) == mGroup).ToList();
+    private List<(string Group, int Count)> Groups =>
+        Enabled.GroupBy(GroupOf).Select(g => (g.Key, g.Count())).ToList();
+
+    private List<NotificationDto> Visible =>
+        Enabled.Where(i => mGroup is null || GroupOf(i) == mGroup).ToList();
 
     private async Task ReviewAsync(NotificationDto item, bool approve)
     {
@@ -186,6 +197,7 @@
             $"{Routes.PlayerDashboardSection(SoccerPlayerDashboardSection.Stats)}?playerId={item.TargetPlayerId}",
         nameof(SoccerNotificationType.CorrectionReviewed) =>
             Routes.TeamDashboardSection(SoccerTeamDashboardSection.Results),
+        nameof(SoccerNotificationType.ViewRequest) => Routes.AgentApproval(item.RefId),
         _ => null,
     };
 
@@ -194,6 +206,7 @@
         nameof(SoccerNotificationType.ClaimApproved) => "프로필 연결 승인",
         nameof(SoccerNotificationType.ClaimRejected) => "연결 요청이 거절됐어요",
         nameof(SoccerNotificationType.MatchResult) => "경기 결과 반영",
+        nameof(SoccerNotificationType.ViewRequest) => "상세 정보 열람 요청",
         _ => item.SubText == "Accepted" ? "기록 수정 신청 반영" : "기록 수정 신청 반려",
     };
 
@@ -202,6 +215,7 @@
         nameof(SoccerNotificationType.ClaimApproved) => $"{item.PlayerName} 선수와 연결됐어요 — {item.TeamName}",
         nameof(SoccerNotificationType.ClaimRejected) => $"{item.PlayerName} · {item.TeamName} — 팀에 문의해 보세요",
         nameof(SoccerNotificationType.MatchResult) => $"{item.TeamName} vs {item.ActorName} ({item.MetaText}) 결과가 등록됐어요",
+        nameof(SoccerNotificationType.ViewRequest) => $"{item.ActorName} 님이 {item.PlayerName} 선수의 상세 정보 열람을 요청했어요",
         _ => $"{FieldTypeLabel(item.MetaText)} 항목 · {item.TeamName}",
     };
 
@@ -209,6 +223,7 @@
     {
         nameof(SoccerNotificationType.ClaimApproved) => Css.Notification.MoveIconTeal,
         nameof(SoccerNotificationType.ClaimRejected) => Css.Notification.MoveIconMuted,
+        nameof(SoccerNotificationType.ViewRequest) => Css.Notification.MoveIconViolet,
         _ => Css.Notification.MoveIconNavy,
     };
 
@@ -220,6 +235,8 @@
             @<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>,
         nameof(SoccerNotificationType.MatchResult) =>
             @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>,
+        nameof(SoccerNotificationType.ViewRequest) =>
+            @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M15.5 9.5l2 2 4-4.5"></path></svg>,
         _ =>
             @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>,
     };

@@ -19,6 +19,7 @@ builder.Services.AddScoped<AuthClient>();
 builder.Services.AddScoped<RecordsClient>();
 builder.Services.AddScoped<ClaimClient>();
 builder.Services.AddScoped<NotificationClient>();
+builder.Services.AddScoped<AgentClient>();
 builder.Services.AddScoped<OnboardingState>();
 
 // 전역 피드백 (Design.FeedbackPatterns) — 토스트는 동시 1개, 확인 모달은 중첩 금지
