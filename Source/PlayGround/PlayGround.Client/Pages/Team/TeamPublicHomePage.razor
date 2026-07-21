@@ -64,8 +64,25 @@ else if (mHome is not null)
                         </ChildContent>
                     </LoadingGate>
                     break;
+                case SoccerTeamPublicTab.Recruit:
+                    <LoadingGate IsLoading="@(mRecruitments is null && !mRecruitmentsFailed)" HasFailed="@mRecruitmentsFailed" OnRetry="LoadRecruitmentsAsync">
+                        <Skeleton>
+                            <SkeletonSection ShowAction="false">
+                                <SkeletonRows Count="3" ShowChip="false" />
+                            </SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <div class="hidden md:block">
+                                <PublicRecruitSection Data="@(mRecruitments!)" />
+                            </div>
+                            <div class="md:hidden">
+                                <MobilePublicRecruitSection Data="@(mRecruitments!)" />
+                            </div>
+                        </ChildContent>
+                    </LoadingGate>
+                    break;
                 default:
-                    @* 모집·진학진로·리뷰 탭은 다음 단계에서 구현 *@
+                    @* 진학진로·리뷰 탭은 다음 단계에서 구현 *@
                     break;
             }
         </main>
@@ -99,11 +116,14 @@ else if (mHome is not null)
 
     private TeamPublicHomeResponse? mHome;
     private TeamSeasonRecordResponse? mRecord;
+    private TeamRecruitmentsResponse? mRecruitments;
     private bool mLoaded;
     private bool mRecordRequested;
+    private bool mRecruitmentsRequested;
 
     // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
     private bool mRecordFailed;
+    private bool mRecruitmentsFailed;
     private List<string> mAgeGroups = new();
 
     private SoccerTeamPublicTab CurrentTab => SoccerTeamPublicTabExtensions.ParseSlug(Tab);
@@ -131,6 +151,18 @@ else if (mHome is not null)
             mRecordRequested = true;
             await LoadRecordAsync();
         }
+        else if (mHome is not null && CurrentTab == SoccerTeamPublicTab.Recruit && !mRecruitmentsRequested)
+        {
+            mRecruitmentsRequested = true;
+            await LoadRecruitmentsAsync();
+        }
+    }
+
+    private async Task LoadRecruitmentsAsync()
+    {
+        mRecruitmentsFailed = false;
+        mRecruitments = await Teams.GetTeamRecruitmentsAsync(Slug);
+        mRecruitmentsFailed = mRecruitments is null;
     }
 
     private async Task LoadRecordAsync()

@@ -75,6 +75,7 @@
     <Build Include="Tables\SoccerPlayerInvites.sql" />
     <Build Include="Tables\SoccerPlayerClaimRequests.sql" />
     <Build Include="Tables\SoccerNotifications.sql" />
+    <Build Include="Tables\SoccerTeamRecruitments.sql" />
     <Build Include="Tables\SoccerPlayers.sql" />
     <Build Include="Tables\SoccerPlayerFieldVisibilities.sql" />
     <Build Include="Tables\SoccerPlayerFamilyLinks.sql" />
@@ -97,6 +98,11 @@
     <Build Include="Procedures\UspGetSoccerMatchResultRecipients.sql" />
     <Build Include="Procedures\UspCreateSoccerNotification.sql" />
     <Build Include="Procedures\UspGetSoccerTeamExplore.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamRecruitmentsBySlug.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamRecruitmentsByManager.sql" />
+    <Build Include="Procedures\UspSaveSoccerTeamRecruitment.sql" />
+    <Build Include="Procedures\UspCloseSoccerTeamRecruitment.sql" />
+    <Build Include="Procedures\UspDeleteSoccerTeamRecruitment.sql" />
   </ItemGroup>
   <!-- 빌드 제외(스키마 아님): Seeds(데이터), Queries(제너레이터용 SELECT) -->
   <ItemGroup>

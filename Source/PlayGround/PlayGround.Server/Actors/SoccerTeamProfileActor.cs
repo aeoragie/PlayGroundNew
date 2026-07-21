@@ -17,6 +17,36 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<UpdateSoccerTeamInfoMessage>(HandleUpdateTeamInfoAsync);
             RegisterHandlerAsync<CreateSoccerRecordCorrectionMessage>(HandleCreateCorrectionAsync);
             RegisterHandlerAsync<CancelSoccerRecordCorrectionMessage>(HandleCancelCorrectionAsync);
+            RegisterHandlerAsync<SaveSoccerTeamRecruitmentMessage>(HandleSaveRecruitmentAsync);
+            RegisterHandlerAsync<CloseSoccerTeamRecruitmentMessage>(HandleCloseRecruitmentAsync);
+            RegisterHandlerAsync<DeleteSoccerTeamRecruitmentMessage>(HandleDeleteRecruitmentAsync);
+        }
+
+        private async Task HandleSaveRecruitmentAsync(SaveSoccerTeamRecruitmentMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamRecruitmentCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamRecruitmentCommand>();
+            Result<TeamRecruitmentDto> result = await useCase.SaveAsync(message.ManagerUserId, message.Data);
+            sender.Tell(result);
+        }
+
+        private async Task HandleCloseRecruitmentAsync(CloseSoccerTeamRecruitmentMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamRecruitmentCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamRecruitmentCommand>();
+            Result<TeamRecruitmentDto> result = await useCase.CloseAsync(message.ManagerUserId, message.RecruitmentId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleDeleteRecruitmentAsync(DeleteSoccerTeamRecruitmentMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamRecruitmentCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamRecruitmentCommand>();
+            Result<bool> result = await useCase.DeleteAsync(message.ManagerUserId, message.RecruitmentId, message.Restore);
+            sender.Tell(result);
         }
 
         private async Task HandleCreateCorrectionAsync(CreateSoccerRecordCorrectionMessage message)

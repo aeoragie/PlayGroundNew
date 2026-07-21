@@ -48,6 +48,8 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `api-correction-noti.js` | 기록 수정 심사 결과 **지연 생성** — `create`로 신청 → SQL로 주최측 심사 흉내(Accepted) → `verify`로 조회 시점 생성+멱등 확인 |
 | `shot-claim.js` | Claim UI 왕복 — 코드 6칸(투명 오버레이 input)·스텝퍼 뒤로+입력 유지·재방문 복원·관리자 벨 배지→패널 인라인 승인→완료 박스·보호자 완료 화면·**General 보호자 허브 자녀 카드**·모바일 진행 바. playwright-core 필요 |
 | `sql-claim-restore.sql` | Claim 검증 원복 — 선수 연결 해제·코드 Pending 복구·요청/알림/친선경기/수정신청 삭제. Account의 보호자 임시 계정은 별도 DELETE |
+| `api-recruit.js` | 모집 공고 API 왕복 — 작성→공개 열람→수정→마감(단방향·마감 후 수정 거부)→삭제/복구 · **팀 탐색 IsRecruiting 파생 on/off** · 경계(남의 계정 Forbidden·조건 5개·과거 마감일). 끝나면 `DELETE FROM SoccerTeamRecruitments`로 원복 |
+| `shot-recruit.js` | 모집 탭 UI 왕복 — 대시보드 폼(빈 제출 인라인)→저장 토스트→**게스트 공개홈**(모집중 카드·칩·무동작 지원하기 / 마감 회색 / 문의 카드)→마감 모달(재오픈 불가 명시)→삭제→실행취소·모바일. playwright-core 필요 |
 
 `.sql`은 sqlcmd로 돌린다:
 

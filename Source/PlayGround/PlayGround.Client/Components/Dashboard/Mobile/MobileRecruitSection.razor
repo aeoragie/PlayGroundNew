@@ -1,60 +1,150 @@
-@* 선수 모집(모바일): 모집중 공고 1장 + 지원자 리스트(에이전트 추천 뱃지) *@
+@* 선수 모집(모바일): 공고 카드 세로 스택 + 작성·수정·마감·삭제 — 로직은 PC 섹션과 같은 규칙.
+   지원자 리스트·에이전트 추천은 지원 스키마 도입 전이라 렌더하지 않는다 (빈 데이터 노출 금지). *@
 @using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Contracts.Team
+@using PlayGround.Client.Components.Dashboard
+@inject TeamClient Teams
+@inject ToastService Toasts
+@inject ConfirmService Confirm
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
         <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">선수 모집</h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 공고 올리기</button>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OpenCreate">＋ 공고 올리기</button>
     </div>
 
-    <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-[15px] flex flex-col gap-[7px]")">
-        <div class="flex items-center gap-2">
-            <span class="text-[14.5px] font-extrabold text-navy-deep">U15 공격수 모집</span>
-            <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] py-0.5 whitespace-nowrap">모집중</span>
-        </div>
-        <span class="text-xs text-text-body leading-[1.55] break-keep">최전방 스트라이커 1명 · 9월 리그 등록 가능자</span>
-        <span class="text-[11.5px] text-text-muted whitespace-nowrap">지원 4 · 마감 7/31</span>
-    </div>
-
-    <h2 class="mt-1 mb-0 text-[14.5px] font-extrabold text-navy-deep">지원자 <span class="text-xs font-bold text-text-muted">4명</span></h2>
-
-    <div class="@($"{Css.Dashboard.Card} rounded-[14px] overflow-hidden")">
-        @foreach (Applicant applicant in Applicants)
+    @if (Data.Items.Count == 0)
+    {
+        <EmptyState Kind="EmptyState.Art.Players" Title="아직 모집 공고가 없어요">
+            <Description>공고를 올리면 공개 홈페이지 모집 탭과 팀 탐색의 모집중 뱃지에 바로 반영돼요.</Description>
+        </EmptyState>
+    }
+    else
+    {
+        @foreach (TeamRecruitmentDto item in Data.Items)
         {
-            <div class="flex items-center gap-[11px] px-[15px] py-[13px] border-b border-surface-icon">
-                <span class="w-9 h-9 rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy shrink-0">@(applicant.Name[..1])</span>
-                <span class="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <span class="flex items-center gap-1.5 flex-wrap">
-                        <a href="#" class="text-[13.5px] font-bold text-navy-deep whitespace-nowrap">@applicant.Name</a>
-                        @if (applicant.ViaAgent)
-                        {
-                            <span class="text-[10px] font-bold text-agent bg-agent/10 border border-agent/30 rounded-full px-2 py-px whitespace-nowrap">에이전트 추천</span>
-                        }
-                    </span>
-                    <span class="text-[11.5px] text-text-body whitespace-nowrap overflow-hidden text-ellipsis">@applicant.Meta</span>
-                </span>
-                <span class="@StatusClass(applicant.Status)">@applicant.Status.ToLabel()</span>
+            <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-[15px] flex flex-col gap-[7px] {(item.IsOpen ? "" : "opacity-65")}")">
+                <div class="flex items-center gap-2">
+                    <span class="text-[14.5px] font-extrabold text-navy-deep">@item.Title</span>
+                    @if (item.IsOpen)
+                    {
+                        <span class="text-[10.5px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-[9px] py-0.5 whitespace-nowrap">모집중</span>
+                    }
+                    else
+                    {
+                        <span class="text-[10.5px] font-bold text-text-muted bg-surface-icon rounded-full px-[9px] py-0.5 whitespace-nowrap">마감</span>
+                    }
+                    <div class="flex-1"></div>
+                    <OverflowMenu Target="@item.Title"
+                                  Items="@MenuItemsOf(item)"
+                                  DestructiveItems="@DestructiveItemsOf(item)" />
+                </div>
+                <span class="text-xs text-text-body leading-[1.55] break-keep">@item.Description</span>
+                @if (RecruitSection.MetaOf(item) is string meta)
+                {
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">@meta</span>
+                }
             </div>
         }
-    </div>
+    }
+
+    <RecruitmentFormDialog @bind-IsOpen="mFormOpen" Editing="@mEditing" OnSaved="OnChangedAsync" />
 </div>
 
 @code {
-    private sealed record Applicant(string Name, bool ViaAgent, string Meta, SoccerApplicantStatus Status);
+    [Parameter, EditorRequired]
+    public TeamRecruitmentsResponse Data { get; set; } = new();
 
-    private static readonly Applicant[] Applicants =
-    [
-        new("조은호", false, "FW · 중2 · 송파구 · 직접 지원", SoccerApplicantStatus.TestConfirmed),
-        new("문재이", true, "FW · 중2 · 하남 · 스피드 강점", SoccerApplicantStatus.Reviewing),
-        new("배시온", false, "FW/윙 · 중1 · 강동구", SoccerApplicantStatus.Reviewing),
-        new("남도현", false, "FW · 중3 · 광진구", SoccerApplicantStatus.Waiting),
-    ];
+    /// <summary>저장·마감·삭제 후 — 부모가 목록을 다시 불러온다.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
 
-    private static string StatusClass(SoccerApplicantStatus status) =>
-        "text-[10.5px] font-bold rounded-full px-2.5 py-[3px] whitespace-nowrap " + status switch
+    private bool mFormOpen;
+    private TeamRecruitmentDto? mEditing;
+
+    private List<OverflowMenu.MenuItem> MenuItemsOf(TeamRecruitmentDto item) =>
+        item.IsOpen
+            ? new List<OverflowMenu.MenuItem>
+            {
+                new("수정", () => { mEditing = item; mFormOpen = true; return Task.CompletedTask; }),
+                new("마감하기", () => CloseAsync(item)),
+            }
+            : new List<OverflowMenu.MenuItem>();
+
+    private List<OverflowMenu.MenuItem> DestructiveItemsOf(TeamRecruitmentDto item) =>
+        new() { new("삭제", () => DeleteAsync(item)) };
+
+    private void OpenCreate()
+    {
+        mEditing = null;
+        mFormOpen = true;
+    }
+
+    private async Task CloseAsync(TeamRecruitmentDto item)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
-            SoccerApplicantStatus.TestConfirmed => "text-teal-ink bg-teal/[.12]",
-            SoccerApplicantStatus.Reviewing => "text-orange-ink bg-surface-orange-badge",
-            _ => "text-text-muted bg-surface-icon",
-        };
+            Kind = ConfirmKind.Normal,
+            Title = $"{item.Title} 공고를 마감할까요?",
+            Description = "마감하면 공개 홈페이지에 마감으로 표시되고 다시 열 수 없어요. 새 모집은 새 공고로 올려 주세요.",
+            ConfirmLabel = "마감하기",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        if (await Teams.CloseRecruitmentAsync(item.RecruitmentId))
+        {
+            Toasts.ShowSuccess("공고를 마감했어요.");
+            await OnChangedAsync();
+            return;
+        }
+
+        Toasts.ShowError("공고를 마감하지 못했어요. 다시 시도해 주세요.");
+    }
+
+    private async Task DeleteAsync(TeamRecruitmentDto item)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"{item.Title} 공고를 삭제할까요?",
+            Description = "공개 홈페이지에서 바로 사라져요.",
+            ConfirmLabel = "삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        if (await Teams.DeleteRecruitmentAsync(item.RecruitmentId))
+        {
+            Toasts.ShowSuccess("공고를 삭제했어요.", "실행취소", () => RestoreAsync(item));
+            await OnChangedAsync();
+            return;
+        }
+
+        Toasts.ShowError("공고를 삭제하지 못했어요. 다시 시도해 주세요.");
+    }
+
+    private async Task RestoreAsync(TeamRecruitmentDto item)
+    {
+        if (await Teams.DeleteRecruitmentAsync(item.RecruitmentId, restore: true))
+        {
+            await OnChangedAsync();
+            return;
+        }
+
+        Toasts.ShowError("공고를 복구하지 못했어요.");
+    }
+
+    private async Task OnChangedAsync()
+    {
+        await OnChanged.InvokeAsync();
+        await InvokeAsync(StateHasChanged);
+    }
 }

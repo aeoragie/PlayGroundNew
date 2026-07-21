@@ -107,6 +107,34 @@ namespace PlayGround.Contracts.Team
         public string? InviteCode { get; set; }
     }
 
+    /// <summary>모집 공고 목록 — 공개 홈 모집 탭·팀 대시보드 모집 섹션 공용.</summary>
+    public class TeamRecruitmentsResponse
+    {
+        public List<TeamRecruitmentDto> Items { get; set; } = new();
+    }
+
+    /// <summary>모집 공고 한 건. IsOpen = Status 'Open' + 마감일 미경과 (서버 파생 — 화면은 그대로 렌더).</summary>
+    public class TeamRecruitmentDto
+    {
+        public Guid RecruitmentId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public List<string> Conditions { get; set; } = new();
+        public DateTime? DeadlineDate { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public bool IsOpen { get; set; }
+    }
+
+    /// <summary>모집 공고 저장 요청 — RecruitmentId 빈 GUID = 신규 (B3 규약).</summary>
+    public class SaveTeamRecruitmentRequest
+    {
+        public Guid RecruitmentId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public List<string> Conditions { get; set; } = new();
+        public DateTime? DeadlineDate { get; set; }
+    }
+
     /// <summary>팀 탐색 공개 목록 (비로그인). 필터·정렬·페이징은 클라이언트 담당.</summary>
     public class TeamExploreResponse
     {

@@ -36,6 +36,21 @@ namespace PlayGround.Application.Interfaces
         /// <summary>결과 입력 폼의 대회/리그 선택지 (해당 시즌, 우리 팀 참가 대회 우선).</summary>
         Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsByManagerAsync(Guid managerUserId, int seasonYear, CancellationToken cancellation = default);
 
+        /// <summary>공개 팀 홈 모집 탭 — 비공개·미존재 팀은 빈 목록.</summary>
+        Task<Result<TeamRecruitmentsResponse>> GetRecruitmentsBySlugAsync(string slug, CancellationToken cancellation = default);
+
+        /// <summary>팀 대시보드 모집 섹션 — 관리자 소유 팀의 공고 목록.</summary>
+        Task<Result<TeamRecruitmentsResponse>> GetRecruitmentsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
+        /// <summary>모집 공고 저장 (신규·수정 겸용). 소유 아님·마감 공고 수정은 Success(null).</summary>
+        Task<Result<TeamRecruitmentDto?>> SaveRecruitmentByManagerAsync(Guid managerUserId, SaveTeamRecruitmentRequest request, CancellationToken cancellation = default);
+
+        /// <summary>모집 공고 마감 (Open → Closed 단방향). 소유 아님·이미 마감은 Success(null).</summary>
+        Task<Result<TeamRecruitmentDto?>> CloseRecruitmentByManagerAsync(Guid managerUserId, Guid recruitmentId, CancellationToken cancellation = default);
+
+        /// <summary>모집 공고 소프트 삭제·복구(실행취소). 소유 아님·대상 없음은 Success(false).</summary>
+        Task<Result<bool>> DeleteRecruitmentByManagerAsync(Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default);
+
         /// <summary>
         /// 경기 결과 저장. 대회 경기면 저장 프로시저가 순위표 재계산까지 한 경로에서 수행한다(D5).
         /// 팀 미존재·없는 대회는 Success(null) — 호출자가 NotFound로 변환한다.

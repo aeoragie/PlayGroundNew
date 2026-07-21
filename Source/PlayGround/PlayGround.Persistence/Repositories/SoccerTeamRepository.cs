@@ -803,5 +803,124 @@ namespace PlayGround.Persistence.Repositories
                 return new List<string>();
             }
         }
+
+        //.// 모집 공고 (Design.TeamPublicHome ④ 모집)
+
+        public async Task<Result<TeamRecruitmentsResponse>> GetRecruitmentsBySlugAsync(string slug, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team recruitments requested", ("Slug", slug));
+
+            var procedure = new UspGetSoccerTeamRecruitmentsBySlug(this) { Slug = slug };
+            var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamRecruitmentsResponse>.Error(ErrorCode.DatabaseError, "GetRecruitmentsBySlug");
+            }
+
+            return Result<TeamRecruitmentsResponse>.Success(new TeamRecruitmentsResponse
+            {
+                Items = queryResult.Values1.Select(MapRecruitment).ToList()
+            });
+        }
+
+        public async Task<Result<TeamRecruitmentsResponse>> GetRecruitmentsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team recruitments requested by manager", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerTeamRecruitmentsByManager(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamRecruitmentsResponse>.Error(ErrorCode.DatabaseError, "GetRecruitmentsByManager");
+            }
+
+            return Result<TeamRecruitmentsResponse>.Success(new TeamRecruitmentsResponse
+            {
+                Items = queryResult.Values1.Select(MapRecruitment).ToList()
+            });
+        }
+
+        public async Task<Result<TeamRecruitmentDto?>> SaveRecruitmentByManagerAsync(
+            Guid managerUserId, SaveTeamRecruitmentRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team recruitment save requested",
+                ("ManagerUserId", managerUserId), ("RecruitmentId", request.RecruitmentId));
+
+            var procedure = new UspSaveSoccerTeamRecruitment(this)
+            {
+                ManagerUserId = managerUserId,
+                RecruitmentId = request.RecruitmentId,
+                Title = request.Title,
+                Description = request.Description,
+                ConditionsJson = request.Conditions.Count > 0 ? JsonSerializer.Serialize(request.Conditions) : null,
+                DeadlineDate = request.DeadlineDate
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamRecruitmentDto?>.Error(ErrorCode.DatabaseError, "SaveRecruitment");
+            }
+
+            SoccerTeamRecruitmentsEntity? row = queryResult.Values1.FirstOrDefault();
+            return Result<TeamRecruitmentDto?>.Success(row is null ? null : MapRecruitment(row));
+        }
+
+        public async Task<Result<TeamRecruitmentDto?>> CloseRecruitmentByManagerAsync(
+            Guid managerUserId, Guid recruitmentId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team recruitment close requested",
+                ("ManagerUserId", managerUserId), ("RecruitmentId", recruitmentId));
+
+            var procedure = new UspCloseSoccerTeamRecruitment(this)
+            {
+                ManagerUserId = managerUserId,
+                RecruitmentId = recruitmentId
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamRecruitmentDto?>.Error(ErrorCode.DatabaseError, "CloseRecruitment");
+            }
+
+            SoccerTeamRecruitmentsEntity? row = queryResult.Values1.FirstOrDefault();
+            return Result<TeamRecruitmentDto?>.Success(row is null ? null : MapRecruitment(row));
+        }
+
+        public async Task<Result<bool>> DeleteRecruitmentByManagerAsync(
+            Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team recruitment delete requested",
+                ("ManagerUserId", managerUserId), ("RecruitmentId", recruitmentId), ("Restore", restore));
+
+            var procedure = new UspDeleteSoccerTeamRecruitment(this)
+            {
+                ManagerUserId = managerUserId,
+                RecruitmentId = recruitmentId,
+                Restore = restore
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "DeleteRecruitment");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.Count > 0);
+        }
+
+        // "모집중" 판정을 여기 한 곳에서 파생 — 팀 탐색(SQL EXISTS)과 같은 기준 (Open + 마감일 미경과)
+        private static TeamRecruitmentDto MapRecruitment(SoccerTeamRecruitmentsEntity row)
+        {
+            return new TeamRecruitmentDto
+            {
+                RecruitmentId = row.RecruitmentId,
+                Title = row.Title,
+                Description = row.Description,
+                Conditions = ParseAchievements(row.ConditionsJson),
+                DeadlineDate = row.DeadlineDate,
+                Status = row.Status,
+                IsOpen = row.Status == "Open"
+                         && (row.DeadlineDate is null || row.DeadlineDate.Value.Date >= DateTime.UtcNow.Date)
+            };
+        }
     }
 }

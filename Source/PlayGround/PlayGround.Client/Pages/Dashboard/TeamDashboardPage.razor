@@ -65,7 +65,14 @@
                     </LoadingGate>
                     break;
                 case SoccerTeamDashboardSection.Recruit:
-                    <RecruitSection />
+                    <LoadingGate IsLoading="@(mRecruitments is null && !mRecruitmentsFailed)" HasFailed="@mRecruitmentsFailed" OnRetry="LoadRecruitmentsAsync">
+                        <Skeleton>
+                            <SkeletonSection><SkeletonRows Count="2" ShowChip="false" /></SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <RecruitSection Data="@(mRecruitments!)" OnChanged="LoadRecruitmentsAsync" />
+                        </ChildContent>
+                    </LoadingGate>
                     break;
                 default:
                     @if (mInfo is not null)
@@ -120,7 +127,14 @@
                 </LoadingGate>
                 break;
             case SoccerTeamDashboardSection.Recruit:
-                <MobileRecruitSection />
+                <LoadingGate IsLoading="@(mRecruitments is null && !mRecruitmentsFailed)" HasFailed="@mRecruitmentsFailed" OnRetry="LoadRecruitmentsAsync">
+                    <Skeleton>
+                        <SkeletonSection Compact="true"><SkeletonRows Count="2" ShowChip="false" /></SkeletonSection>
+                    </Skeleton>
+                    <ChildContent>
+                        <MobileRecruitSection Data="@(mRecruitments!)" OnChanged="LoadRecruitmentsAsync" />
+                    </ChildContent>
+                </LoadingGate>
                 break;
             default:
                 @if (mInfo is not null)
@@ -160,15 +174,18 @@
     private TeamRosterResponse? mRoster;
     private TeamMatchesResponse? mMatches;
     private TeamVideosResponse? mVideos;
+    private TeamRecruitmentsResponse? mRecruitments;
     private bool mAuthenticated;
     private bool mRosterRequested;
     private bool mMatchesRequested;
     private bool mVideosRequested;
+    private bool mRecruitmentsRequested;
 
     // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
     private bool mRosterFailed;
     private bool mMatchesFailed;
     private bool mVideosFailed;
+    private bool mRecruitmentsFailed;
 
     private bool mResultFormOpen;
     private bool mInfoFormOpen;
@@ -257,6 +274,18 @@
                 await LoadCorrectionsAsync();
             }
         }
+        else if (CurrentSection == SoccerTeamDashboardSection.Recruit && !mRecruitmentsRequested)
+        {
+            mRecruitmentsRequested = true;
+            await LoadRecruitmentsAsync();
+        }
+    }
+
+    private async Task LoadRecruitmentsAsync()
+    {
+        mRecruitmentsFailed = false;
+        mRecruitments = await Teams.GetMyRecruitmentsAsync();
+        mRecruitmentsFailed = mRecruitments is null;
     }
 
     /// <summary>이미 결과가 있는 날 — 캘린더 도트로 중복 입력을 눈으로 막는다.</summary>

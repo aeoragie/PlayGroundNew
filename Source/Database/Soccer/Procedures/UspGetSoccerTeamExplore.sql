@@ -10,9 +10,16 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- IsRecruiting은 컬럼이 아니라 **모집 공고에서 파생**한다 (모집중 = Open + 마감일 미경과 공고 보유).
+    -- SoccerTeams.IsRecruiting 컬럼은 공고 스키마 도입으로 용도 종료 — 읽지 않는다.
     SELECT
         t.[TeamId], t.[TeamName], t.[TeamType], t.[Region], t.[AgeGroup],
-        t.[LogoUrl], t.[CoverImageUrl], t.[Slug], t.[IsVerified], t.[IsRecruiting]
+        t.[LogoUrl], t.[CoverImageUrl], t.[Slug], t.[IsVerified],
+        CAST(CASE WHEN EXISTS (
+            SELECT 1 FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
+            WHERE r.[TeamId] = t.[TeamId] AND r.[Status] = 'Open' AND r.[DeletedAt] IS NULL
+              AND (r.[DeadlineDate] IS NULL OR r.[DeadlineDate] >= CAST(GETUTCDATE() AS DATE)))
+        THEN 1 ELSE 0 END AS BIT) AS [IsRecruiting]
     FROM [dbo].[SoccerTeams] t WITH (NOLOCK)
     WHERE t.[IsPublicProfile] = 1 AND t.[DeletedAt] IS NULL AND t.[Slug] IS NOT NULL;
 

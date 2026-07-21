@@ -1,0 +1,66 @@
+@* 모집 탭(PC): 모집중 공고 카드 + 마감 공고(회색 .75) + 문의 카드 — SPEC.TEAMPUBLICHOME §④
+   "지원하기"·"입단 문의 남기기"는 지원·문의 플로우 미구현이라 무동작 버튼 (# 링크 금지 — 랜딩 오이동 방지). *@
+@using PlayGround.Contracts.Team
+
+<div class="flex flex-col gap-4">
+    <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">선수 모집</h2>
+
+    @if (Data.Items.Count > 0)
+    {
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] gap-3.5">
+            @foreach (TeamRecruitmentDto item in Data.Items)
+            {
+                @if (item.IsOpen)
+                {
+                    <div class="bg-white border-1.5 border-border rounded-2xl p-[26px] flex flex-col gap-3">
+                        <div class="flex items-center gap-[9px]">
+                            <span class="text-[16.5px] font-extrabold text-navy-deep">@item.Title</span>
+                            <span class="text-[11px] font-bold text-teal-ink bg-teal/[.12] rounded-full px-2.5 py-[3px] whitespace-nowrap">모집중</span>
+                        </div>
+                        <p class="m-0 text-[13.5px] text-text-body leading-[1.7] break-keep">@item.Description</p>
+                        @if (item.Conditions.Count > 0 || item.DeadlineDate is not null)
+                        {
+                            <div class="flex gap-2 flex-wrap">
+                                @foreach (string condition in item.Conditions)
+                                {
+                                    <span class="text-xs font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap">@condition</span>
+                                }
+                                @if (item.DeadlineDate is not null)
+                                {
+                                    <span class="text-xs font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap">마감 @DeadlineText(item)</span>
+                                }
+                            </div>
+                        }
+                        <button type="button" class="flex items-center justify-center h-11 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 border-0 cursor-pointer transition-colors">지원하기</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-surface-soft border-1.5 border-border rounded-2xl p-[26px] flex flex-col gap-3 opacity-75">
+                        <div class="flex items-center gap-[9px]">
+                            <span class="text-[16.5px] font-extrabold text-navy-deep">@item.Title</span>
+                            <span class="text-[11px] font-bold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">마감</span>
+                        </div>
+                        <p class="m-0 text-[13.5px] text-text-body leading-[1.7] break-keep">@item.Description</p>
+                    </div>
+                }
+            }
+        </div>
+    }
+
+    <div class="bg-white border-1.5 border-border rounded-2xl p-[26px] flex items-center gap-[18px] flex-wrap">
+        <span class="flex flex-col gap-[3px] flex-1 min-w-[260px]">
+            <span class="text-[15px] font-extrabold text-navy-deep break-keep">모집 공고가 없어도 문의할 수 있어요</span>
+            <span class="text-[13px] text-text-body break-keep">연령·포지션을 남겨주시면 자리가 생길 때 연락드립니다.</span>
+        </span>
+        <button type="button" class="flex items-center h-11 px-6 border-1.5 border-navy rounded-[11px] bg-white text-[13.5px] font-bold text-navy whitespace-nowrap cursor-pointer hover:bg-navy hover:text-white transition-colors">입단 문의 남기기</button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamRecruitmentsResponse Data { get; set; } = new();
+
+    internal static string DeadlineText(TeamRecruitmentDto item) =>
+        item.DeadlineDate is null ? string.Empty : $"{item.DeadlineDate.Value.Month}/{item.DeadlineDate.Value.Day}";
+}

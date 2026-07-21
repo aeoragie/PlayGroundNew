@@ -118,6 +118,93 @@ namespace PlayGround.Client.Services
             }
         }
 
+        //.// 모집 공고 (Design.TeamPublicHome ④ 모집)
+
+        /// <summary>공개 팀 홈 모집 탭 — 비로그인. 비공개·미존재 팀은 빈 목록, 오류 시 null.</summary>
+        public async Task<TeamRecruitmentsResponse?> GetTeamRecruitmentsAsync(string slug)
+        {
+            try
+            {
+                Envelope<TeamRecruitmentsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamRecruitmentsResponse>>(
+                        $"api/soccer/team/{Uri.EscapeDataString(slug)}/recruitments");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>팀 대시보드 모집 섹션 — 소유 팀 공고 목록. 오류 시 null.</summary>
+        public async Task<TeamRecruitmentsResponse?> GetMyRecruitmentsAsync()
+        {
+            try
+            {
+                Envelope<TeamRecruitmentsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamRecruitmentsResponse>>("api/soccer/team/me/recruitments");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>모집 공고 저장 (신규·수정 겸용).</summary>
+        public async Task<RecruitmentSaveResult> SaveRecruitmentAsync(SaveTeamRecruitmentRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me/recruitments", request);
+                Envelope<TeamRecruitmentDto>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<TeamRecruitmentDto>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new RecruitmentSaveResult(true, null);
+                }
+
+                return new RecruitmentSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new RecruitmentSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>모집 공고 마감 — 성공 여부만 (실패는 호출부가 토스트).</summary>
+        public async Task<bool> CloseRecruitmentAsync(Guid recruitmentId)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/recruitments/{recruitmentId}/close", null);
+                Envelope<TeamRecruitmentDto>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<TeamRecruitmentDto>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>모집 공고 삭제·복구(restore = 실행취소).</summary>
+        public async Task<bool> DeleteRecruitmentAsync(Guid recruitmentId, bool restore = false)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/recruitments/{recruitmentId}/delete?restore={(restore ? "true" : "false")}", null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>"처리가 필요해요" 항목 (허브). 현재 상태에서 파생 — 읽음 상태가 없다. 오류 시 null.</summary>
         public async Task<ActionItemsResponse?> GetActionItemsAsync()
         {
@@ -289,4 +376,7 @@ namespace PlayGround.Client.Services
 
     /// <summary>Slug는 저장 후 "공개홈 보기"로 바로 이동하기 위한 값.</summary>
     public record TeamInfoSaveResult(bool Success, string? Slug, string? Error, bool IsNetworkError = false);
+
+    /// <summary>모집 공고 저장 결과 — 입력 거부(인라인)와 요청 실패(토스트)를 IsNetworkError로 가른다.</summary>
+    public record RecruitmentSaveResult(bool Success, string? Error, bool IsNetworkError = false);
 }

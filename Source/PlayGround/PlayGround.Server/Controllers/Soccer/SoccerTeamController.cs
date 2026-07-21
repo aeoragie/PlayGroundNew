@@ -81,6 +81,77 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        // 공개 팀 홈 모집 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
+        [AllowAnonymous]
+        [HttpGet("{slug}/recruitments")]
+        public async Task<Envelope<TeamRecruitmentsResponse>> GetTeamRecruitmentsAsync(string slug, CancellationToken cancellation)
+        {
+            Result<TeamRecruitmentsResponse> result = await mGateway.AskAsync<TeamRecruitmentsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamRecruitmentsMessage(slug), cancellation);
+            return result.ToEnvelope();
+        }
+
+        [HttpGet("me/recruitments")]
+        public async Task<Envelope<TeamRecruitmentsResponse>> GetMyRecruitmentsAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamRecruitmentsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamRecruitmentsResponse> result = await mGateway.AskAsync<TeamRecruitmentsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamRecruitmentsByManagerMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>모집 공고 저장 (신규·수정 겸용) — 저장 즉시 공개 홈 모집 탭·팀 탐색 모집중 뱃지에 반영된다.</summary>
+        [HttpPost("me/recruitments")]
+        public async Task<Envelope<TeamRecruitmentDto>> SaveMyRecruitmentAsync(
+            [FromBody] SaveTeamRecruitmentRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamRecruitmentDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamRecruitmentDto> result = await mGateway.AskAsync<TeamRecruitmentDto>(
+                ActorNames.SoccerTeamProfile, new SaveSoccerTeamRecruitmentMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>모집 공고 마감 — Open → Closed 단방향 (재오픈 없음, 새 모집은 새 공고로).</summary>
+        [HttpPost("me/recruitments/{recruitmentId:guid}/close")]
+        public async Task<Envelope<TeamRecruitmentDto>> CloseMyRecruitmentAsync(Guid recruitmentId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamRecruitmentDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamRecruitmentDto> result = await mGateway.AskAsync<TeamRecruitmentDto>(
+                ActorNames.SoccerTeamProfile, new CloseSoccerTeamRecruitmentMessage(userId, recruitmentId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>모집 공고 소프트 삭제·복구(restore=true — 실행취소 경로).</summary>
+        [HttpPost("me/recruitments/{recruitmentId:guid}/delete")]
+        public async Task<Envelope<bool>> DeleteMyRecruitmentAsync(
+            Guid recruitmentId, [FromQuery] bool restore, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new DeleteSoccerTeamRecruitmentMessage(userId, recruitmentId, restore), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/roster")]
         public async Task<Envelope<TeamRosterResponse>> GetMyTeamRosterAsync(CancellationToken cancellation)
         {
