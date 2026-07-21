@@ -316,10 +316,9 @@
 - **미해결**: 계정 메뉴(DropdownMenu §1) 추출은 안 했다 — PublicGnb 인라인 유지(아바타는 교체됨).
   패 뱃지·종료 대회는 시드에 데이터가 없어 화면 확인 스킵(연레드는 CSS 생성 확인으로 갈음).
 
-### 공개 선수 프로필 1차 — 디테일 공개 뷰 (2026-07-21, Design.PlayerPublicProfile) ⚠️ **검수 대기 · 미커밋**
+### 공개 선수 프로필 1차 — 디테일 공개 뷰 완료 (2026-07-21, Design.PlayerPublicProfile — 커밋 `6115cc7`)
 
-> **작업 트리에 미커밋 변경으로 남아 있다** (마지막 커밋 `9c0c2f5` = AvatarBadge까지).
-> 검증 24 PASS / 0 FAIL(`shot-playerpublic.js`)로 검수 요청까지 간 상태 — 재개 시 검수 → 커밋부터.
+> 검증 24 PASS / 0 FAIL(`shot-playerpublic.js`). 2차(권한 뷰)·3차(카드 뷰)는 아래 후속 참조.
 
 - **`SoccerPlayers.Slug` 신설** — 마이그레이션 `2026-07-21_SoccerPlayers.Slug.sql`(**다른 PC 필수 실행**,
   기존 228명 이름 기반 채움 + NOT NULL + UNIQUE). 동명이인 -2,-3(팀 슬러그와 같은 정책).
