@@ -37,7 +37,7 @@ BEGIN
         --.// 로스터: 유효한(이름 있는) 행마다 PlayerId·Code를 미리 생성해 3개 테이블에 삽입
         DECLARE @roster TABLE (
             Name VARCHAR(150), Position VARCHAR(60), Number VARCHAR(10),
-            PlayerId UNIQUEIDENTIFIER, Code VARCHAR(12));
+            PlayerId UNIQUEIDENTIFIER, Code VARCHAR(12), PlayerSlug VARCHAR(150));
 
         IF @RosterJson IS NOT NULL
         BEGIN
@@ -54,8 +54,25 @@ BEGIN
                       [Number] VARCHAR(10) '$.Number') j
             WHERE j.[Name] IS NOT NULL AND LEN(LTRIM(RTRIM(j.[Name]))) > 0;
 
-            INSERT INTO [dbo].[SoccerPlayers] ([PlayerId], [Name])
-            SELECT [PlayerId], [Name] FROM @roster;
+            --.// 선수 공개 프로필 슬러그 — 세트 내 동명 순번 + 기존 동일 slug 수 (UNIQUE 제약이 최후 방어)
+            UPDATE r
+            SET r.[PlayerSlug] =
+                CASE WHEN d.[Seq] = 1 THEN d.[Base]
+                     ELSE LEFT(d.[Base], 140) + '-' + CAST(d.[Seq] AS VARCHAR(10)) END
+            FROM @roster r
+            JOIN (
+                SELECT
+                    r2.[PlayerId],
+                    REPLACE(r2.[Name], ' ', '-') AS [Base],
+                    ROW_NUMBER() OVER (PARTITION BY r2.[Name] ORDER BY r2.[PlayerId])
+                        + (SELECT COUNT(*) FROM [dbo].[SoccerPlayers] p
+                           WHERE p.[Slug] = REPLACE(r2.[Name], ' ', '-')
+                              OR p.[Slug] LIKE REPLACE(r2.[Name], ' ', '-') + '-%') AS [Seq]
+                FROM @roster r2
+            ) d ON d.[PlayerId] = r.[PlayerId];
+
+            INSERT INTO [dbo].[SoccerPlayers] ([PlayerId], [Name], [Slug])
+            SELECT [PlayerId], [Name], [PlayerSlug] FROM @roster;
 
             INSERT INTO [dbo].[SoccerTeamPlayers] ([TeamId], [PlayerId], [JerseyNumber], [Position])
             SELECT @TeamId, [PlayerId], [Number], [Position] FROM @roster;

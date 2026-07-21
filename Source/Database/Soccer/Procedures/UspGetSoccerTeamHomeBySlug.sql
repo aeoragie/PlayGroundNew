@@ -47,7 +47,7 @@ BEGIN
     -- 프로필 공개(FieldName='Profile')를 끈 선수는 공개 로스터에서 제외 (행 없으면 기본 공개)
     SELECT
         tp.[TeamPlayerId], tp.[JerseyNumber], tp.[Position], tp.[Grade],
-        p.[PlayerId], p.[Name], p.[PhotoUrl], p.[AgeGroup], p.[UserId]
+        p.[PlayerId], p.[Name], p.[Slug], p.[PhotoUrl], p.[AgeGroup], p.[UserId]
     FROM [dbo].[SoccerTeamPlayers] tp WITH (NOLOCK)
     JOIN [dbo].[SoccerPlayers] p WITH (NOLOCK) ON p.[PlayerId] = tp.[PlayerId]
     LEFT JOIN [dbo].[SoccerPlayerFieldVisibilities] fv WITH (NOLOCK)

@@ -38,7 +38,10 @@
                     <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@player.Name</span>
                     <span class="text-xs text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                 </span>
-                @* "공개 프로필 →" 링크는 공개 선수 프로필(/player/{id})이 생길 때 붙인다 — # 링크는 랜딩 오이동 *@
+                @if (player is { HasPublicProfile: true, Slug: not null })
+                {
+                    <a href="@Routes.PlayerPublicProfile(player.Slug)" class="text-[11.5px] font-bold text-navy whitespace-nowrap">공개 프로필 →</a>
+                }
             </div>
         }
     </div>

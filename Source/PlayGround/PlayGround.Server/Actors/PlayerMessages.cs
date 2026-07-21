@@ -80,4 +80,10 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => UserId;
     }
+
+    /// <summary>공개 선수 프로필 조회 메시지 (비로그인 읽기 — 사용자 키가 없어 Slug 해시).</summary>
+    public sealed record GetSoccerPlayerPublicProfileMessage(string Slug, int SeasonYear) : IConsistentHashable
+    {
+        public object ConsistentHashKey => Slug;
+    }
 }

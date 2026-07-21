@@ -46,5 +46,8 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>관리 주체(UserId) 기준 시즌 통계(경기별 기록·팀 관점 변환) 조회. 출전 없으면 빈 목록 — 에러가 아니다.</summary>
         Task<Result<PlayerSeasonStatsResponse>> GetSeasonStatsByUserAsync(Guid userId, int seasonYear, Guid? playerId = null, CancellationToken cancellation = default);
+
+        /// <summary>공개 선수 프로필 조회 (Slug 기준, 비로그인). 미존재·프로필 비공개는 null — 구분하지 않는다.</summary>
+        Task<Result<PlayerPublicProfileResponse?>> GetPublicProfileBySlugAsync(string slug, int seasonYear, CancellationToken cancellation = default);
     }
 }

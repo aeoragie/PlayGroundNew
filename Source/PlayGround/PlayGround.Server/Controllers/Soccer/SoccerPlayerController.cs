@@ -191,6 +191,18 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        // 공개 선수 프로필 — 비로그인 읽기전용. 'me' 리터럴 라우트가 {slug}보다 우선 매칭된다.
+        // 미존재·프로필 비공개는 NotFound 하나 — 비공개 여부를 흘리지 않는다.
+        [AllowAnonymous]
+        [HttpGet("{slug}/profile")]
+        public async Task<Envelope<PlayerPublicProfileResponse>> GetPublicProfileAsync(
+            string slug, [FromQuery] int season, CancellationToken cancellation)
+        {
+            Result<PlayerPublicProfileResponse> result = await mGateway.AskAsync<PlayerPublicProfileResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerPlayerPublicProfileMessage(slug, season), cancellation);
+            return result.ToEnvelope();
+        }
+
         /// <summary>선수 사진 설정·삭제. 대상이 본인 프로필이 아닐 수 있어(팀 관리자 경로) me/ 아래에 두지 않는다.
         /// 권한(보호자·소속팀 관리자)은 서버가 판정하며 거부는 403 — 선수 존재 여부는 흘리지 않는다.</summary>
         [HttpPut("photo")]

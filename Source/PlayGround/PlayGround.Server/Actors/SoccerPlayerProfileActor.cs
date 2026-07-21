@@ -25,6 +25,16 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<DeleteSoccerPlayerPortfolioVideoMessage>(HandleDeletePortfolioAsync);
             RegisterHandlerAsync<GetSoccerPlayerPortfolioMessage>(HandleGetPortfolioAsync);
             RegisterHandlerAsync<GetSoccerPlayerSeasonStatsMessage>(HandleGetSeasonStatsAsync);
+            RegisterHandlerAsync<GetSoccerPlayerPublicProfileMessage>(HandleGetPublicProfileAsync);
+        }
+
+        private async Task HandleGetPublicProfileAsync(GetSoccerPlayerPublicProfileMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerPlayerPublicProfileCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerPublicProfileCommand>();
+            Result<PlayerPublicProfileResponse> result = await useCase.ExecuteAsync(message.Slug, message.SeasonYear);
+            sender.Tell(result);
         }
 
         private async Task HandleCreateAsync(CreatePlayerProfileMessage message)

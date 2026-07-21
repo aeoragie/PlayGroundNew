@@ -316,6 +316,45 @@
 - **미해결**: 계정 메뉴(DropdownMenu §1) 추출은 안 했다 — PublicGnb 인라인 유지(아바타는 교체됨).
   패 뱃지·종료 대회는 시드에 데이터가 없어 화면 확인 스킵(연레드는 CSS 생성 확인으로 갈음).
 
+### 공개 선수 프로필 1차 — 디테일 공개 뷰 (2026-07-21, Design.PlayerPublicProfile) ⚠️ **검수 대기 · 미커밋**
+
+> **작업 트리에 미커밋 변경으로 남아 있다** (마지막 커밋 `9c0c2f5` = AvatarBadge까지).
+> 검증 24 PASS / 0 FAIL(`shot-playerpublic.js`)로 검수 요청까지 간 상태 — 재개 시 검수 → 커밋부터.
+
+- **`SoccerPlayers.Slug` 신설** — 마이그레이션 `2026-07-21_SoccerPlayers.Slug.sql`(**다른 PC 필수 실행**,
+  기존 228명 이름 기반 채움 + NOT NULL + UNIQUE). 동명이인 -2,-3(팀 슬러그와 같은 정책).
+  생성 경로 2곳에 부여: `UspCreatePlayer`(WHILE 루프)·`UspCreateSoccerTeamWithRoster`(세트 내
+  ROW_NUMBER+기존 수 — UNIQUE 제약이 최후 방어). 로스터 조회 2종(ByManager·HomeBySlug)에 Slug 추가.
+- **`GET api/soccer/player/{slug}/profile?season=`** (AllowAnonymous, 팀 공개홈과 같은 구조) —
+  `UspGetSoccerPlayerPublicProfileBySlug` 6결과셋. **Profile off·미존재 = 똑같이 NotFound**(비공개
+  여부를 흘리지 않음). **공개 범위는 서버가 자름**(몸무게 비공개 → null, 학교·연락처는 DTO에 필드
+  자체가 없음). **시즌 요약은 공식만**(B5 미해결 ① 이행 — 검증에서 친선 삽입→집계 불변 확인).
+  TeamSlug는 팀 홈 공개일 때만. 생성 record의 별칭 한계 → 선수 slug는 안 내리고(요청 파라미터와
+  동일) SoccerTeams.Slug 자리를 팀 슬러그로 씀. 액터는 SoccerPlayerProfile 재사용(Slug 해시).
+- **화면 `/player/{slug}`** (`Pages/Player/PlayerPublicProfilePage.razor` + `Css.PlayerPublic.cs`,
+  PC·모바일 반응형 단일 마크업, PublicGnb `SectionLabel="선수 프로필"`) — 히어로(3:4 사진·이니셜
+  폴백 teal·가족 관리 프로필 캡슐·팀 링크+✓인증팀 teal·공개 칩) → 시즌 4카드(출전=`bg-gradient-navy`,
+  모바일 2카드) → 대표 영상+커리어 타임라인(`PlayerCareerSection.MetaLine` 재사용) → 잠금 안내
+  점선 박스(카피 원문) → 모바일 하단 고정 CTA 바.
+- **공개홈 로스터 "공개 프로필 →" 복원** (A4 실버그 항목) — `TeamPublicPlayerDto.Slug` 추가
+  (Claimed일 때만 값), PC·모바일 실링크.
+- **판단 기록**: ① "상세 정보 열람 요청"·"열람 요청하기" = **무동작**(요청 생성은 에이전트 서비스
+  몫 — 결정 6·7) ② "선수 카드 공유" **미노출**(카드 뷰 없음 — A4) ③ 강점 태그·"리그 2위" 미노출
+  (저장처·산출 데이터 없음) ④ 인증팀 뱃지 teal 캡슐(AvatarBadge 우선 — dc는 오렌지) ⑤ "영상 N개 더"
+  링크 아닌 카운트 텍스트 ⑥ 모바일 GNB "선수 프로필" 레이블은 PublicGnb 공통 동작 유지.
+- **후속(2차·3차 — README 권장 순서)**: 디테일 권한 뷰(승인 배너·학교 칩·경기별 상세 기록·보호자에게
+  연락하기 — AgentViewApproval IsExpired 연동, 미해결 ① 해소) → 카드 뷰 2종(1080×1350 PNG·QR·
+  워터마크). OG 메타는 WASM SPA라 서버 렌더 필요 — 별도 설계.
+
+### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
+
+> 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).
+> 큰 덩어리 3개: PlayerPublicProfile **권한 뷰+카드 뷰**(위) · TeamPublicHome **진학진로→리뷰 탭** ·
+> BannerStepper **배너 3톤+온보딩 스텝 교체**. 선행 조건이 풀려 착수 가능해진 것: ClaimFlow "코드가
+> 없어요" Records 경유 · AgentViewApproval 권한 뷰 연동 · **TooltipHelp ⓘ 4곳**(코드 소비 0건 —
+> Claim·30일 만료·인증팀·Records 집계 기준, 전부 기존 화면이라 1회 작업 가치). 스키마 없어 막힌 것:
+> 일정 실데이터·선수 등록 폼·로스터 삭제(테스트 계획 §7-2·3·4)·리뷰·진학진로·강점 태그.
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).

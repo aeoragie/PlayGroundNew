@@ -15,10 +15,20 @@ BEGIN
 
     DECLARE @PlayerId UNIQUEIDENTIFIER = NEWID();
 
+    --.// 공개 프로필 슬러그 — 이름 기반, 중복 시 -2, -3 … (팀 슬러그와 같은 정책)
+    DECLARE @Base VARCHAR(150) = REPLACE(LTRIM(RTRIM(@Name)), ' ', '-');
+    DECLARE @Slug VARCHAR(150) = @Base;
+    DECLARE @n INT = 1;
+    WHILE EXISTS (SELECT 1 FROM [dbo].[SoccerPlayers] WHERE [Slug] = @Slug)
+    BEGIN
+        SET @n += 1;
+        SET @Slug = LEFT(@Base, 140) + '-' + CAST(@n AS VARCHAR(10));
+    END
+
     INSERT INTO [dbo].[SoccerPlayers]
-        ([PlayerId], [UserId], [Name], [BirthDate], [AgeGroup], [Region])
+        ([PlayerId], [UserId], [Name], [Slug], [BirthDate], [AgeGroup], [Region])
     VALUES
-        (@PlayerId, @UserId, @Name, @BirthDate, @AgeGroup, @Region);
+        (@PlayerId, @UserId, @Name, @Slug, @BirthDate, @AgeGroup, @Region);
 
     SELECT @PlayerId AS [PlayerId];
 END

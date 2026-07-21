@@ -24,6 +24,10 @@ public class SoccerPlayersEntity
 	[StringLength(150)]
 	public string Name { get; set; } = String.Empty;
 
+	[Required]
+	[StringLength(150)]
+	public string Slug { get; set; } = String.Empty;
+
 	[StringLength(2048)]
 	public string PhotoUrl { get; set; } = String.Empty;
 

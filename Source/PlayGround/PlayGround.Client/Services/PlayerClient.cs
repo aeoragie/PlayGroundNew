@@ -96,6 +96,22 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>공개 선수 프로필 조회 (비로그인 가능). 미존재·프로필 비공개·오류 시 null.</summary>
+        public async Task<PlayerPublicProfileResponse?> GetPublicProfileAsync(string slug, int seasonYear)
+        {
+            try
+            {
+                Envelope<PlayerPublicProfileResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<PlayerPublicProfileResponse>>(
+                        $"api/soccer/player/{Uri.EscapeDataString(slug)}/profile?season={seasonYear}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미존재(404)·네트워크 오류 → null
+            }
+        }
+
         /// <summary>항목 공개 설정 변경. 성공 여부 반환.</summary>
         public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic, Guid? playerId = null)
         {

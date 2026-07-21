@@ -1,7 +1,7 @@
 -- @entity: SoccerTeamRosterRecord
 -- @source: join
 -- @join: SoccerTeamPlayers AS tp (TeamPlayerId, JerseyNumber, Position, Grade)
--- @join: SoccerPlayers AS p (PlayerId, Name, PhotoUrl, AgeGroup, UserId)
+-- @join: SoccerPlayers AS p (PlayerId, Name, Slug, PhotoUrl, AgeGroup, UserId)
 -- @join: SoccerPlayerInvites AS inv (Code)
 -- 팀 관리자 기준 선수단(로스터) 조회 (대시보드 선수단 섹션). 단일 결과셋.
 -- Claim 상태는 C#에서 계산 (UserId 연결 = Claimed) — 여기서는 원본 컬럼만 내려준다.
@@ -21,7 +21,7 @@ BEGIN
 
     SELECT
         tp.[TeamPlayerId], tp.[JerseyNumber], tp.[Position], tp.[Grade],
-        p.[PlayerId], p.[Name], p.[PhotoUrl], p.[AgeGroup], p.[UserId],
+        p.[PlayerId], p.[Name], p.[Slug], p.[PhotoUrl], p.[AgeGroup], p.[UserId],
         inv.[Code]
     FROM [dbo].[SoccerTeamPlayers] tp WITH (NOLOCK)
     JOIN [dbo].[SoccerPlayers] p WITH (NOLOCK) ON p.[PlayerId] = tp.[PlayerId]

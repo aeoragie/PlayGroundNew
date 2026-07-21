@@ -468,6 +468,115 @@ namespace PlayGround.Persistence.Repositories
             return Result<PlayerSeasonStatsResponse>.Success(response);
         }
 
+        public async Task<Result<PlayerPublicProfileResponse?>> GetPublicProfileBySlugAsync(string slug, int seasonYear, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player public profile requested", ("Slug", slug), ("SeasonYear", seasonYear));
+
+            var procedure = new UspGetSoccerPlayerPublicProfileBySlug(this) { Slug = slug, SeasonYear = seasonYear };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Player public profile query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<PlayerPublicProfileResponse?>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            SoccerPlayerPublicHeaderRecord? header = await reader.ReadSingleOrDefaultAsync<SoccerPlayerPublicHeaderRecord>();
+            var visibilities = (await reader.ReadAsync<SoccerPlayerFieldVisibilitiesEntity>()).ToList();
+            var appearances = (await reader.ReadAsync<SoccerPlayerMatchStatRecord>()).ToList();
+            var events = (await reader.ReadAsync<SoccerMatchEventsEntity>()).ToList();
+            var videos = (await reader.ReadAsync<SoccerPlayerPortfolioVideosEntity>()).ToList();
+            var careers = (await reader.ReadAsync<SoccerPlayerCareersEntity>()).ToList();
+
+            // 미존재·프로필 비공개는 프로시저가 빈 결과 — 사유를 구분하지 않는다
+            if (header is null)
+            {
+                Logger.InfoWith("Player public profile not found", ("Slug", slug));
+                return Result<PlayerPublicProfileResponse?>.Success(null);
+            }
+
+            // 공개 항목만 값 유지 — 행 없으면 기본값 (키·몸무게·주발 공개, Domain 기본)
+            bool IsPublic(SoccerPlayerProfileField field)
+            {
+                var row = visibilities.FirstOrDefault(v => v.FieldName == field.ToString());
+                return row?.IsPublic ?? field.DefaultIsPublic();
+            }
+
+            // 시즌 요약 — 공식 경기만 (프로시저 필터). 평균은 분 기록이 있는 경기 기준 (대시보드와 같은 규칙)
+            PlayerPublicSeasonDto? season = null;
+            if (appearances.Count > 0)
+            {
+                var withMinutes = appearances.Where(a => a.MinutesPlayed is not null).ToList();
+                season = new PlayerPublicSeasonDto
+                {
+                    SeasonYear = seasonYear,
+                    MatchCount = appearances.Count,
+                    TotalMinutes = withMinutes.Sum(a => a.MinutesPlayed!.Value),
+                    Goals = events.Count(e => e.PlayerId == header.PlayerId && e.EventType != "OwnGoal"
+                        && appearances.Any(a => a.MatchId == e.MatchId)),
+                    Assists = events.Count(e => e.AssistPlayerId == header.PlayerId
+                        && appearances.Any(a => a.MatchId == e.MatchId)),
+                    AverageMinutes = withMinutes.Count > 0
+                        ? (int)Math.Round((double)withMinutes.Sum(a => a.MinutesPlayed!.Value) / withMinutes.Count)
+                        : null
+                };
+            }
+
+            SoccerPlayerPortfolioVideosEntity? primary = videos.FirstOrDefault();
+
+            var response = new PlayerPublicProfileResponse
+            {
+                Profile = new PlayerPublicHeaderDto
+                {
+                    Name = header.Name,
+                    PhotoUrl = NullIfEmpty(header.PhotoUrl),
+                    IsGuardianManaged = header.IsGuardianManaged,
+                    Position = NullIfEmpty(header.Position),
+                    JerseyNumber = NullIfEmpty(header.JerseyNumber),
+                    BirthYear = header.BirthDate?.Year,
+                    AgeGroup = NullIfEmpty(header.AgeGroup),
+                    TeamName = NullIfEmpty(header.TeamName),
+                    TeamSlug = NullIfEmpty(header.Slug),
+                    TeamIsVerified = header.IsVerified,
+                    HeightCm = IsPublic(SoccerPlayerProfileField.Height) ? header.HeightCm : null,
+                    WeightKg = IsPublic(SoccerPlayerProfileField.Weight) ? header.WeightKg : null,
+                    PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? NullIfEmpty(header.PreferredFoot) : null
+                },
+                Season = season,
+                PrimaryVideo = primary is null ? null : new PlayerPortfolioVideoDto
+                {
+                    VideoId = primary.VideoId,
+                    Title = primary.Title,
+                    VideoUrl = primary.VideoUrl,
+                    ThumbnailUrl = NullIfEmpty(primary.ThumbnailUrl),
+                    DurationSeconds = primary.DurationSeconds,
+                    IsPrimary = primary.IsPrimary,
+                    Tags = ParseTags(primary.Tags),
+                    RecordedOn = primary.RecordedOn is null ? null : DateOnly.FromDateTime(primary.RecordedOn.Value)
+                },
+                VideoCount = videos.Count,
+                Careers = careers
+                    .Select(c => new PlayerCareerEntryDto
+                    {
+                        CareerId = c.CareerId,
+                        TeamName = c.TeamName,
+                        IsCurrent = c.IsCurrent,
+                        BadgeLabel = NullIfEmpty(c.BadgeLabel),
+                        StartDate = DateOnly.FromDateTime(c.StartDate),
+                        EndDate = c.EndDate is null ? null : DateOnly.FromDateTime(c.EndDate.Value),
+                        Role = NullIfEmpty(c.Role),
+                        Note = NullIfEmpty(c.Note),
+                        IsVerified = c.IsVerified
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Player public profile received",
+                ("Slug", slug), ("Matches", appearances.Count), ("Careers", careers.Count));
+
+            return Result<PlayerPublicProfileResponse?>.Success(response);
+        }
+
         // 친선 = 대회 없음, League 형식 = 리그, 그 외(Cup/Split) = 컵
         private static string CompetitionTypeOf(SoccerPlayerMatchStatRecord appearance)
         {

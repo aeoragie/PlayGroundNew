@@ -264,7 +264,8 @@ namespace PlayGround.Persistence.Repositories
                         AgeGroup = NullIfEmpty(r.AgeGroup),
                         PhotoUrl = NullIfEmpty(r.PhotoUrl),
                         // 공개 규칙: UserId 자체는 내리지 않고 공개 프로필 연결 여부만
-                        HasPublicProfile = r.UserId is not null
+                        HasPublicProfile = r.UserId is not null,
+                        Slug = r.UserId is not null ? NullIfEmpty(r.Slug) : null
                     })
                     .ToList()
             };

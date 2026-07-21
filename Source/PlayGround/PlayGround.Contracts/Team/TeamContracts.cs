@@ -207,6 +207,9 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>공개 프로필 연결 여부 (Claimed) — "공개 프로필 →" 링크 노출용. Claim 상태 자체는 비노출.</summary>
         public bool HasPublicProfile { get; set; }
+
+        /// <summary>공개 선수 프로필 URL 슬러그 — HasPublicProfile일 때만 값이 온다 (최소 노출).</summary>
+        public string? Slug { get; set; }
     }
 
     /// <summary>팀 시즌 경기 결과 묶음 (팀 대시보드 경기 결과 섹션). 시즌 요약(승무패·득실)은 클라이언트 집계.</summary>

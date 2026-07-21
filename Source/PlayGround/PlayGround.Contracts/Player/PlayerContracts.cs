@@ -230,4 +230,55 @@ namespace PlayGround.Contracts.Player
         public List<string> Tags { get; set; } = new();
         public DateOnly? RecordedOn { get; set; }
     }
+
+    /// <summary>
+    /// 공개 선수 프로필 (/player/{slug}, 비로그인 읽기전용 — 디테일 공개 뷰).
+    /// 비공개 항목은 서버에서 제외돼 응답에 실리지 않는다 (학교·연락처는 공개 뷰에 아예 없음).
+    /// </summary>
+    public class PlayerPublicProfileResponse
+    {
+        public PlayerPublicHeaderDto Profile { get; set; } = new();
+
+        /// <summary>시즌 요약 (공식 경기만) — 출전이 없으면 null (섹션 미노출).</summary>
+        public PlayerPublicSeasonDto? Season { get; set; }
+
+        /// <summary>대표 영상 — 없으면 null (섹션 미노출).</summary>
+        public PlayerPortfolioVideoDto? PrimaryVideo { get; set; }
+
+        /// <summary>전체 영상 수 ("영상 N개 더 보기" 카운트용).</summary>
+        public int VideoCount { get; set; }
+
+        public List<PlayerCareerEntryDto> Careers { get; set; } = new();
+    }
+
+    /// <summary>공개 프로필 히어로. 키·몸무게·주발은 공개 설정이 켜진 항목만 값이 실린다.</summary>
+    public class PlayerPublicHeaderDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? PhotoUrl { get; set; }
+        public bool IsGuardianManaged { get; set; }
+        public string? Position { get; set; }
+        public string? JerseyNumber { get; set; }
+        public int? BirthYear { get; set; }
+        public string? AgeGroup { get; set; }
+        public string? TeamName { get; set; }
+        /// <summary>팀 공개홈 링크 — 팀 홈이 비공개면 null (링크를 걸지 않는다).</summary>
+        public string? TeamSlug { get; set; }
+        public bool TeamIsVerified { get; set; }
+        public int? HeightCm { get; set; }
+        public int? WeightKg { get; set; }
+        public string? PreferredFoot { get; set; }
+    }
+
+    /// <summary>공개 프로필 시즌 요약 — 공식 경기만 집계 (친선 미포함, Design.FriendlyMatch).</summary>
+    public class PlayerPublicSeasonDto
+    {
+        public int SeasonYear { get; set; }
+        public int MatchCount { get; set; }
+        public int TotalMinutes { get; set; }
+        public int Goals { get; set; }
+        public int Assists { get; set; }
+        /// <summary>경기당 평균 출전(분) — 분 기록이 있는 경기 기준 (선수 대시보드와 같은 규칙).</summary>
+        public int? AverageMinutes { get; set; }
+    }
 }

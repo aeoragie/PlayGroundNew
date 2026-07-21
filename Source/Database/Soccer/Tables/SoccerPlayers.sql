@@ -4,6 +4,7 @@ CREATE TABLE [dbo].[SoccerPlayers]
     [PlayerId]           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [UserId]             UNIQUEIDENTIFIER NULL,             -- 관리 주체 (Account.Users.UserId, 앱 계층 참조). 대리관리 시 보호자 UserId
     [Name]               VARCHAR(150)     NOT NULL,         -- UTF-8 (한글 50자)
+    [Slug]               VARCHAR(150)     NOT NULL,         -- 공개 프로필 URL (/player/{slug}) — 이름 기반, 중복 시 -N (UTF-8)
     [PhotoUrl]           VARCHAR(2048)    NULL,             -- 선수 사진 (카드 뷰·프로필)
     [BirthDate]          DATE             NULL,
     [AgeGroup]           VARCHAR(20)      NULL,             -- 'U12','U15','U18'
@@ -26,5 +27,6 @@ CREATE TABLE [dbo].[SoccerPlayers]
     [UpdatedAt]          DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
     [DeletedAt]          DATETIME2        NULL,             -- 소프트 삭제
 
-    CONSTRAINT [PK_SoccerPlayers] PRIMARY KEY ([PlayerId])
+    CONSTRAINT [PK_SoccerPlayers] PRIMARY KEY ([PlayerId]),
+    CONSTRAINT [UQ_SoccerPlayers_Slug] UNIQUE ([Slug])
 );

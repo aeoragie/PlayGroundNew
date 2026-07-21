@@ -1,0 +1,305 @@
+@attribute [Route(Routes.PlayerPublicProfileTemplate)]
+@layout LandingLayout
+@using PlayGround.Client.Components.Dashboard.Player
+@using PlayGround.Client.Models
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
+@inject PlayerClient Players
+@inject JwtAuthenticationStateProvider AuthProvider
+
+<PageTitle>@(mData?.Profile.Name ?? "선수 프로필") — PlayGround</PageTitle>
+
+@* 공개 선수 프로필 — 디테일 공개 뷰 (Design.PlayerPublicProfile, 비로그인 읽기전용).
+   권한 뷰(승인 배너·경기별 기록)·카드 뷰는 다음 단계 — 이 화면은 공개 항목 + 잠금 안내까지.
+   "상세 정보 열람 요청"은 무동작 — 요청 생성은 에이전트 서비스의 몫이다(결정 6·7, AgentViewApproval 경계).
+   "선수 카드 공유"는 카드 뷰가 없어 미노출(A4 — 없는 화면으로 가는 진입점을 만들지 않는다). *@
+@if (mLoaded && mData is null)
+{
+    <div class="min-h-screen bg-bg flex items-center justify-center px-4">
+        <div class="@($"{Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-3 text-center max-w-[420px]")">
+            <h1 class="m-0 text-xl font-extrabold text-navy-deep">선수 프로필을 찾을 수 없어요</h1>
+            <p class="m-0 text-sm text-text-body leading-[1.7] break-keep">주소가 잘못되었거나 비공개로 전환된 프로필이에요.</p>
+            <a href="@Routes.Landing" class="mt-1 text-[13.5px] font-bold text-navy">PlayGround 홈으로 →</a>
+        </div>
+    </div>
+}
+else if (mData is not null)
+{
+    <div class="min-h-screen bg-surface-alt text-navy-deep flex flex-col">
+        <PublicGnb SectionLabel="선수 프로필" />
+
+        <main class="w-full max-w-[1000px] mx-auto px-4 md:px-8 pt-4 md:pt-[26px] pb-[110px] md:pb-[70px] flex flex-col gap-[13px] md:gap-[18px] flex-1">
+
+            @* 히어로 *@
+            <div class="@Css.PlayerPublic.HeroCard">
+                <div class="flex gap-3.5 md:gap-[26px] flex-1 min-w-0 md:min-w-[300px]">
+                    <div class="@Css.PlayerPublic.HeroPhoto">
+                        @if (mData.Profile.PhotoUrl is not null)
+                        {
+                            <img src="@mData.Profile.PhotoUrl" alt="@mData.Profile.Name" class="w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <span class="w-full h-full flex items-center justify-center">
+                                <Avatar Name="@mData.Profile.Name" Size="56" />
+                            </span>
+                        }
+                    </div>
+                    <div class="flex flex-col gap-1.5 md:gap-3 flex-1 min-w-0">
+                        <div class="flex items-center gap-2 md:gap-2.5 flex-wrap">
+                            <h1 class="@Css.PlayerPublic.HeroName">@mData.Profile.Name</h1>
+                            @if (mData.Profile.IsGuardianManaged)
+                            {
+                                <StatusBadge Tone="StatusBadge.BadgeTone.Positive">가족 관리 프로필</StatusBadge>
+                            }
+                        </div>
+                        @if (MetaLine is not null)
+                        {
+                            <span class="@Css.PlayerPublic.HeroMeta">@MetaLine</span>
+                        }
+                        @if (mData.Profile.TeamName is not null)
+                        {
+                            @* 팀 홈이 비공개면 링크 없이 이름만 (TeamSlug null) *@
+                            @if (mData.Profile.TeamSlug is not null)
+                            {
+                                <a href="@Routes.TeamPublicHome(mData.Profile.TeamSlug)" class="@Css.PlayerPublic.TeamLink">
+                                    @TeamShieldIcon @mData.Profile.TeamName
+                                    @if (mData.Profile.TeamIsVerified)
+                                    {
+                                        <StatusBadge Tone="StatusBadge.BadgeTone.Positive">✓ 인증팀</StatusBadge>
+                                    }
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="@Css.PlayerPublic.TeamLink">
+                                    @TeamShieldIcon @mData.Profile.TeamName
+                                    @if (mData.Profile.TeamIsVerified)
+                                    {
+                                        <StatusBadge Tone="StatusBadge.BadgeTone.Positive">✓ 인증팀</StatusBadge>
+                                    }
+                                </span>
+                            }
+                        }
+                        @if (FieldChips.Count > 0)
+                        {
+                            <div class="flex gap-[7px] md:gap-[9px] flex-wrap">
+                                @foreach (string chip in FieldChips)
+                                {
+                                    <span class="@Css.PlayerPublic.FieldChip">@chip</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+                @* CTA — PC만 히어로 우측 (모바일은 하단 고정 바) *@
+                <div class="hidden md:flex flex-col gap-[9px] justify-center">
+                    <button type="button" class="@Css.PlayerPublic.RequestButton">상세 정보 열람 요청</button>
+                    <span class="@Css.PlayerPublic.RequestCaption">보호자 승인 후 열람 가능</span>
+                </div>
+            </div>
+
+            @* 시즌 요약 — 출전이 없으면 섹션 자체를 넣지 않는다 (빈 데이터 노출 금지) *@
+            @if (mData.Season is PlayerPublicSeasonDto season)
+            {
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3.5">
+                    <div class="@Css.PlayerPublic.StatCardNavy">
+                        <span class="@Css.PlayerPublic.StatLabelOnNavy">@(season.SeasonYear) 출전</span>
+                        <span class="@Css.PlayerPublic.StatValueOnNavy">@(season.MatchCount)경기 · @(season.TotalMinutes)'</span>
+                    </div>
+                    <div class="@($"{Css.PlayerPublic.StatCard} md:hidden")">
+                        <span class="@Css.PlayerPublic.StatLabel">득점 · 도움</span>
+                        <span class="@Css.PlayerPublic.StatValue">@(season.Goals)골 · @(season.Assists)도움</span>
+                    </div>
+                    <div class="@($"{Css.PlayerPublic.StatCard} hidden md:flex")">
+                        <span class="@Css.PlayerPublic.StatLabel">득점</span>
+                        <span class="@Css.PlayerPublic.StatValue">@season.Goals</span>
+                    </div>
+                    <div class="@($"{Css.PlayerPublic.StatCard} hidden md:flex")">
+                        <span class="@Css.PlayerPublic.StatLabel">도움</span>
+                        <span class="@Css.PlayerPublic.StatValue">@season.Assists</span>
+                    </div>
+                    @if (season.AverageMinutes is int average)
+                    {
+                        <div class="@($"{Css.PlayerPublic.StatCard} hidden md:flex")">
+                            <span class="@Css.PlayerPublic.StatLabel">경기당 평균</span>
+                            <span class="@Css.PlayerPublic.StatValue">@(average)분</span>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* 대표 영상 + 커리어 (PC 2컬럼 / 모바일 세로) — 없는 쪽은 렌더하지 않는다 *@
+            @if (mData.PrimaryVideo is not null || mData.Careers.Count > 0)
+            {
+                <div class="@(mData.PrimaryVideo is not null && mData.Careers.Count > 0 ? "grid md:grid-cols-[1fr_380px] gap-[13px] md:gap-[18px] items-start" : "flex flex-col")">
+                    @if (mData.PrimaryVideo is PlayerPortfolioVideoDto video)
+                    {
+                        <div class="@($"{Css.PlayerPublic.Card} overflow-hidden")">
+                            <a href="@video.VideoUrl" target="_blank" rel="noopener" class="block w-full aspect-video relative bg-navy-deep">
+                                @if (video.ThumbnailUrl is not null)
+                                {
+                                    <img src="@video.ThumbnailUrl" alt="@video.Title" class="absolute inset-0 w-full h-full object-cover" />
+                                }
+                                <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <span class="w-11 h-11 md:w-[52px] md:h-[52px] rounded-full bg-black/[.65] flex items-center justify-center">
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
+                                    </span>
+                                </span>
+                                <span class="@Css.PlayerPublic.VideoBadge">대표 영상</span>
+                            </a>
+                            <div class="px-3.5 py-3 md:px-5 md:py-4 flex items-center gap-2">
+                                <svg width="15" height="15" viewBox="0 0 24 24" aria-label="YouTube" class="flex-none"><path fill="#FF0000" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8z"></path><path fill="#fff" d="M9.6 15.6V8.4L15.8 12z"></path></svg>
+                                <span class="@Css.PlayerPublic.VideoTitle">@video.Title</span>
+                                @if (mData.VideoCount > 1)
+                                {
+                                    @* 공개 영상 목록 화면이 없어 카운트 표기만 — 링크가 아니다 *@
+                                    <span class="text-[11px] md:text-xs text-text-muted whitespace-nowrap">영상 @(mData.VideoCount - 1)개 더</span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (mData.Careers.Count > 0)
+                    {
+                        <div class="@($"{Css.PlayerPublic.Card} p-4 md:p-[22px] flex flex-col gap-3 md:gap-3.5")">
+                            <h2 class="m-0 text-sm md:text-[15.5px] font-extrabold text-navy-deep">커리어</h2>
+                            @foreach (PlayerCareerEntryDto entry in mData.Careers)
+                            {
+                                <div class="flex gap-[11px] md:gap-3">
+                                    <span class="flex flex-col items-center flex-none w-3">
+                                        <span class="@($"w-[10px] h-[10px] md:w-[11px] md:h-[11px] rounded-full mt-1 {(entry.IsCurrent ? "bg-teal" : "bg-border")}")"></span>
+                                        @if (entry != mData.Careers[^1])
+                                        {
+                                            <span class="w-0.5 flex-1 bg-border mt-1"></span>
+                                        }
+                                    </span>
+                                    <span class="flex flex-col gap-[3px] pb-2.5 md:pb-3 min-w-0">
+                                        <span class="flex gap-1.5 md:gap-[7px] items-center flex-wrap">
+                                            <span class="@Css.PlayerPublic.CareerTeamName">@entry.TeamName</span>
+                                            <StatusBadge Tone="@(entry.IsVerified ? StatusBadge.BadgeTone.Positive : StatusBadge.BadgeTone.Neutral)">@(entry.IsVerified ? "팀 확인됨" : "본인 입력")</StatusBadge>
+                                        </span>
+                                        <span class="@Css.PlayerPublic.CareerMeta">@PlayerCareerSection.MetaLine(entry)</span>
+                                        @if (entry.BadgeLabel is not null)
+                                        {
+                                            <span class="@($"{Css.Badge.Pending} self-start")">@entry.BadgeLabel</span>
+                                        }
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @* 공개 뷰 전용: 잠금 안내 *@
+            <div class="@Css.PlayerPublic.LockBox">
+                <span class="flex items-center gap-[9px] md:contents">
+                    <span class="@Css.PlayerPublic.LockIconBox">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-text-muted"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                    </span>
+                    <span class="@($"{Css.PlayerPublic.LockTitle} md:hidden")">경기별 상세 기록 · 학교 · 연락 수단은<br />보호자 승인 후 열람할 수 있어요</span>
+                </span>
+                <span class="flex flex-col gap-[3px] flex-1 md:min-w-[260px]">
+                    <span class="@($"{Css.PlayerPublic.LockTitle} hidden md:block")">경기별 상세 기록 · 학교 · 연락 수단은 보호자 승인 후 열람할 수 있어요</span>
+                    <span class="@Css.PlayerPublic.LockDescription">에이전트·지도자 계정으로 열람을 요청하면 보호자에게 알림이 갑니다. 승인 내역과 열람 기록은 모두 보호자에게 공개됩니다.</span>
+                </span>
+                <button type="button" class="@Css.PlayerPublic.LockRequestButton">열람 요청하기</button>
+            </div>
+
+            <span class="md:hidden text-[11px] text-text-muted text-center break-keep">이 프로필은 PlayGround에서 자동 생성되었습니다 · <a href="@Routes.Landing" class="font-bold text-navy">내 아이 프로필 만들기</a></span>
+        </main>
+
+        <footer class="hidden md:block border-t border-border bg-white px-8 py-6">
+            <div class="max-w-[1000px] mx-auto flex items-center gap-3.5 flex-wrap">
+                <span class="text-xs text-text-muted whitespace-nowrap">이 프로필은 PlayGround에서 자동 생성되었습니다</span>
+                <div class="flex-1"></div>
+                <a href="@Routes.Landing" class="text-xs font-bold text-navy whitespace-nowrap">내 아이 프로필 만들기 →</a>
+            </div>
+        </footer>
+
+        @* 모바일 하단 고정 CTA — 카드 공유 아이콘은 카드 뷰가 생길 때 (A4) *@
+        <div class="@Css.PlayerPublic.MobileCtaBar">
+            <button type="button" class="@Css.PlayerPublic.MobileCtaButton">상세 정보 열람 요청</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private PlayerPublicProfileResponse? mData;
+    private bool mLoaded;
+
+    // 팀 실드 아이콘 (히어로 소속팀 줄)
+    private static readonly RenderFragment TeamShieldIcon = builder =>
+    {
+        builder.AddMarkupContent(0,
+            "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"flex-none\"><path d=\"M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z\"></path></svg>");
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 게스트 허용 화면이지만 로그인 상태면 인증을 먼저 확정 — GNB 벨·아바타 헤더 레이스 방지
+        await AuthProvider.GetAuthenticationStateAsync();
+
+        mData = await Players.GetPublicProfileAsync(Slug, DateTime.Now.Year);
+        mLoaded = true;
+    }
+
+    // "FW · 등번호 9 · 2012년생 · U15" — 있는 항목만 조합
+    private string? MetaLine
+    {
+        get
+        {
+            List<string> parts = new();
+            if (mData!.Profile.Position is not null)
+            {
+                parts.Add(mData.Profile.Position);
+            }
+
+            if (mData.Profile.JerseyNumber is not null)
+            {
+                parts.Add($"등번호 {mData.Profile.JerseyNumber}");
+            }
+
+            if (mData.Profile.BirthYear is not null)
+            {
+                parts.Add($"{mData.Profile.BirthYear}년생");
+            }
+
+            if (mData.Profile.AgeGroup is not null)
+            {
+                parts.Add(mData.Profile.AgeGroup);
+            }
+
+            return parts.Count > 0 ? string.Join(" · ", parts) : null;
+        }
+    }
+
+    // 공개 항목 칩 — 서버가 비공개 항목을 null로 내려 클라이언트는 값 유무만 본다
+    private List<string> FieldChips
+    {
+        get
+        {
+            List<string> chips = new();
+            if (mData!.Profile.HeightCm is int height)
+            {
+                chips.Add($"키 {height}cm");
+            }
+
+            if (mData.Profile.WeightKg is int weight)
+            {
+                chips.Add($"몸무게 {weight}kg");
+            }
+
+            if (SoccerPreferredFootExtensions.ParseLabelOrNull(mData.Profile.PreferredFoot) is string foot)
+            {
+                chips.Add($"주발 {foot}");
+            }
+
+            return chips;
+        }
+    }
+}
