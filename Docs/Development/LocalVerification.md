@@ -40,8 +40,8 @@
    컬럼 추가는 여기) → Procedures(변경분은 `DROP PROCEDURE` 후 재생성) → Seeds**
 3. 반영을 마치면 아래 기준 커밋을 갱신하고 함께 커밋한다.
 
-> **기준 커밋: `ae8d5a6` (2026-07-21, Claim+알림 센터 — Soccer 테이블 2종·프로시저 8종·마이그레이션
-> 2종(FamilyLinks.Relation·Invites.Code6) + Account 벌크 조회 프로시저까지 로컬 반영됨)**
+> **기준 커밋: `09e400f` (2026-07-21, 모집 탭 — SoccerTeamRecruitments·프로시저 5종·
+> UspGetSoccerTeamExplore 파생 전환 재배포까지 로컬 반영됨)**
 > — 이 줄은 "이 커밋까지의 DB 산출물이 로컬 SQLEXPRESS에 반영돼 있다"는 뜻이다.
 > DB 산출물이 포함된 커밋을 만들고 로컬에 반영했다면 그 해시로 갱신할 것.
 
