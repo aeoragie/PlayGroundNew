@@ -55,9 +55,10 @@
     }
     else if (mIsListView)
     {
-        @* 리스트 뷰 *@
-        <div class="@($"{Css.Dashboard.Card} overflow-hidden")">
-            <div class="@($"{RowGrid} bg-surface-soft border-b border-border text-xs font-extrabold text-text-muted")">
+        @* 리스트 뷰 — overflow-hidden을 쓰지 않는다: 마지막 행 ⋯ 팝오버가 카드에 잘리기 때문(실제 겪음).
+           둥근 모서리는 헤더 top·마지막 행 bottom을 직접 라운딩해 유지한다. *@
+        <div class="@Css.Dashboard.Card">
+            <div class="@($"{RowGrid} bg-surface-soft border-b border-border text-xs font-extrabold text-text-muted rounded-t-[14.5px]")">
                 <span>번호</span><span>이름</span><span>포지션</span><span>학년</span><span>연결 상태</span><span></span>
             </div>
             @foreach (TeamRosterPlayerDto player in VisiblePlayers)

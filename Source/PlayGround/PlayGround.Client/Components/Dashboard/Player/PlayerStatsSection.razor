@@ -60,8 +60,9 @@
             }
         </div>
 
-        <div class="@($"{Css.Dashboard.Card} overflow-hidden")">
-            <div class="px-6 py-4 border-b border-surface-icon flex items-center gap-2.5">
+        @* overflow-hidden 금지 — 마지막 경기 행의 기록 수정 신청 ⋯ 팝오버가 잘린다(로스터와 동일 함정) *@
+        <div class="@Css.Dashboard.Card">
+            <div class="px-6 py-4 border-b border-surface-icon flex items-center gap-2.5 rounded-t-[14.5px]">
                 <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">경기별 기록</h3>
                 <span class="@Css.Badge.Positive">팀 경기 결과에서 자동 집계</span>
             </div>
