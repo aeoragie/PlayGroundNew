@@ -1,0 +1,100 @@
+@* 시스템·운영 배너 호스트 (Design.BannerStepper §1) — 콘텐츠 최상단 풀폭, 동시 1개(심각도 우선).
+   정보 배너만 X로 닫을 수 있고, 닫음 상태는 localStorage에 남겨 다시 띄우지 않는다.
+   주의·오류는 닫기 없이 원인이 해소돼야(서비스에서 Withdraw) 사라진다. *@
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@implements IDisposable
+@inject BannerService Banners
+@inject IJSRuntime JS
+
+@if (mCurrent is BannerNotice banner)
+{
+    <div class="@Css.Banner.Layer">
+        <div class="@Css.Banner.Card(banner.Severity)" role="@(banner.Severity == BannerSeverity.Error ? "alert" : "status")">
+            <span class="@Css.Banner.Dot(banner.Severity)" aria-hidden="true">@IconOf(banner.Severity)</span>
+            <span class="@Css.Banner.Body">
+                <b class="@Css.Banner.Prefix">@banner.Prefix</b> @banner.Message
+                @if (banner.HasLink)
+                {
+                    <a href="@banner.LinkHref" class="@Css.Banner.Link(banner.Severity)">@banner.LinkLabel</a>
+                }
+            </span>
+            @if (banner.CanDismiss)
+            {
+                <button type="button" class="@Css.Banner.Close" aria-label="닫기" @onclick="() => DismissAsync(banner)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private const string StorageKey = "pg.dismissedBanners";
+    private readonly HashSet<string> mDismissed = new();
+    private BannerNotice? mCurrent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Banners.OnChanged += OnBannersChanged;
+        await LoadDismissedAsync();
+        Recompute();
+    }
+
+    public void Dispose()
+    {
+        Banners.OnChanged -= OnBannersChanged;
+    }
+
+    private void OnBannersChanged()
+    {
+        Recompute();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Recompute()
+    {
+        mCurrent = Banners.Resolve(mDismissed);
+    }
+
+    private async Task LoadDismissedAsync()
+    {
+        try
+        {
+            string? raw = await JS.InvokeAsync<string?>("localStorage.getItem", StorageKey);
+            if (!string.IsNullOrWhiteSpace(raw))
+            {
+                foreach (string id in raw.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    mDismissed.Add(id);
+                }
+            }
+        }
+        catch
+        {
+            // localStorage 접근 실패는 무시 — 배너를 안 숨기는 쪽이 안전하다
+        }
+    }
+
+    private async Task DismissAsync(BannerNotice banner)
+    {
+        mDismissed.Add(banner.Id);
+        Recompute();
+
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, string.Join('\n', mDismissed));
+        }
+        catch
+        {
+            // 저장 실패해도 이번 세션에서는 숨겨진 채로 둔다
+        }
+    }
+
+    private static string IconOf(BannerSeverity severity) => severity switch
+    {
+        BannerSeverity.Info => "i",
+        _ => "!",
+    };
+}

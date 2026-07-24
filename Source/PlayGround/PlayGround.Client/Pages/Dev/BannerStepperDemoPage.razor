@@ -1,0 +1,80 @@
+@* 배너 3톤·스텝퍼 데모 (Design.BannerStepper 검증용 — 개발 전용).
+   MainLayout을 써야 BannerHost가 최상단에 렌더된다. 배너는 동시 1개(심각도 우선),
+   정보만 X로 닫히고, 스텝퍼는 완료 스텝만 클릭돼 뒤로 이동한다. *@
+@attribute [Route(Routes.DevBannerStepper)]
+@layout MainLayout
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@inject BannerService Banners
+
+<PageTitle>배너·스텝퍼 데모 — PlayGround</PageTitle>
+
+<div class="max-w-[640px] mx-auto px-4 md:px-8 pt-6 pb-24 flex flex-col gap-6">
+    <header class="flex flex-col gap-1.5">
+        <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em]">배너·스텝퍼 데모</h1>
+        <p class="m-0 text-[13px] text-text-body leading-[1.7] break-keep">
+            배너는 최상단에 동시 1개만 뜨고, 여러 개를 올리면 심각도가 높은 것(오류 &gt; 주의 &gt; 정보)이 이겨요.
+            정보 배너만 X로 닫을 수 있고, 닫으면 새로고침해도 다시 뜨지 않아요.
+        </p>
+    </header>
+
+    @* 배너 3톤 — 올리고 내리기 *@
+    <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 flex flex-col gap-3">
+        <span class="text-sm font-extrabold">배너 3톤</span>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="@DemoBtn" @onclick="ShowInfo">정보 올리기</button>
+            <button type="button" class="@DemoBtn" @onclick="ShowWarning">주의 올리기</button>
+            <button type="button" class="@DemoBtn" @onclick="ShowError">오류 올리기</button>
+            <button type="button" class="@DemoBtn" @onclick="() => Banners.Clear()">모두 내리기</button>
+        </div>
+        <p class="m-0 text-[12.5px] text-text-muted break-keep">
+            셋 다 올린 뒤 오류를 내리면 주의가, 주의를 내리면 정보가 드러나요(심각도 우선).
+        </p>
+    </section>
+
+    @* 스텝퍼 — 완료 스텝만 클릭 *@
+    <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 flex flex-col gap-5">
+        <span class="text-sm font-extrabold">스텝퍼 (4스텝)</span>
+        <Stepper Steps="Labels" Current="@mStep" OnStepClick="@(i => mStep = i)" />
+        <div class="flex gap-2.5">
+            <button type="button" class="@DemoBtn" disabled="@(mStep == 0)" @onclick="() => mStep--">← 이전</button>
+            <button type="button" class="@DemoBtn" disabled="@(mStep == Labels.Length - 1)" @onclick="() => mStep++">다음 →</button>
+        </div>
+        <p class="m-0 text-[12.5px] text-text-muted break-keep">현재 스텝: @(mStep + 1) / @Labels.Length · 완료된(왼쪽) 도트만 클릭돼요.</p>
+    </section>
+</div>
+
+@code {
+    private const string DemoBtn = "h-10 px-4 rounded-btn bg-navy hover:bg-navy-deep text-white text-[13px] font-bold disabled:bg-navy-muted disabled:cursor-default border-0 cursor-pointer transition-colors";
+
+    private static readonly string[] Labels = ["코드", "확인", "대기", "완료"];
+    private int mStep;
+
+    private void ShowInfo() => Banners.Publish(new BannerNotice
+    {
+        Id = "demo-maintenance",
+        Severity = BannerSeverity.Info,
+        Prefix = "정보",
+        Message = "3/25(수) 02:00~04:00 서버 점검이 있어요.",
+        LinkLabel = "자세히",
+        LinkHref = Routes.DevBannerStepper,
+    });
+
+    private void ShowWarning() => Banners.Publish(new BannerNotice
+    {
+        Id = "demo-claim-wait",
+        Severity = BannerSeverity.Warning,
+        Prefix = "주의",
+        Message = "자녀 연결 요청이 7일째 대기 중이에요. 팀 관리자에게 확인을 요청해 보세요.",
+    });
+
+    private void ShowError() => Banners.Publish(new BannerNotice
+    {
+        Id = "demo-payment",
+        Severity = BannerSeverity.Error,
+        Prefix = "오류",
+        Message = "결제 수단이 만료됐어요.",
+        LinkLabel = "갱신하기",
+        LinkHref = Routes.DevBannerStepper,
+    });
+}

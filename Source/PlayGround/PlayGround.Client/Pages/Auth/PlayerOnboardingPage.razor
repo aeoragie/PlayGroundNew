@@ -12,11 +12,10 @@
 @* ③a 선수 온보딩 (3스텝) *@
 <div class="w-[480px] max-w-full flex flex-col gap-5">
     <div class="flex flex-col gap-3">
-        <div class="flex justify-between items-baseline">
-            <h1 class="m-0 text-[23px] font-extrabold tracking-[-.02em] text-navy-deep">@StepTitle</h1>
-            <span class="text-[13px] font-bold text-text-muted">@mStep / 3</span>
-        </div>
-        <StepProgress Total="3" Current="@mStep" />
+        <h1 class="m-0 text-[23px] font-extrabold tracking-[-.02em] text-navy-deep">@StepTitle</h1>
+        @* 공용 스텝퍼로 교체 (Design.BannerStepper §2) — Current는 0부터라 mStep-1을 넘긴다.
+           완료 스텝 클릭은 뒤로 이동만 하고 입력은 필드에 남아 유지된다. *@
+        <Stepper Steps="StepLabels" Current="@(mStep - 1)" OnStepClick="GoToStep" />
     </div>
 
     <div class="@($"{Css.Auth.Card} px-7 py-[30px] flex flex-col gap-4")">
@@ -90,6 +89,8 @@
 @code {
     private static readonly string[] AgeOptions = ["U12", "U15", "U18"];
     private static readonly Dictionary<int, string> Titles = new() { [1] = "선수 기본 정보", [2] = "연령대와 종목", [3] = "지역과 소속" };
+    // 스텝퍼 레이블 — 좁은 폭(10.5px nowrap)이라 제목보다 짧게
+    private static readonly string[] StepLabels = ["기본 정보", "연령·종목", "지역·소속"];
 
     private int mStep = 1;
     private string mAge = "U15";
@@ -106,6 +107,13 @@
     {
         mError = null;
         mStep--;
+    }
+
+    // 스텝퍼 도트 클릭 — 완료 스텝(뒤)만 넘어온다. 입력은 필드에 남아 유지된다.
+    private void GoToStep(int index)
+    {
+        mError = null;
+        mStep = index + 1;
     }
 
     private async Task Next()

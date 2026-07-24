@@ -25,6 +25,7 @@ builder.Services.AddScoped<OnboardingState>();
 // 전역 피드백 (Design.FeedbackPatterns) — 토스트는 동시 1개, 확인 모달은 중첩 금지
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ConfirmService>();
+builder.Services.AddScoped<BannerService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<TokenStore>();

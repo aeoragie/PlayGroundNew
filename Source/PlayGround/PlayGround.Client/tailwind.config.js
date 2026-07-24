@@ -67,10 +67,16 @@ module.exports = {
           // 상태 뱃지 패·오류 톤 배경 (Design.AvatarBadge)
           'danger-badge': 'rgb(var(--color-surface-danger-badge) / <alpha-value>)',
         },
+        // 시스템·운영 배너 (Design.BannerStepper) — 주의·오류 배경
+        banner: {
+          warn: 'rgb(var(--color-banner-warn) / <alpha-value>)',
+          error: 'rgb(var(--color-banner-error) / <alpha-value>)',
+        },
         border: {
           DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
           soft: 'rgb(var(--color-border-soft) / <alpha-value>)',
           friendly: 'rgb(var(--color-border-friendly) / <alpha-value>)',
+          'banner-error': 'rgb(var(--color-banner-error-border) / <alpha-value>)',
         },
         text: {
           body: 'rgb(var(--color-text-body) / <alpha-value>)',

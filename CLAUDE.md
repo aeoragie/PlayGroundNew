@@ -446,6 +446,27 @@
   데이터 전량 원복. **함정: Client 수정 후 UI 검증 전 서버 재시작 필수** — dotnet run이 시작 시점
   WASM을 계속 서빙해 API만 새 코드로 도는 반쪽 상태가 된다(실제로 겪음 — UI만 전부 FAIL).
 
+### 배너 3톤 + 온보딩 스텝퍼 교체 완료 (2026-07-21, Design.BannerStepper — 공용 패턴 사전 완결)
+
+- **스텝퍼는 이미 있었다** — ClaimFlow 때 만든 `Stepper` 공용 컴포넌트(PC 도트 + 모바일 진행 바)를
+  온보딩이 안 쓰고 자체 `StepProgress`(오렌지 세그먼트 바 + "n / N")를 쓰고 있었다. 선수(3스텝)·
+  팀(2스텝) 온보딩 둘 다 **`Stepper`로 교체**하고 `StepProgress`는 삭제(사용처 0). `Current`는 0부터라
+  `mStep-1`을 넘기고, 완료 스텝 도트 클릭은 뒤로 이동(입력은 필드에 남아 유지).
+- **배너 3톤 신설** — `BannerService`(DI Scoped, Toast/Confirm과 같은 구조) + `BannerHost`(MainLayout
+  최상단). **동시 1개·심각도 우선(오류 > 주의 > 정보)** — 여러 배너를 올려도 `Resolve`가 가장 심각한
+  하나만 고른다. **정보만 X 닫기**(localStorage `pg.dismissedBanners`에 기록 → 새로고침해도 안 뜸),
+  주의·오류는 닫기 없이 원인 해소 시 `Withdraw`로만 소멸. 정보 배경·보더는 기존 토큰 재사용,
+  주의·오류만 토큰 신설(`banner-warn`·`banner-error`·`border-banner-error`).
+- **teal 배너 금지 규칙 준수** — teal은 첫 사용 힌트(TooltipHelp) 전용이라 운영 배너 3톤에 없다(검증에서
+  배경 rgb에 teal 없음 확인). 배너 위치는 페이지가 자체 GNB를 그려서 **화면 최상단(GNB 위)**에 얹었다
+  (시스템 공지 관례 — SPEC "콘텐츠 최상단 풀폭"의 실용 해석).
+- **생산자(운영 배너를 실제로 띄우는 주체)는 아직 없다** — 서버 점검·정책 공지 API도, 결제도 없다.
+  그래서 A2(Toast/Confirm) 전례대로 **인프라 + 데모 페이지**(`/dev/banner-stepper`)로 완결하고, 실제
+  배너 소스는 필요할 때 `Publish` 한 줄로 붙인다(파생 가능한 "Claim 7일 대기 주의 배너"가 첫 후보).
+- 검증(`shot-bannerstepper.js` 12 PASS): 심각도 우선 · 정보만 X + 새로고침 유지 · 완료 스텝만 클릭
+  (미래 도트 비활성) · 모바일 진행 바(도트 나열 0) · teal 0건 · 가로 스크롤 0. 온보딩 도트 스텝퍼
+  렌더도 확인(선수 3스텝 레이블 "기본 정보·연령·종목·지역·소속").
+
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
 > 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).

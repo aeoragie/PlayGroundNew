@@ -52,6 +52,9 @@ namespace PlayGround.Client
         /// <summary>전역 예외 경계 확인용 — 예외를 던져 500 화면으로 가는지 본다 (개발 전용).</summary>
         public const string DevThrow = "/dev/throw";
 
+        /// <summary>배너 3톤·스텝퍼 데모 (Design.BannerStepper 검증용 — 개발 전용).</summary>
+        public const string DevBannerStepper = "/dev/banner-stepper";
+
         //.// 링크 생성 헬퍼 (파라미터 라우트)
 
         public static string TeamDashboardSection(SoccerTeamDashboardSection section)

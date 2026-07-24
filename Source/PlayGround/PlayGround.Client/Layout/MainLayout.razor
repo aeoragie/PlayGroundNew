@@ -1,5 +1,9 @@
 @inherits LayoutComponentBase
+@using PlayGround.Client.Components.Shared.Feedback
 
 <div class="min-h-screen bg-bg text-text-body">
+    @* 시스템·운영 배너 — 콘텐츠 최상단 풀폭, 동시 1개(Design.BannerStepper).
+       페이지가 자체 GNB를 그리므로 배너는 그 위 화면 최상단에 얹힌다(시스템 공지 관례). *@
+    <BannerHost />
     @Body
 </div>
