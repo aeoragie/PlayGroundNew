@@ -78,6 +78,53 @@ namespace PlayGround.Application.Team.Commands
             return Result<Guid>.Success(created.Value.Value);
         }
 
+        /// <summary>보호자 신청 — 내 자녀(TargetPlayerId) 관련 공식 경기만. 검증은 팀 경로와 같은 규칙.</summary>
+        public async Task<Result<Guid>> ExecuteByGuardianAsync(
+            Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
+        {
+            if (userId == Guid.Empty)
+            {
+                return Result<Guid>.Error(ErrorCode.Unauthorized, "userId is empty");
+            }
+
+            ArgumentNullException.ThrowIfNull(request);
+
+            if (request.MatchId == Guid.Empty || targetPlayerId == Guid.Empty)
+            {
+                return Result<Guid>.Error(ErrorCode.InvalidInput, "matchId/targetPlayerId is empty");
+            }
+
+            if (!SoccerCorrectionFieldExtensions.TryParse(request.FieldType, out SoccerCorrectionField field))
+            {
+                return Result<Guid>.Error(ErrorCode.InvalidInput, "unknown field type");
+            }
+
+            request.FieldType = field.ToString();
+            request.RequestedValue = request.RequestedValue?.Trim() ?? string.Empty;
+
+            if (request.RequestedValue.Length is 0 or > MaxValueLength)
+            {
+                return Result<Guid>.Error(ErrorCode.InvalidInput, "requested value is required/too long");
+            }
+
+            request.CurrentValue = Trimmed(request.CurrentValue, MaxValueLength);
+            request.Description = Trimmed(request.Description, MaxDescriptionLength);
+
+            Result<Guid?> created = await mRepository.CreateGuardianCorrectionAsync(userId, targetPlayerId, request, cancellation);
+            if (created.IsError)
+            {
+                return Result<Guid>.Error(ErrorCode.DatabaseError);
+            }
+
+            // 내 자녀 아님 · 출전 기록 없음 · 친선 · 중복 — 어느 쪽인지 알려주지 않는다
+            if (created.Value is null)
+            {
+                return Result<Guid>.Error(ErrorCode.Forbidden, "correction not permitted for match");
+            }
+
+            return Result<Guid>.Success(created.Value.Value);
+        }
+
         public async Task<Result<RecordCorrectionsResponse>> GetAsync(
             Guid managerUserId, CancellationToken cancellation = default)
         {

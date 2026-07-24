@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlayGround.Shared.Http;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Team;
 using PlayGround.Server.Actors;
 
 namespace PlayGround.Server.Controllers.Soccer
@@ -234,6 +235,55 @@ namespace PlayGround.Server.Controllers.Soccer
 
             Result<bool> result = await mGateway.AskAsync<bool>(
                 ActorNames.SoccerPlayerProfile, new SetSoccerPlayerFieldVisibilityMessage(userId, request, playerId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        //.// 보호자 기록 수정 신청 — 내 자녀 관련 공식 경기만. 심사·반영은 주최측(설계 결정 7).
+
+        /// <summary>보호자 기록 수정 신청 생성. playerId = 어느 자녀인지.</summary>
+        [HttpPost("me/corrections")]
+        public async Task<Envelope<Guid>> CreateMyGuardianCorrectionAsync(
+            [FromBody] CreateRecordCorrectionRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<Guid>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Guid targetPlayerId = request.TargetPlayerId ?? Guid.Empty;
+            Result<Guid> result = await mGateway.AskAsync<Guid>(
+                ActorNames.SoccerPlayerProfile, new CreateSoccerGuardianCorrectionMessage(userId, targetPlayerId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>내가 올린 기록 수정 신청 목록(보호자). 화면이 자녀별로 걸러 보여준다.</summary>
+        [HttpGet("me/corrections")]
+        public async Task<Envelope<RecordCorrectionsResponse>> GetMyGuardianCorrectionsAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<RecordCorrectionsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<RecordCorrectionsResponse> result = await mGateway.AskAsync<RecordCorrectionsResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerGuardianCorrectionsMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>보호자 기록 수정 신청 취소 — 접수(Pending) 상태의 내 신청만.</summary>
+        [HttpDelete("me/corrections/{correctionId:guid}")]
+        public async Task<Envelope<bool>> CancelMyGuardianCorrectionAsync(Guid correctionId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new CancelSoccerGuardianCorrectionMessage(userId, correctionId), cancellation);
             return result.ToEnvelope();
         }
     }

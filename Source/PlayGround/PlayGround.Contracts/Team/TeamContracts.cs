@@ -591,6 +591,9 @@ namespace PlayGround.Contracts.Team
 
         public string RequestedValue { get; set; } = string.Empty;
         public string? Description { get; set; }
+
+        /// <summary>보호자 신청 전용 — 어느 자녀의 기록인지. 팀 관리자 경로는 null(팀 소유로 판정).</summary>
+        public Guid? TargetPlayerId { get; set; }
     }
 
     public class RecordCorrectionsResponse

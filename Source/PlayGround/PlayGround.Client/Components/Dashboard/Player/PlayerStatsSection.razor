@@ -2,6 +2,7 @@
    읽기전용(팀 경기 결과에서 자동 집계 — 직접 입력 UI 없음). 출전 기록 없으면 안내 카드 *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
@@ -65,7 +66,7 @@
                 <span class="@Css.Badge.Positive">팀 경기 결과에서 자동 집계</span>
             </div>
             <div class="@($"{RowGrid} bg-surface-soft text-[11.5px] font-extrabold text-text-muted py-2.5")">
-                <span>날짜</span><span>경기</span><span>대회</span><span class="text-center">득점</span><span class="text-center">도움</span><span class="text-center">출전</span>
+                <span>날짜</span><span>경기</span><span>대회</span><span class="text-center">득점</span><span class="text-center">도움</span><span class="text-center">출전</span><span></span>
             </div>
             @foreach (PlayerMatchStatDto match in Stats.Matches)
             {
@@ -86,20 +87,65 @@
                     <span class="text-[13.5px] font-extrabold text-navy-deep text-center">@match.Goals</span>
                     <span class="text-[13.5px] font-extrabold text-navy-deep text-center">@match.Assists</span>
                     <span class="text-[12.5px] text-text-body text-center whitespace-nowrap">@(match.MinutesPlayed is null ? "-" : $"{match.MinutesPlayed}'")</span>
+                    @* 기록 수정 신청은 공식 경기에만 — 친선은 직접 고칠 수 있어 신청이 필요 없다 *@
+                    <span class="flex justify-end">
+                        @if (!isFriendly)
+                        {
+                            <OverflowMenu Target="@($"vs {match.OpponentName}")"
+                                          Items="@BuildMatchMenu(match)" DisabledItems="@BuildMatchDisabled(match)" />
+                        }
+                    </span>
                 </div>
             }
         </div>
+
+        @* 내 신청 목록 — 신청이 시작된 자리 바로 아래(B6 팀 대시보드와 같은 배치) *@
+        <CorrectionListSection Corrections="@Corrections" OnCancel="OnCancelCorrection" />
     }
 </div>
 
 @code {
-    private const string RowGrid = "grid grid-cols-[90px_1fr_110px_70px_70px_80px] px-6";
+    private const string RowGrid = "grid grid-cols-[90px_1fr_110px_60px_60px_70px_44px] px-6";
 
     [Parameter, EditorRequired]
     public PlayerSeasonStatsResponse Stats { get; set; } = new();
 
     [Parameter]
     public EventCallback<int> OnSeasonSelected { get; set; }
+
+    /// <summary>기록 수정 신청 — 페이지가 폼을 연다.</summary>
+    [Parameter]
+    public EventCallback<PlayerMatchStatDto> OnRequestCorrection { get; set; }
+
+    /// <summary>내 미처리 신청이 있는 경기 — ⋯를 "신청 처리 중" 비활성으로 바꾼다(중복 신청 차단).</summary>
+    [Parameter]
+    public HashSet<Guid> PendingCorrectionMatchIds { get; set; } = new();
+
+    /// <summary>이 자녀의 경기에 대한 내 신청 목록.</summary>
+    [Parameter]
+    public List<RecordCorrectionDto> Corrections { get; set; } = new();
+
+    /// <summary>신청 취소 — 확인 모달·재조회는 페이지가 맡는다.</summary>
+    [Parameter]
+    public EventCallback<RecordCorrectionDto> OnCancelCorrection { get; set; }
+
+    private List<OverflowMenu.MenuItem> BuildMatchMenu(PlayerMatchStatDto match)
+    {
+        if (PendingCorrectionMatchIds.Contains(match.MatchId))
+        {
+            return new List<OverflowMenu.MenuItem>();
+        }
+
+        return new List<OverflowMenu.MenuItem>
+        {
+            new("기록 수정 신청", () => OnRequestCorrection.InvokeAsync(match)),
+        };
+    }
+
+    private List<string> BuildMatchDisabled(PlayerMatchStatDto match) =>
+        PendingCorrectionMatchIds.Contains(match.MatchId)
+            ? new List<string> { "신청 처리 중" }
+            : new List<string>();
 
     // 집계는 공식 경기만 — 친선분은 합산하지 않고 "별도 +N"으로 보여 준다(Design.FriendlyMatch)
     internal List<PlayerMatchStatDto> OfficialMatches => OfficialOf(Stats.Matches);

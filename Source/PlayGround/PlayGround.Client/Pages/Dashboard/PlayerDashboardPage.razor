@@ -4,6 +4,8 @@
 @using PlayGround.Client.Components.Dashboard.Player
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
+@using PlayGround.Contracts.Team
+@using PlayGround.Domain.Soccer
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject PlayerClient Players
@@ -49,7 +51,10 @@
                                 </SkeletonSection>
                             </Skeleton>
                             <ChildContent>
-                                <PlayerStatsSection Stats="@(mStats!)" OnSeasonSelected="LoadSeasonStatsAsync" />
+                                <PlayerStatsSection Stats="@(mStats!)" OnSeasonSelected="LoadSeasonStatsAsync"
+                                                    OnRequestCorrection="OpenCorrectionForm"
+                                                    PendingCorrectionMatchIds="@PendingCorrectionMatchIds"
+                                                    Corrections="@ChildCorrections" OnCancelCorrection="CancelCorrectionAsync" />
                             </ChildContent>
                         </LoadingGate>
                         break;
@@ -100,7 +105,10 @@
                             </SkeletonSection>
                         </Skeleton>
                         <ChildContent>
-                            <MobilePlayerStatsSection Stats="@(mStats!)" OnSeasonSelected="LoadSeasonStatsAsync" />
+                            <MobilePlayerStatsSection Stats="@(mStats!)" OnSeasonSelected="LoadSeasonStatsAsync"
+                                                      OnRequestCorrection="OpenCorrectionForm"
+                                                      PendingCorrectionMatchIds="@PendingCorrectionMatchIds"
+                                                      Corrections="@ChildCorrections" OnCancelCorrection="CancelCorrectionAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -124,6 +132,10 @@
 </div>
 
 @* 입력 다이얼로그 — PC·모바일 공용 (다이얼로그가 스스로 반응형이라 두 트리 밖에 하나만 둔다) *@
+@* 보호자 기록 수정 신청 — 자녀의 공식 경기. 여기서 기록이 바뀌지 않는다(주최측 전달) *@
+<GuardianCorrectionFormDialog @bind-IsOpen="mCorrectionFormOpen" Match="@mCorrectionMatch"
+                              PlayerId="@SelectedPlayerId" OnSubmitted="LoadCorrectionsAsync" />
+
 <CareerFormDialog @bind-IsOpen="mCareerFormOpen" Entry="@mEditingCareer" PlayerId="@SelectedPlayerId" OnSaved="ReloadCareerAsync" />
 <PortfolioFormDialog @bind-IsOpen="mPortfolioFormOpen" Entry="@mEditingVideo"
                      ExistingVideoCount="@(mPortfolio?.Videos.Count ?? 0)" PlayerId="@SelectedPlayerId" OnSaved="ReloadPortfolioAsync" />
@@ -234,6 +246,7 @@
             mCareerFailed = false;
             mPortfolioFailed = false;
             mStatsFailed = false;
+            mCorrections = null;
             mInfo = await Players.GetMyInfoAsync(SelectedPlayerId);
         }
 
@@ -244,6 +257,8 @@
         else if (CurrentSection == SoccerPlayerDashboardSection.Stats && mStats is null && !mStatsFailed)
         {
             await LoadSeasonStatsAsync(DateTime.Now.Year);
+            // 신청 목록도 함께 — 경기 행 ⋯의 "신청 처리 중" 판정과 목록 표시에 쓴다
+            await LoadCorrectionsAsync();
         }
         else if (CurrentSection == SoccerPlayerDashboardSection.Portfolio && mPortfolio is null && !mPortfolioFailed)
         {
@@ -402,6 +417,73 @@
     }
 
     private Task RetryStatsAsync() => LoadSeasonStatsAsync(DateTime.Now.Year);
+
+    //.// 보호자 기록 수정 신청 — 진입은 경기 행 ⋯, 목록은 그 아래(B6 팀 배치와 동일)
+
+    private RecordCorrectionsResponse? mCorrections;
+    private bool mCorrectionFormOpen;
+    private PlayerMatchStatDto? mCorrectionMatch;
+
+    // 내 신청 전부 중 현재 자녀의 경기에 대한 것만 — 자녀가 여럿이면 다른 아이 신청이 섞이면 안 된다
+    private List<RecordCorrectionDto> ChildCorrections
+    {
+        get
+        {
+            if (mCorrections is null || mStats is null)
+            {
+                return new List<RecordCorrectionDto>();
+            }
+
+            HashSet<Guid> childMatches = mStats.Matches.Select(m => m.MatchId).ToHashSet();
+            return mCorrections.Corrections.Where(c => childMatches.Contains(c.MatchId)).ToList();
+        }
+    }
+
+    private HashSet<Guid> PendingCorrectionMatchIds =>
+        ChildCorrections
+            .Where(c => c.Status == nameof(SoccerCorrectionStatus.Pending))
+            .Select(c => c.MatchId)
+            .ToHashSet();
+
+    private async Task LoadCorrectionsAsync()
+    {
+        mCorrections = await Players.GetGuardianCorrectionsAsync();
+    }
+
+    private void OpenCorrectionForm(PlayerMatchStatDto match)
+    {
+        mCorrectionMatch = match;
+        mCorrectionFormOpen = true;
+    }
+
+    // 취소는 되돌릴 수 없다(신청이 사라진다) — 확인을 받는다
+    private async Task CancelCorrectionAsync(RecordCorrectionDto correction)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "이 수정 신청을 취소할까요?",
+            Description = $"{CorrectionListSection.SummaryOf(correction)} — 주최측에 전달된 신청이 철회돼요.",
+            ConfirmLabel = "신청 취소",
+            CancelLabel = "닫기",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        CorrectionSaveResult result = await Players.CancelGuardianCorrectionAsync(correction.CorrectionId);
+        if (!result.Success)
+        {
+            Toasts.ShowError(result.Error ?? "취소하지 못했어요.", "재시도", () => CancelCorrectionAsync(correction));
+            return;
+        }
+
+        await LoadCorrectionsAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess("수정 신청을 취소했어요.");
+    }
 
     // 초대코드 Claim 성공 후 — 연결된 프로필(다른 선수 행일 수 있음)로 전체 재로드
     private async Task ReloadAsync()

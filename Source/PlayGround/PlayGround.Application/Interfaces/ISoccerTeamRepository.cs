@@ -90,6 +90,9 @@ namespace PlayGround.Application.Interfaces
         /// </summary>
         Task<Result<Guid?>> CreateRecordCorrectionAsync(Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default);
 
+        /// <summary>보호자 기록 수정 신청 생성 — 내 자녀 관련 공식 경기만. 무권한·무관 경기는 Success(null)(사유 미노출).</summary>
+        Task<Result<Guid?>> CreateGuardianCorrectionAsync(Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default);
+
         /// <summary>내가 관리하는 팀의 미처리 초대 — "처리가 필요해요" 파생 원천. 없으면 빈 목록.</summary>
         Task<Result<PendingInvitesResponse>> GetPendingInvitesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
 

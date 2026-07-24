@@ -48,6 +48,9 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `sql-pendingchild.sql` | 허브 승인 대기 자녀 시드 — 보호자의 Pending 연결 요청 1건 (끝나고 ROLLBACK) |
 | `api-pendingchild.js` | 허브 Pending 자녀 API — Claimed+Pending 함께·스탯 0·중복 방지 |
 | `shot-pendingchild.js` | 허브 Pending 자녀 UI — 승인 대기 뱃지·"–" 스탯·대기 안내·요청 상태 보기→/claim |
+| `api-guardiancorrection.js` | 보호자 기록 수정 신청 API — 신청·중복차단·친선/남의자녀 거부·취소·재신청 |
+| `shot-guardiancorrection.js` | 보호자 기록 수정 UI — 공식 행 ⋯→폼→토스트·목록·"신청 처리 중"·취소 모달 |
+| `sql-guardiancorrection-cleanup.sql` | 보호자 검증 신청 물리 삭제 (스크립트는 소프트 삭제만 남긴다) |
 | `api-settings.js` | 설정 API — 이메일 마스킹 · 알림 기본값 병합 · **승인형 저장 거부**(enum 화이트리스트) · 계정 소프트 삭제(임시 계정 — 끝나면 SQL로 물리 삭제) |
 | `shot-settings.js` | 설정 3탭 URL 동기화 · 삭제 모달 문구 입력 잠금 · "항상 켜짐" 뱃지 · **스위치 실패 롤백**(PUT abort → 낙관 반영 → 롤백+오류 토스트) · 모바일 세그먼트 탭. playwright-core 필요 |
 | `shot-hierarchy.js` | 계층 스위치 — 상위 "프로필 공개" off → 하위 dimmed(.45)+비활성 + 실행취소 토스트 → **공개홈 로스터에서 선수 숨김** → 실행취소 복귀. 끝나면 `DELETE FROM SoccerPlayerFieldVisibilities WHERE FieldName='Profile'`로 원복 |

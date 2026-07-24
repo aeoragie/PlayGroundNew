@@ -1,5 +1,6 @@
 using Akka.Routing;
 using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Team;
 
 namespace PlayGround.Server.Actors
 {
@@ -86,5 +87,23 @@ namespace PlayGround.Server.Actors
     public sealed record GetSoccerPlayerPublicProfileMessage(string Slug, int SeasonYear, Guid? ViewerUserId) : IConsistentHashable
     {
         public object ConsistentHashKey => Slug;
+    }
+
+    /// <summary>보호자 기록 수정 신청 생성 (쓰기 — UserId 해시).</summary>
+    public sealed record CreateSoccerGuardianCorrectionMessage(Guid UserId, Guid TargetPlayerId, CreateRecordCorrectionRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>보호자 기록 수정 신청 목록 조회 (읽기지만 UserId 스코프라 같은 액터로 순차).</summary>
+    public sealed record GetSoccerGuardianCorrectionsMessage(Guid UserId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>보호자 기록 수정 신청 취소 (쓰기 — UserId 해시).</summary>
+    public sealed record CancelSoccerGuardianCorrectionMessage(Guid UserId, Guid CorrectionId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
     }
 }

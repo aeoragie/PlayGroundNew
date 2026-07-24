@@ -516,6 +516,32 @@
 - **미해결**: 다음 경기 줄(일정 실데이터)·알림 센터 전체 보기 링크는 그대로. Pending 자녀의 요청
   취소는 /claim 재방문 플로우(ClaimFlow P1)에 있고 허브에서 별도로 제공하지 않는다.
 
+### 공식 기록 수정 신청 — 보호자 경로 완료 (2026-07-21, Design.RecordCorrection)
+
+- **B6 팀 관리자 경로의 보호자판.** B6가 "미해결 ①"로 남긴 것(SPEC은 보호자도 신청 주체)을 채웠다.
+  진입점은 **선수 대시보드 시즌 통계의 경기별 기록 행 ⋯**, 목록은 **그 아래**(B6 팀 배치와 같은
+  판단 — SPEC의 "허브 자녀 카드"보다 "신청이 시작된 자리"가 맞다). 심사·반영 API는 안 만든다(결정 7).
+- **검증이 이 작업의 본체**: 새 프로시저 `UspCreateSoccerRecordCorrectionByGuardian`가 **내 자녀(소유)+
+  그 자녀가 그 공식 경기에 출전(SoccerMatchAppearances)** 을 함께 판정한다 — 내 자녀와 무관한 경기·
+  친선(appearance 조인이 `MatchType='Official'` 요구)·중복은 전부 빈 결과(사유 미노출 → Forbidden).
+  TeamId는 그 출전의 소속팀에서 파생. **조회·취소는 기존 것 재사용** — `UspGetSoccerRecordCorrectionsByManager`·
+  Cancel 프로시저가 이미 `RequestedByUserId` 스코프라 보호자가 그대로 쓴다(새 프로시저 안 만듦).
+- **@entity 이름 충돌 회피**: 결과셋이 팀 create와 같은 모양(CorrectionId 1컬럼)이라 마커를 두지
+  않고(같은 `SoccerCorrectionCreatedRecord` 중복 생성 방지) 리포지토리가 그 레코드를 재사용.
+- 라우팅: 보호자는 Player 스코프라 **player 컨트롤러**(`POST/GET/DELETE api/soccer/player/me/corrections`)
+  + **SoccerPlayerProfile 액터**(UserId 해시)로 태웠다. 커맨드는 `SoccerRecordCorrectionCommand`에
+  `ExecuteByGuardianAsync` 추가(검증 규칙은 팀 경로와 동일).
+- UI: `GuardianCorrectionFormDialog`(팀 폼과 달리 대상이 자녀 1명이라 선수 선택 없음 — 현재 기록은
+  자녀의 득점·도움·출전). **목록·취소·"신청 처리 중" 비활성은 `CorrectionListSection` 그대로 재사용**
+  (반려 사유 렌더도 동일 컴포넌트라 B6 검증분으로 커버). 자녀별 필터: 내 신청 전부 중 현재 자녀의
+  경기(MatchId)에 대한 것만 — 자녀가 여럿이면 섞이면 안 된다.
+- 검증(`api-guardiancorrection.js` 7 + `shot-guardiancorrection.js` 10 전부 PASS): 신청→목록 반영·
+  중복 차단·**남의 자녀 playerId 거부**·취소→재신청 / UI 공식 행만 ⋯·폼 대비 구조·"신청 처리 중"·
+  취소 확인 모달·모바일. 검증 신청 물리 삭제로 원복.
+- **미해결**: 증빙 사진 첨부(P1) · 상태 변경 알림은 기존 지연 생성 패턴을 타므로 별도 작업 없음 ·
+  친선 거부는 프로시저 구조상 자명(팀 B6에서 별도 검증). 허브 자녀 카드에 신청 요약을 얹는 건
+  안 했다(목록을 신청 자리 아래 둔 판단과 상충 — 필요 시 지시).
+
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
 > 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).

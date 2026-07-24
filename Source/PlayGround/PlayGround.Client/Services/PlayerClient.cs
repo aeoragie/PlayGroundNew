@@ -2,11 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using PlayGround.Shared.Http;
 using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Team;
 
 namespace PlayGround.Client.Services
 {
     /// <summary>선수 프로필 API 호출. 인증 토큰은 공유 HttpClient 기본 헤더로 자동 부착됨.</summary>
-    public class PlayerClient
+    public partial class PlayerClient
     {
         private readonly HttpClient mHttp;
 
@@ -251,6 +252,61 @@ namespace PlayGround.Client.Services
             }
         }
     }
+
+    /// <summary>보호자 기록 수정 신청 목록 조회. 오류 시 null(호출부가 실패/빈 목록 구분).</summary>
+    public partial class PlayerClient
+    {
+        /// <summary>보호자 기록 수정 신청 생성 — 내 자녀 관련 공식 경기만. 성공 후 상위가 목록을 다시 읽는다.</summary>
+        public async Task<CorrectionSaveResult> CreateGuardianCorrectionAsync(CreateRecordCorrectionRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/player/me/corrections", request);
+                Envelope<Guid>? envelope = await response.Content.ReadFromJsonAsync<Envelope<Guid>>();
+                return envelope is { IsSuccess: true }
+                    ? new CorrectionSaveResult(true, null)
+                    : new CorrectionSaveResult(false, "신청하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new CorrectionSaveResult(false, "신청하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>내가 올린 기록 수정 신청(보호자). 오류·미인증 시 null.</summary>
+        public async Task<RecordCorrectionsResponse?> GetGuardianCorrectionsAsync()
+        {
+            try
+            {
+                Envelope<RecordCorrectionsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<RecordCorrectionsResponse>>("api/soccer/player/me/corrections");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>기록 수정 신청 취소(보호자) — 접수 상태만. 성공 여부만.</summary>
+        public async Task<CorrectionSaveResult> CancelGuardianCorrectionAsync(Guid correctionId)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.DeleteAsync($"api/soccer/player/me/corrections/{correctionId}");
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true }
+                    ? new CorrectionSaveResult(true, null)
+                    : new CorrectionSaveResult(false, "취소하지 못했어요.");
+            }
+            catch
+            {
+                return new CorrectionSaveResult(false, "취소하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+    }
+
+    // CorrectionSaveResult는 TeamClient.cs에 이미 정의돼 있어 재사용한다(같은 네임스페이스).
 
     /// <summary>AccessToken은 Player로 승격된 새 토큰 — null이면 기존 토큰 유지.</summary>
     public record PlayerSaveResult(bool Success, string? AccessToken, string? Error);

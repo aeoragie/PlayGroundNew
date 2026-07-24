@@ -2,6 +2,7 @@
    출전 기록 없으면 안내 카드 *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
@@ -70,10 +71,18 @@
                     <div class="flex items-center gap-2.5">
                         <span class="text-[13px] font-bold text-navy-deep flex-1 break-keep">@PlayerStatsSection.TitleLabel(match)</span>
                         <span class="text-xs font-extrabold text-navy-deep bg-surface-alt rounded-[7px] px-2.5 py-[3px] whitespace-nowrap">@StatLabel(match)</span>
+                        @if (!isFriendly)
+                        {
+                            <OverflowMenu Target="@($"vs {match.OpponentName}")"
+                                          Items="@BuildMatchMenu(match)" DisabledItems="@BuildMatchDisabled(match)" />
+                        }
                     </div>
                 </div>
             }
         </div>
+
+        @* 내 신청 목록 — 신청이 시작된 자리 바로 아래 *@
+        <CorrectionListSection Corrections="@Corrections" OnCancel="OnCancelCorrection" />
     }
 </div>
 
@@ -83,6 +92,28 @@
 
     [Parameter]
     public EventCallback<int> OnSeasonSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<PlayerMatchStatDto> OnRequestCorrection { get; set; }
+
+    [Parameter]
+    public HashSet<Guid> PendingCorrectionMatchIds { get; set; } = new();
+
+    [Parameter]
+    public List<RecordCorrectionDto> Corrections { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<RecordCorrectionDto> OnCancelCorrection { get; set; }
+
+    private List<OverflowMenu.MenuItem> BuildMatchMenu(PlayerMatchStatDto match) =>
+        PendingCorrectionMatchIds.Contains(match.MatchId)
+            ? new List<OverflowMenu.MenuItem>()
+            : new List<OverflowMenu.MenuItem> { new("기록 수정 신청", () => OnRequestCorrection.InvokeAsync(match)) };
+
+    private List<string> BuildMatchDisabled(PlayerMatchStatDto match) =>
+        PendingCorrectionMatchIds.Contains(match.MatchId)
+            ? new List<string> { "신청 처리 중" }
+            : new List<string>();
 
     // 집계는 공식만 — PC 섹션과 같은 규칙
     private List<PlayerMatchStatDto> OfficialMatches => PlayerStatsSection.OfficialOf(Stats.Matches);

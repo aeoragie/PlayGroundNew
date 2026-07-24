@@ -3,7 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Actor;
 using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Team;
 using PlayGround.Application.Player.Commands;
+using PlayGround.Application.Team.Commands;
 
 namespace PlayGround.Server.Actors
 {
@@ -26,6 +28,36 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerPlayerPortfolioMessage>(HandleGetPortfolioAsync);
             RegisterHandlerAsync<GetSoccerPlayerSeasonStatsMessage>(HandleGetSeasonStatsAsync);
             RegisterHandlerAsync<GetSoccerPlayerPublicProfileMessage>(HandleGetPublicProfileAsync);
+            RegisterHandlerAsync<CreateSoccerGuardianCorrectionMessage>(HandleCreateGuardianCorrectionAsync);
+            RegisterHandlerAsync<GetSoccerGuardianCorrectionsMessage>(HandleGetGuardianCorrectionsAsync);
+            RegisterHandlerAsync<CancelSoccerGuardianCorrectionMessage>(HandleCancelGuardianCorrectionAsync);
+        }
+
+        private async Task HandleCreateGuardianCorrectionAsync(CreateSoccerGuardianCorrectionMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerRecordCorrectionCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerRecordCorrectionCommand>();
+            Result<Guid> result = await useCase.ExecuteByGuardianAsync(message.UserId, message.TargetPlayerId, message.Data);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetGuardianCorrectionsAsync(GetSoccerGuardianCorrectionsMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerRecordCorrectionCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerRecordCorrectionCommand>();
+            Result<RecordCorrectionsResponse> result = await useCase.GetAsync(message.UserId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleCancelGuardianCorrectionAsync(CancelSoccerGuardianCorrectionMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerRecordCorrectionCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerRecordCorrectionCommand>();
+            Result<bool> result = await useCase.CancelAsync(message.UserId, message.CorrectionId);
+            sender.Tell(result);
         }
 
         private async Task HandleGetPublicProfileAsync(GetSoccerPlayerPublicProfileMessage message)

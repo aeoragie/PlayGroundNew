@@ -661,6 +661,42 @@ namespace PlayGround.Persistence.Repositories
             return Result<Guid?>.Success(row.CorrectionId);
         }
 
+        public async Task<Result<Guid?>> CreateGuardianCorrectionAsync(
+            Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Guardian record correction requested",
+                ("UserId", userId), ("TargetPlayerId", targetPlayerId), ("MatchId", request.MatchId), ("FieldType", request.FieldType));
+
+            var procedure = new UspCreateSoccerRecordCorrectionByGuardian(this)
+            {
+                UserId = userId,
+                TargetPlayerId = targetPlayerId,
+                MatchId = request.MatchId,
+                FieldType = request.FieldType,
+                CurrentValue = request.CurrentValue!,
+                RequestedValue = request.RequestedValue,
+                Description = request.Description!
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerCorrectionCreatedRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Guardian record correction create failed", ("ResultCode", queryResult.ResultCode));
+                return Result<Guid?>.Error(ErrorCode.DatabaseError);
+            }
+
+            var row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                // 내 자녀 아님 / 출전 기록 없음 / 친선 / 중복 — 프로시저가 사유를 구분하지 않는다
+                Logger.WarnWith("Guardian record correction rejected", ("UserId", userId), ("MatchId", request.MatchId));
+                return Result<Guid?>.Success(null);
+            }
+
+            Logger.InfoWith("Guardian record correction created", ("CorrectionId", row.CorrectionId));
+            return Result<Guid?>.Success(row.CorrectionId);
+        }
+
         public async Task<Result<PendingInvitesResponse>> GetPendingInvitesByManagerAsync(
             Guid managerUserId, CancellationToken cancellation = default)
         {
