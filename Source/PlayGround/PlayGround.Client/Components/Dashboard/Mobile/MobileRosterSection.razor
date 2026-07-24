@@ -29,12 +29,24 @@
         </div>
     </div>
 
+    @* 이름 검색 (SearchFilter — 부분 일치) *@
+    @if (Players.Count > 0)
+    {
+        <SearchBar @bind-Value="mSearch" Placeholder="선수 이름 검색" />
+    }
+
     @if (Players.Count == 0)
     {
         @* 빈 상태 Tier A (주 액션은 헤더 버튼 하나 유지 — 카드 안 CTA 없음) *@
         <EmptyState Kind="EmptyState.Art.Players" Title="아직 등록된 선수가 없어요">
             <Description>선수를 등록하면 공개 홈페이지 선수단에도 함께 표시돼요.</Description>
         </EmptyState>
+    }
+    else if (!VisiblePlayers.Any())
+    {
+        <EmptySlot Title="@($"'{mSearch.Trim()}'에 해당하는 선수가 없어요")">
+            <Icon><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></Icon>
+        </EmptySlot>
     }
     else if (mIsListView)
     {
@@ -126,6 +138,7 @@
 
     private SoccerAgeGroup? mAgeTab;
     private bool mIsListView = true;
+    private string mSearch = string.Empty;
 
     private bool mPhotoDialogOpen;
     private TeamRosterPlayerDto? mPhotoPlayer;
@@ -147,8 +160,23 @@
         .OrderBy(age => age)
         .ToList();
 
-    private IEnumerable<TeamRosterPlayerDto> VisiblePlayers =>
-        HasAgeTabs && mAgeTab is not null ? Players.Where(p => AgeOf(p) == mAgeTab) : Players;
+    private IEnumerable<TeamRosterPlayerDto> VisiblePlayers
+    {
+        get
+        {
+            IEnumerable<TeamRosterPlayerDto> list = HasAgeTabs && mAgeTab is not null
+                ? Players.Where(p => AgeOf(p) == mAgeTab)
+                : Players;
+
+            string q = mSearch.Trim();
+            if (q.Length > 0)
+            {
+                list = list.Where(p => p.Name.Contains(q, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return list;
+        }
+    }
 
     private bool HasUnclaimed => Players.Any(p => ClaimOf(p) == SoccerClaimStatus.Unclaimed);
 

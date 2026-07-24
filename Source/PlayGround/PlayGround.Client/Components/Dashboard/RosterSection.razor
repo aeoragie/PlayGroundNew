@@ -19,16 +19,23 @@
         </div>
     </div>
 
-    @* 연령 탭 *@
-    @if (HasAgeTabs)
+    @* 연령 탭 + 이름 검색 (SearchFilter — 부분 일치, 즉시 필터) *@
+    @if (Players.Count > 0)
     {
-        <div class="flex gap-2">
-            @foreach (SoccerAgeGroup age in AgeTabs)
+        <div class="flex flex-col md:flex-row md:items-center gap-2.5 md:gap-3">
+            @if (HasAgeTabs)
             {
-                SoccerAgeGroup tab = age;
-                <button type="button" class="@(mAgeTab == tab ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
-                        @onclick="() => mAgeTab = tab">@tab (@CountOf(tab))</button>
+                <div class="flex gap-2">
+                    @foreach (SoccerAgeGroup age in AgeTabs)
+                    {
+                        SoccerAgeGroup tab = age;
+                        <button type="button" class="@(mAgeTab == tab ? Css.Dashboard.FilterChipOn : Css.Dashboard.FilterChipOff)"
+                                @onclick="() => mAgeTab = tab">@tab (@CountOf(tab))</button>
+                    }
+                </div>
+                <div class="flex-1"></div>
             }
+            <SearchBar @bind-Value="mSearch" Placeholder="선수 이름 검색" Class="md:max-w-[240px]" />
         </div>
     }
 
@@ -38,6 +45,13 @@
         <EmptyState Kind="EmptyState.Art.Players" Title="아직 등록된 선수가 없어요">
             <Description>선수를 등록하면 공개 홈페이지 선수단에도 함께 표시돼요.</Description>
         </EmptyState>
+    }
+    else if (!VisiblePlayers.Any())
+    {
+        @* 검색·연령 필터 결과 없음 (선수는 있지만 조건에 맞는 게 없음) *@
+        <EmptySlot Title="@($"'{mSearch.Trim()}'에 해당하는 선수가 없어요")">
+            <Icon><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></Icon>
+        </EmptySlot>
     }
     else if (mIsListView)
     {
@@ -141,6 +155,7 @@
 
     private SoccerAgeGroup? mAgeTab;
     private bool mIsListView = true;
+    private string mSearch = string.Empty;
 
     // 연령 탭은 전원이 AgeGroup을 가질 때만 (혼합·전부 null이면 탭 없이 전체 표시)
     private bool HasAgeTabs => Players.Count > 0 && Players.All(p => AgeOf(p) is not null);
@@ -153,8 +168,24 @@
         .OrderBy(age => age)
         .ToList();
 
-    private IEnumerable<TeamRosterPlayerDto> VisiblePlayers =>
-        HasAgeTabs && mAgeTab is not null ? Players.Where(p => AgeOf(p) == mAgeTab) : Players;
+    private IEnumerable<TeamRosterPlayerDto> VisiblePlayers
+    {
+        get
+        {
+            IEnumerable<TeamRosterPlayerDto> list = HasAgeTabs && mAgeTab is not null
+                ? Players.Where(p => AgeOf(p) == mAgeTab)
+                : Players;
+
+            // 이름 부분 일치 (공백 무시·대소문자 무시) — 필터링은 호출부 책임(SearchBar는 값만 준다)
+            string q = mSearch.Trim();
+            if (q.Length > 0)
+            {
+                list = list.Where(p => p.Name.Contains(q, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return list;
+        }
+    }
 
     private bool HasUnclaimed => Players.Any(p => ClaimOf(p) == SoccerClaimStatus.Unclaimed);
 
