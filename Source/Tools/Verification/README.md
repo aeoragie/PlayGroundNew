@@ -53,6 +53,8 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `shot-accountmenu.js` | 계정 메뉴 공용(§1) — 헤더·허브·설정·로그아웃 · Esc/바깥클릭 닫힘 · 전 화면 공통 |
 | `api-claimprofile.js` | 코드 없는 연결 — 슬러그 카드·요청·알림·승인→직접 연결(InviteId NULL)·멱등 |
 | `shot-claimprofile.js` | 코드 없는 연결 UI — ① 경기기록 링크·공개 프로필 CTA→슬러그 진입 ②→요청→대기 |
+| `api-onboarding-dedup.js` | 온보딩 중복 방지 — 팀 있는 관리자 재요청 시 기존 반환·2번째 미생성 |
+| `shot-onboarding-dedup.js` | 온보딩 중복 방지 UI — 팀 보유 시 /onboarding/team 벗어남·폼 미표시 |
 | `sql-guardiancorrection-cleanup.sql` | 보호자 검증 신청 물리 삭제 (스크립트는 소프트 삭제만 남긴다) |
 | `api-settings.js` | 설정 API — 이메일 마스킹 · 알림 기본값 병합 · **승인형 저장 거부**(enum 화이트리스트) · 계정 소프트 삭제(임시 계정 — 끝나면 SQL로 물리 삭제) |
 | `shot-settings.js` | 설정 3탭 URL 동기화 · 삭제 모달 문구 입력 잠금 · "항상 켜짐" 뱃지 · **스위치 실패 롤백**(PUT abort → 낙관 반영 → 롤백+오류 토스트) · 모바일 세그먼트 탭. playwright-core 필요 |

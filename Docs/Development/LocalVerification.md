@@ -54,6 +54,8 @@
 > **추가 반영(ClaimFlow 코드 없는 연결, 2026-07-21)**: `SoccerPlayerClaimRequests.InviteId` NULL 마이그레이션 +
 > `UspGetSoccerClaimCardBySlug`·`UspCreateSoccerPlayerClaimRequestByPlayer` 신규 + `UspReviewSoccerPlayerClaimRequest`·
 > `UspGetSoccerPlayerPublicProfileBySlug` 재배포까지 로컬 반영됨.
+>
+> **추가 반영(온보딩 중복 방지, 2026-07-21)**: `UspCreateSoccerTeamWithRoster` 재배포(관리자 기존 팀 확인 → 멱등 반환)까지 로컬 반영됨.
 
 ## 재구축 절차 (새 PC · DB 재생성 후)
 

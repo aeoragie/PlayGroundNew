@@ -10,6 +10,12 @@
 <PageTitle>팀 온보딩 — PlayGround</PageTitle>
 
 @* ③b 팀 온보딩 (2스텝) *@
+@if (mChecking)
+{
+    <div class="w-[560px] max-w-full flex items-center justify-center py-24 text-text-muted text-sm">확인 중…</div>
+}
+else
+{
 <div class="w-[560px] max-w-full flex flex-col gap-5">
     <div class="flex flex-col gap-3">
         <h1 class="m-0 text-[23px] font-extrabold tracking-[-.02em] text-navy-deep">@StepTitle</h1>
@@ -94,12 +100,36 @@
         <button type="button" @onclick="Submit" disabled="@mSaving" class="@($"{Css.Auth.TextLink} !text-[13px]")">나중에 등록할게요</button>
     }
 </div>
+}
 
 @code {
     private static readonly string[] TeamTypes = ["클럽", "학교", "학원"];
 
+    private bool mChecking = true;
     private int mStep = 1;
     private string mTeamType = "클럽";
+
+    // 온보딩 중복 방지 — 이미 팀이 있는 계정이 재진입하면 폼을 보여주지 않고 대시보드로.
+    // (서버 프로시저도 멱등이라 최종 방어는 이중이다: 화면 가드 + 생성 프로시저 기존 반환.)
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo(Routes.LoginWithReturn(Routes.TeamOnboarding), replace: true);
+            return;
+        }
+
+        TeamInfoResponse? existing = await Teams.GetTeamInfoAsync();
+        if (existing is not null)
+        {
+            Nav.NavigateTo(Routes.Dashboard, replace: true);
+            return;
+        }
+
+        mChecking = false;
+    }
+
     private string mTeamName = string.Empty;
     private string mRegion = string.Empty;
     private string mName = string.Empty;

@@ -15,6 +15,21 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 온보딩 중복 방지: 이 관리자에게 이미 팀이 있으면 새로 만들지 않고 그 팀을 반환한다.
+    -- (모든 팀 프로시저가 관리자당 1팀을 전제하므로 2번째 팀은 고아가 된다 — 재진입·재제출 대비 멱등.)
+    DECLARE @ExistingTeamId UNIQUEIDENTIFIER = (
+        SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WITH (NOLOCK)
+        WHERE [ManagerUserId] = @ManagerUserId AND [DeletedAt] IS NULL
+        ORDER BY [CreatedAt]);
+
+    IF @ExistingTeamId IS NOT NULL
+    BEGIN
+        SELECT t.[TeamId], t.[Slug]
+        FROM [dbo].[SoccerTeams] t WITH (NOLOCK)
+        WHERE t.[TeamId] = @ExistingTeamId;
+        RETURN;
+    END
+
     DECLARE @TeamId UNIQUEIDENTIFIER = NEWID();
 
     BEGIN TRY

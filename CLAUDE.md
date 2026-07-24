@@ -588,6 +588,21 @@
   보호자가 별도 온보딩 프로필을 만들어 뒀다면 중복이 남을 수 있다(드문 경우, 문서화). "프로필 직접
   만들기"(소속팀 없음)는 기존대로 온보딩으로.
 
+### 온보딩 중복 방지 완료 (2026-07-21, Phase D 잔여)
+
+- **팀 온보딩에 가드가 없어 재진입 시 2번째 팀이 생겼다** — 모든 팀 프로시저가 관리자당 1팀을 전제하므로
+  2번째 팀은 고아가 된다(실버그). 이중 방어로 막았다: ① 화면 가드(TeamOnboardingPage `OnInitializedAsync`
+  — 이미 팀이 있으면 폼 없이 `/dashboard`로, `mChecking`으로 폼 플래시 방지) ② **생성 프로시저 멱등화**
+  (`UspCreateSoccerTeamWithRoster` 최상단에서 관리자 기존 팀 확인 → 있으면 그 팀을 반환하고 RETURN,
+  새로 만들지 않는다). 화면 가드를 우회하는 재제출·네트워크 재시도까지 서버가 막는다.
+- **선수 온보딩은 막지 않았다** — 보호자는 자녀를 여러 명 등록할 수 있어 복수 프로필이 정상이다
+  (온보딩 재실행 = 자녀 추가). 흔한 더블클릭은 기존 `mSaving` 비활성으로 이미 방지된다. 자연스러운
+  멱등 키가 없어(같은 이름 자녀 둘도 가능) 서버 강제는 두지 않았다.
+- 검증(`api-onboarding-dedup.js` 4 + `shot-onboarding-dedup.js` 2 전부 PASS): 팀 있는 관리자가 다른
+  이름으로 생성 재요청 → **기존 팀(검증fc) 반환·팀 수 1 유지·새 이름 팀 미생성** / UI `/onboarding/team`
+  진입 시 폼 없이 `/dashboard/team`로. 데이터 무변경(멱등이라 생성 자체가 없음).
+- **Phase D 완전 종료** — AvatarBadge · AccountMenu · 온보딩 중복 방지 모두 완료.
+
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
 > 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).
@@ -618,7 +633,7 @@
    온보딩 스텝 표시 교체**는 미착수(스텝퍼 절만 소비됨). 그 외 잔여 전수는
    `Docs/Development/HandoffAudit.md` — 다음 후보: TooltipHelp ⓘ 4곳 · 허브 Pending 자녀 ·
    로스터 쓰기(선수 등록·삭제) · 일정 스키마.
-6. **Phase D — 잔여 패턴**: ~~AvatarBadge 일괄 교체~~ 완료(위). 남은 잔여: 온보딩 중복 방지 ·
+6. **Phase D — 잔여 패턴**: ~~AvatarBadge 일괄 교체~~ 완료(위). 남은 잔여: ~~온보딩 중복 방지~~ 완료 ·
    계정 메뉴(DropdownMenu §1) 추출(PublicGnb 인라인 유지 중 — 아바타는 교체됨).
 
 ### Phase C — 팀 탐색 완료 (2026-07-21, Design.TeamExplore + Design.SearchFilter)
