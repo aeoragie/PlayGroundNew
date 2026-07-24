@@ -52,6 +52,43 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>공개 선수 프로필 경유(코드 없음): 슬러그로 미연결 선수 카드 조회.</summary>
+        public async Task<ClaimLookupResult> LookupBySlugAsync(string slug)
+        {
+            try
+            {
+                Envelope<ClaimInviteCardResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<ClaimInviteCardResponse>>(
+                        $"api/soccer/claim/card?slug={Uri.EscapeDataString(slug)}");
+                return envelope is { IsSuccess: true, Data: not null }
+                    ? new ClaimLookupResult(envelope.Data, false)
+                    : new ClaimLookupResult(null, false);
+            }
+            catch
+            {
+                return new ClaimLookupResult(null, true);
+            }
+        }
+
+        /// <summary>공개 선수 프로필 경유(코드 없음): PlayerId로 연결 요청 생성.</summary>
+        public async Task<ClaimCreateResult> CreateRequestByPlayerAsync(Guid playerId, string relation)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync(
+                    "api/soccer/claim/me/requests/by-player", new CreateClaimByPlayerRequest { PlayerId = playerId, Relation = relation });
+                Envelope<ClaimRequestSummaryResponse>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<ClaimRequestSummaryResponse>>();
+                return envelope is { IsSuccess: true, Data: not null }
+                    ? new ClaimCreateResult(envelope.Data, false)
+                    : new ClaimCreateResult(null, false);
+            }
+            catch
+            {
+                return new ClaimCreateResult(null, true);
+            }
+        }
+
         /// <summary>재방문 복원 — 내 최신 요청. 없거나 실패면 null.</summary>
         public async Task<ClaimRequestSummaryResponse?> GetMyRequestAsync()
         {

@@ -41,6 +41,8 @@ public class SoccerPlayerPublicHeaderRecord
 	[Required]
 	public bool IsGuardianManaged { get; set; } = false;
 
+	public Guid? UserId { get; set; } = null;
+
 	[StringLength(10)]
 	public string JerseyNumber { get; set; } = String.Empty;
 

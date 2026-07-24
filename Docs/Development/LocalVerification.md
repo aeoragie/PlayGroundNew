@@ -50,6 +50,10 @@
 > IsRecruiting) 멱등 적용 → **프로시저 60종 전량 DROP+CREATE로 소스 버전 재배포**(STALE였던 로스터
 > 조회 Slug 포함) → 스모크 테스트(모집·리뷰·진학진로·알림·허브·공개홈 전부 정상). 이후로는 이 기준
 > 커밋 이하 DB 산출물이 전부 반영돼 있으니, 새 산출물만 위 "적용 순서"대로 얹으면 된다.
+>
+> **추가 반영(ClaimFlow 코드 없는 연결, 2026-07-21)**: `SoccerPlayerClaimRequests.InviteId` NULL 마이그레이션 +
+> `UspGetSoccerClaimCardBySlug`·`UspCreateSoccerPlayerClaimRequestByPlayer` 신규 + `UspReviewSoccerPlayerClaimRequest`·
+> `UspGetSoccerPlayerPublicProfileBySlug` 재배포까지 로컬 반영됨.
 
 ## 재구축 절차 (새 PC · DB 재생성 후)
 

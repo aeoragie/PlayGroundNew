@@ -18,6 +18,8 @@ namespace PlayGround.Server.Actors
         {
             RegisterHandlerAsync<GetClaimInviteCardMessage>(HandleLookupAsync);
             RegisterHandlerAsync<CreateClaimRequestMessage>(HandleCreateAsync);
+            RegisterHandlerAsync<GetClaimCardBySlugMessage>(HandleLookupBySlugAsync);
+            RegisterHandlerAsync<CreateClaimByPlayerMessage>(HandleCreateByPlayerAsync);
             RegisterHandlerAsync<GetOwnClaimRequestMessage>(HandleGetOwnAsync);
             RegisterHandlerAsync<ReviewClaimRequestMessage>(HandleReviewAsync);
             RegisterHandlerAsync<GetNotificationsMessage>(HandleGetNotificationsAsync);
@@ -60,6 +62,25 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerClaimFlowCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerClaimFlowCommand>();
             Result<ClaimInviteCardResponse> result = await useCase.LookupAsync(message.Code);
+            sender.Tell(result);
+        }
+
+        private async Task HandleLookupBySlugAsync(GetClaimCardBySlugMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerClaimFlowCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerClaimFlowCommand>();
+            Result<ClaimInviteCardResponse> result = await useCase.LookupBySlugAsync(message.Slug);
+            sender.Tell(result);
+        }
+
+        private async Task HandleCreateByPlayerAsync(CreateClaimByPlayerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerClaimFlowCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerClaimFlowCommand>();
+            Result<ClaimRequestSummaryResponse> result =
+                await useCase.CreateByPlayerAsync(message.UserId, message.RequesterName, message.Data.PlayerId, message.Data.Relation);
             sender.Tell(result);
         }
 

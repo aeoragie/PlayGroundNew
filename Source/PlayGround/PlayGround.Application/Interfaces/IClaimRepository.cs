@@ -13,6 +13,12 @@ namespace PlayGround.Application.Interfaces
         /// <summary>스텝 ②→③: 연결 요청 생성 + 팀 관리자 알림 (멱등 — 기존 Pending이 있으면 그대로 반환).</summary>
         Task<Result<ClaimRequestSummaryResponse?>> CreateRequestAsync(Guid userId, string requesterName, string code, string relation, CancellationToken cancellation = default);
 
+        /// <summary>공개 선수 프로필 경유(코드 없음): 슬러그로 조회한 미연결 선수 카드. 없으면 Success(null).</summary>
+        Task<Result<ClaimInviteCardResponse?>> GetClaimCardBySlugAsync(string slug, CancellationToken cancellation = default);
+
+        /// <summary>공개 선수 프로필 경유(코드 없음): PlayerId로 연결 요청 생성 + 알림. InviteId는 NULL, 승인 시 직접 연결.</summary>
+        Task<Result<ClaimRequestSummaryResponse?>> CreateRequestByPlayerAsync(Guid userId, string requesterName, Guid playerId, string relation, CancellationToken cancellation = default);
+
         /// <summary>재방문 복원 — 내 최신 요청 1건. 없으면 Success(null).</summary>
         Task<Result<ClaimRequestSummaryResponse?>> GetOwnRequestAsync(Guid userId, CancellationToken cancellation = default);
 

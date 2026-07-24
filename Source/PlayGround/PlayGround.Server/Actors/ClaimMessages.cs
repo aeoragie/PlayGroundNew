@@ -16,6 +16,18 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
+    /// <summary>공개 선수 프로필 경유(코드 없음) — 슬러그로 미연결 선수 카드 조회.</summary>
+    public sealed record GetClaimCardBySlugMessage(Guid UserId, string Slug) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>공개 선수 프로필 경유(코드 없음) — PlayerId로 연결 요청 생성.</summary>
+    public sealed record CreateClaimByPlayerMessage(Guid UserId, string RequesterName, CreateClaimByPlayerRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>내 연결 요청 조회 메시지 (재방문 복원 — 같은 사용자 쓰기와 순차).</summary>
     public sealed record GetOwnClaimRequestMessage(Guid UserId) : IConsistentHashable
     {

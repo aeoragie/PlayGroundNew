@@ -115,7 +115,13 @@ else if (mData is not null)
                 </div>
                 @* CTA — PC만 히어로 우측 (모바일은 하단 고정 바). 권한 뷰는 보호자 연락으로 교체 *@
                 <div class="hidden md:flex flex-col gap-[9px] justify-center">
-                    @if (mData.Grant is not null)
+                    @* 미연결 선수 + 로그인 열람자 = 보호자 경로: 코드 없이 연결 요청(팀 승인 필수) *@
+                    @if (CanClaim)
+                    {
+                        <a href="@ClaimHref" class="@Css.PlayerPublic.RequestButton">내 아이 프로필 관리하기</a>
+                        <span class="@Css.PlayerPublic.RequestCaption">팀 관리자 승인 후 연결돼요</span>
+                    }
+                    else if (mData.Grant is not null)
                     {
                         <button type="button" class="@Css.PlayerPublic.RequestButton">보호자에게 연락하기</button>
                         <span class="@Css.PlayerPublic.RequestCaption">연락은 플랫폼 내 메시지로 시작됩니다</span>
@@ -303,6 +309,13 @@ else if (mData is not null)
 
     private PlayerPublicProfileResponse? mData;
     private bool mLoaded;
+    private bool mViewerLoggedIn;
+
+    // 미연결 선수 + 로그인 열람자 → 코드 없이 "내 아이 프로필 관리하기"로 연결 요청 가능
+    private bool CanClaim => mData?.Profile.IsClaimable == true && mViewerLoggedIn;
+
+    // /claim으로 슬러그를 넘겨 스텝 ②(프로필 확인)로 직행 (Design.ClaimFlow — Records 경유 연결)
+    private string ClaimHref => $"{Routes.Claim}?slug={Uri.EscapeDataString(Slug)}";
 
     // 팀 실드 아이콘 (히어로 소속팀 줄)
     private static readonly RenderFragment TeamShieldIcon = builder =>
@@ -314,7 +327,8 @@ else if (mData is not null)
     protected override async Task OnInitializedAsync()
     {
         // 게스트 허용 화면이지만 로그인 상태면 인증을 먼저 확정 — GNB 벨·아바타 헤더 레이스 방지
-        await AuthProvider.GetAuthenticationStateAsync();
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        mViewerLoggedIn = state.User.Identity is { IsAuthenticated: true };
 
         mData = await Players.GetPublicProfileAsync(Slug, DateTime.Now.Year);
         mLoaded = true;

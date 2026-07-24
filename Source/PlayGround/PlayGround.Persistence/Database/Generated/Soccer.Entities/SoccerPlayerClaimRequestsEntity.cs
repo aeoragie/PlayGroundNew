@@ -18,8 +18,7 @@ public class SoccerPlayerClaimRequestsEntity
 	[Required]
 	public Guid RequestId { get; set; } = Guid.Empty;
 
-	[Required]
-	public Guid InviteId { get; set; } = Guid.Empty;
+	public Guid? InviteId { get; set; } = null;
 
 	[Required]
 	public Guid PlayerId { get; set; } = Guid.Empty;

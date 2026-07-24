@@ -278,6 +278,9 @@ namespace PlayGround.Contracts.Player
         /// <summary>팀 공개홈 링크 — 팀 홈이 비공개면 null (링크를 걸지 않는다).</summary>
         public string? TeamSlug { get; set; }
         public bool TeamIsVerified { get; set; }
+
+        /// <summary>미연결(UserId 없음) 선수 — 보호자가 코드 없이 "내 아이 프로필 관리하기"로 연결 요청할 수 있다.</summary>
+        public bool IsClaimable { get; set; }
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
         public string? PreferredFoot { get; set; }

@@ -21,6 +21,13 @@ namespace PlayGround.Contracts.Claim
         public string Relation { get; set; } = string.Empty;
     }
 
+    /// <summary>공개 선수 프로필 경유(코드 없음) 연결 요청 생성. 선수는 슬러그로 조회한 카드의 PlayerId.</summary>
+    public class CreateClaimByPlayerRequest
+    {
+        public Guid PlayerId { get; set; }
+        public string Relation { get; set; } = string.Empty;
+    }
+
     /// <summary>허브 "내 자녀"의 승인 대기 자녀 — 아직 연결되지 않은 내 Pending 요청 (Design.DashboardHub).</summary>
     public class PendingChildClaimDto
     {

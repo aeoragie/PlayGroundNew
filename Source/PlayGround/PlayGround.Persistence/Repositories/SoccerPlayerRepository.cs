@@ -543,6 +543,8 @@ namespace PlayGround.Persistence.Repositories
                     TeamName = NullIfEmpty(header.TeamName),
                     TeamSlug = NullIfEmpty(header.Slug),
                     TeamIsVerified = header.IsVerified,
+                    // 미연결(소유자 없음) = 보호자가 코드 없이 연결 요청할 수 있다
+                    IsClaimable = header.UserId is null,
                     HeightCm = IsPublic(SoccerPlayerProfileField.Height) ? header.HeightCm : null,
                     WeightKg = IsPublic(SoccerPlayerProfileField.Weight) ? header.WeightKg : null,
                     PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? NullIfEmpty(header.PreferredFoot) : null,

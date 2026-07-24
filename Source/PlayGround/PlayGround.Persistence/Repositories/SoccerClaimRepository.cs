@@ -48,6 +48,57 @@ namespace PlayGround.Persistence.Repositories
             });
         }
 
+        public async Task<Result<ClaimInviteCardResponse?>> GetClaimCardBySlugAsync(string slug, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Claim card by slug requested");
+
+            var procedure = new UspGetSoccerClaimCardBySlug(this) { Slug = slug };
+            var queryResult = await procedure.QueryAsync<SoccerClaimInviteCardRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<ClaimInviteCardResponse?>.Error(ErrorCode.DatabaseError, "GetClaimCardBySlug");
+            }
+
+            SoccerClaimInviteCardRecord? row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                return Result<ClaimInviteCardResponse?>.Success(null);
+            }
+
+            return Result<ClaimInviteCardResponse?>.Success(new ClaimInviteCardResponse
+            {
+                PlayerId = row.PlayerId,
+                Name = row.Name,
+                Position = NullIfEmpty(row.Position),
+                JerseyNumber = NullIfEmpty(row.JerseyNumber),
+                BirthYear = row.BirthDate?.Year,
+                AgeGroup = NullIfEmpty(row.AgeGroup),
+                TeamName = row.TeamName
+            });
+        }
+
+        public async Task<Result<ClaimRequestSummaryResponse?>> CreateRequestByPlayerAsync(
+            Guid userId, string requesterName, Guid playerId, string relation, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Claim request by player requested", ("UserId", userId), ("PlayerId", playerId), ("Relation", relation));
+
+            var procedure = new UspCreateSoccerPlayerClaimRequestByPlayer(this)
+            {
+                UserId = userId,
+                RequesterName = requesterName,
+                PlayerId = playerId,
+                Relation = relation
+            };
+            var queryResult = await procedure.QueryAsync<SoccerClaimRequestOwnRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<ClaimRequestSummaryResponse?>.Error(ErrorCode.DatabaseError, "CreateClaimRequestByPlayer");
+            }
+
+            SoccerClaimRequestOwnRecord? row = queryResult.Values1.FirstOrDefault();
+            return Result<ClaimRequestSummaryResponse?>.Success(row is null ? null : Map(row));
+        }
+
         public async Task<Result<ClaimRequestSummaryResponse?>> CreateRequestAsync(
             Guid userId, string requesterName, string code, string relation, CancellationToken cancellation = default)
         {

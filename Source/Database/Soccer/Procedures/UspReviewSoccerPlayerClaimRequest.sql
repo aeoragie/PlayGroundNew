@@ -32,16 +32,33 @@ BEGIN
 
             IF @Approve = 1
             BEGIN
-                -- 기존 연결 프로시저 재사용 — 결과셋은 임시 테이블로 흡수 (빈 결과 = 연결 실패)
-                DECLARE @Code VARCHAR(12) = (SELECT [Code] FROM [dbo].[SoccerPlayerInvites] WHERE [InviteId] = @InviteId);
-                DECLARE @Linked TABLE ([PlayerId] UNIQUEIDENTIFIER, [Name] VARCHAR(300), [TeamName] VARCHAR(300));
+                DECLARE @LinkOk BIT = 0;
 
-                INSERT INTO @Linked
-                EXEC [dbo].[UspClaimSoccerPlayerInvite] @UserId = @RequesterUserId, @Code = @Code;
-
-                IF NOT EXISTS (SELECT 1 FROM @Linked)
+                IF @InviteId IS NOT NULL
                 BEGIN
-                    -- 그사이 코드가 소진됐거나 선수가 다른 계정에 연결됨 — 전체 롤백, 요청은 Pending 유지
+                    -- 코드 요청: 기존 연결 프로시저 재사용(선수 연결·코드 소진·온보딩 병합의 단일 진실)
+                    DECLARE @Code VARCHAR(12) = (SELECT [Code] FROM [dbo].[SoccerPlayerInvites] WHERE [InviteId] = @InviteId);
+                    DECLARE @Linked TABLE ([PlayerId] UNIQUEIDENTIFIER, [Name] VARCHAR(300), [TeamName] VARCHAR(300));
+
+                    INSERT INTO @Linked
+                    EXEC [dbo].[UspClaimSoccerPlayerInvite] @UserId = @RequesterUserId, @Code = @Code;
+
+                    IF EXISTS (SELECT 1 FROM @Linked) SET @LinkOk = 1;
+                END
+                ELSE
+                BEGIN
+                    -- 프로필 경유 요청(코드 없음): 코드 소진 없이 직접 연결. 여전히 미연결일 때만.
+                    -- (온보딩 임시 프로필 병합은 코드 경로에만 있다 — 프로필 경유는 팀 등록 선수를 바로 잡는다.)
+                    UPDATE [dbo].[SoccerPlayers]
+                    SET [UserId] = @RequesterUserId, [IsGuardianManaged] = 1, [UpdatedAt] = GETUTCDATE()
+                    WHERE [PlayerId] = @PlayerId AND [UserId] IS NULL AND [DeletedAt] IS NULL;
+
+                    IF @@ROWCOUNT = 1 SET @LinkOk = 1;
+                END
+
+                IF @LinkOk = 0
+                BEGIN
+                    -- 그사이 선수가 다른 계정에 연결됨(또는 코드 소진) — 전체 롤백, 요청은 Pending 유지
                     ROLLBACK TRANSACTION;
                     SELECT r.[RequestId], r.[Status], p.[Name]
                     FROM [dbo].[SoccerPlayerClaimRequests] r WITH (NOLOCK)

@@ -78,6 +78,61 @@ namespace PlayGround.Application.Claim.Commands
             return Result<ClaimRequestSummaryResponse>.Success(created.Value);
         }
 
+        /// <summary>공개 선수 프로필 경유(코드 없음): 슬러그로 미연결 선수 카드 조회.</summary>
+        public async Task<Result<ClaimInviteCardResponse>> LookupBySlugAsync(string slug, CancellationToken cancellation = default)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                return Result<ClaimInviteCardResponse>.Error(ErrorCode.InvalidInput, "slug is required");
+            }
+
+            Result<ClaimInviteCardResponse?> card = await mRepository.GetClaimCardBySlugAsync(slug.Trim(), cancellation);
+            if (card.IsError)
+            {
+                return Result<ClaimInviteCardResponse>.Failure(card.ResultData);
+            }
+
+            if (card.Value is null)
+            {
+                // 미연결 선수가 아니거나(이미 연결됨) 없음 — 사유 구분 없이 NotFound
+                return Result<ClaimInviteCardResponse>.Error(ErrorCode.NotFound, "player not claimable");
+            }
+
+            return Result<ClaimInviteCardResponse>.Success(card.Value);
+        }
+
+        /// <summary>공개 선수 프로필 경유(코드 없음): PlayerId + 관계로 연결 요청 생성.</summary>
+        public async Task<Result<ClaimRequestSummaryResponse>> CreateByPlayerAsync(
+            Guid userId, string requesterName, Guid playerId, string relationText, CancellationToken cancellation = default)
+        {
+            if (userId == Guid.Empty || playerId == Guid.Empty)
+            {
+                return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.Unauthorized, "userId/playerId required");
+            }
+
+            if (string.IsNullOrWhiteSpace(relationText)
+                || char.IsAsciiDigit(relationText[0])
+                || !Enum.TryParse(relationText, out SoccerClaimRelation relation))
+            {
+                return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.InvalidInput, "unknown relation");
+            }
+
+            string name = string.IsNullOrWhiteSpace(requesterName) ? "보호자" : requesterName.Trim();
+            Result<ClaimRequestSummaryResponse?> created =
+                await mRepository.CreateRequestByPlayerAsync(userId, name, playerId, relation.ToString(), cancellation);
+            if (created.IsError)
+            {
+                return Result<ClaimRequestSummaryResponse>.Failure(created.ResultData);
+            }
+
+            if (created.Value is null)
+            {
+                return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.NotFound, "player not claimable");
+            }
+
+            return Result<ClaimRequestSummaryResponse>.Success(created.Value);
+        }
+
         /// <summary>재방문 복원 — 요청이 없으면 NotFound (클라이언트는 스텝 ①부터).</summary>
         public async Task<Result<ClaimRequestSummaryResponse>> GetMineAsync(Guid userId, CancellationToken cancellation = default)
         {

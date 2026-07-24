@@ -4,7 +4,7 @@
 CREATE TABLE [dbo].[SoccerPlayerClaimRequests]
 (
     [RequestId]         UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    [InviteId]          UNIQUEIDENTIFIER NOT NULL,          -- SoccerPlayerInvites.InviteId (사용 코드)
+    [InviteId]          UNIQUEIDENTIFIER NULL,              -- SoccerPlayerInvites.InviteId (코드 요청). 프로필 경유 요청은 NULL
     [PlayerId]          UNIQUEIDENTIFIER NOT NULL,          -- SoccerPlayers.PlayerId (앱 계층 참조)
     [TeamId]            UNIQUEIDENTIFIER NOT NULL,          -- SoccerTeams.TeamId (앱 계층 참조)
     [RequesterUserId]   UNIQUEIDENTIFIER NOT NULL,          -- Account.Users.UserId (앱 계층 참조)

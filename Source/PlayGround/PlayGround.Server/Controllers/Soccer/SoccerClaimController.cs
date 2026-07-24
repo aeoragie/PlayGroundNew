@@ -58,6 +58,38 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>공개 선수 프로필 경유(코드 없음) — 슬러그로 미연결 선수 카드 조회.</summary>
+        [HttpGet("card")]
+        public async Task<Envelope<ClaimInviteCardResponse>> LookupBySlugAsync([FromQuery] string slug, CancellationToken cancellation)
+        {
+            Guid userId = CurrentUserId;
+            if (userId == Guid.Empty)
+            {
+                return Result<ClaimInviteCardResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<ClaimInviteCardResponse> result = await mGateway.AskAsync<ClaimInviteCardResponse>(
+                ActorNames.SoccerClaim, new GetClaimCardBySlugMessage(userId, slug ?? string.Empty), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>공개 선수 프로필 경유(코드 없음) — PlayerId로 연결 요청 생성.</summary>
+        [HttpPost("me/requests/by-player")]
+        public async Task<Envelope<ClaimRequestSummaryResponse>> CreateByPlayerAsync(
+            [FromBody] CreateClaimByPlayerRequest request, CancellationToken cancellation)
+        {
+            Guid userId = CurrentUserId;
+            if (userId == Guid.Empty)
+            {
+                return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            string requesterName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? string.Empty;
+            Result<ClaimRequestSummaryResponse> result = await mGateway.AskAsync<ClaimRequestSummaryResponse>(
+                ActorNames.SoccerClaim, new CreateClaimByPlayerMessage(userId, requesterName, request), cancellation);
+            return result.ToEnvelope();
+        }
+
         /// <summary>재방문 복원 — 내 최신 요청 (없으면 NotFound → 스텝 ①).</summary>
         [HttpGet("me/request")]
         public async Task<Envelope<ClaimRequestSummaryResponse>> GetMineAsync(CancellationToken cancellation)

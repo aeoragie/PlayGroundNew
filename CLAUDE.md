@@ -564,6 +564,30 @@
 - **Phase D 완료** — AvatarBadge 일괄 교체 + AccountMenu 추출 둘 다 끝. 잔여 패턴 0(온보딩 중복 방지는
   별개 후속).
 
+### ClaimFlow "코드가 없어요" → 공개 선수 프로필 경유 연결 완료 (2026-07-21, Design.ClaimFlow)
+
+- **코드 없이 연결하는 경로.** 지금까지 Claim은 초대코드가 있어야 했는데, 팀이 등록한 공개 선수
+  프로필을 보호자가 코드 없이 연결 요청 → 팀 승인 → 직접 연결. 공개 선수 프로필이 생겨 착수 가능해진 것.
+- **크럭스는 승인 경로다.** 기존 승인은 `UspClaimSoccerPlayerInvite @Code`로 코드를 소진하며 연결한다.
+  코드 없는 요청은 소진할 코드가 없으므로, review 프로시저에 **InviteId NULL 분기**를 넣어 코드 소진
+  없이 직접 연결(`UPDATE SoccerPlayers SET UserId=@Requester WHERE UserId IS NULL` — 여전히 미연결일
+  때만, 아니면 롤백). `SoccerPlayerClaimRequests.InviteId`를 **NULL 허용으로 마이그레이션**(코드 요청은
+  채우고 프로필 경유는 NULL).
+- **새 프로시저 2종**: `UspGetSoccerClaimCardBySlug`(슬러그로 미연결 선수 카드 — 코드 조회와 같은 모양,
+  @entity 마커 없이 `SoccerClaimInviteCardRecord` 재사용) · `UspCreateSoccerPlayerClaimRequestByPlayer`
+  (PlayerId로 요청 + 팀 알림, InviteId NULL, 멱등, SubText "프로필 경유 요청"). 조회·취소·복원은 기존
+  코드 경로 재사용. 공개 프로필 프로시저에 `UserId`를 실어 **IsClaimable**(UserId NULL) 파생.
+- UI 3곳: ① `/claim` "코드가 없어요"에 **경기기록 경유 링크**("프로필에서 바로 연결 요청" → /records)
+  ② `/claim?slug=`로 진입하면 코드 스텝을 건너뛰고 **슬러그로 카드 조회 → 스텝 ②(프로필 확인)** 직행,
+  제출은 `mIsCodeless`면 PlayerId 경로 ③ 공개 선수 프로필에 **"내 아이 프로필 관리하기"** CTA(미연결
+  선수 + 로그인 열람자만) → `/claim?slug=`.
+- 검증(`api-claimprofile.js` 8 + `shot-claimprofile.js` 7 전부 PASS): 슬러그 카드·코드 없는 요청·멱등·
+  관리자 알림 도착·승인 → **선수가 보호자에 직접 연결(InviteId NULL·가족 연결 생성)** / UI 경기기록
+  링크·공개 프로필 CTA→슬러그 진입 ②→요청→대기. 검증 데이터 전량 원복(선수 미연결 복원 포함).
+- **미해결**: 온보딩 임시 프로필 병합은 코드 경로에만 있다 — 프로필 경유는 팀 등록 선수를 바로 잡으므로
+  보호자가 별도 온보딩 프로필을 만들어 뒀다면 중복이 남을 수 있다(드문 경우, 문서화). "프로필 직접
+  만들기"(소속팀 없음)는 기존대로 온보딩으로.
+
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
 > 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).
