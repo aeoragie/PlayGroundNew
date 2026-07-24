@@ -22,6 +22,9 @@ namespace PlayGround.Application.Interfaces
         /// <summary>재방문 복원 — 내 최신 요청 1건. 없으면 Success(null).</summary>
         Task<Result<ClaimRequestSummaryResponse?>> GetOwnRequestAsync(Guid userId, CancellationToken cancellation = default);
 
+        /// <summary>연결 요청 취소 — 본인의 Pending 요청만 소프트 삭제. 소유·상태 불일치는 false.</summary>
+        Task<Result<bool>> CancelRequestAsync(Guid userId, Guid requestId, CancellationToken cancellation = default);
+
         /// <summary>허브 "내 자녀" — 아직 연결되지 않은 내 Pending 요청 전부(승인 대기 자녀 카드). 없으면 빈 목록.</summary>
         Task<Result<List<PendingChildClaimDto>>> GetPendingChildClaimsAsync(Guid userId, CancellationToken cancellation = default);
 

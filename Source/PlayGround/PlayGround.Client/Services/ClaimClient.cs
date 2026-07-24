@@ -104,6 +104,21 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>연결 요청 취소 — 본인의 Pending 요청만. 성공 여부.</summary>
+        public async Task<bool> CancelRequestAsync(Guid requestId)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.DeleteAsync($"api/soccer/claim/me/requests/{requestId}");
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>승인/거절 — 팀 관리자. 실패 시 null.</summary>
         public async Task<ReviewClaimResponse?> ReviewAsync(Guid requestId, bool approve)
         {

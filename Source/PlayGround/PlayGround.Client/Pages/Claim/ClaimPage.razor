@@ -11,6 +11,7 @@
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject ClaimClient Claims
 @inject ToastService Toasts
+@inject ConfirmService Confirm
 
 <PageTitle>자녀 프로필 연결 — PlayGround</PageTitle>
 
@@ -120,6 +121,8 @@
                         </span>
                         <span class="@Css.Claim.PendingBadge">승인 대기</span>
                     </div>
+                    @* 요청 취소 (P1) — 철회하면 스텝 ①로 돌아가 다시 요청할 수 있다 *@
+                    <button type="button" class="@Css.Claim.GhostButton" disabled="@mBusy" @onclick="CancelRequestAsync">요청 취소</button>
                 </div>
             }
             else if (mStep == 3 && mRequest is not null)
@@ -316,6 +319,47 @@
         // 그사이 코드가 소진·만료됨 — 스텝 ①에서 인라인으로 알린다
         mStep = 0;
         mCodeError = "코드를 다시 확인해 주세요";
+    }
+
+    // 대기 화면에서 요청 철회 (P1) — 확인 후 취소하면 스텝 ①로 돌아가 다시 요청할 수 있다
+    private async Task CancelRequestAsync()
+    {
+        if (mRequest is null)
+        {
+            return;
+        }
+
+        bool ok = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "연결 요청을 취소할까요?",
+            Description = $"{mRequest.PlayerName} 선수 연결 요청이 철회돼요. 필요하면 다시 요청할 수 있어요.",
+            ConfirmLabel = "요청 취소",
+            CancelLabel = "닫기",
+        });
+
+        if (!ok)
+        {
+            return;
+        }
+
+        mBusy = true;
+        bool canceled = await Claims.CancelRequestAsync(mRequest.RequestId);
+        mBusy = false;
+
+        if (!canceled)
+        {
+            Toasts.ShowError("취소하지 못했어요. 다시 시도해 주세요.", "재시도", CancelRequestAsync);
+            return;
+        }
+
+        // 철회 → 스텝 ①로 초기화 (코드 입력부터 다시)
+        mRequest = null;
+        mCard = null;
+        mIsCodeless = false;
+        mCode = string.Empty;
+        mStep = 0;
+        Toasts.ShowSuccess("연결 요청을 취소했어요.");
     }
 
     // 완료 스텝 클릭(뒤로) — 입력은 유지된다 (코드·관계 상태 보존). 대기·완료는 서버 상태라 뒤로 없음.

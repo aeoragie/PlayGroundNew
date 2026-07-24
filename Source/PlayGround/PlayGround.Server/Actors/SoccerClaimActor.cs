@@ -20,6 +20,7 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<CreateClaimRequestMessage>(HandleCreateAsync);
             RegisterHandlerAsync<GetClaimCardBySlugMessage>(HandleLookupBySlugAsync);
             RegisterHandlerAsync<CreateClaimByPlayerMessage>(HandleCreateByPlayerAsync);
+            RegisterHandlerAsync<CancelClaimRequestMessage>(HandleCancelAsync);
             RegisterHandlerAsync<GetOwnClaimRequestMessage>(HandleGetOwnAsync);
             RegisterHandlerAsync<ReviewClaimRequestMessage>(HandleReviewAsync);
             RegisterHandlerAsync<GetNotificationsMessage>(HandleGetNotificationsAsync);
@@ -81,6 +82,15 @@ namespace PlayGround.Server.Actors
             SoccerClaimFlowCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerClaimFlowCommand>();
             Result<ClaimRequestSummaryResponse> result =
                 await useCase.CreateByPlayerAsync(message.UserId, message.RequesterName, message.Data.PlayerId, message.Data.Relation);
+            sender.Tell(result);
+        }
+
+        private async Task HandleCancelAsync(CancelClaimRequestMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerClaimFlowCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerClaimFlowCommand>();
+            Result<bool> result = await useCase.CancelAsync(message.UserId, message.RequestId);
             sender.Tell(result);
         }
 

@@ -28,6 +28,12 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
+    /// <summary>연결 요청 취소 메시지 (쓰기 — UserId 해시).</summary>
+    public sealed record CancelClaimRequestMessage(Guid UserId, Guid RequestId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>내 연결 요청 조회 메시지 (재방문 복원 — 같은 사용자 쓰기와 순차).</summary>
     public sealed record GetOwnClaimRequestMessage(Guid UserId) : IConsistentHashable
     {

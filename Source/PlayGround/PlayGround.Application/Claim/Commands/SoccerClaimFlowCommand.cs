@@ -133,6 +133,28 @@ namespace PlayGround.Application.Claim.Commands
             return Result<ClaimRequestSummaryResponse>.Success(created.Value);
         }
 
+        /// <summary>연결 요청 취소 — 본인의 Pending 요청만. 대기 화면에서 철회(Design.ClaimFlow P1).</summary>
+        public async Task<Result<bool>> CancelAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
+        {
+            if (userId == Guid.Empty || requestId == Guid.Empty)
+            {
+                return Result<bool>.Error(ErrorCode.InvalidInput, "userId/requestId required");
+            }
+
+            Result<bool> canceled = await mRepository.CancelRequestAsync(userId, requestId, cancellation);
+            if (canceled.IsError)
+            {
+                return canceled;
+            }
+
+            if (!canceled.Value)
+            {
+                return Result<bool>.Error(ErrorCode.Forbidden, "claim request cancel not permitted");
+            }
+
+            return Result<bool>.Success(true);
+        }
+
         /// <summary>재방문 복원 — 요청이 없으면 NotFound (클라이언트는 스텝 ①부터).</summary>
         public async Task<Result<ClaimRequestSummaryResponse>> GetMineAsync(Guid userId, CancellationToken cancellation = default)
         {

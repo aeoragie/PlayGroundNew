@@ -90,6 +90,21 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>연결 요청 취소 — 본인의 Pending 요청만 (대기 화면 P1).</summary>
+        [HttpDelete("me/requests/{requestId:guid}")]
+        public async Task<Envelope<bool>> CancelAsync(Guid requestId, CancellationToken cancellation)
+        {
+            Guid userId = CurrentUserId;
+            if (userId == Guid.Empty)
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerClaim, new CancelClaimRequestMessage(userId, requestId), cancellation);
+            return result.ToEnvelope();
+        }
+
         /// <summary>재방문 복원 — 내 최신 요청 (없으면 NotFound → 스텝 ①).</summary>
         [HttpGet("me/request")]
         public async Task<Envelope<ClaimRequestSummaryResponse>> GetMineAsync(CancellationToken cancellation)

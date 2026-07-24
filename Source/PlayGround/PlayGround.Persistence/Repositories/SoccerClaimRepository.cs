@@ -141,6 +141,20 @@ namespace PlayGround.Persistence.Repositories
             return Result<ClaimRequestSummaryResponse?>.Success(row is null ? null : Map(row));
         }
 
+        public async Task<Result<bool>> CancelRequestAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Claim request cancel requested", ("UserId", userId), ("RequestId", requestId));
+
+            var procedure = new UspCancelSoccerPlayerClaimRequest(this) { UserId = userId, RequestId = requestId };
+            var queryResult = await procedure.QueryAsync<SoccerClaimCancelRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "CancelClaimRequest");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.FirstOrDefault() is not null);
+        }
+
         public async Task<Result<List<PendingChildClaimDto>>> GetPendingChildClaimsAsync(
             Guid userId, CancellationToken cancellation = default)
         {

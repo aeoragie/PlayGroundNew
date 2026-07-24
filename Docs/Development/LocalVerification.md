@@ -56,6 +56,8 @@
 > `UspGetSoccerPlayerPublicProfileBySlug` 재배포까지 로컬 반영됨.
 >
 > **추가 반영(온보딩 중복 방지, 2026-07-21)**: `UspCreateSoccerTeamWithRoster` 재배포(관리자 기존 팀 확인 → 멱등 반환)까지 로컬 반영됨.
+>
+> **추가 반영(ClaimFlow 요청 취소, 2026-07-21)**: `UspCancelSoccerPlayerClaimRequest` 신규까지 로컬 반영됨.
 
 ## 재구축 절차 (새 PC · DB 재생성 후)
 
