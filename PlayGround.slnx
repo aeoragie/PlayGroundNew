@@ -6,7 +6,12 @@
     <File Path="Docs/Architecture/NamingConventions.md" />
   </Folder>
   <Folder Name="/Docs/Development/">
+    <File Path="Docs/Development/DesignWorkOrders.md" />
+    <File Path="Docs/Development/FunctionalTestPlan.md" />
+    <File Path="Docs/Development/HandoffAudit.md" />
+    <File Path="Docs/Development/IntegrationTestPlan.md" />
     <File Path="Docs/Development/LocalVerification.md" />
+    <File Path="Docs/Development/SharedPatternsPlan.md" />
   </Folder>
   <Folder Name="/Solutions/">
     <File Path=".editorconfig" />

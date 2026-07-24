@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">팀 일정 (Schedule) — PC</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">팀 관리자가 일정을 추가하면 팀 대시보드 일정 섹션 + 공개 홈페이지 Schedule 탭(공개 일정만) + 허브 "다음 경기" 줄에 자동 노출. 유형 pill = 경기 네이비 / 대회 오렌지톤 / 훈련 teal (TeamDashboard SPEC 유지). 상태(예정/종료)는 일시로 자동 파생 — 수동 전환 없음.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 일정 추가 모달 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">일정 추가 — 모달 (유형에 따라 필드 가변)</span></div>
+    <div style="padding:20px;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+      <div style="background:#fff;border-radius:18px;padding:22px;width:300px;display:flex;flex-direction:column;gap:13px;box-shadow:0 20px 50px rgba(28,43,74,.3)">
+        <span style="font-size:15px;font-weight:800">일정 추가</span>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">유형</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <span style="height:38px;border:1.5px solid #23408e;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#23408e;background:rgba(35,64,142,.06);white-space:nowrap">경기</span>
+            <span style="height:38px;border:1.5px solid #e6e8ee;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">대회</span>
+            <span style="height:38px;border:1.5px solid #e6e8ee;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">훈련</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12px;font-weight:800">날짜</span>
+            <div style="height:42px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 11px;display:flex;align-items:center;font-size:12.5px">7/26 (일)</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12px;font-weight:800">시간</span>
+            <div style="height:42px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 11px;display:flex;align-items:center;font-size:12.5px">14:00</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">상대 팀 <span style="font-weight:600;color:#8a93a6">(경기만)</span></span>
+          <div style="height:42px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 11px;display:flex;align-items:center;font-size:12.5px">강북 드래곤즈</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">장소</span>
+          <div style="height:42px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 11px;display:flex;align-items:center;font-size:12.5px">잠실보조경기장</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:2px 0">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1"><span style="font-size:12.5px;font-weight:700">공개 홈페이지에 노출</span><span style="font-size:10.5px;color:#8a93a6;word-break:keep-all">끄면 팀 내부(대시보드)에서만 보여요</span></span>
+          <span style="width:44px;height:26px;border-radius:99px;background:#2EC4B6;padding:2px;display:flex;justify-content:flex-end;flex:none"><span style="width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">취소</button>
+          <button style="flex:1;height:42px;border:0;border-radius:11px;background:#23408e;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">추가하기</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">날짜 = DatePicker 캘린더(FutureOnly — 과거 비활성) · 시간 = 15분 리스트, 기본값 = 최근 일정 시각 · 상대 팀 필드는 유형=경기·대회일 때만 노출(훈련은 숨김) · 공개 스위치 기본 켬(훈련만 기본 끔) · 대회 유형은 제목 필드 추가("서울시장배 8강").</div>
+  </div>
+
+  <!-- 일정 목록 상태 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">일정 행 — 예정/종료 파생 · 비공개 표시</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="width:52px;display:flex;flex-direction:column;align-items:center;flex:none"><span style="font-size:10.5px;font-weight:700;color:#c46a5e">일</span><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">26</span></span>
+        <span style="font-size:10px;font-weight:800;color:#fff;background:#23408e;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">경기</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vs 강북 드래곤즈</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">잠실보조경기장</span></span>
+        <span style="font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap;flex:none">14:00</span>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="width:52px;display:flex;flex-direction:column;align-items:center;flex:none"><span style="font-size:10.5px;font-weight:700;color:#8a93a6">화</span><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">28</span></span>
+        <span style="font-size:10px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">훈련</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">전술 훈련 — 빌드업 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 018 0v3"></path></svg></span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">강동 보조구장 · 비공개</span></span>
+        <span style="font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap;flex:none">19:00</span>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px;opacity:.55">
+        <span style="width:52px;display:flex;flex-direction:column;align-items:center;flex:none"><span style="font-size:10.5px;font-weight:700;color:#8a93a6">토</span><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">19</span></span>
+        <span style="font-size:10px;font-weight:800;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">대회</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">서울시장배 8강</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">효창운동장 · 종료 — 결과 입력됨</span></span>
+        <span style="font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap;flex:none">10:00</span>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">종료 = 일시 경과 자동(행 55% 투명+메타 "종료") · 종료된 경기·대회는 메타에 결과 연결 상태 표시 · 비공개 = 제목 옆 자물쇠 12px + 메타 "비공개" · ⋯ = 수정/삭제(DropdownMenu — 파괴 맨 아래 레드, 삭제 시 팀원 알림).</span>
+    </div>
+  </div>
+
+  <!-- 노출처 3곳 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">자동 노출 — 공개홈 · 허브 · 구독 캘린더</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:10.5px;font-weight:800;color:#8a93a6">공개 홈페이지 · Schedule 탭 (게스트 뷰)</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:44px;display:flex;flex-direction:column;align-items:center;flex:none"><span style="font-size:10px;font-weight:700;color:#c46a5e">일</span><span style="font-size:15px;font-weight:800">26</span></span>
+          <span style="font-size:10px;font-weight:800;color:#fff;background:#23408e;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">경기</span>
+          <span style="font-size:12.5px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vs 강북 드래곤즈 · 잠실보조경기장</span>
+          <span style="font-size:11.5px;font-weight:700;color:#5b6577;white-space:nowrap">14:00</span>
+        </div>
+        <span style="font-size:10.5px;color:#8a93a6;word-break:keep-all">공개 일정만 · ⋯ 없음(읽기 전용) · 종료 일정은 최근 3개까지만</span>
+      </div>
+      <div style="background:linear-gradient(160deg,#1c2b4a,#23408e);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:10.5px;font-weight:800;color:rgba(255,255,255,.55)">허브 · 내 팀 카드 "다음 경기"</span>
+        <span style="font-size:12.5px;font-weight:700;color:#2EC4B6;white-space:nowrap">다음 경기 — 7/26(일) 14:00 vs 강북 드래곤즈</span>
+        <span style="font-size:10.5px;color:rgba(255,255,255,.5);word-break:keep-all">유형=경기·대회 중 가장 가까운 미래 1건 (훈련 제외 · 없으면 줄 생략)</span>
+      </div>
+      <div style="border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:11px">
+        <span style="width:36px;height:36px;border-radius:10px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4M12 14v4M10 16h4"></path></svg></span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;white-space:nowrap">구독 캘린더</span><span style="font-size:10.5px;color:#8a93a6;word-break:keep-all">Google·Apple 캘린더에서 팀 일정을 자동으로 받아요</span></span>
+        <button style="height:34px;padding:0 14px;border:1.5px solid #e6e8ee;border-radius:9px;background:#fff;font-size:11.5px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap;flex:none">구독 링크 복사</button>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">구독 캘린더 = 팀별 iCal 피드 URL(공개 일정만·토큰 없는 공개 URL). 버튼 위치: 공개홈 Schedule 탭 하단 + 대시보드 일정 섹션 캡션. 복사 성공 = 토스트.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">스키마 SoccerSchedules: TeamId · Type(Match/Tournament/Training) · Title(대회만, 경기는 "vs {상대}" 파생) · OpponentName · StartsAt · Venue · IsPublic · CreatedBy. 상태는 컬럼 없음 — StartsAt 경과로 파생. 결과 입력(B1 친선/공식)과의 연결은 MatchId nullable 참조. 반복 일정·지난 일정 아카이브 = P1. 사용 패턴: FormPatterns + DatePicker + FeedbackPatterns + DropdownMenu + TableList — 신규 패턴 없음.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1250}}"></script>
+</body>
+</html>

@@ -21,7 +21,7 @@
         <div class="text-[13px] text-text-body">등록 선수 @(State.RosterCount)명 · 초대코드 @(State.RosterCount)개 발급됨</div>
     }
 
-    <button type="button" @onclick="GoDashboard" class="@($"mt-2 px-8 {Css.Auth.PrimaryButton}")">대시보드로 가기</button>
+    <button type="button" @onclick="GoDashboard" class="@($"mt-2 px-8 {Css.Auth.PrimaryButton}")">@PrimaryLabel</button>
 </div>
 
 @code {
@@ -44,13 +44,18 @@
     private string Body => State.DoneFrom switch
     {
         OnboardingRole.Team => "이제 대시보드에서 일정과 경기 결과를 기록하고, 선수 모집 공고를 올릴 수 있어요.",
-        OnboardingRole.General => "General 역할로 시작해요. 경기기록은 자유롭게 볼 수 있고, 역할은 언제든 설정에서 선택할 수 있어요.",
+        OnboardingRole.General => "General 역할로 시작해요. 경기기록은 자유롭게 볼 수 있고, 역할은 언제든 다시 선택할 수 있어요.",
         _ => "이제 커리어와 시즌 통계가 이 프로필에 쌓여요. 소속팀 초대코드가 있다면 대시보드에서 연결해 보세요."
     };
+
+    // General은 대시보드가 없으니 경기기록(둘러보기)으로 — 역할 재선택은 Records 유도 배너로
+    private bool IsGeneral => State.DoneFrom == OnboardingRole.General;
+
+    private string PrimaryLabel => IsGeneral ? "경기기록 둘러보기" : "대시보드로 가기";
 
     private void GoDashboard()
     {
         State.Reset();
-        Nav.NavigateTo(Routes.Dashboard);
+        Nav.NavigateTo(IsGeneral ? Routes.Records : Routes.Dashboard);
     }
 }

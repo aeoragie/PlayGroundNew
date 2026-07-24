@@ -6,10 +6,13 @@
 @using PlayGround.Client.Models
 @using PlayGround.Contracts.Player
 @using PlayGround.Contracts.Records
+@using System.Security.Claims
+@implements IDisposable
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject RecordsClient Records
 @inject PlayerClient Players
 @inject NavigationManager Nav
+@inject BannerService Banners
 
 <PageTitle>경기기록 — PlayGround</PageTitle>
 
@@ -137,6 +140,22 @@
                 // 사용자 표시는 GNB(PublicGnb)가 아바타로 담당 — 여기선 내 연령 개인화만
                 mMyAge = info.Profile.AgeGroup;
             }
+
+            // 역할 없는(General) 로그인 사용자 — 대시보드가 없어 여기로 온다. 역할 선택을 유도한다
+            // (SPEC.AUTHONBOARDING의 "Records 진입 시 역할 유도 배너"). 정보톤이라 X로 닫을 수 있다.
+            UserRole role = UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
+            if (role == UserRole.General)
+            {
+                Banners.Publish(new BannerNotice
+                {
+                    Id = "general-role-nudge",
+                    Severity = BannerSeverity.Info,
+                    Prefix = "안내",
+                    Message = "역할을 선택하면 나만의 대시보드가 열려요.",
+                    LinkLabel = "역할 선택하기",
+                    LinkHref = Routes.SelectRole,
+                });
+            }
         }
 
         mData = await Records.GetTournamentsAsync(mSeasonYear);
@@ -224,4 +243,7 @@
     private string MyAgeToggleClass =>
         "h-9 px-3.5 rounded-full text-xs font-bold whitespace-nowrap border-1.5 transition-colors " +
         (mMyAgeOnly ? "border-teal/45 bg-teal/[.12] text-teal-ink" : "border-border bg-white text-text-body");
+
+    // 유도 배너는 Records에 한정 — 떠날 때 내린다 (다른 화면으로 새지 않게). 닫음 상태는 localStorage가 유지
+    public void Dispose() => Banners.Withdraw("general-role-nudge");
 }

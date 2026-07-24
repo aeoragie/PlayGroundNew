@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:16px">
+
+<header style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:18px;font-weight:800;letter-spacing:-.02em">팀 일정 — 모바일 (390px)</span>
+  <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">PC와 동일 규칙. 추가 폼 = 바텀시트(입력 46px·16px), 날짜 컬럼 38px(TeamDashboard 모바일 SPEC).</span>
+</header>
+
+<!-- 추가 바텀시트 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">일정 추가 — 바텀시트</span></div>
+  <div style="padding:20px 16px 0;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+    <div style="background:#fff;border-radius:18px 18px 0 0;padding:12px 18px 16px;width:300px;display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px rgba(28,43,74,.3)">
+      <span style="width:36px;height:4px;border-radius:99px;background:#e6e8ee;margin:0 auto"></span>
+      <span style="font-size:14.5px;font-weight:800">일정 추가</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <span style="height:44px;border:1.5px solid #23408e;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#23408e;background:rgba(35,64,142,.06);white-space:nowrap">경기</span>
+        <span style="height:44px;border:1.5px solid #e6e8ee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#5b6577;white-space:nowrap">대회</span>
+        <span style="height:44px;border:1.5px solid #e6e8ee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#5b6577;white-space:nowrap">훈련</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;height:46px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:16px">7/26 (일)</div>
+        <div style="flex:1;height:46px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:16px">14:00</div>
+      </div>
+      <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:16px">강북 드래곤즈</div>
+      <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:16px">잠실보조경기장</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:13px;font-weight:700;flex:1">공개 홈페이지에 노출</span>
+        <span style="width:44px;height:26px;border-radius:99px;background:#2EC4B6;padding:2px;display:flex;justify-content:flex-end;flex:none"><span style="width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
+      </div>
+      <button style="height:48px;border:0;border-radius:12px;background:#23408e;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">추가하기</button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">날짜·시간 탭 → 각각 캘린더/시간 바텀시트(DatePicker) · 상대 팀은 경기·대회만.</div>
+</div>
+
+<!-- 목록 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">일정 행 (날짜 38px · pill+시간 한 줄)</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 13px">
+      <span style="width:38px;display:flex;flex-direction:column;align-items:center;flex:none"><span style="font-size:10px;font-weight:700;color:#c46a5e">일</span><span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums">26</span></span>
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+        <span style="display:flex;align-items:center;gap:6px"><span style="font-size:9.5px;font-weight:800;color:#fff;background:#23408e;border-radius:99px;padding:2px 8px;white-space:nowrap">경기</span><span style="font-size:11px;font-weight:700;color:#5b6577;white-space:nowrap">14:00</span></span>
+        <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vs 강북 드래곤즈</span>
+        <span style="font-size:11px;color:#8a93a6;white-space:nowrap">잠실보조경기장</span>
+      </span>
+      <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px">⋯</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 13px">
+      <span style="width:38px;display:flex;flex-direction:column;align-items:center;flex:none"><span style="font-size:10px;font-weight:700;color:#8a93a6">화</span><span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums">28</span></span>
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+        <span style="display:flex;align-items:center;gap:6px"><span style="font-size:9.5px;font-weight:800;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:2px 8px;white-space:nowrap">훈련</span><span style="font-size:11px;font-weight:700;color:#5b6577;white-space:nowrap">19:00</span></span>
+        <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">전술 훈련 — 빌드업</span>
+        <span style="font-size:11px;color:#8a93a6;white-space:nowrap">강동 보조구장 · 비공개</span>
+      </span>
+      <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px">⋯</span>
+    </div>
+  </div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">⋯ = 바텀시트(수정/삭제 — DropdownMenu 모바일 규칙) · 공개홈·허브 노출, 스키마는 PC 카탈로그 참조.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1150}}"></script>
+</body>
+</html>
