@@ -6,7 +6,7 @@
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
         <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">선수단 <span class="text-[13px] font-bold text-text-muted">@(Players.Count)명</span></h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 선수 추가</button>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">＋ 선수 추가</button>
     </div>
 
     <div class="flex gap-[7px] items-center">
@@ -49,6 +49,7 @@
                         <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
                     <ClaimBadge Status="@ClaimOf(player)" />
+                    <OverflowMenu Target="@player.Name" DestructiveItems="RemoveItems(player)" />
                 </div>
             }
         </div>
@@ -84,7 +85,10 @@
                         <span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@player.Name</span>
                         <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
-                    <ClaimBadge Status="@ClaimOf(player)" />
+                    <div class="flex items-center gap-1">
+                        <ClaimBadge Status="@ClaimOf(player)" />
+                        <OverflowMenu Target="@player.Name" DestructiveItems="RemoveItems(player)" />
+                    </div>
                 </div>
             }
         </div>
@@ -105,6 +109,20 @@
 @code {
     [Parameter]
     public List<TeamRosterPlayerDto> Players { get; set; } = new();
+
+    /// <summary>"＋ 선수 추가" — 페이지가 다이얼로그를 연다.</summary>
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    /// <summary>선수 내보내기 — 페이지가 확인 모달 + 실행취소 토스트를 맡는다.</summary>
+    [Parameter]
+    public EventCallback<TeamRosterPlayerDto> OnRemove { get; set; }
+
+    // 단일 파괴 액션을 ⋯에 담는다(PC 로스터와 같은 판단 — 오클릭 방지).
+    private List<OverflowMenu.MenuItem> RemoveItems(TeamRosterPlayerDto player) => new()
+    {
+        new OverflowMenu.MenuItem("선수 내보내기", () => OnRemove.InvokeAsync(player)),
+    };
 
     private SoccerAgeGroup? mAgeTab;
     private bool mIsListView = true;

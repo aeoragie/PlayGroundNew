@@ -269,6 +269,38 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>로스터에 선수 1명 추가 (＋ 선수 추가). Unclaimed + Pending 초대코드 발급.</summary>
+        [HttpPost("me/roster/players")]
+        public async Task<Envelope<TeamRosterPlayerDto>> AddMyTeamPlayerAsync(
+            [FromBody] AddTeamPlayerRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamRosterPlayerDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamRosterPlayerDto> result = await mGateway.AskAsync<TeamRosterPlayerDto>(
+                ActorNames.SoccerTeamProfile, new AddSoccerTeamPlayerMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>로스터에서 선수 내보내기·복구(실행취소). restore=true면 되살린다.</summary>
+        [HttpDelete("me/roster/players/{teamPlayerId:guid}")]
+        public async Task<Envelope<bool>> RemoveMyTeamPlayerAsync(
+            Guid teamPlayerId, [FromQuery] bool restore, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new RemoveSoccerTeamPlayerMessage(userId, teamPlayerId, restore), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/matches")]
         public async Task<Envelope<TeamMatchesResponse>> GetMyTeamMatchesAsync(
             [FromQuery] int season, CancellationToken cancellation)

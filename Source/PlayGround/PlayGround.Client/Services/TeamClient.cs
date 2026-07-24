@@ -151,6 +151,43 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>로스터에 선수 1명 추가 (＋ 선수 추가). 성공 후 호출부가 로스터를 다시 읽는다.</summary>
+        public async Task<PlayerAddResult> AddPlayerAsync(AddTeamPlayerRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me/roster/players", request);
+                Envelope<TeamRosterPlayerDto>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<TeamRosterPlayerDto>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new PlayerAddResult(true, null);
+                }
+
+                return new PlayerAddResult(false, "선수를 추가하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new PlayerAddResult(false, "선수를 추가하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>로스터에서 선수 내보내기·복구(restore = 실행취소). 성공 여부만.</summary>
+        public async Task<bool> RemovePlayerAsync(Guid teamPlayerId, bool restore = false)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.DeleteAsync(
+                    $"api/soccer/team/me/roster/players/{teamPlayerId}?restore={(restore ? "true" : "false")}");
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>모집 공고 저장 (신규·수정 겸용).</summary>
         public async Task<RecruitmentSaveResult> SaveRecruitmentAsync(SaveTeamRecruitmentRequest request)
         {
@@ -500,4 +537,7 @@ namespace PlayGround.Client.Services
 
     /// <summary>모집 공고 저장 결과 — 입력 거부(인라인)와 요청 실패(토스트)를 IsNetworkError로 가른다.</summary>
     public record RecruitmentSaveResult(bool Success, string? Error, bool IsNetworkError = false);
+
+    /// <summary>선수 추가 결과 — 입력 거부(인라인)와 요청 실패(토스트)를 IsNetworkError로 가른다.</summary>
+    public record PlayerAddResult(bool Success, string? Error, bool IsNetworkError = false);
 }

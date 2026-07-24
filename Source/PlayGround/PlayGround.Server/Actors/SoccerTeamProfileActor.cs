@@ -24,6 +24,26 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<DeleteSoccerTeamCareerOutcomeMessage>(HandleDeleteCareerOutcomeAsync);
             RegisterHandlerAsync<SaveSoccerTeamReviewMessage>(HandleSaveReviewAsync);
             RegisterHandlerAsync<DeleteSoccerTeamReviewMessage>(HandleDeleteReviewAsync);
+            RegisterHandlerAsync<AddSoccerTeamPlayerMessage>(HandleAddPlayerAsync);
+            RegisterHandlerAsync<RemoveSoccerTeamPlayerMessage>(HandleRemovePlayerAsync);
+        }
+
+        private async Task HandleAddPlayerAsync(AddSoccerTeamPlayerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamRosterWriteCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamRosterWriteCommand>();
+            Result<TeamRosterPlayerDto> result = await useCase.AddAsync(message.ManagerUserId, message.Data);
+            sender.Tell(result);
+        }
+
+        private async Task HandleRemovePlayerAsync(RemoveSoccerTeamPlayerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamRosterWriteCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamRosterWriteCommand>();
+            Result<bool> result = await useCase.RemoveAsync(message.ManagerUserId, message.TeamPlayerId, message.Restore);
+            sender.Tell(result);
         }
 
         private async Task HandleSaveReviewAsync(SaveSoccerTeamReviewMessage message)

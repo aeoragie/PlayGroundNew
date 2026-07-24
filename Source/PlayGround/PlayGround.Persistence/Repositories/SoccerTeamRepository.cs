@@ -176,6 +176,76 @@ namespace PlayGround.Persistence.Repositories
             return Result<TeamRosterResponse>.Success(response);
         }
 
+        public async Task<Result<TeamRosterPlayerDto?>> AddTeamPlayerByManagerAsync(
+            Guid managerUserId, AddTeamPlayerRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team roster add requested", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspAddSoccerTeamPlayer(this)
+            {
+                ManagerUserId = managerUserId,
+                Name = request.Name,
+                JerseyNumber = request.JerseyNumber,
+                Position = request.Position,
+                Grade = request.Grade,
+                AgeGroup = request.AgeGroup
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamRosterRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Team roster add failed", ("ResultCode", queryResult.ResultCode));
+                return Result<TeamRosterPlayerDto?>.Error(ErrorCode.DatabaseError, "AddTeamPlayer");
+            }
+
+            SoccerTeamRosterRecord? row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                // 빈 결과 = 관리하는 팀이 없다 (거부) — Command가 Forbidden으로 변환
+                return Result<TeamRosterPlayerDto?>.Success(null);
+            }
+
+            var dto = new TeamRosterPlayerDto
+            {
+                TeamPlayerId = row.TeamPlayerId,
+                PlayerId = row.PlayerId,
+                Name = row.Name,
+                JerseyNumber = NullIfEmpty(row.JerseyNumber),
+                Position = NullIfEmpty(row.Position),
+                Grade = NullIfEmpty(row.Grade),
+                AgeGroup = NullIfEmpty(row.AgeGroup),
+                PhotoUrl = NullIfEmpty(row.PhotoUrl),
+                // 새 선수는 항상 Unclaimed + Pending 초대코드
+                ClaimStatus = row.UserId is null ? "Unclaimed" : "Claimed",
+                InviteCode = row.UserId is null ? NullIfEmpty(row.Code) : null
+            };
+
+            Logger.InfoWith("Team roster add applied", ("ManagerUserId", managerUserId), ("TeamPlayerId", dto.TeamPlayerId));
+            return Result<TeamRosterPlayerDto?>.Success(dto);
+        }
+
+        public async Task<Result<bool>> RemoveTeamPlayerByManagerAsync(
+            Guid managerUserId, Guid teamPlayerId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team roster remove requested",
+                ("ManagerUserId", managerUserId), ("TeamPlayerId", teamPlayerId), ("Restore", restore));
+
+            var procedure = new UspRemoveSoccerTeamPlayer(this)
+            {
+                ManagerUserId = managerUserId,
+                TeamPlayerId = teamPlayerId,
+                Restore = restore
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamPlayersEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Team roster remove failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError, "RemoveTeamPlayer");
+            }
+
+            // 빈 결과 = 남의 팀이거나 이미 그 상태 — Command가 Forbidden으로 변환
+            return Result<bool>.Success(queryResult.Values1.Any());
+        }
+
         public async Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Team public home requested", ("Slug", slug));

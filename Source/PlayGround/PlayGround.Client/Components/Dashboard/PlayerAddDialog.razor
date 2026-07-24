@@ -1,0 +1,184 @@
+@* 선수 추가 (＋ 선수 추가) — PC 중앙 모달 / 모바일 전체 시트.
+   이름만 필수, 나머지(등번호·포지션·학년·연령대)는 나중에 채울 수 있다.
+   추가된 선수는 Unclaimed로 시작하고 초대코드가 함께 발급된다(로스터에서 '초대코드 보내기').
+   검증 오류는 인라인만(토스트 금지), 저장 실패만 토스트로 알린다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+
+@if (IsOpen)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <h2 class="@Css.MatchForm.Title">선수 추가</h2>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            <CascadingValue Value="@mForm" IsFixed="true">
+                <div class="@Css.MatchForm.Body">
+                    <TextField Label="선수 이름" @bind-Value="mName" Validator="ValidateName"
+                               Placeholder="예: 김민준" MaxLength="50" />
+
+                    <div class="@Css.MatchForm.DateTimeRow">
+                        <TextField Label="등번호" @bind-Value="mJersey" IsOptional="true" Validator="ValidateJersey"
+                                   Placeholder="9" MaxLength="3" />
+                        <SelectField TValue="string" Label="포지션" @bind-Value="mPosition" IsOptional="true"
+                                     Options="@PositionOptions" Placeholder="선택" />
+                    </div>
+
+                    <div class="@Css.MatchForm.DateTimeRow">
+                        <TextField Label="학년" @bind-Value="mGrade" IsOptional="true"
+                                   Placeholder="예: 중2" MaxLength="20" />
+                        <SelectField TValue="string" Label="연령대" @bind-Value="mAgeGroup" IsOptional="true"
+                                     Options="@AgeOptions" Placeholder="선택" />
+                    </div>
+
+                    <div class="@InfoNoticeClass" role="note">
+                        추가한 선수는 <b>초대코드</b>가 함께 발급돼요. 로스터에서 코드를 보내면 학부모·선수가 직접 기록을 관리하게 됩니다.
+                    </div>
+                </div>
+
+                <div class="@Css.MatchForm.Footer">
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                    <SubmitButton Label="추가" BusyLabel="추가 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                                  Class="@Css.MatchForm.SubmitWidth" />
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>추가 성공 후 상위(페이지)가 로스터를 다시 읽는다.</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private static readonly List<SelectOption<string>> PositionOptions = new()
+    {
+        new SelectOption<string>("FW", "FW · 공격수"),
+        new SelectOption<string>("MF", "MF · 미드필더"),
+        new SelectOption<string>("DF", "DF · 수비수"),
+        new SelectOption<string>("GK", "GK · 골키퍼"),
+    };
+
+    private static readonly List<SelectOption<string>> AgeOptions = new()
+    {
+        new SelectOption<string>("U12", "U12"),
+        new SelectOption<string>("U15", "U15"),
+        new SelectOption<string>("U18", "U18"),
+    };
+
+    private readonly FormFieldContext mForm = new();
+
+    private string? mName;
+    private string? mJersey;
+    private string? mPosition;
+    private string? mGrade;
+    private string? mAgeGroup;
+    private bool mSaving;
+    private bool mLoaded;
+
+    // 열 때 한 번만 비운다 (입력 중 재렌더에 값이 되돌아가지 않도록)
+    protected override void OnParametersSet()
+    {
+        if (!IsOpen)
+        {
+            mLoaded = false;
+            return;
+        }
+
+        if (mLoaded)
+        {
+            return;
+        }
+
+        mLoaded = true;
+        mName = mJersey = mPosition = mGrade = mAgeGroup = null;
+    }
+
+    private static string? ValidateName(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "선수 이름을 입력해 주세요." : null;
+
+    private static string? ValidateJersey(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return value.Trim().All(char.IsAsciiDigit) ? null : "등번호는 숫자만 입력해 주세요.";
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (!await mForm.ValidateAllAsync())
+        {
+            return;
+        }
+
+        var request = new AddTeamPlayerRequest
+        {
+            Name = mName!.Trim(),
+            JerseyNumber = Trimmed(mJersey),
+            Position = Trimmed(mPosition),
+            Grade = Trimmed(mGrade),
+            AgeGroup = Trimmed(mAgeGroup),
+        };
+
+        mSaving = true;
+        PlayerAddResult result = await Teams.AddPlayerAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "선수를 추가하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                Toasts.ShowError(result.Error ?? "선수를 추가하지 못했어요.");
+            }
+
+            return;
+        }
+
+        Toasts.ShowSuccess($"{request.Name} 선수를 추가했어요.");
+        await CloseAsync();
+        await OnSaved.InvokeAsync();
+    }
+
+    private static string? Trimmed(string? value)
+    {
+        string? t = value?.Trim();
+        return string.IsNullOrEmpty(t) ? null : t;
+    }
+
+    private Task CancelAsync() => CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        mLoaded = false;
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+
+    private const string InfoNoticeClass =
+        "rounded-xl bg-surface-teal border border-teal/30 px-3.5 py-3 " +
+        "text-[12px] text-text-strong leading-[1.6] break-keep";
+}

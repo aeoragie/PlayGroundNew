@@ -29,7 +29,7 @@
                             <SkeletonSection><SkeletonPlayerCards Count="8" /></SkeletonSection>
                         </Skeleton>
                         <ChildContent>
-                            <RosterSection Players="@mRoster!.Players" />
+                            <RosterSection Players="@mRoster!.Players" OnAdd="OpenRosterAdd" OnRemove="RemovePlayerAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -102,7 +102,7 @@
                         <SkeletonSection Compact="true"><SkeletonPlayerCards Count="4" /></SkeletonSection>
                     </Skeleton>
                     <ChildContent>
-                        <MobileRosterSection Players="@mRoster!.Players" />
+                        <MobileRosterSection Players="@mRoster!.Players" OnAdd="OpenRosterAdd" OnRemove="RemovePlayerAsync" />
                     </ChildContent>
                 </LoadingGate>
                 break;
@@ -161,6 +161,9 @@
                        MatchDays="@ExistingMatchDays"
                        RecentMatchTime="@RecentMatchTime"
                        OnSaved="ReloadAfterResultSavedAsync" />
+
+@* 선수 추가 — 성공 후 로스터를 다시 읽어 새 선수를 꽂는다 *@
+<PlayerAddDialog @bind-IsOpen="mAddPlayerOpen" OnSaved="LoadRosterAsync" />
 
 @* 팀 정보 수정 — 저장하면 공개 홈페이지도 같은 데이터를 읽으므로 즉시 반영된다 *@
 <TeamInfoEditDialog @bind-IsOpen="mInfoFormOpen" Info="@mInfo" OnSaved="ReloadInfoAsync" />
@@ -365,6 +368,54 @@
         mRosterFailed = false;
         mRoster = await Teams.GetTeamRosterAsync();
         mRosterFailed = mRoster is null;
+    }
+
+    //.// 선수 추가·내보내기 — 추가는 다이얼로그, 내보내기는 확인 모달 + 실행취소 토스트
+
+    private bool mAddPlayerOpen;
+
+    private void OpenRosterAdd() => mAddPlayerOpen = true;
+
+    // 되돌릴 수 있어도 확인은 받는다(DropdownMenu: 파괴 액션 → 확인 모달). 소프트 삭제라 실행취소를 함께 준다
+    private async Task RemovePlayerAsync(TeamRosterPlayerDto player)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"{player.Name} 선수를 선수단에서 내보낼까요?",
+            Description = "공개 홈페이지 선수단에서도 사라져요. 발급한 초대코드도 함께 회수돼요.",
+            ConfirmLabel = "내보내기",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        bool ok = await Teams.RemovePlayerAsync(player.TeamPlayerId);
+        if (!ok)
+        {
+            Toasts.ShowError("내보내지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", () => RemovePlayerAsync(player));
+            return;
+        }
+
+        await LoadRosterAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess($"{player.Name} 선수를 내보냈어요.", "실행취소", () => RestorePlayerAsync(player));
+    }
+
+    private async Task RestorePlayerAsync(TeamRosterPlayerDto player)
+    {
+        bool ok = await Teams.RemovePlayerAsync(player.TeamPlayerId, restore: true);
+        if (!ok)
+        {
+            Toasts.ShowError("되돌리지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", () => RestorePlayerAsync(player));
+            return;
+        }
+
+        await LoadRosterAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess("내보내기를 되돌렸어요.");
     }
 
     private async Task LoadMatchesAsync()

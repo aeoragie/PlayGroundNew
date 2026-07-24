@@ -120,4 +120,16 @@ namespace PlayGround.Server.Actors
 
     /// <summary>내 기록 수정 신청 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerRecordCorrectionsMessage(Guid ManagerUserId);
+
+    /// <summary>로스터에 선수 추가 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record AddSoccerTeamPlayerMessage(Guid ManagerUserId, AddTeamPlayerRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>로스터에서 선수 내보내기·복구 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record RemoveSoccerTeamPlayerMessage(Guid ManagerUserId, Guid TeamPlayerId, bool Restore) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
 }

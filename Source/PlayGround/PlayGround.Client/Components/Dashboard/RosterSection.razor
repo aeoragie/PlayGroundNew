@@ -15,7 +15,7 @@
                 <button type="button" class="@ViewToggleClass(isList: false)" @onclick="() => mIsListView = false">카드</button>
             </div>
             <button type="button" class="@Css.Dashboard.SecondaryButton">초대코드 일괄 발송</button>
-            <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 선수 추가</button>
+            <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">＋ 선수 추가</button>
         </div>
     </div>
 
@@ -55,7 +55,10 @@
                     <span class="text-[13.5px] text-text-body">@(player.Position ?? "-")</span>
                     <span class="text-[13.5px] text-text-body">@(player.Grade ?? "-")</span>
                     <ClaimBadge Status="@ClaimOf(player)" />
-                    <span class="flex items-center justify-end">@ActionArea(player)</span>
+                    <span class="flex items-center justify-end gap-1">
+                        @ActionArea(player)
+                        <OverflowMenu Target="@player.Name" DestructiveItems="RemoveItems(player)" />
+                    </span>
                 </div>
             }
         </div>
@@ -93,7 +96,10 @@
                         <span class="text-[12.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
                     <ClaimBadge Status="@ClaimOf(player)" />
-                    @ActionArea(player)
+                    <div class="flex items-center gap-1">
+                        @ActionArea(player)
+                        <OverflowMenu Target="@player.Name" DestructiveItems="RemoveItems(player)" />
+                    </div>
                 </div>
             }
         </div>
@@ -117,6 +123,21 @@
 
     [Parameter]
     public List<TeamRosterPlayerDto> Players { get; set; } = new();
+
+    /// <summary>"＋ 선수 추가" — 페이지가 다이얼로그를 연다.</summary>
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    /// <summary>선수 내보내기 — 페이지가 확인 모달 + 실행취소 토스트를 맡는다.</summary>
+    [Parameter]
+    public EventCallback<TeamRosterPlayerDto> OnRemove { get; set; }
+
+    // 단일 파괴 액션을 ⋯에 담는다 — SPEC 액션 목록엔 없지만, 드물게 쓰는 파괴 액션을 모든 행에
+    // 상시 버튼으로 노출하면 오클릭 위험이 크다(B6 기록 수정과 같은 판단). 행에 직접 버튼을 두지 않는다.
+    private List<OverflowMenu.MenuItem> RemoveItems(TeamRosterPlayerDto player) => new()
+    {
+        new OverflowMenu.MenuItem("선수 내보내기", () => OnRemove.InvokeAsync(player)),
+    };
 
     private SoccerAgeGroup? mAgeTab;
     private bool mIsListView = true;

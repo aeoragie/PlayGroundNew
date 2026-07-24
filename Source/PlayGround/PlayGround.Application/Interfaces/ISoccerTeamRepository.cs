@@ -15,6 +15,12 @@ namespace PlayGround.Application.Interfaces
         /// <summary>관리자 기준 선수단(로스터) 조회. 팀 미존재·로스터 없음은 빈 목록 — 에러가 아니다.</summary>
         Task<Result<TeamRosterResponse>> GetTeamRosterByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
 
+        /// <summary>로스터에 선수 1명 추가. 팀 소유가 아니면 Success(null) — 거부(존재 여부 미노출).</summary>
+        Task<Result<TeamRosterPlayerDto?>> AddTeamPlayerByManagerAsync(Guid managerUserId, AddTeamPlayerRequest request, CancellationToken cancellation = default);
+
+        /// <summary>로스터에서 선수 내보내기·복구(소프트 삭제). 소유가 아니거나 대상 없음은 false.</summary>
+        Task<Result<bool>> RemoveTeamPlayerByManagerAsync(Guid managerUserId, Guid teamPlayerId, bool restore, CancellationToken cancellation = default);
+
         /// <summary>공개 팀 홈페이지 묶음 조회 (Slug 기준). 미존재·비공개 팀은 Success(null) — 에러가 아니다.</summary>
         Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default);
 

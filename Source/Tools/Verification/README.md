@@ -42,6 +42,9 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `shot-hub.js` | 라우팅 3분기 실제 도착지 · 허브 PC/모바일 · **역할 가드 제거로 튕김 없음** |
 | `shot-hub-roles.js` | General → 역할 선택 · 자녀 2명 카드 반복 (역할 일시 변경 후 복구) |
 | `shot-bannerstepper.js` | 배너 3톤(심각도 우선·정보만 X·새로고침 유지)·스텝퍼(완료 스텝만·모바일 진행 바) — 데모 페이지 `/dev/banner-stepper` |
+| `api-roster.js` | 로스터 쓰기 API — 추가(코드 발급)·등번호/연령대 검증·내보내기·복구·남의 팀 거부 |
+| `shot-roster.js` | 로스터 쓰기 UI — ＋선수 추가→토스트→목록 반영 / ⋯→내보내기→확인 모달→실행취소 |
+| `sql-roster-cleanup.sql` | 검증 선수 물리 삭제 (스크립트는 소프트 삭제만 남긴다 — 끝나고 실행) |
 | `api-settings.js` | 설정 API — 이메일 마스킹 · 알림 기본값 병합 · **승인형 저장 거부**(enum 화이트리스트) · 계정 소프트 삭제(임시 계정 — 끝나면 SQL로 물리 삭제) |
 | `shot-settings.js` | 설정 3탭 URL 동기화 · 삭제 모달 문구 입력 잠금 · "항상 켜짐" 뱃지 · **스위치 실패 롤백**(PUT abort → 낙관 반영 → 롤백+오류 토스트) · 모바일 세그먼트 탭. playwright-core 필요 |
 | `shot-hierarchy.js` | 계층 스위치 — 상위 "프로필 공개" off → 하위 dimmed(.45)+비활성 + 실행취소 토스트 → **공개홈 로스터에서 선수 숨김** → 실행취소 복귀. 끝나면 `DELETE FROM SoccerPlayerFieldVisibilities WHERE FieldName='Profile'`로 원복 |

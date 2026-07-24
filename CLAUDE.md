@@ -467,6 +467,30 @@
   (미래 도트 비활성) · 모바일 진행 바(도트 나열 0) · teal 0건 · 가로 스크롤 0. 온보딩 도트 스텝퍼
   렌더도 확인(선수 3스텝 레이블 "기본 정보·연령·종목·지역·소속").
 
+### 로스터 쓰기 — 선수 추가·내보내기 완료 (2026-07-21, Design.TeamDashboard §2)
+
+- **조회만 있던 로스터에 쓰기를 붙였다.** 프로시저 2종: `UspAddSoccerTeamPlayer`(선수+소속+Pending 6자
+  초대코드를 한 트랜잭션 — 팀 생성 로스터와 같은 방식, 슬러그 유일성 WHILE) · `UspRemoveSoccerTeamPlayer`
+  (소프트 삭제·복구 `@Restore`, B3 규약). **소속(SoccerTeamPlayers)만 내린다 — 선수 프로필은 남긴다**
+  (가족이 연결돼 있으면 계속 관리). 소유 판정은 팀 ManagerUserId, 거부는 빈 결과(존재 여부 미노출 →
+  Command가 Forbidden). 반환은 로스터 조회와 같은 모양(`SoccerTeamRosterRecord` 재사용) — 새 행을 그대로 꽂는다.
+- **내보내면 미처리 초대를 함께 회수(Revoked), 복구하면 되살린다(미만료 한정)** — 로스터에서 사라진
+  선수의 코드가 살아 있으면 안 된다. 검증에서 복구 후 코드가 되살아나는 것까지 확인.
+- 서버 검증(Command): 이름 필수·**등번호 숫자만**·**연령대 화이트리스트(U12/U15/U18)** — 저장
+  화이트리스트라 클라이언트가 우회해도 서버가 InvalidInput으로 막는다.
+- **삭제는 SPEC 액션 목록에 없다** — "프로필 보기/승인 대기/초대코드 보내기"뿐. 드물게 쓰는 파괴
+  액션을 모든 행에 상시 버튼으로 노출하면 오클릭 위험이 커서 **OverflowMenu(⋯) 안에 단일 파괴 항목**으로
+  담았다(B6 기록 수정과 같은 판단 — DropdownMenu "1개면 ⋯ 금지"의 문서화된 예외). 확인 모달(대상
+  이름)+소프트 삭제+실행취소 토스트. `PlayerAddDialog`는 A1 폼(이름·등번호·포지션 Select·학년·연령대 Select).
+- **DB 동기화 함정(실제로 겪음)**: 로컬 DB가 `SoccerPlayers.Slug` 마이그레이션 전이라 추가 프로시저가
+  깨졌다. `2026-07-21_SoccerPlayers.Slug.sql`을 적용해 해결(227명 슬러그 채움). **IsRecruiting·
+  FamilyLinks.Relation 마이그레이션도 아직 미적용**(이 기능과 무관해 손대지 않음 — 필요 시 적용).
+- 검증(`api-roster.js` 15 + `shot-roster.js` 12 전부 PASS): 추가→목록+1·코드 발급·Unclaimed / 등번호
+  문자·연령 U99·빈 이름 거부 / 내보내기→목록에서 사라짐 / 복구→다시 나타남·코드 복원 / **남의 팀
+  teamPlayerId 거부** / UI 빈 제출 인라인·⋯→확인 모달→실행취소·모바일. 검증 선수는 `sql-roster-cleanup.sql`로 물리 삭제(원복).
+- **미해결**: 초대코드 일괄 발송(무동작 유지) · 선수 상세 화면 없어 이름은 링크 아님 · 선수단 검색
+  (SearchFilter 적용 예정) · 일정 실데이터. 보호자·에이전트 경로는 이 관리자 로스터와 무관.
+
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
 > 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).

@@ -88,6 +88,17 @@ namespace PlayGround.Contracts.Team
         public List<TeamRosterPlayerDto> Players { get; set; } = new();
     }
 
+    /// <summary>로스터에 선수 1명 추가 (대시보드 "＋ 선수 추가"). 이름만 필수 — 나머지는 나중에 채운다.
+    /// 추가된 선수는 Unclaimed로 시작하고 Pending 초대코드가 함께 발급된다.</summary>
+    public class AddTeamPlayerRequest
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? JerseyNumber { get; set; }
+        public string? Position { get; set; }   // FW | MF | DF | GK
+        public string? Grade { get; set; }       // '초4'~'고3'
+        public string? AgeGroup { get; set; }    // 'U12' | 'U15' | 'U18'
+    }
+
     /// <summary>로스터 한 명 (팀 소속 속성 + 선수 프로필 요약).</summary>
     public class TeamRosterPlayerDto
     {
