@@ -206,7 +206,9 @@ else
 
             if (hub.Children.Count == 1)
             {
-                Nav.NavigateTo(Routes.PlayerDashboard, replace: true);
+                // 유일한 자녀가 승인 대기면 선수 대시보드는 아직 빈 화면이다(연결 전) — 요청 상태(/claim)로 보낸다.
+                bool pending = hub.Children[0].ClaimStatus == "Pending";
+                Nav.NavigateTo(pending ? Routes.Claim : Routes.PlayerDashboard, replace: true);
                 return;
             }
 

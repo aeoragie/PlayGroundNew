@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using PlayGround.Shared.Result;
+using PlayGround.Contracts.Claim;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Team;
 
@@ -21,19 +22,23 @@ namespace PlayGround.Application.Team.Commands
     {
         private readonly ISoccerTeamRepository mTeamRepository;
         private readonly IPlayerRepository mPlayerRepository;
+        private readonly IClaimRepository mClaimRepository;
         private readonly SoccerActionItemsCommand mActionItems;
 
         public SoccerDashboardHubCommand(
             ISoccerTeamRepository teamRepository,
             IPlayerRepository playerRepository,
+            IClaimRepository claimRepository,
             SoccerActionItemsCommand actionItems)
         {
             Debug.Assert(teamRepository != null, "teamRepository is required");
             Debug.Assert(playerRepository != null, "playerRepository is required");
+            Debug.Assert(claimRepository != null, "claimRepository is required");
             Debug.Assert(actionItems != null, "actionItems is required");
 
             mTeamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
             mPlayerRepository = playerRepository ?? throw new ArgumentNullException(nameof(playerRepository));
+            mClaimRepository = claimRepository ?? throw new ArgumentNullException(nameof(claimRepository));
             mActionItems = actionItems ?? throw new ArgumentNullException(nameof(actionItems));
         }
 
@@ -109,6 +114,32 @@ namespace PlayGround.Application.Team.Commands
                 }
 
                 response.Children.Add(card);
+            }
+
+            //.// 승인 대기(Pending) 자녀 — 아직 연결되지 않은 내 연결 요청. 스탯은 없고 "요청 상태 보기"만.
+            // 이미 연결된 선수와 겹치지 않게(프로시저가 소유 선수를 제외) 뒤에 덧붙인다.
+
+            Result<List<PendingChildClaimDto>> pending = await mClaimRepository.GetPendingChildClaimsAsync(userId, cancellation);
+            if (!pending.IsError)
+            {
+                HashSet<Guid> linked = response.Children.Select(c => c.PlayerId).ToHashSet();
+                foreach (PendingChildClaimDto claim in pending.Value)
+                {
+                    if (linked.Contains(claim.PlayerId))
+                    {
+                        continue;
+                    }
+
+                    response.Children.Add(new HubChildDto
+                    {
+                        PlayerId = claim.PlayerId,
+                        Name = claim.Name,
+                        AgeGroup = claim.AgeGroup,
+                        TeamName = claim.TeamName,
+                        ClaimStatus = "Pending",
+                        RequestedAt = claim.RequestedAt,
+                    });
+                }
             }
 
             //.// 처리가 필요해요 — 알림 테이블이 아니라 현재 상태에서 파생

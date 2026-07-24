@@ -21,6 +21,16 @@ namespace PlayGround.Contracts.Claim
         public string Relation { get; set; } = string.Empty;
     }
 
+    /// <summary>허브 "내 자녀"의 승인 대기 자녀 — 아직 연결되지 않은 내 Pending 요청 (Design.DashboardHub).</summary>
+    public class PendingChildClaimDto
+    {
+        public Guid PlayerId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? AgeGroup { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public DateTime RequestedAt { get; set; }
+    }
+
     /// <summary>내 연결 요청 요약 — 대기 화면·재방문 복원. Status: 'Pending','Approved','Rejected'.</summary>
     public class ClaimRequestSummaryResponse
     {

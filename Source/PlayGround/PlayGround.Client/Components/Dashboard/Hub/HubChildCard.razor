@@ -1,6 +1,6 @@
-@* 내 자녀 — 이니셜 아바타 + Claim 뱃지 + 시즌 3스탯 + [선수 대시보드].
-   SPEC의 Pending 분기(스탯 "–", 공개 프로필 숨김)는 여기 데이터로는 만들어지지 않는다 —
-   자녀 목록은 이미 연결된 프로필만 돌려주므로 전부 "연결됨"이다. 대기 상태가 생기면 그때 분기한다. *@
+@* 내 자녀 — 이니셜 아바타 + Claim 뱃지 + 시즌 3스탯 + 액션 (Design.DashboardHub §내 자녀).
+   Claimed = 연결됨 + 스탯 + [선수 대시보드] / Pending = 승인 대기 + 스탯 "–" + 대기 안내 + [요청 상태 보기].
+   공개 프로필 버튼은 공개 선수 프로필 진입점이 정해질 때 붙인다(현재 미노출 — A4). *@
 @using PlayGround.Contracts.Team
 @using PlayGround.Client.Styles
 
@@ -10,8 +10,15 @@
         <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="@Css.Hub.ChildName">@Child.Name</h3>
-                @* 허브 카피는 "연결됨" — 팀 대시보드의 ClaimBadge는 영문 표기(SPEC.TEAMDASHBOARD)라 쓰지 않는다 *@
-                <StatusBadge Tone="StatusBadge.BadgeTone.Positive">연결됨</StatusBadge>
+                @* 허브 카피는 한글 — 팀 대시보드의 ClaimBadge는 영문 표기(SPEC.TEAMDASHBOARD)라 쓰지 않는다 *@
+                @if (IsPending)
+                {
+                    <StatusBadge Tone="StatusBadge.BadgeTone.Pending">승인 대기</StatusBadge>
+                }
+                else
+                {
+                    <StatusBadge Tone="StatusBadge.BadgeTone.Positive">연결됨</StatusBadge>
+                }
             </div>
             @if (Meta is not null)
             {
@@ -21,22 +28,49 @@
     </div>
 
     <div class="@Css.Hub.StatGrid">
-        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@Child.Appearances</span><span class="@Css.Hub.StatKey">출전</span></div>
-        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@Child.Goals</span><span class="@Css.Hub.StatKey">득점</span></div>
-        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@Child.Assists</span><span class="@Css.Hub.StatKey">도움</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Appearances)</span><span class="@Css.Hub.StatKey">출전</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Goals)</span><span class="@Css.Hub.StatKey">득점</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Assists)</span><span class="@Css.Hub.StatKey">도움</span></div>
     </div>
 
-    @* 공개 프로필 버튼은 공개 선수 프로필 화면이 생길 때 붙인다 *@
-    <div class="flex gap-2">
-        <a href="@ChildDashboardHref" class="@Css.Hub.ChildPrimary">선수 대시보드</a>
-    </div>
+    @if (IsPending)
+    {
+        <p class="@Css.Hub.ChildMeta">@PendingNote</p>
+        <div class="flex gap-2">
+            <a href="@Routes.Claim" class="@Css.Hub.ChildPrimary">요청 상태 보기</a>
+        </div>
+    }
+    else
+    {
+        <div class="flex gap-2">
+            <a href="@ChildDashboardHref" class="@Css.Hub.ChildPrimary">선수 대시보드</a>
+        </div>
+    }
 </article>
 
 @code {
     [Parameter]
     public HubChildDto Child { get; set; } = new();
 
+    private bool IsPending => Child.ClaimStatus == "Pending";
+
     private string ChildDashboardHref => $"{Routes.PlayerDashboard}?playerId={Child.PlayerId}";
+
+    // Pending은 아직 기록이 없다 — 스탯은 "–"
+    private string StatOf(int value) => IsPending ? "–" : value.ToString();
+
+    // "강동 리틀 FC 관리자의 승인을 기다리고 있어요 (7/14 요청)"
+    private string PendingNote
+    {
+        get
+        {
+            string team = string.IsNullOrWhiteSpace(Child.TeamName) ? "팀" : Child.TeamName;
+            string when = Child.RequestedAt is DateTime d
+                ? $" ({d.ToLocalTime():M/d} 요청)"
+                : string.Empty;
+            return $"{team} 관리자의 승인을 기다리고 있어요{when}";
+        }
+    }
 
     // 값이 있는 조각만 잇는다 — "U15 · FW · #9 · 팀명"
     private string? Meta
@@ -47,7 +81,8 @@
             if (!string.IsNullOrWhiteSpace(Child.AgeGroup)) { parts.Add(Child.AgeGroup); }
             if (!string.IsNullOrWhiteSpace(Child.Position)) { parts.Add(Child.Position); }
             if (!string.IsNullOrWhiteSpace(Child.JerseyNumber)) { parts.Add($"#{Child.JerseyNumber}"); }
-            if (!string.IsNullOrWhiteSpace(Child.TeamName)) { parts.Add(Child.TeamName); }
+            // Pending은 메타에 팀명을 넣지 않는다 — 대기 안내 문구에서 팀을 말한다(중복 방지)
+            if (!IsPending && !string.IsNullOrWhiteSpace(Child.TeamName)) { parts.Add(Child.TeamName); }
 
             return parts.Count == 0 ? null : string.Join(" · ", parts);
         }

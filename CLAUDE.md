@@ -491,6 +491,31 @@
 - **미해결**: 초대코드 일괄 발송(무동작 유지) · 선수 상세 화면 없어 이름은 링크 아님 · 선수단 검색
   (SearchFilter 적용 예정) · 일정 실데이터. 보호자·에이전트 경로는 이 관리자 로스터와 무관.
 
+### 허브 승인 대기(Pending) 자녀 카드 완료 (2026-07-21, Design.DashboardHub §내 자녀)
+
+- **허브 3단계 때 "만들지 않았다"고 남긴 분기를 채웠다.** 그때는 자녀 목록(me/players)이 연결된
+  프로필만 돌려줘 전부 "연결됨"이었다. 이제 **보호자의 미처리 연결 요청(SoccerPlayerClaimRequests
+  Pending)을 승인 대기 자녀로 함께 그린다.** 새 프로시저 `UspGetSoccerPendingChildClaimsByUser`
+  (Pending 요청 + 선수 이름·연령 + 팀명 + 요청일) → `IClaimRepository.GetPendingChildClaimsAsync`
+  → 허브 커맨드가 연결된 자녀 뒤에 덧붙인다.
+- **중복 방지 두 겹**: 프로시저가 이미 내 UserId로 소유한 선수를 제외하고, 커맨드도 연결된 자녀의
+  PlayerId 집합으로 한 번 더 거른다(연결됨 카드와 대기 카드가 겹치면 안 된다).
+- HubChildDto에 `ClaimStatus`("Claimed"/"Pending")·`RequestedAt` 추가. 카드 분기: Pending은 **스탯
+  "–"** + "…관리자의 승인을 기다리고 있어요 (M/d 요청)" + **[요청 상태 보기] → /claim**만(공개 프로필·
+  선수 대시보드 버튼 없음, SPEC 그대로).
+- **라우팅 함정 하나 막았다**: 유일한 자녀가 Pending이면(연결 전) 선수 대시보드는 빈 화면이라 튕긴다.
+  `ManagedCount == 1`이고 그 자녀가 Pending이면 **선수 대시보드가 아니라 /claim으로** 보낸다.
+  (1 연결됨 + 1 대기 = 관리 대상 2 → 허브 정상.)
+- **DB 동기화 함정(로스터에 이어 또)**: 로컬 DB에 `SoccerPlayerClaimRequests` 테이블 자체가 없었다
+  (ClaimFlow 스키마 미배포). 테이블 DDL을 배포해 해결. **로컬 DB가 소스보다 여러 커밋 뒤처져 있다 —
+  Slug·ClaimRequests 배포함, IsRecruiting·FamilyLinks.Relation·SoccerNotifications 등은 여전히 미적용
+  가능성. 다른 PC/다음 작업 전 `LocalVerification.md`의 DB 동기화 절차 권장.**
+- 검증(`api-pendingchild.js` 7 + `shot-pendingchild.js` 7 전부 PASS): Claimed+Pending 함께·Pending 스탯
+  0·요청일·중복 없음 / UI 승인 대기 뱃지·"–" 3칸·대기 안내·요청 상태 보기→/claim·연결됨은 선수
+  대시보드 버튼. 시드(Pending 요청)는 ROLLBACK.
+- **미해결**: 다음 경기 줄(일정 실데이터)·알림 센터 전체 보기 링크는 그대로. Pending 자녀의 요청
+  취소는 /claim 재방문 플로우(ClaimFlow P1)에 있고 허브에서 별도로 제공하지 않는다.
+
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
 > 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).

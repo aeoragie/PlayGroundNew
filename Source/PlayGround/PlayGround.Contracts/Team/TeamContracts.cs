@@ -519,6 +519,12 @@ namespace PlayGround.Contracts.Team
         public int Appearances { get; set; }
         public int Goals { get; set; }
         public int Assists { get; set; }
+
+        /// <summary>연결 상태 — 'Claimed'(연결됨) | 'Pending'(승인 대기). Pending은 스탯이 없고 "요청 상태 보기"만.</summary>
+        public string ClaimStatus { get; set; } = "Claimed";
+
+        /// <summary>Pending일 때 요청일 — 대기 안내 문구에 쓴다("… 7/14 요청"). Claimed는 null.</summary>
+        public DateTime? RequestedAt { get; set; }
     }
 
     /// <summary>"처리가 필요해요" 목록 (Design.DashboardHub §3).
