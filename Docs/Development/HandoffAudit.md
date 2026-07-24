@@ -17,7 +17,7 @@
 | ClaimFlow | 요청 취소 링크(P1) · **"코드가 없어요" → Records 프로필 경유 연결** | 후자는 공개 선수 프로필이 생겨 **착수 가능해짐** |
 | AgentViewApproval | feature flag **off** 유지(요청 생산자 없음 — 정상) · denied "재승인" 요청 기록 화면 · 에이전트 프로필 화면 | 권한 뷰가 생기면 미해결 ① 해소 |
 | DashboardHub | 다음 경기 줄(일정 실데이터 의존) · ~~Pending 자녀 카드 분기~~ **완료**(2026-07-21, 대기 카드+/claim 라우팅) · 알림 센터 전체 보기 링크 | |
-| DropdownMenu | **§1 계정 메뉴(AccountMenu) 공용 추출** — PublicGnb 인라인으로 동작 중 | 기능 있음, 컴포넌트화만 잔여 |
+| DropdownMenu | ~~§1 계정 메뉴(AccountMenu) 공용 추출~~ **완료**(2026-07-21, 4개 GNB 연결·Esc/바깥클릭) | Phase D 완료 |
 | SearchFilter | **GNB 퀵서치** · 적용 예정 잔여 2곳(경기기록 상태 칩·팀 대시보드 선수단 검색) | 퀵서치는 팀 탐색 검색 주체 재검토(보류)와 연동 |
 | Records | 팀·선수 검색(현재 대회명만) · zone 문구 대회별 커스텀 | |
 

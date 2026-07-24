@@ -74,6 +74,31 @@ namespace PlayGround.Client.Styles
             public const string SheetCancel =
                 "h-[46px] rounded-xl border-0 bg-surface-icon text-[13.5px] font-bold text-text-body " +
                 "cursor-pointer whitespace-nowrap mt-2";
+
+            //.// 계정 메뉴 (§1) — GNB 아바타 드롭다운. 헤더 + 이동 그룹 + 구분선 + 로그아웃(회색).
+
+            public const string AccountCard =
+                "absolute right-0 top-[42px] z-50 w-[220px] max-w-[240px] bg-white border-1.5 border-border " +
+                "rounded-[13px] shadow-menu overflow-hidden flex flex-col";
+
+            public const string AccountHeader =
+                "flex items-center gap-2.5 px-3.5 py-3 bg-surface-soft border-b border-surface-icon";
+
+            public const string AccountName = "text-[12.5px] font-extrabold text-navy-deep whitespace-nowrap truncate";
+            public const string AccountCaption = "text-[10.5px] font-bold text-text-muted whitespace-nowrap truncate";
+
+            public const string AccountGroup = "p-1.5 flex flex-col gap-0.5";
+
+            public const string AccountItem =
+                "flex items-center gap-2.5 px-2.5 h-9 rounded-lg text-[12.5px] font-bold text-navy-deep " +
+                "no-underline hover:bg-surface-soft transition-colors whitespace-nowrap";
+
+            public const string AccountDivider = "h-px bg-surface-icon mx-1.5";
+
+            /// <summary>로그아웃 — 위험 액션이 아니라 회색(text-body). 확인 모달 없음.</summary>
+            public const string AccountLogout =
+                "flex items-center gap-2.5 px-2.5 h-9 m-1.5 rounded-lg text-[12.5px] font-bold text-text-body " +
+                "bg-transparent border-0 cursor-pointer text-left hover:bg-surface-soft transition-colors whitespace-nowrap";
         }
     }
 }

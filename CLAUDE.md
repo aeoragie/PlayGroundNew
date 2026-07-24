@@ -542,6 +542,28 @@
   친선 거부는 프로시저 구조상 자명(팀 B6에서 별도 검증). 허브 자녀 카드에 신청 요약을 얹는 건
   안 했다(목록을 신청 자리 아래 둔 판단과 상충 — 필요 시 지시).
 
+### 계정 메뉴(AccountMenu) 공용 추출 완료 (2026-07-21, Design.DropdownMenu §1)
+
+- **Phase D 잔여였던 마지막 조각.** GNB 아바타 드롭다운이 `PublicGnb`에 인라인으로만 있었고(내
+  대시보드/설정/로그아웃), 대시보드 GNB 3종(팀·선수·허브)은 **동작 없는 맨 아바타**였다. §1 카탈로그대로
+  `Components/Shared/Menu/AccountMenu.razor` 공용 컴포넌트로 추출: 헤더(아바타+이름+역할 캡션) → 이동
+  그룹(대시보드 허브·설정, 아이콘 15px) → 구분선 → **로그아웃(회색 — 위험 액션 아님, 확인 모달 없음)**.
+- **4곳 전부 연결**: PublicGnb(인라인 제거) · HubGnb · DashboardGnb(RoleCaption "팀 관리자") ·
+  PlayerDashboardGnb(RoleCaption "보호자"). 대시보드 3종은 이제 맨 아바타가 아니라 동작하는 메뉴다.
+  PlayerDashboardGnb는 `GuardianInitial`(첫 글자) 파라미터를 `DisplayName`(전체 이름)으로 바꿨다 —
+  카드 헤더에 이름이 필요하고 아바타는 이니셜을 알아서 파생한다.
+- **로그아웃은 컴포넌트가 자체 처리**(AuthProvider+Nav 주입) — 호출부는 이름·역할만 준다. PublicGnb의
+  로그아웃·토글·InitialOf 등 죽은 코드와 미사용 inject(AuthProvider·ClaimsPrincipal using) 제거.
+- **동시 1개는 OverflowMenu와 같은 정적 코디네이터** 재사용. **Esc 닫힘은 카드를 열린 직후 포커스**해서
+  받는다(FocusAsync — tabindex만으로는 keydown이 안 온다, 검증에서 처음엔 FAIL 났다가 수정). 바깥
+  클릭은 투명 배경 div(JS 없이).
+- 스타일 `Css.Menu.Account*` 신설(카드 radius 13·shadow-menu·max-w 240, 헤더 surface-soft, 항목 36px·
+  hover surface-soft·12.5px 700). 색은 토큰만(로그아웃 text-body=#5b6577, 캡션 text-muted).
+- 검증(`shot-accountmenu.js` 6 PASS): 공개 GNB·팀 대시보드 GNB에서 열림·구조(허브/설정/로그아웃)·
+  **Esc 닫힘·바깥 클릭 닫힘**·역할 캡션 "팀 관리자". 데이터 무변경.
+- **Phase D 완료** — AvatarBadge 일괄 교체 + AccountMenu 추출 둘 다 끝. 잔여 패턴 0(온보딩 중복 방지는
+  별개 후속).
+
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
 > 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).

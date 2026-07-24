@@ -18,7 +18,7 @@
 
 @* PC (≥1024px 설계 — md 브레이크포인트 공용): GNB + 사이드바 230px *@
 <div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
-    <PlayerDashboardGnb GuardianInitial="@GuardianInitial" />
+    <PlayerDashboardGnb DisplayName="@GuardianName" />
     <div class="flex-1 flex items-stretch">
         @if (mInfo is not null)
         {
@@ -185,14 +185,13 @@
     private string SidebarSummary => BuildSummary(includeTeam: true);
     private string MobileSummary => BuildSummary(includeTeam: false);
 
-    private string GuardianInitial
+    // 계정 메뉴 헤더·아바타 이니셜용 보호자 표시 이름(아바타는 첫 글자를 파생한다)
+    private string GuardianName
     {
         get
         {
             string? guardian = mInfo?.Family.FirstOrDefault(m => m.Role == "Guardian")?.MemberName;
-            string? fallback = mInfo?.Profile.Name;
-            string source = guardian ?? fallback ?? string.Empty;
-            return source.Length > 0 ? source[..1] : string.Empty;
+            return guardian ?? mInfo?.Profile.Name ?? "보호자";
         }
     }
 

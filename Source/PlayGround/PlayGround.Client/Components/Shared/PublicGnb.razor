@@ -2,10 +2,8 @@
    게스트: 워드마크 + 경기기록 + [로그인](returnUrl 보존) / 로그인: 로그인 버튼 자리에 벨 + 아바타.
    모바일 게스트는 메뉴 링크를 숨기고 [로그인]만 — 경기기록·팀 탐색은 콘텐츠 내 진입점으로 충분.
    ※ 공개 팀 홈은 이 컴포넌트를 쓰지 않는다(PublicTeamGnb — 팀명 fade-in 확정 결정 유지). *@
-@using System.Security.Claims
 @using PlayGround.Client.Styles
 @inject NavigationManager Nav
-@inject JwtAuthenticationStateProvider AuthProvider
 
 <header class="bg-bg border-b border-border sticky top-0 z-50">
     <div class="max-w-[1100px] mx-auto px-4 md:px-8 h-[54px] md:h-[60px] flex items-center gap-3 md:gap-4">
@@ -33,24 +31,8 @@
 
                 <NotificationBell Appearance="NotificationBell.BellAppearance.Light" />
 
-                @* 아바타 드롭다운 — 대시보드 / 설정 / 로그아웃 (Design.Navigation GNB 매트릭스) *@
-                <div class="relative">
-                    <button type="button" @onclick="ToggleMenu" aria-haspopup="true" aria-expanded="@mMenuOpen"
-                            class="p-0 bg-transparent border-0 cursor-pointer flex">
-                        <Avatar Name="@InitialOf(context.User)" Size="32" />
-                    </button>
-
-                    @if (mMenuOpen)
-                    {
-                        @* 바깥 클릭으로 닫기 *@
-                        <div class="fixed inset-0 z-40" @onclick="CloseMenu"></div>
-                        <div class="absolute right-0 top-[38px] z-50 min-w-[148px] bg-white border-1.5 border-border rounded-xl shadow-menu py-1.5 flex flex-col">
-                            <a href="@Routes.Dashboard" @onclick="CloseMenu" class="@MenuItemClass">내 대시보드</a>
-                            <a href="@Routes.Settings" @onclick="CloseMenu" class="@MenuItemClass">설정</a>
-                            <button type="button" @onclick="LogoutAsync" class="@($"{MenuItemClass} text-left border-0 bg-transparent cursor-pointer")">로그아웃</button>
-                        </div>
-                    }
-                </div>
+                @* 계정 메뉴 — 공용 컴포넌트(Design.DropdownMenu §1) *@
+                <AccountMenu DisplayName="@(context.User.Identity?.Name ?? "사용자")" />
             </Authorized>
             <NotAuthorized>
                 @if (SectionLabel != RecordsLabel)
@@ -74,14 +56,9 @@
     private const string NavLinkClass =
         "text-[12.5px] md:text-[13.5px] font-bold text-text-strong hover:text-navy whitespace-nowrap transition-colors";
 
-    private const string MenuItemClass =
-        "px-3.5 py-2.5 text-[13px] font-bold text-text-strong hover:bg-surface-alt whitespace-nowrap transition-colors";
-
     /// <summary>브랜드 오른쪽 구분선 + 섹션명 (예: "경기기록"). null이면 표시하지 않는다.</summary>
     [Parameter]
     public string? SectionLabel { get; set; }
-
-    private bool mMenuOpen;
 
     // 게스트가 로그인하러 갈 때 현재 위치를 보존한다
     private string LoginHref => Routes.LoginWithReturn(CurrentPath);
@@ -93,23 +70,5 @@
             string relative = Nav.ToBaseRelativePath(Nav.Uri);
             return "/" + relative;
         }
-    }
-
-    private void ToggleMenu() => mMenuOpen = !mMenuOpen;
-
-    private void CloseMenu() => mMenuOpen = false;
-
-    private static string InitialOf(ClaimsPrincipal user)
-    {
-        string? name = user.Identity?.Name;
-        return string.IsNullOrWhiteSpace(name) ? "?" : name[..1];
-    }
-
-    // 로그아웃 → 랜딩 (Design.Navigation 인증 플로우 4)
-    private async Task LogoutAsync()
-    {
-        CloseMenu();
-        await AuthProvider.MarkUserLoggedOutAsync();
-        Nav.NavigateTo(Routes.Landing);
     }
 }

@@ -13,11 +13,11 @@
         </svg>공개 프로필 보기
     </button>
     <NotificationBell Appearance="NotificationBell.BellAppearance.Box" />
-    <Avatar Name="@GuardianInitial" Size="32" />
+    <AccountMenu DisplayName="@DisplayName" RoleCaption="보호자" />
 </header>
 
 @code {
-    /// <summary>보호자 이름 첫 글자 (아바타).</summary>
+    /// <summary>보호자 표시 이름 (아바타 이니셜 + 계정 메뉴 헤더).</summary>
     [Parameter, EditorRequired]
-    public string GuardianInitial { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 }

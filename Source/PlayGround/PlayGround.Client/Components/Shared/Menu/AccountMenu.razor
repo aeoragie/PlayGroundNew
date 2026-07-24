@@ -1,0 +1,135 @@
+@* 계정 메뉴 — GNB 아바타 (전 화면 공통, Design.DropdownMenu §1).
+   구조: 헤더(아바타+이름+역할 캡션) → 이동 그룹(대시보드 허브·설정) → 구분선 → 로그아웃(회색 — 위험 아님).
+   바깥 클릭/Esc 닫힘 · 동시 1개(정적 코디네이터) · 로그아웃은 자체 처리. *@
+@using PlayGround.Client.Styles
+@implements IDisposable
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+
+<div class="relative shrink-0">
+    <button type="button" @onclick="Toggle" aria-haspopup="true" aria-expanded="@mIsOpen.ToString().ToLowerInvariant()"
+            aria-label="계정 메뉴" class="p-0 bg-transparent border-0 cursor-pointer flex">
+        <Avatar Name="@DisplayName" Size="@Size" />
+    </button>
+
+    @if (mIsOpen)
+    {
+        @* 바깥 클릭·Esc로 닫기 (투명 배경 — JS 없이) *@
+        <div class="fixed inset-0 z-40" @onclick="Close"></div>
+        <div @ref="mCard" class="@Css.Menu.AccountCard" @onkeydown="OnKeyDown" tabindex="-1">
+            <div class="@Css.Menu.AccountHeader">
+                <Avatar Name="@DisplayName" Size="36" />
+                <span class="flex flex-col min-w-0">
+                    <span class="@Css.Menu.AccountName">@DisplayName</span>
+                    @if (!string.IsNullOrWhiteSpace(RoleCaption))
+                    {
+                        <span class="@Css.Menu.AccountCaption">@RoleCaption</span>
+                    }
+                </span>
+            </div>
+
+            <div class="@Css.Menu.AccountGroup">
+                <a href="@Routes.Dashboard" @onclick="Close" class="@Css.Menu.AccountItem">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" class="text-text-muted">
+                        <rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect>
+                        <rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect>
+                    </svg>대시보드 허브
+                </a>
+                <a href="@Routes.Settings" @onclick="Close" class="@Css.Menu.AccountItem">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" class="text-text-muted">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 00-2-1.2L14 3h-4l-.4 2.6a7 7 0 00-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 005 12a7 7 0 00.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 002 1.2L10 21h4l.4-2.6a7 7 0 002-1.2l2.4 1 2-3.4-2-1.6c.1-.4.2-.8.2-1.2z"></path>
+                    </svg>설정
+                </a>
+            </div>
+
+            <div class="@Css.Menu.AccountDivider"></div>
+
+            @* 로그아웃은 위험 액션이 아니다 — 회색, 확인 모달 없음 *@
+            <button type="button" @onclick="LogoutAsync" class="@Css.Menu.AccountLogout">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" class="text-text-muted">
+                    <path d="M9 21H6a2 2 0 01-2-2V5a2 2 0 012-2h3M16 17l5-5-5-5M21 12H9"></path>
+                </svg>로그아웃
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>표시 이름 — 헤더와 아바타 이니셜에 쓴다.</summary>
+    [Parameter]
+    public string DisplayName { get; set; } = string.Empty;
+
+    /// <summary>역할 캡션(예: "보호자 · 자녀 2", "팀 관리자"). null이면 헤더에 표시하지 않는다.</summary>
+    [Parameter]
+    public string? RoleCaption { get; set; }
+
+    /// <summary>트리거 아바타 지름(px).</summary>
+    [Parameter]
+    public int Size { get; set; } = 32;
+
+    // 동시 1개 — 열 때 다른 계정/오버플로 메뉴가 닫히도록 정적 코디네이터 사용(OverflowMenu와 같은 방식)
+    private static event Action? OnAnyOpened;
+    private bool mIsOpen;
+    private bool mJustOpened;
+    private ElementReference mCard;
+
+    protected override void OnInitialized() => OnAnyOpened += CloseFromOther;
+
+    // Esc를 받으려면 카드가 포커스를 가져야 한다 — 열린 직후 한 번 포커스한다
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (mJustOpened)
+        {
+            mJustOpened = false;
+            await mCard.FocusAsync();
+        }
+    }
+
+    public void Dispose() => OnAnyOpened -= CloseFromOther;
+
+    private void CloseFromOther()
+    {
+        if (mIsOpen)
+        {
+            mIsOpen = false;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void Toggle()
+    {
+        if (mIsOpen)
+        {
+            Close();
+            return;
+        }
+
+        OnAnyOpened -= CloseFromOther; // 자기 구독을 잠시 떼고 알린다(방금 연 메뉴가 스스로 닫히지 않도록)
+        OnAnyOpened?.Invoke();
+        OnAnyOpened += CloseFromOther;
+        mIsOpen = true;
+        mJustOpened = true;
+    }
+
+    private void Close() => mIsOpen = false;
+
+    private void OnKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            Close();
+        }
+    }
+
+    // 로그아웃 → 랜딩 (Design.Navigation 인증 플로우 4)
+    private async Task LogoutAsync()
+    {
+        Close();
+        await AuthProvider.MarkUserLoggedOutAsync();
+        Nav.NavigateTo(Routes.Landing);
+    }
+}

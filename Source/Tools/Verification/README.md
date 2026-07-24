@@ -50,6 +50,7 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `shot-pendingchild.js` | 허브 Pending 자녀 UI — 승인 대기 뱃지·"–" 스탯·대기 안내·요청 상태 보기→/claim |
 | `api-guardiancorrection.js` | 보호자 기록 수정 신청 API — 신청·중복차단·친선/남의자녀 거부·취소·재신청 |
 | `shot-guardiancorrection.js` | 보호자 기록 수정 UI — 공식 행 ⋯→폼→토스트·목록·"신청 처리 중"·취소 모달 |
+| `shot-accountmenu.js` | 계정 메뉴 공용(§1) — 헤더·허브·설정·로그아웃 · Esc/바깥클릭 닫힘 · 전 화면 공통 |
 | `sql-guardiancorrection-cleanup.sql` | 보호자 검증 신청 물리 삭제 (스크립트는 소프트 삭제만 남긴다) |
 | `api-settings.js` | 설정 API — 이메일 마스킹 · 알림 기본값 병합 · **승인형 저장 거부**(enum 화이트리스트) · 계정 소프트 삭제(임시 계정 — 끝나면 SQL로 물리 삭제) |
 | `shot-settings.js` | 설정 3탭 URL 동기화 · 삭제 모달 문구 입력 잠금 · "항상 켜짐" 뱃지 · **스위치 실패 롤백**(PUT abort → 낙관 반영 → 롤백+오류 토스트) · 모바일 세그먼트 탭. playwright-core 필요 |
