@@ -40,3 +40,6 @@ Source/PlayGround/PlayGround.Server/wwwroot/uploads/
 
 # 검증 스크린샷 — 산출물이지 소스가 아니다
 Source/Tools/Verification/*.png
+
+# Notion 등 외부 익스포트 zip은 소스가 아니다
+*.zip
