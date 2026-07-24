@@ -1,6 +1,8 @@
 @* 시간 선택 — Design.DatePicker. 날짜와 별도 필드(한 팝오버에 합치지 않는다).
    15분 단위 리스트 + 직접 입력. 기본값은 호출부가 "그 팀의 최근 일정과 같은 시각"으로 넣어 준다. *@
 @using PlayGround.Client.Styles
+@implements IAsyncDisposable
+@inject IJSRuntime Js
 
 <div class="relative">
     <button type="button" class="@Css.Picker.Trigger(mIsOpen, HasError)" @onclick="Toggle">
@@ -21,7 +23,7 @@
     @if (mIsOpen)
     {
         <div class="fixed inset-0 z-40" @onclick="Close"></div>
-        <div class="@Css.Picker.TimeList">
+        <div class="@Css.Picker.TimeList" @ref="mList">
             @* 직접 입력 — 15분 격자에 없는 시각(19:05 등)을 위해 *@
             <input class="@Css.Picker.TimeInput" placeholder="19:05" inputmode="numeric" maxlength="5"
                    value="@mTyped" @oninput="OnTypedAsync" aria-label="시간 직접 입력" />
@@ -55,6 +57,38 @@
     private bool mIsOpen;
     private string mTyped = string.Empty;
 
+    // 모달 본문(overflow-y-auto) 안에서 드롭다운이 잘리지 않게 한 번 스크롤해 준다(캘린더와 동일)
+    private ElementReference mList;
+    private IJSObjectReference? mModule;
+    private bool mNeedsReveal;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!mNeedsReveal)
+        {
+            return;
+        }
+
+        mNeedsReveal = false;
+        mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/forms.js");
+        await mModule.InvokeVoidAsync("revealPopover", mList);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (mModule is not null)
+            {
+                await mModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // 페이지 이탈 시 JS 런타임이 먼저 끊긴 경우 — 무시
+        }
+    }
+
     private static TimeOnly[] BuildOptions()
     {
         var options = new List<TimeOnly>();
@@ -74,6 +108,7 @@
         if (mIsOpen)
         {
             mTyped = Value is TimeOnly current ? Format(current) : string.Empty;
+            mNeedsReveal = true;   // 열릴 때 한 번 스크롤로 드러낸다
         }
     }
 
