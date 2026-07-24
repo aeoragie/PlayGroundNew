@@ -40,10 +40,16 @@
    컬럼 추가는 여기) → Procedures(변경분은 `DROP PROCEDURE` 후 재생성) → Seeds**
 3. 반영을 마치면 아래 기준 커밋을 갱신하고 함께 커밋한다.
 
-> **기준 커밋: `f366cc3` (2026-07-21, 에이전트 열람 승인 — SoccerAgent* 테이블 4종·프로시저 3종·
-> UspGetSoccerNotificationsByUser 재배포까지 로컬 반영됨)**
+> **기준 커밋: `c74166a` (2026-07-21, 전체 DB 동기화 — 이 PC 로컬 SQLEXPRESS를 소스 기준으로 전량 재반영)**
 > — 이 줄은 "이 커밋까지의 DB 산출물이 로컬 SQLEXPRESS에 반영돼 있다"는 뜻이다.
 > DB 산출물이 포함된 커밋을 만들고 로컬에 반영했다면 그 해시로 갱신할 것.
+>
+> **2026-07-21 전량 동기화 기록** — 이 PC 로컬 DB가 소스보다 크게 뒤처져 있어(테이블 8종·프로시저
+> 25종 누락, 마이그레이션 미적용) 한 번에 맞췄다: 누락 테이블 8종(SoccerAgent* 4·Notifications·
+> Recruitments·Reviews·CareerOutcomes) 배포 → 마이그레이션 5종(MatchType·Slug·Code6·Relation·
+> IsRecruiting) 멱등 적용 → **프로시저 60종 전량 DROP+CREATE로 소스 버전 재배포**(STALE였던 로스터
+> 조회 Slug 포함) → 스모크 테스트(모집·리뷰·진학진로·알림·허브·공개홈 전부 정상). 이후로는 이 기준
+> 커밋 이하 DB 산출물이 전부 반영돼 있으니, 새 산출물만 위 "적용 순서"대로 얹으면 된다.
 
 ## 재구축 절차 (새 PC · DB 재생성 후)
 
