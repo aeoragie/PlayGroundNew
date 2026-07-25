@@ -39,8 +39,8 @@
                             <SkeletonSection><SkeletonRows Count="4" /></SkeletonSection>
                         </Skeleton>
                         <ChildContent>
-                            <ScheduleSection Schedules="@mSchedules!.Schedules" OnAdd="OpenScheduleAdd"
-                                             OnEdit="OpenScheduleEdit" OnDelete="DeleteScheduleAsync" />
+                            <ScheduleSection Schedules="@mSchedules!.Schedules" TeamSlug="@mInfo?.Profile.Slug"
+                                             OnAdd="OpenScheduleAdd" OnEdit="OpenScheduleEdit" OnDelete="DeleteScheduleAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -120,8 +120,8 @@
                         <SkeletonSection Compact="true"><SkeletonRows Count="3" /></SkeletonSection>
                     </Skeleton>
                     <ChildContent>
-                        <MobileScheduleSection Schedules="@mSchedules!.Schedules" OnAdd="OpenScheduleAdd"
-                                               OnEdit="OpenScheduleEdit" OnDelete="DeleteScheduleAsync" />
+                        <MobileScheduleSection Schedules="@mSchedules!.Schedules" TeamSlug="@mInfo?.Profile.Slug"
+                                               OnAdd="OpenScheduleAdd" OnEdit="OpenScheduleEdit" OnDelete="DeleteScheduleAsync" />
                     </ChildContent>
                 </LoadingGate>
                 break;

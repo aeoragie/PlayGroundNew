@@ -66,7 +66,7 @@ namespace PlayGround.Application.Team.Commands
                 Result<TeamRosterResponse> roster = await mTeamRepository.GetTeamRosterByManagerAsync(userId, cancellation);
                 Result<PendingInvitesResponse> invites = await mTeamRepository.GetPendingInvitesByManagerAsync(userId, cancellation);
 
-                response.Teams.Add(new HubTeamDto
+                var teamCard = new HubTeamDto
                 {
                     TeamId = team.Value.Profile.TeamId,
                     TeamName = team.Value.Profile.TeamName,
@@ -74,7 +74,25 @@ namespace PlayGround.Application.Team.Commands
                     IsVerified = team.Value.Profile.IsVerified,
                     PlayerCount = roster.IsError ? 0 : roster.Value.Players.Count,
                     PendingInviteCount = invites.IsError ? 0 : invites.Value.Invites.Count,
-                });
+                };
+
+                //.// 다음 경기 — 경기·대회 중 가장 가까운 미래 1건(훈련 제외). 없으면 null(카드에서 줄 생략).
+                Result<SchedulesResponse> schedules = await mTeamRepository.GetSchedulesByManagerAsync(userId, cancellation);
+                if (!schedules.IsError)
+                {
+                    ScheduleDto? next = schedules.Value.Schedules
+                        .Where(s => s.StartsAt > DateTime.Now && (s.Type == "Match" || s.Type == "Tournament"))
+                        .OrderBy(s => s.StartsAt)
+                        .FirstOrDefault();
+
+                    if (next is not null)
+                    {
+                        teamCard.NextMatchStartsAt = next.StartsAt;
+                        teamCard.NextMatchOpponent = next.OpponentName;
+                    }
+                }
+
+                response.Teams.Add(teamCard);
             }
 
             //.// 자녀 — 스탯은 선수 대시보드와 같은 경로로 뽑는다(공식 경기만 — Design.FriendlyMatch)

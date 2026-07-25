@@ -244,6 +244,22 @@ namespace PlayGround.Client.Services
 
         //.// 팀 일정 (Design.Schedule)
 
+        /// <summary>공개 팀 홈 일정 — 비로그인. 공개 일정만(서버 필터). 비공개·미존재 팀은 빈 목록, 오류 시 null.</summary>
+        public async Task<SchedulesResponse?> GetTeamSchedulesAsync(string slug)
+        {
+            try
+            {
+                Envelope<SchedulesResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<SchedulesResponse>>(
+                        $"api/soccer/team/{Uri.EscapeDataString(slug)}/schedules");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         /// <summary>팀 대시보드 일정 섹션 — 소유 팀 일정 목록. 미인증·오류 시 null.</summary>
         public async Task<SchedulesResponse?> GetMySchedulesAsync()
         {

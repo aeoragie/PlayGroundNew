@@ -4,6 +4,9 @@
 @using PlayGround.Client.Models
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
+@inject IJSRuntime Js
+@inject NavigationManager Nav
+@inject ToastService Toasts
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
@@ -54,12 +57,23 @@
         </div>
     }
 
-    <div class="text-[12.5px] text-text-muted break-keep">경기 일정은 공개 홈페이지 Schedule 탭에 자동 노출 · 학부모는 구독 캘린더(Google/Apple)로 받아볼 수 있어요</div>
+    <div class="flex items-center gap-2.5 flex-wrap">
+        <div class="text-[12.5px] text-text-muted break-keep flex-1 min-w-0">경기 일정은 공개 홈페이지 Schedule 탭에 자동 노출 · 학부모는 구독 캘린더(Google/Apple)로 받아볼 수 있어요</div>
+        @if (!string.IsNullOrWhiteSpace(TeamSlug))
+        {
+            <button type="button" @onclick="CopyFeedAsync"
+                    class="text-[12.5px] font-bold text-navy hover:text-orange bg-transparent border-0 cursor-pointer p-0 whitespace-nowrap transition-colors">구독 링크 복사</button>
+        }
+    </div>
 </div>
 
 @code {
     [Parameter, EditorRequired]
     public List<ScheduleDto> Schedules { get; set; } = new();
+
+    /// <summary>구독 링크 복사용 팀 슬러그 — 없으면 버튼 미노출.</summary>
+    [Parameter]
+    public string? TeamSlug { get; set; }
 
     /// <summary>＋ 일정 추가 — 페이지가 다이얼로그를 연다.</summary>
     [Parameter]
@@ -74,6 +88,14 @@
     public EventCallback<ScheduleDto> OnDelete { get; set; }
 
     private static string MonthLabel => $"{DateTime.Now.Year}년 {DateTime.Now.Month}월";
+
+    // 공개 iCal 피드 절대 URL 복사(토큰 없는 공개 URL) — 공개홈 구독 카드와 같은 값
+    private async Task CopyFeedAsync()
+    {
+        string url = Nav.ToAbsoluteUri($"api/soccer/team/{Uri.EscapeDataString(TeamSlug!)}/schedule.ics").ToString();
+        await Js.InvokeVoidAsync("navigator.clipboard.writeText", url);
+        Toasts.ShowSuccess("구독 링크가 복사됐어요");
+    }
 
     private static bool IsEnded(ScheduleDto s) => s.StartsAt < DateTime.Now;
 

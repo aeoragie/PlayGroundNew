@@ -548,6 +548,12 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>미처리 연결 요청 — 0이면 요약 문장에서 뺀다(빈 데이터 노출 금지).</summary>
         public int PendingInviteCount { get; set; }
+
+        /// <summary>다음 경기(경기·대회 중 가장 가까운 미래 1건, 훈련 제외) 일시 — 없으면 null(줄 생략). 클라가 포맷.</summary>
+        public DateTime? NextMatchStartsAt { get; set; }
+
+        /// <summary>다음 경기 상대 — 있으면 "vs {상대}", 대회로 상대가 없으면 null.</summary>
+        public string? NextMatchOpponent { get; set; }
     }
 
     /// <summary>허브의 자녀 카드. 스탯은 선수 대시보드와 같은 경로로 집계한다(공식 경기만).</summary>

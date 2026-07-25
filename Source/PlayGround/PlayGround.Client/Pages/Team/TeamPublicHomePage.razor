@@ -56,10 +56,13 @@ else if (mHome is not null)
                             </SkeletonSection>
                         </Skeleton>
                         <ChildContent>
+                            @* 다가오는 일정 — 시즌성적 위에 배치(공개 일정만, 없으면 미노출) *@
                             <div class="hidden md:block">
+                                <PublicScheduleSection Slug="@Slug" Schedules="@(mSchedules?.Schedules ?? new())" />
                                 <PublicRecordSection Data="@(mRecord!)" />
                             </div>
                             <div class="md:hidden">
+                                <MobilePublicScheduleSection Slug="@Slug" Schedules="@(mSchedules?.Schedules ?? new())" />
                                 <MobilePublicRecordSection Data="@(mRecord!)" />
                             </div>
                         </ChildContent>
@@ -141,6 +144,7 @@ else if (mHome is not null)
 
     private TeamPublicHomeResponse? mHome;
     private TeamSeasonRecordResponse? mRecord;
+    private SchedulesResponse? mSchedules;
     private TeamRecruitmentsResponse? mRecruitments;
     private TeamCareerOutcomesResponse? mCareerOutcomes;
     private TeamReviewsResponse? mReviews;
@@ -229,6 +233,9 @@ else if (mHome is not null)
         mRecordFailed = false;
         mRecord = await Teams.GetTeamSeasonRecordAsync(Slug, DateTime.Now.Year);
         mRecordFailed = mRecord is null;
+
+        // 다가오는 일정도 같은 시점에 로드(공개 일정만) — 실패해도 시즌성적 표시를 막지 않는다(섹션만 미노출)
+        mSchedules = await Teams.GetTeamSchedulesAsync(Slug);
     }
 
     private void GoRecruit()

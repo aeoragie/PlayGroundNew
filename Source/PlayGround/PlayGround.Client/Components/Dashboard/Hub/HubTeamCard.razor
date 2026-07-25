@@ -1,4 +1,5 @@
 @* 내 팀 — 네이비 그라디언트 카드. "팀 대시보드"가 허브의 유일한 오렌지 버튼이다. *@
+@using System.Globalization
 @using PlayGround.Contracts.Team
 @using PlayGround.Client.Styles
 
@@ -24,7 +25,11 @@
         </div>
     </div>
 
-    @* 다음 경기 줄은 일정 데이터가 실제로 연결될 때 붙인다(현재 팀 일정은 목데이터) *@
+    @* 다음 경기 — 경기·대회 중 가장 가까운 미래 1건(훈련 제외). 없으면 줄 생략(Design.Schedule) *@
+    @if (Team.NextMatchStartsAt is DateTime next)
+    {
+        <p class="relative mt-3 m-0 text-[13px] font-bold text-teal">다음 경기 — @NextMatchLabel(next)</p>
+    }
 
     <div class="relative mt-4 flex gap-2">
         <a href="@Routes.TeamDashboard" class="@($"{Css.Hub.TeamPrimary} flex-1 md:flex-none")">팀 대시보드</a>
@@ -51,5 +56,16 @@
 
             return string.Join(" · ", parts);
         }
+    }
+
+    // "다음 경기 — {M/D}({요일}) {HH:mm} vs {상대}" — 상대 없으면(대회) vs 부분 생략. 포맷은 Invariant.
+    private string NextMatchLabel(DateTime dt)
+    {
+        string weekday = new[] { "일", "월", "화", "수", "목", "금", "토" }[(int)dt.DayOfWeek];
+        string datePart = $"{dt.ToString("M/d", CultureInfo.InvariantCulture)}({weekday}) {dt.ToString("HH:mm", CultureInfo.InvariantCulture)}";
+
+        return string.IsNullOrWhiteSpace(Team.NextMatchOpponent)
+            ? datePart
+            : $"{datePart} vs {Team.NextMatchOpponent}";
     }
 }
