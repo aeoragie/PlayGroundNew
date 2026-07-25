@@ -1,6 +1,7 @@
 @* 선수 프로필 수치 편집 (키·몸무게·주발·학교) — PC 중앙 모달 / 모바일 전체 시트.
    폼이 전체 상태를 보내므로 비운 값은 서버에서 지워진다(항목 삭제 = 빈 값 저장).
    검증 오류는 인라인만(토스트 금지), 저장 실패만 토스트. 저장 후 상위가 프로필을 다시 읽는다. *@
+@using System.Text.RegularExpressions
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
 @inject PlayerClient Players
@@ -37,6 +38,10 @@
                     <TextField Label="학교" @bind-Value="mSchool" IsOptional="true"
                                Placeholder="예: 서울중학교" MaxLength="100"
                                Helper="공개 범위 설정에서 학교 공개를 켜야 다른 사람에게 보여요." />
+
+                    <TextField Label="프로필 주소" @bind-Value="mSlug" Validator="ValidateSlug"
+                               Placeholder="gangmin" MaxLength="30"
+                               Helper="@SlugHelper" />
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
@@ -75,14 +80,28 @@
         new SelectOption<string>("Both", "양발"),
     };
 
+    // 소문자 영숫자, 하이픈 허용(양끝·연속 하이픈 금지) — 서버 규칙과 같다.
+    private static readonly Regex SlugRegex = new(@"^[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.Compiled);
+
+    // 예약어 — 서버(SoccerPlayerProfileInfoUpdateCommand)와 같은 목록.
+    private static readonly HashSet<string> Reserved = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "me", "api", "admin", "new", "edit", "player", "team", "teams",
+        "settings", "dashboard", "card", "login", "records", "claim"
+    };
+
     private readonly FormFieldContext mForm = new();
 
     private string? mHeightText;
     private string? mWeightText;
     private string? mFoot;
     private string? mSchool;
+    private string? mSlug;
+    private string? mTakenSlug; // 서버가 "이미 사용 중"이라고 돌려준 값 — 인라인 오류 표시용
     private bool mSaving;
     private bool mLoaded;
+
+    private string SlugHelper => $"공개 프로필 주소: /player/{(string.IsNullOrWhiteSpace(mSlug) ? "…" : mSlug.Trim().ToLowerInvariant())}";
 
     protected override void OnParametersSet()
     {
@@ -102,6 +121,39 @@
         mWeightText = Profile?.WeightKg?.ToString();
         mFoot = Profile?.PreferredFoot;
         mSchool = Profile?.SchoolName;
+        mSlug = Profile?.Slug;
+        mTakenSlug = null;
+    }
+
+    private string? ValidateSlug(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "프로필 주소를 입력해 주세요.";
+        }
+
+        string v = value.Trim().ToLowerInvariant();
+        if (v.Length < 3 || v.Length > 30)
+        {
+            return "3~30자로 입력해 주세요.";
+        }
+
+        if (!SlugRegex.IsMatch(v))
+        {
+            return "소문자 영문·숫자·하이픈(-)만 쓸 수 있어요.";
+        }
+
+        if (Reserved.Contains(v))
+        {
+            return "사용할 수 없는 주소예요.";
+        }
+
+        if (mTakenSlug is not null && string.Equals(v, mTakenSlug, StringComparison.Ordinal))
+        {
+            return "이미 사용 중인 주소예요.";
+        }
+
+        return null;
     }
 
     private static string? ValidateHeight(string? value) => ValidateRange(value, 100, 230, "키");
@@ -141,13 +193,22 @@
             WeightKg = ParseIntOrNull(mWeightText),
             PreferredFoot = string.IsNullOrWhiteSpace(mFoot) ? null : mFoot,
             SchoolName = string.IsNullOrWhiteSpace(mSchool) ? null : mSchool.Trim(),
+            Slug = string.IsNullOrWhiteSpace(mSlug) ? null : mSlug.Trim().ToLowerInvariant(),
         };
 
         mSaving = true;
-        bool ok = await Players.UpdateProfileInfoAsync(request, PlayerId);
+        ProfileInfoSaveOutcome outcome = await Players.UpdateProfileInfoAsync(request, PlayerId);
         mSaving = false;
 
-        if (!ok)
+        // 주소만 중복 — 수치는 저장됐다. 다이얼로그를 닫지 않고 주소 필드에 인라인 오류를 띄운다.
+        if (outcome == ProfileInfoSaveOutcome.SlugTaken)
+        {
+            mTakenSlug = request.Slug;
+            await mForm.ValidateAllAsync();
+            return;
+        }
+
+        if (outcome == ProfileInfoSaveOutcome.Failed)
         {
             Toasts.ShowError("저장하지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", SubmitAsync);
             return;

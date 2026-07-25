@@ -238,18 +238,19 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>선수 프로필 수치(키·몸무게·주발·학교) 편집. playerId = 어느 자녀인지. 권한은 서버가 UserId로 판정.</summary>
+        /// <summary>선수 프로필 수치(키·몸무게·주발·학교)·주소(슬러그) 편집. playerId = 어느 자녀인지.
+        /// 권한은 서버가 UserId로 판정. 응답의 SlugTaken이 true면 주소만 반영되지 않은 것.</summary>
         [HttpPut("me/profile/info")]
-        public async Task<Envelope<bool>> UpdateMyProfileInfoAsync(
+        public async Task<Envelope<UpdatePlayerProfileInfoResponse>> UpdateMyProfileInfoAsync(
             [FromBody] UpdatePlayerProfileInfoRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
         {
             string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(sub, out Guid userId))
             {
-                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+                return Result<UpdatePlayerProfileInfoResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
             }
 
-            Result<bool> result = await mGateway.AskAsync<bool>(
+            Result<UpdatePlayerProfileInfoResponse> result = await mGateway.AskAsync<UpdatePlayerProfileInfoResponse>(
                 ActorNames.SoccerPlayerProfile, new UpdateSoccerPlayerProfileInfoMessage(userId, request, playerId), cancellation);
             return result.ToEnvelope();
         }

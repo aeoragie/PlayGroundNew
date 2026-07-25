@@ -102,14 +102,25 @@ namespace PlayGround.Contracts.Player
         public bool IsPublic { get; set; }
     }
 
-    /// <summary>선수 프로필 수치 편집 요청(키·몸무게·주발·학교). 폼이 전체 상태를 보내므로
-    /// null은 "지움"이다. 대상 자녀는 쿼리 playerId로 지정 — 권한은 서버가 UserId로 판정.</summary>
+    /// <summary>선수 프로필 수치·주소 편집 요청(키·몸무게·주발·학교 + 공개 프로필 슬러그). 폼이 전체
+    /// 상태를 보내므로 수치 null은 "지움"이다. Slug null = 주소 변경 안 함.
+    /// 대상 자녀는 쿼리 playerId로 지정 — 권한은 서버가 UserId로 판정.</summary>
     public class UpdatePlayerProfileInfoRequest
     {
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
         public string? PreferredFoot { get; set; } // SoccerPreferredFoot enum 멤버 이름 ('Left'|'Right'|'Both')
         public string? SchoolName { get; set; }
+
+        /// <summary>공개 프로필 주소(슬러그). null·빈 값 = 변경 안 함. 소문자 영숫자·하이픈만.</summary>
+        public string? Slug { get; set; }
+    }
+
+    /// <summary>프로필 수치·주소 편집 결과. 수치는 항상 저장되며, SlugTaken이면 주소만 반영되지 않은 것
+    /// (다른 선수가 이미 사용 중) — 화면은 주소 필드에 인라인 오류를 띄운다.</summary>
+    public class UpdatePlayerProfileInfoResponse
+    {
+        public bool SlugTaken { get; set; }
     }
 
     /// <summary>선수 사진 설정·삭제 요청. PhotoUrl null = 삭제(이니셜 아바타로 복귀).

@@ -130,19 +130,26 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>선수 프로필 수치(키·몸무게·주발·학교) 편집. 성공 여부 반환.</summary>
-        public async Task<bool> UpdateProfileInfoAsync(UpdatePlayerProfileInfoRequest request, Guid? playerId = null)
+        /// <summary>선수 프로필 수치(키·몸무게·주발·학교)·주소(슬러그) 편집.
+        /// SlugTaken = 수치는 저장됐지만 주소가 이미 사용 중이라 반영 안 됨(화면이 인라인 오류).</summary>
+        public async Task<ProfileInfoSaveOutcome> UpdateProfileInfoAsync(UpdatePlayerProfileInfoRequest request, Guid? playerId = null)
         {
             try
             {
                 HttpResponseMessage response = await mHttp.PutAsJsonAsync(
                     $"api/soccer/player/me/profile/info{Q(playerId)}", request);
-                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
-                return envelope is { IsSuccess: true };
+                Envelope<UpdatePlayerProfileInfoResponse>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<UpdatePlayerProfileInfoResponse>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return envelope.Data?.SlugTaken == true ? ProfileInfoSaveOutcome.SlugTaken : ProfileInfoSaveOutcome.Ok;
+                }
+
+                return ProfileInfoSaveOutcome.Failed;
             }
             catch
             {
-                return false;
+                return ProfileInfoSaveOutcome.Failed;
             }
         }
 
@@ -338,4 +345,12 @@ namespace PlayGround.Client.Services
     /// IsNetworkError로 "코드가 틀림"(입력 오류 → 인라인)과 "요청 실패"(시스템 오류 → 토스트+재시도)를 구분한다.
     /// </remarks>
     public record PlayerClaimResult(bool Success, string? TeamName, string? AccessToken, string? Error, bool IsNetworkError = false);
+
+    /// <summary>프로필 수치·주소 편집 결과. SlugTaken이면 수치는 저장됐지만 주소가 이미 사용 중.</summary>
+    public enum ProfileInfoSaveOutcome
+    {
+        Ok,
+        SlugTaken,
+        Failed
+    }
 }
