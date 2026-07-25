@@ -113,5 +113,24 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>수정 신청 취소(소프트 삭제). 접수 상태가 아니거나 내 것이 아니면 Success(false).</summary>
         Task<Result<bool>> CancelRecordCorrectionAsync(Guid managerUserId, Guid correctionId, CancellationToken cancellation = default);
+
+        //.// 선수 지원(Application) — 모집 공고 지원·검토
+
+        /// <summary>지원 생성 (보호자). 프로시저 상태 신호를 그대로 돌려준다 —
+        /// Status ∈ 'Ok'·'Duplicate'·'Closed'·'Full'·'Cooldown'·'Forbidden'. 'Ok'일 때만 ApplicationId 값.</summary>
+        Task<Result<(string Status, Guid? ApplicationId)>> CreateApplicationAsync(
+            Guid guardianUserId, CreateApplicationRequest request, CancellationToken cancellation = default);
+
+        /// <summary>팀 관리자 소유 팀 공고의 지원자 목록. 없으면 빈 목록 — 에러가 아니다.</summary>
+        Task<Result<TeamApplicationsResponse>> GetApplicationsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
+        /// <summary>보호자가 올린 지원 현황. 없으면 빈 목록 — 에러가 아니다.</summary>
+        Task<Result<MyApplicationsResponse>> GetApplicationsByGuardianAsync(Guid guardianUserId, CancellationToken cancellation = default);
+
+        /// <summary>지원 상태 전환 (관리자). 소유 아님·잘못된 전환은 Success(false).</summary>
+        Task<Result<bool>> UpdateApplicationStatusAsync(Guid managerUserId, Guid applicationId, string newStatus, CancellationToken cancellation = default);
+
+        /// <summary>지원 취소(소프트 삭제, 보호자). 대기 상태의 내 지원이 아니면 Success(false).</summary>
+        Task<Result<bool>> CancelApplicationAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default);
     }
 }

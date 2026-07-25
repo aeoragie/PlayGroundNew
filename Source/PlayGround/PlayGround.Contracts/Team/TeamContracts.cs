@@ -137,6 +137,18 @@ namespace PlayGround.Contracts.Team
         public DateTime? DeadlineDate { get; set; }
         public string Status { get; set; } = string.Empty;
         public bool IsOpen { get; set; }
+
+        /// <summary>모집 연령대 'U12'|'U15'|'U18' — 지원 통합(E5) 카드 메타. 미지정이면 null.</summary>
+        public string? AgeGroup { get; set; }
+
+        /// <summary>모집 포지션 목록 — 지원 폼의 희망 포지션 선택지 (PositionsJson 파싱).</summary>
+        public List<string> Positions { get; set; } = new();
+
+        /// <summary>정원 — null이면 무제한. "정원 N/M" 표기·지원 차단 판정에 쓴다.</summary>
+        public int? Capacity { get; set; }
+
+        /// <summary>현재 수락(Accepted)된 지원 수 — "정원 N/M"의 N. Capacity와 함께 충족 여부를 판정.</summary>
+        public int AcceptedCount { get; set; }
     }
 
     /// <summary>모집 공고 저장 요청 — RecruitmentId 빈 GUID = 신규 (B3 규약).</summary>
@@ -147,6 +159,89 @@ namespace PlayGround.Contracts.Team
         public string Description { get; set; } = string.Empty;
         public List<string> Conditions { get; set; } = new();
         public DateTime? DeadlineDate { get; set; }
+
+        /// <summary>모집 연령대 'U12'|'U15'|'U18' (선택).</summary>
+        public string? AgeGroup { get; set; }
+
+        /// <summary>모집 포지션 목록 (선택) — 리포지토리가 JSON 배열로 직렬화해 저장한다.</summary>
+        public List<string> Positions { get; set; } = new();
+
+        /// <summary>정원 (선택) — null이면 무제한.</summary>
+        public int? Capacity { get; set; }
+    }
+
+    //.// 선수 지원(Application) — 모집 공고 지원·검토 (Design.Application, E5)
+    // PlayGround는 생성·조회·상태 전환·취소만 한다. 수락(Accepted)→로스터 편입·알림은 별도 단계.
+
+    /// <summary>팀 대시보드 지원자 한 건 (관리자 뷰).</summary>
+    public class ApplicationDto
+    {
+        public Guid ApplicationId { get; set; }
+        public Guid RecruitmentId { get; set; }
+        public string RecruitmentTitle { get; set; } = string.Empty;
+        public Guid PlayerId { get; set; }
+        public string PlayerName { get; set; } = string.Empty;
+        public string? PlayerAgeGroup { get; set; }
+
+        /// <summary>지원 선수의 소속 로스터 포지션 (있으면) — 지원의 DesiredPosition과 별개.</summary>
+        public string? PlayerPosition { get; set; }
+        public string? PlayerPhotoUrl { get; set; }
+
+        /// <summary>희망 포지션 — 지원 시 선택.</summary>
+        public string? DesiredPosition { get; set; }
+        public string? Introduction { get; set; }
+
+        /// <summary>SoccerApplicationStatus 멤버 이름 ('Pending'|'Reviewing'|'Accepted'|'Rejected').</summary>
+        public string Status { get; set; } = string.Empty;
+
+        /// <summary>경로 ('Direct'|'AgentRef'). AgentRef는 에이전트 서비스가 만든다(결정 4·7).</summary>
+        public string Route { get; set; } = string.Empty;
+
+        /// <summary>추천 에이전트 이름 — AgentRef일 때만 값. Direct면 null.</summary>
+        public string? RefAgentName { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    /// <summary>팀 대시보드 지원자 목록 (관리자 소유 팀 공고의 지원 전부).</summary>
+    public class TeamApplicationsResponse
+    {
+        public List<ApplicationDto> Applications { get; set; } = new();
+    }
+
+    /// <summary>보호자 지원 현황 한 건 (내가 올린 지원).</summary>
+    public class MyApplicationDto
+    {
+        public Guid ApplicationId { get; set; }
+        public string RecruitmentTitle { get; set; } = string.Empty;
+        public string TeamName { get; set; } = string.Empty;
+        public string? TeamSlug { get; set; }
+        public string PlayerName { get; set; } = string.Empty;
+        public string? DesiredPosition { get; set; }
+
+        /// <summary>SoccerApplicationStatus 멤버 이름 ('Pending'|'Reviewing'|'Accepted'|'Rejected').</summary>
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+    }
+
+    /// <summary>보호자 지원 현황 묶음.</summary>
+    public class MyApplicationsResponse
+    {
+        public List<MyApplicationDto> Applications { get; set; } = new();
+    }
+
+    /// <summary>지원 생성 요청 (보호자). PlayerId는 내 자녀여야 한다 — 서버가 소유를 검증한다.</summary>
+    public class CreateApplicationRequest
+    {
+        public Guid RecruitmentId { get; set; }
+        public Guid PlayerId { get; set; }
+        public string? DesiredPosition { get; set; }
+        public string? Introduction { get; set; }
+    }
+
+    /// <summary>지원 상태 전환 요청 (팀 관리자). Status ∈ 'Reviewing'|'Accepted'|'Rejected'.</summary>
+    public class UpdateApplicationStatusRequest
+    {
+        public string Status { get; set; } = string.Empty;
     }
 
     //.// 팀 일정 (Schedule)

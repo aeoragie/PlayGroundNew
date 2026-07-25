@@ -22,6 +22,9 @@ public class UspSaveSoccerTeamRecruitment(RepositoryBase repository) : Procedure
 	public string Description { get; set; } = String.Empty;
 	public string ConditionsJson { get; set; } = null;
 	public DateTime? DeadlineDate { get; set; } = null;
+	public string AgeGroup { get; set; } = null;
+	public string PositionsJson { get; set; } = null;
+	public int? Capacity { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@ManagerUserId", ManagerUserId);
@@ -30,6 +33,9 @@ public class UspSaveSoccerTeamRecruitment(RepositoryBase repository) : Procedure
 		Parameters.Add("@Description", Description);
 		Parameters.Add("@ConditionsJson", ConditionsJson);
 		Parameters.Add("@DeadlineDate", DeadlineDate);
+		Parameters.Add("@AgeGroup", AgeGroup);
+		Parameters.Add("@PositionsJson", PositionsJson);
+		Parameters.Add("@Capacity", Capacity);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

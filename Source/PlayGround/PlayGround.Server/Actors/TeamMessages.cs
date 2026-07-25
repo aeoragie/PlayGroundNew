@@ -150,4 +150,30 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => ManagerUserId;
     }
+
+    //.// 선수 지원(Application)
+
+    /// <summary>지원 생성 메시지 (보호자 쓰기 — GuardianUserId 해시. 중복·정원 검사가 프로시저 안에 있어 순차 처리가 중요).</summary>
+    public sealed record CreateSoccerApplicationMessage(Guid GuardianUserId, CreateApplicationRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => GuardianUserId;
+    }
+
+    /// <summary>팀 관리자 지원자 목록 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerApplicationsByManagerMessage(Guid ManagerUserId);
+
+    /// <summary>보호자 지원 현황 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerApplicationsByGuardianMessage(Guid GuardianUserId);
+
+    /// <summary>지원 상태 전환 메시지 (관리자 쓰기 — ManagerUserId 해시).</summary>
+    public sealed record UpdateSoccerApplicationStatusMessage(Guid ManagerUserId, Guid ApplicationId, string NewStatus) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>지원 취소 메시지 (보호자 쓰기 — GuardianUserId 해시).</summary>
+    public sealed record CancelSoccerApplicationMessage(Guid GuardianUserId, Guid ApplicationId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => GuardianUserId;
+    }
 }

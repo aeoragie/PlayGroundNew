@@ -923,16 +923,14 @@ namespace PlayGround.Persistence.Repositories
             Logger.InfoWith("Team recruitments requested", ("Slug", slug));
 
             var procedure = new UspGetSoccerTeamRecruitmentsBySlug(this) { Slug = slug };
-            var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
-            if (queryResult.IsError)
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
             {
                 return Result<TeamRecruitmentsResponse>.Error(ErrorCode.DatabaseError, "GetRecruitmentsBySlug");
             }
 
-            return Result<TeamRecruitmentsResponse>.Success(new TeamRecruitmentsResponse
-            {
-                Items = queryResult.Values1.Select(MapRecruitment).ToList()
-            });
+            using MultiQueryReader reader = opened.Value;
+            return Result<TeamRecruitmentsResponse>.Success(await MapRecruitmentsAsync(reader));
         }
 
         public async Task<Result<TeamRecruitmentsResponse>> GetRecruitmentsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
@@ -940,16 +938,32 @@ namespace PlayGround.Persistence.Repositories
             Logger.InfoWith("Team recruitments requested by manager", ("ManagerUserId", managerUserId));
 
             var procedure = new UspGetSoccerTeamRecruitmentsByManager(this) { ManagerUserId = managerUserId };
-            var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
-            if (queryResult.IsError)
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
             {
                 return Result<TeamRecruitmentsResponse>.Error(ErrorCode.DatabaseError, "GetRecruitmentsByManager");
             }
 
-            return Result<TeamRecruitmentsResponse>.Success(new TeamRecruitmentsResponse
+            using MultiQueryReader reader = opened.Value;
+            return Result<TeamRecruitmentsResponse>.Success(await MapRecruitmentsAsync(reader));
+        }
+
+        // RS1 = 공고, RS2 = 수락 지원의 공고 Id(공고별 COUNT = AcceptedCount). 두 결과셋을 여기서 합친다.
+        private static async Task<TeamRecruitmentsResponse> MapRecruitmentsAsync(MultiQueryReader reader)
+        {
+            var rows = (await reader.ReadAsync<SoccerTeamRecruitmentsEntity>()).ToList();
+            var acceptedIds = (await reader.ReadAsync<Guid>()).ToList();
+
+            var acceptedByRecruitment = acceptedIds
+                .GroupBy(id => id)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            return new TeamRecruitmentsResponse
             {
-                Items = queryResult.Values1.Select(MapRecruitment).ToList()
-            });
+                Items = rows
+                    .Select(r => MapRecruitment(r, acceptedByRecruitment.GetValueOrDefault(r.RecruitmentId)))
+                    .ToList()
+            };
         }
 
         public async Task<Result<TeamRecruitmentDto?>> SaveRecruitmentByManagerAsync(
@@ -965,7 +979,10 @@ namespace PlayGround.Persistence.Repositories
                 Title = request.Title,
                 Description = request.Description,
                 ConditionsJson = request.Conditions.Count > 0 ? JsonSerializer.Serialize(request.Conditions) : null,
-                DeadlineDate = request.DeadlineDate
+                DeadlineDate = request.DeadlineDate,
+                AgeGroup = request.AgeGroup,
+                PositionsJson = request.Positions.Count > 0 ? JsonSerializer.Serialize(request.Positions) : null,
+                Capacity = request.Capacity
             };
             var queryResult = await procedure.QueryAsync<SoccerTeamRecruitmentsEntity>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -1312,7 +1329,8 @@ namespace PlayGround.Persistence.Repositories
         }
 
         // "모집중" 판정을 여기 한 곳에서 파생 — 팀 탐색(SQL EXISTS)과 같은 기준 (Open + 마감일 미경과)
-        private static TeamRecruitmentDto MapRecruitment(SoccerTeamRecruitmentsEntity row)
+        // acceptedCount는 수락 지원 수(별도 결과셋에서 공고별로 집계) — 저장 경로는 0으로 온다(조회에서 다시 계산).
+        private static TeamRecruitmentDto MapRecruitment(SoccerTeamRecruitmentsEntity row, int acceptedCount = 0)
         {
             return new TeamRecruitmentDto
             {
@@ -1323,8 +1341,176 @@ namespace PlayGround.Persistence.Repositories
                 DeadlineDate = row.DeadlineDate,
                 Status = row.Status,
                 IsOpen = row.Status == "Open"
-                         && (row.DeadlineDate is null || row.DeadlineDate.Value.Date >= DateTime.UtcNow.Date)
+                         && (row.DeadlineDate is null || row.DeadlineDate.Value.Date >= DateTime.UtcNow.Date),
+                AgeGroup = NullIfEmpty(row.AgeGroup),
+                Positions = ParseAchievements(row.PositionsJson),
+                Capacity = row.Capacity,
+                AcceptedCount = acceptedCount
             };
+        }
+
+        //.// 선수 지원(Application)
+
+        public async Task<Result<(string Status, Guid? ApplicationId)>> CreateApplicationAsync(
+            Guid guardianUserId, CreateApplicationRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Application create requested",
+                ("GuardianUserId", guardianUserId), ("RecruitmentId", request.RecruitmentId), ("PlayerId", request.PlayerId));
+
+            var procedure = new UspCreateSoccerApplication(this)
+            {
+                GuardianUserId = guardianUserId,
+                RecruitmentId = request.RecruitmentId,
+                PlayerId = request.PlayerId,
+                DesiredPosition = request.DesiredPosition,
+                Introduction = request.Introduction
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Application create failed", ("ResultCode", queryResult.ResultCode));
+                return Result<(string, Guid?)>.Error(ErrorCode.DatabaseError, "CreateApplication");
+            }
+
+            SoccerApplicationCreateRecord? row = queryResult.Values1.FirstOrDefault();
+            if (row is null)
+            {
+                Logger.ErrorWith("Application create returned no status row");
+                return Result<(string, Guid?)>.Error(ErrorCode.OperationFailed, "no status row");
+            }
+
+            Guid? id = row.Status == "Ok" && row.ApplicationId != Guid.Empty ? row.ApplicationId : null;
+            Logger.InfoWith("Application create completed", ("Status", row.Status), ("ApplicationId", id));
+            return Result<(string, Guid?)>.Success((row.Status, id));
+        }
+
+        public async Task<Result<TeamApplicationsResponse>> GetApplicationsByManagerAsync(
+            Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Applications requested by manager", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerApplicationsByManager(this) { ManagerUserId = managerUserId };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Applications query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<TeamApplicationsResponse>.Error(ErrorCode.DatabaseError, "GetApplicationsByManager");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            var rows = (await reader.ReadAsync<SoccerApplicationManagerRecord>()).ToList();
+            var agents = (await reader.ReadAsync<SoccerAgentProfilesEntity>()).ToList();
+
+            // 추천 에이전트 이름 사전 — AgentRef 지원에만 값이 붙는다 (현재 경로는 전부 Direct)
+            var agentNames = agents
+                .GroupBy(a => a.AgentId)
+                .ToDictionary(g => g.Key, g => g.First().Name);
+
+            var response = new TeamApplicationsResponse
+            {
+                Applications = rows
+                    .Select(r => new ApplicationDto
+                    {
+                        ApplicationId = r.ApplicationId,
+                        RecruitmentId = r.RecruitmentId,
+                        RecruitmentTitle = r.Title,
+                        PlayerId = r.PlayerId,
+                        PlayerName = r.Name,
+                        PlayerAgeGroup = NullIfEmpty(r.AgeGroup),
+                        PlayerPosition = NullIfEmpty(r.Position),
+                        PlayerPhotoUrl = NullIfEmpty(r.PhotoUrl),
+                        DesiredPosition = NullIfEmpty(r.DesiredPosition),
+                        Introduction = NullIfEmpty(r.Introduction),
+                        Status = r.Status,
+                        Route = r.Route,
+                        RefAgentName = r.RefAgentId is not null ? agentNames.GetValueOrDefault(r.RefAgentId.Value) : null,
+                        CreatedAt = r.CreatedAt
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Applications received", ("ManagerUserId", managerUserId), ("Applications", response.Applications.Count));
+            return Result<TeamApplicationsResponse>.Success(response);
+        }
+
+        public async Task<Result<MyApplicationsResponse>> GetApplicationsByGuardianAsync(
+            Guid guardianUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Applications requested by guardian", ("GuardianUserId", guardianUserId));
+
+            var procedure = new UspGetSoccerApplicationsByGuardian(this) { GuardianUserId = guardianUserId };
+            var queryResult = await procedure.QueryAsync<SoccerApplicationGuardianRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Guardian applications query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<MyApplicationsResponse>.Error(ErrorCode.DatabaseError, "GetApplicationsByGuardian");
+            }
+
+            var response = new MyApplicationsResponse
+            {
+                Applications = queryResult.Values1
+                    .Select(r => new MyApplicationDto
+                    {
+                        ApplicationId = r.ApplicationId,
+                        RecruitmentTitle = r.Title,
+                        TeamName = r.TeamName,
+                        TeamSlug = NullIfEmpty(r.Slug),
+                        PlayerName = r.Name,
+                        DesiredPosition = NullIfEmpty(r.DesiredPosition),
+                        Status = r.Status,
+                        CreatedAt = r.CreatedAt
+                    })
+                    .ToList()
+            };
+
+            Logger.InfoWith("Guardian applications received", ("GuardianUserId", guardianUserId), ("Applications", response.Applications.Count));
+            return Result<MyApplicationsResponse>.Success(response);
+        }
+
+        public async Task<Result<bool>> UpdateApplicationStatusAsync(
+            Guid managerUserId, Guid applicationId, string newStatus, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Application status update requested",
+                ("ManagerUserId", managerUserId), ("ApplicationId", applicationId), ("NewStatus", newStatus));
+
+            var procedure = new UspUpdateSoccerApplicationStatus(this)
+            {
+                ManagerUserId = managerUserId,
+                ApplicationId = applicationId,
+                NewStatus = newStatus
+            };
+            var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Application status update failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError, "UpdateApplicationStatus");
+            }
+
+            // 빈 결과 = 남의 팀이거나 잘못된 전환 — Command가 Forbidden으로 변환
+            return Result<bool>.Success(queryResult.Values1.Any());
+        }
+
+        public async Task<Result<bool>> CancelApplicationAsync(
+            Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Application cancel requested",
+                ("GuardianUserId", guardianUserId), ("ApplicationId", applicationId));
+
+            var procedure = new UspCancelSoccerApplication(this)
+            {
+                GuardianUserId = guardianUserId,
+                ApplicationId = applicationId
+            };
+            var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Application cancel failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError, "CancelApplication");
+            }
+
+            // 빈 결과 = 내 대기 지원이 아님 — Command가 Forbidden으로 변환
+            return Result<bool>.Success(queryResult.Values1.Any());
         }
     }
 }

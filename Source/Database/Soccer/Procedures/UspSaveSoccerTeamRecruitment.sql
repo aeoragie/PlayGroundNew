@@ -1,12 +1,16 @@
 -- 모집 공고 저장 — 신규·수정 겸용 (@RecruitmentId 빈 GUID = 신규, B3 규약).
 -- 소유 판정은 팀 ManagerUserId — 거부·미존재는 빈 결과 (존재 여부 미노출). 마감된 공고는 수정할 수 없다.
+-- AgeGroup·PositionsJson·Capacity는 지원 통합(E5) 필드 — 대시보드 모집 폼이 채운다(선택).
 CREATE PROCEDURE [dbo].[UspSaveSoccerTeamRecruitment]
     @ManagerUserId UNIQUEIDENTIFIER,
     @RecruitmentId UNIQUEIDENTIFIER,
     @Title VARCHAR(300),
     @Description VARCHAR(1500),
     @ConditionsJson VARCHAR(600) = NULL,
-    @DeadlineDate DATE = NULL
+    @DeadlineDate DATE = NULL,
+    @AgeGroup VARCHAR(20) = NULL,
+    @PositionsJson VARCHAR(200) = NULL,
+    @Capacity INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -24,8 +28,10 @@ BEGIN
             SET @RecruitmentId = NEWID();
 
             INSERT INTO [dbo].[SoccerTeamRecruitments]
-                ([RecruitmentId], [TeamId], [Title], [Description], [ConditionsJson], [DeadlineDate])
-            VALUES (@RecruitmentId, @TeamId, @Title, @Description, @ConditionsJson, @DeadlineDate);
+                ([RecruitmentId], [TeamId], [Title], [Description], [ConditionsJson], [DeadlineDate],
+                 [AgeGroup], [PositionsJson], [Capacity])
+            VALUES (@RecruitmentId, @TeamId, @Title, @Description, @ConditionsJson, @DeadlineDate,
+                 @AgeGroup, @PositionsJson, @Capacity);
 
             SET @Applied = 1;
         END
@@ -34,6 +40,7 @@ BEGIN
             UPDATE [dbo].[SoccerTeamRecruitments]
             SET [Title] = @Title, [Description] = @Description,
                 [ConditionsJson] = @ConditionsJson, [DeadlineDate] = @DeadlineDate,
+                [AgeGroup] = @AgeGroup, [PositionsJson] = @PositionsJson, [Capacity] = @Capacity,
                 [UpdatedAt] = GETUTCDATE()
             WHERE [RecruitmentId] = @RecruitmentId AND [TeamId] = @TeamId
               AND [Status] = 'Open' AND [DeletedAt] IS NULL;
@@ -44,7 +51,8 @@ BEGIN
 
     SELECT
         r.[RecruitmentId], r.[TeamId], r.[Title], r.[Description], r.[ConditionsJson],
-        r.[DeadlineDate], r.[Status], r.[CreatedAt], r.[UpdatedAt], r.[DeletedAt]
+        r.[DeadlineDate], r.[AgeGroup], r.[PositionsJson], r.[Capacity],
+        r.[Status], r.[CreatedAt], r.[UpdatedAt], r.[DeletedAt]
     FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
     WHERE r.[RecruitmentId] = @RecruitmentId AND @Applied = 1;
 END

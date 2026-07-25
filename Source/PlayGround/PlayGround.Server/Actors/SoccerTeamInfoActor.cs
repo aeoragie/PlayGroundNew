@@ -29,6 +29,26 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerTeamCareerOutcomesMessage>(HandleGetCareerOutcomesAsync);
             RegisterHandlerAsync<GetSoccerTeamCareerOutcomesByManagerMessage>(HandleGetCareerOutcomesByManagerAsync);
             RegisterHandlerAsync<GetSoccerTeamReviewsMessage>(HandleGetReviewsAsync);
+            RegisterHandlerAsync<GetSoccerApplicationsByManagerMessage>(HandleGetApplicationsByManagerAsync);
+            RegisterHandlerAsync<GetSoccerApplicationsByGuardianMessage>(HandleGetApplicationsByGuardianAsync);
+        }
+
+        private async Task HandleGetApplicationsByManagerAsync(GetSoccerApplicationsByManagerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerApplicationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerApplicationCommand>();
+            Result<TeamApplicationsResponse> result = await useCase.GetForManagerAsync(message.ManagerUserId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetApplicationsByGuardianAsync(GetSoccerApplicationsByGuardianMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerApplicationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerApplicationCommand>();
+            Result<MyApplicationsResponse> result = await useCase.GetForGuardianAsync(message.GuardianUserId);
+            sender.Tell(result);
         }
 
         private async Task HandleGetReviewsAsync(GetSoccerTeamReviewsMessage message)

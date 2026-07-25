@@ -502,6 +502,86 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        //.// 선수 지원(Application) — 보호자 지원 / 관리자 검토 (Design.Application, E5)
+
+        /// <summary>모집 공고에 지원 (보호자). PlayerId는 내 자녀여야 한다 — 서버가 소유를 검증한다.
+        /// 중복·마감·정원 초과·쿨다운은 각각 다른 오류로 돌려준다(중복만 인라인 메시지).</summary>
+        [HttpPost("applications")]
+        public async Task<Envelope<Guid>> CreateApplicationAsync(
+            [FromBody] CreateApplicationRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<Guid>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<Guid> result = await mGateway.AskAsync<Guid>(
+                ActorNames.SoccerTeamProfile, new CreateSoccerApplicationMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>내가 관리하는 팀 공고의 지원자 목록 (관리자).</summary>
+        [HttpGet("me/applications")]
+        public async Task<Envelope<TeamApplicationsResponse>> GetMyTeamApplicationsAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamApplicationsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamApplicationsResponse> result = await mGateway.AskAsync<TeamApplicationsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerApplicationsByManagerMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>내가(보호자) 올린 지원 현황.</summary>
+        [HttpGet("me/application-status")]
+        public async Task<Envelope<MyApplicationsResponse>> GetMyApplicationStatusAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<MyApplicationsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<MyApplicationsResponse> result = await mGateway.AskAsync<MyApplicationsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerApplicationsByGuardianMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>지원 상태 전환 (관리자) — Reviewing/Accepted/Rejected. 수락은 상태만 바꾼다(편입은 별도 단계).</summary>
+        [HttpPost("me/applications/{applicationId:guid}/status")]
+        public async Task<Envelope<bool>> UpdateMyApplicationStatusAsync(
+            Guid applicationId, [FromBody] UpdateApplicationStatusRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new UpdateSoccerApplicationStatusMessage(userId, applicationId, request.Status), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>지원 취소 (보호자) — 대기(Pending) 상태의 내 지원만.</summary>
+        [HttpPost("applications/{applicationId:guid}/cancel")]
+        public async Task<Envelope<bool>> CancelApplicationAsync(Guid applicationId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new CancelSoccerApplicationMessage(userId, applicationId), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/videos")]
         public async Task<Envelope<TeamVideosResponse>> GetMyTeamVideosAsync(CancellationToken cancellation)
         {

@@ -9,6 +9,9 @@ CREATE TABLE [dbo].[SoccerTeamRecruitments]
     [Description]    VARCHAR(1500)    NOT NULL,          -- UTF-8 (한글 500자) 공고 본문
     [ConditionsJson] VARCHAR(600)     NULL,              -- 조건 칩 목록 JSON 배열 (예: ["테스트 1회 · 주말"])
     [DeadlineDate]   DATE             NULL,              -- 마감일 — 칩 "마감 M/d", 경과 시 모집중에서 제외
+    [AgeGroup]       VARCHAR(20)      NULL,              -- 연령대 'U12','U15','U18' (지원 통합 E5 — 카드 메타)
+    [PositionsJson]  VARCHAR(200)     NULL,              -- 모집 포지션 JSON 배열 (예: ["FW","MF"]) — 지원 폼 희망 포지션 선택지
+    [Capacity]       INT              NULL,              -- 정원 — 충족(수락 수 도달) 시 지원 차단, NULL=무제한
     [Status]         VARCHAR(20)      NOT NULL DEFAULT 'Open', -- 'Open','Closed'
 
     [CreatedAt]      DATETIME2        NOT NULL DEFAULT GETUTCDATE(),

@@ -76,6 +76,7 @@
     <Build Include="Tables\SoccerTeamPlayers.sql" />
     <Build Include="Tables\SoccerSchedules.sql" />
     <Build Include="Tables\SoccerStrengthTagPresets.sql" />
+    <Build Include="Tables\SoccerApplications.sql" />
     <Build Include="Tables\SoccerPlayerInvites.sql" />
     <Build Include="Tables\SoccerPlayerClaimRequests.sql" />
     <Build Include="Tables\SoccerNotifications.sql" />
@@ -119,6 +120,11 @@
     <Build Include="Procedures\UspSaveSoccerTeamRecruitment.sql" />
     <Build Include="Procedures\UspCloseSoccerTeamRecruitment.sql" />
     <Build Include="Procedures\UspDeleteSoccerTeamRecruitment.sql" />
+    <Build Include="Procedures\UspCreateSoccerApplication.sql" />
+    <Build Include="Procedures\UspGetSoccerApplicationsByManager.sql" />
+    <Build Include="Procedures\UspGetSoccerApplicationsByGuardian.sql" />
+    <Build Include="Procedures\UspUpdateSoccerApplicationStatus.sql" />
+    <Build Include="Procedures\UspCancelSoccerApplication.sql" />
     <Build Include="Procedures\UspGetSoccerAgentViewRequest.sql" />
     <Build Include="Procedures\UspReviewSoccerAgentViewRequest.sql" />
     <Build Include="Procedures\UspBlockSoccerAgent.sql" />
@@ -135,6 +141,7 @@
     <None Include="Migrations\2026-07-20_SoccerMatches.MatchType.sql" />
     <None Include="Migrations\2026-07-25_Slugs.Romanize.sql" />
     <None Include="Migrations\2026-07-25_SoccerPlayers.StrengthTags.sql" />
+    <None Include="Migrations\2026-07-26_SoccerTeamRecruitments.Application.sql" />
     <None Include="Migrations\2026-07-21_SoccerTeams.IsRecruiting.sql" />
   </ItemGroup>
 </Project>

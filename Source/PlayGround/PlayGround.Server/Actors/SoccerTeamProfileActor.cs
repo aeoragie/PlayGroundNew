@@ -28,6 +28,36 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<DeleteSoccerTeamReviewMessage>(HandleDeleteReviewAsync);
             RegisterHandlerAsync<AddSoccerTeamPlayerMessage>(HandleAddPlayerAsync);
             RegisterHandlerAsync<RemoveSoccerTeamPlayerMessage>(HandleRemovePlayerAsync);
+            RegisterHandlerAsync<CreateSoccerApplicationMessage>(HandleCreateApplicationAsync);
+            RegisterHandlerAsync<UpdateSoccerApplicationStatusMessage>(HandleUpdateApplicationStatusAsync);
+            RegisterHandlerAsync<CancelSoccerApplicationMessage>(HandleCancelApplicationAsync);
+        }
+
+        private async Task HandleCreateApplicationAsync(CreateSoccerApplicationMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerApplicationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerApplicationCommand>();
+            Result<Guid> result = await useCase.ApplyAsync(message.GuardianUserId, message.Data);
+            sender.Tell(result);
+        }
+
+        private async Task HandleUpdateApplicationStatusAsync(UpdateSoccerApplicationStatusMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerApplicationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerApplicationCommand>();
+            Result<bool> result = await useCase.UpdateStatusAsync(message.ManagerUserId, message.ApplicationId, message.NewStatus);
+            sender.Tell(result);
+        }
+
+        private async Task HandleCancelApplicationAsync(CancelSoccerApplicationMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerApplicationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerApplicationCommand>();
+            Result<bool> result = await useCase.CancelAsync(message.GuardianUserId, message.ApplicationId);
+            sender.Tell(result);
         }
 
         private async Task HandleAddPlayerAsync(AddSoccerTeamPlayerMessage message)
