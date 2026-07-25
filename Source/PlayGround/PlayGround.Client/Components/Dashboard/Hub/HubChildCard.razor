@@ -1,6 +1,5 @@
 @* 내 자녀 — 이니셜 아바타 + Claim 뱃지 + 시즌 3스탯 + 액션 (Design.DashboardHub §내 자녀).
-   Claimed = 연결됨 + 스탯 + [선수 대시보드] / Pending = 승인 대기 + 스탯 "–" + 대기 안내 + [요청 상태 보기].
-   공개 프로필 버튼은 공개 선수 프로필 진입점이 정해질 때 붙인다(현재 미노출 — A4). *@
+   Claimed = 연결됨 + 스탯 + [선수 대시보드] + [공개 프로필] / Pending = 승인 대기 + 스탯 "–" + 대기 안내 + [요청 상태 보기]. *@
 @using PlayGround.Contracts.Team
 @using PlayGround.Client.Styles
 
@@ -44,6 +43,10 @@
     {
         <div class="flex gap-2">
             <a href="@ChildDashboardHref" class="@Css.Hub.ChildPrimary">선수 대시보드</a>
+            @if (!string.IsNullOrEmpty(Child.Slug))
+            {
+                <a href="@Routes.PlayerPublicProfile(Child.Slug)" target="_blank" rel="noopener" class="@Css.Hub.ChildSecondary">공개 프로필</a>
+            }
         </div>
     }
 </article>

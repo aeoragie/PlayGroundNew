@@ -91,6 +91,7 @@ namespace PlayGround.Application.Team.Commands
                 {
                     PlayerId = child.PlayerId,
                     Name = child.Name,
+                    Slug = child.Slug,
                     AgeGroup = child.AgeGroup,
                     TeamName = child.TeamName,
                     Position = child.Position,

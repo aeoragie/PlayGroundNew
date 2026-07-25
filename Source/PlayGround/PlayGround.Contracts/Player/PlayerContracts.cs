@@ -32,6 +32,9 @@ namespace PlayGround.Contracts.Player
     {
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
+
+        /// <summary>공개 선수 프로필 슬러그(/player/{slug}) — 허브 자녀 카드의 "공개 프로필" 링크에 쓴다.</summary>
+        public string? Slug { get; set; }
         public string? AgeGroup { get; set; }
         public string? PhotoUrl { get; set; }
         public string? TeamName { get; set; }

@@ -511,6 +511,9 @@ namespace PlayGround.Contracts.Team
     {
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
+
+        /// <summary>공개 선수 프로필 슬러그 — Claimed일 때 "공개 프로필" 링크. Pending은 null.</summary>
+        public string? Slug { get; set; }
         public string? AgeGroup { get; set; }
         public string? TeamName { get; set; }
         public string? Position { get; set; }

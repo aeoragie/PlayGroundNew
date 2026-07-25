@@ -1,6 +1,6 @@
 -- @entity: SoccerManagedPlayerRecord
 -- @source: join
--- @join: SoccerPlayers AS p (PlayerId, Name, AgeGroup, PhotoUrl, IsGuardianManaged)
+-- @join: SoccerPlayers AS p (PlayerId, Name, Slug, AgeGroup, PhotoUrl, IsGuardianManaged)
 -- @join: SoccerTeamPlayers AS tp (JerseyNumber, Position)
 -- @join: SoccerTeams AS t (TeamName)
 -- 한 계정이 관리하는 선수(자녀) 전부. **보호자는 자녀를 여러 명 가질 수 있다.**
@@ -15,7 +15,7 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        p.[PlayerId], p.[Name], p.[AgeGroup], p.[PhotoUrl], p.[IsGuardianManaged],
+        p.[PlayerId], p.[Name], p.[Slug], p.[AgeGroup], p.[PhotoUrl], p.[IsGuardianManaged],
         tp.[JerseyNumber], tp.[Position],
         t.[TeamName]
     FROM [dbo].[SoccerPlayers] p WITH (NOLOCK)

@@ -20,6 +20,10 @@ public class SoccerManagedPlayerRecord
 	[StringLength(150)]
 	public string Name { get; set; } = String.Empty;
 
+	[Required]
+	[StringLength(150)]
+	public string Slug { get; set; } = String.Empty;
+
 	[StringLength(20)]
 	public string AgeGroup { get; set; } = String.Empty;
 

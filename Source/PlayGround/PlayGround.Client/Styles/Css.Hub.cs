@@ -58,6 +58,7 @@ namespace PlayGround.Client.Styles
             public const string StatValue = "text-[17px] font-extrabold text-navy-deep leading-none";
             public const string StatKey = "text-[11px] font-bold text-text-muted whitespace-nowrap";
             public const string ChildPrimary = "flex-1 h-10 rounded-btn bg-navy hover:bg-navy-deep text-white text-[13px] font-extrabold flex items-center justify-center whitespace-nowrap no-underline transition-colors";
+            public const string ChildSecondary = "flex-1 h-10 rounded-btn border border-surface-icon hover:border-navy-muted text-text-body text-[13px] font-extrabold flex items-center justify-center whitespace-nowrap no-underline transition-colors";
 
             //.// 바로가기
 
