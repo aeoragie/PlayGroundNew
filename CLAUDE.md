@@ -656,6 +656,23 @@
 - **다른 PC 필수**: `2026-07-25_SoccerPlayers.StrengthTags.sql` 마이그레이션 + `SoccerStrengthTagPresets`
   테이블·시드 + SP 2종 배포.
 
+### 선수 지원(Application) 진행 중 — Stage 1 백엔드 완료 (2026-07-26, Design.Application "E5")
+
+> **스키마 통일(사용자 확정)**: 새 공고 테이블(SoccerRecruitPosts) 만들지 않고 **기존
+> `SoccerTeamRecruitments`로 통일** — 연령·포지션(복수)·정원 3컬럼 추가. 그 위에 지원 얹음.
+
+- **Stage 1 백엔드** (`af928cb`) — `SoccerTeamRecruitments` +AgeGroup·PositionsJson·Capacity
+  (마이그레이션 `2026-07-26_SoccerTeamRecruitments.Application.sql`, NULL 허용). `SoccerApplications`
+  신설(상태 Pending→Reviewing→Accepted|Rejected · Route Direct/AgentRef · 30일 재지원 쿨다운 ·
+  취소=소프트). SP 5종(생성=소유·Open·마감·정원·중복·쿨다운 인프로시저 판정+상태 결과셋 /
+  관리자·보호자 목록 / 상태전환=전환 화이트리스트·팀 소유 / 취소=대기만). 모집 조회 2종에
+  새 컬럼 + 수락수 RS2. C# 전 계층(Command·Repository·Actor 읽기Info/쓰기Profile·Controller 5엔드포인트).
+  전체 트랜잭션 플로우 검증 통과·DB 클린. `TeamRecommendation` 테이블은 없음 — AgentRef는 컬럼만.
+- **잔여(다음 세션)**: **Stage 2** 공개홈 모집 탭 지원 버튼+폼(자녀 선택·희망 포지션·자기소개·중복 차단·
+  게스트 로그인 재개) · **Stage 3** 팀 대시보드 지원자 리스트(기존 모집 섹션 §6 확장·상태 세그먼트·
+  ⋯ 수락/보류) · **Stage 4** 수락→선수단 초대 알림→보호자 수락 로스터 편입 + 지원자 현황(허브 자녀
+  카드·선수 대시보드). **UI 검증·전체 재빌드는 아직 안 됨(E3·E4·E5 모두 VS 재빌드 필요).**
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
