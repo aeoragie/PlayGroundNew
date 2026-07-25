@@ -136,7 +136,8 @@
 <GuardianCorrectionFormDialog @bind-IsOpen="mCorrectionFormOpen" Match="@mCorrectionMatch"
                               PlayerId="@SelectedPlayerId" OnSubmitted="LoadCorrectionsAsync" />
 
-<ProfileInfoEditDialog @bind-IsOpen="mProfileFormOpen" Profile="@mInfo?.Profile" PlayerId="@SelectedPlayerId" OnSaved="ReloadAsync" />
+<ProfileInfoEditDialog @bind-IsOpen="mProfileFormOpen" Profile="@mInfo?.Profile" PlayerId="@SelectedPlayerId"
+                       CurrentTags="@(mInfo?.Profile.StrengthTags ?? new())" OnSaved="ReloadAsync" />
 
 <CareerFormDialog @bind-IsOpen="mCareerFormOpen" Entry="@mEditingCareer" PlayerId="@SelectedPlayerId" OnSaved="ReloadCareerAsync" />
 <PortfolioFormDialog @bind-IsOpen="mPortfolioFormOpen" Entry="@mEditingVideo"

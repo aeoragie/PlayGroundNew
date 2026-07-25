@@ -95,6 +95,21 @@ else if (mData is not null)
                 <div class="pt-3.5 md:pt-4"></div>
             }
 
+            @* 강점 태그 — 앞 3개만, 4개 이상은 "+N". 없으면 영역 생략 *@
+            @if (mData.Profile.StrengthTags.Count > 0)
+            {
+                <div class="flex gap-[5px] px-[22px] md:px-6 pb-3.5 md:pb-4 flex-wrap relative">
+                    @foreach (string tag in mData.Profile.StrengthTags.Take(3))
+                    {
+                        <span class="@Css.PlayerPublic.CardStrengthChip">#@tag</span>
+                    }
+                    @if (mData.Profile.StrengthTags.Count > 3)
+                    {
+                        <span class="@Css.PlayerPublic.CardStrengthMore">+@(mData.Profile.StrengthTags.Count - 3)</span>
+                    }
+                </div>
+            }
+
             @* 권한 카드 전용 — 승인 열람 정보 *@
             @if (mData.Grant is not null)
             {

@@ -111,6 +111,16 @@ else if (mData is not null)
                                 }
                             </div>
                         }
+                        @* 강점 태그 — 공개 항목 칩 아래, 5개 전부 표시(줄바꿈). 없으면 영역 생략 *@
+                        @if (mData.Profile.StrengthTags.Count > 0)
+                        {
+                            <div class="flex gap-[7px] md:gap-[9px] flex-wrap">
+                                @foreach (string tag in mData.Profile.StrengthTags)
+                                {
+                                    <span class="@Css.PlayerPublic.StrengthChip">#@tag</span>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
                 @* CTA — PC만 히어로 우측 (모바일은 하단 고정 바). 권한 뷰는 보호자 연락으로 교체 *@

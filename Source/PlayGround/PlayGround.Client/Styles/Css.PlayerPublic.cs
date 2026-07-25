@@ -31,6 +31,18 @@ namespace PlayGround.Client.Styles
                 "text-xs md:text-[12.5px] font-bold text-text-strong bg-surface-icon rounded-full " +
                 "px-3 py-1 md:px-3.5 md:py-[5px] whitespace-nowrap";
 
+            // 강점 태그 칩 (히어로 — 공개 항목 칩 아래) — 11.5px 700 네이비 + surface, 5개 전부 표시
+            public const string StrengthChip =
+                "text-[11.5px] font-bold text-navy bg-surface-icon rounded-full px-[11px] py-[3px] whitespace-nowrap";
+
+            // 강점 태그 칩 (카드 뷰 다크) — teal 텍스트 + 흰 8% 배경(스탯 칩 톤 계승), 앞 3개만
+            public const string CardStrengthChip =
+                "text-[11px] font-bold text-teal bg-white/[.08] rounded-full px-[11px] py-1 whitespace-nowrap";
+
+            // 강점 태그 "+N" (카드 뷰 다크) — 노출 밖 개수 표기
+            public const string CardStrengthMore =
+                "text-[11px] font-bold text-white/55 bg-white/[.08] rounded-full px-[11px] py-1 whitespace-nowrap";
+
             //.// CTA (히어로 우측 / 모바일 하단 고정 바)
 
             public const string RequestButton =

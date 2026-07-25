@@ -110,6 +110,17 @@
                         <span class="text-[15.5px] font-extrabold text-navy-deep">@player.Name</span>
                         <span class="text-[12.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                     </span>
+                    @* 강점 태그 — 카드 뷰만: 첫 1개 + "+N"(리스트 뷰는 미노출). 없으면 생략 *@
+                    @if (player.StrengthTags.Count > 0)
+                    {
+                        <span class="flex items-center gap-1">
+                            <span class="text-[10.5px] font-bold text-navy bg-surface-icon rounded-full px-2 py-0.5 whitespace-nowrap">#@player.StrengthTags[0]</span>
+                            @if (player.StrengthTags.Count > 1)
+                            {
+                                <span class="text-[10.5px] font-bold text-text-muted whitespace-nowrap">+@(player.StrengthTags.Count - 1)</span>
+                            }
+                        </span>
+                    }
                     <ClaimBadge Status="@ClaimOf(player)" />
                     <div class="flex items-center gap-1">
                         @ActionArea(player)

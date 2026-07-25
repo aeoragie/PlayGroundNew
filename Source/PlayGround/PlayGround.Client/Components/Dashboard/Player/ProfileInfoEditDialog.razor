@@ -42,6 +42,9 @@
                     <TextField Label="프로필 주소" @bind-Value="mSlug" Validator="ValidateSlug"
                                Placeholder="gangmin" MaxLength="30"
                                Helper="@SlugHelper" />
+
+                    @* 강점 태그 — 폼 안에서 편집, 저장은 아래 저장 버튼(공개 스위치는 공개 범위 설정 절에 별도) *@
+                    <StrengthTagInput @bind-Value="mTags" Position="@Profile?.Position" Presets="@mPresets" />
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
@@ -68,6 +71,10 @@
     /// <summary>현재 프로필 — 열 때 초기값을 채운다.</summary>
     [Parameter]
     public PlayerProfileDto? Profile { get; set; }
+
+    /// <summary>현재 강점 태그 — 열 때 로컬 복사본을 만든다(취소 시 원복).</summary>
+    [Parameter]
+    public List<string> CurrentTags { get; set; } = new();
 
     /// <summary>저장 성공 후 상위(페이지)가 프로필을 다시 읽는다.</summary>
     [Parameter]
@@ -101,9 +108,14 @@
     private bool mSaving;
     private bool mLoaded;
 
+    // 강점 태그 — 로컬 편집본과 원본(변경 여부 판정용), 포지션별 프리셋
+    private List<string> mTags = new();
+    private List<string> mInitialTags = new();
+    private List<StrengthTagPresetDto> mPresets = new();
+
     private string SlugHelper => $"공개 프로필 주소: /player/{(string.IsNullOrWhiteSpace(mSlug) ? "…" : mSlug.Trim().ToLowerInvariant())}";
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (!IsOpen)
         {
@@ -123,6 +135,11 @@
         mSchool = Profile?.SchoolName;
         mSlug = Profile?.Slug;
         mTakenSlug = null;
+
+        // 강점 태그 — 열 때 현재값을 복사(취소 시 원복). 프리셋은 열 때 1회 로드.
+        mTags = CurrentTags is null ? new List<string>() : new List<string>(CurrentTags);
+        mInitialTags = new List<string>(mTags);
+        mPresets = await Players.GetStrengthTagPresetsAsync();
     }
 
     private string? ValidateSlug(string? value)
@@ -212,6 +229,17 @@
         {
             Toasts.ShowError("저장하지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", SubmitAsync);
             return;
+        }
+
+        // 프로필 정보 저장 성공 후 — 강점 태그가 바뀌었을 때만 별도 저장(관리 주체 계정, 순서 보존).
+        // 실패하면 수치는 저장됐으니 닫지 않고 인라인 없이 토스트로 재시도를 유도(원본 유지 → 재제출 시 재시도).
+        if (!mTags.SequenceEqual(mInitialTags))
+        {
+            if (!await Players.SaveStrengthTagsAsync(mTags, PlayerId))
+            {
+                Toasts.ShowError("강점 태그를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", SubmitAsync);
+                return;
+            }
         }
 
         Toasts.ShowSuccess("프로필을 수정했어요.");

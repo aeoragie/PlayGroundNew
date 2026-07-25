@@ -130,6 +130,41 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>강점 태그 프리셋(포지션별 추천) 조회. 클라이언트가 포지션으로 거른다. 오류 시 빈 목록.</summary>
+        public async Task<List<StrengthTagPresetDto>> GetStrengthTagPresetsAsync()
+        {
+            try
+            {
+                Envelope<StrengthTagPresetsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<StrengthTagPresetsResponse>>(
+                        "api/soccer/player/me/strength-tag-presets");
+                return envelope is { IsSuccess: true, Data: not null }
+                    ? envelope.Data.Presets
+                    : new List<StrengthTagPresetDto>();
+            }
+            catch
+            {
+                return new List<StrengthTagPresetDto>(); // 미인증(401)·네트워크 오류 → 빈 목록
+            }
+        }
+
+        /// <summary>강점 태그 저장 — 목록 전체를 순서대로 통째로 보낸다(순서 보존). 성공 여부만.</summary>
+        public async Task<bool> SaveStrengthTagsAsync(List<string> tags, Guid? playerId = null)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync(
+                    $"api/soccer/player/me/strength-tags{Q(playerId)}",
+                    new SaveStrengthTagsRequest { Tags = tags });
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>선수 프로필 수치(키·몸무게·주발·학교)·주소(슬러그) 편집.
         /// SlugTaken = 수치는 저장됐지만 주소가 이미 사용 중이라 반영 안 됨(화면이 인라인 오류).</summary>
         public async Task<ProfileInfoSaveOutcome> UpdateProfileInfoAsync(UpdatePlayerProfileInfoRequest request, Guid? playerId = null)

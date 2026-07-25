@@ -176,6 +176,8 @@
                 "PreferredFoot" => ("주발", SoccerPreferredFootExtensions.ParseLabelOrNull(info.Profile.PreferredFoot)),
                 "School" => ("학교", info.Profile.SchoolName),
                 "GuardianPhone" => ("보호자 연락처", info.Profile.GuardianPhoneMasked),
+                // 강점 태그 스위치는 항상 노출(공개 범위 설정 절) — 값 자리에는 끔 효과 설명을 넣는다
+                "StrengthTags" => ("강점 태그", "끄면 공개 프로필·선수 카드·선수단에서 숨겨져요"),
                 _ => (visibility.FieldName, null),
             };
 

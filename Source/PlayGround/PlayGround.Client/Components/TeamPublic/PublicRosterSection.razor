@@ -38,6 +38,17 @@
                     <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@player.Name</span>
                     <span class="text-xs text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
                 </span>
+                @* 강점 태그 — 카드 뷰만: 첫 1개 + "+N"(정보 밀도 유지). 없으면 생략 *@
+                @if (player.StrengthTags.Count > 0)
+                {
+                    <span class="flex items-center gap-1">
+                        <span class="text-[10.5px] font-bold text-navy bg-surface-icon rounded-full px-2 py-0.5 whitespace-nowrap">#@player.StrengthTags[0]</span>
+                        @if (player.StrengthTags.Count > 1)
+                        {
+                            <span class="text-[10.5px] font-bold text-text-muted whitespace-nowrap">+@(player.StrengthTags.Count - 1)</span>
+                        }
+                    </span>
+                }
                 @if (player is { HasPublicProfile: true, Slug: not null })
                 {
                     <a href="@Routes.PlayerPublicProfile(player.Slug)" class="text-[11.5px] font-bold text-navy whitespace-nowrap">공개 프로필 →</a>

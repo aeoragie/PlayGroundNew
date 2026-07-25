@@ -1,0 +1,259 @@
+@* 강점 태그 입력 (Design.StrengthTags) — 칩 + 자유 입력 + 포지션 프리셋 + 순서 변경.
+   최대 5개·1~12자·금지 패턴(연락처·링크)은 인라인 검증(토스트 금지). 저장은 프로필 폼의 저장 버튼이 맡는다(즉시 저장 아님).
+   앞 3개가 카드·선수단 카드에 노출되므로 순서 변경(맨 앞으로·앞으로·뒤로)을 제공한다(드래그 대신 버튼). *@
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Components.Web
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
+
+<div class="flex flex-col gap-[7px]">
+    <div class="flex justify-between items-baseline">
+        <span class="@Css.Form.Label">강점 태그 <span class="@Css.Form.OptionalMark">(선택)</span></span>
+        <span class="@Css.Form.Counter">@Value.Count / @Max</span>
+    </div>
+
+    @* 칩 박스 — 추가된 태그 + 인라인 입력 *@
+    <div class="border-1.5 border-border rounded-[11px] px-2.5 py-2 flex gap-1.5 flex-wrap items-center min-h-[46px]">
+        @for (int i = 0; i < Value.Count; i++)
+        {
+            int index = i;
+            string tag = Value[index];
+            <span class="flex items-center gap-1.5 text-[13px] md:text-[12px] font-bold text-navy bg-surface-icon rounded-full pl-3 pr-2 py-[6px] md:py-[5px] whitespace-nowrap">
+                #@tag
+                @if (Value.Count > 1)
+                {
+                    <span class="flex items-center gap-0.5">
+                        <button type="button" aria-label="맨 앞으로" disabled="@(index == 0)"
+                                class="@ReorderBtn(index == 0)" @onclick="() => MoveToFrontAsync(index)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11l-5-5-5 5"></path><path d="M17 18l-5-5-5 5"></path></svg>
+                        </button>
+                        <button type="button" aria-label="앞으로" disabled="@(index == 0)"
+                                class="@ReorderBtn(index == 0)" @onclick="() => MoveUpAsync(index)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+                        </button>
+                        <button type="button" aria-label="뒤로" disabled="@(index == Value.Count - 1)"
+                                class="@ReorderBtn(index == Value.Count - 1)" @onclick="() => MoveDownAsync(index)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+                        </button>
+                    </span>
+                }
+                <button type="button" aria-label="@($"{tag} 삭제")"
+                        class="flex items-center text-text-muted hover:text-navy-deep bg-transparent border-0 p-0 cursor-pointer transition-colors"
+                        @onclick="() => RemoveAsync(index)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                </button>
+            </span>
+        }
+
+        @if (Value.Count < Max)
+        {
+            <input type="text" value="@mDraft" @oninput="OnInput" @onkeydown="OnKeyDownAsync"
+                   placeholder="직접 입력" inputmode="text" maxlength="20"
+                   class="flex-1 min-w-[80px] bg-transparent border-0 outline-none text-base md:text-[13px] text-navy-deep placeholder:text-text-muted" />
+        }
+    </div>
+
+    @if (mError is not null)
+    {
+        <span class="@Css.Form.ErrorMessage">@mError</span>
+    }
+    else if (Value.Count >= Max)
+    {
+        <span class="@Css.Form.Helper">태그는 @Max개까지 넣을 수 있어요</span>
+    }
+    else
+    {
+        <span class="@Css.Form.Helper">Enter·쉼표로 추가 · 12자 이내 · 순서 변경 시 앞 3개가 카드·선수단에 표시돼요</span>
+    }
+
+    @* 포지션 프리셋 — 이미 추가한 태그는 회색 비활성. 모바일 가로 스크롤(스크롤바 숨김) *@
+    @if (FilteredPresets.Count > 0)
+    {
+        <div class="flex flex-col gap-[7px] mt-1">
+            <span class="text-[11.5px] font-extrabold text-text-strong">자주 쓰는 태그</span>
+            <div class="flex gap-1.5 flex-nowrap overflow-x-auto md:flex-wrap md:overflow-visible -mx-1 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                @foreach (string preset in FilteredPresets)
+                {
+                    string p = preset;
+                    bool added = IsAdded(p);
+                    <button type="button" disabled="@(added || Value.Count >= Max)"
+                            class="@PresetChip(added)" @onclick="() => AddTagAsync(p)">＃@p</button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>강점 태그 목록(순서 보존). 부모 폼이 저장한다.</summary>
+    [Parameter]
+    public List<string> Value { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<string>> ValueChanged { get; set; }
+
+    /// <summary>선수 포지션(GK/DF/MF/FW) — 프리셋 필터 기준. 없으면 프리셋을 숨긴다.</summary>
+    [Parameter]
+    public string? Position { get; set; }
+
+    /// <summary>서버 상수 프리셋 전체 — 이 컴포넌트가 포지션으로 거른다.</summary>
+    [Parameter]
+    public List<StrengthTagPresetDto> Presets { get; set; } = new();
+
+    private const int Max = 5;
+    private const int MaxLength = 12;
+
+    private string mDraft = string.Empty;
+    private string? mError;
+
+    // 금지 패턴 — 숫자 8자 이상 연속(연락처). @·http는 문자열 검사로 함께 막는다.
+    private static readonly Regex LongDigits = new(@"\d{8,}", RegexOptions.Compiled);
+
+    private List<string> FilteredPresets =>
+        Position is null
+            ? new List<string>()
+            : Presets
+                .Where(p => string.Equals(p.Position, Position, StringComparison.OrdinalIgnoreCase))
+                .Select(p => p.Tag)
+                .ToList();
+
+    private bool IsAdded(string tag) =>
+        Value.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
+
+    // 쉼표 입력은 keydown보다 늦게 값에 반영되므로 input 이벤트에서 잡는다(값에 쉼표가 섞이지 않게).
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        string v = e.Value?.ToString() ?? string.Empty;
+        if (v.Contains(','))
+        {
+            string candidate = v.Split(',')[0];
+            mDraft = candidate;
+            await AddTagAsync(candidate);
+            return;
+        }
+
+        mDraft = v;
+        mError = null; // 입력 중에는 이전 오류를 지운다
+    }
+
+    private async Task OnKeyDownAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AddTagAsync(mDraft);
+        }
+    }
+
+    private async Task AddTagAsync(string raw)
+    {
+        string tag = Normalize(raw);
+        if (tag.Length == 0)
+        {
+            mDraft = string.Empty; // 엔터만 누른 빈 입력 — 조용히 무시
+            return;
+        }
+
+        if (Value.Count >= Max)
+        {
+            return;
+        }
+
+        if (IsForbidden(tag))
+        {
+            mError = "연락처나 링크는 넣을 수 없어요";
+            return;
+        }
+
+        if (tag.Length > MaxLength)
+        {
+            mError = "12자 이내로 입력해 주세요";
+            return;
+        }
+
+        if (IsAdded(tag))
+        {
+            mDraft = string.Empty; // 중복은 조용히 무시(토스트·오류 없음)
+            mError = null;
+            return;
+        }
+
+        List<string> next = new(Value) { tag };
+        mDraft = string.Empty;
+        mError = null;
+        await ValueChanged.InvokeAsync(next);
+    }
+
+    // 표시용 '#'·'＃' 접두어 한 개 제거(저장값에는 포함하지 않음) + 앞뒤 공백 trim
+    private static string Normalize(string raw)
+    {
+        string t = raw.Trim();
+        if (t.Length > 0 && (t[0] == '#' || t[0] == '＃'))
+        {
+            t = t.Substring(1).Trim();
+        }
+
+        return t;
+    }
+
+    private static bool IsForbidden(string tag) =>
+        tag.Contains('@') ||
+        tag.Contains("http", StringComparison.OrdinalIgnoreCase) ||
+        LongDigits.IsMatch(tag);
+
+    private async Task RemoveAsync(int index)
+    {
+        List<string> next = new(Value);
+        next.RemoveAt(index);
+        mError = null;
+        await ValueChanged.InvokeAsync(next);
+    }
+
+    // 앞 3개가 카드에 노출되므로 대표 태그를 맨 앞으로 올린다
+    private async Task MoveToFrontAsync(int index)
+    {
+        if (index <= 0)
+        {
+            return;
+        }
+
+        List<string> next = new(Value);
+        string tag = next[index];
+        next.RemoveAt(index);
+        next.Insert(0, tag);
+        await ValueChanged.InvokeAsync(next);
+    }
+
+    private async Task MoveUpAsync(int index)
+    {
+        if (index <= 0)
+        {
+            return;
+        }
+
+        List<string> next = new(Value);
+        (next[index - 1], next[index]) = (next[index], next[index - 1]);
+        await ValueChanged.InvokeAsync(next);
+    }
+
+    private async Task MoveDownAsync(int index)
+    {
+        if (index >= Value.Count - 1)
+        {
+            return;
+        }
+
+        List<string> next = new(Value);
+        (next[index + 1], next[index]) = (next[index], next[index + 1]);
+        await ValueChanged.InvokeAsync(next);
+    }
+
+    private static string ReorderBtn(bool disabled) =>
+        "flex items-center bg-transparent border-0 p-0 transition-colors " +
+        (disabled ? "text-border cursor-not-allowed" : "text-text-muted hover:text-navy cursor-pointer");
+
+    private static string PresetChip(bool added) =>
+        "text-xs md:text-[11.5px] font-bold rounded-full border-1.5 px-3.5 md:px-3 py-[9px] md:py-[5px] whitespace-nowrap flex-none transition-colors " +
+        (added
+            ? "text-text-faint bg-surface-soft border-border-soft cursor-not-allowed"
+            : "text-text-body bg-white border-border hover:border-navy/40 cursor-pointer");
+}
