@@ -212,6 +212,9 @@ namespace PlayGround.Contracts.Team
     public class MyApplicationDto
     {
         public Guid ApplicationId { get; set; }
+
+        /// <summary>지원한 공고 — 공개홈 모집 카드의 "이미 지원함" 판정에 쓴다(제목 매칭 대신 Id로 정확히).</summary>
+        public Guid RecruitmentId { get; set; }
         public string RecruitmentTitle { get; set; } = string.Empty;
         public string TeamName { get; set; } = string.Empty;
         public string? TeamSlug { get; set; }

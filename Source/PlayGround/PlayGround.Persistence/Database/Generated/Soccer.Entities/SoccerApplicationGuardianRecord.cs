@@ -17,6 +17,9 @@ public class SoccerApplicationGuardianRecord
 	public Guid ApplicationId { get; set; } = Guid.Empty;
 
 	[Required]
+	public Guid RecruitmentId { get; set; } = Guid.Empty;
+
+	[Required]
 	public Guid PlayerId { get; set; } = Guid.Empty;
 
 	[StringLength(20)]

@@ -1,0 +1,219 @@
+@* 선수 지원 폼 (Design.Application §2) — PC 중앙 모달 / 모바일 바텀시트 (Css.MatchForm 골격).
+   지원 선수(연결된 자녀 중 선택)·희망 포지션(공고 명시 포지션만)·자기소개(선택 500자)·연락처(읽기 전용).
+   자녀 미연결이면 폼 대신 "먼저 자녀를 연결해 주세요" 안내 + Claim CTA. 열 때 자녀를 1회 로드한다.
+   연락처는 서버 마스킹 원칙대로 실번호를 노출·조회하지 않고 안내 문구만 보여준다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Player
+@using PlayGround.Contracts.Team
+@inject PlayerClient Players
+@inject TeamClient Teams
+@inject ToastService Toasts
+
+@if (IsOpen && Recruitment is not null)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <span class="flex flex-col gap-1 min-w-0">
+                    <h2 class="@Css.MatchForm.Title">@($"{TeamName}에 지원하기")</h2>
+                    <span class="@Css.MatchForm.Subtitle">@Recruitment.Title</span>
+                </span>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            @if (mChildren is null)
+            {
+                @* 자녀 로딩 — 짧게 지나가는 상태 *@
+                <div class="@Css.MatchForm.Body items-center justify-center min-h-[160px]">
+                    <span class="w-6 h-6 rounded-full border-[3px] border-border border-t-navy animate-spin"></span>
+                </div>
+            }
+            else if (mChildren.Count == 0)
+            {
+                @* 자녀 미연결 — 폼 대신 안내 + Claim CTA *@
+                <div class="@Css.MatchForm.Body items-center text-center gap-3 py-8">
+                    <span class="text-[14.5px] font-extrabold text-navy-deep break-keep">먼저 자녀를 연결해 주세요</span>
+                    <a href="@Routes.Claim" class="flex items-center justify-center h-11 px-6 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 no-underline transition-colors">자녀 연결하기</a>
+                </div>
+            }
+            else
+            {
+                <CascadingValue Value="@mForm" IsFixed="true">
+                    <div class="@Css.MatchForm.Body">
+                        <SelectField Label="지원 선수" TValue="Guid" @bind-Value="mPlayerId"
+                                     Options="@ChildOptions" Placeholder="지원할 선수를 선택해 주세요"
+                                     Helper="연결된 자녀 중 선택 — 프로필 정보(생년·포지션·기록)가 함께 전달돼요"
+                                     Validator="@(v => v == Guid.Empty ? "지원할 선수를 선택해 주세요." : null)" />
+
+                        @if (HasPositions)
+                        {
+                            <RadioCards Label="희망 포지션" TValue="string" @bind-Value="mDesiredPosition"
+                                        Options="@PositionOptions"
+                                        Helper="공고에 명시된 포지션만 표시"
+                                        Validator="@(v => string.IsNullOrEmpty(v) ? "희망 포지션을 선택해 주세요." : null)" />
+                        }
+
+                        <TextField Label="자기소개" @bind-Value="mIntroduction" IsOptional="true" Multiline="true" Rows="3"
+                                   MaxLength="500" Placeholder="자녀의 강점이나 지원 동기를 짧게 적어 주세요." />
+
+                        @* 연락처 — 서버 마스킹 원칙대로 실번호는 노출하지 않는다 *@
+                        <div class="flex flex-col gap-1.5">
+                            <span class="@Css.Form.Label">연락처</span>
+                            <div class="h-11 rounded-[10px] border-1.5 border-surface-icon bg-surface-soft px-3 flex items-center text-[12.5px] text-text-body">계정에 등록된 번호</div>
+                            <span class="@Css.Form.Helper">계정에 등록된 번호 · 팀에는 수락 후에만 전달돼요</span>
+                        </div>
+
+                        @if (mInlineError is not null)
+                        {
+                            <span class="@Css.Form.ErrorMessage">@mInlineError</span>
+                        }
+                    </div>
+
+                    <div class="@Css.MatchForm.Footer">
+                        <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                        <SubmitButton Label="지원하기" BusyLabel="지원 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                                      Class="@Css.MatchForm.SubmitWidth" />
+                    </div>
+                </CascadingValue>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>지원 대상 공고 — 제목·희망 포지션 선택지의 원천.</summary>
+    [Parameter]
+    public TeamRecruitmentDto? Recruitment { get; set; }
+
+    [Parameter]
+    public string TeamName { get; set; } = string.Empty;
+
+    /// <summary>지원 성공 후 상위가 현황을 다시 읽어 카드를 "지원 완료"로 바꾼다.</summary>
+    [Parameter]
+    public EventCallback OnApplied { get; set; }
+
+    private readonly FormFieldContext mForm = new();
+
+    private List<ManagedPlayerDto>? mChildren;
+    private Guid mPlayerId;
+    private string mDesiredPosition = string.Empty;
+    private string? mIntroduction;
+    private bool mSaving;
+    private bool mLoaded;
+    private string? mInlineError;
+
+    private bool HasPositions => Recruitment is { Positions.Count: > 0 };
+
+    private List<SelectOption<Guid>> ChildOptions =>
+        (mChildren ?? new()).Select(c => new SelectOption<Guid>(c.PlayerId, c.Name, ChildMeta(c))).ToList();
+
+    private List<SelectOption<string>> PositionOptions =>
+        (Recruitment?.Positions ?? new()).Select(p => new SelectOption<string>(p, p)).ToList();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!IsOpen)
+        {
+            mLoaded = false;
+            return;
+        }
+
+        if (mLoaded)
+        {
+            return;
+        }
+
+        mLoaded = true;
+        mPlayerId = Guid.Empty;
+        mDesiredPosition = string.Empty;
+        mIntroduction = null;
+        mSaving = false;
+        mInlineError = null;
+        mChildren = null;
+
+        ManagedPlayersResponse? response = await Players.GetMyPlayersAsync();
+        mChildren = response?.Players ?? new();
+    }
+
+    private static string? ChildMeta(ManagedPlayerDto child)
+    {
+        List<string> parts = new();
+        if (!string.IsNullOrWhiteSpace(child.AgeGroup))
+        {
+            parts.Add(child.AgeGroup!);
+        }
+
+        if (!string.IsNullOrWhiteSpace(child.Position))
+        {
+            parts.Add(child.Position!);
+        }
+
+        return parts.Count > 0 ? string.Join(" · ", parts) : null;
+    }
+
+    private async Task SubmitAsync()
+    {
+        mInlineError = null;
+
+        if (!await mForm.ValidateAllAsync())
+        {
+            return;
+        }
+
+        var request = new CreateApplicationRequest
+        {
+            RecruitmentId = Recruitment!.RecruitmentId,
+            PlayerId = mPlayerId,
+            DesiredPosition = HasPositions ? mDesiredPosition : null,
+            Introduction = string.IsNullOrWhiteSpace(mIntroduction) ? null : mIntroduction!.Trim(),
+        };
+
+        mSaving = true;
+        ApplicationSaveResult result = await Teams.ApplyAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            if (result.IsDuplicate)
+            {
+                mInlineError = "이미 지원한 공고예요 · 상태를 확인해 보세요";
+                return;
+            }
+
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "지원하지 못했어요.", "재시도", SubmitAsync);
+                return;
+            }
+
+            mInlineError = result.Error ?? "지원하지 못했어요.";
+            return;
+        }
+
+        Toasts.ShowSuccess("지원이 전달됐어요");
+        await CloseAsync();
+        await OnApplied.InvokeAsync();
+    }
+
+    private Task CancelAsync() => CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        mLoaded = false;
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}

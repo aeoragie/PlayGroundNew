@@ -1453,6 +1453,7 @@ namespace PlayGround.Persistence.Repositories
                     .Select(r => new MyApplicationDto
                     {
                         ApplicationId = r.ApplicationId,
+                        RecruitmentId = r.RecruitmentId,
                         RecruitmentTitle = r.Title,
                         TeamName = r.TeamName,
                         TeamSlug = NullIfEmpty(r.Slug),

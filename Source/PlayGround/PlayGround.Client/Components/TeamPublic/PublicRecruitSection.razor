@@ -1,5 +1,6 @@
 @* 모집 탭(PC): 모집중 공고 카드 + 마감 공고(회색 .75) + 문의 카드 — SPEC.TEAMPUBLICHOME §④
-   "지원하기"·"입단 문의 남기기"는 지원·문의 플로우 미구현이라 무동작 버튼 (# 링크 금지 — 랜딩 오이동 방지). *@
+   "지원하기"(네이비)는 지원 폼을 연다(게스트는 상위가 로그인으로 보냄). 정원 충족=모집 마감(비활성),
+   기지원=지원 완료·상태 보기(네이비 아웃라인). "입단 문의 남기기"는 문의 플로우 미구현이라 무동작. *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
 
@@ -32,7 +33,18 @@
                                 }
                             </div>
                         }
-                        <button type="button" class="flex items-center justify-center h-11 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 border-0 cursor-pointer transition-colors">지원하기</button>
+                        @if (AppliedRecruitmentIds.Contains(item.RecruitmentId))
+                        {
+                            <a href="@Routes.Dashboard" class="flex items-center justify-center h-11 rounded-[11px] border-1.5 border-navy bg-white text-sm font-bold text-navy whitespace-nowrap mt-1 no-underline hover:bg-navy hover:text-white transition-colors">지원 완료 · 상태 보기</a>
+                        }
+                        else if (IsFull(item))
+                        {
+                            <button type="button" disabled class="flex items-center justify-center h-11 rounded-[11px] bg-surface-icon text-sm font-bold text-text-muted whitespace-nowrap mt-1 border-0 cursor-not-allowed">모집 마감</button>
+                        }
+                        else
+                        {
+                            <button type="button" @onclick="() => OnApply.InvokeAsync(item)" class="flex items-center justify-center h-11 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 border-0 cursor-pointer transition-colors">지원하기</button>
+                        }
                     </div>
                 }
                 else
@@ -62,6 +74,18 @@
     [Parameter, EditorRequired]
     public TeamRecruitmentsResponse Data { get; set; } = new();
 
+    /// <summary>내가 이미 지원한 공고 Id — 지원 완료 상태로 렌더한다(로그인 시에만 채워짐).</summary>
+    [Parameter]
+    public HashSet<Guid> AppliedRecruitmentIds { get; set; } = new();
+
+    /// <summary>"지원하기" 클릭 — 상위가 게스트면 로그인, 로그인 상태면 지원 폼을 연다.</summary>
+    [Parameter]
+    public EventCallback<TeamRecruitmentDto> OnApply { get; set; }
+
     internal static string DeadlineText(TeamRecruitmentDto item) =>
         item.DeadlineDate is null ? string.Empty : $"{item.DeadlineDate.Value.Month}/{item.DeadlineDate.Value.Day}";
+
+    /// <summary>정원 충족 — Capacity가 있고 수락 수가 정원 이상이면 지원 차단(모집 마감).</summary>
+    internal static bool IsFull(TeamRecruitmentDto item) =>
+        item.Capacity is int cap && item.AcceptedCount >= cap;
 }

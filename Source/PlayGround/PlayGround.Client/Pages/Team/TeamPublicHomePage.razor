@@ -77,10 +77,10 @@ else if (mHome is not null)
                         </Skeleton>
                         <ChildContent>
                             <div class="hidden md:block">
-                                <PublicRecruitSection Data="@(mRecruitments!)" />
+                                <PublicRecruitSection Data="@(mRecruitments!)" AppliedRecruitmentIds="@mAppliedIds" OnApply="OnApplyAsync" />
                             </div>
                             <div class="md:hidden">
-                                <MobilePublicRecruitSection Data="@(mRecruitments!)" />
+                                <MobilePublicRecruitSection Data="@(mRecruitments!)" AppliedRecruitmentIds="@mAppliedIds" OnApply="OnApplyAsync" />
                             </div>
                         </ChildContent>
                     </LoadingGate>
@@ -132,6 +132,10 @@ else if (mHome is not null)
             <button type="button" @onclick="GoRecruit"
                     class="flex-1 flex items-center justify-center h-12 rounded-[11px] bg-orange hover:bg-orange-hover text-[15px] font-bold text-white whitespace-nowrap shadow-authbtn border-0 cursor-pointer transition-colors">입단 문의</button>
         </div>
+
+        @* 지원 폼 — PC 모달 / 모바일 바텀시트 (반응형 단일 인스턴스) *@
+        <ApplicationFormDialog @bind-IsOpen="mApplyDialogOpen" Recruitment="@mApplyTarget"
+                               TeamName="@mHome.Profile.TeamName" OnApplied="LoadApplicationStatusAsync" />
     </div>
 }
 
@@ -161,13 +165,21 @@ else if (mHome is not null)
     private bool mReviewsFailed;
     private List<string> mAgeGroups = new();
 
+    // 지원(Application) — 로그인 열람자만: 기지원 공고 표시 + 지원 폼
+    private bool mIsAuthenticated;
+    private HashSet<Guid> mAppliedIds = new();
+    private TeamRecruitmentDto? mApplyTarget;
+    private bool mApplyDialogOpen;
+
     private SoccerTeamPublicTab CurrentTab => SoccerTeamPublicTabExtensions.ParseSlug(Tab);
 
     protected override async Task OnInitializedAsync()
     {
         // 게스트도 허용하는 공개 화면이지만, 로그인 상태면 인증을 먼저 확정해야 조회에 토큰이 실린다
         // (관리자 본인 판정 IsManager — 헤더 레이스가 있으면 관리자가 게스트로 보인다)
-        await AuthProvider.GetAuthenticationStateAsync();
+        Microsoft.AspNetCore.Components.Authorization.AuthenticationState state =
+            await AuthProvider.GetAuthenticationStateAsync();
+        mIsAuthenticated = state.User.Identity?.IsAuthenticated == true;
 
         mHome = await Teams.GetTeamHomeAsync(Slug);
         mLoaded = true;
@@ -226,6 +238,43 @@ else if (mHome is not null)
         mRecruitmentsFailed = false;
         mRecruitments = await Teams.GetTeamRecruitmentsAsync(Slug);
         mRecruitmentsFailed = mRecruitments is null;
+
+        // 로그인 상태면 내 지원 현황도 함께 읽어 "지원 완료" 카드를 표시한다(게스트는 조회하지 않음)
+        if (mIsAuthenticated)
+        {
+            await LoadApplicationStatusAsync();
+        }
+    }
+
+    // 내 지원 현황 → 기지원 공고 Id 집합 (지원 성공 후에도 다시 호출해 카드를 갱신).
+    // MyApplicationDto에는 RecruitmentId가 없어(계약 불변) 이 팀의 지원을 공고 제목으로 매칭해 Id로 되돌린다.
+    private async Task LoadApplicationStatusAsync()
+    {
+        MyApplicationsResponse? applications = await Teams.GetMyApplicationStatusAsync();
+        if (applications is null || mRecruitments is null)
+        {
+            mAppliedIds = new HashSet<Guid>();
+            return;
+        }
+
+        // 지원한 공고를 RecruitmentId로 정확히 판정 (제목 매칭 아님 — 동명 공고 오검출 없음)
+        mAppliedIds = applications.Applications
+            .Select(a => a.RecruitmentId)
+            .ToHashSet();
+    }
+
+    // "지원하기" — 게스트는 로그인(모집 탭으로 복귀)으로, 로그인 상태면 지원 폼을 연다
+    private void OnApplyAsync(TeamRecruitmentDto recruitment)
+    {
+        if (!mIsAuthenticated)
+        {
+            string returnUrl = Routes.TeamPublicHomeTab(Slug, SoccerTeamPublicTab.Recruit);
+            Nav.NavigateTo(Routes.LoginWithReturn(returnUrl));
+            return;
+        }
+
+        mApplyTarget = recruitment;
+        mApplyDialogOpen = true;
     }
 
     private async Task LoadRecordAsync()

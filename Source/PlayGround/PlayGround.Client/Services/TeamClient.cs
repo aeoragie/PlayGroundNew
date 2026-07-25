@@ -242,6 +242,45 @@ namespace PlayGround.Client.Services
             }
         }
 
+        //.// 선수 지원 (Design.Application, E5) — 보호자가 모집 공고에 지원
+
+        /// <summary>모집 공고 지원 (보호자). 중복(같은 선수+같은 공고)은 서버가 DuplicateValue로 거부한다.</summary>
+        public async Task<ApplicationSaveResult> ApplyAsync(CreateApplicationRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/applications", request);
+                Envelope<Guid>? envelope = await response.Content.ReadFromJsonAsync<Envelope<Guid>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new ApplicationSaveResult(true, false, null);
+                }
+
+                // 중복 지원 — 코드로 판별해 전용 안내를 보여준다(다른 실패는 일반 인라인)
+                bool isDuplicate = string.Equals(envelope?.CodeName, "DuplicateValue", StringComparison.Ordinal);
+                return new ApplicationSaveResult(false, isDuplicate, "지원하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new ApplicationSaveResult(false, false, "지원하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>내가 올린 지원 현황 — 어떤 공고에 이미 지원했는지 판정에 쓴다. 미인증·오류 시 null.</summary>
+        public async Task<MyApplicationsResponse?> GetMyApplicationStatusAsync()
+        {
+            try
+            {
+                Envelope<MyApplicationsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<MyApplicationsResponse>>("api/soccer/team/me/application-status");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
         //.// 팀 일정 (Design.Schedule)
 
         /// <summary>공개 팀 홈 일정 — 비로그인. 공개 일정만(서버 필터). 비공개·미존재 팀은 빈 목록, 오류 시 null.</summary>
@@ -613,4 +652,7 @@ namespace PlayGround.Client.Services
 
     /// <summary>선수 추가 결과 — 입력 거부(인라인)와 요청 실패(토스트)를 IsNetworkError로 가른다.</summary>
     public record PlayerAddResult(bool Success, string? Error, bool IsNetworkError = false);
+
+    /// <summary>지원 결과 — 중복(같은 선수+같은 공고)은 IsDuplicate로 구분해 전용 인라인 안내를 띄운다.</summary>
+    public record ApplicationSaveResult(bool Success, bool IsDuplicate, string? Error, bool IsNetworkError = false);
 }
