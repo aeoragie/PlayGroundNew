@@ -639,6 +639,23 @@
   (dc 준수, 과거 일정 삭제 불가) · 월 전환 화살표·반복 일정 P1. **UI 검증은 VS 재빌드 후.**
 - **다른 PC 필수**: `SoccerSchedules` 테이블 + SP 4종 배포.
 
+### 강점 태그 완료 (2026-07-26, Design.StrengthTags — Phase E "E4", 3 Stage)
+
+- **Stage 1 백엔드** (`2eae0b6`) — `SoccerPlayers.StrengthTags`(순서 보존 JSON 배열, 마이그레이션) +
+  `SoccerStrengthTagPresets`(포지션별 8개 시드) + SP 2종(프리셋·저장). `SoccerPlayerProfileField`에
+  **StrengthTags 추가(DefaultIsPublic=true)** — me/info 공개설정 리스트가 enum 순회로 조립돼 자동 편입.
+  4개 조회 프로시저에 태그 실음: me/info(원본)·공개프로필(C# visibility 게이팅)·로스터 2종(**SQL
+  per-player 게이팅** `CASE WHEN fvs.IsPublic=0 THEN NULL`). Command 검증(5개·1~12자·# 제거·중복 무시·
+  금지 패턴 @·http·숫자 8자 연속). Actor·Controller(GET presets, PUT me/strength-tags).
+- **Stage 2·3 UI** (`8e6db51`) — `StrengthTagInput`(칩+자유 입력·포지션 프리셋·순서변경 맨앞/앞/뒤·
+  인라인 검증) → **프로필 수정 폼에 통합**(저장 성공 후 변경분만 PUT). 공개범위 설정에 "강점 태그"
+  라벨(스위치 자동). **팀 관리자 편집 경로 없음**. 노출 3곳(빈 목록이면 생략): 히어로(전부·네이비 칩)/
+  선수 카드 다크(teal 앞 3개+N)/선수단 카드(첫 1개+N, 리스트 미노출).
+- **미해결**: 저장 카드 PNG(player-card.js)에는 태그 미포함(고정 캔버스 레이아웃 — 화면 카드만) ·
+  드래그 순서변경 대신 버튼(맨앞/앞/뒤). **UI 검증은 VS 재빌드 후.**
+- **다른 PC 필수**: `2026-07-25_SoccerPlayers.StrengthTags.sql` 마이그레이션 + `SoccerStrengthTagPresets`
+  테이블·시드 + SP 2종 배포.
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
