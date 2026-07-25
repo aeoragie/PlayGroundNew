@@ -21,6 +21,7 @@ public class UspUpdateSoccerPlayerProfileByUser(RepositoryBase repository) : Pro
 	public int? WeightKg { get; set; } = null;
 	public string PreferredFoot { get; set; } = null;
 	public string SchoolName { get; set; } = null;
+	public string Slug { get; set; } = null;
 	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
@@ -29,6 +30,7 @@ public class UspUpdateSoccerPlayerProfileByUser(RepositoryBase repository) : Pro
 		Parameters.Add("@WeightKg", WeightKg);
 		Parameters.Add("@PreferredFoot", PreferredFoot);
 		Parameters.Add("@SchoolName", SchoolName);
+		Parameters.Add("@Slug", Slug);
 		Parameters.Add("@TargetPlayerId", TargetPlayerId);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
