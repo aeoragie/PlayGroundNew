@@ -417,8 +417,7 @@
   PNG IHDR 1080×1350 실검사** · 클립보드 토스트 · 진입점 2곳 · 권한 카드(김OO 마스킹·재공유 금지) ·
   Profile off → 카드도 NotFound · 모바일. **wwwroot JS 수정도 서버 재시작 필수**(WASM 함정 동일).
 - **잔여**: 강점 태그(저장처·입력 UI 없음 — 스키마 설계 필요) · OG 메타(WASM SPA — 서버 렌더 별도
-  설계). HandoffAudit·IntegrationTestPlan의 해당 갭(S2 공개 프로필 반영·S3 친선 미노출·S6 권한 뷰)
-  해소 처리됨.
+  설계). 통합 테스트 갭(S2 공개 프로필 반영·S3 친선 미노출·S6 권한 뷰) 해소 처리됨.
 
 ### 공개 선수 프로필 2차 — 디테일 권한 뷰 완료 (2026-07-21, Design.PlayerPublicProfile)
 
@@ -605,7 +604,7 @@
 
 ### Handoff 32종 전수 검수 (2026-07-21) — 미개발 기능 목록
 
-> 상세는 **`Docs/Development/HandoffAudit.md`** (통합 테스트 관점은 `IntegrationTestPlan.md` §7과 상보).
+> (상세 미개발 목록은 Phase E 반입분 **`Handoff/PLAN.IMPLEMENTATIONORDER.md`**로 이관).
 > 큰 덩어리 3개: PlayerPublicProfile **권한 뷰+카드 뷰**(위) · TeamPublicHome **진학진로→리뷰 탭** ·
 > BannerStepper **배너 3톤+온보딩 스텝 교체**. 선행 조건이 풀려 착수 가능해진 것: ClaimFlow "코드가
 > 없어요" Records 경유 · AgentViewApproval 권한 뷰 연동 · **TooltipHelp ⓘ 4곳**(코드 소비 0건 —
@@ -631,7 +630,7 @@
    → **공개 팀 홈 6탭 완성** + ~~공개 선수 프로필 4뷰~~(1~3차, 아래). 랜딩 역할 카드 배선(팀→/teams?)은
    **팀 탐색의 검색 주체(선수·팀·에이전트) 재검토와 함께 보류**. Design.BannerStepper의 **배너 3톤·
    온보딩 스텝 표시 교체**는 미착수(스텝퍼 절만 소비됨). 그 외 잔여 전수는
-   `Docs/Development/HandoffAudit.md` — 다음 후보: TooltipHelp ⓘ 4곳 · 허브 Pending 자녀 ·
+   `Handoff/PLAN.IMPLEMENTATIONORDER.md`(Phase E) — 다음 후보: TooltipHelp ⓘ 4곳 · 허브 Pending 자녀 ·
    로스터 쓰기(선수 등록·삭제) · 일정 스키마.
 6. **Phase D — 잔여 패턴**: ~~AvatarBadge 일괄 교체~~ 완료(위). 남은 잔여: ~~온보딩 중복 방지~~ 완료 ·
    계정 메뉴(DropdownMenu §1) 추출(PublicGnb 인라인 유지 중 — 아바타는 교체됨).
