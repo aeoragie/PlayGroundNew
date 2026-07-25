@@ -616,6 +616,29 @@
 > Claim·30일 만료·인증팀·Records 집계 기준, 전부 기존 화면이라 1회 작업 가치). 스키마 없어 막힌 것:
 > 일정 실데이터·선수 등록 폼·로스터 삭제(테스트 계획 §7-2·3·4)·리뷰·진학진로·강점 태그.
 
+### 팀 일정 완료 (2026-07-25, Design.Schedule — Phase E "E3", 3 Stage)
+
+> 목업이던 일정 섹션을 실데이터로. **선행 E1(친선구분)·E2(기록수정)는 이미 B5·B6+보호자 경로로
+> 소진돼 있어 재구현하지 않고, E2는 README의 "허브 자녀 카드" 배치만 델타로 채웠다**(커밋 e84870c).
+
+- **Stage 1 백엔드** (`f15c419`) — `SoccerSchedules`(상태 컬럼 없음 — StartsAt 파생, Type Match/
+  Tournament/Training, IsPublic, MatchId 결과연결) + CRUD SP 4종(Save·Delete 소프트+복구·ByManager·
+  BySlug **공개만**) + Contracts·Repository·Command(유형 화이트리스트·유형별 필드·미래 일정 검증)·
+  Actor(읽기 Info/쓰기 Profile)·Controller(`me/schedules`, `{slug}/schedules` AllowAnonymous).
+  **iCal 구독 피드** `GET api/soccer/team/{slug}/schedule.ics`(공개만·KST→UTC·RFC5545·토큰 없는 공개 URL,
+  `Server/Feeds/ICalFeedBuilder`). 모집(Recruitment) 스택을 그대로 미러링.
+- **Stage 2 대시보드 UI** (`6e7c465`) — 목업 교체. `ScheduleFormDialog`(유형 3 라디오·유형별 가변
+  필드·Calendar FutureOnly+TimeList·공개 스위치 훈련 기본 끔·인라인 검증) + 섹션 행(유형 pill 3색·
+  StartsAt 파생 종료 상태·비공개 자물쇠·⋯ 수정/삭제 확인+실행취소) PC·모바일 + 페이지 지연 로드.
+- **Stage 3 공개 노출** (`1aa967a`) — ① **공개홈 시즌성적 탭 상단 "다가오는 일정" 섹션**(읽기 전용,
+  미래 오름차순+종료 최근 3개, 0건 숨김). **설계 충돌 해소**: Design.Schedule는 "Schedule 탭"이라
+  했지만 마스터 SPEC.TEAMPUBLICHOME이 "6탭 유지"라 **새 탭 없이 Record 탭에 편입**(TeamBoard 팀소식
+  전례, 사용자 확정). ② 허브 팀 카드 "다음 경기 — {M/D}(요일) {HH:mm} vs {상대}"(가장 가까운 미래
+  경기·대회, 훈련 제외, teal). ③ 구독 링크 복사(공개홈 하단 + 대시보드 캡션, clipboard interop 재사용).
+- **미해결**: 삭제 시 팀원 알림(백엔드 발송 훅 후속 — 확인 모달 카피 임시 조정) · 종료 행 ⋯ 미노출
+  (dc 준수, 과거 일정 삭제 불가) · 월 전환 화살표·반복 일정 P1. **UI 검증은 VS 재빌드 후.**
+- **다른 PC 필수**: `SoccerSchedules` 테이블 + SP 4종 배포.
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
