@@ -57,6 +57,18 @@ namespace PlayGround.Application.Interfaces
         /// <summary>모집 공고 소프트 삭제·복구(실행취소). 소유 아님·대상 없음은 Success(false).</summary>
         Task<Result<bool>> DeleteRecruitmentByManagerAsync(Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default);
 
+        /// <summary>팀 대시보드 일정 섹션 — 관리자 소유 팀의 일정 목록.</summary>
+        Task<Result<SchedulesResponse>> GetSchedulesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
+        /// <summary>공개 팀 홈 일정 탭 — 비공개·미존재 팀은 빈 목록.</summary>
+        Task<Result<SchedulesResponse>> GetSchedulesBySlugAsync(string slug, CancellationToken cancellation = default);
+
+        /// <summary>일정 저장 (신규·수정 겸용). 소유 아님은 Success(null).</summary>
+        Task<Result<ScheduleDto?>> SaveScheduleByManagerAsync(Guid managerUserId, SaveScheduleRequest request, CancellationToken cancellation = default);
+
+        /// <summary>일정 소프트 삭제·복구(실행취소). 소유 아님·대상 없음은 Success(false).</summary>
+        Task<Result<bool>> DeleteScheduleByManagerAsync(Guid managerUserId, Guid scheduleId, bool restore, CancellationToken cancellation = default);
+
         /// <summary>공개 팀 홈 진학·진로 사례 조회 (Slug 기준, 비로그인). 비공개·미존재 팀은 빈 목록.</summary>
         Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesBySlugAsync(string slug, CancellationToken cancellation = default);
 

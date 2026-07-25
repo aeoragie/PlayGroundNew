@@ -74,6 +74,7 @@
     <Build Include="Tables\SoccerTeamCoaches.sql" />
     <Build Include="Tables\SoccerTeamChannels.sql" />
     <Build Include="Tables\SoccerTeamPlayers.sql" />
+    <Build Include="Tables\SoccerSchedules.sql" />
     <Build Include="Tables\SoccerPlayerInvites.sql" />
     <Build Include="Tables\SoccerPlayerClaimRequests.sql" />
     <Build Include="Tables\SoccerNotifications.sql" />
@@ -88,6 +89,10 @@
     <Build Include="Tables\SoccerLandingContents.sql" />
     <Build Include="Functions\UfnRomanizeKoreanSlug.sql" />
     <Build Include="Procedures\UspGetLandingContents.sql" />
+    <Build Include="Procedures\UspSaveSoccerSchedule.sql" />
+    <Build Include="Procedures\UspDeleteSoccerSchedule.sql" />
+    <Build Include="Procedures\UspGetSoccerSchedulesByManager.sql" />
+    <Build Include="Procedures\UspGetSoccerSchedulesBySlug.sql" />
     <Build Include="Procedures\UspCreatePlayer.sql" />
     <Build Include="Procedures\UspUpdateSoccerPlayerProfileByUser.sql" />
     <Build Include="Procedures\UspCreateSoccerTeamWithRoster.sql" />

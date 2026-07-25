@@ -54,6 +54,24 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
+    /// <summary>팀 대시보드 일정 목록 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerSchedulesByManagerMessage(Guid UserId);
+
+    /// <summary>공개 팀 홈 일정 탭 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
+    public sealed record GetSoccerSchedulesBySlugMessage(string Slug);
+
+    /// <summary>일정 저장 메시지 (쓰기 — UserId 해시).</summary>
+    public sealed record SaveSoccerScheduleMessage(Guid UserId, SaveScheduleRequest Data) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>일정 삭제·복구 메시지 (쓰기 — UserId 해시).</summary>
+    public sealed record DeleteSoccerScheduleMessage(Guid UserId, Guid ScheduleId, bool Restore) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>공개 팀 홈 진학·진로 사례 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamCareerOutcomesMessage(string Slug);
 

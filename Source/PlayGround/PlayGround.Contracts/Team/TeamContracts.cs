@@ -146,6 +146,50 @@ namespace PlayGround.Contracts.Team
         public DateTime? DeadlineDate { get; set; }
     }
 
+    //.// 팀 일정 (Schedule)
+
+    /// <summary>일정 목록 — 공개 홈 일정 탭·팀 대시보드 일정 섹션 공용.</summary>
+    public class SchedulesResponse
+    {
+        public List<ScheduleDto> Schedules { get; set; } = new();
+    }
+
+    /// <summary>일정 한 건. HasResult = 연결된 경기 결과(MatchId) 존재 여부 (서버 파생 — 화면은 그대로 렌더).</summary>
+    public class ScheduleDto
+    {
+        public Guid ScheduleId { get; set; }
+
+        /// <summary>SoccerScheduleType 멤버 이름 ('Match' | 'Tournament' | 'Training').</summary>
+        public string Type { get; set; } = string.Empty;
+
+        /// <summary>일정 제목 — 경기(Match)는 상대명에서 파생하므로 null, 대회·훈련은 값이 온다.</summary>
+        public string? Title { get; set; }
+
+        /// <summary>상대 팀 이름 — 경기·대회만 값, 훈련은 null.</summary>
+        public string? OpponentName { get; set; }
+        public DateTime StartsAt { get; set; }
+        public string Venue { get; set; } = string.Empty;
+        public bool IsPublic { get; set; }
+        public Guid? MatchId { get; set; }
+
+        /// <summary>연결된 경기 결과가 있는지 — MatchId 파생 (서버가 설정).</summary>
+        public bool HasResult { get; set; }
+    }
+
+    /// <summary>일정 저장 요청 — ScheduleId 빈 GUID = 신규 (B3 규약).</summary>
+    public class SaveScheduleRequest
+    {
+        public Guid ScheduleId { get; set; }
+
+        /// <summary>SoccerScheduleType 멤버 이름 ('Match' | 'Tournament' | 'Training').</summary>
+        public string Type { get; set; } = string.Empty;
+        public string? Title { get; set; }
+        public string? OpponentName { get; set; }
+        public DateTime StartsAt { get; set; }
+        public string Venue { get; set; } = string.Empty;
+        public bool IsPublic { get; set; }
+    }
+
     /// <summary>진학·진로 사례 목록 — 공개 홈 진학·진로 탭·팀 대시보드 관리 카드 공용.
     /// 요약 3카드는 클라이언트가 유형별 PlayerCount 합산으로 파생 (타임라인과 어긋날 수 없다).</summary>
     public class TeamCareerOutcomesResponse

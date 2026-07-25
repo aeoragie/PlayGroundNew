@@ -20,6 +20,8 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<SaveSoccerTeamRecruitmentMessage>(HandleSaveRecruitmentAsync);
             RegisterHandlerAsync<CloseSoccerTeamRecruitmentMessage>(HandleCloseRecruitmentAsync);
             RegisterHandlerAsync<DeleteSoccerTeamRecruitmentMessage>(HandleDeleteRecruitmentAsync);
+            RegisterHandlerAsync<SaveSoccerScheduleMessage>(HandleSaveScheduleAsync);
+            RegisterHandlerAsync<DeleteSoccerScheduleMessage>(HandleDeleteScheduleAsync);
             RegisterHandlerAsync<SaveSoccerTeamCareerOutcomeMessage>(HandleSaveCareerOutcomeAsync);
             RegisterHandlerAsync<DeleteSoccerTeamCareerOutcomeMessage>(HandleDeleteCareerOutcomeAsync);
             RegisterHandlerAsync<SaveSoccerTeamReviewMessage>(HandleSaveReviewAsync);
@@ -106,6 +108,24 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerTeamRecruitmentCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamRecruitmentCommand>();
             Result<bool> result = await useCase.DeleteAsync(message.ManagerUserId, message.RecruitmentId, message.Restore);
+            sender.Tell(result);
+        }
+
+        private async Task HandleSaveScheduleAsync(SaveSoccerScheduleMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerScheduleCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerScheduleCommand>();
+            Result<ScheduleDto> result = await useCase.SaveAsync(message.UserId, message.Data);
+            sender.Tell(result);
+        }
+
+        private async Task HandleDeleteScheduleAsync(DeleteSoccerScheduleMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerScheduleCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerScheduleCommand>();
+            Result<bool> result = await useCase.DeleteAsync(message.UserId, message.ScheduleId, message.Restore);
             sender.Tell(result);
         }
 

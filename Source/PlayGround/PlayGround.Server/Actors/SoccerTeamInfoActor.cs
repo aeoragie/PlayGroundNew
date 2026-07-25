@@ -24,6 +24,8 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerTeamExploreMessage>(HandleGetExploreAsync);
             RegisterHandlerAsync<GetSoccerTeamRecruitmentsMessage>(HandleGetRecruitmentsAsync);
             RegisterHandlerAsync<GetSoccerTeamRecruitmentsByManagerMessage>(HandleGetRecruitmentsByManagerAsync);
+            RegisterHandlerAsync<GetSoccerSchedulesBySlugMessage>(HandleGetSchedulesAsync);
+            RegisterHandlerAsync<GetSoccerSchedulesByManagerMessage>(HandleGetSchedulesByManagerAsync);
             RegisterHandlerAsync<GetSoccerTeamCareerOutcomesMessage>(HandleGetCareerOutcomesAsync);
             RegisterHandlerAsync<GetSoccerTeamCareerOutcomesByManagerMessage>(HandleGetCareerOutcomesByManagerAsync);
             RegisterHandlerAsync<GetSoccerTeamReviewsMessage>(HandleGetReviewsAsync);
@@ -71,6 +73,24 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerTeamRecruitmentCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamRecruitmentCommand>();
             Result<TeamRecruitmentsResponse> result = await useCase.GetMineAsync(message.ManagerUserId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetSchedulesAsync(GetSoccerSchedulesBySlugMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerScheduleCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerScheduleCommand>();
+            Result<SchedulesResponse> result = await useCase.GetBySlugAsync(message.Slug);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetSchedulesByManagerAsync(GetSoccerSchedulesByManagerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerScheduleCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerScheduleCommand>();
+            Result<SchedulesResponse> result = await useCase.GetMineAsync(message.UserId);
             sender.Tell(result);
         }
 

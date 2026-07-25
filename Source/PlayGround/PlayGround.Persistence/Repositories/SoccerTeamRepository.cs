@@ -1015,6 +1015,108 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(queryResult.Values1.Count > 0);
         }
 
+        //.// 팀 일정 (Schedule)
+
+        public async Task<Result<SchedulesResponse>> GetSchedulesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team schedules requested by manager", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerSchedulesByManager(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerSchedulesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<SchedulesResponse>.Error(ErrorCode.DatabaseError, "GetSchedulesByManager");
+            }
+
+            return Result<SchedulesResponse>.Success(new SchedulesResponse
+            {
+                Schedules = queryResult.Values1.Select(MapSchedule).ToList()
+            });
+        }
+
+        public async Task<Result<SchedulesResponse>> GetSchedulesBySlugAsync(string slug, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team schedules requested", ("Slug", slug));
+
+            var procedure = new UspGetSoccerSchedulesBySlug(this) { Slug = slug };
+            var queryResult = await procedure.QueryAsync<SoccerSchedulesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<SchedulesResponse>.Error(ErrorCode.DatabaseError, "GetSchedulesBySlug");
+            }
+
+            return Result<SchedulesResponse>.Success(new SchedulesResponse
+            {
+                Schedules = queryResult.Values1.Select(MapSchedule).ToList()
+            });
+        }
+
+        public async Task<Result<ScheduleDto?>> SaveScheduleByManagerAsync(
+            Guid managerUserId, SaveScheduleRequest request, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team schedule save requested",
+                ("ManagerUserId", managerUserId), ("ScheduleId", request.ScheduleId));
+
+            var procedure = new UspSaveSoccerSchedule(this)
+            {
+                ManagerUserId = managerUserId,
+                ScheduleId = request.ScheduleId,
+                Type = request.Type,
+                Title = request.Title!,
+                OpponentName = request.OpponentName!,
+                StartsAt = request.StartsAt,
+                Venue = request.Venue,
+                IsPublic = request.IsPublic
+            };
+            var queryResult = await procedure.QueryAsync<SoccerSchedulesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<ScheduleDto?>.Error(ErrorCode.DatabaseError, "SaveSchedule");
+            }
+
+            SoccerSchedulesEntity? row = queryResult.Values1.FirstOrDefault();
+            return Result<ScheduleDto?>.Success(row is null ? null : MapSchedule(row));
+        }
+
+        public async Task<Result<bool>> DeleteScheduleByManagerAsync(
+            Guid managerUserId, Guid scheduleId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team schedule delete requested",
+                ("ManagerUserId", managerUserId), ("ScheduleId", scheduleId), ("Restore", restore));
+
+            var procedure = new UspDeleteSoccerSchedule(this)
+            {
+                ManagerUserId = managerUserId,
+                ScheduleId = scheduleId,
+                Restore = restore
+            };
+            var queryResult = await procedure.QueryAsync<SoccerSchedulesEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "DeleteSchedule");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.Any());
+        }
+
+        // HasResult = 연결된 경기 결과(MatchId) 존재 여부 파생. Title·OpponentName은 빈 문자열이면 null로 내린다.
+        private static ScheduleDto MapSchedule(SoccerSchedulesEntity row)
+        {
+            bool hasResult = row.MatchId is not null && row.MatchId != Guid.Empty;
+            return new ScheduleDto
+            {
+                ScheduleId = row.ScheduleId,
+                Type = row.Type,
+                Title = NullIfEmpty(row.Title),
+                OpponentName = NullIfEmpty(row.OpponentName),
+                StartsAt = row.StartsAt,
+                Venue = row.Venue,
+                IsPublic = row.IsPublic,
+                MatchId = hasResult ? row.MatchId : null,
+                HasResult = hasResult
+            };
+        }
+
         public async Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesBySlugAsync(string slug, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Team career outcomes requested", ("Slug", slug));

@@ -5,6 +5,7 @@ using PlayGround.Shared.Http;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Server.Actors;
+using PlayGround.Server.Feeds;
 
 namespace PlayGround.Server.Controllers.Soccer
 {
@@ -152,6 +153,76 @@ namespace PlayGround.Server.Controllers.Soccer
             Result<bool> result = await mGateway.AskAsync<bool>(
                 ActorNames.SoccerTeamProfile, new DeleteSoccerTeamRecruitmentMessage(userId, recruitmentId, restore), cancellation);
             return result.ToEnvelope();
+        }
+
+        // 공개 팀 홈 일정 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
+        [AllowAnonymous]
+        [HttpGet("{slug}/schedules")]
+        public async Task<Envelope<SchedulesResponse>> GetTeamSchedulesAsync(string slug, CancellationToken cancellation)
+        {
+            Result<SchedulesResponse> result = await mGateway.AskAsync<SchedulesResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerSchedulesBySlugMessage(slug), cancellation);
+            return result.ToEnvelope();
+        }
+
+        [HttpGet("me/schedules")]
+        public async Task<Envelope<SchedulesResponse>> GetMySchedulesAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<SchedulesResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<SchedulesResponse> result = await mGateway.AskAsync<SchedulesResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerSchedulesByManagerMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>일정 저장 (신규·수정 겸용) — 공개 설정이면 저장 즉시 공개 홈 일정 탭에 반영된다.</summary>
+        [HttpPut("me/schedules")]
+        public async Task<Envelope<ScheduleDto>> SaveMyScheduleAsync(
+            [FromBody] SaveScheduleRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<ScheduleDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<ScheduleDto> result = await mGateway.AskAsync<ScheduleDto>(
+                ActorNames.SoccerTeamProfile, new SaveSoccerScheduleMessage(userId, request), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>일정 소프트 삭제·복구(restore=true — 실행취소 경로).</summary>
+        [HttpPost("me/schedules/{scheduleId:guid}/delete")]
+        public async Task<Envelope<bool>> DeleteMyScheduleAsync(
+            Guid scheduleId, [FromQuery] bool restore, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new DeleteSoccerScheduleMessage(userId, scheduleId, restore), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>팀 일정 구독 캘린더(iCal 피드) — 공개 일정만. 토큰 없는 공개 URL(README).
+        /// Envelope가 아니라 text/calendar 원문을 반환한다(Google·Apple 캘린더 구독용).</summary>
+        [AllowAnonymous]
+        [HttpGet("{slug}/schedule.ics")]
+        public async Task<IActionResult> GetTeamScheduleFeedAsync(string slug, CancellationToken cancellation)
+        {
+            Result<SchedulesResponse> result = await mGateway.AskAsync<SchedulesResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerSchedulesBySlugMessage(slug), cancellation);
+
+            List<ScheduleDto> schedules = result.IsError ? new List<ScheduleDto>() : result.Value.Schedules;
+            string ical = ICalFeedBuilder.Build(slug, schedules);
+            return Content(ical, "text/calendar; charset=utf-8");
         }
 
         // 공개 팀 홈 진학·진로 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
