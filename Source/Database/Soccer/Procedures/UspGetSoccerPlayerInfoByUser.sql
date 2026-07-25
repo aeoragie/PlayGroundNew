@@ -1,6 +1,6 @@
 -- @entity: SoccerPlayerInfoRecord
 -- @source: join
--- @join: SoccerPlayers AS p (PlayerId, Name, Slug, PhotoUrl, BirthDate, AgeGroup, HeightCm, WeightKg, PreferredFoot, SchoolName, GuardianPhone, IsGuardianManaged)
+-- @join: SoccerPlayers AS p (PlayerId, Name, Slug, PhotoUrl, BirthDate, AgeGroup, HeightCm, WeightKg, PreferredFoot, SchoolName, GuardianPhone, IsGuardianManaged, StrengthTags)
 -- @join: SoccerTeamPlayers AS tp (JerseyNumber, Position, Grade)
 -- @join: SoccerTeams AS t (TeamName)
 -- 관리 주체(UserId) 기준 선수 프로필 묶음 조회 (선수 대시보드 프로필 섹션).
@@ -24,6 +24,7 @@ BEGIN
     SELECT
         p.[PlayerId], p.[Name], p.[Slug], p.[PhotoUrl], p.[BirthDate], p.[AgeGroup],
         p.[HeightCm], p.[WeightKg], p.[PreferredFoot], p.[SchoolName], p.[GuardianPhone], p.[IsGuardianManaged],
+        p.[StrengthTags],
         tp.[JerseyNumber], tp.[Position], tp.[Grade],
         t.[TeamName]
     FROM [dbo].[SoccerPlayers] p WITH (NOLOCK)
