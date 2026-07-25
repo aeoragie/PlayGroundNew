@@ -32,6 +32,26 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<CreateSoccerGuardianCorrectionMessage>(HandleCreateGuardianCorrectionAsync);
             RegisterHandlerAsync<GetSoccerGuardianCorrectionsMessage>(HandleGetGuardianCorrectionsAsync);
             RegisterHandlerAsync<CancelSoccerGuardianCorrectionMessage>(HandleCancelGuardianCorrectionAsync);
+            RegisterHandlerAsync<GetSoccerStrengthTagPresetsMessage>(HandleGetStrengthTagPresetsAsync);
+            RegisterHandlerAsync<SaveSoccerStrengthTagsMessage>(HandleSaveStrengthTagsAsync);
+        }
+
+        private async Task HandleGetStrengthTagPresetsAsync(GetSoccerStrengthTagPresetsMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerPlayerStrengthTagsCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerStrengthTagsCommand>();
+            Result<StrengthTagPresetsResponse> result = await useCase.GetPresetsAsync();
+            sender.Tell(result);
+        }
+
+        private async Task HandleSaveStrengthTagsAsync(SaveSoccerStrengthTagsMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerPlayerStrengthTagsCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerPlayerStrengthTagsCommand>();
+            Result<bool> result = await useCase.SaveAsync(message.UserId, message.Data, message.PlayerId);
+            sender.Tell(result);
         }
 
         private async Task HandleCreateGuardianCorrectionAsync(CreateSoccerGuardianCorrectionMessage message)

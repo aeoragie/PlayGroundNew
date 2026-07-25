@@ -45,13 +45,17 @@ BEGIN
     ORDER BY ch.[DisplayOrder];
 
     -- 프로필 공개(FieldName='Profile')를 끈 선수는 공개 로스터에서 제외 (행 없으면 기본 공개)
+    -- 강점 태그는 선수별 공개 설정을 SQL에서 건다 (행 없으면 기본 공개 — IsPublic=0 명시일 때만 숨김)
     SELECT
         tp.[TeamPlayerId], tp.[JerseyNumber], tp.[Position], tp.[Grade],
-        p.[PlayerId], p.[Name], p.[Slug], p.[PhotoUrl], p.[AgeGroup], p.[UserId]
+        p.[PlayerId], p.[Name], p.[Slug], p.[PhotoUrl], p.[AgeGroup], p.[UserId],
+        CASE WHEN fvs.[IsPublic] = 0 THEN NULL ELSE p.[StrengthTags] END AS [StrengthTags]
     FROM [dbo].[SoccerTeamPlayers] tp WITH (NOLOCK)
     JOIN [dbo].[SoccerPlayers] p WITH (NOLOCK) ON p.[PlayerId] = tp.[PlayerId]
     LEFT JOIN [dbo].[SoccerPlayerFieldVisibilities] fv WITH (NOLOCK)
         ON fv.[PlayerId] = p.[PlayerId] AND fv.[FieldName] = 'Profile'
+    LEFT JOIN [dbo].[SoccerPlayerFieldVisibilities] fvs WITH (NOLOCK)
+        ON fvs.[PlayerId] = p.[PlayerId] AND fvs.[FieldName] = 'StrengthTags'
     WHERE tp.[TeamId] = @TeamId
       AND tp.[Status] = 'Active' AND tp.[DeletedAt] IS NULL
       AND p.[DeletedAt] IS NULL

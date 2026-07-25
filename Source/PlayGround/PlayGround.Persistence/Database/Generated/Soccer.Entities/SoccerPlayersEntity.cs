@@ -52,6 +52,9 @@ public class SoccerPlayersEntity
 	[StringLength(30)]
 	public string GuardianPhone { get; set; } = String.Empty;
 
+	[StringLength(400)]
+	public string StrengthTags { get; set; } = String.Empty;
+
 	public Guid? TeamId { get; set; } = null;
 
 	[Required]

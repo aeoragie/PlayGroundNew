@@ -112,4 +112,16 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => UserId;
     }
+
+    /// <summary>강점 태그 프리셋 조회 메시지 (읽기 — 프리셋은 전역이지만 해시 라우터라 UserId로 분산만).</summary>
+    public sealed record GetSoccerStrengthTagPresetsMessage(Guid UserId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>강점 태그 저장 메시지 (쓰기 — UserId 해시로 사용자별 순차).</summary>
+    public sealed record SaveSoccerStrengthTagsMessage(Guid UserId, SaveStrengthTagsRequest Data, Guid? PlayerId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
 }

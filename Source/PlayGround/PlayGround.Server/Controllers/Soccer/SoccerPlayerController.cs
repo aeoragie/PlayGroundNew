@@ -255,6 +255,39 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        //.// 강점 태그 (Design.StrengthTags) — 프리셋 조회 + 저장(관리 주체만).
+
+        /// <summary>포지션별 추천 강점 태그 프리셋. 클라이언트가 포지션으로 걸러 칩으로 보여준다.</summary>
+        [HttpGet("me/strength-tag-presets")]
+        public async Task<Envelope<StrengthTagPresetsResponse>> GetStrengthTagPresetsAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<StrengthTagPresetsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<StrengthTagPresetsResponse> result = await mGateway.AskAsync<StrengthTagPresetsResponse>(
+                ActorNames.SoccerPlayerProfile, new GetSoccerStrengthTagPresetsMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>강점 태그 저장(순서 보존 통째 교체). playerId = 어느 자녀인지 — 권한은 서버가 UserId로 판정.</summary>
+        [HttpPut("me/strength-tags")]
+        public async Task<Envelope<bool>> SaveMyStrengthTagsAsync(
+            [FromBody] SaveStrengthTagsRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new SaveSoccerStrengthTagsMessage(userId, request, playerId), cancellation);
+            return result.ToEnvelope();
+        }
+
         //.// 보호자 기록 수정 신청 — 내 자녀 관련 공식 경기만. 심사·반영은 주최측(설계 결정 7).
 
         /// <summary>보호자 기록 수정 신청 생성. playerId = 어느 자녀인지.</summary>

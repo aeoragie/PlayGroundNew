@@ -166,7 +166,9 @@ namespace PlayGround.Persistence.Repositories
                         // Claim 상태는 저장 컬럼이 아니라 파생값 — UserId 연결 = Claimed (Pending은 Claim 플로우 도입 때)
                         ClaimStatus = r.UserId is null ? "Unclaimed" : "Claimed",
                         // 초대코드는 Unclaimed 선수에게만 의미 있다 (Claimed는 코드가 이미 소진된 상태)
-                        InviteCode = r.UserId is null ? NullIfEmpty(r.Code) : null
+                        InviteCode = r.UserId is null ? NullIfEmpty(r.Code) : null,
+                        // 공개 설정 게이팅은 SQL에서 끝났다(비공개면 NULL) — 여기서는 파싱만
+                        StrengthTags = ParseAchievements(r.StrengthTags)
                     })
                     .ToList()
             };
@@ -334,7 +336,9 @@ namespace PlayGround.Persistence.Repositories
                         PhotoUrl = NullIfEmpty(r.PhotoUrl),
                         // 공개 규칙: UserId 자체는 내리지 않고 공개 프로필 연결 여부만
                         HasPublicProfile = r.UserId is not null,
-                        Slug = r.UserId is not null ? NullIfEmpty(r.Slug) : null
+                        Slug = r.UserId is not null ? NullIfEmpty(r.Slug) : null,
+                        // 공개 설정 게이팅은 SQL에서 끝났다(비공개면 NULL) — 여기서는 파싱만
+                        StrengthTags = ParseAchievements(r.StrengthTags)
                     })
                     .ToList()
             };

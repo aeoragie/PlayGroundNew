@@ -16,6 +16,7 @@ CREATE TABLE [dbo].[SoccerPlayers]
     [PreferredFoot]      VARCHAR(20)      NULL,             -- 주발 'Left','Right','Both'
     [SchoolName]         VARCHAR(300)     NULL,             -- UTF-8 (한글 100자)
     [GuardianPhone]      VARCHAR(30)      NULL,             -- 보호자 연락처 (노출 시 서버에서 마스킹)
+    [StrengthTags]       VARCHAR(400)     NULL,             -- 강점 태그 JSON 배열(순서 보존) 예: ["왼발 마무리","침투"] (UTF-8, 최대 5개·12자)
     [TeamId]             UNIQUEIDENTIFIER NULL,             -- 소속팀 (SoccerTeams.TeamId, 앱 계층 참조)
     [IsGuardianManaged]  BIT              NOT NULL DEFAULT 0,-- 학부모 대리 관리 프로필
 

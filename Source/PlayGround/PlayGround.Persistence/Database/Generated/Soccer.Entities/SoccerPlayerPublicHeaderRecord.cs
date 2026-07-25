@@ -43,6 +43,9 @@ public class SoccerPlayerPublicHeaderRecord
 
 	public Guid? UserId { get; set; } = null;
 
+	[StringLength(400)]
+	public string StrengthTags { get; set; } = String.Empty;
+
 	[StringLength(10)]
 	public string JerseyNumber { get; set; } = String.Empty;
 

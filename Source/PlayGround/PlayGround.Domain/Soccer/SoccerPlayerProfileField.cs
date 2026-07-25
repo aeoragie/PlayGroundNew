@@ -13,6 +13,9 @@ namespace PlayGround.Domain.Soccer
         PreferredFoot,
         School,
         GuardianPhone,
+
+        /// <summary>강점 태그 (Design.StrengthTags) — 기본 공개. 끄면 공개 프로필·카드·선수단 카드에서 숨긴다.</summary>
+        StrengthTags,
     }
 
     public static class SoccerPlayerProfileFieldExtensions
@@ -23,7 +26,8 @@ namespace PlayGround.Domain.Soccer
             return field is SoccerPlayerProfileField.Profile
                 or SoccerPlayerProfileField.Height
                 or SoccerPlayerProfileField.Weight
-                or SoccerPlayerProfileField.PreferredFoot;
+                or SoccerPlayerProfileField.PreferredFoot
+                or SoccerPlayerProfileField.StrengthTags;
         }
     }
 }

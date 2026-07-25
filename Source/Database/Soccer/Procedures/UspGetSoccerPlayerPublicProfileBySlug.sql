@@ -1,6 +1,6 @@
 -- @entity: SoccerPlayerPublicHeaderRecord
 -- @source: join
--- @join: SoccerPlayers AS p (PlayerId, Name, PhotoUrl, BirthDate, AgeGroup, HeightCm, WeightKg, PreferredFoot, SchoolName, IsGuardianManaged, UserId)
+-- @join: SoccerPlayers AS p (PlayerId, Name, PhotoUrl, BirthDate, AgeGroup, HeightCm, WeightKg, PreferredFoot, SchoolName, IsGuardianManaged, UserId, StrengthTags)
 -- @join: SoccerTeamPlayers AS tp (JerseyNumber, Position, Grade)
 -- @join: SoccerTeams AS t (TeamName, IsVerified, Slug)
 -- @join: SoccerPlayerFamilyLinks AS fl (MemberName)
@@ -52,6 +52,7 @@ BEGIN
     SELECT
         p.[PlayerId], p.[Name], p.[PhotoUrl], p.[BirthDate], p.[AgeGroup],
         p.[HeightCm], p.[WeightKg], p.[PreferredFoot], p.[SchoolName], p.[IsGuardianManaged], p.[UserId],
+        p.[StrengthTags],
         tp.[JerseyNumber], tp.[Position], tp.[Grade],
         t.[TeamName], t.[IsVerified],
         CASE WHEN t.[IsPublicProfile] = 1 THEN t.[Slug] END AS [Slug],

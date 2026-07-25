@@ -136,7 +136,9 @@ namespace PlayGround.Persistence.Repositories
                     // 사진 편집은 보호자만 — UspSetSoccerPlayerPhoto의 보호자 판정 2갈래와 같은 규칙.
                     // (팀 관리자 갈래는 이 경로에 없다 — 여기 조회 주체는 프로필 관리 계정이다)
                     CanEditPhoto = player.IsGuardianManaged
-                                   || family.Any(f => f.UserId == userId && f.Role == GuardianRole)
+                                   || family.Any(f => f.UserId == userId && f.Role == GuardianRole),
+                    // me/info는 소유자 편집 뷰라 공개 설정과 무관하게 전부 내려준다 (게이팅 없음)
+                    StrengthTags = ParseTags(player.StrengthTags)
                 },
                 // 저장값이 없는 항목은 기본값으로 채워 5개 항목 전부 내려준다
                 Visibilities = Enum.GetValues<SoccerPlayerProfileField>()
@@ -581,7 +583,9 @@ namespace PlayGround.Persistence.Repositories
                     // 학교·학년·보호자명은 권한 뷰(승인된 에이전트)에만 — 공개 뷰는 가시성과 무관하게 항상 null
                     SchoolName = isGranted ? NullIfEmpty(header.SchoolName) : null,
                     Grade = isGranted ? NullIfEmpty(header.Grade) : null,
-                    GuardianDisplayName = isGranted ? MaskName(NullIfEmpty(header.MemberName)) : null
+                    GuardianDisplayName = isGranted ? MaskName(NullIfEmpty(header.MemberName)) : null,
+                    // 강점 태그는 공개 설정이 켜진 경우에만 (게이팅은 C# — 프로시저는 원본을 내려준다)
+                    StrengthTags = IsPublic(SoccerPlayerProfileField.StrengthTags) ? ParseTags(header.StrengthTags) : new List<string>()
                 },
                 Season = season,
                 Grant = isGranted ? new PlayerPublicGrantDto
@@ -641,6 +645,50 @@ namespace PlayGround.Persistence.Repositories
                 ("Slug", slug), ("Matches", appearances.Count), ("Careers", careers.Count), ("Granted", isGranted));
 
             return Result<PlayerPublicProfileResponse?>.Success(response);
+        }
+
+        public async Task<Result<List<StrengthTagPresetDto>>> GetStrengthTagPresetsAsync(CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Strength tag presets requested");
+
+            var procedure = new UspGetSoccerStrengthTagPresets(this);
+            var queryResult = await procedure.QueryAsync<SoccerStrengthTagPresetsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Strength tag presets query failed", ("ResultCode", queryResult.ResultCode));
+                return Result<List<StrengthTagPresetDto>>.Error(ErrorCode.DatabaseError);
+            }
+
+            var presets = queryResult.Values1
+                .Select(p => new StrengthTagPresetDto { Position = p.Position, Tag = p.Tag })
+                .ToList();
+
+            Logger.InfoWith("Strength tag presets received", ("Presets", presets.Count));
+            return Result<List<StrengthTagPresetDto>>.Success(presets);
+        }
+
+        public async Task<Result<bool>> SaveStrengthTagsAsync(Guid userId, string? tagsJson, Guid? playerId = null, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player strength tags save requested", ("UserId", userId), ("PlayerId", playerId));
+
+            var procedure = new UspSaveSoccerPlayerStrengthTags(this)
+            {
+                UserId = userId,
+                TagsJson = tagsJson!,
+                TargetPlayerId = playerId
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerPlayersEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player strength tags save failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            // 빈 결과 = 관리 주체 소유 선수 없음 (거부) — Command가 Forbidden으로 변환
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Player strength tags save completed", ("UserId", userId), ("Applied", applied));
+            return Result<bool>.Success(applied);
         }
 
         // 친선 = 대회 없음, League 형식 = 리그, 그 외(Cup/Split) = 컵

@@ -55,5 +55,12 @@ namespace PlayGround.Application.Interfaces
         /// <summary>공개 선수 프로필 조회 (Slug 기준). 미존재·프로필 비공개는 null — 구분하지 않는다.
         /// viewerUserId가 승인된 에이전트면 권한 뷰(학교·경기별 기록·Grant)가 실리고 열람 로그가 남는다.</summary>
         Task<Result<PlayerPublicProfileResponse?>> GetPublicProfileBySlugAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default);
+
+        /// <summary>강점 태그 프리셋 전체(포지션별 추천 칩) 조회. 32행 고정 — 클라이언트가 포지션으로 거른다.</summary>
+        Task<Result<List<StrengthTagPresetDto>>> GetStrengthTagPresetsAsync(CancellationToken cancellation = default);
+
+        /// <summary>강점 태그 저장(순서 보존 JSON 통째 교체). 관리 주체 소유 선수가 없으면 Success(false).
+        /// tagsJson null·빈 배열이면 태그를 비운다(검증·정규화는 Application에서 끝난 상태로 넘어온다).</summary>
+        Task<Result<bool>> SaveStrengthTagsAsync(Guid userId, string? tagsJson, Guid? playerId = null, CancellationToken cancellation = default);
     }
 }

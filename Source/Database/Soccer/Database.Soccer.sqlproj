@@ -75,6 +75,7 @@
     <Build Include="Tables\SoccerTeamChannels.sql" />
     <Build Include="Tables\SoccerTeamPlayers.sql" />
     <Build Include="Tables\SoccerSchedules.sql" />
+    <Build Include="Tables\SoccerStrengthTagPresets.sql" />
     <Build Include="Tables\SoccerPlayerInvites.sql" />
     <Build Include="Tables\SoccerPlayerClaimRequests.sql" />
     <Build Include="Tables\SoccerNotifications.sql" />
@@ -89,6 +90,8 @@
     <Build Include="Tables\SoccerLandingContents.sql" />
     <Build Include="Functions\UfnRomanizeKoreanSlug.sql" />
     <Build Include="Procedures\UspGetLandingContents.sql" />
+    <Build Include="Procedures\UspGetSoccerStrengthTagPresets.sql" />
+    <Build Include="Procedures\UspSaveSoccerPlayerStrengthTags.sql" />
     <Build Include="Procedures\UspSaveSoccerSchedule.sql" />
     <Build Include="Procedures\UspDeleteSoccerSchedule.sql" />
     <Build Include="Procedures\UspGetSoccerSchedulesByManager.sql" />
@@ -123,6 +126,7 @@
   <!-- 빌드 제외(스키마 아님): Seeds(데이터), Queries(제너레이터용 SELECT) -->
   <ItemGroup>
     <None Include="Seeds\SoccerLandingContents.Seed.sql" />
+    <None Include="Seeds\StrengthTagPresets.Seed.sql" />
     <None Include="Seeds\VerificationTeamInfo.Seed.sql" />
     <None Include="Seeds\VerificationRoster.Seed.sql" />
     <None Include="Seeds\VerificationLeagueTeams.Seed.sql" />
@@ -130,6 +134,7 @@
     <None Include="Seeds\VerificationPlayerProfiles.Seed.sql" />
     <None Include="Migrations\2026-07-20_SoccerMatches.MatchType.sql" />
     <None Include="Migrations\2026-07-25_Slugs.Romanize.sql" />
+    <None Include="Migrations\2026-07-25_SoccerPlayers.StrengthTags.sql" />
     <None Include="Migrations\2026-07-21_SoccerTeams.IsRecruiting.sql" />
   </ItemGroup>
 </Project>

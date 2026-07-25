@@ -44,6 +44,9 @@ public class SoccerTeamRosterRecord
 
 	public Guid? UserId { get; set; } = null;
 
+	[StringLength(400)]
+	public string StrengthTags { get; set; } = String.Empty;
+
 	[Required]
 	[StringLength(12)]
 	public string Code { get; set; } = String.Empty;

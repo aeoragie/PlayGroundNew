@@ -116,6 +116,9 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>유효한 Pending 초대코드 — Unclaimed 선수만 값이 온다 (관리자 전용 API).</summary>
         public string? InviteCode { get; set; }
+
+        /// <summary>강점 태그 (Design.StrengthTags) — 선수별 공개 설정이 꺼져 있으면 빈 목록 (SQL에서 자름).</summary>
+        public List<string> StrengthTags { get; set; } = new();
     }
 
     /// <summary>모집 공고 목록 — 공개 홈 모집 탭·팀 대시보드 모집 섹션 공용.</summary>
@@ -336,6 +339,9 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>공개 선수 프로필 URL 슬러그 — HasPublicProfile일 때만 값이 온다 (최소 노출).</summary>
         public string? Slug { get; set; }
+
+        /// <summary>강점 태그 (Design.StrengthTags) — 선수별 공개 설정이 꺼져 있으면 빈 목록 (SQL에서 자름).</summary>
+        public List<string> StrengthTags { get; set; } = new();
     }
 
     /// <summary>팀 시즌 경기 결과 묶음 (팀 대시보드 경기 결과 섹션). 시즌 요약(승무패·득실)은 클라이언트 집계.</summary>

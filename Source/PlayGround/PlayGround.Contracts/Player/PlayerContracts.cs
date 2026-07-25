@@ -78,6 +78,9 @@ namespace PlayGround.Contracts.Player
         /// <summary>사진 업로드·삭제 가능 여부 (미성년자 보호 — 보호자·팀 관리자만).
         /// false면 클라이언트는 업로드 버튼을 비활성이 아니라 아예 렌더하지 않는다.</summary>
         public bool CanEditPhoto { get; set; }
+
+        /// <summary>강점 태그 (Design.StrengthTags) — 순서 보존. me/info는 소유자 편집 뷰라 공개 설정과 무관하게 전부 내려온다.</summary>
+        public List<string> StrengthTags { get; set; } = new();
     }
 
     /// <summary>항목 공개 여부. FieldName은 SoccerPlayerProfileField enum 멤버 이름 문자열.</summary>
@@ -320,6 +323,9 @@ namespace PlayGround.Contracts.Player
 
         /// <summary>보호자 표시 이름 (마스킹 — "김OO") — 권한 카드 전용. 공개 뷰는 항상 null.</summary>
         public string? GuardianDisplayName { get; set; }
+
+        /// <summary>강점 태그 (Design.StrengthTags) — 순서 보존. 공개 설정이 꺼져 있으면 빈 목록 (서버가 자른다).</summary>
+        public List<string> StrengthTags { get; set; } = new();
     }
 
     /// <summary>공개 프로필 시즌 요약 — 공식 경기만 집계 (친선 미포함, Design.FriendlyMatch).</summary>
@@ -332,5 +338,25 @@ namespace PlayGround.Contracts.Player
         public int Assists { get; set; }
         /// <summary>경기당 평균 출전(분) — 분 기록이 있는 경기 기준 (선수 대시보드와 같은 규칙).</summary>
         public int? AverageMinutes { get; set; }
+    }
+
+    /// <summary>강점 태그 프리셋 목록 (Design.StrengthTags) — 포지션별 추천 칩. 클라이언트가 포지션으로 거른다.</summary>
+    public class StrengthTagPresetsResponse
+    {
+        public List<StrengthTagPresetDto> Presets { get; set; } = new();
+    }
+
+    /// <summary>추천 강점 태그 한 건. Position은 'GK' | 'DF' | 'MF' | 'FW'.</summary>
+    public class StrengthTagPresetDto
+    {
+        public string Position { get; set; } = string.Empty;
+        public string Tag { get; set; } = string.Empty;
+    }
+
+    /// <summary>강점 태그 저장 요청 (관리 주체 = 보호자·선수 본인). 목록 전체를 통째로 보낸다(순서 보존).
+    /// 개수(≤5)·길이(1~12)·금지 패턴(연락처·링크) 검증은 서버가 다시 한다.</summary>
+    public class SaveStrengthTagsRequest
+    {
+        public List<string> Tags { get; set; } = new();
     }
 }
