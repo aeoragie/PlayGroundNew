@@ -9,7 +9,6 @@ CREATE PROCEDURE [dbo].[UspCreateSoccerTeamWithRoster]
     @TeamName VARCHAR(300),
     @TeamType VARCHAR(60) = NULL,
     @Region VARCHAR(300) = NULL,
-    @Slug VARCHAR(100),
     @RosterJson VARCHAR(MAX) = NULL
 AS
 BEGIN
@@ -35,8 +34,7 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        --.// 슬러그 유일성 확보 — 팀명 로마자(ASCII) 기반, 중복 시 -2, -3 …
-        --    (@Slug 파라미터는 레거시 — 서버가 팀명에서 로마자로 파생하므로 무시한다.)
+        --.// 슬러그 — 팀명 로마자(ASCII) 파생(선수·마이그레이션과 같은 함수 = 단일 진실), 중복 시 -2, -3 …
         DECLARE @Base VARCHAR(100) = dbo.UfnRomanizeKoreanSlug(@TeamName);
         IF @Base = '' SET @Base = 'team';
         DECLARE @FinalSlug VARCHAR(100) = @Base;

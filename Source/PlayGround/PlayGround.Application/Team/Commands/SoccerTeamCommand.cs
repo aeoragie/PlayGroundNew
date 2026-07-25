@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Application.Auth.Models;
@@ -70,7 +69,6 @@ namespace PlayGround.Application.Team.Commands
                 TeamName = request.TeamName.Trim(),
                 TeamType = teamType,
                 Region = string.IsNullOrWhiteSpace(request.Region) ? null : request.Region.Trim(),
-                Slug = ToSlug(request.TeamName),
                 Roster = roster
             };
 
@@ -109,27 +107,6 @@ namespace PlayGround.Application.Team.Commands
 
             string trimmed = value.Trim();
             return Array.Exists(AllowedTeamTypes, a => a == trimmed) ? trimmed : null;
-        }
-
-        // 공백·URL 위험문자 제거, 한글·영숫자만 유지(영문 소문자화). 중복 처리는 프로시저가 담당.
-        private static string ToSlug(string teamName)
-        {
-            var sb = new StringBuilder();
-            foreach (char c in teamName.Trim().ToLowerInvariant())
-            {
-                if (char.IsLetterOrDigit(c))
-                {
-                    sb.Append(c);
-                }
-            }
-
-            string slug = sb.ToString();
-            if (slug.Length > 90)
-            {
-                slug = slug[..90];
-            }
-
-            return slug.Length == 0 ? "team" : slug;
         }
     }
 }

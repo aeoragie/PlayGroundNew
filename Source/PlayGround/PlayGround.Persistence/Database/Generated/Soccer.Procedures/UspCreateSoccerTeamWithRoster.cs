@@ -20,7 +20,6 @@ public class UspCreateSoccerTeamWithRoster(RepositoryBase repository) : Procedur
 	public string TeamName { get; set; } = String.Empty;
 	public string TeamType { get; set; } = null;
 	public string Region { get; set; } = null;
-	public string Slug { get; set; } = String.Empty;
 	public string RosterJson { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
@@ -28,7 +27,6 @@ public class UspCreateSoccerTeamWithRoster(RepositoryBase repository) : Procedur
 		Parameters.Add("@TeamName", TeamName);
 		Parameters.Add("@TeamType", TeamType);
 		Parameters.Add("@Region", Region);
-		Parameters.Add("@Slug", Slug);
 		Parameters.Add("@RosterJson", RosterJson);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;

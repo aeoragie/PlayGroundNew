@@ -35,7 +35,6 @@ namespace PlayGround.Persistence.Repositories
                 TeamName = input.TeamName,
                 TeamType = input.TeamType!,
                 Region = input.Region!,
-                Slug = input.Slug,
                 RosterJson = rosterJson
             };
 
