@@ -89,6 +89,7 @@
     <Build Include="Functions\UfnRomanizeKoreanSlug.sql" />
     <Build Include="Procedures\UspGetLandingContents.sql" />
     <Build Include="Procedures\UspCreatePlayer.sql" />
+    <Build Include="Procedures\UspUpdateSoccerPlayerProfileByUser.sql" />
     <Build Include="Procedures\UspCreateSoccerTeamWithRoster.sql" />
     <Build Include="Procedures\UspGetSoccerTeamInfoByManager.sql" />
     <Build Include="Procedures\UspGetSoccerTeamRosterByManager.sql" />

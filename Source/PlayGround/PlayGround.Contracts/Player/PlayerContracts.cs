@@ -102,6 +102,16 @@ namespace PlayGround.Contracts.Player
         public bool IsPublic { get; set; }
     }
 
+    /// <summary>선수 프로필 수치 편집 요청(키·몸무게·주발·학교). 폼이 전체 상태를 보내므로
+    /// null은 "지움"이다. 대상 자녀는 쿼리 playerId로 지정 — 권한은 서버가 UserId로 판정.</summary>
+    public class UpdatePlayerProfileInfoRequest
+    {
+        public int? HeightCm { get; set; }
+        public int? WeightKg { get; set; }
+        public string? PreferredFoot { get; set; } // SoccerPreferredFoot enum 멤버 이름 ('Left'|'Right'|'Both')
+        public string? SchoolName { get; set; }
+    }
+
     /// <summary>선수 사진 설정·삭제 요청. PhotoUrl null = 삭제(이니셜 아바타로 복귀).
     /// 대상이 본인 프로필이 아닐 수 있어(팀 관리자 경로) PlayerId를 명시한다 — 권한은 서버가 판정.</summary>
     public class SetPlayerPhotoRequest

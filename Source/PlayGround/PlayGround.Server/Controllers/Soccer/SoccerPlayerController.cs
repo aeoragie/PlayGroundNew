@@ -238,6 +238,22 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>선수 프로필 수치(키·몸무게·주발·학교) 편집. playerId = 어느 자녀인지. 권한은 서버가 UserId로 판정.</summary>
+        [HttpPut("me/profile/info")]
+        public async Task<Envelope<bool>> UpdateMyProfileInfoAsync(
+            [FromBody] UpdatePlayerProfileInfoRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerPlayerProfile, new UpdateSoccerPlayerProfileInfoMessage(userId, request, playerId), cancellation);
+            return result.ToEnvelope();
+        }
+
         //.// 보호자 기록 수정 신청 — 내 자녀 관련 공식 경기만. 심사·반영은 주최측(설계 결정 7).
 
         /// <summary>보호자 기록 수정 신청 생성. playerId = 어느 자녀인지.</summary>

@@ -52,7 +52,7 @@
                         <span class="text-[12.5px] text-text-body whitespace-nowrap">@Info.Profile.TeamName</span>
                     }
                 </div>
-                <button type="button" class="mt-auto h-[38px] rounded-[9px] bg-orange hover:bg-orange-hover text-[12.5px] font-bold text-white whitespace-nowrap shadow-cta-orange-sm border-0 cursor-pointer transition-colors">프로필 수정</button>
+                <button type="button" class="mt-auto h-[38px] rounded-[9px] bg-orange hover:bg-orange-hover text-[12.5px] font-bold text-white whitespace-nowrap shadow-cta-orange-sm border-0 cursor-pointer transition-colors" @onclick="OnEditProfile">프로필 수정</button>
             </div>
         </div>
     </div>
@@ -127,6 +127,10 @@
     /// <summary>초대코드 Claim 성공 시 상위(페이지)로 전달 — 프로필 재로드.</summary>
     [Parameter]
     public EventCallback OnClaimed { get; set; }
+
+    /// <summary>"프로필 수정" 클릭 — 상위(페이지)가 수치 편집 다이얼로그를 연다.</summary>
+    [Parameter]
+    public EventCallback OnEditProfile { get; set; }
 
     private List<PlayerProfileSection.FieldRow> FieldRows => PlayerProfileSection.BuildFieldRows(Info);
 

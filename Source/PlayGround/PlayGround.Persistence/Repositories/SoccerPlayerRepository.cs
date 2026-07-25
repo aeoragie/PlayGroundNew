@@ -188,6 +188,32 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
+        public async Task<Result<bool>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, string? preferredFoot, string? schoolName, Guid? playerId = null, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Player profile info update requested", ("UserId", userId), ("PlayerId", playerId));
+
+            var procedure = new UspUpdateSoccerPlayerProfileByUser(this)
+            {
+                UserId = userId,
+                HeightCm = heightCm,
+                WeightKg = weightKg,
+                PreferredFoot = preferredFoot,
+                SchoolName = schoolName,
+                TargetPlayerId = playerId
+            };
+
+            var queryResult = await procedure.QueryAsync<SoccerPlayerProfileUpdatedRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Player profile info update failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError);
+            }
+
+            bool applied = queryResult.Values1.Any();
+            Logger.InfoWith("Player profile info update completed", ("UserId", userId), ("Applied", applied));
+            return Result<bool>.Success(applied);
+        }
+
         public async Task<Result<bool>> SetPhotoAsync(Guid userId, Guid playerId, string? photoUrl, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Player photo change requested",

@@ -12,7 +12,7 @@
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
         <h1 class="@Css.Dashboard.SectionTitle">프로필</h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton">프로필 수정</button>
+        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnEditProfile">프로필 수정</button>
     </div>
 
     <div class="grid grid-cols-[1fr_340px] gap-[18px] items-start">
@@ -139,6 +139,10 @@
     /// <summary>초대코드 Claim 성공 시 상위(페이지)로 전달 — 프로필 재로드.</summary>
     [Parameter]
     public EventCallback OnClaimed { get; set; }
+
+    /// <summary>"프로필 수정" 클릭 — 상위(페이지)가 수치 편집 다이얼로그를 연다.</summary>
+    [Parameter]
+    public EventCallback OnEditProfile { get; set; }
 
     internal sealed record FieldRow(string Label, string Value, PlayerFieldVisibilityDto Visibility);
 

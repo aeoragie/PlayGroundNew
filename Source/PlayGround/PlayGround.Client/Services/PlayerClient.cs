@@ -130,6 +130,22 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>선수 프로필 수치(키·몸무게·주발·학교) 편집. 성공 여부 반환.</summary>
+        public async Task<bool> UpdateProfileInfoAsync(UpdatePlayerProfileInfoRequest request, Guid? playerId = null)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync(
+                    $"api/soccer/player/me/profile/info{Q(playerId)}", request);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>커리어 이력 저장(신규·수정). CareerId 빈 값 = 신규.</summary>
         public Task<PlayerEntrySaveResult> SaveCareerAsync(SavePlayerCareerRequest request, Guid? playerId = null) =>
             PutAsync($"api/soccer/player/me/career{Q(playerId)}", request);

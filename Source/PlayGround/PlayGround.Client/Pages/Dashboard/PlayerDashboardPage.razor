@@ -69,7 +69,7 @@
                         </LoadingGate>
                         break;
                     default:
-                        <PlayerProfileSection Info="@mInfo" PlayerId="@SelectedPlayerId" OnClaimed="ReloadAsync" />
+                        <PlayerProfileSection Info="@mInfo" PlayerId="@SelectedPlayerId" OnClaimed="ReloadAsync" OnEditProfile="OpenProfileEdit" />
                         break;
                 }
             }
@@ -123,7 +123,7 @@
                     </LoadingGate>
                     break;
                 default:
-                    <MobilePlayerProfileSection Info="@mInfo" PlayerId="@SelectedPlayerId" OnClaimed="ReloadAsync" />
+                    <MobilePlayerProfileSection Info="@mInfo" PlayerId="@SelectedPlayerId" OnClaimed="ReloadAsync" OnEditProfile="OpenProfileEdit" />
                     break;
             }
         </main>
@@ -135,6 +135,8 @@
 @* 보호자 기록 수정 신청 — 자녀의 공식 경기. 여기서 기록이 바뀌지 않는다(주최측 전달) *@
 <GuardianCorrectionFormDialog @bind-IsOpen="mCorrectionFormOpen" Match="@mCorrectionMatch"
                               PlayerId="@SelectedPlayerId" OnSubmitted="LoadCorrectionsAsync" />
+
+<ProfileInfoEditDialog @bind-IsOpen="mProfileFormOpen" Profile="@mInfo?.Profile" PlayerId="@SelectedPlayerId" OnSaved="ReloadAsync" />
 
 <CareerFormDialog @bind-IsOpen="mCareerFormOpen" Entry="@mEditingCareer" PlayerId="@SelectedPlayerId" OnSaved="ReloadCareerAsync" />
 <PortfolioFormDialog @bind-IsOpen="mPortfolioFormOpen" Entry="@mEditingVideo"
@@ -175,6 +177,7 @@
     private bool mStatsFailed;
 
     // 입력 다이얼로그 — 편집 대상이 null이면 신규 등록
+    private bool mProfileFormOpen;
     private bool mCareerFormOpen;
     private bool mPortfolioFormOpen;
     private PlayerCareerEntryDto? mEditingCareer;
@@ -277,6 +280,11 @@
     }
 
     //.// 커리어 입력 — 추가·수정은 다이얼로그, 삭제는 확인 모달 + 실행취소 토스트
+
+    private void OpenProfileEdit()
+    {
+        mProfileFormOpen = true;
+    }
 
     private void OpenCareerAdd()
     {
