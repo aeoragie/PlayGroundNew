@@ -85,6 +85,23 @@ BEGIN
                 [AssistPlayerName]  VARCHAR(150)     '$.AssistPlayerName',
                 [MinuteOfPlay]      INT              '$.MinuteOfPlay'
             ) s;
+
+            -- 친선은 러프하게: 출전 명단을 따로 받지 않으므로 득점·도움에 관여한 우리 팀 선수를 출전으로 기록한다.
+            -- 그래야 그 득점이 선수 시즌 통계 "친선경기 별도 +N"에 잡힌다(통계는 출전 기준). 분은 미상(NULL).
+            INSERT INTO [dbo].[SoccerMatchAppearances] ([MatchId], [TeamId], [PlayerId], [MinutesPlayed], [IsStarter])
+            SELECT DISTINCT @MatchId, @TeamId, x.[PlayerId], NULL, 0
+            FROM (
+                SELECT s.[PlayerId] AS [PlayerId]
+                FROM OPENJSON(@Scorers) WITH ([PlayerId] UNIQUEIDENTIFIER '$.PlayerId') s
+                WHERE s.[PlayerId] IS NOT NULL
+                UNION
+                SELECT s.[AssistPlayerId]
+                FROM OPENJSON(@Scorers) WITH ([AssistPlayerId] UNIQUEIDENTIFIER '$.AssistPlayerId') s
+                WHERE s.[AssistPlayerId] IS NOT NULL
+            ) x
+            WHERE NOT EXISTS (
+                SELECT 1 FROM [dbo].[SoccerMatchAppearances] a
+                WHERE a.[MatchId] = @MatchId AND a.[PlayerId] = x.[PlayerId] AND a.[DeletedAt] IS NULL);
         END
 
         COMMIT TRANSACTION;
