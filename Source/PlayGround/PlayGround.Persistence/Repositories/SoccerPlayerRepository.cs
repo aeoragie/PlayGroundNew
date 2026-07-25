@@ -118,6 +118,7 @@ namespace PlayGround.Persistence.Repositories
                 {
                     PlayerId = player.PlayerId,
                     Name = player.Name,
+                    Slug = NullIfEmpty(player.Slug),
                     PhotoUrl = NullIfEmpty(player.PhotoUrl),
                     AgeGroup = NullIfEmpty(player.AgeGroup),
                     BirthYear = player.BirthDate?.Year,

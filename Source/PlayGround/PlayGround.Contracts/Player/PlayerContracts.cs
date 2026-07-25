@@ -55,6 +55,9 @@ namespace PlayGround.Contracts.Player
     {
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
+
+        /// <summary>공개 선수 프로필(/player/{slug}) 슬러그 — "공개 프로필 보기" 링크에 쓴다.</summary>
+        public string? Slug { get; set; }
         public string? PhotoUrl { get; set; }
         public string? AgeGroup { get; set; }      // 'U12' | 'U15' | 'U18'
         public int? BirthYear { get; set; }

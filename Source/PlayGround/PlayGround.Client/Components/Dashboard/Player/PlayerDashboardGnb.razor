@@ -1,17 +1,21 @@
 @* 상단 GNB(선수·보호자): 네이비 sticky 60px — 로고 + 보호자 관리 모드 teal 뱃지 + 공개 프로필 보기 / 알림(주황 점) / 아바타
-   공개 선수 프로필 페이지 구현 전이라 링크는 무동작 버튼으로 렌더 (플레이스홀더 # 금지 — 랜딩 오이동 방지) *@
+   공개 프로필(/player/{slug})은 새 탭으로 미리보기 — Slug가 있을 때만 렌더(플레이스홀더 # 금지) *@
 @using PlayGround.Client.Styles
 
 <header class="sticky top-0 z-40 h-[60px] bg-navy-deep flex items-center gap-4 px-6 text-white">
     <BrandLogo Href="@Routes.Landing" InheritColor="true" />
     <span class="@Css.Dashboard.BadgeTeal">보호자 관리 모드</span>
     <div class="flex-1"></div>
-    <button type="button" class="flex items-center gap-[7px] text-[13px] font-bold text-white/85 hover:text-white transition-colors whitespace-nowrap bg-transparent border-0 cursor-pointer">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            <path d="M15 3h6v6M10 14L21 3"></path>
-        </svg>공개 프로필 보기
-    </button>
+    @if (!string.IsNullOrEmpty(Slug))
+    {
+        <a href="@Routes.PlayerPublicProfile(Slug)" target="_blank" rel="noopener"
+           class="flex items-center gap-[7px] text-[13px] font-bold text-white/85 hover:text-white transition-colors whitespace-nowrap no-underline">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <path d="M15 3h6v6M10 14L21 3"></path>
+            </svg>공개 프로필 보기
+        </a>
+    }
     <NotificationBell Appearance="NotificationBell.BellAppearance.Box" />
     <AccountMenu DisplayName="@DisplayName" RoleCaption="보호자" />
 </header>
@@ -20,4 +24,8 @@
     /// <summary>보호자 표시 이름 (아바타 이니셜 + 계정 메뉴 헤더).</summary>
     [Parameter, EditorRequired]
     public string DisplayName { get; set; } = string.Empty;
+
+    /// <summary>현재 보고 있는 선수의 공개 프로필 슬러그 — 없으면 "공개 프로필 보기" 미노출.</summary>
+    [Parameter]
+    public string? Slug { get; set; }
 }

@@ -18,7 +18,7 @@
 
 @* PC (≥1024px 설계 — md 브레이크포인트 공용): GNB + 사이드바 230px *@
 <div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
-    <PlayerDashboardGnb DisplayName="@GuardianName" />
+    <PlayerDashboardGnb DisplayName="@GuardianName" Slug="@mInfo?.Profile.Slug" />
     <div class="flex-1 flex items-stretch">
         @if (mInfo is not null)
         {
@@ -81,7 +81,7 @@
 <div class="md:hidden min-h-screen bg-surface-alt flex flex-col max-w-[480px] mx-auto text-navy-deep">
     @if (mInfo is not null)
     {
-        <PlayerMobileTopBar PlayerName="@mInfo.Profile.Name" Summary="@MobileSummary" />
+        <PlayerMobileTopBar PlayerName="@mInfo.Profile.Name" Summary="@MobileSummary" Slug="@mInfo.Profile.Slug" />
         <main class="flex-1 px-4 pt-[18px] pb-24 flex flex-col gap-3.5">
             <ChildSwitcher Players="@ChildList" SelectedPlayerId="@SelectedPlayerId" SelectedPlayerIdChanged="SwitchChild" />
             @switch (CurrentSection)

@@ -1,5 +1,6 @@
 @* 모바일 상단 바: 이니셜 아바타(teal) + 이름 + 요약·보호자 관리 모드 + 공개 프로필·알림 아이콘 — sticky
-   공개 선수 프로필 페이지 구현 전이라 링크는 무동작 버튼 *@
+   공개 프로필(/player/{slug})은 새 탭 미리보기 — Slug 있을 때만 렌더 *@
+@using PlayGround.Client
 
 <header class="sticky top-0 z-40 bg-navy-deep px-4 py-3 flex items-center gap-[11px]">
     <Avatar Name="@PlayerInitial" Size="32" Class="shrink-0" />
@@ -7,9 +8,13 @@
         <span class="text-[15px] font-extrabold text-white whitespace-nowrap overflow-hidden text-ellipsis">@PlayerName</span>
         <span class="text-[11px] font-bold text-teal whitespace-nowrap">@Summary · 보호자 관리 모드</span>
     </span>
-    <button type="button" aria-label="공개 프로필" class="w-9 h-9 rounded-[10px] bg-white/[.08] flex items-center justify-center text-white/85 border-0 cursor-pointer">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><path d="M15 3h6v6M10 14L21 3"></path></svg>
-    </button>
+    @if (!string.IsNullOrEmpty(Slug))
+    {
+        <a href="@Routes.PlayerPublicProfile(Slug)" target="_blank" rel="noopener" aria-label="공개 프로필"
+           class="w-9 h-9 rounded-[10px] bg-white/[.08] flex items-center justify-center text-white/85 no-underline">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><path d="M15 3h6v6M10 14L21 3"></path></svg>
+        </a>
+    }
     <NotificationBell Appearance="NotificationBell.BellAppearance.Box" />
 </header>
 
@@ -20,6 +25,10 @@
     /// <summary>요약 라인 앞부분 (예: "U15 · FW · #9").</summary>
     [Parameter, EditorRequired]
     public string Summary { get; set; } = string.Empty;
+
+    /// <summary>현재 보고 있는 선수의 공개 프로필 슬러그 — 없으면 아이콘 미노출.</summary>
+    [Parameter]
+    public string? Slug { get; set; }
 
     private string PlayerInitial => PlayerName.Length > 1 ? PlayerName[1..2] : PlayerName;
 }
