@@ -1,44 +1,132 @@
-@* 일정 섹션: 이벤트 행(날짜 컬럼 + 유형 pill + 제목·메타 + 시간) — SPEC.TEAMDASHBOARD.md §3
-   데이터는 백엔드 연동 전 레퍼런스 예시 *@
+@* 일정 섹션(PC): 이벤트 행(날짜 컬럼 52px + 유형 pill + 제목·메타 + 시간 + ⋯) — SPEC.SCHEDULE.
+   상태(예정/종료)는 StartsAt 경과로 자동 파생(상태 컬럼 없음) · 정렬 = 미래 오름차순 → 종료 최근순.
+   종료 행은 55% 투명 + 읽기 전용(⋯ 없음, dc 참조) · 비공개 = 자물쇠 + 메타 "비공개". *@
+@using PlayGround.Client.Models
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
-        <h1 class="@Css.Dashboard.SectionTitle">일정 <span class="text-sm font-bold text-text-muted">2026년 7월</span></h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 일정 추가</button>
+        <h1 class="@Css.Dashboard.SectionTitle">일정 <span class="text-sm font-bold text-text-muted">@MonthLabel</span></h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">＋ 일정 추가</button>
     </div>
 
-    <div class="flex flex-col gap-3">
-        @foreach (ScheduleEvent scheduleEvent in Events)
-        {
-            <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-5 py-4 flex items-center gap-[18px]")">
-                <span class="flex flex-col items-center w-[52px] shrink-0">
-                    <span class="text-[11.5px] font-bold text-text-muted">@scheduleEvent.Day</span>
-                    <span class="text-[21px] font-extrabold text-navy-deep">@scheduleEvent.Date</span>
-                </span>
-                <span class="@TypeClass(scheduleEvent.Type)">@scheduleEvent.Type.ToLabel()</span>
-                <span class="flex flex-col gap-[3px] flex-1 min-w-0">
-                    <span class="text-[15px] font-bold text-navy-deep break-keep">@scheduleEvent.Title</span>
-                    <span class="text-[12.5px] text-text-body">@scheduleEvent.Meta</span>
-                </span>
-                <span class="text-[13px] font-bold text-text-strong whitespace-nowrap">@scheduleEvent.Time</span>
-            </div>
-        }
-    </div>
+    @if (Schedules.Count == 0)
+    {
+        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 일정이 없어요">
+            <Description>경기·대회·훈련 일정을 추가하면 여기와 공개 홈페이지 Schedule 탭에 함께 노출돼요.</Description>
+        </EmptyState>
+    }
+    else
+    {
+        <div class="flex flex-col gap-3">
+            @foreach (ScheduleDto schedule in Sorted)
+            {
+                ScheduleDto item = schedule;
+                bool ended = IsEnded(item);
+                <div class="@($"{Css.Dashboard.Card} rounded-[14px] px-5 py-4 flex items-center gap-[18px] {(ended ? "opacity-[.55]" : "")}")">
+                    <span class="flex flex-col items-center w-[52px] shrink-0">
+                        <span class="text-[11.5px] font-bold @WeekdayClass(item.StartsAt)">@WeekdayLabel(item.StartsAt)</span>
+                        <span class="text-[21px] font-extrabold text-navy-deep tabular-nums">@item.StartsAt.Day</span>
+                    </span>
+                    <span class="@TypeClass(TypeOf(item))">@TypeOf(item).ToLabel()</span>
+                    <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                        <span class="text-[15px] font-bold text-navy-deep break-keep flex items-center gap-1.5">
+                            @TitleOf(item)
+                            @if (!item.IsPublic)
+                            {
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                     class="text-text-muted shrink-0"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 018 0v3"></path></svg>
+                            }
+                        </span>
+                        <span class="text-[12.5px] text-text-body break-keep">@MetaOf(item, ended)</span>
+                    </span>
+                    <span class="text-[13px] font-bold text-text-strong whitespace-nowrap">@TimeOf(item)</span>
+                    @if (!ended)
+                    {
+                        <OverflowMenu Target="@TitleOf(item)"
+                                      Items="@MenuItemsOf(item)"
+                                      DestructiveItems="@DestructiveItemsOf(item)" />
+                    }
+                </div>
+            }
+        </div>
+    }
 
     <div class="text-[12.5px] text-text-muted break-keep">경기 일정은 공개 홈페이지 Schedule 탭에 자동 노출 · 학부모는 구독 캘린더(Google/Apple)로 받아볼 수 있어요</div>
 </div>
 
 @code {
-    private sealed record ScheduleEvent(string Day, string Date, SoccerScheduleEventType Type, string Title, string Meta, string Time);
+    [Parameter, EditorRequired]
+    public List<ScheduleDto> Schedules { get; set; } = new();
 
-    private static readonly ScheduleEvent[] Events =
-    [
-        new("화", "14", SoccerScheduleEventType.Training, "전술 훈련 — 빌드업", "강동 보조구장 · U15 전원", "19:00–21:00"),
-        new("토", "18", SoccerScheduleEventType.Match, "서울 유스리그 12R vs 송파 FC", "송파 구장 · 원정 · 집결 08:30", "10:00"),
-        new("일", "19", SoccerScheduleEventType.Training, "리커버리 + 개인 피드백", "강동 보조구장", "17:00–18:30"),
-        new("토", "25", SoccerScheduleEventType.Tournament, "한강배 유소년컵 조별 1차전", "난지 천연잔디 · 대진 추후 공지", "13:00"),
-    ];
+    /// <summary>＋ 일정 추가 — 페이지가 다이얼로그를 연다.</summary>
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    /// <summary>⋯ 수정 — 페이지가 다이얼로그를 프리필로 연다.</summary>
+    [Parameter]
+    public EventCallback<ScheduleDto> OnEdit { get; set; }
+
+    /// <summary>⋯ 삭제 — 페이지가 확인 모달 + 소프트 삭제 + 실행취소 토스트를 처리한다.</summary>
+    [Parameter]
+    public EventCallback<ScheduleDto> OnDelete { get; set; }
+
+    private static string MonthLabel => $"{DateTime.Now.Year}년 {DateTime.Now.Month}월";
+
+    private static bool IsEnded(ScheduleDto s) => s.StartsAt < DateTime.Now;
+
+    // 미래(오늘 포함) 오름차순 → 종료분은 아래에 최근순
+    private IEnumerable<ScheduleDto> Sorted =>
+        Schedules
+            .Where(s => !IsEnded(s))
+            .OrderBy(s => s.StartsAt)
+            .Concat(Schedules
+                .Where(IsEnded)
+                .OrderByDescending(s => s.StartsAt));
+
+    private static SoccerScheduleEventType TypeOf(ScheduleDto s) =>
+        Enum.TryParse(s.Type, out SoccerScheduleEventType type) ? type : SoccerScheduleEventType.Match;
+
+    // 경기는 "vs {상대}" 파생, 대회·훈련은 제목 그대로
+    private static string TitleOf(ScheduleDto s) =>
+        TypeOf(s) == SoccerScheduleEventType.Match
+            ? $"vs {s.OpponentName}"
+            : (s.Title ?? string.Empty);
+
+    private static string TimeOf(ScheduleDto s) => s.StartsAt.ToString("HH:mm");
+
+    private static string WeekdayLabel(DateTime dt) =>
+        new[] { "일", "월", "화", "수", "목", "금", "토" }[(int)dt.DayOfWeek];
+
+    // dc 규칙: 일요일만 레드톤, 나머지는 muted
+    private static string WeekdayClass(DateTime dt) =>
+        dt.DayOfWeek == DayOfWeek.Sunday ? "text-weekend-sun" : "text-text-muted";
+
+    // 메타 = 장소 → (종료면 상태) → (비공개면 "비공개")
+    private static string MetaOf(ScheduleDto s, bool ended)
+    {
+        var parts = new List<string> { s.Venue };
+        if (ended)
+        {
+            bool resultLinked = s.HasResult && TypeOf(s) is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament;
+            parts.Add(resultLinked ? "종료 — 결과 입력됨" : "종료");
+        }
+
+        if (!s.IsPublic)
+        {
+            parts.Add("비공개");
+        }
+
+        return string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+    }
+
+    private List<OverflowMenu.MenuItem> MenuItemsOf(ScheduleDto item) =>
+        new() { new("수정", () => OnEdit.InvokeAsync(item)) };
+
+    private List<OverflowMenu.MenuItem> DestructiveItemsOf(ScheduleDto item) =>
+        new() { new("삭제", () => OnDelete.InvokeAsync(item)) };
 
     private static string TypeClass(SoccerScheduleEventType type) =>
         "text-xs font-bold rounded-full px-[13px] py-[5px] whitespace-nowrap shrink-0 " + type switch

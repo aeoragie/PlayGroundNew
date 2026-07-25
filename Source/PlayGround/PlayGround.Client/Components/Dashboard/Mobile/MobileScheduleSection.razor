@@ -1,41 +1,122 @@
-@* 일정(모바일): 날짜 컬럼 38px, 유형 pill+시간을 제목 위 한 줄로 *@
+@* 일정(모바일): 날짜 컬럼 38px, 유형 pill+시간을 제목 위 한 줄로 · ⋯ = 바텀시트(OverflowMenu 자동).
+   상태·정렬·비공개 규칙은 PC와 동일(SPEC.SCHEDULE) — 종료 행은 55% 투명 + 읽기 전용(⋯ 없음). *@
+@using PlayGround.Client.Models
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">일정 <span class="text-[13px] font-bold text-text-muted">7월</span></h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton">＋ 일정 추가</button>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">일정 <span class="text-[13px] font-bold text-text-muted">@MonthLabel</span></h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">＋ 일정 추가</button>
     </div>
 
-    @foreach (ScheduleEvent scheduleEvent in Events)
+    @if (Schedules.Count == 0)
     {
-        <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex items-center gap-[13px]")">
-            <span class="flex flex-col items-center w-[38px] shrink-0">
-                <span class="text-[10.5px] font-bold text-text-muted">@scheduleEvent.Day</span>
-                <span class="text-lg font-extrabold text-navy-deep">@scheduleEvent.Date</span>
-            </span>
-            <span class="flex flex-col gap-[3px] flex-1 min-w-0">
-                <span class="flex items-center gap-[7px]">
-                    <span class="@TypeClass(scheduleEvent.Type)">@scheduleEvent.Type.ToLabel()</span>
-                    <span class="text-[11.5px] font-bold text-text-strong whitespace-nowrap">@scheduleEvent.Time</span>
+        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 일정이 없어요">
+            <Description>경기·대회·훈련 일정을 추가하면 여기와 공개 홈페이지 Schedule 탭에 함께 노출돼요.</Description>
+        </EmptyState>
+    }
+    else
+    {
+        @foreach (ScheduleDto schedule in Sorted)
+        {
+            ScheduleDto item = schedule;
+            bool ended = IsEnded(item);
+            <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex items-center gap-[13px] {(ended ? "opacity-[.55]" : "")}")">
+                <span class="flex flex-col items-center w-[38px] shrink-0">
+                    <span class="text-[10.5px] font-bold @WeekdayClass(item.StartsAt)">@WeekdayLabel(item.StartsAt)</span>
+                    <span class="text-lg font-extrabold text-navy-deep tabular-nums">@item.StartsAt.Day</span>
                 </span>
-                <span class="text-[13.5px] font-bold text-navy-deep break-keep">@scheduleEvent.Title</span>
-                <span class="text-[11.5px] text-text-body break-keep">@scheduleEvent.Meta</span>
-            </span>
-        </div>
+                <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                    <span class="flex items-center gap-[7px]">
+                        <span class="@TypeClass(TypeOf(item))">@TypeOf(item).ToLabel()</span>
+                        <span class="text-[11.5px] font-bold text-text-strong whitespace-nowrap">@TimeOf(item)</span>
+                    </span>
+                    <span class="text-[13.5px] font-bold text-navy-deep break-keep flex items-center gap-1.5">
+                        @TitleOf(item)
+                        @if (!item.IsPublic)
+                        {
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 class="text-text-muted shrink-0"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 018 0v3"></path></svg>
+                        }
+                    </span>
+                    <span class="text-[11.5px] text-text-body break-keep">@MetaOf(item, ended)</span>
+                </span>
+                @if (!ended)
+                {
+                    <OverflowMenu Target="@TitleOf(item)"
+                                  Items="@MenuItemsOf(item)"
+                                  DestructiveItems="@DestructiveItemsOf(item)" />
+                }
+            </div>
+        }
     }
 </div>
 
 @code {
-    private sealed record ScheduleEvent(string Day, string Date, SoccerScheduleEventType Type, string Title, string Meta, string Time);
+    [Parameter, EditorRequired]
+    public List<ScheduleDto> Schedules { get; set; } = new();
 
-    private static readonly ScheduleEvent[] Events =
-    [
-        new("화", "14", SoccerScheduleEventType.Training, "전술 훈련 — 빌드업", "강동 보조구장 · U15 전원", "19:00"),
-        new("토", "18", SoccerScheduleEventType.Match, "서울 유스리그 12R vs 송파 FC", "송파 구장 · 원정 · 집결 08:30", "10:00"),
-        new("일", "19", SoccerScheduleEventType.Training, "리커버리 + 개인 피드백", "강동 보조구장", "17:00"),
-        new("토", "25", SoccerScheduleEventType.Tournament, "한강배 유소년컵 조별 1차전", "난지 천연잔디", "13:00"),
-    ];
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<ScheduleDto> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<ScheduleDto> OnDelete { get; set; }
+
+    private static string MonthLabel => $"{DateTime.Now.Month}월";
+
+    private static bool IsEnded(ScheduleDto s) => s.StartsAt < DateTime.Now;
+
+    private IEnumerable<ScheduleDto> Sorted =>
+        Schedules
+            .Where(s => !IsEnded(s))
+            .OrderBy(s => s.StartsAt)
+            .Concat(Schedules
+                .Where(IsEnded)
+                .OrderByDescending(s => s.StartsAt));
+
+    private static SoccerScheduleEventType TypeOf(ScheduleDto s) =>
+        Enum.TryParse(s.Type, out SoccerScheduleEventType type) ? type : SoccerScheduleEventType.Match;
+
+    private static string TitleOf(ScheduleDto s) =>
+        TypeOf(s) == SoccerScheduleEventType.Match
+            ? $"vs {s.OpponentName}"
+            : (s.Title ?? string.Empty);
+
+    private static string TimeOf(ScheduleDto s) => s.StartsAt.ToString("HH:mm");
+
+    private static string WeekdayLabel(DateTime dt) =>
+        new[] { "일", "월", "화", "수", "목", "금", "토" }[(int)dt.DayOfWeek];
+
+    private static string WeekdayClass(DateTime dt) =>
+        dt.DayOfWeek == DayOfWeek.Sunday ? "text-weekend-sun" : "text-text-muted";
+
+    private static string MetaOf(ScheduleDto s, bool ended)
+    {
+        var parts = new List<string> { s.Venue };
+        if (ended)
+        {
+            bool resultLinked = s.HasResult && TypeOf(s) is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament;
+            parts.Add(resultLinked ? "종료 — 결과 입력됨" : "종료");
+        }
+
+        if (!s.IsPublic)
+        {
+            parts.Add("비공개");
+        }
+
+        return string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+    }
+
+    private List<OverflowMenu.MenuItem> MenuItemsOf(ScheduleDto item) =>
+        new() { new("수정", () => OnEdit.InvokeAsync(item)) };
+
+    private List<OverflowMenu.MenuItem> DestructiveItemsOf(ScheduleDto item) =>
+        new() { new("삭제", () => OnDelete.InvokeAsync(item)) };
 
     private static string TypeClass(SoccerScheduleEventType type) =>
         "text-[10.5px] font-bold rounded-full px-[9px] py-0.5 whitespace-nowrap shrink-0 " + type switch

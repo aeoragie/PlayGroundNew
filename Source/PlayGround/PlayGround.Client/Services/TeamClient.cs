@@ -242,6 +242,60 @@ namespace PlayGround.Client.Services
             }
         }
 
+        //.// 팀 일정 (Design.Schedule)
+
+        /// <summary>팀 대시보드 일정 섹션 — 소유 팀 일정 목록. 미인증·오류 시 null.</summary>
+        public async Task<SchedulesResponse?> GetMySchedulesAsync()
+        {
+            try
+            {
+                Envelope<SchedulesResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<SchedulesResponse>>("api/soccer/team/me/schedules");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>일정 저장 (신규·수정 겸용) — PUT. 신규는 ScheduleId 빈 GUID.</summary>
+        public async Task<ScheduleSaveResult> SaveScheduleAsync(SaveScheduleRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync("api/soccer/team/me/schedules", request);
+                Envelope<ScheduleDto>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<ScheduleDto>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new ScheduleSaveResult(true, null);
+                }
+
+                return new ScheduleSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new ScheduleSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>일정 삭제·복구(restore = 실행취소) — POST. 성공 여부만.</summary>
+        public async Task<bool> DeleteScheduleAsync(Guid scheduleId, bool restore = false)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/schedules/{scheduleId}/delete?restore={(restore ? "true" : "false")}", null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>공개 팀 홈 진학·진로 탭 (비로그인 가능). 미존재·오류 시 null.</summary>
         public async Task<TeamCareerOutcomesResponse?> GetTeamCareerOutcomesAsync(string slug)
         {
@@ -537,6 +591,9 @@ namespace PlayGround.Client.Services
 
     /// <summary>모집 공고 저장 결과 — 입력 거부(인라인)와 요청 실패(토스트)를 IsNetworkError로 가른다.</summary>
     public record RecruitmentSaveResult(bool Success, string? Error, bool IsNetworkError = false);
+
+    /// <summary>일정 저장 결과 — 요청 실패(토스트+재시도)만 IsNetworkError로 구분한다(검증은 클라 인라인).</summary>
+    public record ScheduleSaveResult(bool Success, string? Error, bool IsNetworkError = false);
 
     /// <summary>선수 추가 결과 — 입력 거부(인라인)와 요청 실패(토스트)를 IsNetworkError로 가른다.</summary>
     public record PlayerAddResult(bool Success, string? Error, bool IsNetworkError = false);

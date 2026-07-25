@@ -1,0 +1,289 @@
+@* 일정 추가·수정 — PC 중앙 모달 / 모바일 전체 시트 (Css.MatchForm 골격 재사용).
+   유형에 따라 필드 가변: 상대 팀 = 경기·대회만 · 제목 = 대회·훈련만(경기는 "vs {상대}" 파생).
+   날짜 = FutureOnly 캘린더(과거 비활성) · 시간 = 15분 리스트, 기본값 = 최근 일정 시각.
+   공개 스위치 기본 켬(훈련만 기본 끔). 저장 성공 = 토스트(A2), 검증 오류 = 인라인(폼 오류에 토스트 금지). *@
+@using PlayGround.Client.Models
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+
+@if (IsOpen)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <span class="flex flex-col gap-1 min-w-0">
+                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? "일정 수정" : "일정 추가")</h2>
+                    <span class="@Css.MatchForm.Subtitle">공개로 저장하면 공개 홈페이지 Schedule 탭과 허브 "다음 경기"에 바로 반영돼요.</span>
+                </span>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            <CascadingValue Value="@mForm" IsFixed="true">
+                <div class="@Css.MatchForm.Body">
+                    @* 유형 — 3종이라 RadioCards. 전환 시 필드가 즉시 바뀐다 *@
+                    <RadioCards TValue="SoccerScheduleEventType" Label="유형" Value="mType"
+                                ValueChanged="OnTypeChangedAsync" Options="@TypeOptions" />
+
+                    @* 제목 — 대회·훈련만(경기는 "vs {상대}" 파생) *@
+                    @if (mType is SoccerScheduleEventType.Tournament or SoccerScheduleEventType.Training)
+                    {
+                        <TextField Label="제목" @bind-Value="mTitle" Placeholder="@TitlePlaceholder"
+                                   Validator="ValidateTitle" MaxLength="100" />
+                    }
+
+                    @* 상대 팀 — 경기·대회만(훈련 숨김) *@
+                    @if (mType is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament)
+                    {
+                        <TextField Label="상대 팀" @bind-Value="mOpponentName" Placeholder="강북 드래곤즈"
+                                   Validator="ValidateOpponent" MaxLength="50" />
+                    }
+
+                    @* 날짜·시간은 별도 필드 (Design.DatePicker — 한 팝오버에 합치지 않는다) *@
+                    <div class="@Css.MatchForm.DateTimeRow">
+                        <div class="@Css.MatchForm.PickerField">
+                            <label class="@Css.Form.Label">날짜</label>
+                            <Calendar @bind-Value="mDate" Range="Calendar.DateRange.FutureOnly"
+                                      HasError="@(mShowErrors && mDate is null)" />
+                            @if (mShowErrors && mDate is null)
+                            {
+                                <span class="@Css.Form.ErrorMessage">날짜를 선택해 주세요.</span>
+                            }
+                        </div>
+                        <div class="@Css.MatchForm.PickerField">
+                            <label class="@Css.Form.Label">시간</label>
+                            <TimeList @bind-Value="mTime" HasError="@(mShowErrors && mTime is null)" />
+                            @if (mShowErrors && mTime is null)
+                            {
+                                <span class="@Css.Form.ErrorMessage">시간을 선택해 주세요.</span>
+                            }
+                        </div>
+                    </div>
+
+                    <TextField Label="장소" @bind-Value="mVenue" Placeholder="잠실보조경기장"
+                               Validator="ValidateVenue" MaxLength="50" />
+
+                    @* 같은 일시 중복 = 비차단 경고 (더블헤더가 존재하므로 막지 않는다) *@
+                    @if (HasDuplicateWarning)
+                    {
+                        <span class="text-[12px] font-medium text-danger leading-[1.5] break-keep -mt-2">같은 날짜·시간에 이미 등록된 일정이 있어요. 그대로 추가할 수 있어요.</span>
+                    }
+
+                    @* 공개 스위치 — 폼 상태만 바꾼다(Save 콜백 없음, 즉시 저장 아님) *@
+                    <Switch Label="공개 홈페이지에 노출"
+                            Description="끄면 팀 내부(대시보드)에서만 보여요"
+                            Value="mIsPublic" ValueChanged="OnPublicChanged" />
+                </div>
+
+                <div class="@Css.MatchForm.Footer">
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                    <SubmitButton Label="@(IsEdit ? "저장하기" : "추가하기")" BusyLabel="저장 중…" IsBusy="@mSaving"
+                                  OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>수정 대상 — null이면 신규 작성.</summary>
+    [Parameter]
+    public ScheduleDto? Editing { get; set; }
+
+    /// <summary>시각 기본값 = 최근 일정 시각 (없으면 14:00). 페이지가 계산해 넘긴다.</summary>
+    [Parameter]
+    public TimeOnly? RecentTime { get; set; }
+
+    /// <summary>이미 등록된 일정의 일시 — 같은 일시 중복 경고(비차단)용.</summary>
+    [Parameter]
+    public IReadOnlyCollection<DateTime> ExistingStarts { get; set; } = new List<DateTime>();
+
+    /// <summary>저장 성공 후 — 부모가 목록을 다시 불러온다.</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private readonly FormFieldContext mForm = new();
+
+    private SoccerScheduleEventType mType = SoccerScheduleEventType.Match;
+    private string mTitle = string.Empty;
+    private string mOpponentName = string.Empty;
+    private DateTime? mDate;
+    private TimeOnly? mTime;
+    private string mVenue = string.Empty;
+    private bool mIsPublic = true;
+    private bool mPublicTouched; // 사용자가 스위치를 직접 만지면 유형 전환 자동 기본값을 멈춘다
+    private bool mSaving;
+    private bool mShowErrors;
+    private bool mLoaded;
+
+    private bool IsEdit => Editing is not null;
+
+    private static readonly List<SelectOption<SoccerScheduleEventType>> TypeOptions = new()
+    {
+        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Match, "경기"),
+        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Tournament, "대회"),
+        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Training, "훈련"),
+    };
+
+    private string TitlePlaceholder =>
+        mType == SoccerScheduleEventType.Tournament ? "서울시장배 8강" : "전술 훈련 — 빌드업";
+
+    private TimeOnly DefaultTime => RecentTime ?? new TimeOnly(14, 0);
+
+    // 같은 날짜·시간에 이미 일정이 있으면 경고 (수정 시 자기 자신은 제외)
+    private bool HasDuplicateWarning
+    {
+        get
+        {
+            if (mDate is null || mTime is null)
+            {
+                return false;
+            }
+
+            DateTime starts = mDate.Value.Date.Add(mTime.Value.ToTimeSpan());
+            return ExistingStarts.Any(s => s == starts);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!IsOpen)
+        {
+            mLoaded = false;
+            return;
+        }
+
+        // 열릴 때 1회 프리필 — 재렌더마다 입력을 덮어쓰지 않는다
+        if (mLoaded)
+        {
+            return;
+        }
+
+        mLoaded = true;
+        if (Editing is not null)
+        {
+            mType = Enum.TryParse(Editing.Type, out SoccerScheduleEventType parsed) ? parsed : SoccerScheduleEventType.Match;
+            mTitle = Editing.Title ?? string.Empty;
+            mOpponentName = Editing.OpponentName ?? string.Empty;
+            mDate = Editing.StartsAt.Date;
+            mTime = TimeOnly.FromDateTime(Editing.StartsAt);
+            mVenue = Editing.Venue;
+            mIsPublic = Editing.IsPublic;
+            mPublicTouched = true; // 저장된 값을 유형 자동 기본값이 덮어쓰지 않게
+        }
+        else
+        {
+            mType = SoccerScheduleEventType.Match;
+            mTitle = string.Empty;
+            mOpponentName = string.Empty;
+            mDate = null;
+            mTime = DefaultTime;
+            mVenue = string.Empty;
+            mIsPublic = true; // 신규 기본 켬(경기)
+            mPublicTouched = false;
+        }
+
+        mShowErrors = false;
+    }
+
+    private Task OnTypeChangedAsync(SoccerScheduleEventType type)
+    {
+        mType = type;
+
+        // 훈련만 기본 끔 — 단, 사용자가 스위치를 직접 만졌으면 그 선택을 존중한다
+        if (!mPublicTouched)
+        {
+            mIsPublic = type != SoccerScheduleEventType.Training;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void OnPublicChanged(bool value)
+    {
+        mIsPublic = value;
+        mPublicTouched = true;
+    }
+
+    private static string? ValidateTitle(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "제목을 입력해 주세요." : null;
+
+    private static string? ValidateOpponent(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "상대 팀 이름을 입력해 주세요." : null;
+
+    private static string? ValidateVenue(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "장소를 입력해 주세요." : null;
+
+    private async Task SubmitAsync()
+    {
+        mShowErrors = true;
+
+        // 날짜·시간은 폼 컨텍스트 밖(별도 컴포넌트)이라 함께 판정한다
+        bool fieldsValid = await mForm.ValidateAllAsync();
+        if (!fieldsValid || mDate is null || mTime is null)
+        {
+            return;
+        }
+
+        bool hasOpponent = mType is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament;
+        bool hasTitle = mType is SoccerScheduleEventType.Tournament or SoccerScheduleEventType.Training;
+
+        var request = new SaveScheduleRequest
+        {
+            ScheduleId = Editing?.ScheduleId ?? Guid.Empty,
+            Type = mType.ToString(),
+            // 경기는 제목을 상대명에서 파생하므로 null로 저장한다
+            Title = hasTitle ? mTitle.Trim() : null,
+            OpponentName = hasOpponent ? mOpponentName.Trim() : null,
+            StartsAt = mDate.Value.Date.Add(mTime.Value.ToTimeSpan()),
+            Venue = mVenue.Trim(),
+            IsPublic = mIsPublic,
+        };
+
+        mSaving = true;
+        ScheduleSaveResult result = await Teams.SaveScheduleAsync(request);
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            // 요청 실패는 토스트 + 재시도, 입력 문제는 인라인 (폼 오류에 토스트 금지)
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+            }
+
+            return;
+        }
+
+        Toasts.ShowSuccess(IsEdit ? "일정을 저장했어요." : "일정을 추가했어요.");
+        await CloseAsync();
+        await OnSaved.InvokeAsync();
+    }
+
+    private Task CancelAsync() => CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        mLoaded = false;
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}
