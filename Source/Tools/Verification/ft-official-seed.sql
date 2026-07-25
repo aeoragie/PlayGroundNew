@@ -54,6 +54,6 @@ VALUES (@M, @TeamA, @TeamAName, 'Goal', @Gangmin, @GangminName, 23),
 EXEC UspRecalculateSoccerTournamentStandings @TournamentId = @T, @StageType = 'League', @GroupName = NULL, @DataSource = 'Seed';
 
 PRINT '--- 시드 완료 ---';
-SELECT s.Rank, s.TeamName, s.Played, s.Won, s.Drawn, s.Lost, s.Points
-FROM SoccerTournamentStandings s WHERE s.TournamentId = @T ORDER BY s.Rank;
+SELECT s.TeamRank, s.TeamName, s.Played, s.Won, s.Drawn, s.Lost, s.Points, s.GoalsFor, s.GoalsAgainst
+FROM SoccerTournamentStandings s WHERE s.TournamentId = @T ORDER BY s.TeamRank;
 PRINT CONCAT('강민(', @GangminName, ') 공식 2골 · 출전 1경기 반영됨');
