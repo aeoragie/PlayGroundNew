@@ -60,6 +60,7 @@
   <ItemGroup>
     <Folder Include="Schema" />
     <Folder Include="Tables" />
+    <Folder Include="Functions" />
     <Folder Include="Procedures" />
     <Folder Include="Queries" />
     <Folder Include="Indexes" />
@@ -85,6 +86,7 @@
     <Build Include="Tables\SoccerPlayerFieldVisibilities.sql" />
     <Build Include="Tables\SoccerPlayerFamilyLinks.sql" />
     <Build Include="Tables\SoccerLandingContents.sql" />
+    <Build Include="Functions\UfnRomanizeKoreanSlug.sql" />
     <Build Include="Procedures\UspGetLandingContents.sql" />
     <Build Include="Procedures\UspCreatePlayer.sql" />
     <Build Include="Procedures\UspCreateSoccerTeamWithRoster.sql" />
@@ -121,6 +123,7 @@
     <None Include="Seeds\VerificationPlayerLinks.Seed.sql" />
     <None Include="Seeds\VerificationPlayerProfiles.Seed.sql" />
     <None Include="Migrations\2026-07-20_SoccerMatches.MatchType.sql" />
+    <None Include="Migrations\2026-07-25_Slugs.Romanize.sql" />
     <None Include="Migrations\2026-07-21_SoccerTeams.IsRecruiting.sql" />
   </ItemGroup>
 </Project>

@@ -54,11 +54,12 @@ UTF-8 코드페이지(`-f 65001`) 필수 — 전 파일에 붙여도 무해하�
 # DB 생성 — UTF-8 콜레이션 필수 (문자열 인코딩 규칙)
 sqlcmd -S .\SQLEXPRESS -b -Q "IF DB_ID('PlayGround_Account') IS NULL CREATE DATABASE [PlayGround_Account] COLLATE Latin1_General_100_CI_AS_SC_UTF8; IF DB_ID('PlayGround_Soccer') IS NULL CREATE DATABASE [PlayGround_Soccer] COLLATE Latin1_General_100_CI_AS_SC_UTF8;"
 
-# 각 DB에 Tables → Procedures → Seeds 순으로 폴더 전체 적용 (FK 없음 — 폴더 내 순서 무관)
+# 각 DB에 Tables → Functions → Procedures → Seeds 순으로 폴더 전체 적용 (FK 없음 — 폴더 내 순서 무관,
+# 단 Functions는 Procedures보다 먼저 — 프로시저가 함수를 참조한다)
 foreach ($f in (Get-ChildItem Account\Tables\*.sql) + (Get-ChildItem Account\Procedures\*.sql)) {
     sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i $f.FullName
 }
-foreach ($f in (Get-ChildItem Soccer\Tables\*.sql) + (Get-ChildItem Soccer\Procedures\*.sql) + (Get-ChildItem Soccer\Seeds\*.sql)) {
+foreach ($f in (Get-ChildItem Soccer\Tables\*.sql) + (Get-ChildItem Soccer\Functions\*.sql) + (Get-ChildItem Soccer\Procedures\*.sql) + (Get-ChildItem Soccer\Seeds\*.sql)) {
     sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i $f.FullName
 }
 ```

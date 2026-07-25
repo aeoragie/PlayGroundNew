@@ -15,8 +15,9 @@ BEGIN
 
     DECLARE @PlayerId UNIQUEIDENTIFIER = NEWID();
 
-    --.// 공개 프로필 슬러그 — 이름 기반, 중복 시 -2, -3 … (팀 슬러그와 같은 정책)
-    DECLARE @Base VARCHAR(150) = REPLACE(LTRIM(RTRIM(@Name)), ' ', '-');
+    --.// 공개 프로필 슬러그 — 이름 로마자(ASCII), 중복 시 -2, -3 … (팀 슬러그와 같은 정책)
+    DECLARE @Base VARCHAR(150) = dbo.UfnRomanizeKoreanSlug(@Name);
+    IF @Base = '' SET @Base = 'player';
     DECLARE @Slug VARCHAR(150) = @Base;
     DECLARE @n INT = 1;
     WHILE EXISTS (SELECT 1 FROM [dbo].[SoccerPlayers] WHERE [Slug] = @Slug)

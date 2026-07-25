@@ -35,13 +35,16 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        --.// 슬러그 유일성 확보 (중복 시 -2, -3 …)
-        DECLARE @FinalSlug VARCHAR(100) = @Slug;
+        --.// 슬러그 유일성 확보 — 팀명 로마자(ASCII) 기반, 중복 시 -2, -3 …
+        --    (@Slug 파라미터는 레거시 — 서버가 팀명에서 로마자로 파생하므로 무시한다.)
+        DECLARE @Base VARCHAR(100) = dbo.UfnRomanizeKoreanSlug(@TeamName);
+        IF @Base = '' SET @Base = 'team';
+        DECLARE @FinalSlug VARCHAR(100) = @Base;
         DECLARE @n INT = 1;
         WHILE EXISTS (SELECT 1 FROM [dbo].[SoccerTeams] WHERE [Slug] = @FinalSlug AND [DeletedAt] IS NULL)
         BEGIN
             SET @n += 1;
-            SET @FinalSlug = LEFT(@Slug, 90) + '-' + CAST(@n AS VARCHAR(10));
+            SET @FinalSlug = LEFT(@Base, 90) + '-' + CAST(@n AS VARCHAR(10));
         END
 
         INSERT INTO [dbo].[SoccerTeams]
@@ -69,7 +72,8 @@ BEGIN
                       [Number] VARCHAR(10) '$.Number') j
             WHERE j.[Name] IS NOT NULL AND LEN(LTRIM(RTRIM(j.[Name]))) > 0;
 
-            --.// 선수 공개 프로필 슬러그 — 세트 내 동명 순번 + 기존 동일 slug 수 (UNIQUE 제약이 최후 방어)
+            --.// 선수 공개 프로필 슬러그 — 이름 로마자(ASCII) base + 세트 내 동일 base 순번 + 기존 동일 slug 수
+            --    (UNIQUE 제약이 최후 방어. 서로 다른 한글 이름이 같은 로마자로 겹쳐도 -N으로 갈라진다.)
             UPDATE r
             SET r.[PlayerSlug] =
                 CASE WHEN d.[Seq] = 1 THEN d.[Base]
@@ -78,12 +82,14 @@ BEGIN
             JOIN (
                 SELECT
                     r2.[PlayerId],
-                    REPLACE(r2.[Name], ' ', '-') AS [Base],
-                    ROW_NUMBER() OVER (PARTITION BY r2.[Name] ORDER BY r2.[PlayerId])
+                    b.[Base],
+                    ROW_NUMBER() OVER (PARTITION BY b.[Base] ORDER BY r2.[PlayerId])
                         + (SELECT COUNT(*) FROM [dbo].[SoccerPlayers] p
-                           WHERE p.[Slug] = REPLACE(r2.[Name], ' ', '-')
-                              OR p.[Slug] LIKE REPLACE(r2.[Name], ' ', '-') + '-%') AS [Seq]
+                           WHERE p.[Slug] = b.[Base]
+                              OR p.[Slug] LIKE b.[Base] + '-%') AS [Seq]
                 FROM @roster r2
+                CROSS APPLY (SELECT dbo.UfnRomanizeKoreanSlug(r2.[Name]) AS [Raw]) rr
+                CROSS APPLY (SELECT CASE WHEN rr.[Raw] = '' THEN 'player' ELSE rr.[Raw] END AS [Base]) b
             ) d ON d.[PlayerId] = r.[PlayerId];
 
             INSERT INTO [dbo].[SoccerPlayers] ([PlayerId], [Name], [Slug])

@@ -34,8 +34,9 @@ BEGIN
     DECLARE @PlayerId UNIQUEIDENTIFIER = NEWID();
     DECLARE @Code VARCHAR(12) = UPPER(LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 6));
 
-    --.// 공개 프로필 슬러그 — 이름 기반, 중복 시 -N (UNIQUE 제약이 최후 방어)
-    DECLARE @Base VARCHAR(150) = REPLACE(LTRIM(RTRIM(@Name)), ' ', '-');
+    --.// 공개 프로필 슬러그 — 이름 로마자(ASCII), 중복 시 -N (UNIQUE 제약이 최후 방어)
+    DECLARE @Base VARCHAR(150) = dbo.UfnRomanizeKoreanSlug(@Name);
+    IF @Base = '' SET @Base = 'player';
     DECLARE @Slug VARCHAR(150) = @Base;
     DECLARE @n INT = 1;
     WHILE EXISTS (SELECT 1 FROM [dbo].[SoccerPlayers] WITH (NOLOCK) WHERE [Slug] = @Slug)
