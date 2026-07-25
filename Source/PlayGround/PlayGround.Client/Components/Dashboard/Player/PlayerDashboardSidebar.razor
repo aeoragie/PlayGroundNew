@@ -13,7 +13,7 @@
 
     @foreach (SoccerPlayerDashboardSection section in Enum.GetValues<SoccerPlayerDashboardSection>())
     {
-        <a href="@Routes.PlayerDashboardSection(section)" class="@NavClass(section)">
+        <a href="@Routes.PlayerDashboardSection(section, PlayerId)" class="@NavClass(section)">
             @MenuIcon(section)@section.ToLabel()
         </a>
     }
@@ -39,6 +39,10 @@
 @code {
     [Parameter, EditorRequired]
     public SoccerPlayerDashboardSection ActiveSection { get; set; }
+
+    /// <summary>선택 자녀 — 섹션 링크에 실어 전환 시 선택이 유지되게 한다(자녀 여러 명일 때만 값).</summary>
+    [Parameter]
+    public Guid? PlayerId { get; set; }
 
     [Parameter, EditorRequired]
     public string PlayerName { get; set; } = string.Empty;

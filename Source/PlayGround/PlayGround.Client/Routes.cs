@@ -67,6 +67,14 @@ namespace PlayGround.Client
             return $"{PlayerDashboard}/{section.ToSlug()}";
         }
 
+        /// <summary>섹션 링크에 선택 자녀(playerId)를 실어 이동해도 선택이 유지되게 한다
+        /// (자녀 여러 명일 때 — 안 실으면 섹션 전환 시 첫 자녀로 폴백된다).</summary>
+        public static string PlayerDashboardSection(SoccerPlayerDashboardSection section, Guid? playerId)
+        {
+            string path = $"{PlayerDashboard}/{section.ToSlug()}";
+            return playerId is { } id && id != Guid.Empty ? $"{path}?playerId={id}" : path;
+        }
+
         public static string AgentApproval(Guid requestId)
         {
             return $"/approvals/agent/{requestId}";

@@ -23,7 +23,7 @@
         @if (mInfo is not null)
         {
             <PlayerDashboardSidebar ActiveSection="@CurrentSection" PlayerName="@mInfo.Profile.Name"
-                                    Summary="@SidebarSummary" TeamName="@mInfo.Profile.TeamName" />
+                                    Summary="@SidebarSummary" TeamName="@mInfo.Profile.TeamName" PlayerId="@SectionPlayerId" />
         }
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px] flex flex-col gap-[18px]">
             @* 자녀가 2명 이상일 때만 나타난다 *@
@@ -127,7 +127,7 @@
                     break;
             }
         </main>
-        <PlayerMobileTabBar ActiveSection="@CurrentSection" />
+        <PlayerMobileTabBar ActiveSection="@CurrentSection" PlayerId="@SectionPlayerId" />
     }
 </div>
 
@@ -159,6 +159,10 @@
         ChildList.Any(p => p.PlayerId == PlayerIdQuery)
             ? PlayerIdQuery!.Value
             : ChildList.FirstOrDefault()?.PlayerId ?? Guid.Empty;
+
+    /// <summary>섹션 링크에 실을 playerId — 자녀 2명 이상일 때만. 안 실으면 섹션 전환 시 첫 자녀로 폴백된다.
+    /// (자녀 1명이면 URL을 깨끗이 유지 — 폴백해도 그 한 명이라 문제없다.)</summary>
+    private Guid? SectionPlayerId => ChildList.Count > 1 ? SelectedPlayerId : null;
 
     private PlayerInfoResponse? mInfo;
     private PlayerCareerResponse? mCareer;

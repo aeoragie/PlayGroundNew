@@ -3,7 +3,7 @@
 <nav class="fixed bottom-0 inset-x-0 max-w-[480px] mx-auto bg-bg/[.96] backdrop-blur-[10px] border-t border-border flex px-1 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] z-50">
     @foreach (SoccerPlayerDashboardSection section in Enum.GetValues<SoccerPlayerDashboardSection>())
     {
-        <a href="@Routes.PlayerDashboardSection(section)" class="@TabClass(section)">
+        <a href="@Routes.PlayerDashboardSection(section, PlayerId)" class="@TabClass(section)">
             @TabIcon(section)@section.ToLabel()
         </a>
     }
@@ -12,6 +12,10 @@
 @code {
     [Parameter, EditorRequired]
     public SoccerPlayerDashboardSection ActiveSection { get; set; }
+
+    /// <summary>선택 자녀 — 섹션 링크에 실어 전환 시 선택이 유지되게 한다(자녀 여러 명일 때만 값).</summary>
+    [Parameter]
+    public Guid? PlayerId { get; set; }
 
     private string TabClass(SoccerPlayerDashboardSection section) =>
         "flex-1 flex flex-col items-center gap-[3px] pt-[7px] pb-[5px] rounded-[10px] text-[10.5px] font-bold whitespace-nowrap " +
