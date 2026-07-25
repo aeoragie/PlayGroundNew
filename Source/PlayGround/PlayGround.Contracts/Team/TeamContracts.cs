@@ -526,6 +526,10 @@ namespace PlayGround.Contracts.Team
         /// <summary>연결 상태 — 'Claimed'(연결됨) | 'Pending'(승인 대기). Pending은 스탯이 없고 "요청 상태 보기"만.</summary>
         public string ClaimStatus { get; set; } = "Claimed";
 
+        /// <summary>이 자녀 관련 미처리(접수) 기록 수정 신청 수 — 0이면 카드에 요약 미노출.
+        /// 전체 목록은 선수 대시보드 시즌 통계에 있고, 허브 카드는 요약+링크만(RecordCorrection).</summary>
+        public int CorrectionPendingCount { get; set; }
+
         /// <summary>Pending일 때 요청일 — 대기 안내 문구에 쓴다("… 7/14 요청"). Claimed는 null.</summary>
         public DateTime? RequestedAt { get; set; }
     }

@@ -60,6 +60,9 @@ namespace PlayGround.Client.Styles
             public const string ChildPrimary = "flex-1 h-10 rounded-btn bg-navy hover:bg-navy-deep text-white text-[13px] font-extrabold flex items-center justify-center whitespace-nowrap no-underline transition-colors";
             public const string ChildSecondary = "flex-1 h-10 rounded-btn border border-surface-icon hover:border-navy-muted text-text-body text-[13px] font-extrabold flex items-center justify-center whitespace-nowrap no-underline transition-colors";
 
+            /// <summary>기록 수정 신청 처리 중 요약 — 접수=오렌지 톤(RecordCorrection). 전체 목록은 시즌 통계에.</summary>
+            public const string CorrectionNotice = "flex items-center gap-1.5 rounded-[9px] bg-surface-orange border border-orange/25 px-3 py-2 text-[12px] font-bold text-orange-hover no-underline hover:border-orange/50 transition-colors break-keep";
+
             //.// 바로가기
 
             public const string ShortcutGrid = "grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-3.5";

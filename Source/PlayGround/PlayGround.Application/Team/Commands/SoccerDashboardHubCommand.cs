@@ -85,6 +85,23 @@ namespace PlayGround.Application.Team.Commands
                 return Result<DashboardHubResponse>.Error(ErrorCode.DatabaseError);
             }
 
+            // 미처리(접수) 기록 수정 신청 MatchId 집합 — 허브 자녀 카드 요약용(RecordCorrection).
+            // 전체 목록은 선수 대시보드 시즌 통계에 있고, 여기선 자녀별 개수만 얹는다.
+            // 조회는 RequestedByUserId 스코프라 보호자가 그대로 쓴다(같은 프로시저 재사용).
+            HashSet<Guid> pendingCorrectionMatchIds = new();
+            if (children.Value.Players.Count > 0)
+            {
+                Result<RecordCorrectionsResponse> corrections =
+                    await mTeamRepository.GetRecordCorrectionsByManagerAsync(userId, cancellation);
+                if (!corrections.IsError)
+                {
+                    pendingCorrectionMatchIds = corrections.Value.Corrections
+                        .Where(c => c.Status == "Pending")
+                        .Select(c => c.MatchId)
+                        .ToHashSet();
+                }
+            }
+
             foreach (ManagedPlayerDto child in children.Value.Players)
             {
                 var card = new HubChildDto
@@ -112,6 +129,11 @@ namespace PlayGround.Application.Team.Commands
                     card.Appearances = official.Count;
                     card.Goals = official.Sum(m => m.Goals);
                     card.Assists = official.Sum(m => m.Assists);
+
+                    // 이 자녀 경기 중 미처리 신청 수 — 보호자 대시보드 목록과 같은 MatchId 기준
+                    // (같은 경기에 미처리 1건 규칙이라 경기 수 = 신청 수).
+                    card.CorrectionPendingCount = stats.Value.Matches
+                        .Count(m => pendingCorrectionMatchIds.Contains(m.MatchId));
                 }
 
                 response.Children.Add(card);
