@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:16px">
+
+<header style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:18px;font-weight:800;letter-spacing:-.02em">팀 게시판 — 모바일 (390px)</span>
+  <span style="font-size:12px;color:#5b6577;line-height:1.65;word-break:keep-all">PC와 동일 규칙. 작성 = 바텀시트(입력 16px), ⋯ = 바텀시트, 행 높이 56px 이상.</span>
+</header>
+
+<!-- 목록 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">게시판 목록 (관리자 뷰)</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:9px">
+    <div style="display:flex;background:#eef0f4;border-radius:11px;padding:3px;gap:2px">
+      <span style="flex:1;height:36px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;box-shadow:0 1px 4px rgba(28,43,74,.12);white-space:nowrap">전체 12</span>
+      <span style="flex:1;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">공지 3</span>
+      <span style="flex:1;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">자료 9</span>
+    </div>
+    <div style="border:1.5px solid rgba(35,64,142,.2);background:rgba(35,64,142,.03);border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:10px;min-height:56px">
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+        <span style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:9.5px;font-weight:800;color:#fff;background:#23408e;border-radius:99px;padding:2px 8px;white-space:nowrap">고정</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5c-3.6 0-6.8 2.2-9 7.5 2.2 5.3 5.4 7.5 9 7.5s6.8-2.2 9-7.5c-2.2-5.3-5.4-7.5-9-7.5z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>
+        </span>
+        <span style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">8월 훈련 일정 변경 안내</span>
+        <span style="font-size:11px;color:#8a93a6;white-space:nowrap">김코치 · 7/22 · 조회 24</span>
+      </span>
+      <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px">⋯</span>
+    </div>
+    <div style="border:1px solid #f1f3f8;border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:10px;min-height:56px">
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+        <span style="font-size:9.5px;font-weight:800;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:2px 8px;white-space:nowrap;align-self:flex-start">자료</span>
+        <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">여름 캠프 참가 동의서</span>
+        <span style="font-size:11px;color:#8a93a6;white-space:nowrap">박관리자 · 7/18 · 첨부 1 · 조회 31</span>
+      </span>
+      <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px">⋯</span>
+    </div>
+    <button style="height:48px;border:0;border-radius:12px;background:#FF6B35;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">＋ 글 작성</button>
+    <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">모바일은 유형 뱃지·눈 아이콘을 제목 위 줄로 · 작성 버튼은 목록 하단 풀폭(대시보드 주 액션 오렌지 1개 규칙 내).</span>
+  </div>
+</div>
+
+<!-- 작성 시트 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">글 작성 — 바텀시트</span></div>
+  <div style="padding:20px 16px 0;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+    <div style="background:#fff;border-radius:18px 18px 0 0;padding:12px 18px 16px;width:300px;display:flex;flex-direction:column;gap:11px;box-shadow:0 -10px 40px rgba(28,43,74,.3)">
+      <span style="width:36px;height:4px;border-radius:99px;background:#e6e8ee;margin:0 auto"></span>
+      <span style="font-size:14.5px;font-weight:800">글 작성</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <span style="height:46px;border:1.5px solid #23408e;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#23408e;background:rgba(35,64,142,.06);white-space:nowrap">공지</span>
+        <span style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#5b6577;white-space:nowrap">자료</span>
+      </div>
+      <div style="height:48px;border:1.5px solid #e6e8ee;border-radius:11px;padding:0 12px;display:flex;align-items:center;font-size:16px">8월 훈련 일정 변경 안내</div>
+      <div style="min-height:84px;border:1.5px solid #e6e8ee;border-radius:11px;padding:10px 12px;font-size:16px;color:#3c465a;line-height:1.55;word-break:keep-all">8월부터 화·목 훈련이 19시로 30분 늦춰집니다.</div>
+      <button style="height:46px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">파일 첨부 (최대 3개)</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1"><span style="font-size:13px;font-weight:700">공개 홈페이지에도 노출</span><span style="font-size:11px;color:#8a93a6;word-break:keep-all">켜면 소개 탭 "팀 소식"에 보여요 (탭 신설 없음)</span></span>
+        <span style="width:44px;height:26px;border-radius:99px;background:#d5d9e2;padding:2px;display:flex;justify-content:flex-start;flex:none"><span style="width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
+      </div>
+      <button style="height:48px;border:0;border-radius:12px;background:#23408e;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">올리기</button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">첨부는 OS 시트 위임(ImageUploader 모바일 규칙) · 공개 스위치 기본 끔 · 하단 고정 제출 버튼.</div>
+</div>
+
+<!-- 보호자 뷰 -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:7px 14px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:10.5px;font-weight:800;color:#23408e;white-space:nowrap">보호자 뷰 — 팀 소식 (읽기 전용)</span></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:9px">
+    <div style="border:1px solid #f1f3f8;border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:10px;min-height:56px">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FF6B35;flex:none"></span>
+      <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">8월 훈련 일정 변경 안내</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">FC 한강 · 김코치 · 7/22</span></span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
+    </div>
+    <div style="border:1px solid #f1f3f8;border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:10px;min-height:56px">
+      <span style="width:8px;height:8px;border-radius:50%;flex:none"></span>
+      <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:700;color:#5b6577;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">여름 캠프 참가 동의서</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">FC 한강 · 7/18 · 첨부 1</span></span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
+    </div>
+    <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">안읽음 = 오렌지 점 · 진입 위치: 허브 자녀 카드 → 팀 소식 · 작성 버튼 미노출.</span>
+  </div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">권한·스키마·빈 상태는 PC 카탈로그 참조.</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1400}}"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">지원 (Application) — PC</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">획득 루프: 팀이 <b>모집 공고</b> 게시 → 선수·보호자가 공개홈 모집 탭에서 <b>지원</b> → 팀 관리자 <b>수신함</b>에서 상태 전환(접수→검토→수락/보류) → 수락 시 <b>로스터 편입 제안</b>. 경계: PlayGround는 지원 접수·상태 관리까지, 실제 입단 계약·회비는 팀 오프라인 영역.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 모집 공고 카드 (공개홈) -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">공개홈 모집 탭 — 공고 카드 (게스트 뷰)</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="border:1px solid #f1f3f8;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:11px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+            <span style="font-size:14.5px;font-weight:800;word-break:keep-all">2026 U15 선수 모집 — 수비·미드필더</span>
+            <span style="font-size:11.5px;color:#8a93a6;white-space:nowrap">모집 기간 7/1 ~ 8/15 · 2명 모집</span>
+          </span>
+          <span style="font-size:11.5px;font-weight:700;color:#1b8579;background:rgba(46,196,182,.12);border-radius:99px;padding:3px 10px;white-space:nowrap;flex:none">모집중</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span style="font-size:11px;font-weight:700;color:#3c465a;background:#f1f3f8;border-radius:99px;padding:4px 10px;white-space:nowrap">U15</span>
+          <span style="font-size:11px;font-weight:700;color:#3c465a;background:#f1f3f8;border-radius:99px;padding:4px 10px;white-space:nowrap">DF · MF</span>
+          <span style="font-size:11px;font-weight:700;color:#3c465a;background:#f1f3f8;border-radius:99px;padding:4px 10px;white-space:nowrap">주 3회 훈련</span>
+        </div>
+        <span style="font-size:12.5px;color:#5b6577;line-height:1.65;word-break:keep-all">기본기와 인성을 함께 키우는 팀입니다. 경험이 없어도 성실하게 훈련할 수 있다면 환영해요.</span>
+        <button style="height:44px;border:0;border-radius:11px;background:#23408e;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">지원하기</button>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">SPEC.TEAMPUBLICHOME ④ 계승: 공고 카드 = 제목+<b>모집중 teal 뱃지</b>+설명+조건 칩+<b>지원하기 네이비 버튼</b> · 공개홈의 오렌지 CTA는 히어로·모바일 고정 바의 "입단 문의" 1개뿐이므로 지원 버튼은 네이비 유지 · 마감 공고는 회색 뱃지 + opacity .75 + 버튼 비활성 · 이미 지원한 공고는 버튼 대신 "지원 완료 · 상태 보기"(네이비 아웃라인) · 기존 "모집 공고가 없어도 문의할 수 있어요" 카드는 그대로 유지.</span>
+    </div>
+  </div>
+
+  <!-- 지원 폼 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">지원 폼 — 모달 (로그인 후)</span></div>
+    <div style="padding:20px;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+      <div style="background:#fff;border-radius:18px;padding:22px;width:300px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(28,43,74,.3)">
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:15px;font-weight:800">FC 한강에 지원하기</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">2026 U15 선수 모집 — 수비·미드필더</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">지원 선수</span>
+          <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 11px;display:flex;align-items:center;gap:9px">
+            <span style="width:28px;height:28px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex:none">박</span>
+            <span style="font-size:12.5px;font-weight:700;flex:1;white-space:nowrap">박지호 <span style="font-weight:600;color:#8a93a6">2011 · MF</span></span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M6 9l6 6 6-6"></path></svg>
+          </div>
+          <span style="font-size:11px;color:#8a93a6;word-break:keep-all">연결된 자녀 중 선택 — 프로필 정보(생년·포지션·기록)가 함께 전달돼요</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">희망 포지션</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <span style="height:40px;border:1.5px solid #23408e;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#23408e;background:rgba(35,64,142,.06);white-space:nowrap">DF</span>
+            <span style="height:40px;border:1.5px solid #e6e8ee;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">MF</span>
+          </div>
+          <span style="font-size:11px;color:#8a93a6;word-break:keep-all">공고에 명시된 포지션만 표시</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:12px;font-weight:800">자기소개</span>
+            <span style="font-size:10.5px;font-weight:700;color:#8a93a6;white-space:nowrap">124 / 500</span>
+          </div>
+          <div style="min-height:64px;border:1.5px solid #e6e8ee;border-radius:10px;padding:10px 11px;font-size:12px;color:#3c465a;line-height:1.55;word-break:keep-all">3년간 학교 축구부에서 왼쪽 수비를 맡았습니다. 체력과 대인 수비에 자신이 있고, 새 환경에서도 빠르게 적응합니다.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">연락처</span>
+          <div style="height:46px;border:1.5px solid #eef0f4;border-radius:10px;padding:0 11px;display:flex;align-items:center;font-size:12.5px;background:#f8f9fb;color:#5b6577">010-1234-5678</div>
+          <span style="font-size:11px;color:#8a93a6;word-break:keep-all">계정에 등록된 번호 · 팀에는 수락 후에만 전달돼요</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">취소</button>
+          <button style="flex:1;height:42px;border:0;border-radius:11px;background:#23408e;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">지원하기</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">게스트가 "지원하기" 클릭 → <b>/auth?returnUrl</b>로 로그인 후 폼 자동 재개(Navigation 규칙) · 연결된 자녀 없으면 폼 대신 안내 "먼저 자녀를 연결해 주세요" + Claim CTA · <b>연락처는 읽기 전용</b>(계정 값) + 수락 전까지 팀에 마스킹 · 중복 지원 차단(같은 선수+같은 공고, 보류·반려 후 재지원은 30일 후 허용).</div>
+  </div>
+
+  <!-- 팀 수신함 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">팀 대시보드 · 선수 모집 섹션 — 지원자 리스트 확장</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:11px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;background:#eef0f4;border-radius:11px;padding:3px;gap:2px;flex:1;max-width:330px">
+          <span style="flex:1;height:34px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;box-shadow:0 1px 4px rgba(28,43,74,.12);white-space:nowrap">대기 3</span>
+          <span style="flex:1;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">검토중 1</span>
+          <span style="flex:1;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">종료</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="width:38px;height:38px;border-radius:50%;background:#2EC4B6;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#fff;flex:none">박</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:700;white-space:nowrap">박지호 <span style="font-weight:600;color:#8a93a6">2011 · DF 희망</span></span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">U15 모집 공고 · 2시간 전 지원</span>
+        </span>
+        <span style="font-size:10px;font-weight:800;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">대기</span>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="width:38px;height:38px;border-radius:50%;background:#6d4bd8;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#fff;flex:none">이</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:700;white-space:nowrap">이서준 <span style="font-weight:600;color:#8a93a6">2012 · MF 희망</span></span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap;display:flex;align-items:center;gap:5px">에이전트 추천 · 김에이전트 · 어제</span>
+        </span>
+        <span style="font-size:10px;font-weight:800;color:#6d4bd8;background:rgba(109,75,216,.1);border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">추천</span>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <div style="border:1.5px solid #e6e8ee;border-radius:13px;box-shadow:0 10px 30px rgba(28,43,74,.12);overflow:hidden;max-width:220px;margin-left:auto">
+        <div style="padding:6px">
+          <span style="display:flex;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a;background:#f8f9fb;cursor:pointer">프로필 보기</span>
+          <span style="display:flex;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a;cursor:pointer">테스트 요청 (검토중으로)</span>
+          <span style="display:flex;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#1c2b4a;cursor:pointer">수락 — 선수단 초대</span>
+        </div>
+        <div style="padding:6px;border-top:1px solid #f1f3f8">
+          <span style="display:flex;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;color:#c0392b;cursor:pointer">보류(반려)</span>
+        </div>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all"><b>기존 SPEC.TEAMDASHBOARD 6.선수 모집의 지원자 리스트를 그대로 확장</b>(새 섹션 신설 아님 — 공고 카드 2장 아래 같은 자리) · 상태 뱃지 어휘·톤 계승: 대기 회색 / 검토중 오렌지톤 / 테스트 확정 teal, 추가 상태만 신설(수락 teal·종료 회색) · 세그먼트는 상태 축(카운트) · 기존 [프로필 / 테스트 요청(네이비)] 버튼 유지 + 나머지는 ⋯ · 에이전트 추천 = violet 뱃지(기존 규칙).</span>
+    </div>
+  </div>
+
+  <!-- 수락 → 로스터 편입 + 지원자 측 상태 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">수락 → 로스터 편입 · 지원자 측 상태</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="background:#f8f9fb;border-radius:12px;padding:13px 14px;display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12px;font-weight:800">수락 시 (팀 → 선수)</span>
+        <span style="font-size:11.5px;color:#5b6577;line-height:1.6;word-break:keep-all">① 지원 상태 = 수락 ② 보호자에게 <b>선수단 초대</b> 알림 발송 ③ 보호자가 수락하면 로스터 편입(SoccerTeamPlayers 생성) ④ 이때 연락처 마스킹 해제</span>
+        <span style="font-size:11px;color:#8a93a6;word-break:keep-all">팀이 일방적으로 로스터에 넣지 않음 — 보호자 동의가 편입 조건(Claim 원칙과 동일)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;font-weight:800">지원자 측 — 내 지원 현황 (허브 자녀 카드 · 선수 대시보드)</span>
+        <div style="display:flex;align-items:center;gap:11px;border:1px solid #f1f3f8;border-radius:12px;padding:11px 13px">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;white-space:nowrap">FC 한강 · U15 모집</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">7/24 지원 · 팀이 확인했어요</span></span>
+          <span style="font-size:10px;font-weight:800;color:#c24a1c;background:#fff0e9;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">검토중</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:11px;border:1px solid #f1f3f8;border-radius:12px;padding:11px 13px">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;white-space:nowrap">강북 드래곤즈 · U15 모집</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">7/10 지원 · 7/18 보류됨</span></span>
+          <span style="font-size:10px;font-weight:800;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">종료</span>
+        </div>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">상태 문구는 지원자 관점으로 완화: 대기="팀에 전달됐어요" / 검토중="팀이 확인했어요" / 보류="이번에는 함께하지 못했어요"(뱃지는 중립 회색 "종료" — 레드 금지) · 상태 변경 시 알림 발송 · 접수 상태에서 지원 취소 가능.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">스키마: SoccerRecruitPosts(TeamId·제목·연령·포지션·정원·기간·본문·상태) + SoccerApplications(PostId·PlayerId·GuardianId·희망포지션·자기소개·상태 Pending/Reviewing/Accepted/Rejected — 화면 어휘 대기/검토중/수락/종료·경로 Direct/AgentRef·RefAgentId·CreatedAt). 기존 TeamRecommendation(에이전트 추천 수신) 테이블이 있으면 SoccerApplications의 AgentRef 경로로 통합할지 확인 — 중복 파이프라인 금지. 알림: 새 지원→팀 관리자 / 상태 변경→보호자 / 수락→선수단 초대. 사용 패턴: FormPatterns·FeedbackPatterns·DropdownMenu·TableList·AvatarBadge·SearchFilter(세그먼트) — 신규 패턴 없음. 경계: 입단 계약·회비 정산은 서비스 밖(팀 오프라인).</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1400}}"></script>
+</body>
+</html>

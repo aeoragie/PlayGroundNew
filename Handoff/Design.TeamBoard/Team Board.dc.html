@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:1200px;margin:0 auto;padding:36px 32px 80px;display:flex;flex-direction:column;gap:28px">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:22px;font-weight:800;letter-spacing:-.02em">팀 게시판 (Team Board) — PC</span>
+  <span style="font-size:13px;color:#5b6577;line-height:1.7;word-break:keep-all">P1 4종 중 첫 번째. 관리자·코치가 공지·자료를 올리고 <b>로스터 보호자가 열람</b>, 글 단위로 <b>공개홈 노출</b>을 선택한다. 경계: 게시판은 <b>단방향 공지</b>(댓글 없음 — 양방향 소통은 P1 메시지 몫) · 회비 청구·출결 체크는 별도 패키지.</span>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px">
+
+  <!-- 목록 (팀 대시보드) -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">팀 대시보드 · 게시판 목록 (관리자 뷰)</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:11px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;background:#eef0f4;border-radius:11px;padding:3px;gap:2px;flex:1;max-width:280px">
+          <span style="flex:1;height:34px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;box-shadow:0 1px 4px rgba(28,43,74,.12);white-space:nowrap">전체 12</span>
+          <span style="flex:1;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">공지 3</span>
+          <span style="flex:1;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a93a6;white-space:nowrap">자료 9</span>
+        </div>
+        <div style="flex:1"></div>
+        <button style="height:42px;padding:0 16px;border:0;border-radius:10px;background:#FF6B35;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;flex:none">＋ 글 작성</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1.5px solid rgba(35,64,142,.2);background:rgba(35,64,142,.03);border-radius:12px;padding:12px 14px">
+        <span style="font-size:10px;font-weight:800;color:#fff;background:#23408e;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">고정</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">8월 훈련 일정 변경 안내</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">김코치 · 7/22 · 조회 24</span>
+        </span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 4.5c-3.6 0-6.8 2.2-9 7.5 2.2 5.3 5.4 7.5 9 7.5s6.8-2.2 9-7.5c-2.2-5.3-5.4-7.5-9-7.5z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="font-size:10px;font-weight:800;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">자료</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">여름 캠프 참가 동의서 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M14.5 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7.5z"></path><path d="M14 3v5h5"></path></svg></span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">박관리자 · 7/18 · 첨부 1 · 조회 31</span>
+        </span>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid #f1f3f8;border-radius:12px;padding:12px 14px">
+        <span style="font-size:10px;font-weight:800;color:#8a93a6;background:#f1f3f8;border-radius:99px;padding:3px 9px;white-space:nowrap;flex:none">자료</span>
+        <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+          <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">7월 팀 소식 — 리그 3위 마감</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">박관리자 · 7/12 · 조회 40</span>
+        </span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 4.5c-3.6 0-6.8 2.2-9 7.5 2.2 5.3 5.4 7.5 9 7.5s6.8-2.2 9-7.5c-2.2-5.3-5.4-7.5-9-7.5z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>
+        <span style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;color:#8a93a6;letter-spacing:1px;cursor:pointer">⋯</span>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">유형 = 공지(네이비 채움)/자료(회색) 2종만 · <b>고정 글은 최대 2개</b>(네이비 테두리+틴트, 목록 최상단) · <b>눈 아이콘 = 공개홈에도 노출됨</b> 표시 · 첨부 있으면 파일 아이콘 · 조회수는 관리자에게만 · ⋯ = 수정/고정 전환/공개 전환/삭제(레드) · 더 보기 20개(TableList).</span>
+    </div>
+  </div>
+
+  <!-- 작성 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">글 작성 — 모달</span></div>
+    <div style="padding:20px;display:flex;justify-content:center;background:rgba(28,43,74,.45)">
+      <div style="background:#fff;border-radius:18px;padding:22px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(28,43,74,.3)">
+        <span style="font-size:15px;font-weight:800">글 작성</span>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">유형</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <span style="height:40px;border:1.5px solid #23408e;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#23408e;background:rgba(35,64,142,.06);white-space:nowrap">공지</span>
+            <span style="height:40px;border:1.5px solid #e6e8ee;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6577;white-space:nowrap">자료</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:800">제목</span>
+          <div style="height:46px;border:1.5px solid #e6e8ee;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:13px">8월 훈련 일정 변경 안내</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:12px;font-weight:800">내용</span>
+            <span style="font-size:10.5px;font-weight:700;color:#8a93a6;white-space:nowrap">142 / 2000</span>
+          </div>
+          <div style="min-height:78px;border:1.5px solid #e6e8ee;border-radius:10px;padding:10px 12px;font-size:12px;color:#3c465a;line-height:1.6;word-break:keep-all">8월부터 화·목 훈련이 19시로 30분 늦춰집니다. 폭염 시에는 실내 훈련으로 대체하며 당일 오후에 공지드립니다.</div>
+        </div>
+        <div style="border:1.5px dashed #c5cfe4;border-radius:10px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:5px;background:#fbfcfe">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5M8 8.5L12 4.5l4 4M5 19h14"></path></svg>
+          <span style="font-size:11.5px;font-weight:700;color:#3c465a;word-break:keep-all">파일 첨부 <span style="color:#23408e">선택</span></span>
+          <span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">pdf·이미지·hwp · 10MB · 최대 3개</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1"><span style="font-size:12.5px;font-weight:700">공개 홈페이지에도 노출</span><span style="font-size:10.5px;color:#8a93a6;word-break:keep-all">켜면 소개 탭 "팀 소식"에 보여요 · 끄면 소속 보호자만</span></span>
+          <span style="width:44px;height:26px;border-radius:99px;background:#d5d9e2;padding:2px;display:flex;justify-content:flex-start;flex:none"><span style="width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button style="flex:1;height:42px;border:1.5px solid #e6e8ee;border-radius:11px;background:#fff;font-size:13px;font-weight:700;color:#3c465a;cursor:pointer;font-family:inherit;white-space:nowrap">취소</button>
+          <button style="flex:1;height:42px;border:0;border-radius:11px;background:#23408e;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap">올리기</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 16px;font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">제목 2~60자·내용 2000자 · 첨부는 ImageUploader 다중 규칙 준용(문서 포함, 10MB·3개) · <b>공개 스위치 기본 끔</b>(팀 내부가 기본 — 실수 공개 방지) · 공개 켜면 첨부는 공개홈에서 <b>목록만 표시하고 다운로드는 로그인 필요</b> · 공지는 발행 시 보호자 알림 발송(자료는 알림 없음).</div>
+  </div>
+
+  <!-- 보호자 뷰 + 공개홈 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">열람 — 보호자 뷰 · 공개홈 소식</span></div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="border:1px solid #f1f3f8;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:10.5px;font-weight:800;color:#8a93a6">보호자 뷰 (허브 · 자녀 카드 → 팀 소식)</span>
+        <div style="display:flex;align-items:center;gap:11px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#FF6B35;flex:none"></span>
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">8월 훈련 일정 변경 안내</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">FC 한강 · 김코치 · 7/22</span></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
+        </div>
+        <div style="display:flex;align-items:center;gap:11px">
+          <span style="width:8px;height:8px;border-radius:50%;flex:none"></span>
+          <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:12.5px;font-weight:700;color:#5b6577;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">여름 캠프 참가 동의서</span><span style="font-size:11px;color:#8a93a6;white-space:nowrap">FC 한강 · 박관리자 · 7/18 · 첨부 1</span></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
+        </div>
+        <span style="font-size:10.5px;color:#8a93a6;word-break:keep-all">안읽음 = 오렌지 점(카운트 뱃지 규칙 내) · 행=내비게이션형(셰브론) · 작성·수정 불가(읽기 전용) · 여러 자녀가 다른 팀이면 팀명 접두 표기</span>
+      </div>
+      <div style="border:1px solid #f1f3f8;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:10.5px;font-weight:800;color:#8a93a6">공개홈 — <b>① 소개 탭 하단 "팀 소식" 섹션</b> (게스트, 새 탭 아님)</span>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">7월 팀 소식 — 리그 3위 마감</span>
+          <span style="font-size:11px;color:#8a93a6;white-space:nowrap">2026.7.12</span>
+          <span style="font-size:12px;color:#5b6577;line-height:1.6;word-break:keep-all;margin-top:3px">춘계 리그를 3위로 마감했습니다. 마지막 3경기 연속 무패로…</span>
+        </div>
+        <span style="font-size:10.5px;color:#8a93a6;word-break:keep-all"><b>SPEC.TEAMPUBLICHOME 6탭 구성은 그대로</b>(소개/선수단/시즌성적/모집/진학·진로/리뷰 — 7번째 탭 신설 안 함, 모바일 탭 상한 유지). 공개 글은 **① 소개 탭의 마지막 섹션 "팀 소식"**으로 들어감: 코칭스태프 절 아래, 카드형 <b>최대 3건</b> + "지난 소식 보기"(3건 초과 시 `/team/{slug}/about#news` 내 확장) · 유형 뱃지 없음(전부 "소식") · 본문 3줄 미리보기 + 상세 · <b>첨부 다운로드는 로그인 필요</b> · 공개 글 0건이면 <b>섹션 자체 숨김</b>(방문자에게 빈 상태 노출 안 함)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 권한·빈 상태 -->
+  <div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:16px;overflow:hidden">
+    <div style="padding:8px 16px;background:#f8f9fb;border-bottom:1px solid #f1f3f8"><span style="font-size:11px;font-weight:800;color:#23408e;white-space:nowrap">권한 · 빈 상태</span></div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:11px">
+      <div style="display:flex;gap:10px;align-items:flex-start;border:1px solid #f1f3f8;border-radius:11px;padding:11px 13px">
+        <span style="font-size:11px;font-weight:800;color:#23408e;background:#f1f3f8;border-radius:7px;padding:4px 9px;white-space:nowrap;flex:none">작성</span>
+        <span style="font-size:12px;color:#5b6577;line-height:1.55;word-break:keep-all">팀 관리자 · 코치(CoachStaff) — 그 외 계정에는 "＋ 글 작성" 버튼 미노출(비활성 아님)</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;border:1px solid #f1f3f8;border-radius:11px;padding:11px 13px">
+        <span style="font-size:11px;font-weight:800;color:#23408e;background:#f1f3f8;border-radius:7px;padding:4px 9px;white-space:nowrap;flex:none">수정</span>
+        <span style="font-size:12px;color:#5b6577;line-height:1.55;word-break:keep-all">작성자 본인 + 팀 관리자(코치 글도 관리자는 수정·삭제 가능) · 수정 시 "수정됨" 표기, 재알림 없음</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;border:1px solid #f1f3f8;border-radius:11px;padding:11px 13px">
+        <span style="font-size:11px;font-weight:800;color:#23408e;background:#f1f3f8;border-radius:7px;padding:4px 9px;white-space:nowrap;flex:none">열람</span>
+        <span style="font-size:12px;color:#5b6577;line-height:1.55;word-break:keep-all">로스터 소속 선수의 보호자 + 팀 스태프 · <b>편입 이전 글도 열람 가능</b>(팀 히스토리) · 로스터 이탈 시 즉시 접근 차단</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;border:1px solid #f2d5d0;background:#fdf6f5;border-radius:11px;padding:11px 13px">
+        <span style="font-size:11px;font-weight:800;color:#c0392b;background:#fdeceb;border-radius:7px;padding:4px 9px;white-space:nowrap;flex:none">삭제</span>
+        <span style="font-size:12px;color:#5b6577;line-height:1.55;word-break:keep-all">파괴 모달(첨부 함께 삭제 명시) · 소프트 삭제 30일 보관(운영 문의 대응) · 공개 글 삭제는 공개홈에서도 즉시 사라짐</span>
+      </div>
+      <div style="border:1px dashed #e6e8ee;border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:7px">
+        <svg width="44" height="44" viewBox="0 0 88 88" fill="none"><rect x="18" y="14" width="52" height="60" rx="7" stroke="#c5cfe4" stroke-width="3"></rect><path d="M30 32h28M30 44h28M30 56h18" stroke="#23408e" stroke-width="3.5" stroke-linecap="round"></path></svg>
+        <span style="font-size:13.5px;font-weight:800;word-break:keep-all">아직 올린 글이 없어요</span>
+        <span style="font-size:11.5px;color:#5b6577;text-align:center;word-break:keep-all">훈련 일정 변경이나 동의서처럼 보호자에게 알릴 내용을 올려보세요</span>
+        <button style="height:40px;padding:0 18px;border:0;border-radius:10px;background:#23408e;font-size:12.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;margin-top:4px;white-space:nowrap">＋ 글 작성</button>
+      </div>
+      <span style="font-size:11px;color:#8a93a6;line-height:1.6;word-break:keep-all">빈 상태 Tier A(EmptyStates) — 소유자에게만 CTA(네이비) · 보호자 뷰 빈 상태는 "팀이 글을 올리면 여기에 보여요"(CTA 없음).</span>
+    </div>
+  </div>
+
+</div>
+
+<footer style="font-size:12px;color:#8a93a6;line-height:1.7;word-break:keep-all">스키마: SoccerTeamPosts(TeamId · Type(Notice/Material) · Title · Body · IsPinned · IsPublic · AuthorId · ViewCount · EditedAt · DeletedAt) + SoccerTeamPostFiles(PostId · FileUrl · FileName · SizeBytes) + SoccerTeamPostReads(PostId · UserId · ReadAt — 안읽음 점·조회수 산출). 알림: 공지 발행 → 로스터 보호자 전원(자료는 없음). 공개 노출 목적지 = <b>기존 ① 소개 탭 하단 "팀 소식" 섹션</b>(SPEC.TEAMPUBLICHOME 6탭 불변 — 탭 신설 없음, 최대 3건). 사용 패턴: FormPatterns·FeedbackPatterns·DropdownMenu·TableList·ToggleSwitch·ImageUploader(첨부)·EmptyStates — 신규 패턴 없음. 다음 P1: 회비 → 출결 → 메시지(각각 별도 패키지, 이 틀 재사용).</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1500}}"></script>
+</body>
+</html>
