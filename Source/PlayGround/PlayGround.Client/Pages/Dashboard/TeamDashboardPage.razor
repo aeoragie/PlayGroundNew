@@ -73,12 +73,15 @@
                     </LoadingGate>
                     break;
                 case SoccerTeamDashboardSection.Recruit:
-                    <LoadingGate IsLoading="@(mRecruitments is null && !mRecruitmentsFailed)" HasFailed="@mRecruitmentsFailed" OnRetry="LoadRecruitmentsAsync">
+                    @* 공고·지원자를 함께 기다린다 — 지원자 리스트가 공고 카드 아래 같은 화면에 붙어 있다 *@
+                    <LoadingGate IsLoading="@((mRecruitments is null && !mRecruitmentsFailed) || (mApplicants is null && !mApplicantsFailed))"
+                                 HasFailed="@(mRecruitmentsFailed || mApplicantsFailed)" OnRetry="RetryRecruitAsync">
                         <Skeleton>
                             <SkeletonSection><SkeletonRows Count="2" ShowChip="false" /></SkeletonSection>
                         </Skeleton>
                         <ChildContent>
-                            <RecruitSection Data="@(mRecruitments!)" OnChanged="LoadRecruitmentsAsync" />
+                            <RecruitSection Data="@(mRecruitments!)" OnChanged="LoadRecruitmentsAsync"
+                                            Applicants="@(mApplicants!.Applications)" OnApplicantsChanged="LoadApplicantsAsync" />
                         </ChildContent>
                     </LoadingGate>
                     break;
@@ -148,12 +151,14 @@
                 </LoadingGate>
                 break;
             case SoccerTeamDashboardSection.Recruit:
-                <LoadingGate IsLoading="@(mRecruitments is null && !mRecruitmentsFailed)" HasFailed="@mRecruitmentsFailed" OnRetry="LoadRecruitmentsAsync">
+                <LoadingGate IsLoading="@((mRecruitments is null && !mRecruitmentsFailed) || (mApplicants is null && !mApplicantsFailed))"
+                             HasFailed="@(mRecruitmentsFailed || mApplicantsFailed)" OnRetry="RetryRecruitAsync">
                     <Skeleton>
                         <SkeletonSection Compact="true"><SkeletonRows Count="2" ShowChip="false" /></SkeletonSection>
                     </Skeleton>
                     <ChildContent>
-                        <MobileRecruitSection Data="@(mRecruitments!)" OnChanged="LoadRecruitmentsAsync" />
+                        <MobileRecruitSection Data="@(mRecruitments!)" OnChanged="LoadRecruitmentsAsync"
+                                              Applicants="@(mApplicants!.Applications)" OnApplicantsChanged="LoadApplicantsAsync" />
                     </ChildContent>
                 </LoadingGate>
                 break;
@@ -206,6 +211,8 @@
     private TeamMatchesResponse? mMatches;
     private TeamVideosResponse? mVideos;
     private TeamRecruitmentsResponse? mRecruitments;
+    private TeamApplicationsResponse? mApplicants;
+    private bool mApplicantsFailed;
     private TeamCareerOutcomesResponse? mCareerOutcomes;
     private bool mCareerOutcomesRequested;
     private bool mCareerOutcomesFailed;
@@ -324,7 +331,9 @@
         else if (CurrentSection == SoccerTeamDashboardSection.Recruit && !mRecruitmentsRequested)
         {
             mRecruitmentsRequested = true;
+            // 공고·지원자를 함께 읽는다 — 지원자 리스트가 공고 카드 아래 같은 화면에 붙어 있다
             await LoadRecruitmentsAsync();
+            await LoadApplicantsAsync();
         }
         else if (CurrentSection == SoccerTeamDashboardSection.Info && !mCareerOutcomesRequested)
         {
@@ -346,6 +355,30 @@
         mRecruitmentsFailed = false;
         mRecruitments = await Teams.GetMyRecruitmentsAsync();
         mRecruitmentsFailed = mRecruitments is null;
+    }
+
+    //.// 지원자 리스트 — 공고와 같은 시점에 읽고, 상태 전환 후 다시 읽어 세그먼트 카운트·행 이동을 반영한다
+
+    private async Task LoadApplicantsAsync()
+    {
+        mApplicantsFailed = false;
+        mApplicants = await Teams.GetMyApplicantsAsync();
+        mApplicantsFailed = mApplicants is null;
+        StateHasChanged();
+    }
+
+    // 공고·지원자 중 실패한 쪽만 다시 부른다(둘을 함께 기다리는 LoadingGate의 재시도)
+    private async Task RetryRecruitAsync()
+    {
+        if (mRecruitmentsFailed)
+        {
+            await LoadRecruitmentsAsync();
+        }
+
+        if (mApplicantsFailed)
+        {
+            await LoadApplicantsAsync();
+        }
     }
 
     //.// 일정 — 추가는 다이얼로그, 삭제는 확인 모달 + 실행취소 토스트(삭제 알림은 후속 단계)

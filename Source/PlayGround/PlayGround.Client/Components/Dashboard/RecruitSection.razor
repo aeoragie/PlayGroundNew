@@ -1,5 +1,5 @@
 @* 선수 모집 섹션(PC): 공고 카드 + 작성·수정·마감·삭제 — SPEC.TEAMDASHBOARD §6의 공고 관리 부분.
-   지원자 리스트·에이전트 추천은 지원(Application) 스키마 도입 전이라 렌더하지 않는다 (빈 데이터 노출 금지).
+   공고 카드 아래에 지원자 리스트(ApplicantList)를 얹는다 — 새 섹션이 아니라 같은 자리의 확장(Design.Application §3).
    삭제 = 소프트 + 실행취소 토스트(B3 규칙), 마감 = 단방향(재오픈 없음 — 확인 모달에 명시). *@
 @using PlayGround.Client.Components.TeamPublic
 @using PlayGround.Client.Styles
@@ -52,6 +52,9 @@
         </div>
     }
 
+    @* 지원자 리스트 — 공고 카드 아래 같은 자리에 확장 (Design.Application §3) *@
+    <ApplicantList Applications="@Applicants" OnChanged="OnApplicantsChanged" />
+
     <RecruitmentFormDialog @bind-IsOpen="mFormOpen" Editing="@mEditing" OnSaved="OnChangedAsync" />
 </div>
 
@@ -62,6 +65,14 @@
     /// <summary>저장·마감·삭제 후 — 부모가 목록을 다시 불러온다.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
+
+    /// <summary>이 팀 공고들의 지원자 전부(최신순) — 상태별 세그먼트로 나눠 렌더한다.</summary>
+    [Parameter]
+    public List<ApplicationDto> Applicants { get; set; } = new();
+
+    /// <summary>지원 상태 전환 후 — 부모가 지원자 목록을 다시 불러온다.</summary>
+    [Parameter]
+    public EventCallback OnApplicantsChanged { get; set; }
 
     private bool mFormOpen;
     private TeamRecruitmentDto? mEditing;

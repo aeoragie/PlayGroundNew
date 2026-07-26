@@ -281,6 +281,38 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>팀 대시보드 선수 모집 섹션 — 소유 팀 공고의 지원자 전부(최신순). 미인증·오류 시 null.</summary>
+        public async Task<TeamApplicationsResponse?> GetMyApplicantsAsync()
+        {
+            try
+            {
+                Envelope<TeamApplicationsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamApplicationsResponse>>("api/soccer/team/me/applications");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미인증(401)·네트워크 오류 → null
+            }
+        }
+
+        /// <summary>지원 상태 전환 (관리자) — Reviewing/Accepted/Rejected. 성공 여부만(실패는 호출부가 토스트).</summary>
+        public async Task<bool> UpdateApplicationStatusAsync(Guid applicationId, string status)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync(
+                    $"api/soccer/team/me/applications/{applicationId}/status",
+                    new UpdateApplicationStatusRequest { Status = status });
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         //.// 팀 일정 (Design.Schedule)
 
         /// <summary>공개 팀 홈 일정 — 비로그인. 공개 일정만(서버 필터). 비공개·미존재 팀은 빈 목록, 오류 시 null.</summary>

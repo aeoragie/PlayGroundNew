@@ -1,0 +1,258 @@
+@* 지원자 리스트 — 선수 모집 섹션(공고 카드) 아래에 얹는 하위 블록. Design.Application §3.
+   PC·모바일 공용 단일 컴포넌트 — 행은 액션형(행 탭 없음, TableList 규칙), ⋯는 OverflowMenu가 모바일 바텀시트를 알아서 낸다.
+   상태 축 세그먼트(대기/검토중/종료)로 클라이언트 필터 — 대시보드 내부라 URL 동기화는 하지 않는다.
+   상태 전환은 이 컴포넌트가 TeamClient로 직접 호출하고, 성공하면 OnChanged로 부모에게 재조회를 알린다. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+
+<div class="@Css.Application.Wrapper">
+    <h2 class="@Css.Application.SubTitle">지원자</h2>
+
+    @if (Applications.Count == 0)
+    {
+        @* 공고에 지원한 선수가 아직 없다 — Tier B 빈 슬롯 *@
+        <EmptySlot Title="아직 지원자가 없어요">
+            <Icon>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </Icon>
+        </EmptySlot>
+    }
+    else
+    {
+        @* 상태 세그먼트 — 카운트는 자르기 전 전체 기준 *@
+        <div class="@Css.Segment.Track" role="tablist">
+            @foreach (ApplicantSegment seg in Segments)
+            {
+                ApplicantSegment target = seg;
+                <button type="button" role="tab" aria-selected="@((mSegment == target).ToString().ToLowerInvariant())"
+                        class="@Css.Segment.Item(mSegment == target)"
+                        @onclick="() => mSegment = target">@LabelOf(target) @CountOf(target)</button>
+            }
+        </div>
+
+        @if (Filtered.Count == 0)
+        {
+            <span class="@Css.Application.SegmentEmpty">이 상태의 지원자가 없어요</span>
+        }
+        else
+        {
+            <div class="flex flex-col gap-2">
+                @foreach (ApplicationDto app in Filtered)
+                {
+                    bool isAgent = string.Equals(app.Route, "AgentRef", StringComparison.Ordinal);
+                    <div class="flex flex-col gap-2">
+                        <div class="@Css.Application.Row">
+                            @* 경로 표시: 직접 = teal 아바타 / 에이전트 추천 = violet 아바타 (route는 아바타·캡션으로 강등 — 행당 뱃지 1개) *@
+                            <Avatar Name="@app.PlayerName" PhotoUrl="@app.PlayerPhotoUrl" Size="38"
+                                    Tone="@(isAgent ? Avatar.AvatarTone.Agent : Avatar.AvatarTone.Person)" />
+                            <span class="flex flex-col gap-[1px] flex-1 min-w-0">
+                                <span class="@Css.Application.Name">
+                                    @app.PlayerName
+                                    @if (NameMetaOf(app) is string nameMeta)
+                                    {
+                                        <span class="@Css.Application.NameMeta">@nameMeta</span>
+                                    }
+                                </span>
+                                <span class="@Css.Application.Meta">@SubMetaOf(app, isAgent)</span>
+                            </span>
+
+                            @* 상태 뱃지(행당 1개) — 대기 회색 / 검토중 오렌지 / 수락 teal / 종료 회색 *@
+                            <StatusBadge Tone="@ToneOf(app.Status)">@StatusLabelOf(app.Status)</StatusBadge>
+
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button type="button" class="@Css.Application.ProfileButton"
+                                        @onclick="() => ToggleExpand(app.ApplicationId)">프로필</button>
+                                @if (app.Status == StatusPending)
+                                {
+                                    <button type="button" class="@Css.Application.TestButton"
+                                            @onclick="() => RequestTestAsync(app)">테스트 요청</button>
+                                }
+                                @if (app.Status is StatusPending or StatusReviewing)
+                                {
+                                    <OverflowMenu Target="@app.PlayerName"
+                                                  Items="@AcceptItemsOf(app)"
+                                                  DestructiveItems="@RejectItemsOf(app)" />
+                                }
+                            </div>
+                        </div>
+
+                        @if (mExpanded.Contains(app.ApplicationId))
+                        {
+                            <div class="@Css.Application.ProfilePanel">
+                                <span class="@Css.Application.ProfilePanelLabel">자기소개</span>
+                                @if (!string.IsNullOrWhiteSpace(app.Introduction))
+                                {
+                                    <span class="@Css.Application.ProfilePanelBody">@app.Introduction</span>
+                                }
+                                else
+                                {
+                                    <span class="@Css.Application.ProfilePanelBody text-text-muted">등록된 자기소개가 없어요.</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    // 상태 문자열(SoccerApplicationStatus 멤버 이름) — 계약 그대로
+    private const string StatusPending = "Pending";
+    private const string StatusReviewing = "Reviewing";
+    private const string StatusAccepted = "Accepted";
+    private const string StatusRejected = "Rejected";
+
+    /// <summary>상태 축 세그먼트. 종료 = 수락(Accepted) + 종료(Rejected)를 묶는다(둘 다 완료된 처리).</summary>
+    private enum ApplicantSegment
+    {
+        Pending,
+        Reviewing,
+        Closed,
+    }
+
+    private static readonly ApplicantSegment[] Segments =
+        [ApplicantSegment.Pending, ApplicantSegment.Reviewing, ApplicantSegment.Closed];
+
+    [Parameter, EditorRequired]
+    public List<ApplicationDto> Applications { get; set; } = new();
+
+    /// <summary>상태 전환 성공 후 — 부모가 지원자 목록을 다시 불러온다(세그먼트 카운트·행 이동 반영).</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    private ApplicantSegment mSegment = ApplicantSegment.Pending;
+    private readonly HashSet<Guid> mExpanded = new();
+
+    private List<ApplicationDto> Filtered =>
+        Applications
+            .Where(a => SegmentOf(a.Status) == mSegment)
+            .ToList();
+
+    private static ApplicantSegment SegmentOf(string status) => status switch
+    {
+        StatusReviewing => ApplicantSegment.Reviewing,
+        StatusAccepted or StatusRejected => ApplicantSegment.Closed,
+        _ => ApplicantSegment.Pending,
+    };
+
+    private int CountOf(ApplicantSegment seg) => Applications.Count(a => SegmentOf(a.Status) == seg);
+
+    private static string LabelOf(ApplicantSegment seg) => seg switch
+    {
+        ApplicantSegment.Reviewing => "검토중",
+        ApplicantSegment.Closed => "종료",
+        _ => "대기",
+    };
+
+    // 상태 뱃지 톤 계승 — 대기 회색 / 검토중 오렌지 / 수락 teal / 종료(반려) 회색
+    private static StatusBadge.BadgeTone ToneOf(string status) => status switch
+    {
+        StatusReviewing => StatusBadge.BadgeTone.Pending,
+        StatusAccepted => StatusBadge.BadgeTone.Positive,
+        _ => StatusBadge.BadgeTone.Neutral,
+    };
+
+    private static string StatusLabelOf(string status) => status switch
+    {
+        StatusReviewing => "검토중",
+        StatusAccepted => "수락",
+        StatusRejected => "종료",
+        _ => "대기",
+    };
+
+    // 이름 옆 회색 메타 — 연령대 · 희망 포지션(있는 것만)
+    private static string? NameMetaOf(ApplicationDto app)
+    {
+        List<string> parts = new();
+        if (!string.IsNullOrWhiteSpace(app.PlayerAgeGroup))
+        {
+            parts.Add(app.PlayerAgeGroup);
+        }
+
+        if (!string.IsNullOrWhiteSpace(app.DesiredPosition))
+        {
+            parts.Add($"{app.DesiredPosition} 희망");
+        }
+
+        return parts.Count == 0 ? null : string.Join(" · ", parts);
+    }
+
+    // 보조 메타 — 에이전트 추천은 "{추천자} 추천"을 앞에 붙여 경로를 캡션으로 강등한다
+    private static string SubMetaOf(ApplicationDto app, bool isAgent)
+    {
+        List<string> parts = new();
+        if (isAgent && !string.IsNullOrWhiteSpace(app.RefAgentName))
+        {
+            parts.Add($"{app.RefAgentName} 추천");
+        }
+
+        parts.Add(app.RecruitmentTitle);
+        parts.Add($"{NotificationPanel.TimeAgo(app.CreatedAt)} 지원");
+        return string.Join(" · ", parts);
+    }
+
+    private void ToggleExpand(Guid applicationId)
+    {
+        if (!mExpanded.Remove(applicationId))
+        {
+            mExpanded.Add(applicationId);
+        }
+    }
+
+    private List<OverflowMenu.MenuItem> AcceptItemsOf(ApplicationDto app) =>
+        new() { new("수락 — 선수단 초대", () => AcceptAsync(app)) };
+
+    private List<OverflowMenu.MenuItem> RejectItemsOf(ApplicationDto app) =>
+        new() { new("보류", () => RejectAsync(app)) };
+
+    // [테스트 요청] — 대기 → 검토중. 성공하면 목록을 다시 읽어 행이 검토중 세그먼트로 이동한다(결과가 화면에 보이므로 성공 토스트 생략, A2)
+    private async Task RequestTestAsync(ApplicationDto app)
+    {
+        await ChangeStatusAsync(app, StatusReviewing);
+    }
+
+    // 수락 — 상태만 Accepted로 바꾼다. 실제 선수단 초대·로스터 편입·보호자 알림은 Stage 4에서 붙는다(README 4·경계)
+    private async Task AcceptAsync(ApplicationDto app)
+    {
+        await ChangeStatusAsync(app, StatusAccepted);
+    }
+
+    // 보류 — 파괴 확인 모달(SPEC 카피). 알림 발송은 Stage 4에서 실제로 이어진다(카피는 SPEC 그대로 유지)
+    private async Task RejectAsync(ApplicationDto app)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "지원을 보류할까요?",
+            Description = $"{app.PlayerName} · 보류하면 지원자에게 알림이 가요. 30일 후 다시 지원할 수 있어요.",
+            ConfirmLabel = "보류",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        await ChangeStatusAsync(app, StatusRejected);
+    }
+
+    private async Task ChangeStatusAsync(ApplicationDto app, string status)
+    {
+        if (await Teams.UpdateApplicationStatusAsync(app.ApplicationId, status))
+        {
+            await OnChanged.InvokeAsync();
+            return;
+        }
+
+        Toasts.ShowError("상태를 바꾸지 못했어요. 다시 시도해 주세요.", "재시도", () => ChangeStatusAsync(app, status));
+    }
+}
