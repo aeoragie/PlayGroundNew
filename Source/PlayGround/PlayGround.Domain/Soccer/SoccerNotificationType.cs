@@ -16,5 +16,8 @@ namespace PlayGround.Domain.Soccer
         CorrectionReviewed,
         /// <summary>보호자 수신 — 에이전트 상세 정보 열람 요청 (RefId = RequestId, 지연 생성 — 딥링크 심사 화면).</summary>
         ViewRequest,
+        /// <summary>액션형 — 보호자 수신, 지원 수락 후 선수단 초대. 인라인 [초대 확인]으로 로스터 편입
+        /// (RefId = ApplicationId, TargetPlayerId = 자녀). 처리 여부는 SoccerApplications.ConfirmedAt로 라이브 파생.</summary>
+        RosterInvite,
     }
 }

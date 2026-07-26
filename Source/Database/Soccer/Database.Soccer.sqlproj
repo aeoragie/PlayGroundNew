@@ -124,6 +124,7 @@
     <Build Include="Procedures\UspGetSoccerApplicationsByManager.sql" />
     <Build Include="Procedures\UspGetSoccerApplicationsByGuardian.sql" />
     <Build Include="Procedures\UspUpdateSoccerApplicationStatus.sql" />
+    <Build Include="Procedures\UspConfirmSoccerApplicationInvite.sql" />
     <Build Include="Procedures\UspCancelSoccerApplication.sql" />
     <Build Include="Procedures\UspGetSoccerAgentViewRequest.sql" />
     <Build Include="Procedures\UspReviewSoccerAgentViewRequest.sql" />
@@ -142,6 +143,7 @@
     <None Include="Migrations\2026-07-25_Slugs.Romanize.sql" />
     <None Include="Migrations\2026-07-25_SoccerPlayers.StrengthTags.sql" />
     <None Include="Migrations\2026-07-26_SoccerTeamRecruitments.Application.sql" />
+    <None Include="Migrations\2026-07-26_SoccerApplications.ConfirmedAt.sql" />
     <None Include="Migrations\2026-07-21_SoccerTeams.IsRecruiting.sql" />
   </ItemGroup>
 </Project>

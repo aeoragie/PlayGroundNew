@@ -218,11 +218,18 @@ namespace PlayGround.Contracts.Team
         public string RecruitmentTitle { get; set; } = string.Empty;
         public string TeamName { get; set; } = string.Empty;
         public string? TeamSlug { get; set; }
+
+        /// <summary>지원한 자녀 — 허브 자녀 카드 매칭·현황 그룹핑에 쓴다(내 자녀라 노출 안전).</summary>
+        public Guid PlayerId { get; set; }
         public string PlayerName { get; set; } = string.Empty;
         public string? DesiredPosition { get; set; }
 
         /// <summary>SoccerApplicationStatus 멤버 이름 ('Pending'|'Reviewing'|'Accepted'|'Rejected').</summary>
         public string Status { get; set; } = string.Empty;
+
+        /// <summary>수락(Accepted) 후 보호자가 선수단 초대를 확인해 로스터에 편입됐는지 — ConfirmedAt != null.
+        /// Accepted && !Confirmed = "초대를 확인해 주세요" + [초대 확인], Accepted && Confirmed = "선수단에 합류했어요".</summary>
+        public bool Confirmed { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -683,6 +690,13 @@ namespace PlayGround.Contracts.Team
         /// <summary>이 자녀 관련 미처리(접수) 기록 수정 신청 수 — 0이면 카드에 요약 미노출.
         /// 전체 목록은 선수 대시보드 시즌 통계에 있고, 허브 카드는 요약+링크만(RecordCorrection).</summary>
         public int CorrectionPendingCount { get; set; }
+
+        /// <summary>이 자녀의 진행 중 지원 수 — Pending·Reviewing·수락 미확인. 0이면 요약 미노출.
+        /// 전체 현황은 선수 대시보드 "내 지원 현황"에 있고, 허브 카드는 요약+링크만(Design.Application §5).</summary>
+        public int ApplicationPendingCount { get; set; }
+
+        /// <summary>진행 중 지원 중 수락(Accepted)됐지만 아직 초대를 확인하지 않은 건이 있는지 — 있으면 "확인 필요"(오렌지).</summary>
+        public bool ApplicationActionNeeded { get; set; }
 
         /// <summary>Pending일 때 요청일 — 대기 안내 문구에 쓴다("… 7/14 요청"). Claimed는 null.</summary>
         public DateTime? RequestedAt { get; set; }

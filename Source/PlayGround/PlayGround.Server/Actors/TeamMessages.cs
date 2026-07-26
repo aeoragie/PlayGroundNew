@@ -176,4 +176,10 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => GuardianUserId;
     }
+
+    /// <summary>선수단 초대 확인 → 로스터 편입 메시지 (보호자 쓰기 — GuardianUserId 해시).</summary>
+    public sealed record ConfirmSoccerApplicationInviteMessage(Guid GuardianUserId, Guid ApplicationId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => GuardianUserId;
+    }
 }

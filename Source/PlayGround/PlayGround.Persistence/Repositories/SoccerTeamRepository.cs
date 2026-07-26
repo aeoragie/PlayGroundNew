@@ -1457,9 +1457,11 @@ namespace PlayGround.Persistence.Repositories
                         RecruitmentTitle = r.Title,
                         TeamName = r.TeamName,
                         TeamSlug = NullIfEmpty(r.Slug),
+                        PlayerId = r.PlayerId,
                         PlayerName = r.Name,
                         DesiredPosition = NullIfEmpty(r.DesiredPosition),
                         Status = r.Status,
+                        Confirmed = r.ConfirmedAt != null,
                         CreatedAt = r.CreatedAt
                     })
                     .ToList()
@@ -1512,6 +1514,30 @@ namespace PlayGround.Persistence.Repositories
 
             // 빈 결과 = 내 대기 지원이 아님 — Command가 Forbidden으로 변환
             return Result<bool>.Success(queryResult.Values1.Any());
+        }
+
+        public async Task<Result<bool>> ConfirmApplicationInviteAsync(
+            Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Application invite confirm requested",
+                ("GuardianUserId", guardianUserId), ("ApplicationId", applicationId));
+
+            var procedure = new UspConfirmSoccerApplicationInvite(this)
+            {
+                GuardianUserId = guardianUserId,
+                ApplicationId = applicationId
+            };
+            var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                Logger.ErrorWith("Application invite confirm failed", ("ResultCode", queryResult.ResultCode));
+                return Result<bool>.Error(ErrorCode.DatabaseError, "ConfirmApplicationInvite");
+            }
+
+            // 빈 결과 = 내 수락(Accepted) 지원이 아님 — Command가 Forbidden으로 변환
+            bool confirmed = queryResult.Values1.Any();
+            Logger.InfoWith("Application invite confirm completed", ("ApplicationId", applicationId), ("Confirmed", confirmed));
+            return Result<bool>.Success(confirmed);
         }
     }
 }

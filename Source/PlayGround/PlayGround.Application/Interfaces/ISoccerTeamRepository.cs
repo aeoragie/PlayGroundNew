@@ -132,5 +132,9 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>지원 취소(소프트 삭제, 보호자). 대기 상태의 내 지원이 아니면 Success(false).</summary>
         Task<Result<bool>> CancelApplicationAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default);
+
+        /// <summary>선수단 초대 확인 → 로스터 편입(보호자). 내 수락(Accepted) 지원이 아니면 Success(false).
+        /// 편입은 SoccerTeamPlayers 삽입뿐(선수는 이미 존재)이고, 같은 팀 Active 소속이 있으면 멱등하게 건너뛴다.</summary>
+        Task<Result<bool>> ConfirmApplicationInviteAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default);
     }
 }

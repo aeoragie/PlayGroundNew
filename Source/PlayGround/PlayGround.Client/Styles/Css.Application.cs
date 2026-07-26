@@ -51,6 +51,28 @@ namespace PlayGround.Client.Styles
             /// <summary>세그먼트에 항목이 하나도 없을 때의 한 줄 안내(전체 빈 상태는 EmptySlot).</summary>
             public const string SegmentEmpty =
                 "text-[12.5px] text-text-muted text-center py-6 break-keep";
+
+            //.// 내 지원 현황 — 선수 대시보드 보호자 뷰(Design.Application §5).
+            // 상태 문구는 지원자 관점으로 완화, 종료·보류는 중립 회색(레드 금지 — 아이가 보는 화면).
+
+            public const string StatusCard = "bg-white border-1.5 border-border rounded-card-xs p-4 md:p-5 flex flex-col gap-3.5";
+            public const string StatusHeader = "flex items-center gap-2";
+            public const string StatusTitle = "m-0 text-[14.5px] md:text-[15.5px] font-extrabold tracking-[-.01em] text-navy-deep whitespace-nowrap";
+            public const string StatusCount = "text-[11.5px] font-bold text-text-muted bg-surface-icon rounded-full px-[9px] py-[3px] whitespace-nowrap";
+
+            public const string StatusList = "flex flex-col gap-2.5";
+            public const string StatusRow = "flex flex-col gap-2.5 bg-surface-soft rounded-[12px] px-3.5 py-3 md:flex-row md:items-center md:gap-3";
+            public const string StatusRowMain = "flex flex-col gap-1 min-w-0 md:flex-1";
+            public const string StatusTeamLine = "flex items-center gap-1.5 flex-wrap";
+            public const string StatusTeamName = "text-[13.5px] font-extrabold text-navy-deep break-keep";
+            public const string StatusRecruitTitle = "text-[12px] text-text-muted break-keep";
+            public const string StatusBodyLine = "flex items-center gap-2 flex-wrap";
+            public const string StatusBodyText = "text-[12.5px] font-bold text-text-body break-keep";
+            public const string StatusPlayerMeta = "m-0 text-[11.5px] text-text-muted break-keep";
+
+            public const string StatusActions = "flex gap-2 md:shrink-0";
+            public const string StatusConfirmButton = "h-9 px-4 rounded-btn bg-teal hover:bg-teal-ink text-white text-[12.5px] font-extrabold flex items-center justify-center whitespace-nowrap transition-colors disabled:opacity-60";
+            public const string StatusCancelButton = "h-9 px-4 rounded-btn border border-surface-icon hover:border-navy-muted text-text-body text-[12.5px] font-bold flex items-center justify-center whitespace-nowrap transition-colors disabled:opacity-60";
         }
     }
 }

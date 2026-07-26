@@ -107,6 +107,10 @@ namespace PlayGround.Application.Team.Commands
             // 전체 목록은 선수 대시보드 시즌 통계에 있고, 여기선 자녀별 개수만 얹는다.
             // 조회는 RequestedByUserId 스코프라 보호자가 그대로 쓴다(같은 프로시저 재사용).
             HashSet<Guid> pendingCorrectionMatchIds = new();
+
+            // 자녀별 진행 중 지원(내가 올린 지원 중 종료·편입 완료가 아닌 것) — 허브 자녀 카드 요약용(Application §5).
+            // 전체 현황은 선수 대시보드 "내 지원 현황"에 있고, 여기선 자녀별 개수·확인 필요 여부만 얹는다.
+            List<MyApplicationDto> guardianApplications = new();
             if (children.Value.Players.Count > 0)
             {
                 Result<RecordCorrectionsResponse> corrections =
@@ -117,6 +121,16 @@ namespace PlayGround.Application.Team.Commands
                         .Where(c => c.Status == "Pending")
                         .Select(c => c.MatchId)
                         .ToHashSet();
+                }
+
+                Result<MyApplicationsResponse> applications =
+                    await mTeamRepository.GetApplicationsByGuardianAsync(userId, cancellation);
+                if (!applications.IsError)
+                {
+                    // 진행 중 = 종료(Rejected) 아님 + 편입 완료(Confirmed) 아님.
+                    guardianApplications = applications.Value.Applications
+                        .Where(a => a.Status != "Rejected" && !a.Confirmed)
+                        .ToList();
                 }
             }
 
@@ -153,6 +167,13 @@ namespace PlayGround.Application.Team.Commands
                     card.CorrectionPendingCount = stats.Value.Matches
                         .Count(m => pendingCorrectionMatchIds.Contains(m.MatchId));
                 }
+
+                // 이 자녀의 진행 중 지원 — PlayerId로 그룹핑(이름 매칭이 아니라 정확히).
+                List<MyApplicationDto> childApplications = guardianApplications
+                    .Where(a => a.PlayerId == child.PlayerId)
+                    .ToList();
+                card.ApplicationPendingCount = childApplications.Count;
+                card.ApplicationActionNeeded = childApplications.Any(a => a.Status == "Accepted");
 
                 response.Children.Add(card);
             }

@@ -9,6 +9,7 @@
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject PlayerClient Players
+@inject TeamClient Teams
 @inject ToastService Toasts
 @inject ConfirmService Confirm
 
@@ -28,6 +29,12 @@
         <main class="flex-1 min-w-0 max-w-[1100px] px-[34px] py-[30px] flex flex-col gap-[18px]">
             @* 자녀가 2명 이상일 때만 나타난다 *@
             <ChildSwitcher Players="@ChildList" SelectedPlayerId="@SelectedPlayerId" SelectedPlayerIdChanged="SwitchChild" />
+            @* 내 지원 현황 — 기본(프로필) 섹션 상단. 진행 중 지원이 있을 때만(빈 데이터 노출 금지) *@
+            @if (CurrentSection == SoccerPlayerDashboardSection.Profile && mApplications is { Count: > 0 })
+            {
+                <MyApplicationStatusCard Applications="@mApplications" Busy="@mApplicationBusy"
+                                         OnConfirm="ConfirmInviteAsync" OnCancel="CancelApplicationAsync" />
+            }
             @if (mInfo is not null)
             {
                 @switch (CurrentSection)
@@ -84,6 +91,12 @@
         <PlayerMobileTopBar PlayerName="@mInfo.Profile.Name" Summary="@MobileSummary" Slug="@mInfo.Profile.Slug" />
         <main class="flex-1 px-4 pt-[18px] pb-24 flex flex-col gap-3.5">
             <ChildSwitcher Players="@ChildList" SelectedPlayerId="@SelectedPlayerId" SelectedPlayerIdChanged="SwitchChild" />
+            @* 내 지원 현황 — 기본(프로필) 섹션 상단. 진행 중 지원이 있을 때만 *@
+            @if (CurrentSection == SoccerPlayerDashboardSection.Profile && mApplications is { Count: > 0 })
+            {
+                <MyApplicationStatusCard Applications="@mApplications" Busy="@mApplicationBusy"
+                                         OnConfirm="ConfirmInviteAsync" OnCancel="CancelApplicationAsync" />
+            }
             @switch (CurrentSection)
             {
                 case SoccerPlayerDashboardSection.Career:
@@ -172,6 +185,10 @@
     private PlayerPortfolioResponse? mPortfolio;
     private PlayerSeasonStatsResponse? mStats;
 
+    // 내 지원 현황 (보호자 스코프 — 자녀 전체). 진행 중 지원이 없으면 카드 미노출.
+    private List<MyApplicationDto>? mApplications;
+    private bool mApplicationBusy;
+
     // 조회 실패(null 응답) — 스켈레톤을 무한히 돌리지 않고 에러 안내 + 다시 시도로 바꾼다
     private bool mCareerFailed;
     private bool mPortfolioFailed;
@@ -229,6 +246,66 @@
 
         mInfo = await Players.GetMyInfoAsync(SelectedPlayerId == Guid.Empty ? null : SelectedPlayerId);
         mLoadedPlayerId = SelectedPlayerId;
+
+        // 지원 현황은 보호자 계정 전체(자녀 무관) — 자녀 전환에 재조회하지 않고 한 번만 읽는다
+        await LoadApplicationsAsync();
+    }
+
+    // 내 지원 현황 — 보호자가 올린 지원 전부(최신순). 실패·미인증이면 null(카드 미노출).
+    private async Task LoadApplicationsAsync()
+    {
+        MyApplicationsResponse? response = await Teams.GetMyApplicationStatusAsync();
+        mApplications = response?.Applications;
+    }
+
+    //.// 선수단 초대 확인 → 로스터 편입 / 지원 취소 (보호자)
+
+    private async Task ConfirmInviteAsync(MyApplicationDto app)
+    {
+        mApplicationBusy = true;
+        bool ok = await Teams.ConfirmApplicationInviteAsync(app.ApplicationId);
+        mApplicationBusy = false;
+
+        if (!ok)
+        {
+            Toasts.ShowError("초대를 확인하지 못했어요. 다시 시도해 주세요.", "재시도", () => ConfirmInviteAsync(app));
+            return;
+        }
+
+        await LoadApplicationsAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess($"{app.PlayerName} 선수가 {app.TeamName} 선수단에 합류했어요.");
+    }
+
+    private async Task CancelApplicationAsync(MyApplicationDto app)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "지원을 취소할까요?",
+            Description = $"{app.TeamName} · {app.PlayerName} — 취소하면 다시 지원해야 해요.",
+            ConfirmLabel = "지원 취소",
+            CancelLabel = "닫기",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        mApplicationBusy = true;
+        bool ok = await Teams.CancelApplicationAsync(app.ApplicationId);
+        mApplicationBusy = false;
+
+        if (!ok)
+        {
+            Toasts.ShowError("지원을 취소하지 못했어요. 다시 시도해 주세요.", "재시도", () => CancelApplicationAsync(app));
+            return;
+        }
+
+        await LoadApplicationsAsync();
+        StateHasChanged();
+        Toasts.ShowSuccess("지원을 취소했어요.");
     }
 
     /// <summary>현재 화면에 담긴 데이터가 어느 자녀 것인지 — 바뀌면 전부 다시 읽는다.</summary>

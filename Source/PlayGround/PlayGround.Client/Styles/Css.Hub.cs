@@ -63,6 +63,12 @@ namespace PlayGround.Client.Styles
             /// <summary>기록 수정 신청 처리 중 요약 — 접수=오렌지 톤(RecordCorrection). 전체 목록은 시즌 통계에.</summary>
             public const string CorrectionNotice = "flex items-center gap-1.5 rounded-[9px] bg-surface-orange border border-orange/25 px-3 py-2 text-[12px] font-bold text-orange-hover no-underline hover:border-orange/50 transition-colors break-keep";
 
+            /// <summary>지원 확인 필요 — 수락됐지만 초대 미확인(오렌지, 액션 유도). CorrectionNotice와 같은 톤.</summary>
+            public const string ApplicationActionNotice = "flex items-center gap-1.5 rounded-[9px] bg-surface-orange border border-orange/25 px-3 py-2 text-[12px] font-bold text-orange-hover no-underline hover:border-orange/50 transition-colors break-keep";
+
+            /// <summary>지원 진행 중 — 확인 필요 아님(중립 회색, 정보 표시). 레드·오렌지 아님.</summary>
+            public const string ApplicationInfoNotice = "flex items-center gap-1.5 rounded-[9px] bg-surface-soft border border-border px-3 py-2 text-[12px] font-bold text-text-body no-underline hover:border-navy-muted transition-colors break-keep";
+
             //.// 바로가기
 
             public const string ShortcutGrid = "grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-3.5";

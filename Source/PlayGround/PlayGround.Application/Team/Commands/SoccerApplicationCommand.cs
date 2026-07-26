@@ -134,5 +134,28 @@ namespace PlayGround.Application.Team.Commands
 
             return Result<bool>.Success(true);
         }
+
+        /// <summary>선수단 초대 확인(보호자) → 로스터 편입. 수락(Accepted) 상태의 내 지원일 때만.
+        /// 소유·상태 검증은 프로시저가 빈 결과로 거부하고, 여기서 Forbidden으로 변환한다.</summary>
+        public async Task<Result<bool>> ConfirmInviteAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default)
+        {
+            if (guardianUserId == Guid.Empty || applicationId == Guid.Empty)
+            {
+                return Result<bool>.Error(ErrorCode.InvalidInput, "guardianUserId/applicationId required");
+            }
+
+            Result<bool> applied = await mRepository.ConfirmApplicationInviteAsync(guardianUserId, applicationId, cancellation);
+            if (applied.IsError)
+            {
+                return applied;
+            }
+
+            if (!applied.Value)
+            {
+                return Result<bool>.Error(ErrorCode.Forbidden, "invite not confirmable");
+            }
+
+            return Result<bool>.Success(true);
+        }
     }
 }

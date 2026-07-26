@@ -17,6 +17,7 @@ CREATE TABLE [dbo].[SoccerApplications]
 
     [ReviewedAt]     DATETIME2        NULL,              -- 검토중/수락/종료 전환 시각
     [RejectedAt]     DATETIME2        NULL,              -- 보류(Rejected) 시각 — 30일 재지원 쿨다운 기준
+    [ConfirmedAt]    DATETIME2        NULL,              -- 보호자가 선수단 초대를 확인해 로스터 편입된 시각 (수락 이후 별도 단계)
 
     [CreatedAt]      DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
     [UpdatedAt]      DATETIME2        NOT NULL DEFAULT GETUTCDATE(),

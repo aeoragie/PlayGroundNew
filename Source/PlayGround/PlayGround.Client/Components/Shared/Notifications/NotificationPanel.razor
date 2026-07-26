@@ -8,6 +8,7 @@
 @inject NavigationManager Nav
 @inject NotificationClient Notifications
 @inject ClaimClient Claims
+@inject TeamClient Teams
 @inject ToastService Toasts
 
 <div class="@Css.Notification.Overlay" @onclick="() => OnClose.InvokeAsync()"></div>
@@ -91,6 +92,37 @@
                         }
                     </div>
                 }
+                else if (item.Type == nameof(SoccerNotificationType.RosterInvite))
+                {
+                    @* ── 액션형: 선수단 초대(지원 수락 후). RequestStatus = Pending(초대 확인 대기) / Confirmed(편입 완료) ── *@
+                    <div class="@(item.RequestStatus == "Pending" ? Css.Notification.ActionCardPending : Css.Notification.ActionCard)">
+                        <div class="flex items-start gap-[11px]">
+                            <span class="@Css.Notification.ActionIcon">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>
+                            </span>
+                            <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                                <span class="@Css.Notification.ActionTitle">선수단 초대</span>
+                                <span class="@Css.Notification.ActionBody"><b>@item.TeamName</b>이 <b>@item.PlayerName</b>을 선수단에 초대했어요</span>
+                                <span class="@Css.Notification.ActionMeta">@TimeAgo(item.CreatedAt)</span>
+                            </span>
+                        </div>
+                        @if (item.RequestStatus == "Confirmed")
+                        {
+                            <div class="@Css.Notification.DoneBox">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M4.5 12.5l5 5 10-11"></path></svg>
+                                <span>선수단에 합류했어요</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="flex gap-2">
+                                <button type="button" class="@Css.Notification.ApproveButton" disabled="@mBusy"
+                                        @onclick="() => ConfirmInviteAsync(item)">초대 확인</button>
+                            </div>
+                            <span class="@Css.Notification.ActionFoot">확인하면 @item.PlayerName 선수가 @item.TeamName 선수단에 합류해요.</span>
+                        }
+                    </div>
+                }
                 else
                 {
                     @* ── 이동형: 셰브론 + 딥링크 (클릭 시 읽음) ── *@
@@ -142,6 +174,7 @@
         nameof(SoccerNotificationType.ClaimRejected) => "연결 요청",
         nameof(SoccerNotificationType.MatchResult) => "경기",
         nameof(SoccerNotificationType.ViewRequest) => "열람 요청",
+        nameof(SoccerNotificationType.RosterInvite) => "선수단 초대",
         _ => "기록",
     };
 
@@ -168,6 +201,23 @@
             return;
         }
 
+        await OnChanged.InvokeAsync();
+    }
+
+    // 선수단 초대 확인 → 로스터 편입. 성공 시 재조회(완료 박스로 교체) + 합류 토스트.
+    private async Task ConfirmInviteAsync(NotificationDto item)
+    {
+        mBusy = true;
+        bool ok = await Teams.ConfirmApplicationInviteAsync(item.RefId);
+        mBusy = false;
+
+        if (!ok)
+        {
+            Toasts.ShowError("초대를 확인하지 못했어요. 다시 시도해 주세요.");
+            return;
+        }
+
+        Toasts.ShowSuccess($"{item.PlayerName} 선수가 {item.TeamName} 선수단에 합류했어요.");
         await OnChanged.InvokeAsync();
     }
 

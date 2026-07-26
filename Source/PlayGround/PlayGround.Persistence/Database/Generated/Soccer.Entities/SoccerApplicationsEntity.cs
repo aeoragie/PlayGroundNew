@@ -47,6 +47,8 @@ public class SoccerApplicationsEntity
 
 	public DateTime? RejectedAt { get; set; } = null;
 
+	public DateTime? ConfirmedAt { get; set; } = null;
+
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
 

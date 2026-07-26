@@ -313,6 +313,38 @@ namespace PlayGround.Client.Services
             }
         }
 
+        /// <summary>선수단 초대 확인 → 로스터 편입 (보호자). 성공 여부만(실패는 호출부가 토스트).</summary>
+        public async Task<bool> ConfirmApplicationInviteAsync(Guid applicationId)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/applications/{applicationId}/confirm", content: null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>지원 취소 (보호자) — 대기(Pending) 상태의 내 지원만. 성공 여부만(실패는 호출부가 토스트).</summary>
+        public async Task<bool> CancelApplicationAsync(Guid applicationId)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/applications/{applicationId}/cancel", content: null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         //.// 팀 일정 (Design.Schedule)
 
         /// <summary>공개 팀 홈 일정 — 비로그인. 공개 일정만(서버 필터). 비공개·미존재 팀은 빈 목록, 오류 시 null.</summary>

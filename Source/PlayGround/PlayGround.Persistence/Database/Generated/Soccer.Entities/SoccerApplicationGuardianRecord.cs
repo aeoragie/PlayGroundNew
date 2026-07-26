@@ -32,6 +32,8 @@ public class SoccerApplicationGuardianRecord
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
 
+	public DateTime? ConfirmedAt { get; set; } = null;
+
 	[Required]
 	[StringLength(150)]
 	public string Name { get; set; } = String.Empty;

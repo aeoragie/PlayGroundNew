@@ -1,0 +1,94 @@
+@* 내 지원 현황 (Design.Application §5) — 선수 대시보드 보호자 뷰.
+   상태 문구는 지원자 관점으로 완화하고, 종료·보류는 중립 회색(레드 금지 — 아이가 보는 화면).
+   대기만 [지원 취소], 수락 미확인만 [초대 확인]. 자녀가 여럿이면 전부 표시(행에 선수명). *@
+@using PlayGround.Contracts.Team
+@using PlayGround.Client.Styles
+
+<section class="@Css.Application.StatusCard">
+    <div class="@Css.Application.StatusHeader">
+        <h2 class="@Css.Application.StatusTitle">내 지원 현황</h2>
+        <span class="@Css.Application.StatusCount">@Applications.Count</span>
+    </div>
+
+    <div class="@Css.Application.StatusList">
+        @foreach (MyApplicationDto app in Applications)
+        {
+            <div class="@Css.Application.StatusRow">
+                <div class="@Css.Application.StatusRowMain">
+                    <div class="@Css.Application.StatusTeamLine">
+                        <span class="@Css.Application.StatusTeamName">@app.TeamName</span>
+                        @if (!string.IsNullOrWhiteSpace(app.RecruitmentTitle))
+                        {
+                            <span class="@Css.Application.StatusRecruitTitle">@app.RecruitmentTitle</span>
+                        }
+                    </div>
+                    <div class="@Css.Application.StatusBodyLine">
+                        <StatusBadge Tone="@ToneOf(app)">@LabelOf(app)</StatusBadge>
+                        <span class="@Css.Application.StatusBodyText">@BodyOf(app)</span>
+                    </div>
+                    <p class="@Css.Application.StatusPlayerMeta">@PlayerMeta(app)</p>
+                </div>
+
+                @if (app.Status == "Accepted" && !app.Confirmed)
+                {
+                    <div class="@Css.Application.StatusActions">
+                        <button type="button" class="@Css.Application.StatusConfirmButton" disabled="@Busy"
+                                @onclick="() => OnConfirm.InvokeAsync(app)">초대 확인</button>
+                    </div>
+                }
+                else if (app.Status == "Pending")
+                {
+                    <div class="@Css.Application.StatusActions">
+                        <button type="button" class="@Css.Application.StatusCancelButton" disabled="@Busy"
+                                @onclick="() => OnCancel.InvokeAsync(app)">지원 취소</button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public List<MyApplicationDto> Applications { get; set; } = new();
+
+    /// <summary>수락 미확인 → 로스터 편입(초대 확인).</summary>
+    [Parameter]
+    public EventCallback<MyApplicationDto> OnConfirm { get; set; }
+
+    /// <summary>대기 상태 지원 취소.</summary>
+    [Parameter]
+    public EventCallback<MyApplicationDto> OnCancel { get; set; }
+
+    /// <summary>처리 중 이중 클릭 잠금.</summary>
+    [Parameter]
+    public bool Busy { get; set; }
+
+    // 대기 회색 / 검토중 오렌지톤 / 수락·합류 teal / 종료 회색 (레드 금지)
+    private static StatusBadge.BadgeTone ToneOf(MyApplicationDto a) => a.Status switch
+    {
+        "Reviewing" => StatusBadge.BadgeTone.Pending,
+        "Accepted" => StatusBadge.BadgeTone.Positive,
+        _ => StatusBadge.BadgeTone.Neutral,
+    };
+
+    private static string LabelOf(MyApplicationDto a) => a.Status switch
+    {
+        "Reviewing" => "검토중",
+        "Accepted" => a.Confirmed ? "합류" : "수락",
+        "Rejected" => "종료",
+        _ => "대기",
+    };
+
+    // 지원자 관점 완화 문구 — SPEC.APPLICATION 카피 고정 (한 글자도 바꾸지 않는다)
+    private static string BodyOf(MyApplicationDto a) => a.Status switch
+    {
+        "Reviewing" => "팀이 확인했어요",
+        "Accepted" => a.Confirmed ? "선수단에 합류했어요" : "함께하게 됐어요 — 초대를 확인해 주세요",
+        "Rejected" => "이번에는 함께하지 못했어요",
+        _ => "팀에 전달됐어요",
+    };
+
+    private static string PlayerMeta(MyApplicationDto a) =>
+        string.IsNullOrWhiteSpace(a.DesiredPosition) ? a.PlayerName : $"{a.PlayerName} · {a.DesiredPosition}";
+}

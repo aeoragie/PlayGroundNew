@@ -582,6 +582,22 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>선수단 초대 확인 → 로스터 편입 (보호자) — 수락(Accepted) 상태의 내 지원만.
+        /// 팀이 일방적으로 로스터에 넣지 않는다 — 보호자 동의가 편입 조건(Claim 원칙과 동일).</summary>
+        [HttpPost("applications/{applicationId:guid}/confirm")]
+        public async Task<Envelope<bool>> ConfirmApplicationInviteAsync(Guid applicationId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new ConfirmSoccerApplicationInviteMessage(userId, applicationId), cancellation);
+            return result.ToEnvelope();
+        }
+
         [HttpGet("me/videos")]
         public async Task<Envelope<TeamVideosResponse>> GetMyTeamVideosAsync(CancellationToken cancellation)
         {

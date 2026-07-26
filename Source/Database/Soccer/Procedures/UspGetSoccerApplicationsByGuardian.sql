@@ -1,6 +1,6 @@
 -- @entity: SoccerApplicationGuardianRecord
 -- @source: join
--- @join: SoccerApplications AS a (ApplicationId, RecruitmentId, PlayerId, DesiredPosition, Status, CreatedAt)
+-- @join: SoccerApplications AS a (ApplicationId, RecruitmentId, PlayerId, DesiredPosition, Status, CreatedAt, ConfirmedAt)
 -- @join: SoccerPlayers AS p (Name)
 -- @join: SoccerTeamRecruitments AS r (Title)
 -- @join: SoccerTeams AS t (TeamName, Slug)
@@ -14,7 +14,7 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        a.[ApplicationId], a.[RecruitmentId], a.[PlayerId], a.[DesiredPosition], a.[Status], a.[CreatedAt],
+        a.[ApplicationId], a.[RecruitmentId], a.[PlayerId], a.[DesiredPosition], a.[Status], a.[CreatedAt], a.[ConfirmedAt],
         p.[Name],
         r.[Title],
         t.[TeamName], t.[Slug]

@@ -31,6 +31,16 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<CreateSoccerApplicationMessage>(HandleCreateApplicationAsync);
             RegisterHandlerAsync<UpdateSoccerApplicationStatusMessage>(HandleUpdateApplicationStatusAsync);
             RegisterHandlerAsync<CancelSoccerApplicationMessage>(HandleCancelApplicationAsync);
+            RegisterHandlerAsync<ConfirmSoccerApplicationInviteMessage>(HandleConfirmApplicationInviteAsync);
+        }
+
+        private async Task HandleConfirmApplicationInviteAsync(ConfirmSoccerApplicationInviteMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerApplicationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerApplicationCommand>();
+            Result<bool> result = await useCase.ConfirmInviteAsync(message.GuardianUserId, message.ApplicationId);
+            sender.Tell(result);
         }
 
         private async Task HandleCreateApplicationAsync(CreateSoccerApplicationMessage message)
