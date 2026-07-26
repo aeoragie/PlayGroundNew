@@ -76,6 +76,8 @@ dotnet run --project ../../PlayGround/PlayGround.Server --urls http://localhost:
 | `shot-careertab.js` | 공개 팀 홈 **진학·진로 탭** — API(저장 3건→공개 즉시 반영·연도 역순 · 미지 유형/연도 범위/인원 0 거부 · **남의 사례 수정·삭제 거부** · 수정→삭제→복구) + UI(대시보드 팀 정보 관리 카드·폼 RadioCards 3유형·연도 프리필·빈 제출 인라인 · 공개홈 요약 카드 **값 있는 유형만**·태그 3톤·캡션 원문 · 빈 팀 빈 상태 · 모바일). 끝나면 `DELETE FROM SoccerTeamCareerOutcomes`로 원복 |
 | `shot-reviewtab.js` | 공개 팀 홈 **리뷰 탭** — API(게스트 무자격 · **재원 판정**(보호자 연결 자녀의 팀 Active 소속) · 작성→마스킹 "김○○ 학부모"·메타 "U15 · 재원 N년차"·MyReviewId · **계정당 1건**(중복 신규 거부) · 무자격/별점 경계/남의 리뷰 삭제 거부 · 수정→삭제→복구) + UI(게스트 쓰기 버튼 없음·평균 파생·재원 확인됨 캡슐 · 보호자 내 카드 ⋯ · 폼 별점 5개 탭+본문→저장 토스트 · 모바일). 끝나면 `DELETE FROM SoccerTeamReviews`로 원복 |
 | `shot-tooltip.js` | InfoPopover ⓘ 3곳 — Records 집계 기준(푸터 → **위로 열림**·바깥 탭 닫힘 왕복) · 인증팀(공개홈 히어로) · Claim 스텝 ②(**Pending 초대코드로 진입** — `input[aria-label="초대코드"]`에 locator.fill, 버튼은 "프로필 찾기"). 에이전트 열람 승인 ⓘ는 flag off라 다음 flag-on 검증 때. 데이터 무변경(Claim은 신청 전 단계까지만) |
+| `api-teamboard.js` | 팀 게시판 API(Design.TeamBoard) — 공지 발행→**보호자 TeamNotice 알림(전원)**→공개 전환→**소개 탭 소식 반영(FileUrl·유형 미노출)**→보호자 뷰 안읽음→읽음 처리 · 자료는 알림 없음 · **고정 최대 2**(3번째 거부) · 입력 검증(제목/본문/유형/외부 URL) · 남의 팀 삭제 거부 · 삭제→소식에서도 사라짐→복구 · 남의 자녀 보호자 뷰 빈 결과. 관리자=verify-u15-1 / 보호자=verify-player-u15. 끝나면 `LEFT(Title,4)='[TB]'` 물리 삭제(알림·읽음 포함)로 원복 |
+| `shot-teamboard.js` | 팀 게시판 UI — 관리자 대시보드 게시판(세그먼트 전체/공지/자료·**고정 네이비 틴트 행**·눈 아이콘(공개 중 teal)·⋯·＋글 작성) PC/모바일 · 작성 다이얼로그(유형·공개 스위치 문구) · **공개홈 소개 탭 "팀 소식"**(공개 공지 노출·비공개 자료 미노출) · 보호자 뷰(**안읽음 오렌지 점** `#FF6B35`·상세 열람) · 모바일 가로 스크롤 없음. 스크린샷 6종. 끝나면 생성 글 삭제(API 소프트 + SQL 물리) |
 
 `.sql`은 sqlcmd로 돌린다:
 

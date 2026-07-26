@@ -84,6 +84,9 @@
             </div>
         </div>
     }
+
+    @* 팀 소식 — 공개 글만 최대 3건. 0건이면 컴포넌트가 스스로 렌더하지 않는다 (Design.TeamBoard 연동) *@
+    <PublicTeamNewsSection Slug="@(Home.Profile.Slug ?? string.Empty)" />
 </div>
 
 @code {

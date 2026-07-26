@@ -1,0 +1,71 @@
+@* 공개 팀 홈 ① 소개 탭 마지막 섹션 "팀 소식" (SPEC.TEAMPUBLICHOME ① + Design.TeamBoard 연동).
+   공개(IsPublic) 글만 카드형 최대 3건(제목 + 날짜 + 본문 3줄 미리보기). 3건 초과 시 "지난 소식 보기"로
+   같은 탭 내 확장(#news). 유형 뱃지 없음(전부 "소식"). 첨부는 파일명만(다운로드는 로그인 필요).
+   **공개 글 0건이면 섹션 자체를 렌더하지 않는다**(방문자 빈 상태 금지). PC·모바일 공용(반응형 단일 마크업). *@
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+
+@if (mNews is { Count: > 0 })
+{
+    <div id="news" class="@($"{Css.Dashboard.Card} p-6 md:p-[30px] flex flex-col gap-[18px]")">
+        <div class="flex flex-col gap-1">
+            <h2 class="m-0 text-[17px] md:text-[19px] font-extrabold text-navy-deep">팀 소식</h2>
+            <span class="text-[13px] text-text-muted break-keep">팀이 공개한 소식이에요</span>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            @foreach (TeamNewsDto item in Visible)
+            {
+                <div class="border border-border rounded-[14px] p-4 md:p-5 flex flex-col gap-1.5">
+                    <span class="text-[15px] font-extrabold text-navy-deep break-keep">@item.Title</span>
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">@item.CreatedAt.ToLocalTime().ToString("yyyy.M.d")</span>
+                    <p class="m-0 mt-1 text-[13.5px] text-text-strong leading-[1.65] break-keep line-clamp-3">@item.Body</p>
+                    @if (item.Files.Count > 0)
+                    {
+                        <div class="flex flex-col gap-1 mt-1.5">
+                            @foreach (TeamNewsFileDto file in item.Files)
+                            {
+                                <span class="flex items-center gap-1.5 text-[12px] text-text-muted whitespace-nowrap">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7.5z"></path><path d="M14 3v5h5"></path></svg>
+                                    @file.FileName
+                                </span>
+                            }
+                            <span class="text-[11px] text-text-faint break-keep">첨부는 로그인 후 내려받을 수 있어요</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (mNews.Count > PreviewCount && !mExpanded)
+        {
+            <button type="button" class="self-start text-[13px] font-bold text-navy hover:text-orange-ink bg-transparent border-0 cursor-pointer p-0"
+                    @onclick="() => mExpanded = true">지난 소식 보기 (@(mNews.Count - PreviewCount)건 더) →</button>
+        }
+    </div>
+}
+
+@code {
+    private const int PreviewCount = 3;
+
+    [Parameter, EditorRequired]
+    public string Slug { get; set; } = string.Empty;
+
+    private List<TeamNewsDto>? mNews;
+    private bool mExpanded;
+
+    private List<TeamNewsDto> Visible =>
+        mExpanded ? mNews! : mNews!.Take(PreviewCount).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Slug))
+        {
+            return;
+        }
+
+        TeamNewsResponse? response = await Teams.GetTeamNewsAsync(Slug);
+        mNews = response?.Items ?? new List<TeamNewsDto>();
+    }
+}

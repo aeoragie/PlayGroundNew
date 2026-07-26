@@ -29,6 +29,7 @@ namespace PlayGround.Client
         public const string PlayerPublicCardTemplate = "/player/{Slug}/card";
         public const string TeamExplore = "/teams";
         public const string Claim = "/claim";
+        public const string TeamNewsTemplate = "/team-news/{PlayerId:guid}";
         public const string AgentApprovalTemplate = "/approvals/agent/{RequestId:guid}";
         public const string Settings = "/settings";
         public const string SettingsSectionTemplate = "/settings/{Section}";
@@ -78,6 +79,12 @@ namespace PlayGround.Client
         public static string AgentApproval(Guid requestId)
         {
             return $"/approvals/agent/{requestId}";
+        }
+
+        /// <summary>보호자 뷰 팀 소식 (허브 자녀 카드 → 팀 소식). 자녀별.</summary>
+        public static string TeamNews(Guid playerId)
+        {
+            return $"/team-news/{playerId}";
         }
 
         public static string SettingsSection(SettingsSection section)

@@ -54,6 +54,47 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
+    //.// 팀 게시판 (Team Board)
+
+    /// <summary>팀 대시보드 게시판 목록 조회 메시지 (읽기 — RoundRobin).</summary>
+    public sealed record GetSoccerTeamPostsByManagerMessage(Guid ManagerUserId);
+
+    /// <summary>공개 팀 홈 "팀 소식" 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
+    public sealed record GetSoccerTeamNewsMessage(string Slug);
+
+    /// <summary>보호자 뷰 팀 소식 조회 메시지 (읽기 — RoundRobin). 자녀별.</summary>
+    public sealed record GetSoccerGuardianTeamPostsMessage(Guid UserId, Guid PlayerId);
+
+    /// <summary>게시판 글 저장 메시지 (쓰기 — ManagerUserId 해시). AuthorName은 위조 방지로 JWT 이름에서.</summary>
+    public sealed record SaveSoccerTeamPostMessage(Guid ManagerUserId, SaveTeamPostRequest Data, string? AuthorName) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>게시판 글 고정 전환 메시지 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record SetSoccerTeamPostPinnedMessage(Guid ManagerUserId, Guid PostId, bool IsPinned) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>게시판 글 공개 전환 메시지 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record SetSoccerTeamPostPublicMessage(Guid ManagerUserId, Guid PostId, bool IsPublic) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>게시판 글 삭제·복구 메시지 (쓰기 — ManagerUserId 해시).</summary>
+    public sealed record DeleteSoccerTeamPostMessage(Guid ManagerUserId, Guid PostId, bool Restore) : IConsistentHashable
+    {
+        public object ConsistentHashKey => ManagerUserId;
+    }
+
+    /// <summary>게시판 글 읽음 처리 메시지 (보호자 쓰기 — UserId 해시).</summary>
+    public sealed record MarkSoccerTeamPostReadMessage(Guid UserId, Guid PostId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>팀 대시보드 일정 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerSchedulesByManagerMessage(Guid UserId);
 

@@ -31,6 +31,36 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetSoccerTeamReviewsMessage>(HandleGetReviewsAsync);
             RegisterHandlerAsync<GetSoccerApplicationsByManagerMessage>(HandleGetApplicationsByManagerAsync);
             RegisterHandlerAsync<GetSoccerApplicationsByGuardianMessage>(HandleGetApplicationsByGuardianAsync);
+            RegisterHandlerAsync<GetSoccerTeamPostsByManagerMessage>(HandleGetPostsByManagerAsync);
+            RegisterHandlerAsync<GetSoccerTeamNewsMessage>(HandleGetNewsAsync);
+            RegisterHandlerAsync<GetSoccerGuardianTeamPostsMessage>(HandleGetGuardianPostsAsync);
+        }
+
+        private async Task HandleGetPostsByManagerAsync(GetSoccerTeamPostsByManagerMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<TeamPostsResponse> result = await useCase.GetMineAsync(message.ManagerUserId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetNewsAsync(GetSoccerTeamNewsMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<TeamNewsResponse> result = await useCase.GetNewsBySlugAsync(message.Slug);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetGuardianPostsAsync(GetSoccerGuardianTeamPostsMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<GuardianTeamPostsResponse> result = await useCase.GetForGuardianAsync(message.UserId, message.PlayerId);
+            sender.Tell(result);
         }
 
         private async Task HandleGetApplicationsByManagerAsync(GetSoccerApplicationsByManagerMessage message)

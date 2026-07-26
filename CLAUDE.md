@@ -683,6 +683,45 @@
 - **미해결**: 에이전트 추천(AgentRef) 생성은 에이전트 서비스 몫(결정 4·7) — 컬럼만. **UI 검증·전체
   재빌드는 아직 안 됨(E3·E4·E5 모두 VS 재빌드 필요).**
 
+### 팀 게시판 완료 (2026-07-26, Design.TeamBoard — DesignWorkOrders ④ P1 첫 번째)
+
+> 관리자·코치가 공지·자료를 올리고 로스터 보호자가 열람, 글 단위 공개홈 노출. 단방향 공지(댓글 없음).
+> 모집(Recruitment) 슬라이스를 그대로 미러링. **API/SQL 스모크 통과 · C# 전 프로젝트 빌드 0에러 ·
+> CSS 재빌드 완료. 헤드리스 UI 검증은 미실시(사용자 수동 검수 요청).**
+
+- **스키마 3종** `SoccerTeamPosts`(Type Notice/Material · Title · Body · IsPinned · IsPublic · AuthorId ·
+  AuthorName 스냅샷 · EditedAt · 소프트 삭제 30일) · `SoccerTeamPostFiles`(FileUrl · FileName · SizeBytes) ·
+  `SoccerTeamPostReads`(복합 PK). **조회수 컬럼 없음 — Reads COUNT에서 파생**(단일 진실·증가 경합 없음).
+  마이그레이션 `2026-07-26_SoccerTeamPosts.sql`(멱등, **다른 PC 필수**). SP 10종.
+- **작성 주체 = 팀 ManagerUserId 하나뿐**(코치는 아직 계정 개념이 없다). AuthorName은 발행 시점 JWT 이름
+  스냅샷(위조 방지 — 컨트롤러가 `ClaimTypes.Name`에서). 코치 계정이 생기면 권한 판정을 확장한다.
+- **공지만 알림 = "로스터 보호자 전원"**(README) — **설정 필터 없음**(match-result와 달리 preference enum을
+  건드리지 않았다: 설정 화면 명세가 없어 항목을 늘리면 빈 UI가 생긴다). Pattern B 후처리
+  (`SoccerTeamPostCommand.NotifyRosterGuardiansAsync` — 신규 Notice일 때만, 수정·자료는 없음). 수신자 =
+  Claimed 본인 계정 UNION FamilyLinks Guardian(2차 보호자 포함), UserId로 중복 제거. `SoccerNotificationType.TeamNotice`.
+- **공개 목적지 = ① 소개 탭 하단 "팀 소식" 섹션**(새 탭 0건 — 6탭 유지). `PublicTeamNewsSection`이 자체
+  지연 로드(`GET {slug}/news`), **0건이면 스스로 미렌더**, 최대 3건 + "지난 소식 보기"(#news 클라 확장).
+  **공개 글 첨부는 파일명만 — BySlug SP가 FileUrl을 애초에 SELECT하지 않는다**(게스트 다운로드 원천 차단).
+  홈 프로시저(UspGetSoccerTeamHomeBySlug)는 건드리지 않았다(소개 탭 안 섹션이라 별도 지연 로드가 깔끔).
+- **대시보드 게시판 섹션**(`SoccerTeamDashboardSection.Board` 신설, 사이드바 P1예정→실메뉴 승격,
+  **모바일 하단 탭 6개로**) — 세그먼트(전체/공지/자료) · 고정(최대 2, SP 강제, 네이비 테두리+틴트) ·
+  눈 아이콘(공개 중) · ⋯(수정/고정 전환/공개 전환/삭제 레드) · 작성 폼(유형 2 라디오·제목 2~60·본문
+  2000·첨부 3·공개 스위치 **기본 끔**). BoardSection/MobileBoardSection/BoardFormDialog.
+- **첨부 업로드는 문서 경로 신설** — 이미지(SoccerImageController, 크롭·리사이즈)와 별개로
+  `IFileStorage`/`LocalFileStorageService`(원본 확장자 보존) + `SoccerFileController`(`POST api/soccer/files/team-board`,
+  pdf·hwp·이미지 10MB, HWP MIME 불안정 → 확장자 1차 판정) + `UploadedFileResponse`. 업로드는 Blazor
+  `InputFile` + 멀티파트(문서는 리사이즈가 없어 마샬링 부담 없음 — 이미지의 JS 크롭 경로와 다르다).
+- **보호자 뷰** `/team-news/{playerId}`(`PlayerTeamNewsPage`, 허브 자녀 카드 → 팀 소식) — 읽기 전용 행 +
+  **안읽음 오렌지 점** + 셰브론, 열면 상세(첨부 다운로드 가능) + 읽음 처리. 열람 자격 = 자녀 소유
+  (SoccerPlayers.UserId 또는 FamilyLinks Guardian) + Active 소속. **편입 이전 글도 열람**(팀 히스토리),
+  **로스터 이탈 시 자동 차단**(Active 조인). 허브 자녀 카드에 `TeamNewsUnreadCount` 요약 링크(0이면 미노출).
+- **권한 4행**: 작성=관리자(버튼 미노출) · 수정=작성자+관리자("수정됨", 재알림 없음) · 열람=로스터 보호자+스태프 ·
+  삭제=파괴 모달(첨부 함께)+소프트 30일+공개홈 즉시 사라짐. 조회수는 관리자 뷰에만.
+- 검증(SQL 프로시저 체인 스모크): 공지 저장 → **수신자 14명(전원)** → 공개 전 소식 빈 결과 → 공개 전환 →
+  **소개 탭 소식 노출(FileUrl·유형 미노출)** → 보호자 뷰 안읽음 → 읽음 처리 → **안읽음 0** → 알림 생성.
+  검증 데이터 전량 삭제. **미해결**: 헤드리스 UI 스크린샷 검증 · 삭제 시 팀원 알림(발송 훅 후속) ·
+  코치 계정 권한 확장 · 공지 30일 대기 파생 배너.
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).

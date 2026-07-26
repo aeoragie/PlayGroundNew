@@ -1,0 +1,190 @@
+@* 팀 게시판 섹션(모바일): 세그먼트 풀폭 + 행(유형·눈 아이콘을 제목 위 줄) + ⋯ 바텀시트.
+   작성 버튼은 목록 하단 풀폭(대시보드 주 액션 오렌지 1개 규칙 내). 행 높이 56px+. *@
+@using PlayGround.Client.Styles
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Contracts.Team
+@inject TeamClient Teams
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+
+<div class="flex flex-col gap-3">
+    <h1 class="@Css.Dashboard.SectionTitle">팀 게시판</h1>
+
+    @if (Data.Posts.Count == 0)
+    {
+        <EmptyState Kind="EmptyState.Art.Record" Title="아직 올린 글이 없어요">
+            <Description>훈련 일정 변경이나 동의서처럼 보호자에게 알릴 내용을 올려보세요.</Description>
+        </EmptyState>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OpenCreate">＋ 글 작성</button>
+    }
+    else
+    {
+        <div class="@Css.Segment.Track">
+            <button type="button" class="@Css.Segment.Item(mFilter is null)" @onclick="() => mFilter = null">전체 @Data.Posts.Count</button>
+            <button type="button" class="@Css.Segment.Item(mFilter == "Notice")" @onclick="@(() => mFilter = "Notice")">공지 @CountOf("Notice")</button>
+            <button type="button" class="@Css.Segment.Item(mFilter == "Material")" @onclick="@(() => mFilter = "Material")">자료 @CountOf("Material")</button>
+        </div>
+
+        @foreach (TeamPostDto post in Filtered)
+        {
+            <div class="@($"{RowClass(post)} min-h-[56px]")">
+                <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                    <span class="flex items-center gap-1.5">
+                        @if (post.IsPinned)
+                        {
+                            <span class="text-[9.5px] font-extrabold text-white bg-navy rounded-[99px] px-2 py-[2px] whitespace-nowrap">고정</span>
+                        }
+                        <span class="@TypeBadgeClass(post)">@TypeLabel(post)</span>
+                        @if (post.IsPublic)
+                        {
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2EC4B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>공개홈에 노출 중</title><path d="M12 4.5c-3.6 0-6.8 2.2-9 7.5 2.2 5.3 5.4 7.5 9 7.5s6.8-2.2 9-7.5c-2.2-5.3-5.4-7.5-9-7.5z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>
+                        }
+                    </span>
+                    <span class="text-[13px] font-extrabold text-navy-deep truncate">@post.Title</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap truncate">@MetaOf(post)</span>
+                </span>
+                <OverflowMenu Target="@post.Title" Items="@MenuItemsOf(post)" DestructiveItems="@DestructiveItemsOf(post)" />
+            </div>
+        }
+
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OpenCreate">＋ 글 작성</button>
+    }
+
+    <BoardFormDialog @bind-IsOpen="mFormOpen" Editing="@mEditing" OnSaved="OnChangedAsync" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamPostsResponse Data { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    private string? mFilter;
+    private bool mFormOpen;
+    private TeamPostDto? mEditing;
+
+    private List<TeamPostDto> Filtered =>
+        (mFilter is null ? Data.Posts : Data.Posts.Where(p => p.Type == mFilter)).ToList();
+
+    private int CountOf(string type) => Data.Posts.Count(p => p.Type == type);
+
+    private string RowClass(TeamPostDto post) =>
+        "flex items-center gap-3 rounded-[12px] px-[13px] py-3 " + (post.IsPinned
+            ? "border-[1.5px] border-navy/20 bg-navy/[.03]"
+            : "border border-border");
+
+    private static string TypeLabel(TeamPostDto post) => post.Type == "Notice" ? "공지" : "자료";
+
+    private static string TypeBadgeClass(TeamPostDto post) =>
+        post.Type == "Notice"
+            ? "text-[9.5px] font-extrabold text-white bg-navy rounded-[99px] px-2 py-[2px] whitespace-nowrap"
+            : Css.Badge.Neutral;
+
+    private static string MetaOf(TeamPostDto post)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(post.AuthorName))
+        {
+            parts.Add(post.AuthorName!);
+        }
+
+        parts.Add(post.CreatedAt.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture));
+        if (post.Files.Count > 0)
+        {
+            parts.Add($"첨부 {post.Files.Count}");
+        }
+
+        parts.Add($"조회 {post.ViewCount}");
+        return string.Join(" · ", parts);
+    }
+
+    private List<OverflowMenu.MenuItem> MenuItemsOf(TeamPostDto post) => new()
+    {
+        new("수정", () => { OpenEdit(post); return Task.CompletedTask; }),
+        new(post.IsPinned ? "고정 해제" : "고정", () => TogglePinAsync(post)),
+        new(post.IsPublic ? "공개 해제" : "공개 전환", () => TogglePublicAsync(post)),
+    };
+
+    private List<OverflowMenu.MenuItem> DestructiveItemsOf(TeamPostDto post) =>
+        new() { new("삭제", () => DeleteAsync(post)) };
+
+    private void OpenCreate()
+    {
+        mEditing = null;
+        mFormOpen = true;
+    }
+
+    private void OpenEdit(TeamPostDto post)
+    {
+        mEditing = post;
+        mFormOpen = true;
+    }
+
+    private async Task TogglePinAsync(TeamPostDto post)
+    {
+        if (await Teams.SetPostPinnedAsync(post.PostId, !post.IsPinned))
+        {
+            await OnChangedAsync();
+            return;
+        }
+
+        Toasts.ShowError(post.IsPinned ? "고정을 해제하지 못했어요." : "고정은 최대 2개까지 가능해요.");
+    }
+
+    private async Task TogglePublicAsync(TeamPostDto post)
+    {
+        if (await Teams.SetPostPublicAsync(post.PostId, !post.IsPublic))
+        {
+            Toasts.ShowSuccess(post.IsPublic ? "공개를 해제했어요." : "공개로 전환했어요. 소개 탭 '팀 소식'에서 볼 수 있어요.");
+            await OnChangedAsync();
+            return;
+        }
+
+        Toasts.ShowError("공개 상태를 바꾸지 못했어요. 다시 시도해 주세요.");
+    }
+
+    private async Task DeleteAsync(TeamPostDto post)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"{post.Title} 글을 삭제할까요?",
+            Description = post.Files.Count > 0
+                ? "첨부 파일과 함께 삭제돼요. 공개 글이었다면 공개 홈페이지에서도 바로 사라져요."
+                : "공개 글이었다면 공개 홈페이지에서도 바로 사라져요.",
+            ConfirmLabel = "삭제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        if (await Teams.DeletePostAsync(post.PostId))
+        {
+            Toasts.ShowSuccess("글을 삭제했어요.", "실행취소", () => RestoreAsync(post));
+            await OnChangedAsync();
+            return;
+        }
+
+        Toasts.ShowError("삭제하지 못했어요. 다시 시도해 주세요.");
+    }
+
+    private async Task RestoreAsync(TeamPostDto post)
+    {
+        if (await Teams.DeletePostAsync(post.PostId, restore: true))
+        {
+            await OnChangedAsync();
+            return;
+        }
+
+        Toasts.ShowError("복구하지 못했어요.");
+    }
+
+    private async Task OnChangedAsync()
+    {
+        await OnChanged.InvokeAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+}

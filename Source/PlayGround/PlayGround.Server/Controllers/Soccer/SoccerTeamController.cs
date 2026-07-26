@@ -155,6 +155,131 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        //.// 팀 게시판 (Team Board)
+
+        /// <summary>팀 대시보드 게시판 목록 (관리자 뷰) — 공지·자료, 첨부·조회수 포함.</summary>
+        [HttpGet("me/posts")]
+        public async Task<Envelope<TeamPostsResponse>> GetMyPostsAsync(CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamPostsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamPostsResponse> result = await mGateway.AskAsync<TeamPostsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamPostsByManagerMessage(userId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>게시판 글 저장 (신규·수정 겸용). 신규 공지면 로스터 보호자 전원 알림이 발송된다.
+        /// 작성자 이름은 본문이 아니라 토큰(name 클레임)에서 — 위조 방지.</summary>
+        [HttpPost("me/posts")]
+        public async Task<Envelope<TeamPostDto>> SaveMyPostAsync(
+            [FromBody] SaveTeamPostRequest request, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamPostDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            string? authorName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
+
+            Result<TeamPostDto> result = await mGateway.AskAsync<TeamPostDto>(
+                ActorNames.SoccerTeamProfile, new SaveSoccerTeamPostMessage(userId, request, authorName), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>게시판 글 고정 전환 (최대 2개). 초과 시 InvalidInput.</summary>
+        [HttpPost("me/posts/{postId:guid}/pin")]
+        public async Task<Envelope<TeamPostDto>> SetMyPostPinnedAsync(
+            Guid postId, [FromQuery] bool pinned, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamPostDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamPostDto> result = await mGateway.AskAsync<TeamPostDto>(
+                ActorNames.SoccerTeamProfile, new SetSoccerTeamPostPinnedMessage(userId, postId, pinned), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>게시판 글 공개 전환 — 공개면 소개 탭 "팀 소식"에 즉시 반영.</summary>
+        [HttpPost("me/posts/{postId:guid}/public")]
+        public async Task<Envelope<TeamPostDto>> SetMyPostPublicAsync(
+            Guid postId, [FromQuery] bool visible, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<TeamPostDto>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<TeamPostDto> result = await mGateway.AskAsync<TeamPostDto>(
+                ActorNames.SoccerTeamProfile, new SetSoccerTeamPostPublicMessage(userId, postId, visible), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>게시판 글 소프트 삭제·복구(restore=true — 실행취소).</summary>
+        [HttpPost("me/posts/{postId:guid}/delete")]
+        public async Task<Envelope<bool>> DeleteMyPostAsync(
+            Guid postId, [FromQuery] bool restore, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new DeleteSoccerTeamPostMessage(userId, postId, restore), cancellation);
+            return result.ToEnvelope();
+        }
+
+        // 공개 팀 홈 ① 소개 탭 "팀 소식" — 비로그인 읽기전용(파일명만, 다운로드는 로그인 필요).
+        [AllowAnonymous]
+        [HttpGet("{slug}/news")]
+        public async Task<Envelope<TeamNewsResponse>> GetTeamNewsAsync(string slug, CancellationToken cancellation)
+        {
+            Result<TeamNewsResponse> result = await mGateway.AskAsync<TeamNewsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerTeamNewsMessage(slug), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>보호자 뷰 팀 소식 — 자녀(@playerId)가 Active 소속인 팀의 글 + 안읽음 상태.</summary>
+        [HttpGet("me/child-posts")]
+        public async Task<Envelope<GuardianTeamPostsResponse>> GetChildPostsAsync(
+            [FromQuery] Guid playerId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<GuardianTeamPostsResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<GuardianTeamPostsResponse> result = await mGateway.AskAsync<GuardianTeamPostsResponse>(
+                ActorNames.SoccerTeamInfo, new GetSoccerGuardianTeamPostsMessage(userId, playerId), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>보호자 글 읽음 처리 — 안읽음 점 해제·조회수 적재. 자격 없으면 false.</summary>
+        [HttpPost("me/posts/{postId:guid}/read")]
+        public async Task<Envelope<bool>> MarkMyPostReadAsync(Guid postId, CancellationToken cancellation)
+        {
+            string? sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(sub, out Guid userId))
+            {
+                return Result<bool>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<bool> result = await mGateway.AskAsync<bool>(
+                ActorNames.SoccerTeamProfile, new MarkSoccerTeamPostReadMessage(userId, postId), cancellation);
+            return result.ToEnvelope();
+        }
+
         // 공개 팀 홈 일정 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
         [AllowAnonymous]
         [HttpGet("{slug}/schedules")]

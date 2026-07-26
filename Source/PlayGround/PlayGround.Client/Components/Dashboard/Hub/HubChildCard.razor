@@ -67,6 +67,15 @@
                 <span class="ml-auto">보기 →</span>
             </a>
         }
+        @* 팀 소식 안읽음 요약(안읽은 글이 있을 때만) — 전체 목록은 팀 소식 화면(Design.TeamBoard) *@
+        @if (Child.TeamNewsUnreadCount > 0)
+        {
+            <a href="@TeamNewsHref" class="@Css.Hub.ApplicationInfoNotice">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M20 15a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"></path></svg>
+                <span>팀 소식 @(Child.TeamNewsUnreadCount)건 안읽음</span>
+                <span class="ml-auto">보기 →</span>
+            </a>
+        }
         <div class="flex gap-2">
             <a href="@ChildDashboardHref" class="@Css.Hub.ChildPrimary">선수 대시보드</a>
             @if (!string.IsNullOrEmpty(Child.Slug))
@@ -91,6 +100,9 @@
 
     // 지원 현황 전체가 있는 자리 = 선수 대시보드 기본(프로필) 섹션 상단 "내 지원 현황"(현재 자녀 유지)
     private string ApplicationHref => $"{Routes.PlayerDashboard}?playerId={Child.PlayerId}";
+
+    // 팀 소식 전체 = 보호자 뷰 팀 소식 화면(자녀별)
+    private string TeamNewsHref => Routes.TeamNews(Child.PlayerId);
 
     // Pending은 아직 기록이 없다 — 스탯은 "–"
     private string StatOf(int value) => IsPending ? "–" : value.ToString();

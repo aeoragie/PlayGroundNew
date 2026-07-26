@@ -1,6 +1,9 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Components.Forms;
 using PlayGround.Shared.Http;
+using PlayGround.Contracts.Common;
 using PlayGround.Contracts.Team;
 
 namespace PlayGround.Client.Services
@@ -239,6 +242,163 @@ namespace PlayGround.Client.Services
             catch
             {
                 return false;
+            }
+        }
+
+        //.// 팀 게시판 (Team Board)
+
+        /// <summary>팀 대시보드 게시판 목록 — 소유 팀 글. 오류 시 null.</summary>
+        public async Task<TeamPostsResponse?> GetMyPostsAsync()
+        {
+            try
+            {
+                Envelope<TeamPostsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamPostsResponse>>("api/soccer/team/me/posts");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>공개 팀 홈 "팀 소식" — 공개 글만(파일명만). 오류 시 null.</summary>
+        public async Task<TeamNewsResponse?> GetTeamNewsAsync(string slug)
+        {
+            try
+            {
+                Envelope<TeamNewsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<TeamNewsResponse>>(
+                        $"api/soccer/team/{Uri.EscapeDataString(slug)}/news");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>보호자 뷰 팀 소식 — 자녀 팀의 글 + 안읽음 상태. 오류 시 null.</summary>
+        public async Task<GuardianTeamPostsResponse?> GetChildPostsAsync(Guid playerId)
+        {
+            try
+            {
+                Envelope<GuardianTeamPostsResponse>? envelope =
+                    await mHttp.GetFromJsonAsync<Envelope<GuardianTeamPostsResponse>>(
+                        $"api/soccer/team/me/child-posts?playerId={playerId}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>게시판 글 저장 (신규·수정 겸용). 신규 공지면 서버가 보호자 알림을 함께 발송한다.</summary>
+        public async Task<BoardPostSaveResult> SavePostAsync(SaveTeamPostRequest request)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me/posts", request);
+                Envelope<TeamPostDto>? envelope = await response.Content.ReadFromJsonAsync<Envelope<TeamPostDto>>();
+                if (envelope is { IsSuccess: true })
+                {
+                    return new BoardPostSaveResult(true, null);
+                }
+
+                return new BoardPostSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new BoardPostSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>글 고정 전환 — 성공 여부만. 실패(대개 고정 2개 초과)는 호출부가 안내.</summary>
+        public async Task<bool> SetPostPinnedAsync(Guid postId, bool pinned)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/posts/{postId}/pin?pinned={(pinned ? "true" : "false")}", null);
+                Envelope<TeamPostDto>? envelope = await response.Content.ReadFromJsonAsync<Envelope<TeamPostDto>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>글 공개 전환 — 성공 여부만.</summary>
+        public async Task<bool> SetPostPublicAsync(Guid postId, bool visible)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/posts/{postId}/public?visible={(visible ? "true" : "false")}", null);
+                Envelope<TeamPostDto>? envelope = await response.Content.ReadFromJsonAsync<Envelope<TeamPostDto>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>글 삭제·복구(restore = 실행취소).</summary>
+        public async Task<bool> DeletePostAsync(Guid postId, bool restore = false)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/posts/{postId}/delete?restore={(restore ? "true" : "false")}", null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>보호자 글 읽음 처리 — 성공 여부만.</summary>
+        public async Task<bool> MarkPostReadAsync(Guid postId)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PostAsync(
+                    $"api/soccer/team/me/posts/{postId}/read", null);
+                Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
+                return envelope is { IsSuccess: true };
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>게시판 첨부 업로드 — 문서는 리사이즈가 없어 브라우저 파일을 그대로 멀티파트로 올린다(≤10MB).
+        /// 성공 시 공개 URL·원본 파일명·크기, 실패 시 null(형식·용량 위반·네트워크).</summary>
+        public async Task<UploadedFileResponse?> UploadBoardFileAsync(IBrowserFile file)
+        {
+            try
+            {
+                const long maxBytes = 10 * 1024 * 1024;
+                using var content = new MultipartFormDataContent();
+                var fileContent = new StreamContent(file.OpenReadStream(maxBytes));
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(
+                    string.IsNullOrEmpty(file.ContentType) ? "application/octet-stream" : file.ContentType);
+                content.Add(fileContent, "file", file.Name);
+
+                HttpResponseMessage response = await mHttp.PostAsync("api/soccer/files/team-board", content);
+                Envelope<UploadedFileResponse>? envelope =
+                    await response.Content.ReadFromJsonAsync<Envelope<UploadedFileResponse>>();
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -719,4 +879,7 @@ namespace PlayGround.Client.Services
 
     /// <summary>지원 결과 — 중복(같은 선수+같은 공고)은 IsDuplicate로 구분해 전용 인라인 안내를 띄운다.</summary>
     public record ApplicationSaveResult(bool Success, bool IsDuplicate, string? Error, bool IsNetworkError = false);
+
+    /// <summary>게시판 글 저장 결과 — 입력 거부(인라인)와 요청 실패(토스트+재시도)를 IsNetworkError로 가른다.</summary>
+    public record BoardPostSaveResult(bool Success, string? Error, bool IsNetworkError = false);
 }

@@ -85,6 +85,16 @@
                         </ChildContent>
                     </LoadingGate>
                     break;
+                case SoccerTeamDashboardSection.Board:
+                    <LoadingGate IsLoading="@(mPosts is null && !mPostsFailed)" HasFailed="@mPostsFailed" OnRetry="LoadPostsAsync">
+                        <Skeleton>
+                            <SkeletonSection><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection>
+                        </Skeleton>
+                        <ChildContent>
+                            <BoardSection Data="@(mPosts!)" OnChanged="LoadPostsAsync" />
+                        </ChildContent>
+                    </LoadingGate>
+                    break;
                 default:
                     @if (mInfo is not null)
                     {
@@ -162,6 +172,16 @@
                     </ChildContent>
                 </LoadingGate>
                 break;
+            case SoccerTeamDashboardSection.Board:
+                <LoadingGate IsLoading="@(mPosts is null && !mPostsFailed)" HasFailed="@mPostsFailed" OnRetry="LoadPostsAsync">
+                    <Skeleton>
+                        <SkeletonSection Compact="true"><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection>
+                    </Skeleton>
+                    <ChildContent>
+                        <MobileBoardSection Data="@(mPosts!)" OnChanged="LoadPostsAsync" />
+                    </ChildContent>
+                </LoadingGate>
+                break;
             default:
                 @if (mInfo is not null)
                 {
@@ -227,6 +247,11 @@
     private SchedulesResponse? mSchedules;
     private bool mSchedulesRequested;
     private bool mSchedulesFailed;
+
+    // 게시판 — 섹션 진입 시 지연 로드
+    private TeamPostsResponse? mPosts;
+    private bool mPostsRequested;
+    private bool mPostsFailed;
     private bool mScheduleFormOpen;
     private ScheduleDto? mEditingSchedule;
 
@@ -335,12 +360,24 @@
             await LoadRecruitmentsAsync();
             await LoadApplicantsAsync();
         }
+        else if (CurrentSection == SoccerTeamDashboardSection.Board && !mPostsRequested)
+        {
+            await LoadPostsAsync();
+        }
         else if (CurrentSection == SoccerTeamDashboardSection.Info && !mCareerOutcomesRequested)
         {
             // 진학·진로 관리 카드 — 팀 정보 섹션 진입 시 지연 로드 (한 번만)
             mCareerOutcomesRequested = true;
             await LoadCareerOutcomesAsync();
         }
+    }
+
+    private async Task LoadPostsAsync()
+    {
+        mPostsRequested = true;
+        mPostsFailed = false;
+        mPosts = await Teams.GetMyPostsAsync();
+        mPostsFailed = mPosts is null;
     }
 
     private async Task LoadCareerOutcomesAsync()

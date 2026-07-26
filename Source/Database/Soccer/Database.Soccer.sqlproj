@@ -81,6 +81,9 @@
     <Build Include="Tables\SoccerPlayerClaimRequests.sql" />
     <Build Include="Tables\SoccerNotifications.sql" />
     <Build Include="Tables\SoccerTeamRecruitments.sql" />
+    <Build Include="Tables\SoccerTeamPosts.sql" />
+    <Build Include="Tables\SoccerTeamPostFiles.sql" />
+    <Build Include="Tables\SoccerTeamPostReads.sql" />
     <Build Include="Tables\SoccerAgentProfiles.sql" />
     <Build Include="Tables\SoccerAgentViewRequests.sql" />
     <Build Include="Tables\SoccerAgentViewLogs.sql" />
@@ -120,6 +123,16 @@
     <Build Include="Procedures\UspSaveSoccerTeamRecruitment.sql" />
     <Build Include="Procedures\UspCloseSoccerTeamRecruitment.sql" />
     <Build Include="Procedures\UspDeleteSoccerTeamRecruitment.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamPostsByManager.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamPostsBySlug.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamPostsByGuardian.sql" />
+    <Build Include="Procedures\UspSaveSoccerTeamPost.sql" />
+    <Build Include="Procedures\UspSetSoccerTeamPostPinned.sql" />
+    <Build Include="Procedures\UspSetSoccerTeamPostPublic.sql" />
+    <Build Include="Procedures\UspDeleteSoccerTeamPost.sql" />
+    <Build Include="Procedures\UspMarkSoccerTeamPostRead.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamPostRecipients.sql" />
+    <Build Include="Procedures\UspGetSoccerTeamPostUnreadByGuardian.sql" />
     <Build Include="Procedures\UspCreateSoccerApplication.sql" />
     <Build Include="Procedures\UspGetSoccerApplicationsByManager.sql" />
     <Build Include="Procedures\UspGetSoccerApplicationsByGuardian.sql" />
@@ -145,5 +158,6 @@
     <None Include="Migrations\2026-07-26_SoccerTeamRecruitments.Application.sql" />
     <None Include="Migrations\2026-07-26_SoccerApplications.ConfirmedAt.sql" />
     <None Include="Migrations\2026-07-21_SoccerTeams.IsRecruiting.sql" />
+    <None Include="Migrations\2026-07-26_SoccerTeamPosts.sql" />
   </ItemGroup>
 </Project>

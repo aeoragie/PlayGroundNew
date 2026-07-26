@@ -43,6 +43,7 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerTeamMatchResultCommand>();
             services.AddScoped<SoccerTeamInfoUpdateCommand>();
             services.AddScoped<SoccerTeamRecruitmentCommand>();
+            services.AddScoped<SoccerTeamPostCommand>();
             services.AddScoped<SoccerApplicationCommand>();
             services.AddScoped<SoccerScheduleCommand>();
             services.AddScoped<SoccerTeamCareerOutcomeCommand>();
@@ -58,6 +59,8 @@ namespace PlayGround.Server.DependencyInjection
 
             // 업로드 이미지 저장 — 지금은 로컬 디스크, 오브젝트 스토리지로 갈 때 이 줄만 바꾼다
             services.AddSingleton<IImageStorage, LocalImageStorageService>();
+            // 첨부 문서 저장(게시판 pdf·hwp 등) — 원본 확장자 보존. 이미지 저장과 같은 로컬 디스크 어댑터.
+            services.AddSingleton<IFileStorage, LocalFileStorageService>();
             services.AddScoped<SoccerTeamVideosCommand>();
             services.AddScoped<SoccerRecordsTournamentsCommand>();
             services.AddScoped<SoccerRecordsTournamentDetailCommand>();

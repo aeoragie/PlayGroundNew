@@ -9,6 +9,7 @@ namespace PlayGround.Client.Models
         Results,
         Videos,
         Recruit,
+        Board,
     }
 
     public static class SoccerTeamDashboardSectionExtensions

@@ -32,6 +32,56 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<UpdateSoccerApplicationStatusMessage>(HandleUpdateApplicationStatusAsync);
             RegisterHandlerAsync<CancelSoccerApplicationMessage>(HandleCancelApplicationAsync);
             RegisterHandlerAsync<ConfirmSoccerApplicationInviteMessage>(HandleConfirmApplicationInviteAsync);
+            RegisterHandlerAsync<SaveSoccerTeamPostMessage>(HandleSavePostAsync);
+            RegisterHandlerAsync<SetSoccerTeamPostPinnedMessage>(HandleSetPostPinnedAsync);
+            RegisterHandlerAsync<SetSoccerTeamPostPublicMessage>(HandleSetPostPublicAsync);
+            RegisterHandlerAsync<DeleteSoccerTeamPostMessage>(HandleDeletePostAsync);
+            RegisterHandlerAsync<MarkSoccerTeamPostReadMessage>(HandleMarkPostReadAsync);
+        }
+
+        private async Task HandleSavePostAsync(SaveSoccerTeamPostMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<TeamPostDto> result = await useCase.SaveAsync(message.ManagerUserId, message.Data, message.AuthorName);
+            sender.Tell(result);
+        }
+
+        private async Task HandleSetPostPinnedAsync(SetSoccerTeamPostPinnedMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<TeamPostDto> result = await useCase.SetPinnedAsync(message.ManagerUserId, message.PostId, message.IsPinned);
+            sender.Tell(result);
+        }
+
+        private async Task HandleSetPostPublicAsync(SetSoccerTeamPostPublicMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<TeamPostDto> result = await useCase.SetPublicAsync(message.ManagerUserId, message.PostId, message.IsPublic);
+            sender.Tell(result);
+        }
+
+        private async Task HandleDeletePostAsync(DeleteSoccerTeamPostMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<bool> result = await useCase.DeleteAsync(message.ManagerUserId, message.PostId, message.Restore);
+            sender.Tell(result);
+        }
+
+        private async Task HandleMarkPostReadAsync(MarkSoccerTeamPostReadMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerTeamPostCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerTeamPostCommand>();
+            Result<bool> result = await useCase.MarkReadAsync(message.UserId, message.PostId);
+            sender.Tell(result);
         }
 
         private async Task HandleConfirmApplicationInviteAsync(ConfirmSoccerApplicationInviteMessage message)

@@ -1036,6 +1036,297 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(queryResult.Values1.Count > 0);
         }
 
+        //.// 팀 게시판 (Team Board)
+
+        public async Task<Result<TeamPostsResponse>> GetPostsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team posts requested by manager", ("ManagerUserId", managerUserId));
+
+            var procedure = new UspGetSoccerTeamPostsByManager(this) { ManagerUserId = managerUserId };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<TeamPostsResponse>.Error(ErrorCode.DatabaseError, "GetPostsByManager");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            var posts = (await reader.ReadAsync<SoccerTeamPostsEntity>()).ToList();
+            var files = (await reader.ReadAsync<SoccerTeamPostFilesEntity>()).ToList();
+            var readIds = (await reader.ReadAsync<Guid>()).ToList();
+
+            Dictionary<Guid, List<TeamPostFileDto>> filesByPost = GroupFiles(files);
+            Dictionary<Guid, int> viewByPost = readIds.GroupBy(id => id).ToDictionary(g => g.Key, g => g.Count());
+
+            return Result<TeamPostsResponse>.Success(new TeamPostsResponse
+            {
+                Posts = posts
+                    .Select(p => MapPost(p, filesByPost.GetValueOrDefault(p.PostId) ?? new List<TeamPostFileDto>(),
+                        viewByPost.GetValueOrDefault(p.PostId), isRead: false))
+                    .ToList()
+            });
+        }
+
+        public async Task<Result<TeamNewsResponse>> GetNewsBySlugAsync(string slug, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team news requested", ("Slug", slug));
+
+            var procedure = new UspGetSoccerTeamPostsBySlug(this) { Slug = slug };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<TeamNewsResponse>.Error(ErrorCode.DatabaseError, "GetNewsBySlug");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            var posts = (await reader.ReadAsync<SoccerTeamPostsEntity>()).ToList();
+            var files = (await reader.ReadAsync<SoccerTeamPostFilesEntity>()).ToList();
+
+            Dictionary<Guid, List<TeamNewsFileDto>> filesByPost = files
+                .GroupBy(f => f.PostId)
+                .ToDictionary(g => g.Key, g => g.Select(f => new TeamNewsFileDto
+                {
+                    FileName = f.FileName,
+                    SizeBytes = f.SizeBytes
+                }).ToList());
+
+            return Result<TeamNewsResponse>.Success(new TeamNewsResponse
+            {
+                Items = posts.Select(p => new TeamNewsDto
+                {
+                    PostId = p.PostId,
+                    Title = p.Title,
+                    Body = p.Body,
+                    EditedAt = p.EditedAt,
+                    CreatedAt = p.CreatedAt,
+                    Files = filesByPost.GetValueOrDefault(p.PostId) ?? new List<TeamNewsFileDto>()
+                }).ToList()
+            });
+        }
+
+        public async Task<Result<GuardianTeamPostsResponse>> GetPostsByGuardianAsync(
+            Guid userId, Guid playerId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Guardian team posts requested", ("UserId", userId), ("PlayerId", playerId));
+
+            var procedure = new UspGetSoccerTeamPostsByGuardian(this) { UserId = userId, PlayerId = playerId };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<GuardianTeamPostsResponse>.Error(ErrorCode.DatabaseError, "GetPostsByGuardian");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            string teamName = await reader.ReadSingleOrDefaultAsync<string>() ?? string.Empty;
+            var posts = (await reader.ReadAsync<SoccerTeamPostsEntity>()).ToList();
+            var files = (await reader.ReadAsync<SoccerTeamPostFilesEntity>()).ToList();
+            var readIds = (await reader.ReadAsync<Guid>()).ToList();
+
+            Dictionary<Guid, List<TeamPostFileDto>> filesByPost = GroupFiles(files);
+            HashSet<Guid> readSet = readIds.ToHashSet();
+
+            return Result<GuardianTeamPostsResponse>.Success(new GuardianTeamPostsResponse
+            {
+                TeamName = teamName,
+                Posts = posts
+                    .Select(p => MapPost(p, filesByPost.GetValueOrDefault(p.PostId) ?? new List<TeamPostFileDto>(),
+                        viewCount: 0, isRead: readSet.Contains(p.PostId)))
+                    .ToList()
+            });
+        }
+
+        public async Task<Result<TeamPostDto?>> SavePostByManagerAsync(
+            Guid managerUserId, SaveTeamPostRequest request, string? authorName, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team post save requested",
+                ("ManagerUserId", managerUserId), ("PostId", request.PostId), ("Type", request.Type));
+
+            string? filesJson = request.Files.Count > 0
+                ? JsonSerializer.Serialize(request.Files.Select((f, i) => new { url = f.Url, name = f.Name, sizeBytes = f.SizeBytes, ord = i }))
+                : null;
+
+            var procedure = new UspSaveSoccerTeamPost(this)
+            {
+                ManagerUserId = managerUserId,
+                PostId = request.PostId,
+                Type = request.Type,
+                Title = request.Title,
+                Body = request.Body,
+                IsPublic = request.IsPublic,
+                AuthorName = authorName!,
+                FilesJson = filesJson!
+            };
+
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<TeamPostDto?>.Error(ErrorCode.DatabaseError, "SavePost");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            SoccerTeamPostsEntity? row = await reader.ReadSingleOrDefaultAsync<SoccerTeamPostsEntity>();
+            var files = (await reader.ReadAsync<SoccerTeamPostFilesEntity>()).ToList();
+
+            if (row is null)
+            {
+                return Result<TeamPostDto?>.Success(null);
+            }
+
+            return Result<TeamPostDto?>.Success(MapPost(row, files.Select(MapFile).ToList(), viewCount: 0, isRead: false));
+        }
+
+        public async Task<Result<TeamPostDto?>> SetPostPinnedByManagerAsync(
+            Guid managerUserId, Guid postId, bool isPinned, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team post pin requested", ("ManagerUserId", managerUserId), ("PostId", postId), ("IsPinned", isPinned));
+
+            var procedure = new UspSetSoccerTeamPostPinned(this)
+            {
+                ManagerUserId = managerUserId,
+                PostId = postId,
+                IsPinned = isPinned
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamPostsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamPostDto?>.Error(ErrorCode.DatabaseError, "SetPostPinned");
+            }
+
+            SoccerTeamPostsEntity? row = queryResult.Values1.FirstOrDefault();
+            return Result<TeamPostDto?>.Success(row is null ? null : MapPost(row, new List<TeamPostFileDto>(), 0, false));
+        }
+
+        public async Task<Result<TeamPostDto?>> SetPostPublicByManagerAsync(
+            Guid managerUserId, Guid postId, bool isPublic, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team post public requested", ("ManagerUserId", managerUserId), ("PostId", postId), ("IsPublic", isPublic));
+
+            var procedure = new UspSetSoccerTeamPostPublic(this)
+            {
+                ManagerUserId = managerUserId,
+                PostId = postId,
+                IsPublic = isPublic
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamPostsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<TeamPostDto?>.Error(ErrorCode.DatabaseError, "SetPostPublic");
+            }
+
+            SoccerTeamPostsEntity? row = queryResult.Values1.FirstOrDefault();
+            return Result<TeamPostDto?>.Success(row is null ? null : MapPost(row, new List<TeamPostFileDto>(), 0, false));
+        }
+
+        public async Task<Result<bool>> DeletePostByManagerAsync(
+            Guid managerUserId, Guid postId, bool restore, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team post delete requested",
+                ("ManagerUserId", managerUserId), ("PostId", postId), ("Restore", restore));
+
+            var procedure = new UspDeleteSoccerTeamPost(this)
+            {
+                ManagerUserId = managerUserId,
+                PostId = postId,
+                Restore = restore
+            };
+            var queryResult = await procedure.QueryAsync<SoccerTeamPostsEntity>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "DeletePost");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.Count > 0);
+        }
+
+        public async Task<Result<bool>> MarkPostReadAsync(Guid userId, Guid postId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Team post read requested", ("UserId", userId), ("PostId", postId));
+
+            var procedure = new UspMarkSoccerTeamPostRead(this) { UserId = userId, PostId = postId };
+            var queryResult = await procedure.QueryAsync<Guid>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<bool>.Error(ErrorCode.DatabaseError, "MarkPostRead");
+            }
+
+            return Result<bool>.Success(queryResult.Values1.Count > 0);
+        }
+
+        public async Task<Result<Dictionary<Guid, int>>> GetPostUnreadCountsByGuardianAsync(Guid userId, CancellationToken cancellation = default)
+        {
+            var procedure = new UspGetSoccerTeamPostUnreadByGuardian(this) { UserId = userId };
+            var queryResult = await procedure.QueryAsync<Guid>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<Dictionary<Guid, int>>.Error(ErrorCode.DatabaseError, "GetPostUnreadCounts");
+            }
+
+            Dictionary<Guid, int> byPlayer = queryResult.Values1
+                .GroupBy(id => id)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            return Result<Dictionary<Guid, int>>.Success(byPlayer);
+        }
+
+        public async Task<Result<List<NotificationRecipient>>> GetPostRecipientsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
+        {
+            var procedure = new UspGetSoccerTeamPostRecipients(this) { ManagerUserId = managerUserId };
+            var queryResult = await procedure.QueryAsync<SoccerTeamPostRecipientRecord>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<List<NotificationRecipient>>.Error(ErrorCode.DatabaseError, "GetPostRecipients");
+            }
+
+            List<NotificationRecipient> recipients = queryResult.Values1
+                .Where(r => r.UserId is not null)
+                .Select(r => new NotificationRecipient
+                {
+                    UserId = r.UserId!.Value,
+                    PlayerId = r.PlayerId,
+                    PlayerName = r.Name,
+                    TeamName = r.TeamName
+                })
+                .ToList();
+
+            return Result<List<NotificationRecipient>>.Success(recipients);
+        }
+
+        private static Dictionary<Guid, List<TeamPostFileDto>> GroupFiles(List<SoccerTeamPostFilesEntity> files)
+        {
+            return files
+                .GroupBy(f => f.PostId)
+                .ToDictionary(g => g.Key, g => g.Select(MapFile).ToList());
+        }
+
+        private static TeamPostFileDto MapFile(SoccerTeamPostFilesEntity f)
+        {
+            return new TeamPostFileDto
+            {
+                FileId = f.FileId,
+                FileUrl = f.FileUrl,
+                FileName = f.FileName,
+                SizeBytes = f.SizeBytes
+            };
+        }
+
+        private static TeamPostDto MapPost(SoccerTeamPostsEntity row, List<TeamPostFileDto> files, int viewCount, bool isRead)
+        {
+            return new TeamPostDto
+            {
+                PostId = row.PostId,
+                Type = row.Type,
+                Title = row.Title,
+                Body = row.Body,
+                IsPinned = row.IsPinned,
+                IsPublic = row.IsPublic,
+                AuthorName = NullIfEmpty(row.AuthorName),
+                EditedAt = row.EditedAt,
+                CreatedAt = row.CreatedAt,
+                ViewCount = viewCount,
+                IsRead = isRead,
+                Files = files
+            };
+        }
+
         //.// 팀 일정 (Schedule)
 
         public async Task<Result<SchedulesResponse>> GetSchedulesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)

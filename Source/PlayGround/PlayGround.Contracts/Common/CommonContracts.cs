@@ -5,4 +5,12 @@ namespace PlayGround.Contracts.Common
     {
         public string Url { get; set; } = string.Empty;
     }
+
+    /// <summary>업로드된 문서/파일의 공개 URL + 원본 파일명·크기 (게시판 첨부 등 — 이미지가 아닌 첨부).</summary>
+    public class UploadedFileResponse
+    {
+        public string Url { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
+        public long SizeBytes { get; set; }
+    }
 }

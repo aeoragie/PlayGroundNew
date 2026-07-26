@@ -1,0 +1,184 @@
+@* 보호자 뷰 — 팀 소식 (허브 자녀 카드 → 팀 소식). 읽기 전용 내비게이션형 행 + 안읽음 오렌지 점.
+   행을 열면 상세(제목·작성자·날짜·본문·첨부 다운로드) + 읽음 처리(점 해제·조회수 적재). 작성·수정 불가. *@
+@attribute [Route(Routes.TeamNewsTemplate)]
+@using System.Security.Claims
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Team
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject TeamClient Teams
+
+<PageTitle>팀 소식 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt text-navy-deep">
+    @* 상단 바 — 뒤로(허브) + 제목 + 팀명 *@
+    <header class="sticky top-0 z-30 bg-bg/95 backdrop-blur-[10px] border-b border-border">
+        <div class="max-w-[720px] mx-auto px-4 md:px-6 h-14 flex items-center gap-3">
+            <a href="@Routes.Dashboard" aria-label="뒤로" class="shrink-0 text-text-muted hover:text-navy">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+            </a>
+            <span class="flex flex-col min-w-0">
+                <span class="text-[15px] font-extrabold whitespace-nowrap">팀 소식</span>
+                @if (!string.IsNullOrWhiteSpace(mTeamName))
+                {
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap truncate">@mTeamName</span>
+                }
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-[720px] mx-auto px-4 md:px-6 py-5 flex flex-col gap-3">
+        <LoadingGate IsLoading="@(mData is null && !mFailed)" HasFailed="@mFailed" OnRetry="LoadAsync">
+            <Skeleton>
+                <SkeletonSection><SkeletonRows Count="4" /></SkeletonSection>
+            </Skeleton>
+            <ChildContent>
+                @if (mData!.Posts.Count == 0)
+                {
+                    <EmptyState Kind="EmptyState.Art.Record" Title="아직 올라온 소식이 없어요">
+                        <Description>팀이 글을 올리면 여기에 보여요.</Description>
+                    </EmptyState>
+                }
+                else
+                {
+                    @foreach (TeamPostDto post in mData.Posts)
+                    {
+                        <button type="button" class="w-full text-left flex items-center gap-3 rounded-[12px] px-[14px] py-3 min-h-[56px] border border-border bg-bg hover:border-navy transition-colors"
+                                @onclick="() => OpenAsync(post)">
+                            <span class="w-2 h-2 rounded-full shrink-0 @(post.IsRead ? "bg-transparent" : "bg-orange")"></span>
+                            <span class="flex flex-col gap-0.5 flex-1 min-w-0">
+                                <span class="flex items-center gap-1.5">
+                                    @if (post.IsPinned)
+                                    {
+                                        <span class="text-[9.5px] font-extrabold text-white bg-navy rounded-[99px] px-2 py-[2px] whitespace-nowrap">고정</span>
+                                    }
+                                    <span class="text-[13.5px] @(post.IsRead ? "font-bold text-text-body" : "font-extrabold text-navy-deep") truncate">@post.Title</span>
+                                </span>
+                                <span class="text-[11.5px] text-text-muted whitespace-nowrap truncate">@MetaOf(post)</span>
+                            </span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5cfe4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M9 6l6 6-6 6"></path></svg>
+                        </button>
+                    }
+                }
+            </ChildContent>
+        </LoadingGate>
+    </main>
+</div>
+
+@* 상세 — 읽기 전용 (작성·수정 불가) *@
+@if (mSelected is not null)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="Close"></div>
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+            <div class="@Css.MatchForm.Header">
+                <span class="flex flex-col gap-1 min-w-0">
+                    <h2 class="@Css.MatchForm.Title break-keep">@mSelected.Title</h2>
+                    <span class="@Css.MatchForm.Subtitle">@MetaOf(mSelected)</span>
+                </span>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="Close">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+            <div class="@Css.MatchForm.Body">
+                <p class="m-0 text-[14px] leading-[1.8] text-text-strong break-keep whitespace-pre-wrap [text-wrap:pretty]">@mSelected.Body</p>
+                @if (mSelected.Files.Count > 0)
+                {
+                    <div class="flex flex-col gap-2">
+                        <span class="@Css.Form.Label">첨부</span>
+                        @foreach (TeamPostFileDto file in mSelected.Files)
+                        {
+                            <a href="@file.FileUrl" target="_blank" rel="noopener" download
+                               class="flex items-center gap-2.5 border border-border rounded-[10px] px-3 py-2.5 bg-surface-soft hover:border-navy transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#23408e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M14.5 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7.5z"></path><path d="M14 3v5h5"></path></svg>
+                                <span class="flex-1 min-w-0 text-[13px] font-semibold text-navy-deep truncate">@file.FileName</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"></path></svg>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid PlayerId { get; set; }
+
+    private GuardianTeamPostsResponse? mData;
+    private string mTeamName = string.Empty;
+    private bool mFailed;
+    private bool mAuthenticated;
+    private TeamPostDto? mSelected;
+
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
+            return;
+        }
+
+        mAuthenticated = true;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (!mAuthenticated)
+        {
+            return;
+        }
+
+        mFailed = false;
+        mData = await Teams.GetChildPostsAsync(PlayerId);
+        mFailed = mData is null;
+        if (mData is not null)
+        {
+            mTeamName = mData.TeamName;
+        }
+    }
+
+    private async Task OpenAsync(TeamPostDto post)
+    {
+        mSelected = post;
+
+        // 처음 열 때만 읽음 처리 — 서버에 적재하고 화면의 점을 지운다
+        if (!post.IsRead)
+        {
+            if (await Teams.MarkPostReadAsync(post.PostId))
+            {
+                post.IsRead = true;
+            }
+        }
+    }
+
+    private void Close() => mSelected = null;
+
+    private static string MetaOf(TeamPostDto post)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(post.AuthorName))
+        {
+            parts.Add(post.AuthorName!);
+        }
+
+        parts.Add(post.CreatedAt.ToLocalTime().ToString("yyyy.M.d"));
+        if (post.Files.Count > 0)
+        {
+            parts.Add($"첨부 {post.Files.Count}");
+        }
+
+        if (post.EditedAt is not null)
+        {
+            parts.Add("수정됨");
+        }
+
+        return string.Join(" · ", parts);
+    }
+}

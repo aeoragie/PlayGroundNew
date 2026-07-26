@@ -19,5 +19,8 @@ namespace PlayGround.Domain.Soccer
         /// <summary>액션형 — 보호자 수신, 지원 수락 후 선수단 초대. 인라인 [초대 확인]으로 로스터 편입
         /// (RefId = ApplicationId, TargetPlayerId = 자녀). 처리 여부는 SoccerApplications.ConfirmedAt로 라이브 파생.</summary>
         RosterInvite,
+        /// <summary>이동형 — 보호자 수신, 팀 공지 발행 (RefId = PostId, TargetPlayerId = 자녀). 딥링크 → 자녀 팀 소식.
+        /// 자료(Material)는 발송하지 않는다 — 공지(Notice)만. 스냅샷: TeamName + 글 제목(MetaText).</summary>
+        TeamNotice,
     }
 }

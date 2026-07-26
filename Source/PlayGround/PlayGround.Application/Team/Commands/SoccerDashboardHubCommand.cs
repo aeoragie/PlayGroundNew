@@ -111,6 +111,19 @@ namespace PlayGround.Application.Team.Commands
             // 자녀별 진행 중 지원(내가 올린 지원 중 종료·편입 완료가 아닌 것) — 허브 자녀 카드 요약용(Application §5).
             // 전체 현황은 선수 대시보드 "내 지원 현황"에 있고, 여기선 자녀별 개수·확인 필요 여부만 얹는다.
             List<MyApplicationDto> guardianApplications = new();
+
+            // 자녀별 안읽은 게시판 글 수(Design.TeamBoard) — 허브 자녀 카드 요약용. 한 번에 뽑아 카드에 얹는다.
+            Dictionary<Guid, int> unreadPostsByChild = new();
+            if (children.Value.Players.Count > 0)
+            {
+                Result<Dictionary<Guid, int>> unread =
+                    await mTeamRepository.GetPostUnreadCountsByGuardianAsync(userId, cancellation);
+                if (!unread.IsError)
+                {
+                    unreadPostsByChild = unread.Value;
+                }
+            }
+
             if (children.Value.Players.Count > 0)
             {
                 Result<RecordCorrectionsResponse> corrections =
@@ -174,6 +187,8 @@ namespace PlayGround.Application.Team.Commands
                     .ToList();
                 card.ApplicationPendingCount = childApplications.Count;
                 card.ApplicationActionNeeded = childApplications.Any(a => a.Status == "Accepted");
+
+                card.TeamNewsUnreadCount = unreadPostsByChild.GetValueOrDefault(child.PlayerId);
 
                 response.Children.Add(card);
             }

@@ -254,6 +254,110 @@ namespace PlayGround.Contracts.Team
         public string Status { get; set; } = string.Empty;
     }
 
+    //.// 팀 게시판 (Team Board, Design.TeamBoard)
+    // 관리자·코치가 공지·자료를 올리고 로스터 보호자가 열람, 글 단위로 공개홈(소개 탭 "팀 소식") 노출을 선택.
+
+    /// <summary>팀 대시보드 게시판 목록 (관리자 뷰).</summary>
+    public class TeamPostsResponse
+    {
+        public List<TeamPostDto> Posts { get; set; } = new();
+    }
+
+    /// <summary>보호자 뷰 팀 소식 묶음 (허브 자녀 카드 → 팀 소식). TeamName은 여러 자녀 팀명 접두·헤더용.</summary>
+    public class GuardianTeamPostsResponse
+    {
+        public string TeamName { get; set; } = string.Empty;
+        public List<TeamPostDto> Posts { get; set; } = new();
+    }
+
+    /// <summary>게시판 글 한 건 (관리자·보호자 뷰). ViewCount는 관리자에게만 의미, IsRead는 보호자 뷰 안읽음 점.</summary>
+    public class TeamPostDto
+    {
+        public Guid PostId { get; set; }
+
+        /// <summary>SoccerTeamPostType 멤버 이름 ('Notice' | 'Material').</summary>
+        public string Type { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
+        public bool IsPinned { get; set; }
+        public bool IsPublic { get; set; }
+
+        /// <summary>작성자 표시명 스냅샷 — 발행 시점 이름.</summary>
+        public string? AuthorName { get; set; }
+
+        /// <summary>수정 시각 — 값이 있으면 "수정됨" 표기.</summary>
+        public DateTime? EditedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        /// <summary>조회수 (읽음 행 COUNT) — 관리자·스태프에게만 표시. 보호자 뷰에서는 무의미.</summary>
+        public int ViewCount { get; set; }
+
+        /// <summary>보호자 뷰 — 이 계정이 읽었는지 (안읽음 오렌지 점 판정). 관리자 뷰에서는 항상 false.</summary>
+        public bool IsRead { get; set; }
+
+        public List<TeamPostFileDto> Files { get; set; } = new();
+    }
+
+    /// <summary>첨부 파일 (관리자·보호자 뷰 — 다운로드 가능하므로 FileUrl 포함).</summary>
+    public class TeamPostFileDto
+    {
+        public Guid FileId { get; set; }
+        public string FileUrl { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
+        public long SizeBytes { get; set; }
+    }
+
+    /// <summary>게시판 글 저장 요청 — PostId 빈 GUID = 신규 (B3 규약). 공개 스위치 기본 끔은 클라이언트 기본값.
+    /// 고정(IsPinned)은 여기 없다 — 작성 폼에 없고, ⋯ "고정 전환"이 별도로 처리한다(최대 2개 제약).</summary>
+    public class SaveTeamPostRequest
+    {
+        public Guid PostId { get; set; }
+
+        /// <summary>SoccerTeamPostType 멤버 이름 ('Notice' | 'Material').</summary>
+        public string Type { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
+        public bool IsPublic { get; set; }
+
+        /// <summary>첨부 — 업로드가 끝난 파일 목록(최대 3). 화면에 남은 전체를 보낸다(통째 교체 — 빠뜨리면 삭제).</summary>
+        public List<TeamPostFileInput> Files { get; set; } = new();
+    }
+
+    /// <summary>첨부 입력 한 건 — 업로드가 끝난 공개 URL + 원본 파일명 + 크기.</summary>
+    public class TeamPostFileInput
+    {
+        public string Url { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public long SizeBytes { get; set; }
+    }
+
+    /// <summary>공개 팀 홈 ① 소개 탭 "팀 소식" 섹션 (Slug 공개 조회). 유형 뱃지 없음(전부 "소식"),
+    /// 첨부는 파일명만(다운로드는 로그인 필요 — 서버가 URL을 애초에 내리지 않는다).</summary>
+    public class TeamNewsResponse
+    {
+        public List<TeamNewsDto> Items { get; set; } = new();
+    }
+
+    /// <summary>공개 소식 한 건 — 관리 정보(유형·작성자 등) 미노출.</summary>
+    public class TeamNewsDto
+    {
+        public Guid PostId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
+        public DateTime? EditedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        /// <summary>첨부 파일명만 — 게스트는 다운로드할 수 없다(FileUrl 미포함).</summary>
+        public List<TeamNewsFileDto> Files { get; set; } = new();
+    }
+
+    /// <summary>공개 소식 첨부 — 파일명·크기만 (URL 없음 = 비로그인 다운로드 차단).</summary>
+    public class TeamNewsFileDto
+    {
+        public string FileName { get; set; } = string.Empty;
+        public long SizeBytes { get; set; }
+    }
+
     //.// 팀 일정 (Schedule)
 
     /// <summary>일정 목록 — 공개 홈 일정 탭·팀 대시보드 일정 섹션 공용.</summary>
@@ -697,6 +801,10 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>진행 중 지원 중 수락(Accepted)됐지만 아직 초대를 확인하지 않은 건이 있는지 — 있으면 "확인 필요"(오렌지).</summary>
         public bool ApplicationActionNeeded { get; set; }
+
+        /// <summary>이 자녀 팀의 안읽은 게시판 글 수 (Design.TeamBoard) — 0이면 카드에 요약 미노출.
+        /// 전체 목록은 팀 소식 화면에 있고, 허브 카드는 안읽음 요약+링크만.</summary>
+        public int TeamNewsUnreadCount { get; set; }
 
         /// <summary>Pending일 때 요청일 — 대기 안내 문구에 쓴다("… 7/14 요청"). Claimed는 null.</summary>
         public DateTime? RequestedAt { get; set; }

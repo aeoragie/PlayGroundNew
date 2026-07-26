@@ -57,6 +57,38 @@ namespace PlayGround.Application.Interfaces
         /// <summary>모집 공고 소프트 삭제·복구(실행취소). 소유 아님·대상 없음은 Success(false).</summary>
         Task<Result<bool>> DeleteRecruitmentByManagerAsync(Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default);
 
+        //.// 팀 게시판 (Team Board)
+
+        /// <summary>팀 대시보드 게시판 목록 — 관리자 소유 팀의 글(고정 먼저·최신순), 첨부·조회수 포함.</summary>
+        Task<Result<TeamPostsResponse>> GetPostsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
+        /// <summary>공개 팀 홈 "팀 소식" — 공개 글만(파일명만, URL 미포함). 비공개·미존재 팀은 빈 목록.</summary>
+        Task<Result<TeamNewsResponse>> GetNewsBySlugAsync(string slug, CancellationToken cancellation = default);
+
+        /// <summary>보호자 뷰 팀 소식 — @playerId 자녀가 Active 소속인 팀의 글 + 안읽음 상태. 자격 없으면 빈 목록.</summary>
+        Task<Result<GuardianTeamPostsResponse>> GetPostsByGuardianAsync(Guid userId, Guid playerId, CancellationToken cancellation = default);
+
+        /// <summary>게시판 글 저장 (신규·수정 겸용, 첨부 통째 교체). 소유 아님·삭제 글 수정은 Success(null).</summary>
+        Task<Result<TeamPostDto?>> SavePostByManagerAsync(Guid managerUserId, SaveTeamPostRequest request, string? authorName, CancellationToken cancellation = default);
+
+        /// <summary>고정 전환 (최대 2개 강제). 소유 아님·삭제·고정 초과는 Success(null).</summary>
+        Task<Result<TeamPostDto?>> SetPostPinnedByManagerAsync(Guid managerUserId, Guid postId, bool isPinned, CancellationToken cancellation = default);
+
+        /// <summary>공개 전환. 소유 아님·삭제는 Success(null).</summary>
+        Task<Result<TeamPostDto?>> SetPostPublicByManagerAsync(Guid managerUserId, Guid postId, bool isPublic, CancellationToken cancellation = default);
+
+        /// <summary>게시판 글 소프트 삭제·복구(실행취소). 소유 아님·대상 없음은 Success(false).</summary>
+        Task<Result<bool>> DeletePostByManagerAsync(Guid managerUserId, Guid postId, bool restore, CancellationToken cancellation = default);
+
+        /// <summary>보호자 글 읽음 처리 (안읽음 점 해제·조회수 적재). 자격 없으면 Success(false).</summary>
+        Task<Result<bool>> MarkPostReadAsync(Guid userId, Guid postId, CancellationToken cancellation = default);
+
+        /// <summary>보호자의 자녀별 안읽은 게시판 글 수 (허브 요약). PlayerId → 안읽음 수.</summary>
+        Task<Result<Dictionary<Guid, int>>> GetPostUnreadCountsByGuardianAsync(Guid userId, CancellationToken cancellation = default);
+
+        /// <summary>공지 발행 알림 수신자 — 관리자 팀 로스터 보호자 전원(자녀별 1행, 중복은 Application이 제거).</summary>
+        Task<Result<List<NotificationRecipient>>> GetPostRecipientsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
+
         /// <summary>팀 대시보드 일정 섹션 — 관리자 소유 팀의 일정 목록.</summary>
         Task<Result<SchedulesResponse>> GetSchedulesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default);
 
