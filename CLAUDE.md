@@ -656,7 +656,7 @@
 - **다른 PC 필수**: `2026-07-25_SoccerPlayers.StrengthTags.sql` 마이그레이션 + `SoccerStrengthTagPresets`
   테이블·시드 + SP 2종 배포.
 
-### 선수 지원(Application) 진행 중 — Stage 1 백엔드 완료 (2026-07-26, Design.Application "E5")
+### 선수 지원 완료 (2026-07-26, Design.Application "E5", 4 Stage)
 
 > **스키마 통일(사용자 확정)**: 새 공고 테이블(SoccerRecruitPosts) 만들지 않고 **기존
 > `SoccerTeamRecruitments`로 통일** — 연령·포지션(복수)·정원 3컬럼 추가. 그 위에 지원 얹음.
@@ -666,12 +666,22 @@
   신설(상태 Pending→Reviewing→Accepted|Rejected · Route Direct/AgentRef · 30일 재지원 쿨다운 ·
   취소=소프트). SP 5종(생성=소유·Open·마감·정원·중복·쿨다운 인프로시저 판정+상태 결과셋 /
   관리자·보호자 목록 / 상태전환=전환 화이트리스트·팀 소유 / 취소=대기만). 모집 조회 2종에
-  새 컬럼 + 수락수 RS2. C# 전 계층(Command·Repository·Actor 읽기Info/쓰기Profile·Controller 5엔드포인트).
-  전체 트랜잭션 플로우 검증 통과·DB 클린. `TeamRecommendation` 테이블은 없음 — AgentRef는 컬럼만.
-- **잔여(다음 세션)**: **Stage 2** 공개홈 모집 탭 지원 버튼+폼(자녀 선택·희망 포지션·자기소개·중복 차단·
-  게스트 로그인 재개) · **Stage 3** 팀 대시보드 지원자 리스트(기존 모집 섹션 §6 확장·상태 세그먼트·
-  ⋯ 수락/보류) · **Stage 4** 수락→선수단 초대 알림→보호자 수락 로스터 편입 + 지원자 현황(허브 자녀
-  카드·선수 대시보드). **UI 검증·전체 재빌드는 아직 안 됨(E3·E4·E5 모두 VS 재빌드 필요).**
+  새 컬럼 + 수락수 RS2. C# 전 계층. `TeamRecommendation` 테이블은 없음 — AgentRef는 컬럼만.
+- **Stage 2 공개홈 지원** (`3dfe92f`) — 무동작이던 모집 카드 "지원하기" 실동작화. ApplicationFormDialog
+  (자녀 선택·공고 포지션만 희망 포지션·자기소개 500자·연락처 읽기전용·자녀 미연결→Claim). 카드 버튼
+  상태(지원하기/모집 마감/지원 완료·상태 보기). 게스트 로그인 returnUrl 재개. **MyApplicationDto에
+  RecruitmentId 추가**해 "이미 지원함"을 Id로 정확 판정(제목 매칭 폐기).
+- **Stage 3 팀 지원자 리스트** (`d743eb5`) — 기존 모집 섹션 아래 ApplicantList(공용). 상태 세그먼트
+  (대기/검토중/종료)·행 액션형(Direct teal/AgentRef violet+"추천" 캡션·상태 뱃지 톤 계승)·액션(프로필
+  인라인·테스트 요청→검토중·⋯ 수락/보류 확인모달). 종료는 터미널.
+- **Stage 4 수락→편입** (직전 커밋) — 수락 시 `UspUpdateSoccerApplicationStatus`가 보호자 **RosterInvite
+  알림 발송**(트랜잭션 내 멱등). `SoccerApplications.ConfirmedAt`(마이그레이션 `2026-07-26_…ConfirmedAt.sql`).
+  `UspConfirmSoccerApplicationInvite`(보호자 확인→SoccerTeamPlayers 편입, 선수 이미 존재라 소속 행만
+  삽입·멱등). 알림 패널 RosterInvite 액션형 [초대 확인], 처리 상태는 ConfirmedAt 라이브 파생. 선수
+  대시보드 "내 지원 현황" 카드(완화 문구·[초대 확인]·[지원 취소]) + 허브 자녀 카드 지원 요약.
+  `SoccerNotificationType.RosterInvite`.
+- **미해결**: 에이전트 추천(AgentRef) 생성은 에이전트 서비스 몫(결정 4·7) — 컬럼만. **UI 검증·전체
+  재빌드는 아직 안 됨(E3·E4·E5 모두 VS 재빌드 필요).**
 
 ### 다음 작업 (우선순위)
 
