@@ -1,0 +1,33 @@
+-- 서명 URL 다운로드 소비 (Design.SettingsFlows ③). 토큰으로 원자 검증+증가+파일키 반환.
+-- Ready + 미만료(ExpiresAt > now) + 횟수 < 상한 + 미삭제일 때만 DownloadCount를 올리고 StorageKey를 반환한다.
+--   조건 미충족(만료·횟수 초과·잘못된 토큰)이면 빈 결과 → 엔드포인트 404/410. 토큰이 곧 자격(추측 불가).
+CREATE PROCEDURE [dbo].[UspConsumeSoccerDataExportDownload]
+    @Token VARCHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @StorageKey VARCHAR(400) = NULL;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        UPDATE [dbo].[SoccerDataExportRequests]
+        SET @StorageKey = [StorageKey],
+            [DownloadCount] = [DownloadCount] + 1,
+            [UpdatedAt] = GETUTCDATE()
+        WHERE [DownloadToken] = @Token
+          AND [Status] = 'Ready'
+          AND [DeletedAt] IS NULL
+          AND [ExpiresAt] > GETUTCDATE()
+          AND [DownloadCount] < [MaxDownloads];
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+
+    SELECT @StorageKey AS [StorageKey] WHERE @StorageKey IS NOT NULL;
+END

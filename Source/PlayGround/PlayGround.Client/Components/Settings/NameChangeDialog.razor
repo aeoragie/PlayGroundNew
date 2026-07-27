@@ -1,0 +1,150 @@
+@* 이름 변경 (Design.SettingsFlows ①) — PC 중앙 모달 / 모바일 바텀시트 (Css.MatchForm 골격 재사용).
+   검증(한글 2~10/영문 2~20·특수문자·숫자 불가) blur 후 인라인 · 반영 범위 안내 · 동명이인 허용.
+   성공 = 새 토큰 교체(GNB 즉시 반영) + 토스트 "이름이 변경됐어요". 30일 2회 제한은 호출부가 버튼을 막는다. *@
+@using PlayGround.Client.Services.Auth
+@using PlayGround.Client.Styles
+@inject AuthClient Auth
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject ToastService Toasts
+
+@if (IsOpen)
+{
+    <div class="@Css.MatchForm.Overlay">
+        <div class="fixed inset-0" @onclick="CancelAsync"></div>
+
+        <div class="@Css.MatchForm.Card">
+            <span class="@Css.MatchForm.GrabBar"></span>
+
+            <div class="@Css.MatchForm.Header">
+                <h2 class="@Css.MatchForm.Title">이름 변경</h2>
+                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                </button>
+            </div>
+
+            <CascadingValue Value="@mForm" IsFixed="true">
+                <div class="@Css.MatchForm.Body">
+                    <TextField Label="이름" @bind-Value="mName" Placeholder="김성원"
+                               Validator="ValidateName" MaxLength="20"
+                               Helper="한글 2~10자 또는 영문 2~20자 · 특수문자·숫자 불가" />
+
+                    @* 반영 범위 안내 — 바뀌는 곳 / 바뀌지 않는 곳 *@
+                    <div class="flex flex-col gap-1.5 bg-surface-soft rounded-[10px] px-3 py-[11px]">
+                        <span class="text-[11.5px] font-extrabold text-text-strong">바뀌는 곳</span>
+                        <span class="text-[11.5px] text-text-body leading-[1.55] break-keep">계정 이름 · 팀에 보이는 보호자 이름 · 알림 발신 이름</span>
+                        <span class="text-[11.5px] font-extrabold text-text-strong mt-1">바뀌지 않는 곳</span>
+                        <span class="text-[11.5px] text-text-body leading-[1.55] break-keep">자녀(선수) 이름 · 이미 남긴 리뷰의 마스킹 표기(김**) · 지난 지원서에 기록된 이름</span>
+                    </div>
+                </div>
+
+                <div class="@Css.MatchForm.Footer">
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
+                    <SubmitButton Label="변경하기" BusyLabel="변경 중…" IsBusy="@mSaving"
+                                  OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>현재 이름 — 열릴 때 프리필.</summary>
+    [Parameter]
+    public string CurrentName { get; set; } = string.Empty;
+
+    /// <summary>변경 성공 후 — 부모가 설정을 다시 불러온다(남은 횟수 갱신).</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private readonly FormFieldContext mForm = new();
+    private string mName = string.Empty;
+    private bool mSaving;
+    private bool mLoaded;
+
+    protected override void OnParametersSet()
+    {
+        if (!IsOpen)
+        {
+            mLoaded = false;
+            return;
+        }
+
+        if (!mLoaded)
+        {
+            mLoaded = true;
+            mName = CurrentName;
+        }
+    }
+
+    // 서버·명령과 같은 규칙 — 한글 전부(2~10) 또는 영문 전부(2~20), 특수문자·숫자·공백·혼용 불가
+    private static string? ValidateName(string? value)
+    {
+        string name = (value ?? string.Empty).Trim();
+        if (name.Length == 0)
+        {
+            return "이름을 입력해 주세요.";
+        }
+
+        bool allHangul = name.All(c => c >= '가' && c <= '힣');
+        if (allHangul)
+        {
+            return name.Length is >= 2 and <= 10 ? null : "한글 이름은 2~10자로 입력해 주세요.";
+        }
+
+        bool allLatin = name.All(c => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+        if (allLatin)
+        {
+            return name.Length is >= 2 and <= 20 ? null : "영문 이름은 2~20자로 입력해 주세요.";
+        }
+
+        return "특수문자·숫자 없이 한글 또는 영문으로만 입력해 주세요.";
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (!await mForm.ValidateAllAsync())
+        {
+            return;
+        }
+
+        mSaving = true;
+        NameChangeResult result = await Auth.ChangeDisplayNameAsync(mName.Trim());
+        mSaving = false;
+
+        if (!result.Success)
+        {
+            if (result.IsNetworkError)
+            {
+                Toasts.ShowError(result.Error ?? "이름을 변경하지 못했어요.", "재시도", SubmitAsync);
+            }
+            else
+            {
+                Toasts.ShowError(result.Error ?? "이름을 변경하지 못했어요.");
+            }
+
+            return;
+        }
+
+        // 새 토큰으로 교체 → GNB·프로필 즉시 반영 (역할 승격과 같은 패턴)
+        if (!string.IsNullOrEmpty(result.NewToken))
+        {
+            await AuthProvider.MarkUserAuthenticatedAsync(result.NewToken);
+        }
+
+        Toasts.ShowSuccess("이름이 변경됐어요.");
+        await IsOpenChanged.InvokeAsync(false);
+        await OnSaved.InvokeAsync();
+    }
+
+    private async Task CancelAsync()
+    {
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}

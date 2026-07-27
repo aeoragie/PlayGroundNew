@@ -1,84 +1,116 @@
-@* 설정 · 계정 탭 (Design.Settings) — 프로필 + 연결된 로그인 + 계정 관리.
-   이름 변경·Kakao 연결·데이터 내려받기는 화면만(플로우 미구현 — 무동작 버튼, # 링크 금지). *@
+@* 설정 · 계정 탭 (Design.Settings + Design.SettingsFlows) — 프로필/이름 변경 + 연결된 로그인 + 데이터 내려받기 + 계정 삭제.
+   ① 이름 변경(30일 2회 제한 캡션) ② 로그인 수단 연결/해제(마지막 1개 해제 불가 캡션·LINE 준비 중)
+   ③ 데이터 내려받기(상태 3종 행 — 준비 중/완료/실패, 진행 중 폴링). 아이콘 SVG는 Auth.Onboarding 승인본 재사용. *@
+@using System.Globalization
+@using PlayGround.Client.Services.Auth
+@using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
+@using PlayGround.Contracts.Export
 @using PlayGround.Contracts.Settings
+@implements IDisposable
+@inject AuthClient Auth
+@inject ExportClient Exports
+@inject ToastService Toasts
+@inject ConfirmService Confirm
+@inject NavigationManager Nav
 
 <div class="flex flex-col gap-3.5 md:gap-4">
     <div class="@($"{Css.Settings.Card} gap-3.5 md:gap-4")">
-        @* 프로필 *@
+        @* 프로필 + 이름 변경 *@
         <div class="flex items-center gap-[13px] md:gap-3.5">
             <Avatar Name="@Initial" Size="56" Class="flex-none" />
             <span class="flex flex-col gap-0.5 flex-1 min-w-0">
                 <span class="text-[15px] md:text-base font-extrabold text-navy-deep whitespace-nowrap">@Settings.DisplayName</span>
                 <span class="text-xs md:text-[12.5px] text-text-muted whitespace-nowrap">@Settings.MaskedEmail</span>
             </span>
-            <button type="button" class="@Css.Settings.OutlineButton">이름 변경</button>
+            @if (Settings.NameChangeRemaining > 0)
+            {
+                <button type="button" class="@Css.Settings.OutlineButton" @onclick="() => mNameOpen = true">이름 변경</button>
+            }
+            else
+            {
+                <button type="button" class="@Css.Settings.OutlineButton opacity-45 cursor-not-allowed" disabled>이름 변경</button>
+            }
         </div>
+        @if (Settings.NameChangeRemaining == 0 && Settings.NameChangeAvailableAt is DateTime next)
+        {
+            <span class="text-[11px] text-text-muted break-keep -mt-1.5">이름은 30일에 두 번까지 바꿀 수 있어요 · 다음 변경 가능 @next.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture)</span>
+        }
 
         @* 연결된 로그인 *@
         <div class="@($"{Css.Settings.DividerTop} pt-3.5 md:pt-4 flex flex-col gap-[9px] md:gap-2.5")">
             <span class="@Css.Settings.CardHeading">연결된 로그인</span>
 
-            @* Google *@
-            @if (IsLinked("Google"))
-            {
-                <div class="@Css.Settings.LoginRowLinked">
-                    <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[18px] md:h-[18px]"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2 3.7-5 3.7-8.6z"></path><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.7-2.9c-1 .7-2.4 1.2-4.2 1.2-3.1 0-5.8-2.1-6.7-5l-3.9 3C3.4 21.3 7.4 24 12 24z"></path><path fill="#FBBC05" d="M5.3 14.4c-.2-.7-.4-1.5-.4-2.4s.2-1.7.4-2.4l-3.9-3C.5 8.2 0 10 0 12s.5 3.8 1.4 5.4l3.9-3z"></path><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.6l3.9 3c.9-2.9 3.6-4.9 6.7-4.9z"></path></svg>
-                    <span class="flex flex-col gap-px flex-1 min-w-0">
-                        <span class="text-[12.5px] md:text-[13px] font-bold text-navy-deep whitespace-nowrap">Google</span>
-                        @if (LinkedCaption("Google") is string googleCaption)
-                        {
-                            <span class="hidden md:inline text-[11.5px] text-text-muted whitespace-nowrap">@googleCaption</span>
-                        }
-                    </span>
-                    <span class="@Css.Settings.LinkedBadge">연결됨</span>
-                </div>
-            }
-            else
-            {
-                <div class="@Css.Settings.LoginRowUnlinked">
-                    <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[18px] md:h-[18px]"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2 3.7-5 3.7-8.6z"></path><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.7-2.9c-1 .7-2.4 1.2-4.2 1.2-3.1 0-5.8-2.1-6.7-5l-3.9 3C3.4 21.3 7.4 24 12 24z"></path><path fill="#FBBC05" d="M5.3 14.4c-.2-.7-.4-1.5-.4-2.4s.2-1.7.4-2.4l-3.9-3C.5 8.2 0 10 0 12s.5 3.8 1.4 5.4l3.9-3z"></path><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.6l3.9 3c.9-2.9 3.6-4.9 6.7-4.9z"></path></svg>
-                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted flex-1 whitespace-nowrap">Google</span>
-                    <button type="button" class="@Css.Settings.SmallOutlineButton">연결하기</button>
-                </div>
-            }
+            @SocialRow("Google", GoogleIcon)
+            @SocialRow("Kakao", KakaoIcon)
 
-            @* Kakao *@
-            @if (IsLinked("Kakao"))
-            {
-                <div class="@Css.Settings.LoginRowLinked">
-                    <span class="w-[17px] h-[17px] md:w-[18px] md:h-[18px] rounded bg-[#FEE500] flex items-center justify-center flex-none"><svg width="10" height="10" viewBox="0 0 24 24" class="md:w-[11px] md:h-[11px]"><path fill="#191919" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1.2 4.4c-.1.4.3.7.6.5l5.2-3.5c.2 0 .5.1.7.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"></path></svg></span>
-                    <span class="flex flex-col gap-px flex-1 min-w-0">
-                        <span class="text-[12.5px] md:text-[13px] font-bold text-navy-deep whitespace-nowrap">Kakao</span>
-                        @if (LinkedCaption("Kakao") is string kakaoCaption)
-                        {
-                            <span class="hidden md:inline text-[11.5px] text-text-muted whitespace-nowrap">@kakaoCaption</span>
-                        }
-                    </span>
-                    <span class="@Css.Settings.LinkedBadge">연결됨</span>
-                </div>
-            }
-            else
-            {
-                <div class="@Css.Settings.LoginRowUnlinked">
-                    <span class="w-[17px] h-[17px] md:w-[18px] md:h-[18px] rounded bg-[#FEE500] flex items-center justify-center flex-none"><svg width="10" height="10" viewBox="0 0 24 24" class="md:w-[11px] md:h-[11px]"><path fill="#191919" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1.2 4.4c-.1.4.3.7.6.5l5.2-3.5c.2 0 .5.1.7.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"></path></svg></span>
-                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted flex-1 whitespace-nowrap">Kakao</span>
-                    <button type="button" class="@Css.Settings.SmallOutlineButton">연결하기</button>
-                </div>
-            }
+            @* LINE — 채널 미발급, "준비 중" 회색 행(연결 버튼 없음) *@
+            <div class="@Css.Settings.LoginRowLinked">
+                <span class="w-[17px] h-[17px] md:w-[18px] md:h-[18px] rounded bg-[#06C755] flex items-center justify-center flex-none">@LineIcon</span>
+                <span class="flex flex-col gap-px flex-1 min-w-0">
+                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted whitespace-nowrap">LINE</span>
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">준비 중이에요</span>
+                </span>
+                <span class="text-[11px] font-bold text-text-faint whitespace-nowrap flex-none">준비 중</span>
+            </div>
         </div>
     </div>
 
     @* 계정 관리 *@
     <div class="@($"{Css.Settings.Card} gap-3")">
         <span class="@Css.Settings.CardHeading">계정 관리</span>
-        <div class="flex items-center gap-2.5">
-            <span class="flex flex-col gap-px flex-1 min-w-0">
-                <span class="text-[13px] font-bold text-navy-deep whitespace-nowrap">데이터 내려받기</span>
-                <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">자녀 프로필·기록 전체를 파일로 받아요</span>
-            </span>
-            <button type="button" class="@Css.Settings.ManageButton">요청</button>
-        </div>
+
+        @* 데이터 내려받기 — 상태 행(준비 중/완료/실패) 또는 요청 버튼 *@
+        @if (mExport is null)
+        {
+            <div class="flex items-center gap-2.5">
+                <span class="flex flex-col gap-px flex-1 min-w-0">
+                    <span class="text-[13px] font-bold text-navy-deep whitespace-nowrap">데이터 내려받기</span>
+                    <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">자녀 프로필·기록 전체를 파일로 받아요</span>
+                </span>
+                <button type="button" class="@Css.Settings.ManageButton" @onclick="() => mExportOpen = true">요청</button>
+            </div>
+        }
+        else if (mExport.Status == "Pending")
+        {
+            <div class="flex items-center gap-2.5 border border-border rounded-[11px] px-3 py-2.5">
+                <span class="w-[30px] h-[30px] rounded-[9px] bg-surface-icon flex items-center justify-center flex-none">
+                    <span class="w-[15px] h-[15px] rounded-full border-[2.5px] border-navy/20 border-t-navy animate-spin"></span>
+                </span>
+                <span class="flex flex-col gap-px flex-1 min-w-0">
+                    <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">파일을 준비하고 있어요</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap">@mExport.CreatedAt.ToLocalTime().ToString("M/d HH:mm", CultureInfo.InvariantCulture) 요청 · 최대 24시간</span>
+                </span>
+                <button type="button" class="text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="CancelExportAsync">요청 취소</button>
+            </div>
+        }
+        else if (mExport.Status == "Ready")
+        {
+            <div class="flex items-center gap-2.5 border-[1.5px] border-teal/40 bg-teal/5 rounded-[11px] px-3 py-2.5">
+                <span class="w-[30px] h-[30px] rounded-[9px] bg-teal/[.12] flex items-center justify-center flex-none">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1b8579" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 11.5L12 16l4.5-4.5M5 19h14"></path></svg>
+                </span>
+                <span class="flex flex-col gap-px flex-1 min-w-0">
+                    <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">파일이 준비됐어요</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap">@SizeText(mExport.SizeBytes)@ExpiryText</span>
+                </span>
+                <a href="@DownloadHref" target="_blank" rel="noopener" download
+                   class="h-[34px] px-3.5 inline-flex items-center rounded-[9px] bg-navy text-white text-[11.5px] font-bold whitespace-nowrap flex-none">내려받기</a>
+            </div>
+        }
+        else
+        {
+            @* Failed *@
+            <div class="flex items-center gap-2.5 border border-[#f2d5d0] bg-[#fdf6f5] rounded-[11px] px-3 py-2.5">
+                <span class="w-[30px] h-[30px] rounded-[9px] bg-[#fdeceb] flex items-center justify-center flex-none text-[13px] font-extrabold text-danger">!</span>
+                <span class="flex flex-col gap-px flex-1 min-w-0">
+                    <span class="text-[12.5px] font-bold text-danger whitespace-nowrap">파일을 만들지 못했어요</span>
+                    <span class="text-[11px] text-text-muted break-keep">잠시 후 다시 요청해 주세요</span>
+                </span>
+                <button type="button" class="@Css.Settings.SmallOutlineButton" @onclick="() => mExportOpen = true">다시 요청</button>
+            </div>
+        }
+
         <div class="@($"{Css.Settings.DividerTop} pt-3 flex items-center gap-2.5")">
             <span class="flex flex-col gap-px flex-1 min-w-0">
                 <span class="text-[13px] font-bold text-danger whitespace-nowrap">계정 삭제</span>
@@ -89,34 +121,261 @@
     </div>
 </div>
 
+<NameChangeDialog @bind-IsOpen="mNameOpen" CurrentName="@Settings.DisplayName" OnSaved="OnChanged" />
+<DataExportDialog @bind-IsOpen="mExportOpen" OnRequested="ReloadExportAsync" />
+
 @code {
     [Parameter, EditorRequired]
     public AccountSettingsResponse Settings { get; set; } = new();
 
-    /// <summary>아바타 이니셜 — 표시 이름 첫 글자.</summary>
     [Parameter]
     public string Initial { get; set; } = "?";
 
     [Parameter]
     public EventCallback OnDelete { get; set; }
 
-    private bool IsLinked(string provider)
+    /// <summary>이름·소셜 변경 후 — 부모가 설정을 다시 불러온다.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    private bool mNameOpen;
+    private bool mExportOpen;
+    private DataExportStateDto? mExport;
+    private CancellationTokenSource? mPollCts;
+
+    protected override async Task OnInitializedAsync()
     {
-        return Settings.SocialLogins.Any(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+        await ReloadExportAsync();
     }
 
-    /// <summary>PC 전용 캡션 — "기본 로그인 · 2026.3 연결" 형식 (기본 로그인이 아니면 연결 시점만).</summary>
+    //.// 데이터 내려받기 상태 — 진입 시 로드, 준비 중이면 폴링
+
+    private async Task ReloadExportAsync()
+    {
+        mExport = await Exports.GetCurrentAsync();
+        await InvokeAsync(StateHasChanged);
+        StartPollingIfPending();
+    }
+
+    private void StartPollingIfPending()
+    {
+        mPollCts?.Cancel();
+        if (mExport?.Status != "Pending")
+        {
+            return;
+        }
+
+        mPollCts = new CancellationTokenSource();
+        CancellationToken token = mPollCts.Token;
+        _ = PollAsync(token);
+    }
+
+    private async Task PollAsync(CancellationToken token)
+    {
+        try
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5), token);
+                DataExportStateDto? latest = await Exports.GetCurrentAsync();
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                mExport = latest;
+                await InvokeAsync(StateHasChanged);
+                if (latest?.Status != "Pending")
+                {
+                    return;
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // 정상 취소
+        }
+    }
+
+    private async Task CancelExportAsync()
+    {
+        if (mExport is null)
+        {
+            return;
+        }
+
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = "요청을 취소할까요?",
+            Description = "준비 중인 데이터 파일 요청이 취소돼요.",
+            ConfirmLabel = "요청 취소",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        if (await Exports.CancelAsync(mExport.RequestId))
+        {
+            Toasts.ShowSuccess("요청을 취소했어요.");
+            await ReloadExportAsync();
+            return;
+        }
+
+        Toasts.ShowError("취소하지 못했어요. 다시 시도해 주세요.");
+    }
+
+    private string DownloadHref => mExport?.DownloadToken is string t ? Exports.DownloadUrl(t) : "#";
+
+    private static string SizeText(long bytes)
+    {
+        if (bytes >= 1024 * 1024)
+        {
+            return $"{bytes / (1024.0 * 1024.0):0.0}MB";
+        }
+
+        return $"{Math.Max(1, bytes / 1024)}KB";
+    }
+
+    private string ExpiryText =>
+        mExport?.ExpiresAt is DateTime e
+            ? $" · {e.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture)}까지 받을 수 있어요"
+            : string.Empty;
+
+    //.// 로그인 수단 — 연결(OAuth 이동)·해제(파괴 모달, 마지막 1개는 캡션)
+
+    private bool IsLinked(string provider) =>
+        Settings.SocialLogins.Any(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+
+    private LinkedLoginDto? LoginOf(string provider) =>
+        Settings.SocialLogins.FirstOrDefault(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+
+    // "kim***@gmail.com · 2026.3.14 연결" (있는 조각만)
     private string? LinkedCaption(string provider)
     {
-        LinkedLoginDto? login = Settings.SocialLogins
-            .FirstOrDefault(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+        LinkedLoginDto? login = LoginOf(provider);
         if (login is null)
         {
             return null;
         }
 
-        string linked = $"{login.LinkedAt.Year}.{login.LinkedAt.Month} 연결";
-        bool isPrimary = string.Equals(Settings.AuthProvider, provider, StringComparison.OrdinalIgnoreCase);
-        return isPrimary ? $"기본 로그인 · {linked}" : linked;
+        string linked = $"{login.LinkedAt.Year}.{login.LinkedAt.Month}.{login.LinkedAt.Day} 연결";
+        return login.MaskedEmail is string email ? $"{email} · {linked}" : linked;
+    }
+
+    private bool IsLastMeans => Settings.LoginMeansCount <= 1;
+
+    private async Task ConnectAsync(string provider)
+    {
+        string? url = await Auth.StartSocialLinkAsync(provider);
+        if (string.IsNullOrEmpty(url))
+        {
+            Toasts.ShowError($"{provider} 연결을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
+            return;
+        }
+
+        // OAuth 제공자로 전체 이동 — 콜백이 /settings/account?linked=... 로 돌아온다
+        Nav.NavigateTo(url, forceLoad: true);
+    }
+
+    private async Task UnlinkAsync(string provider)
+    {
+        bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
+        {
+            Kind = ConfirmKind.Destructive,
+            Title = $"{provider} 연결을 해제할까요?",
+            Description = $"해제하면 {provider}로 로그인할 수 없어요. 남은 로그인 수단은 {Math.Max(0, Settings.LoginMeansCount - 1)}개예요.",
+            ConfirmLabel = "해제",
+        });
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        string status = await Auth.UnlinkSocialAsync(provider);
+        if (status == "Ok")
+        {
+            Toasts.ShowSuccess($"{provider} 연결을 해제했어요.");
+            await OnChanged.InvokeAsync();
+            return;
+        }
+
+        if (status == "LastMeans")
+        {
+            Toasts.ShowError("유일한 로그인 수단이라 해제할 수 없어요.");
+            return;
+        }
+
+        Toasts.ShowError("연결을 해제하지 못했어요. 다시 시도해 주세요.");
+    }
+
+    private List<OverflowMenu.MenuItem> UnlinkMenu(string provider) =>
+        new();
+
+    private List<OverflowMenu.MenuItem> UnlinkDestructive(string provider) =>
+        new() { new("연결 해제", () => UnlinkAsync(provider)) };
+
+    private RenderFragment SocialRow(string provider, RenderFragment icon) => __builder =>
+    {
+        if (IsLinked(provider))
+        {
+            <div class="@Css.Settings.LoginRowLinked">
+                @icon
+                <span class="flex flex-col gap-px flex-1 min-w-0">
+                    <span class="text-[12.5px] md:text-[13px] font-bold text-navy-deep whitespace-nowrap">@provider</span>
+                    @if (LinkedCaption(provider) is string caption)
+                    {
+                        <span class="text-[11.5px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">@caption</span>
+                    }
+                </span>
+                <span class="@Css.Settings.LinkedBadge">연결됨</span>
+                @if (IsLastMeans)
+                {
+                    <span class="text-[11px] text-text-muted whitespace-nowrap flex-none">유일한 로그인 수단</span>
+                }
+                else
+                {
+                    <button type="button" class="hidden md:inline text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="() => UnlinkAsync(provider)">해제</button>
+                    <span class="md:hidden flex-none">
+                        <OverflowMenu Target="@provider" Items="@UnlinkMenu(provider)" DestructiveItems="@UnlinkDestructive(provider)" />
+                    </span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="@Css.Settings.LoginRowUnlinked">
+                @icon
+                <span class="flex flex-col gap-px flex-1 min-w-0">
+                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted whitespace-nowrap">@provider</span>
+                    <span class="text-[11.5px] text-text-muted break-keep">@(provider)로도 로그인할 수 있게 연결해요</span>
+                </span>
+                <button type="button" class="@Css.Settings.SmallOutlineButton" @onclick="() => ConnectAsync(provider)">연결하기</button>
+            </div>
+        }
+    };
+
+    private readonly RenderFragment GoogleIcon = __builder =>
+    {
+        <svg width="17" height="17" viewBox="0 0 24 24" class="md:w-[18px] md:h-[18px] flex-none"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2 3.7-5 3.7-8.6z"></path><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.7-2.9c-1 .7-2.4 1.2-4.2 1.2-3.1 0-5.8-2.1-6.7-5l-3.9 3C3.4 21.3 7.4 24 12 24z"></path><path fill="#FBBC05" d="M5.3 14.4c-.2-.7-.4-1.5-.4-2.4s.2-1.7.4-2.4l-3.9-3C.5 8.2 0 10 0 12s.5 3.8 1.4 5.4l3.9-3z"></path><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.6l3.9 3c.9-2.9 3.6-4.9 6.7-4.9z"></path></svg>
+    };
+
+    private readonly RenderFragment KakaoIcon = __builder =>
+    {
+        <span class="w-[17px] h-[17px] md:w-[18px] md:h-[18px] rounded bg-[#FEE500] flex items-center justify-center flex-none"><svg width="10" height="10" viewBox="0 0 24 24" class="md:w-[11px] md:h-[11px]"><path fill="#191919" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1.2 4.4c-.1.4.3.7.6.5l5.2-3.5c.2 0 .5.1.7.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"></path></svg></span>
+    };
+
+    private readonly RenderFragment LineIcon = __builder =>
+    {
+        <svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5C6.2 2.5 1.5 6.36 1.5 11.11c0 4.26 3.76 7.83 8.84 8.5.34.07.81.23.93.52.1.27.07.68.03.95l-.15.9c-.04.27-.21 1.05.92.57 1.13-.48 6.08-3.58 8.3-6.13 1.53-1.68 2.13-3.39 2.13-5.31C22.5 6.36 17.8 2.5 12 2.5z"></path></svg>
+    };
+
+    public void Dispose()
+    {
+        mPollCts?.Cancel();
+        mPollCts?.Dispose();
     }
 }

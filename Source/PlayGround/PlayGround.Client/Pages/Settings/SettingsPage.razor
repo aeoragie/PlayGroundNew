@@ -86,9 +86,20 @@
     [Parameter]
     public string? Section { get; set; }
 
+    /// <summary>OAuth 연결 왕복 복귀 — 성공 시 provider명, 실패 시 사유(Duplicate 등).</summary>
+    [Parameter, SupplyParameterFromQuery(Name = "linked")]
+    public string? Linked { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "linkError")]
+    public string? LinkError { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "provider")]
+    public string? LinkProvider { get; set; }
+
     private SettingsSection CurrentSection => SettingsSectionExtensions.ParseSlug(Section);
 
     private bool mAuthenticated;
+    private bool mLinkHandled;
     private string mInitial = "?";
 
     private AccountSettingsResponse? mSettings;
@@ -113,7 +124,7 @@
         </LoadingGate>,
         _ => @<LoadingGate IsLoading="@(mSettings is null && !mSettingsFailed)" HasFailed="@mSettingsFailed" OnRetry="LoadSettingsAsync">
             <Skeleton><SkeletonRows Count="3" ShowChip="false" /></Skeleton>
-            <ChildContent><SettingsAccountSection Settings="@(mSettings!)" Initial="@mInitial" OnDelete="DeleteAccountAsync" /></ChildContent>
+            <ChildContent><SettingsAccountSection Settings="@(mSettings!)" Initial="@mInitial" OnDelete="DeleteAccountAsync" OnChanged="LoadSettingsAsync" /></ChildContent>
         </LoadingGate>,
     };
 
@@ -152,7 +163,43 @@
                 await LoadSettingsAsync();
                 break;
         }
+
+        await HandleSocialLinkReturnAsync();
     }
+
+    // OAuth 연결 왕복 후 복귀 — /settings/account?linked=Kakao 또는 ?linkError=Duplicate&provider=Kakao.
+    // 리다이렉트 왕복이라 인라인 폼이 없으므로 토스트로 알리고, 쿼리를 지운 뒤 설정을 다시 읽는다.
+    private async Task HandleSocialLinkReturnAsync()
+    {
+        if (mLinkHandled || (string.IsNullOrEmpty(Linked) && string.IsNullOrEmpty(LinkError)))
+        {
+            return;
+        }
+
+        mLinkHandled = true;
+
+        if (!string.IsNullOrEmpty(Linked))
+        {
+            Toasts.ShowSuccess($"{Linked}가 연결됐어요.");
+        }
+        else if (string.Equals(LinkError, "Duplicate", StringComparison.OrdinalIgnoreCase))
+        {
+            Toasts.ShowError($"이미 다른 계정에 연결된 {ProviderLabel(LinkProvider)}예요.");
+        }
+        else
+        {
+            Toasts.ShowError("연결하지 못했어요. 다시 시도해 주세요.");
+        }
+
+        // 쿼리 제거 후 설정 재조회 (연결된 로그인 행 갱신)
+        Nav.NavigateTo(Routes.SettingsSection(SettingsSection.Account), replace: true);
+        await LoadSettingsAsync();
+    }
+
+    private static string ProviderLabel(string? provider) =>
+        string.Equals(provider, "Kakao", StringComparison.OrdinalIgnoreCase) ? "카카오"
+        : string.Equals(provider, "Google", StringComparison.OrdinalIgnoreCase) ? "구글"
+        : provider ?? "계정";
 
     private void GoTo(SettingsSection section)
     {

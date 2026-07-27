@@ -27,10 +27,12 @@ namespace PlayGround.Server.DependencyInjection
             services.AddSingleton<IPasswordHasher, PasswordHasherService>();
             services.AddScoped<LoginByEmailCommand>();
 
-            //.// 계정 설정 (설정 화면 — 계정·알림 탭 + 계정 삭제)
+            //.// 계정 설정 (설정 화면 — 계정·알림 탭 + 계정 삭제 + 이름 변경 + 로그인 수단 연결/해제)
             services.AddScoped<AccountSettingsCommand>();
             services.AddScoped<NotificationPreferenceCommand>();
             services.AddScoped<AccountDeleteCommand>();
+            services.AddScoped<DisplayNameChangeCommand>();
+            services.AddScoped<SocialLinkCommand>();
 
             //.// JWT 발급 + Bearer 검증
             services.AddSingleton<IJwtTokenService, JwtTokenService>();

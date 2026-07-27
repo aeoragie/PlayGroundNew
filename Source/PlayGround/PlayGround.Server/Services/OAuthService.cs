@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace PlayGround.Server.Services
@@ -58,6 +60,84 @@ namespace PlayGround.Server.Services
         {
             return mConfiguration.GetSection($"OAuth:{providerKey}").Get<OAuthProviderOptions>()
                 ?? throw new InvalidOperationException($"OAuth:{providerKey} is not configured.");
+        }
+
+        //.// 연결(link) 모드 상태 — 현재 로그인 사용자를 리다이렉트 왕복 동안 서명해 실어 보낸다.
+        // 콜백은 state가 유효한 링크 토큰이면 연결 모드(그 UserId에 붙임), 아니면 로그인 모드로 분기한다.
+
+        /// <summary>연결 모드 서명 상태 생성 — "link|{userId}|{만료(unix)}" + HMAC(Jwt:Key). 15분 유효.</summary>
+        public string CreateLinkState(Guid userId)
+        {
+            long expiry = DateTimeOffset.UtcNow.AddMinutes(15).ToUnixTimeSeconds();
+            string payload = $"link|{userId:N}|{expiry}";
+            return $"{ToBase64Url(Encoding.UTF8.GetBytes(payload))}.{ToBase64Url(SignPayload(payload))}";
+        }
+
+        /// <summary>연결 모드 상태 검증 — 서명·만료 확인 후 UserId 추출. 로그인 상태(랜덤 hex)면 false.</summary>
+        public bool TryReadLinkState(string? state, out Guid userId)
+        {
+            userId = Guid.Empty;
+            if (string.IsNullOrEmpty(state))
+            {
+                return false;
+            }
+
+            string[] parts = state.Split('.');
+            if (parts.Length != 2)
+            {
+                return false;
+            }
+
+            string payload;
+            try
+            {
+                payload = Encoding.UTF8.GetString(FromBase64Url(parts[0]));
+            }
+            catch
+            {
+                return false;
+            }
+
+            // 서명 검증 (상수 시간 비교)
+            if (!CryptographicOperations.FixedTimeEquals(FromBase64Url(parts[1]), SignPayload(payload)))
+            {
+                return false;
+            }
+
+            string[] fields = payload.Split('|');
+            if (fields.Length != 3 || fields[0] != "link")
+            {
+                return false;
+            }
+
+            if (!long.TryParse(fields[2], out long expiry) || DateTimeOffset.UtcNow.ToUnixTimeSeconds() > expiry)
+            {
+                return false;
+            }
+
+            return Guid.TryParseExact(fields[1], "N", out userId);
+        }
+
+        private byte[] SignPayload(string payload)
+        {
+            string key = mConfiguration["Jwt:Key"]
+                ?? throw new InvalidOperationException("Jwt:Key is not configured (appsettings.Local.json).");
+            using var hmac = new System.Security.Cryptography.HMACSHA256(Encoding.UTF8.GetBytes(key));
+            return hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
+        }
+
+        private static string ToBase64Url(byte[] bytes) =>
+            Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+        private static byte[] FromBase64Url(string value)
+        {
+            string s = value.Replace('-', '+').Replace('_', '/');
+            switch (s.Length % 4)
+            {
+                case 2: s += "=="; break;
+                case 3: s += "="; break;
+            }
+            return Convert.FromBase64String(s);
         }
 
         private string BuildUrl(string providerKey, string state, string extra = "")

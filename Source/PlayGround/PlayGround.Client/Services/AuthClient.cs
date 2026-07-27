@@ -113,7 +113,64 @@ namespace PlayGround.Client.Services
                 return false;
             }
         }
+
+        //.// 이름 변경 · 로그인 수단 (Design.SettingsFlows ①②)
+
+        /// <summary>이름 변경. 성공 시 갱신된 name 클레임의 새 토큰을 함께 돌려준다 — 호출부가 토큰을 교체해
+        /// GNB·프로필을 즉시 반영한다. 실패(제한·검증)는 Success=false.</summary>
+        public async Task<NameChangeResult> ChangeDisplayNameAsync(string displayName)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.PutAsJsonAsync(
+                    "api/auth/me/display-name", new ChangeDisplayNameRequest { DisplayName = displayName });
+                Envelope<AuthResult>? envelope = await response.Content.ReadFromJsonAsync<Envelope<AuthResult>>();
+                if (envelope is { IsSuccess: true, Data: not null })
+                {
+                    return new NameChangeResult(true, envelope.Data.AccessToken, null);
+                }
+
+                return new NameChangeResult(false, null, "이름을 변경하지 못했어요. 입력을 다시 확인해 주세요.");
+            }
+            catch
+            {
+                return new NameChangeResult(false, null, "이름을 변경하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+            }
+        }
+
+        /// <summary>로그인 수단 연결 시작 — OAuth 인가 URL을 받는다(현재 계정이 서명 상태에 실린다). null이면 실패.</summary>
+        public async Task<string?> StartSocialLinkAsync(string provider)
+        {
+            try
+            {
+                Envelope<string>? envelope = await mHttp.GetFromJsonAsync<Envelope<string>>(
+                    $"api/auth/social/{provider}/link");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>로그인 수단 해제 — 상태 문자열 반환 ('Ok'|'LastMeans'|'NotLinked'). 오류 시 'Error'.</summary>
+        public async Task<string> UnlinkSocialAsync(string provider)
+        {
+            try
+            {
+                HttpResponseMessage response = await mHttp.DeleteAsync($"api/auth/me/social/{provider}");
+                Envelope<string>? envelope = await response.Content.ReadFromJsonAsync<Envelope<string>>();
+                return envelope is { IsSuccess: true } ? envelope.Data ?? "Error" : "Error";
+            }
+            catch
+            {
+                return "Error";
+            }
+        }
     }
 
     public record EmailLoginResult(bool Success, string? Token, string? Error);
+
+    /// <summary>이름 변경 결과 — 성공 시 새 토큰(NewToken)을 교체한다. IsNetworkError로 인라인/토스트를 가른다.</summary>
+    public record NameChangeResult(bool Success, string? NewToken, string? Error, bool IsNetworkError = false);
 }

@@ -10,6 +10,9 @@ namespace PlayGround.Application.Interfaces
     {
         Task<Result<AccountUser?>> GetByEmailAsync(string email, CancellationToken cancellation = default);
 
+        /// <summary>UserId로 사용자 조회 (원본 이메일 포함 — 내보내기 완료 이메일 발송용). 미존재는 Success(null).</summary>
+        Task<Result<AccountUser?>> GetByIdAsync(Guid userId, CancellationToken cancellation = default);
+
         Task<Result<AccountUser?>> GetBySocialAsync(string provider, string providerUserId, CancellationToken cancellation = default);
 
         Task<Result<AccountUser>> CreateByEmailAsync(string email, string passwordHash, string displayName, CancellationToken cancellation = default);
@@ -18,6 +21,16 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>역할 변경 후 갱신된 사용자를 반환 (JWT 재발급용).</summary>
         Task<Result<AccountUser>> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default);
+
+        /// <summary>이름(DisplayName) 변경 — 30일 2회 제한을 SP가 원자 판정. 제한 초과·미변경·미존재는 Success(null).
+        /// 성공 시 갱신된 사용자를 반환 (JWT 재발급용).</summary>
+        Task<Result<AccountUser?>> UpdateDisplayNameAsync(Guid userId, string newName, CancellationToken cancellation = default);
+
+        /// <summary>소셜 로그인 연결 — 결과 상태 'Ok'|'AlreadyLinked'|'Conflict'(다른 계정에 이미 연결).</summary>
+        Task<Result<string>> LinkSocialAsync(Guid userId, string provider, string providerUserId, string? email, CancellationToken cancellation = default);
+
+        /// <summary>소셜 로그인 해제 — 결과 상태 'Ok'|'LastMeans'(유일 수단이라 거부)|'NotLinked'.</summary>
+        Task<Result<string>> UnlinkSocialAsync(Guid userId, string provider, CancellationToken cancellation = default);
 
         /// <summary>계정 설정 묶음 조회 (마스킹 적용). 미존재·삭제 계정은 Success(null).</summary>
         Task<Result<AccountSettingsResponse?>> GetSettingsAsync(Guid userId, CancellationToken cancellation = default);

@@ -70,6 +70,7 @@
     <Build Include="Tables\Users.sql" />
     <Build Include="Tables\SocialAccounts.sql" />
     <Build Include="Tables\NotificationPreferences.sql" />
+    <Build Include="Tables\UserNameChangeLogs.sql" />
     <Build Include="Procedures\UspGetUserByEmail.sql" />
     <Build Include="Procedures\UspGetUserBySocial.sql" />
     <Build Include="Procedures\UspCreateUserByEmail.sql" />
@@ -80,10 +81,14 @@
     <Build Include="Procedures\UspSetNotificationPreference.sql" />
     <Build Include="Procedures\UspGetNotificationPreferenceStatesByUsers.sql" />
     <Build Include="Procedures\UspDeleteUser.sql" />
+    <Build Include="Procedures\UspUpdateUserDisplayName.sql" />
+    <Build Include="Procedures\UspLinkSocialAccount.sql" />
+    <Build Include="Procedures\UspUnlinkSocialAccount.sql" />
   </ItemGroup>
   <!-- 빌드 제외(스키마 아님): Seeds(데이터) -->
   <ItemGroup>
     <None Include="Seeds\VerificationTeamAdmins.Seed.sql" />
     <None Include="Seeds\VerificationPlayers.Seed.sql" />
+    <None Include="Migrations\2026-07-27_UserNameChangeLogs.sql" />
   </ItemGroup>
 </Project>

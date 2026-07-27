@@ -7,6 +7,7 @@ using PlayGround.Application.Notification.Commands;
 using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Records.Commands;
 using PlayGround.Application.Team.Commands;
+using PlayGround.Application.Export.Commands;
 using PlayGround.Persistence;
 using PlayGround.Server.Services;
 
@@ -61,6 +62,13 @@ namespace PlayGround.Server.DependencyInjection
             services.AddSingleton<IImageStorage, LocalImageStorageService>();
             // 첨부 문서 저장(게시판 pdf·hwp 등) — 원본 확장자 보존. 이미지 저장과 같은 로컬 디스크 어댑터.
             services.AddSingleton<IFileStorage, LocalFileStorageService>();
+
+            //.// 데이터 내려받기 (Design.SettingsFlows ③) — 요청 접수 + 백그라운드 잡 + 서명 URL 다운로드
+            services.AddScoped<DataExportCommand>();
+            services.AddSingleton<IEmailSender, LogOnlyEmailSender>();     // 발송 인프라 생기면 어댑터 교체
+            services.AddSingleton<IExportStorage, LocalExportStorage>();   // 비공개 경로(정적 서빙 밖)
+            services.AddSingleton<IDataExportQueue, DataExportQueue>();    // 인메모리 큐(워커와 공유)
+            services.AddHostedService<DataExportWorker>();                 // 백그라운드 생성 워커
             services.AddScoped<SoccerTeamVideosCommand>();
             services.AddScoped<SoccerRecordsTournamentsCommand>();
             services.AddScoped<SoccerRecordsTournamentDetailCommand>();

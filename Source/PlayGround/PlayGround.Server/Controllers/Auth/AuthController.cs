@@ -26,6 +26,8 @@ namespace PlayGround.Server.Controllers.Auth
         private readonly AccountSettingsCommand mAccountSettings;
         private readonly NotificationPreferenceCommand mNotificationPreference;
         private readonly AccountDeleteCommand mAccountDelete;
+        private readonly DisplayNameChangeCommand mDisplayNameChange;
+        private readonly SocialLinkCommand mSocialLink;
 
         public AuthController(
             OAuthService oauth,
@@ -33,7 +35,9 @@ namespace PlayGround.Server.Controllers.Auth
             LoginByEmailCommand loginByEmail,
             AccountSettingsCommand accountSettings,
             NotificationPreferenceCommand notificationPreference,
-            AccountDeleteCommand accountDelete)
+            AccountDeleteCommand accountDelete,
+            DisplayNameChangeCommand displayNameChange,
+            SocialLinkCommand socialLink)
         {
             mOAuth = oauth;
             mLoginBySocial = loginBySocial;
@@ -41,6 +45,8 @@ namespace PlayGround.Server.Controllers.Auth
             mAccountSettings = accountSettings;
             mNotificationPreference = notificationPreference;
             mAccountDelete = accountDelete;
+            mDisplayNameChange = displayNameChange;
+            mSocialLink = socialLink;
         }
 
         private Guid CurrentUserId =>
@@ -133,6 +139,58 @@ namespace PlayGround.Server.Controllers.Auth
             return result.ToEnvelope();
         }
 
+        /// <summary>이름 변경 (Design.SettingsFlows ①). 성공 시 갱신된 name 클레임의 새 토큰을 돌려준다 —
+        /// 클라이언트가 토큰을 교체하면 GNB·프로필이 즉시 반영된다(역할 승격 재발급과 같은 패턴).</summary>
+        [Authorize]
+        [HttpPut("me/display-name")]
+        public async Task<Envelope<AuthResult>> ChangeDisplayNameAsync(
+            [FromBody] ChangeDisplayNameRequest request, CancellationToken cancellation)
+        {
+            Result<AuthResult> result = await mDisplayNameChange.ExecuteAsync(CurrentUserId, request.DisplayName, cancellation);
+            if (result.IsError)
+            {
+                result.LogWith(Logger, "ChangeDisplayName");
+            }
+
+            return result.ToEnvelope();
+        }
+
+        /// <summary>로그인 수단 연결 시작 (Design.SettingsFlows ②). 현재 로그인 사용자를 서명 상태에 실어
+        /// OAuth 인가 URL을 돌려준다 — 클라이언트가 그 URL로 이동한다(콜백이 연결 모드로 분기). 신규 흐름 없음.</summary>
+        [Authorize]
+        [HttpGet("social/{provider}/link")]
+        public Envelope<string> SocialLinkStart(string provider)
+        {
+            if (!mOAuth.IsSupported(provider) || provider.ToLowerInvariant() == "line")
+            {
+                return Result<string>.Error(ErrorCode.InvalidInput, "unsupported provider").ToEnvelope();
+            }
+
+            if (!mOAuth.IsConfigured(provider))
+            {
+                return Result<string>.Error(ErrorCode.OperationFailed, "provider not configured").ToEnvelope();
+            }
+
+            string state = mOAuth.CreateLinkState(CurrentUserId);
+            Logger.InfoWith("Social link started", ("Provider", provider), ("UserId", CurrentUserId));
+            return Result<string>.Success(mOAuth.GetAuthorizationUrl(provider, state)).ToEnvelope();
+        }
+
+        /// <summary>로그인 수단 해제 (Design.SettingsFlows ②). **마지막 1개는 SP가 거부**('LastMeans').
+        /// 상태 문자열을 그대로 돌려준다: 'Ok'|'LastMeans'|'NotLinked'.</summary>
+        [Authorize]
+        [HttpDelete("me/social/{provider}")]
+        public async Task<Envelope<string>> UnlinkSocialAsync(string provider, CancellationToken cancellation)
+        {
+            Result<string> result = await mSocialLink.UnlinkAsync(CurrentUserId, provider, cancellation);
+            if (result.IsError)
+            {
+                result.LogWith(Logger, "UnlinkSocial");
+            }
+
+            return result.ToEnvelope();
+        }
+
         [HttpGet("social/{provider}")]
         public IActionResult SocialStart(string provider)
         {
@@ -168,6 +226,24 @@ namespace PlayGround.Server.Controllers.Auth
             {
                 Logger.WarnWith("Social callback provider error", ("Provider", provider));
                 return Redirect("/login?error=ProviderError");
+            }
+
+            // 연결(link) 모드 — state가 서명된 링크 토큰이면 로그인(find-or-create) 대신 현재 계정에 붙인다.
+            if (mOAuth.TryReadLinkState(state, out Guid linkUserId))
+            {
+                Result<string> link = await mSocialLink.LinkAsync(
+                    linkUserId, userInfo.Provider, userInfo.ProviderUserId, userInfo.Email, cancellation);
+                if (link.IsError)
+                {
+                    link.LogWith(Logger, "LinkSocialCallback");
+                    return Redirect("/settings/account?linkError=Failed");
+                }
+
+                Logger.InfoWith("Social link completed", ("Provider", provider), ("Status", link.Value), ("UserId", linkUserId));
+                // 'Conflict' = 다른 계정에 이미 연결 → 인라인 오류 / 'Ok'·'AlreadyLinked' = 성공 토스트
+                return link.Value == "Conflict"
+                    ? Redirect($"/settings/account?linkError=Duplicate&provider={Uri.EscapeDataString(userInfo.Provider)}")
+                    : Redirect($"/settings/account?linked={Uri.EscapeDataString(userInfo.Provider)}");
             }
 
             var result = await mLoginBySocial.ExecuteAsync(

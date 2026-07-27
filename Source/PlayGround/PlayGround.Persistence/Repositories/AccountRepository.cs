@@ -28,6 +28,39 @@ namespace PlayGround.Persistence.Repositories
             return await SingleOrNullAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "GetUserByEmail");
         }
 
+        public async Task<Result<AccountUser?>> GetByIdAsync(Guid userId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("User lookup by id requested", ("UserId", userId));
+
+            // UspGetUserSettings의 첫 결과셋(사용자 행)만 쓴다 — 원본 이메일 포함(내보내기 이메일용)
+            var procedure = new UspGetUserSettings(this) { UserId = userId };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<AccountUser?>.Error(ErrorCode.DatabaseError, "GetUserById");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            UsersEntity? user = await reader.ReadSingleOrDefaultAsync<UsersEntity>();
+            if (user is null)
+            {
+                return Result<AccountUser?>.Success(null);
+            }
+
+            return Result<AccountUser?>.Success(new AccountUser
+            {
+                UserId = user.UserId,
+                Email = user.Email,
+                EmailConfirmed = user.EmailConfirmed,
+                PasswordHash = string.IsNullOrEmpty(user.PasswordHash) ? null : user.PasswordHash,
+                AuthProvider = user.AuthProvider,
+                DisplayName = user.DisplayName,
+                ProfileImageUrl = string.IsNullOrEmpty(user.ProfileImageUrl) ? null : user.ProfileImageUrl,
+                UserRole = user.UserRole,
+                UserStatus = user.UserStatus
+            });
+        }
+
         public async Task<Result<AccountUser?>> GetBySocialAsync(string provider, string providerUserId, CancellationToken cancellation = default)
         {
             Logger.InfoWith("User lookup by social requested", ("Provider", provider));
@@ -69,6 +102,49 @@ namespace PlayGround.Persistence.Repositories
             return await CreatedAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "UpdateUserRole");
         }
 
+        public async Task<Result<AccountUser?>> UpdateDisplayNameAsync(Guid userId, string newName, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Display name change requested", ("UserId", userId));
+
+            var procedure = new UspUpdateUserDisplayName(this) { UserId = userId, NewName = newName };
+            // 빈 결과 = 제한 초과·미변경·미존재 (프로시저가 원자 판정) → Success(null)
+            return await SingleOrNullAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "UpdateDisplayName");
+        }
+
+        public async Task<Result<string>> LinkSocialAsync(Guid userId, string provider, string providerUserId, string? email, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Social link requested", ("UserId", userId), ("Provider", provider));
+
+            var procedure = new UspLinkSocialAccount(this)
+            {
+                UserId = userId,
+                Provider = provider,
+                ProviderUserId = providerUserId,
+                Email = email!
+            };
+            var queryResult = await procedure.QueryAsync<string>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<string>.Error(ErrorCode.DatabaseError, "LinkSocial");
+            }
+
+            return Result<string>.Success(queryResult.Values1.FirstOrDefault() ?? "Error");
+        }
+
+        public async Task<Result<string>> UnlinkSocialAsync(Guid userId, string provider, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Social unlink requested", ("UserId", userId), ("Provider", provider));
+
+            var procedure = new UspUnlinkSocialAccount(this) { UserId = userId, Provider = provider };
+            var queryResult = await procedure.QueryAsync<string>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<string>.Error(ErrorCode.DatabaseError, "UnlinkSocial");
+            }
+
+            return Result<string>.Success(queryResult.Values1.FirstOrDefault() ?? "Error");
+        }
+
         public async Task<Result<AccountSettingsResponse?>> GetSettingsAsync(Guid userId, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Account settings requested", ("UserId", userId));
@@ -90,6 +166,11 @@ namespace PlayGround.Persistence.Repositories
             }
 
             var socials = (await reader.ReadAsync<SocialAccountsEntity>()).ToList();
+            int recentNameChanges = await reader.ReadSingleOrDefaultAsync<int>();
+            DateTime? earliestNameChange = await reader.ReadSingleOrDefaultAsync<DateTime?>();
+
+            bool hasPassword = !string.IsNullOrEmpty(user.PasswordHash);
+            int remaining = Math.Max(0, 2 - recentNameChanges);
 
             var response = new AccountSettingsResponse
             {
@@ -100,9 +181,17 @@ namespace PlayGround.Persistence.Repositories
                     .Select(s => new LinkedLoginDto
                     {
                         Provider = s.Provider,
-                        LinkedAt = s.CreatedAt
+                        LinkedAt = s.CreatedAt,
+                        MaskedEmail = string.IsNullOrEmpty(s.Email) ? null : MaskEmail(s.Email)
                     })
-                    .ToList()
+                    .ToList(),
+                NameChangeRemaining = remaining,
+                // 제한 초과일 때만 "다음 변경 가능" — 가장 오래된 최근 변경 + 30일
+                NameChangeAvailableAt = remaining == 0 && earliestNameChange is DateTime d
+                    ? d.AddDays(30)
+                    : null,
+                // 로그인 수단 = 소셜 수 + (비밀번호 있으면 1)
+                LoginMeansCount = socials.Count + (hasPassword ? 1 : 0)
             };
             return Result<AccountSettingsResponse?>.Success(response);
         }

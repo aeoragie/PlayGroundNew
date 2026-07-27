@@ -19,6 +19,7 @@ builder.Services.AddScoped<AuthClient>();
 builder.Services.AddScoped<RecordsClient>();
 builder.Services.AddScoped<ClaimClient>();
 builder.Services.AddScoped<NotificationClient>();
+builder.Services.AddScoped<ExportClient>();
 builder.Services.AddScoped<AgentClient>();
 builder.Services.AddScoped<OnboardingState>();
 

@@ -683,6 +683,42 @@
 - **미해결**: 에이전트 추천(AgentRef) 생성은 에이전트 서비스 몫(결정 4·7) — 컬럼만. **UI 검증·전체
   재빌드는 아직 안 됨(E3·E4·E5 모두 VS 재빌드 필요).**
 
+### 계정 설정 플로우 3종 완료 (2026-07-27, Design.SettingsFlows — DesignWorkOrders ⑥)
+
+> 설정 계정 탭의 **무동작 버튼 3개**에 실제 플로우를 붙였다: 이름 변경 · 로그인 수단 연결/해제 · 데이터 내려받기.
+> **API 25/25 · SP 게이트(마지막 수단·만료/횟수) · UI 12/12 통과.** 임시 계정·파일 전량 원복.
+
+- **① 이름 변경** — `PUT api/auth/me/display-name` → 갱신 UserRecord로 **JWT 재발급**(역할 승격과 같은 패턴) →
+  클라 `MarkUserAuthenticatedAsync` 교체 → GNB·프로필 즉시 반영. 검증(한글 2~10/영문 2~20·특수문자·숫자·혼용 불가,
+  서버·클라 동일). **30일 2회 제한은 SP가 원자 판정**(`UspUpdateUserDisplayName` — 최근 30일 로그 2건이면 빈 결과).
+  동명이인 허용. 반영 범위 안내 모달(바뀌는 곳/바뀌지 않는 곳). 설정 응답에 `NameChangeRemaining`·`NameChangeAvailableAt`
+  추가(제한 초과 시 버튼 비활성 + "다음 변경 가능" 캡션).
+  - **로그 테이블은 Account DB `UserNameChangeLogs`**(무프리픽스). Handoff는 `SoccerNameChangeLogs`라 했으나 DisplayName이
+    Account 소유라 변경·로그·제한 판정을 **한 트랜잭션**으로 묶으려면 Account DB가 맞다(Cross-DB면 원자성 깨짐). 규약도 무프리픽스.
+- **② 로그인 수단 연결/해제** — **기존 `SocialAccounts` 테이블 재사용**(Handoff의 `UserSocialLinks`는 신설하지 않음 —
+  실제 테이블이 SocialAccounts고 "기존 파이프라인 재사용" 경계). 연결은 **OAuth 리다이렉트 재사용**: 연결 시작은
+  `GET social/{p}/link`가 현재 UserId를 **HMAC 서명 state**(OAuthService.CreateLinkState, Jwt:Key)에 실어 인가 URL 반환 →
+  클라가 이동 → 기존 콜백이 `TryReadLinkState`로 **연결 모드 분기**(find-or-create 대신 현재 계정에 붙임) →
+  `/settings/account?linked=…` 복귀(설정 페이지가 토스트+재조회). 중복(다른 계정) = `?linkError=Duplicate` → "이미 다른 계정에 연결된 …".
+  해제 = 파괴 모달(PC 텍스트 / 모바일 ⋯) → `DELETE me/social/{p}`. **마지막 1개 해제 불가는 SP 원자 판정**
+  (`UspUnlinkSocialAccount` — 소셜 수 + 비밀번호 유무 = 로그인 수단, 1이면 'LastMeans'). UI는 그 경우 해제 대신 "유일한 로그인 수단" 캡션.
+  **LINE은 "준비 중" 회색 행**(채널 미발급 — 연결 버튼 없음). 아이콘 3종은 승인본 SVG 재사용. 소셜별 마스킹 이메일·수단 수 설정 응답에 추가.
+- **③ 데이터 내려받기** — `SoccerDataExportRequests`(Soccer DB) + SP 8종. **요청 API는 접수만**(`RequestAsync` → SP 동시 1건·
+  쿨다운 24h 판정 → 큐에 넣고 즉시 반환). **백그라운드 워커**(`DataExportWorker : BackgroundService` + `Channel<Guid>` 큐 —
+  Akka는 request/reply라 부적합해 별도 워커. 재기동 시 Pending 재개)가 JSON+CSV **zip**(사진·영상 원본 제외, URL만) →
+  **비공개 저장**(`IExportStorage`/`LocalExportStorage` — ContentRoot/App_Data/exports, **정적 서빙 밖**이라 UseStaticFiles 우회 불가) →
+  Ready 전환(토큰·크기·만료 +7일) → **완료 알림 2채널**(알림 센터 `SoccerNotificationType.ExportReady` + 이메일 `IEmailSender`/
+  `LogOnlyEmailSender` — 발송 인프라 미도입이라 로그 어댑터). **서명 URL 다운로드** = 추측 불가 토큰(=자격) →
+  `GET exports/download/{token}`(AllowAnonymous)가 SP로 **Ready·미만료·횟수<3 원자 검증+증가**, 미충족은 404. 상태 3종 행
+  (준비 중=스피너+요청 취소 / 완료=teal+크기·만료일+내려받기 / 실패=레드+다시 요청) + 진행 중 5초 폴링.
+- **미해결**: 실제 이메일 발송(SMTP 등 어댑터 교체 시) · 연결 성공/중복이 리다이렉트 왕복이라 인라인 대신 토스트(폼이 없어 실용 해석) ·
+  export 내구성(인메모리 큐 — 재기동 Pending은 워커가 재개하나 생성 중 크래시는 재시도) · NotificationPanel에 TeamNotice(게시판) 렌더 케이스도 함께 보강.
+- 검증(`api-settingsflows.js` 25 · SQL 게이트 · `shot-settingsflows.js` 12): 이름 변경→새 토큰 name 클레임 반영→설정 반영→
+  남은 횟수 2→1→0→**3회째 차단** · **마지막 수단 해제 'LastMeans'**(2개면 Ok) · 내려받기 요청→Pending→**진행 중 재요청 차단**→
+  Ready→**다운로드 3회→4회째 404**→잘못된 토큰 404→**만료 토큰 빈 결과**→완료 후 **쿨다운** · UI 3 다이얼로그·LINE 준비 중·모바일.
+  임시 이메일 계정 2개·export 파일 물리 삭제로 원복. **다른 PC: `2026-07-27_UserNameChangeLogs.sql`(Account)·
+  `2026-07-27_SoccerDataExportRequests.sql`(Soccer) 마이그레이션 + SP 배포.**
+
 ### 팀 게시판 완료 (2026-07-26, Design.TeamBoard — DesignWorkOrders ④ P1 첫 번째)
 
 > 관리자·코치가 공지·자료를 올리고 로스터 보호자가 열람, 글 단위 공개홈 노출. 단방향 공지(댓글 없음).
