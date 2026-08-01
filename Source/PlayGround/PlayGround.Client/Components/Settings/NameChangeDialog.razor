@@ -16,8 +16,8 @@
             <span class="@Css.MatchForm.GrabBar"></span>
 
             <div class="@Css.MatchForm.Header">
-                <h2 class="@Css.MatchForm.Title">이름 변경</h2>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <h2 class="@Css.MatchForm.Title">@AppText.Settings.NameChange</h2>
+                <button type="button" aria-label="@AppText.Settings.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -25,22 +25,22 @@
 
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
-                    <TextField Label="이름" @bind-Value="mName" Placeholder="김성원"
+                    <TextField Label="@AppText.Settings.NameLabel" @bind-Value="mName" Placeholder="@AppText.Settings.NamePlaceholder"
                                Validator="ValidateName" MaxLength="20"
-                               Helper="한글 2~10자 또는 영문 2~20자 · 특수문자·숫자 불가" />
+                               Helper="@AppText.Settings.NameHelper" />
 
                     @* 반영 범위 안내 — 바뀌는 곳 / 바뀌지 않는 곳 *@
                     <div class="flex flex-col gap-1.5 bg-surface-soft rounded-[10px] px-3 py-[11px]">
-                        <span class="text-[11.5px] font-extrabold text-text-strong">바뀌는 곳</span>
-                        <span class="text-[11.5px] text-text-body leading-[1.55] break-keep">계정 이름 · 팀에 보이는 보호자 이름 · 알림 발신 이름</span>
-                        <span class="text-[11.5px] font-extrabold text-text-strong mt-1">바뀌지 않는 곳</span>
-                        <span class="text-[11.5px] text-text-body leading-[1.55] break-keep">자녀(선수) 이름 · 이미 남긴 리뷰의 마스킹 표기(김**) · 지난 지원서에 기록된 이름</span>
+                        <span class="text-[11.5px] font-extrabold text-text-strong">@AppText.Settings.NameScopeChanged</span>
+                        <span class="text-[11.5px] text-text-body leading-[1.55] break-keep">@AppText.Settings.NameScopeChangedBody</span>
+                        <span class="text-[11.5px] font-extrabold text-text-strong mt-1">@AppText.Settings.NameScopeUnchanged</span>
+                        <span class="text-[11.5px] text-text-body leading-[1.55] break-keep">@AppText.Settings.NameScopeUnchangedBody</span>
                     </div>
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="변경하기" BusyLabel="변경 중…" IsBusy="@mSaving"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Settings.Cancel</button>
+                    <SubmitButton Label="@AppText.Settings.NameSubmit" BusyLabel="@AppText.Settings.NameSubmitBusy" IsBusy="@mSaving"
                                   OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -89,22 +89,22 @@
         string name = (value ?? string.Empty).Trim();
         if (name.Length == 0)
         {
-            return "이름을 입력해 주세요.";
+            return AppText.Settings.NameErrorEmpty;
         }
 
         bool allHangul = name.All(c => c >= '가' && c <= '힣');
         if (allHangul)
         {
-            return name.Length is >= 2 and <= 10 ? null : "한글 이름은 2~10자로 입력해 주세요.";
+            return name.Length is >= 2 and <= 10 ? null : AppText.Settings.NameErrorHangulLength;
         }
 
         bool allLatin = name.All(c => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
         if (allLatin)
         {
-            return name.Length is >= 2 and <= 20 ? null : "영문 이름은 2~20자로 입력해 주세요.";
+            return name.Length is >= 2 and <= 20 ? null : AppText.Settings.NameErrorLatinLength;
         }
 
-        return "특수문자·숫자 없이 한글 또는 영문으로만 입력해 주세요.";
+        return AppText.Settings.NameErrorCharset;
     }
 
     private async Task SubmitAsync()
@@ -122,11 +122,11 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "이름을 변경하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Settings.NameFailedToast, AppText.Settings.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "이름을 변경하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Settings.NameFailedToast);
             }
 
             return;
@@ -138,7 +138,7 @@
             await AuthProvider.MarkUserAuthenticatedAsync(result.NewToken);
         }
 
-        Toasts.ShowSuccess("이름이 변경됐어요.");
+        Toasts.ShowSuccess(AppText.Settings.NameChangedToast);
         await IsOpenChanged.InvokeAsync(false);
         await OnSaved.InvokeAsync();
     }

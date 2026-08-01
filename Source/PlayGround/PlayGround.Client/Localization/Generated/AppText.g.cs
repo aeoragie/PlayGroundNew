@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Auth", "Correction", "Landing", "Records" };
+        internal static readonly string[] Domains = { "Auth", "Correction", "Landing", "Records", "Settings" };
 
         public static class Auth
         {
@@ -470,6 +470,262 @@ namespace PlayGround.Client.Localization
             public static string Halves(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Records.Halves", arg0, arg1, arg2, arg3);
             /// <summary>PK {0} : {1}</summary>
             public static string Pk(object arg0, object arg1) => Loc.Format("Records.Pk", arg0, arg1);
+        }
+
+        public static class Settings
+        {
+            /// <summary>설정 — PlayGround</summary>
+            public static string PageTitle => Loc.Get("Settings.PageTitle");
+            /// <summary>설정</summary>
+            public static string Title => Loc.Get("Settings.Title");
+            /// <summary>대시보드로</summary>
+            public static string ToDashboard => Loc.Get("Settings.ToDashboard");
+            /// <summary>로그아웃</summary>
+            public static string Logout => Loc.Get("Settings.Logout");
+            /// <summary>뒤로</summary>
+            public static string Back => Loc.Get("Settings.Back");
+            /// <summary>{0}가 연결됐어요.</summary>
+            public static string LinkedToast(object arg0) => Loc.Format("Settings.LinkedToast", arg0);
+            /// <summary>이미 다른 계정에 연결된 {0}예요.</summary>
+            public static string LinkDuplicateToast(object arg0) => Loc.Format("Settings.LinkDuplicateToast", arg0);
+            /// <summary>연결하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string LinkFailedToast => Loc.Get("Settings.LinkFailedToast");
+            /// <summary>카카오</summary>
+            public static string ProviderKakao => Loc.Get("Settings.ProviderKakao");
+            /// <summary>구글</summary>
+            public static string ProviderGoogle => Loc.Get("Settings.ProviderGoogle");
+            /// <summary>계정</summary>
+            public static string ProviderFallback => Loc.Get("Settings.ProviderFallback");
+            /// <summary>계정을 삭제할까요?</summary>
+            public static string DeleteAccountTitle => Loc.Get("Settings.DeleteAccountTitle");
+            /// <summary>자녀 프로필은 다른 보호자에게 이전하거나 함께 삭제돼요. 되돌릴 수 없어요.</summary>
+            public static string DeleteAccountDescription => Loc.Get("Settings.DeleteAccountDescription");
+            /// <summary>삭제</summary>
+            public static string DeleteConfirmLabel => Loc.Get("Settings.DeleteConfirmLabel");
+            /// <summary>계정 삭제</summary>
+            public static string DeleteRequiredPhrase => Loc.Get("Settings.DeleteRequiredPhrase");
+            /// <summary>계정을 삭제하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string DeleteFailedToast => Loc.Get("Settings.DeleteFailedToast");
+            /// <summary>이름 변경</summary>
+            public static string NameChange => Loc.Get("Settings.NameChange");
+            /// <summary>이름은 30일에 두 번까지 바꿀 수 있어요 · 다음 변경 가능 {0}</summary>
+            public static string NameChangeCaption(object arg0) => Loc.Format("Settings.NameChangeCaption", arg0);
+            /// <summary>연결된 로그인</summary>
+            public static string LinkedLogins => Loc.Get("Settings.LinkedLogins");
+            /// <summary>준비 중이에요</summary>
+            public static string ComingSoonBody => Loc.Get("Settings.ComingSoonBody");
+            /// <summary>준비 중</summary>
+            public static string ComingSoonBadge => Loc.Get("Settings.ComingSoonBadge");
+            /// <summary>계정 관리</summary>
+            public static string AccountManagement => Loc.Get("Settings.AccountManagement");
+            /// <summary>데이터 내려받기</summary>
+            public static string DataExport => Loc.Get("Settings.DataExport");
+            /// <summary>자녀 프로필·기록 전체를 파일로 받아요</summary>
+            public static string DataExportBody => Loc.Get("Settings.DataExportBody");
+            /// <summary>요청</summary>
+            public static string Request => Loc.Get("Settings.Request");
+            /// <summary>파일을 준비하고 있어요</summary>
+            public static string ExportPreparing => Loc.Get("Settings.ExportPreparing");
+            /// <summary>{0} 요청 · 최대 24시간</summary>
+            public static string ExportRequestedAt(object arg0) => Loc.Format("Settings.ExportRequestedAt", arg0);
+            /// <summary>요청 취소</summary>
+            public static string ExportCancel => Loc.Get("Settings.ExportCancel");
+            /// <summary>파일이 준비됐어요</summary>
+            public static string ExportReady => Loc.Get("Settings.ExportReady");
+            /// <summary>내려받기</summary>
+            public static string ExportDownload => Loc.Get("Settings.ExportDownload");
+            /// <summary>파일을 만들지 못했어요</summary>
+            public static string ExportFailed => Loc.Get("Settings.ExportFailed");
+            /// <summary>잠시 후 다시 요청해 주세요</summary>
+            public static string ExportFailedBody => Loc.Get("Settings.ExportFailedBody");
+            /// <summary>다시 요청</summary>
+            public static string ExportRetry => Loc.Get("Settings.ExportRetry");
+            /// <summary>계정 삭제</summary>
+            public static string DeleteAccount => Loc.Get("Settings.DeleteAccount");
+            /// <summary>자녀 프로필은 다른 보호자에게 이전하거나 함께 삭제돼요</summary>
+            public static string DeleteAccountBody => Loc.Get("Settings.DeleteAccountBody");
+            /// <summary>삭제</summary>
+            public static string Delete => Loc.Get("Settings.Delete");
+            /// <summary>요청을 취소할까요?</summary>
+            public static string ExportCancelTitle => Loc.Get("Settings.ExportCancelTitle");
+            /// <summary>준비 중인 데이터 파일 요청이 취소돼요.</summary>
+            public static string ExportCancelDescription => Loc.Get("Settings.ExportCancelDescription");
+            /// <summary>요청을 취소했어요.</summary>
+            public static string ExportCancelledToast => Loc.Get("Settings.ExportCancelledToast");
+            /// <summary>취소하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string ExportCancelFailedToast => Loc.Get("Settings.ExportCancelFailedToast");
+            /// <summary> · {0}까지 받을 수 있어요</summary>
+            public static string ExportExpiry(object arg0) => Loc.Format("Settings.ExportExpiry", arg0);
+            /// <summary>{0}.{1}.{2} 연결</summary>
+            public static string LinkedAt(object arg0, object arg1, object arg2) => Loc.Format("Settings.LinkedAt", arg0, arg1, arg2);
+            /// <summary>{0} 연결을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string LinkStartFailedToast(object arg0) => Loc.Format("Settings.LinkStartFailedToast", arg0);
+            /// <summary>{0} 연결을 해제할까요?</summary>
+            public static string UnlinkTitle(object arg0) => Loc.Format("Settings.UnlinkTitle", arg0);
+            /// <summary>해제하면 {0}로 로그인할 수 없어요. 남은 로그인 수단은 {1}개예요.</summary>
+            public static string UnlinkDescription(object arg0, object arg1) => Loc.Format("Settings.UnlinkDescription", arg0, arg1);
+            /// <summary>해제</summary>
+            public static string UnlinkConfirmLabel => Loc.Get("Settings.UnlinkConfirmLabel");
+            /// <summary>{0} 연결을 해제했어요.</summary>
+            public static string UnlinkedToast(object arg0) => Loc.Format("Settings.UnlinkedToast", arg0);
+            /// <summary>유일한 로그인 수단이라 해제할 수 없어요.</summary>
+            public static string UnlinkLastMeansToast => Loc.Get("Settings.UnlinkLastMeansToast");
+            /// <summary>연결을 해제하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string UnlinkFailedToast => Loc.Get("Settings.UnlinkFailedToast");
+            /// <summary>연결 해제</summary>
+            public static string UnlinkMenuItem => Loc.Get("Settings.UnlinkMenuItem");
+            /// <summary>연결됨</summary>
+            public static string LinkedBadge => Loc.Get("Settings.LinkedBadge");
+            /// <summary>한 계정으로 여러 역할을 가질 수 있어요. 역할을 추가하면 대시보드 허브에서 전환합니다.</summary>
+            public static string RolesDescription => Loc.Get("Settings.RolesDescription");
+            /// <summary>보호자</summary>
+            public static string RoleGuardian => Loc.Get("Settings.RoleGuardian");
+            /// <summary>{0} 프로필 관리</summary>
+            public static string RoleGuardianSummary(object arg0) => Loc.Format("Settings.RoleGuardianSummary", arg0);
+            /// <summary>팀 관리자</summary>
+            public static string RoleTeamAdmin => Loc.Get("Settings.RoleTeamAdmin");
+            /// <summary>에이전트</summary>
+            public static string RoleAgent => Loc.Get("Settings.RoleAgent");
+            /// <summary>별도 서비스에서 운영돼요 · 준비 중</summary>
+            public static string RoleAgentBody => Loc.Get("Settings.RoleAgentBody");
+            /// <summary>사용 중</summary>
+            public static string RoleActiveBadge => Loc.Get("Settings.RoleActiveBadge");
+            /// <summary>준비 중</summary>
+            public static string RolePendingBadge => Loc.Get("Settings.RolePendingBadge");
+            /// <summary>수신 방법</summary>
+            public static string NotifyMethods => Loc.Get("Settings.NotifyMethods");
+            /// <summary>앱 푸시</summary>
+            public static string NotifyPush => Loc.Get("Settings.NotifyPush");
+            /// <summary>모바일 앱 설치 시</summary>
+            public static string NotifyPushDescription => Loc.Get("Settings.NotifyPushDescription");
+            /// <summary>이메일</summary>
+            public static string NotifyEmail => Loc.Get("Settings.NotifyEmail");
+            /// <summary>주간 요약과 중요 알림</summary>
+            public static string NotifyEmailDescription => Loc.Get("Settings.NotifyEmailDescription");
+            /// <summary>알림 항목</summary>
+            public static string NotifyItems => Loc.Get("Settings.NotifyItems");
+            /// <summary>연결 요청 · 열람 요청</summary>
+            public static string NotifyApprovals => Loc.Get("Settings.NotifyApprovals");
+            /// <summary>자녀 프로필 연결, 에이전트 상세 열람 승인 요청</summary>
+            public static string NotifyApprovalsDescription => Loc.Get("Settings.NotifyApprovalsDescription");
+            /// <summary>승인</summary>
+            public static string NotifyChipApproval => Loc.Get("Settings.NotifyChipApproval");
+            /// <summary>경기 결과 반영</summary>
+            public static string NotifyMatch => Loc.Get("Settings.NotifyMatch");
+            /// <summary>자녀 기록·팀 성적이 업데이트되면 알려드려요</summary>
+            public static string NotifyMatchDescription => Loc.Get("Settings.NotifyMatchDescription");
+            /// <summary>자녀 기록·팀 성적 업데이트</summary>
+            public static string NotifyMatchMobileDescription => Loc.Get("Settings.NotifyMatchMobileDescription");
+            /// <summary>경기</summary>
+            public static string NotifyChipMatch => Loc.Get("Settings.NotifyChipMatch");
+            /// <summary>모집 공고 · 지원 현황</summary>
+            public static string NotifyRecruit => Loc.Get("Settings.NotifyRecruit");
+            /// <summary>관심 지역 새 공고, 지원 결과</summary>
+            public static string NotifyRecruitDescription => Loc.Get("Settings.NotifyRecruitDescription");
+            /// <summary>모집</summary>
+            public static string NotifyChipRecruit => Loc.Get("Settings.NotifyChipRecruit");
+            /// <summary>리뷰 답글</summary>
+            public static string NotifyReview => Loc.Get("Settings.NotifyReview");
+            /// <summary>내가 쓴 리뷰에 팀이 답글을 달면</summary>
+            public static string NotifyReviewDescription => Loc.Get("Settings.NotifyReviewDescription");
+            /// <summary>리뷰</summary>
+            public static string NotifyChipReview => Loc.Get("Settings.NotifyChipReview");
+            /// <summary>프로필 방문 요약</summary>
+            public static string NotifyProfileVisit => Loc.Get("Settings.NotifyProfileVisit");
+            /// <summary>공개 프로필 주간 방문 통계</summary>
+            public static string NotifyProfileVisitDescription => Loc.Get("Settings.NotifyProfileVisitDescription");
+            /// <summary>열람</summary>
+            public static string NotifyChipView => Loc.Get("Settings.NotifyChipView");
+            /// <summary>연결 요청·열람 요청 등 승인이 필요한 알림은 안전을 위해 끌 수 없어요.</summary>
+            public static string NotifyFootCaption => Loc.Get("Settings.NotifyFootCaption");
+            /// <summary>닫기</summary>
+            public static string Close => Loc.Get("Settings.Close");
+            /// <summary>이름</summary>
+            public static string NameLabel => Loc.Get("Settings.NameLabel");
+            /// <summary>김성원</summary>
+            public static string NamePlaceholder => Loc.Get("Settings.NamePlaceholder");
+            /// <summary>한글 2~10자 또는 영문 2~20자 · 특수문자·숫자 불가</summary>
+            public static string NameHelper => Loc.Get("Settings.NameHelper");
+            /// <summary>바뀌는 곳</summary>
+            public static string NameScopeChanged => Loc.Get("Settings.NameScopeChanged");
+            /// <summary>계정 이름 · 팀에 보이는 보호자 이름 · 알림 발신 이름</summary>
+            public static string NameScopeChangedBody => Loc.Get("Settings.NameScopeChangedBody");
+            /// <summary>바뀌지 않는 곳</summary>
+            public static string NameScopeUnchanged => Loc.Get("Settings.NameScopeUnchanged");
+            /// <summary>자녀(선수) 이름 · 이미 남긴 리뷰의 마스킹 표기(김**) · 지난 지원서에 기록된 이름</summary>
+            public static string NameScopeUnchangedBody => Loc.Get("Settings.NameScopeUnchangedBody");
+            /// <summary>취소</summary>
+            public static string Cancel => Loc.Get("Settings.Cancel");
+            /// <summary>변경하기</summary>
+            public static string NameSubmit => Loc.Get("Settings.NameSubmit");
+            /// <summary>변경 중…</summary>
+            public static string NameSubmitBusy => Loc.Get("Settings.NameSubmitBusy");
+            /// <summary>이름을 입력해 주세요.</summary>
+            public static string NameErrorEmpty => Loc.Get("Settings.NameErrorEmpty");
+            /// <summary>한글 이름은 2~10자로 입력해 주세요.</summary>
+            public static string NameErrorHangulLength => Loc.Get("Settings.NameErrorHangulLength");
+            /// <summary>영문 이름은 2~20자로 입력해 주세요.</summary>
+            public static string NameErrorLatinLength => Loc.Get("Settings.NameErrorLatinLength");
+            /// <summary>특수문자·숫자 없이 한글 또는 영문으로만 입력해 주세요.</summary>
+            public static string NameErrorCharset => Loc.Get("Settings.NameErrorCharset");
+            /// <summary>이름을 변경하지 못했어요.</summary>
+            public static string NameFailedToast => Loc.Get("Settings.NameFailedToast");
+            /// <summary>재시도</summary>
+            public static string Retry => Loc.Get("Settings.Retry");
+            /// <summary>이름이 변경됐어요.</summary>
+            public static string NameChangedToast => Loc.Get("Settings.NameChangedToast");
+            /// <summary>데이터 내려받기</summary>
+            public static string ExportDialogTitle => Loc.Get("Settings.ExportDialogTitle");
+            /// <summary>내 계정과 자녀의 정보를 파일로 받을 수 있어요</summary>
+            public static string ExportDialogSubtitle => Loc.Get("Settings.ExportDialogSubtitle");
+            /// <summary>포함 항목</summary>
+            public static string ExportIncluded => Loc.Get("Settings.ExportIncluded");
+            /// <summary>계정·프로필</summary>
+            public static string ExportItemProfile => Loc.Get("Settings.ExportItemProfile");
+            /// <summary>(이름·연락처·역할·자녀 연결)</summary>
+            public static string ExportItemProfileNote => Loc.Get("Settings.ExportItemProfileNote");
+            /// <summary>경기 기록·커리어</summary>
+            public static string ExportItemRecords => Loc.Get("Settings.ExportItemRecords");
+            /// <summary>(자녀별 출전·기록·수상)</summary>
+            public static string ExportItemRecordsNote => Loc.Get("Settings.ExportItemRecordsNote");
+            /// <summary>요청·신청 내역</summary>
+            public static string ExportItemRequests => Loc.Get("Settings.ExportItemRequests");
+            /// <summary>(연결·열람 승인·지원·수정 신청)</summary>
+            public static string ExportItemRequestsNote => Loc.Get("Settings.ExportItemRequestsNote");
+            /// <summary>형식: JSON + 사람이 읽는 CSV 요약 (사진·영상 원본은 제외 — URL 목록만)</summary>
+            public static string ExportFormatNote => Loc.Get("Settings.ExportFormatNote");
+            /// <summary>파일 준비에 최대 </summary>
+            public static string ExportNoticePrefix => Loc.Get("Settings.ExportNoticePrefix");
+            /// <summary>24시간</summary>
+            public static string ExportNotice24h => Loc.Get("Settings.ExportNotice24h");
+            /// <summary>이 걸려요. 완료되면 알림을 보내드리고, 링크는 </summary>
+            public static string ExportNoticeMiddle => Loc.Get("Settings.ExportNoticeMiddle");
+            /// <summary>7일</summary>
+            public static string ExportNotice7d => Loc.Get("Settings.ExportNotice7d");
+            /// <summary> 뒤 만료돼요.</summary>
+            public static string ExportNoticeSuffix => Loc.Get("Settings.ExportNoticeSuffix");
+            /// <summary>요청하기</summary>
+            public static string ExportSubmit => Loc.Get("Settings.ExportSubmit");
+            /// <summary>요청 중…</summary>
+            public static string ExportSubmitBusy => Loc.Get("Settings.ExportSubmitBusy");
+            /// <summary>받을 항목을 하나 이상 선택해 주세요.</summary>
+            public static string ExportErrorNoItems => Loc.Get("Settings.ExportErrorNoItems");
+            /// <summary>요청하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string ExportErrorFailed => Loc.Get("Settings.ExportErrorFailed");
+            /// <summary>이미 준비 중인 요청이 있어요. 완료된 후 다시 요청할 수 있어요.</summary>
+            public static string ExportErrorInProgress => Loc.Get("Settings.ExportErrorInProgress");
+            /// <summary>최근에 요청했어요. 24시간 뒤에 다시 요청할 수 있어요.</summary>
+            public static string ExportErrorCooldown => Loc.Get("Settings.ExportErrorCooldown");
+            /// <summary>요청을 접수했어요. 준비되면 알림을 보내드릴게요.</summary>
+            public static string ExportAcceptedToast => Loc.Get("Settings.ExportAcceptedToast");
+            /// <summary>유일한 로그인 수단</summary>
+            public static string OnlyLoginMeans => Loc.Get("Settings.OnlyLoginMeans");
+            /// <summary>해제</summary>
+            public static string Unlink => Loc.Get("Settings.Unlink");
+            /// <summary>{0}로도 로그인할 수 있게 연결해요</summary>
+            public static string ConnectHint(object arg0) => Loc.Format("Settings.ConnectHint", arg0);
+            /// <summary>연결하기</summary>
+            public static string Connect => Loc.Get("Settings.Connect");
         }
     }
 }

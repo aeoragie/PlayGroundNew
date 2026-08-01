@@ -25,21 +25,21 @@
             </span>
             @if (Settings.NameChangeRemaining > 0)
             {
-                <button type="button" class="@Css.Settings.OutlineButton" @onclick="() => mNameOpen = true">이름 변경</button>
+                <button type="button" class="@Css.Settings.OutlineButton" @onclick="() => mNameOpen = true">@AppText.Settings.NameChange</button>
             }
             else
             {
-                <button type="button" class="@Css.Settings.OutlineButton opacity-45 cursor-not-allowed" disabled>이름 변경</button>
+                <button type="button" class="@Css.Settings.OutlineButton opacity-45 cursor-not-allowed" disabled>@AppText.Settings.NameChange</button>
             }
         </div>
         @if (Settings.NameChangeRemaining == 0 && Settings.NameChangeAvailableAt is DateTime next)
         {
-            <span class="text-[11px] text-text-muted break-keep -mt-1.5">이름은 30일에 두 번까지 바꿀 수 있어요 · 다음 변경 가능 @next.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture)</span>
+            <span class="text-[11px] text-text-muted break-keep -mt-1.5">@AppText.Settings.NameChangeCaption(next.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture))</span>
         }
 
         @* 연결된 로그인 *@
         <div class="@($"{Css.Settings.DividerTop} pt-3.5 md:pt-4 flex flex-col gap-[9px] md:gap-2.5")">
-            <span class="@Css.Settings.CardHeading">연결된 로그인</span>
+            <span class="@Css.Settings.CardHeading">@AppText.Settings.LinkedLogins</span>
 
             @SocialRow("Google", GoogleIcon)
             @SocialRow("Kakao", KakaoIcon)
@@ -49,26 +49,26 @@
                 <span class="w-[17px] h-[17px] md:w-[18px] md:h-[18px] rounded bg-[#06C755] flex items-center justify-center flex-none">@LineIcon</span>
                 <span class="flex flex-col gap-px flex-1 min-w-0">
                     <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted whitespace-nowrap">LINE</span>
-                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">준비 중이에요</span>
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">@AppText.Settings.ComingSoonBody</span>
                 </span>
-                <span class="text-[11px] font-bold text-text-faint whitespace-nowrap flex-none">준비 중</span>
+                <span class="text-[11px] font-bold text-text-faint whitespace-nowrap flex-none">@AppText.Settings.ComingSoonBadge</span>
             </div>
         </div>
     </div>
 
     @* 계정 관리 *@
     <div class="@($"{Css.Settings.Card} gap-3")">
-        <span class="@Css.Settings.CardHeading">계정 관리</span>
+        <span class="@Css.Settings.CardHeading">@AppText.Settings.AccountManagement</span>
 
         @* 데이터 내려받기 — 상태 행(준비 중/완료/실패) 또는 요청 버튼 *@
         @if (mExport is null)
         {
             <div class="flex items-center gap-2.5">
                 <span class="flex flex-col gap-px flex-1 min-w-0">
-                    <span class="text-[13px] font-bold text-navy-deep whitespace-nowrap">데이터 내려받기</span>
-                    <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">자녀 프로필·기록 전체를 파일로 받아요</span>
+                    <span class="text-[13px] font-bold text-navy-deep whitespace-nowrap">@AppText.Settings.DataExport</span>
+                    <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">@AppText.Settings.DataExportBody</span>
                 </span>
-                <button type="button" class="@Css.Settings.ManageButton" @onclick="() => mExportOpen = true">요청</button>
+                <button type="button" class="@Css.Settings.ManageButton" @onclick="() => mExportOpen = true">@AppText.Settings.Request</button>
             </div>
         }
         else if (mExport.Status == "Pending")
@@ -78,10 +78,10 @@
                     <span class="w-[15px] h-[15px] rounded-full border-[2.5px] border-navy/20 border-t-navy animate-spin"></span>
                 </span>
                 <span class="flex flex-col gap-px flex-1 min-w-0">
-                    <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">파일을 준비하고 있어요</span>
-                    <span class="text-[11px] text-text-muted whitespace-nowrap">@mExport.CreatedAt.ToLocalTime().ToString("M/d HH:mm", CultureInfo.InvariantCulture) 요청 · 최대 24시간</span>
+                    <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">@AppText.Settings.ExportPreparing</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap">@AppText.Settings.ExportRequestedAt(mExport.CreatedAt.ToLocalTime().ToString("M/d HH:mm", CultureInfo.InvariantCulture))</span>
                 </span>
-                <button type="button" class="text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="CancelExportAsync">요청 취소</button>
+                <button type="button" class="text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="CancelExportAsync">@AppText.Settings.ExportCancel</button>
             </div>
         }
         else if (mExport.Status == "Ready")
@@ -91,11 +91,11 @@
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1b8579" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 11.5L12 16l4.5-4.5M5 19h14"></path></svg>
                 </span>
                 <span class="flex flex-col gap-px flex-1 min-w-0">
-                    <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">파일이 준비됐어요</span>
+                    <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">@AppText.Settings.ExportReady</span>
                     <span class="text-[11px] text-text-muted whitespace-nowrap">@SizeText(mExport.SizeBytes)@ExpiryText</span>
                 </span>
                 <a href="@DownloadHref" target="_blank" rel="noopener" download
-                   class="h-[34px] px-3.5 inline-flex items-center rounded-[9px] bg-navy text-white text-[11.5px] font-bold whitespace-nowrap flex-none">내려받기</a>
+                   class="h-[34px] px-3.5 inline-flex items-center rounded-[9px] bg-navy text-white text-[11.5px] font-bold whitespace-nowrap flex-none">@AppText.Settings.ExportDownload</a>
             </div>
         }
         else
@@ -104,19 +104,19 @@
             <div class="flex items-center gap-2.5 border border-[#f2d5d0] bg-[#fdf6f5] rounded-[11px] px-3 py-2.5">
                 <span class="w-[30px] h-[30px] rounded-[9px] bg-[#fdeceb] flex items-center justify-center flex-none text-[13px] font-extrabold text-danger">!</span>
                 <span class="flex flex-col gap-px flex-1 min-w-0">
-                    <span class="text-[12.5px] font-bold text-danger whitespace-nowrap">파일을 만들지 못했어요</span>
-                    <span class="text-[11px] text-text-muted break-keep">잠시 후 다시 요청해 주세요</span>
+                    <span class="text-[12.5px] font-bold text-danger whitespace-nowrap">@AppText.Settings.ExportFailed</span>
+                    <span class="text-[11px] text-text-muted break-keep">@AppText.Settings.ExportFailedBody</span>
                 </span>
-                <button type="button" class="@Css.Settings.SmallOutlineButton" @onclick="() => mExportOpen = true">다시 요청</button>
+                <button type="button" class="@Css.Settings.SmallOutlineButton" @onclick="() => mExportOpen = true">@AppText.Settings.ExportRetry</button>
             </div>
         }
 
         <div class="@($"{Css.Settings.DividerTop} pt-3 flex items-center gap-2.5")">
             <span class="flex flex-col gap-px flex-1 min-w-0">
-                <span class="text-[13px] font-bold text-danger whitespace-nowrap">계정 삭제</span>
-                <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">자녀 프로필은 다른 보호자에게 이전하거나 함께 삭제돼요</span>
+                <span class="text-[13px] font-bold text-danger whitespace-nowrap">@AppText.Settings.DeleteAccount</span>
+                <span class="text-[11px] md:text-[11.5px] text-text-muted break-keep">@AppText.Settings.DeleteAccountBody</span>
             </span>
-            <button type="button" class="@Css.Settings.DeleteButton" @onclick="OnDelete">삭제</button>
+            <button type="button" class="@Css.Settings.DeleteButton" @onclick="OnDelete">@AppText.Settings.Delete</button>
         </div>
     </div>
 </div>
@@ -207,9 +207,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = "요청을 취소할까요?",
-            Description = "준비 중인 데이터 파일 요청이 취소돼요.",
-            ConfirmLabel = "요청 취소",
+            Title = AppText.Settings.ExportCancelTitle,
+            Description = AppText.Settings.ExportCancelDescription,
+            ConfirmLabel = AppText.Settings.ExportCancel,
         });
 
         if (!confirmed)
@@ -219,12 +219,12 @@
 
         if (await Exports.CancelAsync(mExport.RequestId))
         {
-            Toasts.ShowSuccess("요청을 취소했어요.");
+            Toasts.ShowSuccess(AppText.Settings.ExportCancelledToast);
             await ReloadExportAsync();
             return;
         }
 
-        Toasts.ShowError("취소하지 못했어요. 다시 시도해 주세요.");
+        Toasts.ShowError(AppText.Settings.ExportCancelFailedToast);
     }
 
     private string DownloadHref => mExport?.DownloadToken is string t ? Exports.DownloadUrl(t) : "#";
@@ -241,7 +241,7 @@
 
     private string ExpiryText =>
         mExport?.ExpiresAt is DateTime e
-            ? $" · {e.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture)}까지 받을 수 있어요"
+            ? AppText.Settings.ExportExpiry(e.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture))
             : string.Empty;
 
     //.// 로그인 수단 — 연결(OAuth 이동)·해제(파괴 모달, 마지막 1개는 캡션)
@@ -261,7 +261,7 @@
             return null;
         }
 
-        string linked = $"{login.LinkedAt.Year}.{login.LinkedAt.Month}.{login.LinkedAt.Day} 연결";
+        string linked = AppText.Settings.LinkedAt(login.LinkedAt.Year, login.LinkedAt.Month, login.LinkedAt.Day);
         return login.MaskedEmail is string email ? $"{email} · {linked}" : linked;
     }
 
@@ -272,7 +272,7 @@
         string? url = await Auth.StartSocialLinkAsync(provider);
         if (string.IsNullOrEmpty(url))
         {
-            Toasts.ShowError($"{provider} 연결을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Settings.LinkStartFailedToast(provider));
             return;
         }
 
@@ -285,9 +285,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = $"{provider} 연결을 해제할까요?",
-            Description = $"해제하면 {provider}로 로그인할 수 없어요. 남은 로그인 수단은 {Math.Max(0, Settings.LoginMeansCount - 1)}개예요.",
-            ConfirmLabel = "해제",
+            Title = AppText.Settings.UnlinkTitle(provider),
+            Description = AppText.Settings.UnlinkDescription(provider, Math.Max(0, Settings.LoginMeansCount - 1)),
+            ConfirmLabel = AppText.Settings.UnlinkConfirmLabel,
         });
 
         if (!confirmed)
@@ -298,25 +298,25 @@
         string status = await Auth.UnlinkSocialAsync(provider);
         if (status == "Ok")
         {
-            Toasts.ShowSuccess($"{provider} 연결을 해제했어요.");
+            Toasts.ShowSuccess(AppText.Settings.UnlinkedToast(provider));
             await OnChanged.InvokeAsync();
             return;
         }
 
         if (status == "LastMeans")
         {
-            Toasts.ShowError("유일한 로그인 수단이라 해제할 수 없어요.");
+            Toasts.ShowError(AppText.Settings.UnlinkLastMeansToast);
             return;
         }
 
-        Toasts.ShowError("연결을 해제하지 못했어요. 다시 시도해 주세요.");
+        Toasts.ShowError(AppText.Settings.UnlinkFailedToast);
     }
 
     private List<OverflowMenu.MenuItem> UnlinkMenu(string provider) =>
         new();
 
     private List<OverflowMenu.MenuItem> UnlinkDestructive(string provider) =>
-        new() { new("연결 해제", () => UnlinkAsync(provider)) };
+        new() { new(AppText.Settings.UnlinkMenuItem, () => UnlinkAsync(provider)) };
 
     private RenderFragment SocialRow(string provider, RenderFragment icon) => __builder =>
     {
@@ -331,14 +331,14 @@
                         <span class="text-[11.5px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">@caption</span>
                     }
                 </span>
-                <span class="@Css.Settings.LinkedBadge">연결됨</span>
+                <span class="@Css.Settings.LinkedBadge">@AppText.Settings.LinkedBadge</span>
                 @if (IsLastMeans)
                 {
-                    <span class="text-[11px] text-text-muted whitespace-nowrap flex-none">유일한 로그인 수단</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap flex-none">@AppText.Settings.OnlyLoginMeans</span>
                 }
                 else
                 {
-                    <button type="button" class="hidden md:inline text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="() => UnlinkAsync(provider)">해제</button>
+                    <button type="button" class="hidden md:inline text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="() => UnlinkAsync(provider)">@AppText.Settings.Unlink</button>
                     <span class="md:hidden flex-none">
                         <OverflowMenu Target="@provider" Items="@UnlinkMenu(provider)" DestructiveItems="@UnlinkDestructive(provider)" />
                     </span>
@@ -351,9 +351,9 @@
                 @icon
                 <span class="flex flex-col gap-px flex-1 min-w-0">
                     <span class="text-[12.5px] md:text-[13px] font-bold text-text-muted whitespace-nowrap">@provider</span>
-                    <span class="text-[11.5px] text-text-muted break-keep">@(provider)로도 로그인할 수 있게 연결해요</span>
+                    <span class="text-[11.5px] text-text-muted break-keep">@AppText.Settings.ConnectHint(provider)</span>
                 </span>
-                <button type="button" class="@Css.Settings.SmallOutlineButton" @onclick="() => ConnectAsync(provider)">연결하기</button>
+                <button type="button" class="@Css.Settings.SmallOutlineButton" @onclick="() => ConnectAsync(provider)">@AppText.Settings.Connect</button>
             </div>
         }
     };

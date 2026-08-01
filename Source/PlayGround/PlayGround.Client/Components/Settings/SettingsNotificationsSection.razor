@@ -8,54 +8,54 @@
 
 <div class="flex flex-col gap-3.5 md:gap-4">
     <div class="@($"{Css.Settings.Card} gap-0.5")">
-        <span class="@($"{Css.Settings.CardHeading} mb-2")">수신 방법</span>
-        <Switch Label="앱 푸시" Description="모바일 앱 설치 시"
+        <span class="@($"{Css.Settings.CardHeading} mb-2")">@AppText.Settings.NotifyMethods</span>
+        <Switch Label="@AppText.Settings.NotifyPush" Description="@AppText.Settings.NotifyPushDescription"
                 Value="@ValueOf(NotificationPreferenceItem.PushChannel)"
                 ValueChanged="@(v => SetLocal(NotificationPreferenceItem.PushChannel, v))"
                 Save="@(v => SaveAsync(NotificationPreferenceItem.PushChannel, v))" />
-        <Switch Label="이메일" Description="주간 요약과 중요 알림"
+        <Switch Label="@AppText.Settings.NotifyEmail" Description="@AppText.Settings.NotifyEmailDescription"
                 Value="@ValueOf(NotificationPreferenceItem.EmailChannel)"
                 ValueChanged="@(v => SetLocal(NotificationPreferenceItem.EmailChannel, v))"
                 Save="@(v => SaveAsync(NotificationPreferenceItem.EmailChannel, v))" />
     </div>
 
     <div class="@($"{Css.Settings.Card} gap-0.5")">
-        <span class="@($"{Css.Settings.CardHeading} mb-2")">알림 항목</span>
+        <span class="@($"{Css.Settings.CardHeading} mb-2")">@AppText.Settings.NotifyItems</span>
 
-        <Switch Label="연결 요청 · 열람 요청" Description="자녀 프로필 연결, 에이전트 상세 열람 승인 요청" Locked="true">
-            <Prefix><span class="@Css.Settings.ChipOrange">승인</span></Prefix>
+        <Switch Label="@AppText.Settings.NotifyApprovals" Description="@AppText.Settings.NotifyApprovalsDescription" Locked="true">
+            <Prefix><span class="@Css.Settings.ChipOrange">@AppText.Settings.NotifyChipApproval</span></Prefix>
         </Switch>
 
-        <Switch Label="경기 결과 반영"
-                Description="자녀 기록·팀 성적이 업데이트되면 알려드려요" MobileDescription="자녀 기록·팀 성적 업데이트"
+        <Switch Label="@AppText.Settings.NotifyMatch"
+                Description="@AppText.Settings.NotifyMatchDescription" MobileDescription="@AppText.Settings.NotifyMatchMobileDescription"
                 Value="@ValueOf(NotificationPreferenceItem.MatchResult)"
                 ValueChanged="@(v => SetLocal(NotificationPreferenceItem.MatchResult, v))"
                 Save="@(v => SaveAsync(NotificationPreferenceItem.MatchResult, v))">
-            <Prefix><span class="@Css.Settings.ChipNavy">경기</span></Prefix>
+            <Prefix><span class="@Css.Settings.ChipNavy">@AppText.Settings.NotifyChipMatch</span></Prefix>
         </Switch>
 
-        <Switch Label="모집 공고 · 지원 현황" Description="관심 지역 새 공고, 지원 결과"
+        <Switch Label="@AppText.Settings.NotifyRecruit" Description="@AppText.Settings.NotifyRecruitDescription"
                 Value="@ValueOf(NotificationPreferenceItem.Recruit)"
                 ValueChanged="@(v => SetLocal(NotificationPreferenceItem.Recruit, v))"
                 Save="@(v => SaveAsync(NotificationPreferenceItem.Recruit, v))">
-            <Prefix><span class="@Css.Settings.ChipNavy">모집</span></Prefix>
+            <Prefix><span class="@Css.Settings.ChipNavy">@AppText.Settings.NotifyChipRecruit</span></Prefix>
         </Switch>
 
-        <Switch Label="리뷰 답글" Description="내가 쓴 리뷰에 팀이 답글을 달면"
+        <Switch Label="@AppText.Settings.NotifyReview" Description="@AppText.Settings.NotifyReviewDescription"
                 Value="@ValueOf(NotificationPreferenceItem.Review)"
                 ValueChanged="@(v => SetLocal(NotificationPreferenceItem.Review, v))"
                 Save="@(v => SaveAsync(NotificationPreferenceItem.Review, v))">
-            <Prefix><span class="@Css.Settings.ChipNavy">리뷰</span></Prefix>
+            <Prefix><span class="@Css.Settings.ChipNavy">@AppText.Settings.NotifyChipReview</span></Prefix>
         </Switch>
 
-        <Switch Label="프로필 방문 요약" Description="공개 프로필 주간 방문 통계"
+        <Switch Label="@AppText.Settings.NotifyProfileVisit" Description="@AppText.Settings.NotifyProfileVisitDescription"
                 Value="@ValueOf(NotificationPreferenceItem.VisitSummary)"
                 ValueChanged="@(v => SetLocal(NotificationPreferenceItem.VisitSummary, v))"
                 Save="@(v => SaveAsync(NotificationPreferenceItem.VisitSummary, v))">
-            <Prefix><span class="@Css.Settings.ChipViolet">열람</span></Prefix>
+            <Prefix><span class="@Css.Settings.ChipViolet">@AppText.Settings.NotifyChipView</span></Prefix>
         </Switch>
 
-        <span class="@Css.Settings.FootCaption">연결 요청·열람 요청 등 승인이 필요한 알림은 안전을 위해 끌 수 없어요.</span>
+        <span class="@Css.Settings.FootCaption">@AppText.Settings.NotifyFootCaption</span>
     </div>
 </div>
 

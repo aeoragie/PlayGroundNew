@@ -16,10 +16,10 @@
 
             <div class="@Css.MatchForm.Header">
                 <span class="flex flex-col gap-1 min-w-0">
-                    <h2 class="@Css.MatchForm.Title">데이터 내려받기</h2>
-                    <span class="@Css.MatchForm.Subtitle">내 계정과 자녀의 정보를 파일로 받을 수 있어요</span>
+                    <h2 class="@Css.MatchForm.Title">@AppText.Settings.ExportDialogTitle</h2>
+                    <span class="@Css.MatchForm.Subtitle">@AppText.Settings.ExportDialogSubtitle</span>
                 </span>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <button type="button" aria-label="@AppText.Settings.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -27,24 +27,24 @@
 
             <div class="@Css.MatchForm.Body">
                 <div class="flex flex-col gap-2">
-                    <span class="text-[12px] font-extrabold text-navy-deep">포함 항목</span>
+                    <span class="text-[12px] font-extrabold text-navy-deep">@AppText.Settings.ExportIncluded</span>
                     <label class="flex items-start gap-2.5 cursor-pointer">
                         <input type="checkbox" checked="@mIncludeProfile" @onchange="e => mIncludeProfile = (bool)e.Value!" class="mt-0.5 w-[18px] h-[18px] accent-navy" />
-                        <span class="text-[12.5px] leading-[1.5] break-keep">계정·프로필 <span class="text-text-muted">(이름·연락처·역할·자녀 연결)</span></span>
+                        <span class="text-[12.5px] leading-[1.5] break-keep">@AppText.Settings.ExportItemProfile <span class="text-text-muted">@AppText.Settings.ExportItemProfileNote</span></span>
                     </label>
                     <label class="flex items-start gap-2.5 cursor-pointer">
                         <input type="checkbox" checked="@mIncludeRecords" @onchange="e => mIncludeRecords = (bool)e.Value!" class="mt-0.5 w-[18px] h-[18px] accent-navy" />
-                        <span class="text-[12.5px] leading-[1.5] break-keep">경기 기록·커리어 <span class="text-text-muted">(자녀별 출전·기록·수상)</span></span>
+                        <span class="text-[12.5px] leading-[1.5] break-keep">@AppText.Settings.ExportItemRecords <span class="text-text-muted">@AppText.Settings.ExportItemRecordsNote</span></span>
                     </label>
                     <label class="flex items-start gap-2.5 cursor-pointer">
                         <input type="checkbox" checked="@mIncludeRequests" @onchange="e => mIncludeRequests = (bool)e.Value!" class="mt-0.5 w-[18px] h-[18px] accent-navy" />
-                        <span class="text-[12.5px] leading-[1.5] break-keep">요청·신청 내역 <span class="text-text-muted">(연결·열람 승인·지원·수정 신청)</span></span>
+                        <span class="text-[12.5px] leading-[1.5] break-keep">@AppText.Settings.ExportItemRequests <span class="text-text-muted">@AppText.Settings.ExportItemRequestsNote</span></span>
                     </label>
-                    <span class="text-[11px] text-text-muted break-keep">형식: JSON + 사람이 읽는 CSV 요약 (사진·영상 원본은 제외 — URL 목록만)</span>
+                    <span class="text-[11px] text-text-muted break-keep">@AppText.Settings.ExportFormatNote</span>
                 </div>
 
                 <div class="bg-surface-soft rounded-[10px] px-3 py-[11px] text-[11.5px] text-text-body leading-[1.55] break-keep">
-                    파일 준비에 최대 <b>24시간</b>이 걸려요. 완료되면 알림을 보내드리고, 링크는 <b>7일</b> 뒤 만료돼요.
+                    @AppText.Settings.ExportNoticePrefix<b>@AppText.Settings.ExportNotice24h</b>@AppText.Settings.ExportNoticeMiddle<b>@AppText.Settings.ExportNotice7d</b>@AppText.Settings.ExportNoticeSuffix
                 </div>
 
                 @if (mError is not null)
@@ -54,8 +54,8 @@
             </div>
 
             <div class="@Css.MatchForm.Footer">
-                <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                <SubmitButton Label="요청하기" BusyLabel="요청 중…" IsBusy="@mSaving"
+                <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Settings.Cancel</button>
+                <SubmitButton Label="@AppText.Settings.ExportSubmit" BusyLabel="@AppText.Settings.ExportSubmitBusy" IsBusy="@mSaving"
                               OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
             </div>
         </div>
@@ -98,7 +98,7 @@
         mError = null;
         if (!mIncludeProfile && !mIncludeRecords && !mIncludeRequests)
         {
-            mError = "받을 항목을 하나 이상 선택해 주세요.";
+            mError = AppText.Settings.ExportErrorNoItems;
             return;
         }
 
@@ -113,24 +113,24 @@
 
         if (result is null)
         {
-            Toasts.ShowError("요청하지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", SubmitAsync);
+            Toasts.ShowError(AppText.Settings.ExportErrorFailed, AppText.Settings.Retry, SubmitAsync);
             return;
         }
 
         // 진행 중·쿨다운은 인라인 안내(모달 유지) — 요청 접수만 성공으로 닫는다
         if (result.Status == "InProgress")
         {
-            mError = "이미 준비 중인 요청이 있어요. 완료된 후 다시 요청할 수 있어요.";
+            mError = AppText.Settings.ExportErrorInProgress;
             return;
         }
 
         if (result.Status == "Cooldown")
         {
-            mError = "최근에 요청했어요. 24시간 뒤에 다시 요청할 수 있어요.";
+            mError = AppText.Settings.ExportErrorCooldown;
             return;
         }
 
-        Toasts.ShowSuccess("요청을 접수했어요. 준비되면 알림을 보내드릴게요.");
+        Toasts.ShowSuccess(AppText.Settings.ExportAcceptedToast);
         await IsOpenChanged.InvokeAsync(false);
         await OnRequested.InvokeAsync();
     }
