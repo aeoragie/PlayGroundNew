@@ -46,6 +46,7 @@
   </Folder>
   <Folder Name="/Source/Tools/">
     <Project Path="Source/Tools/Generator.Database/Generator.Database.csproj" />
+    <Project Path="Source/Tools/Generator.Localization/Generator.Localization.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/Tests.Infrastructure/Tests.Infrastructure.csproj" />

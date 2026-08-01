@@ -81,23 +81,6 @@ try
         Console.WriteLine(codeGenerator.GenerateSummary(generatedFiles.Item1));
     }
 
-    var localizationSection = configuration.GetSection("LocalizationSettings");
-    if (localizationSection.Exists())
-    {
-        Console.WriteLine();
-        Console.WriteLine("🌐 Generating localization typed accessors (AppText.g.cs)...");
-        string resourcesPath = localizationSection["ResourcesPath"]!;
-        string baseCulture = localizationSection["BaseCulture"] ?? "ko";
-        string outputPath = localizationSection["OutputPath"]!;
-        string localizationNamespace = localizationSection["Namespace"]!;
-
-        var localizationGenerator = new Generator.Database.Generators.LocalizationGenerator();
-        string generatedCode = localizationGenerator.Generate(resourcesPath, baseCulture, localizationNamespace);
-        Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
-        await File.WriteAllTextAsync(outputPath, generatedCode);
-        Console.WriteLine($"   → {outputPath}");
-    }
-
     Console.WriteLine("🎉 Code generation completed successfully!");
 
     return 0;
