@@ -6,7 +6,7 @@
 @* 핵심 기능 3: PC 3컬럼(아이콘 위) / 모바일 세로 스택(아이콘 좌 + 텍스트 우 가로형).
    콘텐츠는 DB에서 로드, 미가용 시 기본 카피로 폴백. *@
 <section id="features" class="@($"{Css.Landing.Container} pt-[72px] md:pt-[110px] [scroll-margin-top:70px] md:[scroll-margin-top:80px]")">
-    <SectionHeader Overline="CORE" Title="폐쇄적인 정보를, 모두에게" />
+    <SectionHeader Overline="CORE" Title="@AppText.Landing.FeaturesTitle" />
 
     <div class="flex flex-col gap-3.5 md:grid md:grid-cols-3 md:gap-6">
         @foreach (var feature in mFeatures)
@@ -39,8 +39,8 @@
     // DB 미가용 시 폴백 (카피는 SPEC.LANDING.md 기준)
     private static readonly LandingItemDto[] DefaultFeatures =
     [
-        new() { Icon = "🏠", Title = "팀 홈페이지 자동 생성", Body = "소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이." },
-        new() { Icon = "📈", Title = "선수 이력 · 기록 관리", Body = "커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다." },
-        new() { Icon = "📊", Title = "경기기록 무료 공개", Body = "대회 결과, 순위표, 일정을 로그인 없이 누구나 조회. 자녀와 관심팀의 기록을 언제든 확인하세요." }
+        new() { Icon = "🏠", Title = AppText.Landing.Feature1Title, Body = AppText.Landing.Feature1Body },
+        new() { Icon = "📈", Title = AppText.Landing.Feature2Title, Body = AppText.Landing.Feature2Body },
+        new() { Icon = "📊", Title = AppText.Landing.Feature3Title, Body = AppText.Landing.Feature3Body }
     ];
 }

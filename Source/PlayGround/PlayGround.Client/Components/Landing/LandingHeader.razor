@@ -9,10 +9,10 @@
 
         @* PC 메뉴 — 팀 탐색은 실링크 (Design.Navigation 7/21 보강 ①) *@
         <nav class="hidden md:flex gap-[26px]">
-            <a href="#roles" class="@Css.Landing.NavLink">팀</a>
-            <a href="#roles" class="@Css.Landing.NavLink">선수·학부모</a>
-            <a href="@Routes.TeamExplore" class="@Css.Landing.NavLink">팀 탐색</a>
-            <a href="#features" class="@Css.Landing.NavLink">경기기록</a>
+            <a href="#roles" class="@Css.Landing.NavLink">@AppText.Landing.NavTeam</a>
+            <a href="#roles" class="@Css.Landing.NavLink">@AppText.Landing.NavPlayer</a>
+            <a href="@Routes.TeamExplore" class="@Css.Landing.NavLink">@AppText.Landing.NavExplore</a>
+            <a href="#features" class="@Css.Landing.NavLink">@AppText.Landing.NavRecords</a>
         </nav>
 
         <div class="flex-1"></div>
@@ -20,16 +20,16 @@
         @* 랜딩 CTA는 유일하게 오렌지가 허용되는 자리. 로그인 상태면 문구만 "내 대시보드"로 바꾼다 *@
         <AuthorizeView>
             <Authorized>
-                <PillButton Href="@Routes.Dashboard" Variant="PillVariant.Orange" Size="PillSize.Small">내 대시보드</PillButton>
+                <PillButton Href="@Routes.Dashboard" Variant="PillVariant.Orange" Size="PillSize.Small">@AppText.Landing.NavDashboard</PillButton>
             </Authorized>
             <NotAuthorized>
-                <a href="@Routes.Login" class="hidden md:block text-[14.5px] font-bold px-4 py-[9px] hover:text-orange transition-colors">로그인</a>
-                <PillButton Href="@Routes.Login" Variant="PillVariant.Orange" Size="PillSize.Small">시작하기</PillButton>
+                <a href="@Routes.Login" class="hidden md:block text-[14.5px] font-bold px-4 py-[9px] hover:text-orange transition-colors">@AppText.Landing.NavLogin</a>
+                <PillButton Href="@Routes.Login" Variant="PillVariant.Orange" Size="PillSize.Small">@AppText.Landing.NavStart</PillButton>
             </NotAuthorized>
         </AuthorizeView>
 
         @* 모바일 햄버거 *@
-        <button type="button" aria-label="메뉴" @onclick="ToggleMenu"
+        <button type="button" aria-label="@AppText.Landing.NavMenuLabel" @onclick="ToggleMenu"
                 class="md:hidden w-[38px] h-[38px] flex flex-col items-center justify-center gap-[5px] p-0 bg-transparent border-0 cursor-pointer">
             <span class="w-5 h-0.5 rounded-sm bg-current"></span>
             <span class="w-5 h-0.5 rounded-sm bg-current"></span>
@@ -41,16 +41,16 @@
     @if (mMenuOpen)
     {
         <nav class="md:hidden bg-bg/[.98] border-t border-border shadow-menu flex flex-col py-2">
-            <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">팀</a>
-            <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">선수·학부모</a>
-            <a href="@Routes.TeamExplore" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">팀 탐색</a>
-            <a href="#features" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">경기기록</a>
+            <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">@AppText.Landing.NavTeam</a>
+            <a href="#roles" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">@AppText.Landing.NavPlayer</a>
+            <a href="@Routes.TeamExplore" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">@AppText.Landing.NavExplore</a>
+            <a href="#features" @onclick="CloseMenu" class="@Css.Landing.MobileMenuItem">@AppText.Landing.NavRecords</a>
             <AuthorizeView>
                 <Authorized>
-                    <a href="@Routes.Dashboard" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">내 대시보드</a>
+                    <a href="@Routes.Dashboard" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">@AppText.Landing.NavDashboard</a>
                 </Authorized>
                 <NotAuthorized>
-                    <a href="@Routes.Login" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">로그인</a>
+                    <a href="@Routes.Login" @onclick="CloseMenu" class="@($"{Css.Landing.MobileMenuItem} !text-orange")">@AppText.Landing.NavLogin</a>
                 </NotAuthorized>
             </AuthorizeView>
         </nav>

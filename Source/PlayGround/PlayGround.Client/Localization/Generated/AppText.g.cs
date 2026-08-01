@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Correction", "Records" };
+        internal static readonly string[] Domains = { "Correction", "Landing", "Records" };
 
         public static class Correction
         {
@@ -40,6 +40,138 @@ namespace PlayGround.Client.Localization
             public static string StatusRejected => Loc.Get("Correction.statusRejected");
             /// <summary>접수</summary>
             public static string StatusPending => Loc.Get("Correction.statusPending");
+        }
+
+        public static class Landing
+        {
+            /// <summary>PlayGround — 유소년 축구, 팀과 선수를 잇다</summary>
+            public static string PageTitle => Loc.Get("Landing.pageTitle");
+            /// <summary>역동적인 유소년 축구 경기 장면</summary>
+            public static string HeroImageAlt => Loc.Get("Landing.heroImageAlt");
+            /// <summary>대한민국 유소년 축구 U12–U18</summary>
+            public static string HeroBadge => Loc.Get("Landing.heroBadge");
+            /// <summary>유소년 축구,</summary>
+            public static string HeroTitle => Loc.Get("Landing.heroTitle");
+            /// <summary>팀과 선수를 잇다</summary>
+            public static string HeroTitleLine2 => Loc.Get("Landing.heroTitleLine2");
+            /// <summary>팀 홈페이지, 선수 이력, 공개 경기기록까지.</summary>
+            public static string HeroBodyLine1 => Loc.Get("Landing.heroBodyLine1");
+            /// <summary>인맥이 아닌 정보로 결정하는 유소년 축구 플랫폼.</summary>
+            public static string HeroBodyLine2 => Loc.Get("Landing.heroBodyLine2");
+            /// <summary>무료로 시작하기</summary>
+            public static string HeroCtaStart => Loc.Get("Landing.heroCtaStart");
+            /// <summary>우리 동네 팀 둘러보기</summary>
+            public static string HeroCtaExplore => Loc.Get("Landing.heroCtaExplore");
+            /// <summary>작동 방식 보기</summary>
+            public static string HeroCtaHow => Loc.Get("Landing.heroCtaHow");
+            /// <summary>우리 동네 팀 둘러보기</summary>
+            public static string ExploreCardTitle => Loc.Get("Landing.exploreCardTitle");
+            /// <summary>우리 지역 팀 찾기</summary>
+            public static string ExploreCardBody => Loc.Get("Landing.exploreCardBody");
+            /// <summary>FOR YOU</summary>
+            public static string RolesOverline => Loc.Get("Landing.rolesOverline");
+            /// <summary>어떤 역할로 시작하시나요?</summary>
+            public static string RolesTitle => Loc.Get("Landing.rolesTitle");
+            /// <summary>팀을 운영합니다</summary>
+            public static string RoleTeamTitle => Loc.Get("Landing.roleTeamTitle");
+            /// <summary>가입만 하면 팀 홈페이지가 자동으로 생성됩니다. 선수단·일정·경기 결과를 한곳에서 관리하고, 선수 모집 공고를 올려보세요.</summary>
+            public static string RoleTeamBody => Loc.Get("Landing.roleTeamBody");
+            /// <summary>팀 만들기 →</summary>
+            public static string RoleTeamButton => Loc.Get("Landing.roleTeamButton");
+            /// <summary>팀 홈페이지 자동 생성</summary>
+            public static string RoleTeamItem1 => Loc.Get("Landing.roleTeamItem1");
+            /// <summary>선수단 등록 · 성적 자동 집계</summary>
+            public static string RoleTeamItem2 => Loc.Get("Landing.roleTeamItem2");
+            /// <summary>선수 모집 공고</summary>
+            public static string RoleTeamItem3 => Loc.Get("Landing.roleTeamItem3");
+            /// <summary>선수 · 학부모입니다</summary>
+            public static string RolePlayerTitle => Loc.Get("Landing.rolePlayerTitle");
+            /// <summary>자녀의 커리어와 경기기록을 한곳에 모으세요. 흩어진 이력이 포트폴리오가 되고, 주변 팀과 지도자를 정보로 비교할 수 있습니다.</summary>
+            public static string RolePlayerBody => Loc.Get("Landing.rolePlayerBody");
+            /// <summary>프로필 만들기 →</summary>
+            public static string RolePlayerButton => Loc.Get("Landing.rolePlayerButton");
+            /// <summary>선수 이력 · 시즌 통계 관리</summary>
+            public static string RolePlayerItem1 => Loc.Get("Landing.rolePlayerItem1");
+            /// <summary>공개 프로필 · 선수 카드</summary>
+            public static string RolePlayerItem2 => Loc.Get("Landing.rolePlayerItem2");
+            /// <summary>주변 팀 · 지도자 탐색</summary>
+            public static string RolePlayerItem3 => Loc.Get("Landing.rolePlayerItem3");
+            /// <summary>CORE</summary>
+            public static string FeaturesOverline => Loc.Get("Landing.featuresOverline");
+            /// <summary>폐쇄적인 정보를, 모두에게</summary>
+            public static string FeaturesTitle => Loc.Get("Landing.featuresTitle");
+            /// <summary>팀 홈페이지 자동 생성</summary>
+            public static string Feature1Title => Loc.Get("Landing.feature1Title");
+            /// <summary>소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이.</summary>
+            public static string Feature1Body => Loc.Get("Landing.feature1Body");
+            /// <summary>선수 이력 · 기록 관리</summary>
+            public static string Feature2Title => Loc.Get("Landing.feature2Title");
+            /// <summary>커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다.</summary>
+            public static string Feature2Body => Loc.Get("Landing.feature2Body");
+            /// <summary>경기기록 무료 공개</summary>
+            public static string Feature3Title => Loc.Get("Landing.feature3Title");
+            /// <summary>대회 결과, 순위표, 일정을 로그인 없이 누구나 조회. 자녀와 관심팀의 기록을 언제든 확인하세요.</summary>
+            public static string Feature3Body => Loc.Get("Landing.feature3Body");
+            /// <summary>HOW IT WORKS</summary>
+            public static string HowOverline => Loc.Get("Landing.howOverline");
+            /// <summary>3단계면 충분합니다</summary>
+            public static string HowTitle => Loc.Get("Landing.howTitle");
+            /// <summary>팀 등록</summary>
+            public static string How1Title => Loc.Get("Landing.how1Title");
+            /// <summary>팀 정보를 입력하면 공개 팀 홈페이지가 자동으로 생성됩니다. 엠블럼, 소개, 코칭스태프까지.</summary>
+            public static string How1Body => Loc.Get("Landing.how1Body");
+            /// <summary>선수단 등록</summary>
+            public static string How2Title => Loc.Get("Landing.how2Title");
+            /// <summary>이름·포지션·등번호만 입력하면 선수 프로필이 함께 만들어지고, 학부모가 초대코드로 연결합니다.</summary>
+            public static string How2Body => Loc.Get("Landing.how2Body");
+            /// <summary>기록 자동 집계</summary>
+            public static string How3Title => Loc.Get("Landing.how3Title");
+            /// <summary>경기 결과를 입력하면 팀 성적과 선수 개인 기록이 자동으로 쌓이고, 경기기록에 공개됩니다.</summary>
+            public static string How3Body => Loc.Get("Landing.how3Body");
+            /// <summary>지금 무료로 시작하세요</summary>
+            public static string CtaTitle => Loc.Get("Landing.ctaTitle");
+            /// <summary>팀도, 선수도, 가입 즉시</summary>
+            public static string CtaBodyLine1 => Loc.Get("Landing.ctaBodyLine1");
+            /// <summary>홈페이지와 프로필이 만들어집니다.</summary>
+            public static string CtaBodyLine2 => Loc.Get("Landing.ctaBodyLine2");
+            /// <summary>무료로 시작하기</summary>
+            public static string CtaButton => Loc.Get("Landing.ctaButton");
+            /// <summary>Google · Kakao 계정으로 10초 만에</summary>
+            public static string CtaNote => Loc.Get("Landing.ctaNote");
+            /// <summary>유소년 축구, 팀과 선수를 잇다</summary>
+            public static string FooterTagline => Loc.Get("Landing.footerTagline");
+            /// <summary>서비스</summary>
+            public static string FooterGroupService => Loc.Get("Landing.footerGroupService");
+            /// <summary>팀</summary>
+            public static string FooterLinkTeam => Loc.Get("Landing.footerLinkTeam");
+            /// <summary>선수·학부모</summary>
+            public static string FooterLinkPlayer => Loc.Get("Landing.footerLinkPlayer");
+            /// <summary>경기기록</summary>
+            public static string FooterLinkRecords => Loc.Get("Landing.footerLinkRecords");
+            /// <summary>회사</summary>
+            public static string FooterGroupCompany => Loc.Get("Landing.footerGroupCompany");
+            /// <summary>소개</summary>
+            public static string FooterLinkAbout => Loc.Get("Landing.footerLinkAbout");
+            /// <summary>이용약관</summary>
+            public static string FooterLinkTerms => Loc.Get("Landing.footerLinkTerms");
+            /// <summary>개인정보처리방침</summary>
+            public static string FooterLinkPrivacy => Loc.Get("Landing.footerLinkPrivacy");
+            /// <summary>팀</summary>
+            public static string NavTeam => Loc.Get("Landing.navTeam");
+            /// <summary>선수·학부모</summary>
+            public static string NavPlayer => Loc.Get("Landing.navPlayer");
+            /// <summary>팀 탐색</summary>
+            public static string NavExplore => Loc.Get("Landing.navExplore");
+            /// <summary>경기기록</summary>
+            public static string NavRecords => Loc.Get("Landing.navRecords");
+            /// <summary>내 대시보드</summary>
+            public static string NavDashboard => Loc.Get("Landing.navDashboard");
+            /// <summary>로그인</summary>
+            public static string NavLogin => Loc.Get("Landing.navLogin");
+            /// <summary>시작하기</summary>
+            public static string NavStart => Loc.Get("Landing.navStart");
+            /// <summary>메뉴</summary>
+            public static string NavMenuLabel => Loc.Get("Landing.navMenuLabel");
         }
 
         public static class Records

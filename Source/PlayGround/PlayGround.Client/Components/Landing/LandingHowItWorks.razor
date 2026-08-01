@@ -7,7 +7,7 @@
    콘텐츠는 DB에서 로드, 미가용 시 기본 카피로 폴백. *@
 <section id="how" class="@($"{Css.Landing.Container} pt-[72px] md:pt-[110px] [scroll-margin-top:70px] md:[scroll-margin-top:80px]")">
     <div class="bg-surface-alt rounded-wrap-sm md:rounded-wrap px-[22px] py-8 md:px-14 md:py-16">
-        <SectionHeader Overline="HOW IT WORKS" Title="3단계면 충분합니다" BottomMarginClass="mb-6 md:mb-12" />
+        <SectionHeader Overline="HOW IT WORKS" Title="@AppText.Landing.HowTitle" BottomMarginClass="mb-6 md:mb-12" />
 
         <div class="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-5">
             @foreach (var step in mSteps)
@@ -41,8 +41,8 @@
     // DB 미가용 시 폴백 (카피는 SPEC.LANDING.md 기준)
     private static readonly LandingItemDto[] DefaultSteps =
     [
-        new() { Icon = "1", Title = "팀 등록", Body = "팀 정보를 입력하면 공개 팀 홈페이지가 자동으로 생성됩니다. 엠블럼, 소개, 코칭스태프까지." },
-        new() { Icon = "2", Title = "선수단 등록", Body = "이름·포지션·등번호만 입력하면 선수 프로필이 함께 만들어지고, 학부모가 초대코드로 연결합니다." },
-        new() { Icon = "3", Title = "기록 자동 집계", Body = "경기 결과를 입력하면 팀 성적과 선수 개인 기록이 자동으로 쌓이고, 경기기록에 공개됩니다." }
+        new() { Icon = "1", Title = AppText.Landing.How1Title, Body = AppText.Landing.How1Body },
+        new() { Icon = "2", Title = AppText.Landing.How2Title, Body = AppText.Landing.How2Body },
+        new() { Icon = "3", Title = AppText.Landing.How3Title, Body = AppText.Landing.How3Body }
     ];
 }
