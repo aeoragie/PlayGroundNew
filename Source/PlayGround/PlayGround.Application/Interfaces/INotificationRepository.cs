@@ -18,8 +18,14 @@ namespace PlayGround.Application.Interfaces
         /// <summary>미읽음 카운트 + 최근 목록. 조회 전에 심사 완료 신청을 알림으로 동기화한다.</summary>
         Task<Result<NotificationsResponse>> GetByUserAsync(Guid userId, CancellationToken cancellation = default);
 
+        /// <summary>알림 센터 페이지 — 세그먼트 필터(all|action|unread) + 페이지네이션 + 카운트 3종.</summary>
+        Task<Result<NotificationPageResponse>> GetPageByUserAsync(Guid userId, string filter, int offset, int limit, CancellationToken cancellation = default);
+
         /// <summary>읽음 처리 — 본인 것만. 남의 알림·미존재는 Success(false).</summary>
         Task<Result<bool>> MarkReadAsync(Guid userId, Guid notificationId, CancellationToken cancellation = default);
+
+        /// <summary>여러 건 읽음 처리 (페이지 진입 시 화면에 보인 알림). 본인·미읽음만. 반환 = 갱신 건수.</summary>
+        Task<Result<int>> MarkReadBulkAsync(Guid userId, IReadOnlyCollection<Guid> notificationIds, CancellationToken cancellation = default);
 
         /// <summary>친선경기 결과 알림 수신자 — 관리자 팀의 Claimed 선수들 (설정 필터는 호출측이 Account에서).</summary>
         Task<Result<List<NotificationRecipient>>> GetMatchResultRecipientsAsync(Guid managerUserId, CancellationToken cancellation = default);

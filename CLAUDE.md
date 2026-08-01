@@ -758,6 +758,41 @@
   검증 데이터 전량 삭제. **미해결**: 헤드리스 UI 스크린샷 검증 · 삭제 시 팀원 알림(발송 훅 후속) ·
   코치 계정 권한 확장 · 공지 30일 대기 파생 배너.
 
+### 알림 센터 페이지 완료 (2026-08-01, DECISION.NOTIFICATIONCENTER — DesignWorkOrders ⑩, 마지막 항목)
+
+> 결정 C(패널 유지 + 라우트 절충) + 보관 90일 확정. 기존 벨 패널은 유지하고 하단에 "전체 보기 →" 행만
+> 추가, 신규 라우트 `/notifications`(누적·딥링크·검색). **API 15/15 · UI 15/15 통과.** 시드 알림 전량 원복.
+
+- **지연 생성·90일 정리를 공용 프로시저로 추출** — `UspSyncSoccerNotifications`(기록수정·열람요청 멱등 INSERT +
+  **보관 90일 자동 삭제**, 단 미해소 액션형(연결 요청 Pending·선수단 초대 미확인)은 나이 무관 예외 유지)를
+  벨 패널 프로시저(UspGetSoccerNotificationsByUser)와 페이지 프로시저가 EXEC로 공유(단일 진실). 정리는
+  조회 시점·유저 스코프(스케줄러 없이 자동). **90일 컷은 서버 시각 기준** — 100일 전 시드가 조회 즉시 삭제됨을 검증.
+- **페이지 프로시저** `UspGetSoccerNotificationsPageByUser(@Filter, @Offset, @Limit)` — 임시 테이블에 라이브 상태·
+  IsActionRequired를 한 번 계산해 카운트 3종(전체/처리필요/읽지않음)+필터 페이지를 낸다. 필터 화이트리스트(all|action|
+  unread)는 Command가 강제. **더 보기 20**(OFFSET/FETCH, 무한 스크롤 금지) — hasMore = offset+len < 필터별 카운트.
+  `UspMarkSoccerNotificationsRead`(bulk, OPENJSON) = 페이지 진입 시 화면에 보인 알림 일괄 읽음(벨 카운트 하락).
+- **문구·딥링크·상대시각을 `NotificationPresenter`(Client 정적)로 추출** — 벨 패널과 페이지가 공유(문구가
+  어긋나면 안 된다). 패널의 private static(GroupOf·RouteOf·MoveTitle·MoveBody·RelationLabel·TimeAgo)을
+  presenter 위임으로 바꿔 마크업 무변경. ApplicantList의 `NotificationPanel.TimeAgo` 참조도 presenter로 이관.
+- **페이지 `/notifications`**(`Pages/Notifications/NotificationsPage.razor`) — PC 720px 단일 컬럼 / 모바일 뒤로 헤더
+  (상위=대시보드 허브 → `Routes.Dashboard`, history.back 아님). 세그먼트 **URL 쿼리 동기화**(`?filter=action`,
+  전체는 기본이라 쿼리 제거, replace:true — 새로고침·공유 유지). 유형 원 톤 계승(연결·초대=오렌지/열람=violet/
+  결과·기록=네이비) + **안읽음 오렌지 점**(이번 화면은 유지 — 서버는 읽음 처리하되 로컬 IsRead 불변). 액션형은
+  우측 승인/거절·초대 확인 버튼(행 탭 없음), 나머지는 내비게이션형(행 전체 탭 + 셰브론·딥링크). 빈 상태 Tier A
+  (CTA 없음) + 하단 "최근 90일의 알림을 보여드려요" 캡션. 비로그인 딥링크 → `Routes.LoginWithReturn`(returnUrl 보존).
+- **패널 "전체 보기 →" 행**(`Css.Notification.SeeAllRow`) — 하단에 추가, `/notifications`로. 토스트·알림 센터
+  중복 발송 금지 규칙은 불변(발송 측 무변경). 패널 항목 수는 그대로 둠(사용자 지시 "행만 추가").
+- **함정(실제로 겪음)**: ① 한글 텍스트 바로 뒤 `@메서드`는 Razor가 이메일 리터럴로 오인해 그대로 출력한다
+  (`전체@CountSuffix` → 리터럴) → 라벨을 단일 식 `@SegmentLabel("전체", n)`으로. ② **Client 수정 후 서버가
+  낡은 WASM을 계속 서빙** — taskkill/restart가 5000 포트를 못 비우면 이전 서버가 남는다. 전체 kill → 포트 free
+  확인 → 단일 기동으로 해결(팀 게시판·설정 플로우와 같은 함정).
+- 검증(`api-notifications.js` 15 · `shot-notifications.js` 15): 90일 정리 후 25건·처리필요 1·페이지 20·더 보기 5 ·
+  필터별 카운트·bulk 읽음→unread 0·벨 0 · 딥링크 비로그인→로그인(returnUrl) · 세그먼트 `?filter=action` 새로고침
+  유지 · 패널 "전체 보기"→페이지. 시드(보호자 26건 + Pending 요청) 전량 삭제로 원복.
+- **미해결**: `/auth` vs `/login` — 결정문은 `/auth?returnUrl=`이지만 실제 라우트가 `/login`이라 canonical
+  `LoginWithReturn` 사용(다른 딥링크 페이지와 동일). 에이전트 열람 요청(ViewRequest)은 flag off·생산자 없음이라
+  카운트에 실질 0(플래그 켜질 때 페이지 필터도 함께 노출). 알림 삭제/전체 읽음의 페이지 액션은 지시 밖이라 미구현.
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).

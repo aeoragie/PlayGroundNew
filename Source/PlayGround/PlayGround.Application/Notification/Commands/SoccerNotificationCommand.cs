@@ -26,6 +26,34 @@ namespace PlayGround.Application.Notification.Commands
             return await mRepository.GetByUserAsync(userId, cancellation);
         }
 
+        /// <summary>알림 센터 페이지 — 세그먼트 필터 + 페이지네이션. 필터는 화이트리스트(all|action|unread), 그 외는 all.</summary>
+        public async Task<Result<NotificationPageResponse>> GetPageAsync(
+            Guid userId, string? filter, int offset, int limit, CancellationToken cancellation = default)
+        {
+            if (userId == Guid.Empty)
+            {
+                return Result<NotificationPageResponse>.Error(ErrorCode.Unauthorized, "userId is empty");
+            }
+
+            string normalized = filter is "action" or "unread" ? filter : "all";
+            int safeOffset = offset < 0 ? 0 : offset;
+            int safeLimit = limit is < 1 or > 50 ? 20 : limit;
+
+            return await mRepository.GetPageByUserAsync(userId, normalized, safeOffset, safeLimit, cancellation);
+        }
+
+        /// <summary>여러 건 읽음 — 페이지 진입 시 화면에 보인 알림. 빈 목록은 0 성공.</summary>
+        public async Task<Result<int>> MarkReadBulkAsync(
+            Guid userId, IReadOnlyCollection<Guid> notificationIds, CancellationToken cancellation = default)
+        {
+            if (userId == Guid.Empty)
+            {
+                return Result<int>.Error(ErrorCode.Unauthorized, "userId is empty");
+            }
+
+            return await mRepository.MarkReadBulkAsync(userId, notificationIds, cancellation);
+        }
+
         public async Task<Result<bool>> MarkReadAsync(Guid userId, Guid notificationId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || notificationId == Guid.Empty)

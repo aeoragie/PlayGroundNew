@@ -39,6 +39,38 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>알림 센터 페이지 — 세그먼트 필터(all|action|unread) + 페이지네이션(더 보기 20).</summary>
+        [HttpGet("me/page")]
+        public async Task<Envelope<NotificationPageResponse>> GetPageAsync(
+            [FromQuery] string? filter, [FromQuery] int offset, [FromQuery] int limit, CancellationToken cancellation)
+        {
+            Guid userId = CurrentUserId;
+            if (userId == Guid.Empty)
+            {
+                return Result<NotificationPageResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<NotificationPageResponse> result = await mGateway.AskAsync<NotificationPageResponse>(
+                ActorNames.SoccerClaim, new GetNotificationPageMessage(userId, filter ?? "all", offset, limit == 0 ? 20 : limit), cancellation);
+            return result.ToEnvelope();
+        }
+
+        /// <summary>여러 건 읽음 처리 — 페이지 진입 시 화면에 보인 알림을 한 번에.</summary>
+        [HttpPut("me/read")]
+        public async Task<Envelope<int>> MarkReadBulkAsync([FromBody] MarkNotificationsReadRequest request, CancellationToken cancellation)
+        {
+            Guid userId = CurrentUserId;
+            if (userId == Guid.Empty)
+            {
+                return Result<int>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<int> result = await mGateway.AskAsync<int>(
+                ActorNames.SoccerClaim,
+                new MarkNotificationsReadMessage(userId, request?.NotificationIds ?? new List<Guid>()), cancellation);
+            return result.ToEnvelope();
+        }
+
         /// <summary>읽음 처리 — 이동형 클릭 시 (액션형은 승인/거절 처리 시 서버가 마킹).</summary>
         [HttpPut("me/{notificationId:guid}/read")]
         public async Task<Envelope<bool>> MarkReadAsync(Guid notificationId, CancellationToken cancellation)

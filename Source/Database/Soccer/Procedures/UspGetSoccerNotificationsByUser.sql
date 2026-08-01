@@ -2,57 +2,24 @@
 -- @source: join
 -- @join: SoccerNotifications AS n (NotificationId, NotificationType, RefId, TargetPlayerId, ActorName, PlayerName, TeamName, MetaText, SubText, Relation, IsRead, CreatedAt)
 -- @join: SoccerPlayerClaimRequests AS r (Status)
--- 알림 목록 — 결과셋 2개: ⓪미읽음 카운트(벨) → ①최근 50건.
--- 액션형(ClaimRequest·RosterInvite)의 처리 여부는 스냅샷이 아니라 라이브 상태를 조인한다(Status —
--- 처리 후 재조회 시 버튼 대신 완료 박스를 그리기 위해). ClaimRequest는 요청 상태, RosterInvite는
--- SoccerApplications.ConfirmedAt로 파생한다(ConfirmedAt 있으면 'Confirmed'=편입 완료, 없으면 'Pending'=초대 확인 대기).
---
--- 선행: 기록 수정 신청 심사 결과의 **지연 생성**. 심사(Accepted/Rejected)는 주최측 대회 운영
--- 서비스가 DB를 직접 바꾸므로(설계 결정 6·7) 우리 코드에 발송 훅이 없다 — 조회 시점에
--- "심사가 끝났는데 알림이 없는 신청"을 찾아 알림 행을 만든다. NOT EXISTS로 멱등.
+-- 알림 목록(벨 패널) — 결과셋 2개: ⓪미읽음 카운트 → ①최근 50건.
+-- 지연 생성·보관 90일 정리는 UspSyncSoccerNotifications가 담당(페이지 조회와 공유 — 단일 진실).
+-- 액션형(ClaimRequest·RosterInvite)의 처리 여부는 스냅샷이 아니라 라이브 상태를 조인한다(Status).
+--   ClaimRequest는 요청 상태, RosterInvite는 SoccerApplications.ConfirmedAt로 파생(있으면 'Confirmed', 없으면 'Pending').
 CREATE PROCEDURE [dbo].[UspGetSoccerNotificationsByUser]
     @UserId UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    --.// 기록 수정 신청 심사 결과 지연 동기화 (MetaText=항목, SubText=심사 상태)
-
-    INSERT INTO [dbo].[SoccerNotifications]
-        ([RecipientUserId], [NotificationType], [RefId], [MetaText], [SubText], [TeamName], [CreatedAt])
-    SELECT c.[RequestedByUserId], 'CorrectionReviewed', c.[CorrectionId],
-           c.[FieldType], c.[Status], t.[TeamName], COALESCE(c.[ReviewedAt], GETUTCDATE())
-    FROM [dbo].[SoccerRecordCorrections] c
-    LEFT JOIN [dbo].[SoccerTeams] t ON t.[TeamId] = c.[TeamId] AND t.[DeletedAt] IS NULL
-    WHERE c.[RequestedByUserId] = @UserId
-      AND c.[Status] IN ('Accepted', 'Rejected') AND c.[DeletedAt] IS NULL
-      AND NOT EXISTS (
-          SELECT 1 FROM [dbo].[SoccerNotifications] n
-          WHERE n.[RecipientUserId] = @UserId
-            AND n.[NotificationType] = 'CorrectionReviewed' AND n.[RefId] = c.[CorrectionId]);
-
-    --.// 에이전트 열람 요청 지연 동기화 — 요청 생성은 에이전트 서비스라 발송 훅이 없다 (Correction과 같은 패턴)
-
-    INSERT INTO [dbo].[SoccerNotifications]
-        ([RecipientUserId], [NotificationType], [RefId], [TargetPlayerId], [ActorName], [PlayerName], [CreatedAt])
-    SELECT r.[GuardianUserId], 'ViewRequest', r.[RequestId], r.[PlayerId], a.[Name], p.[Name], r.[RequestedAt]
-    FROM [dbo].[SoccerAgentViewRequests] r
-    JOIN [dbo].[SoccerAgentProfiles] a ON a.[AgentId] = r.[AgentId] AND a.[DeletedAt] IS NULL
-    JOIN [dbo].[SoccerPlayers] p ON p.[PlayerId] = r.[PlayerId]
-    WHERE r.[GuardianUserId] = @UserId AND r.[Status] = 'Pending' AND r.[DeletedAt] IS NULL
-      AND NOT EXISTS (
-          SELECT 1 FROM [dbo].[SoccerNotifications] n
-          WHERE n.[RecipientUserId] = @UserId
-            AND n.[NotificationType] = 'ViewRequest' AND n.[RefId] = r.[RequestId]);
+    EXEC [dbo].[UspSyncSoccerNotifications] @UserId;
 
     --.// ⓪ 미읽음 카운트 (벨 뱃지 — 목록 50건 컷과 무관한 전체 수)
-
     SELECT COUNT(*) AS [UnreadCount]
     FROM [dbo].[SoccerNotifications] WITH (NOLOCK)
     WHERE [RecipientUserId] = @UserId AND [IsRead] = 0;
 
     --.// ① 목록 (최근 50건)
-
     SELECT TOP 50
         n.[NotificationId], n.[NotificationType], n.[RefId], n.[TargetPlayerId],
         n.[ActorName], n.[PlayerName], n.[TeamName], n.[MetaText], n.[SubText], n.[Relation],

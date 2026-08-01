@@ -196,7 +196,7 @@
         }
 
         parts.Add(app.RecruitmentTitle);
-        parts.Add($"{NotificationPanel.TimeAgo(app.CreatedAt)} 지원");
+        parts.Add($"{PlayGround.Client.Components.Shared.Notifications.NotificationPresenter.TimeAgo(app.CreatedAt)} 지원");
         return string.Join(" · ", parts);
     }
 

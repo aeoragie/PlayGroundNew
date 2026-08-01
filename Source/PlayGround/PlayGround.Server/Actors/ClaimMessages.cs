@@ -58,6 +58,18 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
+    /// <summary>알림 센터 페이지 조회 메시지 (지연 생성이 있어 같은 사용자와 순차 처리).</summary>
+    public sealed record GetNotificationPageMessage(Guid UserId, string Filter, int Offset, int Limit) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
+    /// <summary>알림 여러 건 읽음 처리 메시지 (페이지 진입 시 — UserId 해시).</summary>
+    public sealed record MarkNotificationsReadMessage(Guid UserId, IReadOnlyCollection<Guid> NotificationIds) : IConsistentHashable
+    {
+        public object ConsistentHashKey => UserId;
+    }
+
     /// <summary>에이전트 열람 요청 조회 메시지 (보호자 심사 화면 — UserId 해시).</summary>
     public sealed record GetAgentViewRequestMessage(Guid UserId, Guid RequestId) : IConsistentHashable
     {

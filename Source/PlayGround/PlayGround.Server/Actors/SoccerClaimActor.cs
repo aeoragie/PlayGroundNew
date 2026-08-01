@@ -24,7 +24,9 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetOwnClaimRequestMessage>(HandleGetOwnAsync);
             RegisterHandlerAsync<ReviewClaimRequestMessage>(HandleReviewAsync);
             RegisterHandlerAsync<GetNotificationsMessage>(HandleGetNotificationsAsync);
+            RegisterHandlerAsync<GetNotificationPageMessage>(HandleGetNotificationPageAsync);
             RegisterHandlerAsync<MarkNotificationReadMessage>(HandleMarkReadAsync);
+            RegisterHandlerAsync<MarkNotificationsReadMessage>(HandleMarkReadBulkAsync);
             RegisterHandlerAsync<GetAgentViewRequestMessage>(HandleGetAgentRequestAsync);
             RegisterHandlerAsync<ReviewAgentViewRequestMessage>(HandleReviewAgentRequestAsync);
             RegisterHandlerAsync<BlockAgentMessage>(HandleBlockAgentAsync);
@@ -130,12 +132,31 @@ namespace PlayGround.Server.Actors
             sender.Tell(result);
         }
 
+        private async Task HandleGetNotificationPageAsync(GetNotificationPageMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerNotificationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerNotificationCommand>();
+            Result<NotificationPageResponse> result = await useCase.GetPageAsync(
+                message.UserId, message.Filter, message.Offset, message.Limit);
+            sender.Tell(result);
+        }
+
         private async Task HandleMarkReadAsync(MarkNotificationReadMessage message)
         {
             IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerNotificationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerNotificationCommand>();
             Result<bool> result = await useCase.MarkReadAsync(message.UserId, message.NotificationId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleMarkReadBulkAsync(MarkNotificationsReadMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerNotificationCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerNotificationCommand>();
+            Result<int> result = await useCase.MarkReadBulkAsync(message.UserId, message.NotificationIds);
             sender.Tell(result);
         }
     }

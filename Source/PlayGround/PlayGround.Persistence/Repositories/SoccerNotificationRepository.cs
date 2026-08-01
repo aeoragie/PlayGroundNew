@@ -38,28 +38,70 @@ namespace PlayGround.Persistence.Repositories
             var response = new NotificationsResponse
             {
                 UnreadCount = unread,
-                Items = rows
-                    .Select(n => new NotificationDto
-                    {
-                        NotificationId = n.NotificationId,
-                        Type = n.NotificationType,
-                        RefId = n.RefId,
-                        TargetPlayerId = n.TargetPlayerId,
-                        ActorName = NullIfEmpty(n.ActorName),
-                        PlayerName = NullIfEmpty(n.PlayerName),
-                        TeamName = NullIfEmpty(n.TeamName),
-                        MetaText = NullIfEmpty(n.MetaText),
-                        SubText = NullIfEmpty(n.SubText),
-                        Relation = NullIfEmpty(n.Relation),
-                        IsRead = n.IsRead,
-                        CreatedAt = n.CreatedAt,
-                        RequestStatus = NullIfEmpty(n.Status)
-                    })
-                    .ToList()
+                Items = rows.Select(MapNotification).ToList()
             };
 
             Logger.InfoWith("Notifications received", ("UserId", userId), ("Unread", unread), ("Items", response.Items.Count));
             return Result<NotificationsResponse>.Success(response);
+        }
+
+        public async Task<Result<NotificationPageResponse>> GetPageByUserAsync(
+            Guid userId, string filter, int offset, int limit, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Notification page requested", ("UserId", userId), ("Filter", filter), ("Offset", offset));
+
+            var procedure = new UspGetSoccerNotificationsPageByUser(this)
+            {
+                UserId = userId,
+                Filter = filter,
+                Offset = offset,
+                Limit = limit
+            };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<NotificationPageResponse>.Error(ErrorCode.DatabaseError, "GetNotificationPage");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            int total = await reader.ReadSingleOrDefaultAsync<int>();
+            int actionRequired = await reader.ReadSingleOrDefaultAsync<int>();
+            int unread = await reader.ReadSingleOrDefaultAsync<int>();
+            var rows = (await reader.ReadAsync<SoccerNotificationRecord>()).ToList();
+
+            var response = new NotificationPageResponse
+            {
+                TotalCount = total,
+                ActionRequiredCount = actionRequired,
+                UnreadCount = unread,
+                Items = rows.Select(MapNotification).ToList()
+            };
+
+            Logger.InfoWith("Notification page received",
+                ("UserId", userId), ("Total", total), ("Items", response.Items.Count));
+            return Result<NotificationPageResponse>.Success(response);
+        }
+
+        public async Task<Result<int>> MarkReadBulkAsync(
+            Guid userId, IReadOnlyCollection<Guid> notificationIds, CancellationToken cancellation = default)
+        {
+            if (notificationIds.Count == 0)
+            {
+                return Result<int>.Success(0);
+            }
+
+            var procedure = new UspMarkSoccerNotificationsRead(this)
+            {
+                UserId = userId,
+                IdsJson = System.Text.Json.JsonSerializer.Serialize(notificationIds)
+            };
+            var queryResult = await procedure.QueryAsync<int>(cancellation: cancellation);
+            if (queryResult.IsError)
+            {
+                return Result<int>.Error(ErrorCode.DatabaseError, "MarkNotificationsRead");
+            }
+
+            return Result<int>.Success(queryResult.Values1.FirstOrDefault());
         }
 
         public async Task<Result<bool>> MarkReadAsync(Guid userId, Guid notificationId, CancellationToken cancellation = default)
@@ -124,6 +166,26 @@ namespace PlayGround.Persistence.Repositories
             }
 
             return Result<bool>.Success(queryResult.Values1.Count > 0);
+        }
+
+        private static NotificationDto MapNotification(SoccerNotificationRecord n)
+        {
+            return new NotificationDto
+            {
+                NotificationId = n.NotificationId,
+                Type = n.NotificationType,
+                RefId = n.RefId,
+                TargetPlayerId = n.TargetPlayerId,
+                ActorName = NullIfEmpty(n.ActorName),
+                PlayerName = NullIfEmpty(n.PlayerName),
+                TeamName = NullIfEmpty(n.TeamName),
+                MetaText = NullIfEmpty(n.MetaText),
+                SubText = NullIfEmpty(n.SubText),
+                Relation = NullIfEmpty(n.Relation),
+                IsRead = n.IsRead,
+                CreatedAt = n.CreatedAt,
+                RequestStatus = NullIfEmpty(n.Status)
+            };
         }
 
         private static string? NullIfEmpty(string value)

@@ -108,6 +108,21 @@ namespace PlayGround.Client.Styles
             public const string MoveTime = "text-[11px] text-text-muted whitespace-nowrap";
 
             public const string EmptyText = "px-4 py-10 text-center text-[12.5px] text-text-muted break-keep";
+
+            /// <summary>패널 하단 "전체 보기 →" 행 — 알림 센터 페이지로.</summary>
+            public const string SeeAllRow =
+                "shrink-0 border-t border-border flex items-center justify-center gap-1 py-3 " +
+                "text-[12.5px] font-bold text-navy hover:text-orange-ink bg-bg cursor-pointer transition-colors";
+
+            //.// 알림 센터 페이지(/notifications) 전용
+
+            /// <summary>안읽음 오렌지 점 (카운트 뱃지 규칙 내 — Design.AvatarBadge).</summary>
+            public const string UnreadDot = "w-2 h-2 rounded-full bg-orange flex-none self-center";
+
+            /// <summary>더 보기 버튼 (무한 스크롤 금지 — 20개씩).</summary>
+            public const string MoreButton =
+                "w-full h-11 rounded-[11px] border border-border bg-bg text-[13px] font-bold text-text-strong " +
+                "hover:border-navy transition-colors disabled:opacity-60";
         }
     }
 }

@@ -1,0 +1,349 @@
+@* 알림 센터 페이지 (DECISION.NOTIFICATIONCENTER — C 승인 + 보관 90일). PC 720px 단일 컬럼 / 모바일 뒤로 헤더.
+   세그먼트 전체/처리 필요/읽지 않음(URL 쿼리 동기화) · 유형 원 톤 계승 + 안읽음 오렌지 점 · 더 보기 20(무한 스크롤 금지).
+   액션형은 우측 버튼(행 탭 없음) · 나머지는 내비게이션형(행 전체 탭 + 셰브론). 진입 시 보인 알림은 읽음 처리. *@
+@attribute [Route(Routes.Notifications)]
+@using PlayGround.Client.Components.Shared.Notifications
+@using PlayGround.Client.Services.Feedback
+@using PlayGround.Client.Styles
+@using PlayGround.Contracts.Notification
+@using PlayGround.Domain.Soccer
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject NotificationClient Notifications
+@inject ClaimClient Claims
+@inject TeamClient Teams
+@inject ToastService Toasts
+
+<PageTitle>알림 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt text-navy-deep">
+    @* 상단 바 — 뒤로(대시보드 허브 · 구조상 상위, history.back 아님) + 제목 *@
+    <header class="sticky top-0 z-30 bg-bg/95 backdrop-blur-[10px] border-b border-border">
+        <div class="max-w-[720px] mx-auto px-4 md:px-6 h-14 flex items-center gap-3">
+            <a href="@Routes.Dashboard" aria-label="대시보드로" class="shrink-0 text-text-muted hover:text-navy">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+            </a>
+            <span class="text-[15px] font-extrabold whitespace-nowrap">알림</span>
+        </div>
+    </header>
+
+    <main class="max-w-[720px] mx-auto px-4 md:px-6 py-5 flex flex-col gap-4">
+        @* 세그먼트 — URL 쿼리 동기화(?filter=action) *@
+        <div class="@Css.Segment.Track">
+            <button type="button" class="@Css.Segment.Item(CurrentFilter == "all")" @onclick="@(() => ApplyFilter("all"))">@SegmentLabel("전체", mTotal)</button>
+            <button type="button" class="@Css.Segment.Item(CurrentFilter == "action")" @onclick="@(() => ApplyFilter("action"))">@SegmentLabel("처리 필요", mAction)</button>
+            <button type="button" class="@Css.Segment.Item(CurrentFilter == "unread")" @onclick="@(() => ApplyFilter("unread"))">@SegmentLabel("읽지 않음", mUnread)</button>
+        </div>
+
+        <LoadingGate IsLoading="@(mItems is null && !mFailed)" HasFailed="@mFailed" OnRetry="() => LoadAsync(true)">
+            <Skeleton>
+                <SkeletonSection><SkeletonRows Count="5" /></SkeletonSection>
+            </Skeleton>
+            <ChildContent>
+                @if (mItems!.Count == 0)
+                {
+                    <EmptyState Kind="EmptyState.Art.Record" Title="알림이 없어요">
+                        <Description>새 소식이 오면 여기에 모여요.</Description>
+                    </EmptyState>
+                }
+                else
+                {
+                    <div class="flex flex-col gap-2.5">
+                        @foreach (NotificationDto item in mItems)
+                        {
+                            @if (NotificationPresenter.IsActionType(item))
+                            {
+                                @* ── 액션형: 우측 버튼 · 행 탭 없음 ── *@
+                                <div class="@RowClass(item)">
+                                    <span class="@CircleClass(item)">@Circle(item)</span>
+                                    <span class="flex flex-col gap-[3px] flex-1 min-w-0">
+                                        <span class="@Css.Notification.MoveTitle">@ActionTitle(item)</span>
+                                        <span class="@Css.Notification.MoveBody">@ActionBody(item)</span>
+                                        <span class="@Css.Notification.MoveTime">@NotificationPresenter.TimeAgo(item.CreatedAt)</span>
+                                    </span>
+                                    @if (!item.IsRead)
+                                    {
+                                        <span class="@Css.Notification.UnreadDot"></span>
+                                    }
+                                    @RightAction(item)
+                                </div>
+                            }
+                            else
+                            {
+                                @* ── 내비게이션형: 행 전체 탭 + 셰브론 ── *@
+                                <button type="button" class="@RowClass(item)" @onclick="() => OpenAsync(item)">
+                                    <span class="@CircleClass(item)">@Circle(item)</span>
+                                    <span class="flex flex-col gap-[3px] flex-1 min-w-0 text-left">
+                                        <span class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="@Css.Notification.MoveTitle">@NotificationPresenter.MoveTitle(item)</span>
+                                            @if (item.Type == nameof(SoccerNotificationType.ViewRequest))
+                                            {
+                                                <span class="@Css.Notification.AgentBadge">에이전트</span>
+                                            }
+                                        </span>
+                                        <span class="@Css.Notification.MoveBody">@NotificationPresenter.MoveBody(item)</span>
+                                        <span class="@Css.Notification.MoveTime">@NotificationPresenter.TimeAgo(item.CreatedAt)</span>
+                                    </span>
+                                    @if (!item.IsRead)
+                                    {
+                                        <span class="@Css.Notification.UnreadDot"></span>
+                                    }
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-none mt-1 text-text-faint"><path d="M9 6l6 6-6 6"></path></svg>
+                                </button>
+                            }
+                        }
+                    </div>
+
+                    @if (mHasMore)
+                    {
+                        <button type="button" class="@Css.Notification.MoreButton" disabled="@mLoadingMore" @onclick="MoreAsync">
+                            @(mLoadingMore ? "불러오는 중…" : "더 보기")
+                        </button>
+                    }
+
+                    <span class="text-center text-[11.5px] text-text-muted break-keep py-1">최근 90일의 알림을 보여드려요</span>
+                }
+            </ChildContent>
+        </LoadingGate>
+    </main>
+</div>
+
+@code {
+    private const int PageSize = 20;
+
+    [Parameter, SupplyParameterFromQuery(Name = "filter")]
+    public string? FilterQuery { get; set; }
+
+    private List<NotificationDto>? mItems;
+    private int mTotal;
+    private int mAction;
+    private int mUnread;
+    private int mOffset;
+    private bool mHasMore;
+    private bool mFailed;
+    private bool mLoadingMore;
+    private bool mBusy;
+    private bool mAuthenticated;
+    private string? mLoadedFilter;
+
+    private string CurrentFilter => FilterQuery is "action" or "unread" ? FilterQuery : "all";
+
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
+    // 세그먼트 라벨 — 이름 + 카운트(있을 때만). 하나의 식으로 조립한다
+    // (한글 뒤에 @를 바로 붙이면 Razor가 이메일 리터럴로 오인해 그대로 출력한다 — 실제로 겪음).
+    private static string SegmentLabel(string name, int count) => count > 0 ? $"{name} {count}" : name;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            // 비로그인 딥링크 → 로그인 후 이 자리로 (returnUrl 보존)
+            Nav.NavigateTo(Routes.LoginWithReturn(Routes.Notifications), replace: true);
+            return;
+        }
+
+        mAuthenticated = true;
+    }
+
+    // 세그먼트(필터) 전환 시 재조회 — URL 쿼리가 바뀌면 파라미터가 다시 세팅된다
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!mAuthenticated)
+        {
+            return;
+        }
+
+        if (mLoadedFilter != CurrentFilter)
+        {
+            mLoadedFilter = CurrentFilter;
+            await LoadAsync(reset: true);
+        }
+    }
+
+    private void ApplyFilter(string filter)
+    {
+        // 전체는 기본값이라 쿼리에서 뺀다 — 주소가 불필요하게 길어지지 않게
+        string uri = Nav.GetUriWithQueryParameter("filter", filter == "all" ? null : filter);
+        Nav.NavigateTo(uri, replace: true);
+    }
+
+    private int CountForFilter => CurrentFilter switch
+    {
+        "action" => mAction,
+        "unread" => mUnread,
+        _ => mTotal,
+    };
+
+    private async Task LoadAsync(bool reset)
+    {
+        if (reset)
+        {
+            mOffset = 0;
+            mItems = null;
+            mFailed = false;
+            StateHasChanged();
+        }
+
+        NotificationPageResponse? page = await Notifications.GetPageAsync(CurrentFilter, mOffset, PageSize);
+        if (page is null)
+        {
+            mFailed = true;
+            return;
+        }
+
+        mTotal = page.TotalCount;
+        mAction = page.ActionRequiredCount;
+        mUnread = page.UnreadCount;
+
+        mItems ??= new List<NotificationDto>();
+        mItems.AddRange(page.Items);
+        mOffset += page.Items.Count;
+        mHasMore = mItems.Count < CountForFilter;
+
+        // 진입 시 화면에 보인 알림은 읽음 처리 — 벨 카운트가 줄고 다음 방문엔 점이 사라진다.
+        // 이번 화면의 점은 유지한다(무엇이 새로 왔는지 보이도록 — 로컬 IsRead는 건드리지 않는다).
+        List<Guid> unreadIds = page.Items.Where(i => !i.IsRead).Select(i => i.NotificationId).ToList();
+        if (unreadIds.Count > 0)
+        {
+            await Notifications.MarkReadBulkAsync(unreadIds);
+        }
+    }
+
+    private async Task MoreAsync()
+    {
+        mLoadingMore = true;
+        await LoadAsync(reset: false);
+        mLoadingMore = false;
+    }
+
+    private async Task OpenAsync(NotificationDto item)
+    {
+        if (!item.IsRead)
+        {
+            await Notifications.MarkReadAsync(item.NotificationId);
+        }
+
+        string? route = NotificationPresenter.RouteOf(item);
+        if (route is not null)
+        {
+            Nav.NavigateTo(route);
+        }
+    }
+
+    //.// 액션형 처리 — 승인/거절(연결 요청) · 초대 확인(선수단 초대). 처리 후 현재 필터를 다시 읽는다.
+
+    private async Task ReviewAsync(NotificationDto item, bool approve)
+    {
+        mBusy = true;
+        var reviewed = await Claims.ReviewAsync(item.RefId, approve);
+        mBusy = false;
+
+        if (reviewed is null)
+        {
+            Toasts.ShowError("요청을 처리하지 못했어요. 다시 시도해 주세요.");
+            return;
+        }
+
+        await LoadAsync(reset: true);
+    }
+
+    private async Task ConfirmInviteAsync(NotificationDto item)
+    {
+        mBusy = true;
+        bool ok = await Teams.ConfirmApplicationInviteAsync(item.RefId);
+        mBusy = false;
+
+        if (!ok)
+        {
+            Toasts.ShowError("초대를 확인하지 못했어요. 다시 시도해 주세요.");
+            return;
+        }
+
+        Toasts.ShowSuccess($"{item.PlayerName} 선수가 {item.TeamName} 선수단에 합류했어요.");
+        await LoadAsync(reset: true);
+    }
+
+    //.// 액션형 제목·본문 (연결 요청·선수단 초대)
+
+    private static string ActionTitle(NotificationDto item) =>
+        item.Type == nameof(SoccerNotificationType.ClaimRequest) ? "프로필 연결 요청" : "선수단 초대";
+
+    private static string ActionBody(NotificationDto item) => item.Type == nameof(SoccerNotificationType.ClaimRequest)
+        ? $"{item.ActorName} 님({NotificationPresenter.RelationLabel(item.Relation)})이 {item.PlayerName}{(item.MetaText is not null ? $"({item.MetaText})" : "")} 프로필 연결을 요청했어요"
+        : $"{item.TeamName}이 {item.PlayerName}을 선수단에 초대했어요";
+
+    private RenderFragment RightAction(NotificationDto item) => builder =>
+    {
+        bool required = NotificationPresenter.IsActionRequired(item);
+        if (item.Type == nameof(SoccerNotificationType.ClaimRequest))
+        {
+            if (required)
+            {
+                builder.AddContent(0, ClaimButtons(item));
+            }
+            else
+            {
+                builder.AddContent(1, StatusLabel(item.RequestStatus == "Approved" ? "승인함" : "거절함"));
+            }
+        }
+        else
+        {
+            if (required)
+            {
+                builder.AddContent(2, ConfirmButton(item));
+            }
+            else
+            {
+                builder.AddContent(3, StatusLabel("합류함"));
+            }
+        }
+    };
+
+    private RenderFragment ClaimButtons(NotificationDto item) =>
+        @<span class="flex gap-1.5 flex-none self-center">
+            <button type="button" class="@Css.Notification.ApproveButton" disabled="@mBusy" @onclick="() => ReviewAsync(item, true)">승인</button>
+            <button type="button" class="@Css.Notification.RejectButton" disabled="@mBusy" @onclick="() => ReviewAsync(item, false)">거절</button>
+        </span>;
+
+    private RenderFragment ConfirmButton(NotificationDto item) =>
+        @<button type="button" class="@Css.Notification.ApproveButton flex-none self-center" disabled="@mBusy" @onclick="() => ConfirmInviteAsync(item)">초대 확인</button>;
+
+    private static RenderFragment StatusLabel(string text) =>
+        @<span class="flex-none self-center text-[11.5px] font-bold text-text-muted whitespace-nowrap">@text</span>;
+
+    //.// 유형 원 톤 계승 (허브 '처리가 필요해요' 칩 톤) — 연결·초대=오렌지 / 열람=violet / 결과·기록=네이비
+
+    private static string RowClass(NotificationDto item) =>
+        "flex items-start gap-3 rounded-[13px] px-3.5 py-3 border border-border bg-bg";
+
+    private static string CircleClass(NotificationDto item)
+    {
+        string tone = item.Type switch
+        {
+            nameof(SoccerNotificationType.ClaimRequest) or
+            nameof(SoccerNotificationType.ClaimApproved) or
+            nameof(SoccerNotificationType.ClaimRejected) or
+            nameof(SoccerNotificationType.RosterInvite) => "bg-orange/10 text-orange-ink",
+            nameof(SoccerNotificationType.ViewRequest) => "bg-agent/10 text-agent",
+            _ => "bg-navy/[.08] text-navy",
+        };
+        return "w-9 h-9 rounded-[10px] flex items-center justify-center flex-none " + tone;
+    }
+
+    private static RenderFragment Circle(NotificationDto item) => item.Type switch
+    {
+        nameof(SoccerNotificationType.ClaimRequest) or
+        nameof(SoccerNotificationType.ClaimApproved) or
+        nameof(SoccerNotificationType.ClaimRejected) or
+        nameof(SoccerNotificationType.RosterInvite) =>
+            @<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>,
+        nameof(SoccerNotificationType.ViewRequest) =>
+            @<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M15.5 9.5l2 2 4-4.5"></path></svg>,
+        nameof(SoccerNotificationType.MatchResult) =>
+            @<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>,
+        _ =>
+            @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>,
+    };
+}

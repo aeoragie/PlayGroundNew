@@ -30,6 +30,7 @@ namespace PlayGround.Client
         public const string TeamExplore = "/teams";
         public const string Claim = "/claim";
         public const string TeamNewsTemplate = "/team-news/{PlayerId:guid}";
+        public const string Notifications = "/notifications";
         public const string AgentApprovalTemplate = "/approvals/agent/{RequestId:guid}";
         public const string Settings = "/settings";
         public const string SettingsSectionTemplate = "/settings/{Section}";
