@@ -21,11 +21,25 @@ public class SoccerMatchAppearancesEntity
 	[Required]
 	public Guid MatchId { get; set; } = Guid.Empty;
 
-	[Required]
-	public Guid TeamId { get; set; } = Guid.Empty;
+	public Guid? TeamId { get; set; } = null;
 
 	[Required]
-	public Guid PlayerId { get; set; } = Guid.Empty;
+	[StringLength(300)]
+	public string TeamName { get; set; } = String.Empty;
+
+	public Guid? PlayerId { get; set; } = null;
+
+	[Required]
+	[StringLength(150)]
+	public string PlayerName { get; set; } = String.Empty;
+
+	public int? JerseyNumber { get; set; } = null;
+
+	[StringLength(10)]
+	public string Position { get; set; } = String.Empty;
+
+	[Required]
+	public bool IsCaptain { get; set; } = false;
 
 	public int? MinutesPlayed { get; set; } = null;
 

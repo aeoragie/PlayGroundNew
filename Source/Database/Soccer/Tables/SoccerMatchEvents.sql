@@ -1,14 +1,17 @@
--- 득점 이벤트 (선수 득점·도움 집계 원천). 한 골 = 한 행, 도움은 같은 행의 Assist 컬럼.
--- 자책골(OwnGoal)은 상대 팀 득점 처리·개인 득점 미집계. 설계: Docs/Architecture/MatchSchemaDesign.md §3.3
+-- 경기 이벤트 (득점·도움 집계 + 공식 경기 상세 타임라인 원천). 한 이벤트 = 한 행.
+-- 득점은 도움을 같은 행의 Assist 컬럼에. 자책골(OwnGoal)은 상대 팀 득점 처리·개인 득점 미집계.
+-- 경고/퇴장(YellowCard/RedCard)은 상세 타임라인·라인업 카드 집계 전용(득점 집계 무관).
+-- 설계: Docs/Architecture/MatchSchemaDesign.md §3.3
 CREATE TABLE [dbo].[SoccerMatchEvents]
 (
     [EventId]           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [MatchId]           UNIQUEIDENTIFIER NOT NULL,          -- SoccerMatches.MatchId (앱 계층 참조)
-    [TeamId]            UNIQUEIDENTIFIER NULL,              -- 득점 팀 (SoccerTeams.TeamId, 외부 팀은 NULL)
+    [TeamId]            UNIQUEIDENTIFIER NULL,              -- 이벤트 팀 (SoccerTeams.TeamId, 외부 팀은 NULL)
     [TeamName]          VARCHAR(300)     NOT NULL,          -- UTF-8 (한글 100자)
-    [EventType]         VARCHAR(20)      NOT NULL DEFAULT 'Goal', -- 'Goal','OwnGoal','PenaltyGoal'
-    [PlayerId]          UNIQUEIDENTIFIER NULL,              -- 득점자 (SoccerPlayers.PlayerId, 외부 선수는 NULL)
+    [EventType]         VARCHAR(20)      NOT NULL DEFAULT 'Goal', -- 'Goal','OwnGoal','PenaltyGoal','YellowCard','RedCard'
+    [PlayerId]          UNIQUEIDENTIFIER NULL,              -- 대상 선수 (SoccerPlayers.PlayerId, 외부 선수는 NULL)
     [PlayerName]        VARCHAR(150)     NULL,              -- UTF-8 (한글 50자) 미상은 NULL
+    [JerseyNumber]      INT              NULL,              -- 이벤트 선수 등번호 (타임라인 "· 9번")
     [AssistPlayerId]    UNIQUEIDENTIFIER NULL,              -- 도움 (없으면 NULL)
     [AssistPlayerName]  VARCHAR(150)     NULL,
     [MinuteOfPlay]      INT              NULL,              -- 표시용 ('23′)

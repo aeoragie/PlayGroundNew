@@ -1,0 +1,23 @@
+@* 타임라인 이벤트 선수명 — Claim된 선수(PlayerSlug)만 프로필 링크. Design.Records. *@
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Records
+
+@if (!string.IsNullOrEmpty(Event.PlayerName))
+{
+    @if (Event.PlayerSlug is not null)
+    {
+        <a href="@Routes.PlayerPublicProfile(Event.PlayerSlug)" class="@($"{Class} hover:text-orange")">@Event.PlayerName</a>
+    }
+    else
+    {
+        <span class="@Class">@Event.PlayerName</span>
+    }
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public RecordsMatchEventDto Event { get; set; } = new();
+
+    [Parameter]
+    public string? Class { get; set; }
+}

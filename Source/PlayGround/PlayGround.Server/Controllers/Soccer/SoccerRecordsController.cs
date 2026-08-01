@@ -37,5 +37,14 @@ namespace PlayGround.Server.Controllers.Soccer
                 ActorNames.SoccerRecords, new GetSoccerRecordsTournamentDetailMessage(tournamentId), cancellation);
             return result.ToEnvelope();
         }
+
+        [HttpGet("matches/{matchId:guid}")]
+        public async Task<Envelope<RecordsMatchDetailResponse>> GetMatchDetailAsync(
+            Guid matchId, CancellationToken cancellation)
+        {
+            Result<RecordsMatchDetailResponse> result = await mGateway.AskAsync<RecordsMatchDetailResponse>(
+                ActorNames.SoccerRecords, new GetSoccerRecordsMatchDetailMessage(matchId), cancellation);
+            return result.ToEnvelope();
+        }
     }
 }

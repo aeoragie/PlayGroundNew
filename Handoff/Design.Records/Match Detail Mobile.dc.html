@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f6fa;font-family:"Plus Jakarta Sans",Pretendard,-apple-system,sans-serif;color:#1c2b4a}
+a{color:#23408e;text-decoration:none}a:hover{color:#FF6B35}
+</style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;padding:0 0 60px;display:flex;flex-direction:column;gap:12px">
+
+<!-- 뒤로 헤더 (모바일 — 브레드크럼 대체) -->
+<div style="background:#fff;border-bottom:1px solid #e6e8ee;padding:12px 16px;display:flex;align-items:center;gap:11px">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c2b4a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M15 18l-6-6 6-6"></path></svg>
+  <span style="display:flex;flex-direction:column;min-width:0">
+    <span style="font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ matchLabel }} · {{ homeShort }} vs {{ awayShort }}</span>
+    <span style="font-size:10.5px;color:#8a93a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</span>
+  </span>
+</div>
+
+<div style="padding:0 16px;display:flex;flex-direction:column;gap:12px">
+
+<!-- 스코어보드 -->
+<div style="background:linear-gradient(160deg,#1c2b4a,#23408e);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;gap:14px">
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0">
+      <span style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">{{ homeInitial }}</span>
+      <span style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px">{{ homeShort }}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+      <span style="font-size:34px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:1px;white-space:nowrap">{{ finalScore }}</span>
+      <span style="font-size:10px;font-weight:700;color:#2EC4B6;white-space:nowrap">전반 {{ firstHalf }} · 후반 {{ secondHalf }}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0">
+      <span style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">{{ awayInitial }}</span>
+      <span style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px">{{ awayShort }}</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12);padding-top:11px">
+    <sc-for list="{{ metaItems }}" as="m" hint-placeholder-count="4">
+      <span style="font-size:10.5px;color:rgba(255,255,255,.7);white-space:nowrap"><b style="color:rgba(255,255,255,.45);font-weight:700;margin-right:4px">{{ m.k }}</b>{{ m.v }}</span>
+    </sc-for>
+  </div>
+</div>
+
+<!-- 타임라인 (세로 — 위→아래) -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:11px 16px;border-bottom:1px solid #f1f3f8;display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <span style="font-size:13px;font-weight:800">타임라인</span>
+    <span style="font-size:10px;color:#8a93a6;white-space:nowrap">← {{ homeShort }} · {{ awayShort }} →</span>
+  </div>
+  <div style="padding:16px 14px 18px;display:flex;flex-direction:column;position:relative">
+    <span style="position:absolute;top:16px;bottom:18px;left:50%;width:2px;margin-left:-1px;background:#f1f3f8"></span>
+    <sc-for list="{{ events }}" as="e" hint-placeholder-count="5">
+      <div style="display:flex;align-items:center;gap:9px;padding:7px 0;position:relative">
+        <sc-if value="{{ e.isHome }}" hint-placeholder-val="{{ true }}">
+          <span style="display:flex;align-items:center;gap:7px;justify-content:flex-end;flex:1;min-width:0">
+            <span style="display:flex;flex-direction:column;align-items:flex-end;min-width:0">
+              <span style="font-size:12.5px;font-weight:800;white-space:nowrap">{{ e.player }}</span>
+              <span style="font-size:10px;color:#8a93a6;white-space:nowrap">{{ e.detail }}</span>
+            </span>
+            <span style="{{ e.iconBox }}">{{ e.icon }}</span>
+          </span>
+          <span style="{{ e.timeChip }}">{{ e.time }}′</span>
+          <span style="flex:1"></span>
+        </sc-if>
+        <sc-if value="{{ e.isAway }}" hint-placeholder-val="{{ false }}">
+          <span style="flex:1"></span>
+          <span style="{{ e.timeChip }}">{{ e.time }}′</span>
+          <span style="display:flex;align-items:center;gap:7px;flex:1;min-width:0">
+            <span style="{{ e.iconBox }}">{{ e.icon }}</span>
+            <span style="display:flex;flex-direction:column;min-width:0">
+              <span style="font-size:12.5px;font-weight:800;white-space:nowrap">{{ e.player }}</span>
+              <span style="font-size:10px;color:#8a93a6;white-space:nowrap">{{ e.detail }}</span>
+            </span>
+          </span>
+        </sc-if>
+      </div>
+    </sc-for>
+    <div style="display:flex;justify-content:center;margin-top:10px;position:relative">
+      <span style="font-size:10px;font-weight:800;color:#fff;background:#23408e;border-radius:99px;padding:3px 12px;white-space:nowrap">종료 {{ finalScore }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- 라인업 (홈/어웨이 세그먼트) -->
+<div style="background:#fff;border:1.5px solid #e6e8ee;border-radius:15px;overflow:hidden">
+  <div style="padding:11px 16px;border-bottom:1px solid #f1f3f8"><span style="font-size:13px;font-weight:800">라인업</span></div>
+  <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;background:#eef0f4;border-radius:11px;padding:3px;gap:2px">
+      <button onClick="{{ goHome }}" style="{{ segHome }}">{{ homeShort }}</button>
+      <button onClick="{{ goAway }}" style="{{ segAway }}">{{ awayShort }}</button>
+    </div>
+    <span style="font-size:10px;font-weight:800;color:#8a93a6">선발 · {{ coach }}</span>
+    <div style="display:flex;flex-direction:column">
+      <sc-for list="{{ starters }}" as="p" hint-placeholder-count="8">
+        <div style="display:flex;align-items:center;gap:9px;min-height:40px;border-bottom:1px solid #fafbfc">
+          <span style="width:26px;font-size:11.5px;font-weight:800;color:#8a93a6;font-variant-numeric:tabular-nums;text-align:right;flex:none">{{ p.no }}</span>
+          <span style="width:28px;font-size:10px;font-weight:800;color:#5b6577;background:#f1f3f8;border-radius:5px;padding:2px 0;text-align:center;flex:none">{{ p.pos }}</span>
+          <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">{{ p.name }}<sc-if value="{{ p.isCaptain }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px;font-weight:800;color:#fff;background:#23408e;border-radius:4px;padding:1px 4px;margin-left:5px">C</span></sc-if></span>
+          <span style="font-size:10.5px;font-weight:700;color:#1b8579;white-space:nowrap;flex:none">{{ p.marks }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <span style="font-size:10px;font-weight:800;color:#8a93a6">교체 명단</span>
+    <div style="display:flex;flex-direction:column">
+      <sc-for list="{{ subs }}" as="p" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:9px;min-height:40px">
+          <span style="width:26px;font-size:11.5px;font-weight:800;color:#c5cfe4;font-variant-numeric:tabular-nums;text-align:right;flex:none">{{ p.no }}</span>
+          <span style="width:28px;font-size:10px;font-weight:800;color:#8a93a6;background:#f8f9fb;border-radius:5px;padding:2px 0;text-align:center;flex:none">{{ p.pos }}</span>
+          <span style="font-size:13px;font-weight:600;color:#5b6577;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">{{ p.name }}</span>
+          <span style="font-size:10.5px;font-weight:700;color:#1b8579;white-space:nowrap;flex:none">{{ p.marks }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <span style="font-size:10.5px;color:#8a93a6;white-space:nowrap">경고 {{ cardYellow }} · 퇴장 {{ cardRed }}</span>
+  </div>
+</div>
+
+<footer style="font-size:11px;color:#8a93a6;line-height:1.65;word-break:keep-all">공식 기록 — 읽기 전용, 오류는 "기록 수정 신청"(RecordCorrection 바텀시트). 세그먼트=홈/어웨이 축 전환(TabAccordion 규칙), 뒤로 헤더=구조상 상위(대회 상세).</footer>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:1500}}">
+class Component extends DCLogic {
+  state = { side: 'H' };
+  renderVals() {
+    const s = this.state;
+    const timeChip = 'font-size:10.5px;font-weight:800;color:#fff;background:#23408e;border-radius:99px;min-width:34px;text-align:center;padding:3px 0;flex:none;font-variant-numeric:tabular-nums;position:relative;z-index:1';
+    const goalBox = 'width:22px;height:22px;border-radius:50%;background:rgba(46,196,182,.12);display:flex;align-items:center;justify-content:center;flex:none';
+    const ballSvg = React.createElement('svg', { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none', stroke: '#1b8579', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' },
+      React.createElement('circle', { cx: 12, cy: 12, r: 9 }),
+      React.createElement('path', { d: 'M12 7.5l4.3 3.1-1.6 5h-5.4l-1.6-5zM12 3v4.5M20.6 9.4l-4.3 1.2M17.6 20l-2.9-4.4M9.3 15.6L6.4 20M3.4 9.4l4.3 1.2' }));
+    const goalMark = (t) => React.createElement('span', { style: { display: 'inline-flex', alignItems: 'center', gap: '3px' } }, ballSvg, t + '′');
+    const mkP = (p) => ({ no: p.no, pos: p.pos, name: p.name, isCaptain: !!p.c, marks: p.goal ? goalMark(p.goal) : '' });
+    const seg = on => 'flex:1;height:38px;border:0;border-radius:9px;cursor:pointer;font-family:inherit;font-size:12.5px;white-space:nowrap;' +
+      (on ? 'background:#fff;font-weight:800;color:#1c2b4a;box-shadow:0 1px 4px rgba(28,43,74,.12)' : 'background:none;font-weight:700;color:#8a93a6');
+    const H = {
+      coach: '오승현 감독', yellow: 0, red: 0,
+      starters: [
+        { no: '1', pos: 'GK', name: '백정훈' }, { no: '4', pos: 'DF', name: '안윤성', goal: '30' },
+        { no: '5', pos: 'DF', name: '이재원' }, { no: '11', pos: 'MF', name: '박지호' },
+        { no: '3', pos: 'FW', name: '김현준' }, { no: '7', pos: 'FW', name: '김지형' },
+        { no: '9', pos: 'FW', name: '김유한', goal: '04' }, { no: '10', pos: 'FW', name: '윤용아', c: 1, goal: '33' },
+      ],
+      subs: [
+        { no: '6', pos: 'DF', name: '박지후' }, { no: '8', pos: 'MF', name: '황규한' },
+        { no: '13', pos: 'MF', name: '심규현' }, { no: '19', pos: 'FW', name: '김영광' },
+      ],
+    };
+    const A = {
+      coach: '유성훈 감독', yellow: 0, red: 0,
+      starters: [
+        { no: '31', pos: 'GK', name: '기주하', c: 1 }, { no: '4', pos: 'MF', name: '김시훈' },
+        { no: '14', pos: 'MF', name: '송산' }, { no: '21', pos: 'MF', name: '황준우' },
+        { no: '22', pos: 'MF', name: '민동률' }, { no: '44', pos: 'MF', name: '장민균' },
+        { no: '77', pos: 'MF', name: '조이안' }, { no: '88', pos: 'FW', name: '김동후', goal: '24' },
+      ],
+      subs: [
+        { no: '35', pos: 'DF', name: '채훈' }, { no: '12', pos: 'MF', name: '김이한' },
+        { no: '13', pos: 'MF', name: '박우찬' }, { no: '15', pos: 'FW', name: '손하준', goal: '25' },
+      ],
+    };
+    const cur = s.side === 'H' ? H : A;
+    return {
+      title: '[U11] 2026 STAY 영덕 동계 유소년 축구 페스티벌',
+      matchLabel: '1경기',
+      homeShort: '김포시GFA', awayShort: '푸른FC',
+      homeInitial: '김', awayInitial: '푸',
+      finalScore: '3 : 2', firstHalf: '1 : 0', secondHalf: '2 : 2',
+      metaItems: [
+        { k: '일시', v: '2/22(일) 09:30' }, { k: '장소', v: '영해생활체육공원 A-1' },
+        { k: '주심', v: '이경준' }, { k: '경기 시간', v: '전·후반 20분' },
+      ],
+      events: [
+        { p: '김유한', t: '04', d: '득점 · 9번', side: 'H' },
+        { p: '김동후', t: '24', d: '득점 · 88번', side: 'A' },
+        { p: '손하준', t: '25', d: '득점 · 15번', side: 'A' },
+        { p: '안윤성', t: '30', d: '득점 · 4번', side: 'H' },
+        { p: '윤용아', t: '33', d: '득점 · 10번', side: 'H' },
+      ].map(e => ({ player: e.p, time: e.t, detail: e.d, icon: ballSvg, iconBox: goalBox, timeChip, isHome: e.side === 'H', isAway: e.side === 'A' })),
+      goHome: () => this.setState({ side: 'H' }), goAway: () => this.setState({ side: 'A' }),
+      segHome: seg(s.side === 'H'), segAway: seg(s.side === 'A'),
+      coach: cur.coach, starters: cur.starters.map(mkP), subs: cur.subs.map(mkP),
+      cardYellow: cur.yellow, cardRed: cur.red,
+    };
+  }
+}
+</script>
+</body>
+</html>

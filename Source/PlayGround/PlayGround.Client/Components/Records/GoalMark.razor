@@ -1,0 +1,13 @@
+@* 라인업 득점 마크 (모노톤 공 SVG + 분). Design.Records 공식 경기 상세. *@
+@if (Minutes.Count > 0)
+{
+    <span class="flex items-center gap-1 text-[10px] font-bold text-teal-ink whitespace-nowrap flex-none">
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5l4.3 3.1-1.6 5h-5.4l-1.6-5zM12 3v4.5M20.6 9.4l-4.3 1.2M17.6 20l-2.9-4.4M9.3 15.6L6.4 20M3.4 9.4l4.3 1.2"></path></svg>
+        @string.Join(" ", Minutes.Select(m => $"{m}′"))
+    </span>
+}
+
+@code {
+    [Parameter]
+    public List<int> Minutes { get; set; } = new();
+}

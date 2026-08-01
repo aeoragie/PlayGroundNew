@@ -37,6 +37,7 @@ namespace PlayGround.Client
         public const string Records = "/records";
         public const string RecordsArchive = "/records/archive";
         public const string RecordsDetailTemplate = "/records/{TournamentId:guid}";
+        public const string RecordsMatchTemplate = "/records/match/{MatchId:guid}";
         public const string NotFound = "/not-found";
 
         /// <summary>권한 없음 — 로그인 상태 전용(게스트는 로그인으로 리다이렉트).</summary>
@@ -96,6 +97,11 @@ namespace PlayGround.Client
         public static string RecordsDetail(Guid tournamentId)
         {
             return $"{Records}/{tournamentId}";
+        }
+
+        public static string RecordsMatch(Guid matchId)
+        {
+            return $"{Records}/match/{matchId}";
         }
 
         public static string TeamPublicHome(string slug)

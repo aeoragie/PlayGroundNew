@@ -36,6 +36,8 @@ public class SoccerMatchEventsEntity
 	[StringLength(150)]
 	public string PlayerName { get; set; } = String.Empty;
 
+	public int? JerseyNumber { get; set; } = null;
+
 	public Guid? AssistPlayerId { get; set; } = null;
 
 	[StringLength(150)]

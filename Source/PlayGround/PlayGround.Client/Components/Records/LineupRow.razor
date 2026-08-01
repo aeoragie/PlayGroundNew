@@ -1,0 +1,33 @@
+@* 라인업 한 선수 행 (선발·교체 공용) — 등번호·포지션 칩·이름(주장 C)·득점 마크.
+   Claim된 선수(PlayerSlug)만 프로필 링크. Design.Records 공식 경기 상세. *@
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Records
+
+<div class="@($"flex items-center gap-2 py-[5px] {(Sub ? "" : "border-b border-surface-soft")}")">
+    <span class="@($"w-6 text-[11px] font-extrabold tabular-nums text-right flex-none {(Sub ? "text-text-faint" : "text-text-muted")}")">@(Player.JerseyNumber?.ToString() ?? "")</span>
+    <span class="@($"w-[26px] text-[9.5px] font-extrabold rounded-[5px] py-0.5 text-center flex-none {(Sub ? "text-text-muted bg-surface-soft" : "text-text-strong bg-surface-icon")}")">@Player.Position</span>
+    <span class="@($"text-xs whitespace-nowrap overflow-hidden text-ellipsis flex-1 {(Sub ? "font-semibold text-text-body" : "font-bold")}")">
+        @if (Player.PlayerSlug is not null)
+        {
+            <a href="@Routes.PlayerPublicProfile(Player.PlayerSlug)" class="hover:text-orange">@Player.PlayerName</a>
+        }
+        else
+        {
+            @Player.PlayerName
+        }
+        @if (Player.IsCaptain)
+        {
+            <span class="text-[9px] font-extrabold text-white bg-navy rounded px-1 py-px ml-1.5">C</span>
+        }
+    </span>
+    <GoalMark Minutes="@Player.GoalMinutes" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RecordsLineupPlayerDto Player { get; set; } = new();
+
+    /// <summary>교체 명단 = 회색 톤.</summary>
+    [Parameter]
+    public bool Sub { get; set; }
+}

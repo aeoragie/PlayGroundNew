@@ -3,8 +3,13 @@
 @attribute [Route(Routes.RecordsDetailTemplate)]
 @using PlayGround.Client.Components.Records
 @using PlayGround.Client.Models
+@using PlayGround.Client.Services
 @using PlayGround.Contracts.Records
+@implements IAsyncDisposable
 @inject RecordsClient Records
+@inject RecordsDetailNavState NavState
+@inject NavigationManager Nav
+@inject IJSRuntime Js
 
 <PageTitle>경기기록 — PlayGround</PageTitle>
 
@@ -168,7 +173,9 @@
                         </div>
                         @foreach (RecordsMatchDto match in stageMatches.Where(m => mRound == "전체" || m.RoundName == mRound))
                         {
-                            <RecordsMatchRowCard Match="@match" />
+                            <RecordsMatchRowCard Match="@match" IsOpen="@(mOpenMatchId == match.MatchId)"
+                                                 Logs="@(mOpenMatchId == match.MatchId ? mOpenLogs : null)"
+                                                 OnToggle="@(() => ToggleMatch(match))" OnGoDetail="@(() => GoMatchDetail(match))" />
                         }
                     }
                 </div>
@@ -249,7 +256,9 @@
                         </div>
                         @foreach (RecordsMatchDto match in leagueMatches.Where(m => mMonth == "전체" || (m.MatchedAt is not null && $"{m.MatchedAt.Value.Month}월" == mMonth)))
                         {
-                            <RecordsMatchRowCard Match="@match" />
+                            <RecordsMatchRowCard Match="@match" IsOpen="@(mOpenMatchId == match.MatchId)"
+                                                 Logs="@(mOpenMatchId == match.MatchId ? mOpenLogs : null)"
+                                                 OnToggle="@(() => ToggleMatch(match))" OnGoDetail="@(() => GoMatchDetail(match))" />
                         }
                     }
                 </div>
@@ -357,11 +366,36 @@
     private string mMonth = "전체";
     private bool mIsNewsTab;
 
+    // 경기 행 확장 (한 번에 1개) + 지연 로드한 주요 로그
+    private Guid mOpenMatchId;
+    private List<RecordsMatchEventDto>? mOpenLogs;
+
+    private IJSObjectReference? mModule;
+    private double? mRestoreScrollY;
+
     protected override async Task OnInitializedAsync()
     {
         mData = await Records.GetTournamentDetailAsync(TournamentId);
         if (mData is null)
         {
+            return;
+        }
+
+        // 경기 상세에서 돌아온 경우 — 직전 탭·조·필터·확장 행·스크롤 복원
+        if (NavState.TryConsume(TournamentId))
+        {
+            mTab = NavState.Tab;
+            mGroup = string.IsNullOrEmpty(NavState.Group) ? null : NavState.Group;
+            mRound = NavState.Round;
+            mKnockoutRound = NavState.KnockoutRound;
+            mMonth = NavState.Month;
+            if (NavState.OpenMatchId != Guid.Empty)
+            {
+                mOpenMatchId = NavState.OpenMatchId;
+                RecordsMatchDetailResponse? detail = await Records.GetMatchDetailAsync(mOpenMatchId);
+                mOpenLogs = detail?.Events ?? new List<RecordsMatchEventDto>();
+            }
+            mRestoreScrollY = NavState.ScrollY;
             return;
         }
 
@@ -372,6 +406,75 @@
             _ => "stage1",
         };
         InitTabState();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && mRestoreScrollY is double y)
+        {
+            mRestoreScrollY = null;
+            try
+            {
+                mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/records.js");
+                await mModule.InvokeVoidAsync("scrollToY", y);
+            }
+            catch (JSDisconnectedException)
+            {
+                // 페이지 이탈 중 — 무시
+            }
+        }
+    }
+
+    // 행 탭 확장/축소 — 열 때 경기 상세를 지연 로드해 주요 로그 표시
+    private async Task ToggleMatch(RecordsMatchDto match)
+    {
+        if (mOpenMatchId == match.MatchId)
+        {
+            mOpenMatchId = Guid.Empty;
+            mOpenLogs = null;
+            return;
+        }
+
+        mOpenMatchId = match.MatchId;
+        mOpenLogs = null; // 로딩 표시
+        RecordsMatchDetailResponse? detail = await Records.GetMatchDetailAsync(match.MatchId);
+        if (mOpenMatchId == match.MatchId) // 그 사이 다른 행을 열지 않았을 때만 반영
+        {
+            mOpenLogs = detail?.Events ?? new List<RecordsMatchEventDto>();
+        }
+    }
+
+    // "경기 상세 전체 보기" — 복귀 상태(스크롤 포함) 저장 후 경기 상세로 이동
+    private async Task GoMatchDetail(RecordsMatchDto match)
+    {
+        double scrollY = 0;
+        try
+        {
+            mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/records.js");
+            scrollY = await mModule.InvokeAsync<double>("getScrollY");
+        }
+        catch (JSException)
+        {
+            // 스크롤 캡처 실패는 치명적이지 않다 (0으로 복귀)
+        }
+
+        NavState.Save(TournamentId, mTab, mGroup ?? string.Empty, mRound, mKnockoutRound, mMonth, match.MatchId, scrollY);
+        Nav.NavigateTo(Routes.RecordsMatch(match.MatchId));
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (mModule is not null)
+        {
+            try
+            {
+                await mModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // 이미 연결 종료 — 무시
+            }
+        }
     }
 
     private SoccerTournamentFormat Format =>

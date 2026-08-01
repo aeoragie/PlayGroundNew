@@ -14,6 +14,7 @@ namespace PlayGround.Server.Actors
         {
             RegisterHandlerAsync<GetSoccerRecordsTournamentsMessage>(HandleGetTournamentsAsync);
             RegisterHandlerAsync<GetSoccerRecordsTournamentDetailMessage>(HandleGetTournamentDetailAsync);
+            RegisterHandlerAsync<GetSoccerRecordsMatchDetailMessage>(HandleGetMatchDetailAsync);
         }
 
         private async Task HandleGetTournamentsAsync(GetSoccerRecordsTournamentsMessage message)
@@ -31,6 +32,15 @@ namespace PlayGround.Server.Actors
             using IServiceScope scope = ServiceProvider.CreateScope();
             SoccerRecordsTournamentDetailCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerRecordsTournamentDetailCommand>();
             Result<RecordsTournamentDetailResponse> result = await useCase.ExecuteAsync(message.TournamentId);
+            sender.Tell(result);
+        }
+
+        private async Task HandleGetMatchDetailAsync(GetSoccerRecordsMatchDetailMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerRecordsMatchDetailCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerRecordsMatchDetailCommand>();
+            Result<RecordsMatchDetailResponse> result = await useCase.ExecuteAsync(message.MatchId);
             sender.Tell(result);
         }
     }

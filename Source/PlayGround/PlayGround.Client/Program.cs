@@ -17,6 +17,7 @@ builder.Services.AddScoped<TeamClient>();
 builder.Services.AddScoped<DashboardClient>();
 builder.Services.AddScoped<AuthClient>();
 builder.Services.AddScoped<RecordsClient>();
+builder.Services.AddScoped<RecordsDetailNavState>();
 builder.Services.AddScoped<ClaimClient>();
 builder.Services.AddScoped<NotificationClient>();
 builder.Services.AddScoped<ExportClient>();

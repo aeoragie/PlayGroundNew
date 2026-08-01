@@ -22,6 +22,14 @@ CREATE TABLE [dbo].[SoccerMatches]
     [MatchedAt]      DATETIME2        NULL,              -- 경기 일시 (시간 미정 대비 NULL 허용)
     [VenueName]      VARCHAR(300)     NULL,              -- UTF-8 (한글 100자) 구장
 
+    -- 공식 경기 상세 (주최측/대회 서비스 입력 — 읽기 전용). 전반 스코어만 저장, 후반은 총점-전반으로 파생.
+    [FirstHalfHomeScore] INT          NULL,              -- 전반 홈 득점 (상세 보유 경기만)
+    [FirstHalfAwayScore] INT          NULL,              -- 전반 원정 득점
+    [RefereeName]    VARCHAR(90)      NULL,              -- UTF-8 (한글 30자) 주심
+    [MatchSequence]  INT              NULL,              -- 대회 내 경기 순번 ("N경기" 라벨)
+    [HomeCoachName]  VARCHAR(90)      NULL,              -- UTF-8 (한글 30자) 홈 감독
+    [AwayCoachName]  VARCHAR(90)      NULL,              -- UTF-8 (한글 30자) 원정 감독
+
     -- KFA 데이터 적재 대비 (결정 #5)
     [DataSource]     VARCHAR(20)      NOT NULL DEFAULT 'User', -- 'User','KfaApi','Seed'
     [ExternalId]     VARCHAR(64)      NULL,

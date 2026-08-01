@@ -11,5 +11,8 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>대회 상세 묶음 (순위표·경기·수상·역대 우승·미디어). 미존재 시 Success(null) — 에러가 아니다.</summary>
         Task<Result<RecordsTournamentDetailResponse?>> GetTournamentDetailAsync(Guid tournamentId, CancellationToken cancellation = default);
+
+        /// <summary>공식 경기 상세 (헤더·이벤트·라인업). 미존재 시 Success(null) — 에러가 아니다.</summary>
+        Task<Result<RecordsMatchDetailResponse?>> GetMatchDetailAsync(Guid matchId, CancellationToken cancellation = default);
     }
 }

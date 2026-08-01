@@ -102,6 +102,8 @@ namespace PlayGround.Contracts.Records
         public string Status { get; set; } = string.Empty;      // 'Scheduled','Completed','Canceled'
         public DateTime? MatchedAt { get; set; }
         public string? VenueName { get; set; }
+        public int? MatchSequence { get; set; }                 // 대회 내 경기 순번 ("N경기")
+        public bool HasDetail { get; set; }                     // 이벤트/출전 보유 → 행 확장 셰브론 노출
     }
 
     /// <summary>수상 한 건.</summary>
@@ -143,5 +145,74 @@ namespace PlayGround.Contracts.Records
         public string Url { get; set; } = string.Empty;
         public string? PublisherName { get; set; }
         public DateOnly? PublishedOn { get; set; }
+    }
+
+    /// <summary>공식 경기 상세 (Records 내 화면, 공개·읽기 전용). 대회 서비스 SingleIdx 모델 대응.
+    /// 후반 스코어·주요 로그·라인업 카드 집계 등 표시 조립은 클라이언트.</summary>
+    public class RecordsMatchDetailResponse
+    {
+        public Guid MatchId { get; set; }
+        public string MatchType { get; set; } = string.Empty;   // 'Official','Friendly'
+        public Guid? TournamentId { get; set; }
+        public string? TournamentName { get; set; }             // 브레드크럼 (친선은 null)
+        public string? Format { get; set; }                     // 'Cup','Split','League'
+        public string? AgeGroup { get; set; }
+        public int? SeasonYear { get; set; }
+        public string? StageType { get; set; }                  // 'Group','Split1','Split2','Knockout','League'
+        public string? GroupName { get; set; }
+        public string? RoundName { get; set; }
+        public int? MatchSequence { get; set; }                 // "N경기"
+        public string Status { get; set; } = string.Empty;
+
+        public Guid? HomeTeamId { get; set; }
+        public string HomeTeamName { get; set; } = string.Empty;
+        public string? HomeTeamSlug { get; set; }
+        public Guid? AwayTeamId { get; set; }
+        public string AwayTeamName { get; set; } = string.Empty;
+        public string? AwayTeamSlug { get; set; }
+        public string? HomeCoachName { get; set; }
+        public string? AwayCoachName { get; set; }
+
+        public int? HomeScore { get; set; }
+        public int? AwayScore { get; set; }
+        public int? HomePkScore { get; set; }
+        public int? AwayPkScore { get; set; }
+        public int? FirstHalfHomeScore { get; set; }            // 후반 = 총점 - 전반 (클라이언트 파생)
+        public int? FirstHalfAwayScore { get; set; }
+
+        public DateTime? MatchedAt { get; set; }
+        public string? VenueName { get; set; }
+        public string? RefereeName { get; set; }                // 주심
+        public string? MatchTimeText { get; set; }              // 대회의 경기 시간 텍스트 ("전·후반 25분")
+
+        public List<RecordsMatchEventDto> Events { get; set; } = new();      // 타임라인 (분 오름차순)
+        public List<RecordsLineupPlayerDto> HomeLineup { get; set; } = new();
+        public List<RecordsLineupPlayerDto> AwayLineup { get; set; } = new();
+    }
+
+    /// <summary>경기 이벤트 한 건 (타임라인·주요 로그). 아이콘·문구 조립은 클라이언트.</summary>
+    public class RecordsMatchEventDto
+    {
+        public string EventType { get; set; } = string.Empty;   // 'Goal','OwnGoal','PenaltyGoal','YellowCard','RedCard'
+        public int? MinuteOfPlay { get; set; }
+        public string? PlayerName { get; set; }
+        public Guid? PlayerId { get; set; }
+        public string? PlayerSlug { get; set; }                 // Claim된 선수만 (프로필 링크)
+        public int? JerseyNumber { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public bool IsHome { get; set; }                        // TeamName == HomeTeamName
+    }
+
+    /// <summary>라인업 한 선수 (선발·교체 공용). 득점 마크는 GoalMinutes로 조립.</summary>
+    public class RecordsLineupPlayerDto
+    {
+        public string PlayerName { get; set; } = string.Empty;
+        public Guid? PlayerId { get; set; }
+        public string? PlayerSlug { get; set; }                 // Claim된 선수만
+        public int? JerseyNumber { get; set; }
+        public string? Position { get; set; }                   // 'GK','DF','MF','FW'
+        public bool IsCaptain { get; set; }
+        public bool IsStarter { get; set; }
+        public List<int> GoalMinutes { get; set; } = new();     // 이 선수의 득점 분 (득점 마크 "⚽N′")
     }
 }

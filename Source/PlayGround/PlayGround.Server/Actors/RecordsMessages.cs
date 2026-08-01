@@ -5,4 +5,7 @@ namespace PlayGround.Server.Actors
 
     /// <summary>대회 상세 묶음 조회 메시지 (읽기 — RoundRobin, 공개 화면).</summary>
     public sealed record GetSoccerRecordsTournamentDetailMessage(Guid TournamentId);
+
+    /// <summary>공식 경기 상세 조회 메시지 (읽기 — RoundRobin, 공개 화면).</summary>
+    public sealed record GetSoccerRecordsMatchDetailMessage(Guid MatchId);
 }

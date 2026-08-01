@@ -1,0 +1,33 @@
+@* 경기 이벤트 아이콘 (모노톤 SVG — 이모지 금지). 득점=teal 공 / 경고=옐로 카드 / 퇴장=레드 카드.
+   Design.Records 공식 경기 상세 — 주요 로그·타임라인 공용. *@
+@using PlayGround.Client.Components.Records
+
+@if (RecordsFormatting.IsGoalEvent(EventType))
+{
+    <span class="@($"rounded-full bg-teal/[.12] flex items-center justify-center flex-none {BoxSize}")">
+        <svg class="@($"{BallSize} text-teal-ink")" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7.5l4.3 3.1-1.6 5h-5.4l-1.6-5zM12 3v4.5M20.6 9.4l-4.3 1.2M17.6 20l-2.9-4.4M9.3 15.6L6.4 20M3.4 9.4l4.3 1.2"></path>
+        </svg>
+    </span>
+}
+else
+{
+    @* 심판 카드 — 도메인 색(토큰 없음): 경고 #e6b93d / 퇴장 #c0392b *@
+    <span class="@($"flex items-center justify-center flex-none {BoxSize}")">
+        <span class="@($"w-2 h-[11px] rounded-sm block {(EventType == "RedCard" ? "bg-[#c0392b]" : "bg-[#e6b93d]")}")"></span>
+    </span>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string EventType { get; set; } = string.Empty;
+
+    /// <summary>Large=타임라인(22px 공), 기본=주요 로그(20px).</summary>
+    [Parameter]
+    public bool Large { get; set; }
+
+    private string BoxSize => Large ? "w-[22px] h-[22px]" : "w-5 h-5";
+
+    private string BallSize => Large ? "w-3 h-3" : "w-[11px] h-[11px]";
+}

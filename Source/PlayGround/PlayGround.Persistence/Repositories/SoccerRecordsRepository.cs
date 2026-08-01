@@ -95,6 +95,9 @@ namespace PlayGround.Persistence.Repositories
                 .ToDictionary(t => t.TeamId, t => t.Slug);
             string? SlugOf(Guid? teamId) => teamId is not null && slugs.TryGetValue(teamId.Value, out string? slug) ? slug : null;
 
+            // ⑨ 상세 보유 경기 (이벤트/출전 존재) — 행 확장 셰브론 노출 대상
+            HashSet<Guid> detailMatchIds = (await reader.ReadAsync<Guid>()).ToHashSet();
+
             var response = new RecordsTournamentDetailResponse
             {
                 Tournament = new RecordsTournamentDetailDto
@@ -156,7 +159,9 @@ namespace PlayGround.Persistence.Repositories
                         AwayPkScore = m.AwayPkScore,
                         Status = m.Status,
                         MatchedAt = m.MatchedAt,
-                        VenueName = NullIfEmpty(m.VenueName)
+                        VenueName = NullIfEmpty(m.VenueName),
+                        MatchSequence = m.MatchSequence,
+                        HasDetail = detailMatchIds.Contains(m.MatchId)
                     })
                     .ToList(),
                 Awards = awards
@@ -213,6 +218,117 @@ namespace PlayGround.Persistence.Repositories
                 ("Videos", response.Videos.Count), ("News", response.News.Count));
 
             return Result<RecordsTournamentDetailResponse?>.Success(response);
+        }
+
+        public async Task<Result<RecordsMatchDetailResponse?>> GetMatchDetailAsync(Guid matchId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Records match detail requested", ("MatchId", matchId));
+
+            var procedure = new UspGetSoccerMatchDetail(this) { MatchId = matchId };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                Logger.ErrorWith("Records match detail query failed", ("DetailCode", opened.ResultData.DetailCode));
+                return Result<RecordsMatchDetailResponse?>.Error(ErrorCode.DatabaseError);
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            SoccerMatchesEntity? match = await reader.ReadSingleOrDefaultAsync<SoccerMatchesEntity>();
+            if (match is null)
+            {
+                Logger.InfoWith("Records match not found", ("MatchId", matchId));
+                return Result<RecordsMatchDetailResponse?>.Success(null);
+            }
+
+            SoccerTournamentsEntity? tournament = await reader.ReadSingleOrDefaultAsync<SoccerTournamentsEntity>();
+            var events = (await reader.ReadAsync<SoccerMatchEventsEntity>()).ToList();
+            var appearances = (await reader.ReadAsync<SoccerMatchAppearancesEntity>()).ToList();
+
+            // ⑤ 등장 선수 공개 슬러그 (PlayerId·Slug만 부분 매핑) — Claim된 선수만 프로필 링크
+            Dictionary<Guid, string> playerSlugs = (await reader.ReadAsync<SoccerPlayersEntity>())
+                .Where(p => !string.IsNullOrEmpty(p.Slug))
+                .ToDictionary(p => p.PlayerId, p => p.Slug);
+            string? PlayerSlugOf(Guid? playerId) =>
+                playerId is not null && playerSlugs.TryGetValue(playerId.Value, out string? slug) ? slug : null;
+
+            // 라인업 선수의 득점 마크 — 득점(Goal/PenaltyGoal, 자책 제외) 이벤트를 선수로 매칭
+            List<int> GoalMinutesOf(SoccerMatchAppearancesEntity ap) => events
+                .Where(e => (e.EventType == "Goal" || e.EventType == "PenaltyGoal")
+                    && (ap.PlayerId is not null && e.PlayerId == ap.PlayerId
+                        || (ap.PlayerId is null || e.PlayerId is null) && e.PlayerName == ap.PlayerName && e.TeamName == ap.TeamName))
+                .Select(e => e.MinuteOfPlay ?? 0)
+                .OrderBy(m => m)
+                .ToList();
+
+            RecordsLineupPlayerDto MapLineup(SoccerMatchAppearancesEntity ap) => new()
+            {
+                PlayerName = ap.PlayerName,
+                PlayerId = ap.PlayerId,
+                PlayerSlug = PlayerSlugOf(ap.PlayerId),
+                JerseyNumber = ap.JerseyNumber,
+                Position = NullIfEmpty(ap.Position),
+                IsCaptain = ap.IsCaptain,
+                IsStarter = ap.IsStarter,
+                GoalMinutes = GoalMinutesOf(ap)
+            };
+
+            var response = new RecordsMatchDetailResponse
+            {
+                MatchId = match.MatchId,
+                MatchType = match.MatchType,
+                TournamentId = match.TournamentId,
+                TournamentName = tournament?.Name,
+                Format = tournament?.Format,
+                AgeGroup = tournament?.AgeGroup,
+                SeasonYear = tournament?.SeasonYear,
+                StageType = NullIfEmpty(match.StageType),
+                GroupName = NullIfEmpty(match.GroupName),
+                RoundName = NullIfEmpty(match.RoundName),
+                MatchSequence = match.MatchSequence,
+                Status = match.Status,
+                HomeTeamId = match.HomeTeamId,
+                HomeTeamName = match.HomeTeamName,
+                AwayTeamId = match.AwayTeamId,
+                AwayTeamName = match.AwayTeamName,
+                HomeCoachName = NullIfEmpty(match.HomeCoachName),
+                AwayCoachName = NullIfEmpty(match.AwayCoachName),
+                HomeScore = match.HomeScore,
+                AwayScore = match.AwayScore,
+                HomePkScore = match.HomePkScore,
+                AwayPkScore = match.AwayPkScore,
+                FirstHalfHomeScore = match.FirstHalfHomeScore,
+                FirstHalfAwayScore = match.FirstHalfAwayScore,
+                MatchedAt = match.MatchedAt,
+                VenueName = NullIfEmpty(match.VenueName),
+                RefereeName = NullIfEmpty(match.RefereeName),
+                MatchTimeText = NullIfEmpty(tournament?.MatchTimeText),
+                Events = events
+                    .Select(e => new RecordsMatchEventDto
+                    {
+                        EventType = e.EventType,
+                        MinuteOfPlay = e.MinuteOfPlay,
+                        PlayerName = NullIfEmpty(e.PlayerName),
+                        PlayerId = e.PlayerId,
+                        PlayerSlug = PlayerSlugOf(e.PlayerId),
+                        JerseyNumber = e.JerseyNumber,
+                        TeamName = e.TeamName,
+                        IsHome = e.TeamName == match.HomeTeamName
+                    })
+                    .ToList(),
+                HomeLineup = appearances
+                    .Where(a => a.TeamName == match.HomeTeamName)
+                    .Select(MapLineup)
+                    .ToList(),
+                AwayLineup = appearances
+                    .Where(a => a.TeamName == match.AwayTeamName)
+                    .Select(MapLineup)
+                    .ToList()
+            };
+
+            Logger.InfoWith("Records match detail received", ("MatchId", matchId),
+                ("Events", response.Events.Count), ("HomeLineup", response.HomeLineup.Count), ("AwayLineup", response.AwayLineup.Count));
+
+            return Result<RecordsMatchDetailResponse?>.Success(response);
         }
 
         private static string? NullIfEmpty(string? value)

@@ -62,6 +62,21 @@ public class SoccerMatchesEntity
 	[StringLength(300)]
 	public string VenueName { get; set; } = String.Empty;
 
+	public int? FirstHalfHomeScore { get; set; } = null;
+
+	public int? FirstHalfAwayScore { get; set; } = null;
+
+	[StringLength(90)]
+	public string RefereeName { get; set; } = String.Empty;
+
+	public int? MatchSequence { get; set; } = null;
+
+	[StringLength(90)]
+	public string HomeCoachName { get; set; } = String.Empty;
+
+	[StringLength(90)]
+	public string AwayCoachName { get; set; } = String.Empty;
+
 	[Required]
 	[StringLength(20)]
 	public string DataSource { get; set; } = String.Empty;

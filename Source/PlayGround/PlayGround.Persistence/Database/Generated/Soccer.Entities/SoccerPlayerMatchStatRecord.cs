@@ -16,8 +16,7 @@ public class SoccerPlayerMatchStatRecord
 	[Required]
 	public Guid MatchId { get; set; } = Guid.Empty;
 
-	[Required]
-	public Guid TeamId { get; set; } = Guid.Empty;
+	public Guid? TeamId { get; set; } = null;
 
 	public int? MinutesPlayed { get; set; } = null;
 

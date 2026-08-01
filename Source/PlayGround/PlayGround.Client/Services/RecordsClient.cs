@@ -43,5 +43,20 @@ namespace PlayGround.Client.Services
                 return null; // 미존재(404)·네트워크 오류 → null
             }
         }
+
+        /// <summary>공식 경기 상세 (헤더·이벤트·라인업). 미존재·오류 시 null.</summary>
+        public async Task<RecordsMatchDetailResponse?> GetMatchDetailAsync(Guid matchId)
+        {
+            try
+            {
+                Envelope<RecordsMatchDetailResponse>? envelope = await mHttp.GetFromJsonAsync<Envelope<RecordsMatchDetailResponse>>(
+                    $"api/soccer/records/matches/{matchId}");
+                return envelope is { IsSuccess: true } ? envelope.Data : null;
+            }
+            catch
+            {
+                return null; // 미존재(404)·네트워크 오류 → null
+            }
+        }
     }
 }

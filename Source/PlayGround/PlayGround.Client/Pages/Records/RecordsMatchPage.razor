@@ -1,0 +1,290 @@
+@* 공식 경기 상세 (Records 내 화면, 공개·읽기 전용) — 스코어보드 + 타임라인 + 라인업.
+   PC 브레드크럼 + 상하단 돌아가기 / 타임라인 PC 가로·모바일 세로 / 라인업 PC 2컬럼·모바일 세그먼트.
+   Design.Records "공식 경기 상세" · Match Detail Mobile. *@
+@attribute [Route(Routes.RecordsMatchTemplate)]
+@using PlayGround.Client.Components.Records
+@using PlayGround.Client.Models
+@using PlayGround.Contracts.Records
+@inject RecordsClient Records
+@inject NavigationManager Nav
+
+<PageTitle>경기 상세 — PlayGround</PageTitle>
+
+<div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
+    <PublicGnb SectionLabel="경기기록" />
+
+    <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-4 md:pt-6 pb-20 flex flex-col gap-4">
+        @if (mData is not null)
+        {
+            @* 브레드크럼 (PC) — 경기기록 → 대회 → 경기 라벨 *@
+            <div class="hidden md:flex items-center gap-[7px] flex-wrap">
+                <a href="@Routes.Records" class="text-xs font-bold text-text-muted whitespace-nowrap hover:text-navy transition-colors">경기기록</a>
+                @if (mData.TournamentName is not null)
+                {
+                    <svg class="w-[11px] h-[11px] text-text-faint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+                    <a href="@BackTarget" class="text-xs font-bold text-text-muted whitespace-nowrap overflow-hidden text-ellipsis max-w-[280px] hover:text-navy transition-colors">@mData.TournamentName</a>
+                }
+                <svg class="w-[11px] h-[11px] text-text-faint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+                <span class="text-xs font-extrabold text-navy-deep whitespace-nowrap">@MatchLabel</span>
+            </div>
+
+            @* 돌아가기 (상단) *@
+            <a href="@BackTarget" class="self-start flex items-center gap-1.5 border-1.5 border-border rounded-[10px] bg-white px-3.5 py-2 text-[12.5px] font-bold text-text-body hover:border-navy hover:text-navy transition-colors">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>경기 일정 · 결과로 돌아가기
+            </a>
+
+            @* ── 스코어보드 ── *@
+            <div class="bg-gradient-navy rounded-[16px] md:rounded-[18px] px-4 md:px-[30px] py-[18px] md:py-[26px] flex flex-col gap-3.5 md:gap-[18px]">
+                <div class="flex items-center justify-between gap-2.5">
+                    <span class="text-[11.5px] font-bold text-white/65 whitespace-nowrap overflow-hidden text-ellipsis">@(mData.TournamentName ?? "친선경기")</span>
+                    <span class="text-[10px] font-extrabold text-white bg-white/[.14] rounded-full px-2.5 py-[3px] whitespace-nowrap flex-none">@ScoreboardBadge</span>
+                </div>
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-[18px]">
+                    <div class="flex flex-col items-center md:items-end gap-1.5 md:gap-2 min-w-0">
+                        <span class="w-11 h-11 md:w-[52px] md:h-[52px] rounded-full bg-white/[.12] flex items-center justify-center text-[15px] md:text-[17px] font-extrabold text-white">@HomeInitial</span>
+                        <span class="text-[13px] md:text-[15px] font-extrabold text-white whitespace-nowrap md:text-right overflow-hidden text-ellipsis max-w-full">@mData.HomeTeamName</span>
+                        @if (mData.HomeCoachName is not null)
+                        {
+                            <span class="text-[11px] text-white/55 whitespace-nowrap">@mData.HomeCoachName 감독</span>
+                        }
+                    </div>
+                    <div class="flex flex-col items-center gap-[3px] md:gap-1.5">
+                        <span class="text-[34px] md:text-[44px] font-extrabold text-white tabular-nums tracking-[1px] md:tracking-[2px] whitespace-nowrap">@ScoreText</span>
+                        @if (HalfText is not null)
+                        {
+                            <span class="text-[10px] md:text-[11px] font-bold text-teal whitespace-nowrap">@HalfText</span>
+                        }
+                        @if (PkText is not null)
+                        {
+                            <span class="text-[10px] md:text-[11px] font-extrabold text-white/80 whitespace-nowrap">@PkText</span>
+                        }
+                    </div>
+                    <div class="flex flex-col items-center md:items-start gap-1.5 md:gap-2 min-w-0">
+                        <span class="w-11 h-11 md:w-[52px] md:h-[52px] rounded-full bg-white/[.12] flex items-center justify-center text-[15px] md:text-[17px] font-extrabold text-white">@AwayInitial</span>
+                        <span class="text-[13px] md:text-[15px] font-extrabold text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-full">@mData.AwayTeamName</span>
+                        @if (mData.AwayCoachName is not null)
+                        {
+                            <span class="text-[11px] text-white/55 whitespace-nowrap">@mData.AwayCoachName 감독</span>
+                        }
+                    </div>
+                </div>
+                @if (MetaItems.Count > 0)
+                {
+                    <div class="flex justify-center gap-3.5 md:gap-5 flex-wrap border-t border-white/[.12] pt-2.5 md:pt-3.5">
+                        @foreach ((string key, string value) in MetaItems)
+                        {
+                            <span class="text-[10.5px] md:text-[11.5px] text-white/70 whitespace-nowrap"><b class="text-white/45 font-bold mr-1 md:mr-[5px]">@key</b>@value</span>
+                        }
+                    </div>
+                }
+            </div>
+
+            @* ── 타임라인 ── *@
+            @if (mData.Events.Count > 0)
+            {
+                <div class="bg-white border-1.5 border-border rounded-[15px] md:rounded-[16px] overflow-hidden">
+                    <div class="px-4 md:px-[18px] py-3 border-b border-soft flex justify-between items-center gap-2.5">
+                        <span class="text-[13px] md:text-[13.5px] font-extrabold">타임라인</span>
+                        <span class="text-[10px] md:text-[10.5px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">↑ @mData.HomeTeamName · ↓ @mData.AwayTeamName</span>
+                    </div>
+
+                    @* PC 가로 타임라인 *@
+                    <div class="hidden md:block px-[22px] py-3.5 relative overflow-x-auto">
+                        <div class="flex items-stretch gap-2 relative min-w-[640px]">
+                            <span class="absolute left-0 right-0 top-1/2 h-0.5 -mt-px bg-surface-icon"></span>
+                            <div class="flex items-center flex-none relative">
+                                <span class="text-[10px] font-extrabold text-text-muted bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">킥오프</span>
+                            </div>
+                            @foreach (RecordsMatchEventDto e in mData.Events)
+                            {
+                                <div class="flex flex-col items-center flex-1 min-w-0 relative">
+                                    <div class="h-[62px] flex flex-col items-center justify-end gap-0.5 pb-[7px]">
+                                        @if (e.IsHome)
+                                        {
+                                            <EventPlayerName Event="e" Class="text-[12.5px] font-extrabold whitespace-nowrap" />
+                                            <span class="text-[10px] text-text-muted whitespace-nowrap">@RecordsFormatting.EventDetailText(e)</span>
+                                            <MatchEventIcon EventType="@e.EventType" Large="true" />
+                                        }
+                                    </div>
+                                    <span class="text-[10.5px] font-extrabold text-white bg-navy rounded-full min-w-[34px] text-center py-[3px] flex-none tabular-nums relative z-[1]">@(e.MinuteOfPlay ?? 0)′</span>
+                                    <div class="h-[62px] flex flex-col items-center justify-start gap-0.5 pt-[7px]">
+                                        @if (!e.IsHome)
+                                        {
+                                            <MatchEventIcon EventType="@e.EventType" Large="true" />
+                                            <EventPlayerName Event="e" Class="text-[12.5px] font-extrabold whitespace-nowrap" />
+                                            <span class="text-[10px] text-text-muted whitespace-nowrap">@RecordsFormatting.EventDetailText(e)</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            <div class="flex items-center flex-none relative">
+                                <span class="text-[10px] font-extrabold text-white bg-navy rounded-full px-2.5 py-[3px] whitespace-nowrap">종료 @ScoreText</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* 모바일 세로 타임라인 *@
+                    <div class="md:hidden px-3.5 pt-4 pb-[18px] flex flex-col relative">
+                        <span class="absolute top-4 bottom-[18px] left-1/2 w-0.5 -ml-px bg-surface-icon"></span>
+                        @foreach (RecordsMatchEventDto e in mData.Events)
+                        {
+                            <div class="flex items-center gap-[9px] py-[7px] relative">
+                                @if (e.IsHome)
+                                {
+                                    <span class="flex items-center gap-[7px] justify-end flex-1 min-w-0">
+                                        <span class="flex flex-col items-end min-w-0">
+                                            <EventPlayerName Event="e" Class="text-[12.5px] font-extrabold whitespace-nowrap" />
+                                            <span class="text-[10px] text-text-muted whitespace-nowrap">@RecordsFormatting.EventDetailText(e)</span>
+                                        </span>
+                                        <MatchEventIcon EventType="@e.EventType" Large="true" />
+                                    </span>
+                                    <span class="text-[10.5px] font-extrabold text-white bg-navy rounded-full min-w-[34px] text-center py-[3px] flex-none tabular-nums relative z-[1]">@(e.MinuteOfPlay ?? 0)′</span>
+                                    <span class="flex-1"></span>
+                                }
+                                else
+                                {
+                                    <span class="flex-1"></span>
+                                    <span class="text-[10.5px] font-extrabold text-white bg-navy rounded-full min-w-[34px] text-center py-[3px] flex-none tabular-nums relative z-[1]">@(e.MinuteOfPlay ?? 0)′</span>
+                                    <span class="flex items-center gap-[7px] flex-1 min-w-0">
+                                        <MatchEventIcon EventType="@e.EventType" Large="true" />
+                                        <span class="flex flex-col min-w-0">
+                                            <EventPlayerName Event="e" Class="text-[12.5px] font-extrabold whitespace-nowrap" />
+                                            <span class="text-[10px] text-text-muted whitespace-nowrap">@RecordsFormatting.EventDetailText(e)</span>
+                                        </span>
+                                    </span>
+                                }
+                            </div>
+                        }
+                        <div class="flex justify-center mt-2.5 relative">
+                            <span class="text-[10px] font-extrabold text-white bg-navy rounded-full px-3 py-[3px] whitespace-nowrap">종료 @ScoreText</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @* ── 라인업 ── *@
+            @if (mData.HomeLineup.Count > 0 || mData.AwayLineup.Count > 0)
+            {
+                <div class="bg-white border-1.5 border-border rounded-[15px] md:rounded-[16px] overflow-hidden">
+                    <div class="px-4 md:px-[18px] py-3 border-b border-soft"><span class="text-[13px] md:text-[13.5px] font-extrabold">라인업</span></div>
+
+                    @* PC 2컬럼 *@
+                    <div class="hidden md:grid grid-cols-2">
+                        <div class="border-r border-soft px-4 py-3.5 flex flex-col gap-1">
+                            <span class="text-[11px] font-extrabold text-navy whitespace-nowrap pb-1">@mData.HomeTeamName</span>
+                            <LineupColumn Players="@mData.HomeLineup" />
+                        </div>
+                        <div class="px-4 py-3.5 flex flex-col gap-1">
+                            <span class="text-[11px] font-extrabold text-navy whitespace-nowrap pb-1">@mData.AwayTeamName</span>
+                            <LineupColumn Players="@mData.AwayLineup" />
+                        </div>
+                    </div>
+                    <div class="hidden md:flex px-[18px] py-2.5 border-t border-soft justify-between gap-2.5">
+                        <span class="text-[10.5px] text-text-muted whitespace-nowrap">경고 @HomeYellow · 퇴장 @HomeRed</span>
+                        <span class="text-[10.5px] text-text-muted whitespace-nowrap">경고 @AwayYellow · 퇴장 @AwayRed</span>
+                    </div>
+
+                    @* 모바일 세그먼트 *@
+                    <div class="md:hidden px-3.5 py-3 flex flex-col gap-2.5">
+                        <div class="flex bg-surface-segment rounded-[11px] p-[3px] gap-0.5">
+                            <button type="button" class="@SegClass(!mShowAway)" @onclick="() => mShowAway = false">@mData.HomeTeamName</button>
+                            <button type="button" class="@SegClass(mShowAway)" @onclick="() => mShowAway = true">@mData.AwayTeamName</button>
+                        </div>
+                        <LineupColumn Players="@(mShowAway ? mData.AwayLineup : mData.HomeLineup)" />
+                        <span class="text-[10.5px] text-text-muted whitespace-nowrap">경고 @(mShowAway ? AwayYellow : HomeYellow) · 퇴장 @(mShowAway ? AwayRed : HomeRed)</span>
+                    </div>
+                </div>
+            }
+
+            @* 돌아가기 (하단) *@
+            <a href="@BackTarget" class="self-center flex items-center gap-1.5 border-1.5 border-border rounded-[10px] bg-white px-[18px] py-2.5 text-[12.5px] font-bold text-text-body hover:border-navy hover:text-navy transition-colors">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>경기 일정 · 결과로 돌아가기
+            </a>
+        }
+        else if (mNotFound)
+        {
+            <div class="py-24 text-center text-text-muted text-sm">경기를 찾을 수 없어요.</div>
+        }
+    </main>
+</div>
+
+@code {
+    [Parameter]
+    public Guid MatchId { get; set; }
+
+    private RecordsMatchDetailResponse? mData;
+    private bool mNotFound;
+    private bool mShowAway;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        mData = await Records.GetMatchDetailAsync(MatchId);
+        mNotFound = mData is null;
+    }
+
+    private string BackTarget => mData?.TournamentId is Guid tid ? Routes.RecordsDetail(tid) : Routes.Records;
+
+    private string MatchLabel => RecordsFormatting.MatchStageLabel(mData?.StageType, mData?.RoundName);
+
+    private string ScoreboardBadge
+    {
+        get
+        {
+            string stage = MatchLabel;
+            string status = mData?.Status == nameof(SoccerMatchStatus.Completed) ? "종료"
+                : mData?.Status == nameof(SoccerMatchStatus.Canceled) ? "취소" : "예정";
+            return string.IsNullOrEmpty(stage) ? status : $"{stage} · {status}";
+        }
+    }
+
+    private string HomeInitial => Initial(mData?.HomeTeamName);
+    private string AwayInitial => Initial(mData?.AwayTeamName);
+
+    private static string Initial(string? name) => string.IsNullOrEmpty(name) ? "" : name.Substring(0, 1);
+
+    private string ScoreText =>
+        mData?.HomeScore is null || mData?.AwayScore is null ? "- : -" : $"{mData.HomeScore} : {mData.AwayScore}";
+
+    // 전반 저장값 + 후반(총점-전반) 파생
+    private string? HalfText
+    {
+        get
+        {
+            if (mData?.FirstHalfHomeScore is not int fh || mData.FirstHalfAwayScore is not int fa
+                || mData.HomeScore is not int th || mData.AwayScore is not int ta)
+            {
+                return null;
+            }
+
+            return $"전반 {fh} : {fa} · 후반 {th - fh} : {ta - fa}";
+        }
+    }
+
+    private string? PkText =>
+        mData?.HomePkScore is int hp && mData.AwayPkScore is int ap ? $"PK {hp} : {ap}" : null;
+
+    private List<(string Key, string Value)> MetaItems
+    {
+        get
+        {
+            List<(string, string)> items = new();
+            if (mData?.MatchedAt is not null) { items.Add(("일시", RecordsFormatting.WhenLabel(mData.MatchedAt))); }
+            if (mData?.VenueName is not null) { items.Add(("장소", mData.VenueName)); }
+            if (mData?.RefereeName is not null) { items.Add(("주심", mData.RefereeName)); }
+            if (mData?.MatchTimeText is not null) { items.Add(("경기 시간", mData.MatchTimeText)); }
+            return items;
+        }
+    }
+
+    private int HomeYellow => CardCount(mData?.HomeTeamName, "YellowCard");
+    private int HomeRed => CardCount(mData?.HomeTeamName, "RedCard");
+    private int AwayYellow => CardCount(mData?.AwayTeamName, "YellowCard");
+    private int AwayRed => CardCount(mData?.AwayTeamName, "RedCard");
+
+    private int CardCount(string? teamName, string eventType) =>
+        mData?.Events.Count(e => e.TeamName == teamName && e.EventType == eventType) ?? 0;
+
+    private static string SegClass(bool active) =>
+        "flex-1 h-[38px] rounded-[9px] text-[12.5px] whitespace-nowrap transition-colors " +
+        (active ? "bg-white font-extrabold text-navy-deep shadow-[0_1px_4px_rgba(28,43,74,.12)]" : "font-bold text-text-muted");
+}

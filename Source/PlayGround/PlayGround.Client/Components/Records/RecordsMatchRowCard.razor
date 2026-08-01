@@ -1,30 +1,79 @@
 @* 경기 가로 카드 (조별/리그 공용) — 일시·구장 / 홈-스코어-원정(승팀 강조) / 상태 뱃지.
-   PC 1줄 / 모바일 2줄 — SPEC.RECORDS.md §조별 스테이지 *@
+   상세 보유 경기(HasDetail)만 셰브론 + 행 탭 확장(주요 로그 + "전체 보기"). SPEC.RECORDS.md §공식 경기 상세 *@
 @using PlayGround.Client.Models
 @using PlayGround.Contracts.Records
 
-<div class="bg-white border-1.5 border-border rounded-[14px] px-4 md:px-[22px] py-3.5 flex flex-col md:flex-row md:items-center gap-2.5 md:gap-3.5">
-    <div class="flex items-center gap-2.5 md:w-[130px] md:flex-none md:flex-col md:items-start md:gap-0.5">
-        <span class="text-xs font-bold whitespace-nowrap">@RecordsFormatting.WhenLabel(Match.MatchedAt)</span>
-        @if (Match.VenueName is not null)
+<div class="@($"bg-white border-1.5 rounded-[14px] overflow-hidden transition-colors {(IsOpen ? "border-navy" : "border-border")} {(Match.HasDetail ? "hover:border-navy hover:shadow-[0_4px_16px_rgba(28,43,74,.08)]" : "")}")">
+    <div @onclick="HandleToggle"
+         class="@($"px-4 md:px-[22px] py-3.5 flex flex-col md:flex-row md:items-center gap-2.5 md:gap-3.5 {(Match.HasDetail ? "cursor-pointer" : "")}")">
+        <div class="flex items-center gap-2.5 md:w-[130px] md:flex-none md:flex-col md:items-start md:gap-0.5">
+            <span class="text-xs font-bold whitespace-nowrap">@RecordsFormatting.WhenLabel(Match.MatchedAt)</span>
+            @if (Match.VenueName is not null)
+            {
+                <span class="text-[11px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">@Match.VenueName</span>
+            }
+            <span class="@($"md:hidden ml-auto {RecordsFormatting.MatchStatusBadgeClass(Match)}")">@RecordsFormatting.MatchStatusLabel(Match)</span>
+        </div>
+        <div class="flex-1 flex items-center gap-3 justify-center min-w-0">
+            <span class="flex-1 text-right min-w-0" @onclick:stopPropagation="true" @onclick="NoOp">
+                <TeamNameLink Name="@Match.HomeTeamName" Slug="@Match.HomeTeamSlug"
+                              Class="@($"text-[13.5px] break-keep {(HomeWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
+            </span>
+            <span class="text-[17px] font-extrabold bg-surface-alt rounded-lg px-3.5 py-1 whitespace-nowrap">@ScoreLabel</span>
+            <span class="flex-1 min-w-0" @onclick:stopPropagation="true" @onclick="NoOp">
+                <TeamNameLink Name="@Match.AwayTeamName" Slug="@Match.AwayTeamSlug"
+                              Class="@($"text-[13.5px] break-keep {(AwayWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
+            </span>
+        </div>
+        <span class="@($"hidden md:inline-flex {RecordsFormatting.MatchStatusBadgeClass(Match)}")">@RecordsFormatting.MatchStatusLabel(Match)</span>
+        @if (Match.HasDetail)
         {
-            <span class="text-[11px] text-text-muted whitespace-nowrap overflow-hidden text-ellipsis">@Match.VenueName</span>
+            <span class="@($"flex flex-none transition-transform {(IsOpen ? "rotate-180" : "")}")">
+                <svg class="w-[15px] h-[15px] text-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </span>
         }
-        <span class="@($"md:hidden ml-auto {RecordsFormatting.MatchStatusBadgeClass(Match)}")">@RecordsFormatting.MatchStatusLabel(Match)</span>
     </div>
-    <div class="flex-1 flex items-center gap-3 justify-center min-w-0">
-        <TeamNameLink Name="@Match.HomeTeamName" Slug="@Match.HomeTeamSlug"
-                      Class="@($"text-[13.5px] flex-1 break-keep text-right {(HomeWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
-        <span class="text-[17px] font-extrabold bg-surface-alt rounded-lg px-3.5 py-1 whitespace-nowrap">@ScoreLabel</span>
-        <TeamNameLink Name="@Match.AwayTeamName" Slug="@Match.AwayTeamSlug"
-                      Class="@($"text-[13.5px] flex-1 break-keep {(AwayWin ? "font-extrabold text-navy-deep" : "font-bold text-text-body")}")" />
-    </div>
-    <span class="@($"hidden md:inline-flex {RecordsFormatting.MatchStatusBadgeClass(Match)}")">@RecordsFormatting.MatchStatusLabel(Match)</span>
+    @if (IsOpen)
+    {
+        <div class="border-t border-soft bg-surface-soft px-4 md:px-[22px] py-3 flex flex-col gap-[7px]">
+            @if (Logs is null)
+            {
+                <span class="text-[11.5px] text-text-muted">불러오는 중…</span>
+            }
+            else
+            {
+                @foreach (RecordsMatchEventDto log in Logs)
+                {
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-[10.5px] font-extrabold text-white bg-navy rounded-full min-w-[32px] text-center py-0.5 flex-none tabular-nums">@(log.MinuteOfPlay ?? 0)′</span>
+                        <MatchEventIcon EventType="@log.EventType" />
+                        <span class="text-xs font-bold whitespace-nowrap">@RecordsFormatting.EventLogText(log)</span>
+                        <span class="text-[10.5px] text-text-muted whitespace-nowrap">@log.TeamName</span>
+                    </div>
+                }
+            }
+            <button type="button" @onclick:stopPropagation="true" @onclick="OnGoDetail"
+                    class="border-0 bg-transparent p-0 self-start text-[11.5px] font-extrabold text-navy cursor-pointer whitespace-nowrap mt-[3px]">경기 상세 전체 보기 →</button>
+        </div>
+    }
 </div>
 
 @code {
     [Parameter, EditorRequired]
     public RecordsMatchDto Match { get; set; } = new();
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    /// <summary>확장 시 주요 로그 (부모가 지연 로드). null = 로딩 중.</summary>
+    [Parameter]
+    public List<RecordsMatchEventDto>? Logs { get; set; }
+
+    [Parameter]
+    public EventCallback OnToggle { get; set; }
+
+    [Parameter]
+    public EventCallback OnGoDetail { get; set; }
 
     private bool HomeWin => Match.HomeScore > Match.AwayScore;
 
@@ -32,4 +81,17 @@
 
     private string ScoreLabel =>
         Match.HomeScore is null || Match.AwayScore is null ? "- : -" : $"{Match.HomeScore} : {Match.AwayScore}";
+
+    private async Task HandleToggle()
+    {
+        if (Match.HasDetail)
+        {
+            await OnToggle.InvokeAsync();
+        }
+    }
+
+    private void NoOp()
+    {
+        // 팀 링크 클릭이 행 확장으로 전파되지 않도록 막는 용도 (링크는 그대로 이동).
+    }
 }
