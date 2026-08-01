@@ -2,6 +2,7 @@
    상태 3종: 접수(오렌지·취소 가능) / 반영(teal) / 반려(연레드 + **사유 필수 표시**).
    신청이 하나도 없으면 섹션 자체를 렌더하지 않는다 — 평소엔 비어 있는 게 정상이라
    빈 상태 카드를 두면 경기 결과 화면이 늘 어수선해진다. *@
+@using PlayGround.Client.Localization
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
 @using PlayGround.Domain.Soccer
@@ -10,8 +11,8 @@
 {
     <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2.5">
-            <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">기록 수정 신청</h3>
-            <span class="@Css.Correction.Meta">@(Corrections.Count)건</span>
+            <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">@AppText.Correction.Title</h3>
+            <span class="@Css.Correction.Meta">@AppText.Correction.CountSuffix(Corrections.Count)</span>
         </div>
 
         <div class="@Css.Correction.ListCard">
@@ -26,7 +27,7 @@
                             <span class="@Css.Correction.Summary">@SummaryOf(correction)</span>
                             <span class="@Css.Correction.Meta">@MetaOf(correction)</span>
                         </span>
-                        <span class="@Css.Correction.StatusBadge(correction.Status)">@status.ToLabel()</span>
+                        <span class="@Css.Correction.StatusBadge(correction.Status)">@StatusLabel(status)</span>
 
                         @* 취소는 접수 상태에서만 — 심사가 끝난 건은 손댈 수 없다 *@
                         @if (status == SoccerCorrectionStatus.Pending)
@@ -39,7 +40,7 @@
                     @if (isRejected && correction.RejectReason is not null)
                     {
                         <div class="@Css.Correction.ReasonBox">
-                            <b>반려 사유</b> — @correction.RejectReason
+                            <b>@AppText.Correction.RejectReason</b> — @correction.RejectReason
                         </div>
                     }
                 </div>
@@ -60,30 +61,46 @@
     internal static string SummaryOf(RecordCorrectionDto correction)
     {
         SoccerCorrectionFieldExtensions.TryParse(correction.FieldType, out SoccerCorrectionField field);
-        string head = correction.TournamentName ?? $"vs {correction.OpponentName}";
+        string head = correction.TournamentName ?? AppText.Correction.Versus(correction.OpponentName);
         string change = correction.CurrentValue is null
             ? correction.RequestedValue
             : $"{correction.CurrentValue} → {correction.RequestedValue}";
 
-        return $"{head} {field.ToLabel()} {change}";
+        return $"{head} {FieldLabel(field)} {change}";
     }
 
     // "3/15 신청" + 심사 끝났으면 "· 3/17 반영됨"
     private static string MetaOf(RecordCorrectionDto correction)
     {
-        string requested = $"{correction.RequestedAt.Month}/{correction.RequestedAt.Day} 신청";
+        string requested = AppText.Correction.Requested(correction.RequestedAt.Month, correction.RequestedAt.Day);
         if (correction.ReviewedAt is null)
         {
             return requested;
         }
 
         SoccerCorrectionStatus status = SoccerCorrectionStatusExtensions.Parse(correction.Status);
-        string verb = status == SoccerCorrectionStatus.Accepted ? "반영됨" : "반려됨";
-        return $"{requested} · {correction.ReviewedAt.Value.Month}/{correction.ReviewedAt.Value.Day} {verb}";
+        string verb = status == SoccerCorrectionStatus.Accepted ? AppText.Correction.VerbAccepted : AppText.Correction.VerbRejected;
+        return AppText.Correction.Reviewed(requested, correction.ReviewedAt.Value.Month, correction.ReviewedAt.Value.Day, verb);
     }
+
+    // enum → 표시 라벨 (Domain의 ToLabel은 한글 하드코딩 — 표시는 Client 로컬라이제이션으로 라우팅)
+    private static string FieldLabel(SoccerCorrectionField field) => field switch
+    {
+        SoccerCorrectionField.Score => AppText.Correction.FieldScore,
+        SoccerCorrectionField.GoalAssist => AppText.Correction.FieldGoalAssist,
+        SoccerCorrectionField.Appearance => AppText.Correction.FieldAppearance,
+        _ => AppText.Correction.FieldEtc,
+    };
+
+    private static string StatusLabel(SoccerCorrectionStatus status) => status switch
+    {
+        SoccerCorrectionStatus.Accepted => AppText.Correction.StatusAccepted,
+        SoccerCorrectionStatus.Rejected => AppText.Correction.StatusRejected,
+        _ => AppText.Correction.StatusPending,
+    };
 
     private List<OverflowMenu.MenuItem> BuildCancelItems(RecordCorrectionDto correction) => new()
     {
-        new OverflowMenu.MenuItem("신청 취소", () => OnCancel.InvokeAsync(correction)),
+        new OverflowMenu.MenuItem(AppText.Correction.Cancel, () => OnCancel.InvokeAsync(correction)),
     };
 }

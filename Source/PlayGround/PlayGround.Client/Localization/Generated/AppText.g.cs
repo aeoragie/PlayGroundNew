@@ -4,7 +4,43 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Records" };
+        internal static readonly string[] Domains = { "Correction", "Records" };
+
+        public static class Correction
+        {
+            /// <summary>기록 수정 신청</summary>
+            public static string Title => Loc.Get("Correction.title");
+            /// <summary>{0}건</summary>
+            public static string CountSuffix(object arg0) => Loc.Format("Correction.countSuffix", arg0);
+            /// <summary>반려 사유</summary>
+            public static string RejectReason => Loc.Get("Correction.rejectReason");
+            /// <summary>신청 취소</summary>
+            public static string Cancel => Loc.Get("Correction.cancel");
+            /// <summary>vs {0}</summary>
+            public static string Versus(object arg0) => Loc.Format("Correction.versus", arg0);
+            /// <summary>{0}/{1} 신청</summary>
+            public static string Requested(object arg0, object arg1) => Loc.Format("Correction.requested", arg0, arg1);
+            /// <summary>{0} · {1}/{2} {3}</summary>
+            public static string Reviewed(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Correction.reviewed", arg0, arg1, arg2, arg3);
+            /// <summary>반영됨</summary>
+            public static string VerbAccepted => Loc.Get("Correction.verbAccepted");
+            /// <summary>반려됨</summary>
+            public static string VerbRejected => Loc.Get("Correction.verbRejected");
+            /// <summary>스코어</summary>
+            public static string FieldScore => Loc.Get("Correction.fieldScore");
+            /// <summary>득점·도움</summary>
+            public static string FieldGoalAssist => Loc.Get("Correction.fieldGoalAssist");
+            /// <summary>출전 선수</summary>
+            public static string FieldAppearance => Loc.Get("Correction.fieldAppearance");
+            /// <summary>기타</summary>
+            public static string FieldEtc => Loc.Get("Correction.fieldEtc");
+            /// <summary>반영</summary>
+            public static string StatusAccepted => Loc.Get("Correction.statusAccepted");
+            /// <summary>반려</summary>
+            public static string StatusRejected => Loc.Get("Correction.statusRejected");
+            /// <summary>접수</summary>
+            public static string StatusPending => Loc.Get("Correction.statusPending");
+        }
 
         public static class Records
         {
