@@ -7,12 +7,12 @@
 @inject TeamClient Teams
 @inject JwtAuthenticationStateProvider AuthProvider
 
-<PageTitle>팀 온보딩 — PlayGround</PageTitle>
+<PageTitle>@AppText.Auth.TeamPageTitle</PageTitle>
 
 @* ③b 팀 온보딩 (2스텝) *@
 @if (mChecking)
 {
-    <div class="w-[560px] max-w-full flex items-center justify-center py-24 text-text-muted text-sm">확인 중…</div>
+    <div class="w-[560px] max-w-full flex items-center justify-center py-24 text-text-muted text-sm">@AppText.Auth.Checking</div>
 }
 else
 {
@@ -29,13 +29,13 @@ else
             <div class="flex flex-col gap-4">
                 <div class="flex gap-4 items-start">
                     <div class="w-[76px] h-[76px] border-1.5 border-dashed border-text-faint rounded-[14px] flex flex-col items-center justify-center gap-[3px] text-text-muted text-[11px] flex-none cursor-pointer hover:border-navy hover:text-navy transition-colors">
-                        <span class="text-[20px]">🛡️</span>엠블럼
+                        <span class="text-[20px]">🛡️</span>@AppText.Auth.Emblem
                     </div>
-                    <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong flex-1">팀 이름
-                        <input type="text" placeholder="예: FC 한강 유나이티드" class="@Css.Auth.Input" @bind="mTeamName" @bind:event="oninput" /></label>
+                    <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong flex-1">@AppText.Auth.TeamNameLabel
+                        <input type="text" placeholder="@AppText.Auth.TeamNamePlaceholder" class="@Css.Auth.Input" @bind="mTeamName" @bind:event="oninput" /></label>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-[13.5px] font-bold text-text-strong">팀 유형</span>
+                    <span class="text-[13.5px] font-bold text-text-strong">@AppText.Auth.TeamTypeLabel</span>
                     <div class="flex gap-2">
                         @foreach (var type in TeamTypes)
                         {
@@ -43,11 +43,11 @@ else
                         }
                     </div>
                 </div>
-                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">활동 지역
-                    <input type="text" placeholder="예: 서울 강동구" class="@Css.Auth.Input" @bind="mRegion" @bind:event="oninput" /></label>
+                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">@AppText.Auth.RegionLabel
+                    <input type="text" placeholder="@AppText.Auth.TeamRegionPlaceholder" class="@Css.Auth.Input" @bind="mRegion" @bind:event="oninput" /></label>
                 <div class="flex gap-2.5 items-start bg-surface-alt rounded-[11px] px-3.5 py-3">
                     <span class="text-[15px]">🏠</span>
-                    <span class="text-[12.5px] text-text-strong leading-relaxed">다음 단계를 마치면 <b>공개 팀 홈페이지</b>(/team/한강유나이티드)가 자동으로 만들어져요.</span>
+                    <span class="text-[12.5px] text-text-strong leading-relaxed">@AppText.Auth.TeamHomeHintPrefix<b>@AppText.Auth.TeamHomeHintBold</b>@AppText.Auth.TeamHomeHintSuffix</span>
                 </div>
             </div>
         }
@@ -55,10 +55,10 @@ else
         {
             <div class="flex flex-col gap-3.5">
                 <div class="flex gap-2">
-                    <input type="text" @bind="mName" @bind:event="oninput" placeholder="선수 이름" class="[flex:1.4] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
-                    <input type="text" @bind="mPos" @bind:event="oninput" placeholder="포지션" class="flex-1 h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
-                    <input type="text" @bind="mNum" @bind:event="oninput" placeholder="등번호" class="w-[72px] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
-                    <button type="button" @onclick="AddRoster" class="h-[46px] px-[18px] rounded-[11px] bg-navy hover:bg-navy-deep text-white text-sm font-bold whitespace-nowrap transition-colors">＋ 추가</button>
+                    <input type="text" @bind="mName" @bind:event="oninput" placeholder="@AppText.Auth.RosterNamePlaceholder" class="[flex:1.4] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
+                    <input type="text" @bind="mPos" @bind:event="oninput" placeholder="@AppText.Auth.RosterPositionPlaceholder" class="flex-1 h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
+                    <input type="text" @bind="mNum" @bind:event="oninput" placeholder="@AppText.Auth.RosterNumberPlaceholder" class="w-[72px] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
+                    <button type="button" @onclick="AddRoster" class="h-[46px] px-[18px] rounded-[11px] bg-navy hover:bg-navy-deep text-white text-sm font-bold whitespace-nowrap transition-colors">@AppText.Auth.RosterAdd</button>
                 </div>
 
                 <div class="flex flex-col gap-2 max-h-[260px] overflow-y-auto">
@@ -77,7 +77,7 @@ else
 
                 <div class="flex gap-2.5 items-start bg-surface-orange border border-dashed border-orange rounded-[11px] px-3.5 py-3">
                     <span class="text-[15px]">💡</span>
-                    <span class="text-[12.5px] text-text-strong leading-relaxed">등록한 선수마다 <b>선수 프로필이 자동 생성</b>되고, 학부모·선수에게 보낼 <b>초대코드</b>가 만들어져요. 초대코드로 연결(Claim)하면 가족이 직접 기록을 관리할 수 있어요.</span>
+                    <span class="text-[12.5px] text-text-strong leading-relaxed">@AppText.Auth.RosterHintPrefix<b>@AppText.Auth.RosterHintBold1</b>@AppText.Auth.RosterHintMiddle<b>@AppText.Auth.RosterHintBold2</b>@AppText.Auth.RosterHintSuffix</span>
                 </div>
             </div>
         }
@@ -91,23 +91,23 @@ else
     <div class="flex gap-2.5">
         @if (mStep == 2)
         {
-            <button type="button" @onclick="() => mStep = 1" disabled="@mSaving" class="@Css.Auth.SecondaryButton">← 이전</button>
+            <button type="button" @onclick="() => mStep = 1" disabled="@mSaving" class="@Css.Auth.SecondaryButton">@AppText.Auth.Back</button>
         }
-        <button type="button" @onclick="Next" disabled="@mSaving" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@(mSaving ? "만드는 중…" : NextLabel)</button>
+        <button type="button" @onclick="Next" disabled="@mSaving" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@(mSaving ? AppText.Auth.Creating : NextLabel)</button>
     </div>
     @if (mStep == 2)
     {
-        <button type="button" @onclick="Submit" disabled="@mSaving" class="@($"{Css.Auth.TextLink} !text-[13px]")">나중에 등록할게요</button>
+        <button type="button" @onclick="Submit" disabled="@mSaving" class="@($"{Css.Auth.TextLink} !text-[13px]")">@AppText.Auth.RegisterLater</button>
     }
 </div>
 }
 
 @code {
-    private static readonly string[] TeamTypes = ["클럽", "학교", "학원"];
+    private static readonly string[] TeamTypes = [AppText.Auth.TeamTypeClub, AppText.Auth.TeamTypeSchool, AppText.Auth.TeamTypeAcademy];
 
     private bool mChecking = true;
     private int mStep = 1;
-    private string mTeamType = "클럽";
+    private string mTeamType = AppText.Auth.TeamTypeClub;
 
     // 온보딩 중복 방지 — 이미 팀이 있는 계정이 재진입하면 폼을 보여주지 않고 대시보드로.
     // (서버 프로시저도 멱등이라 최종 방어는 이중이다: 화면 가드 + 생성 프로시저 기존 반환.)
@@ -138,9 +138,9 @@ else
     private string? mError;
     private bool mSaving;
 
-    private static readonly string[] StepLabels = ["팀 정보", "선수단 등록"];
-    private string StepTitle => mStep == 1 ? "팀 정보" : "선수단(로스터) 등록";
-    private string NextLabel => mStep == 1 ? "다음: 선수단 등록 →" : "팀 홈페이지 만들기 🎉";
+    private static readonly string[] StepLabels = [AppText.Auth.TeamStepLabel1, AppText.Auth.TeamStepLabel2];
+    private string StepTitle => mStep == 1 ? AppText.Auth.TeamStepLabel1 : AppText.Auth.TeamStep2Title;
+    private string NextLabel => mStep == 1 ? AppText.Auth.TeamNextRoster : AppText.Auth.TeamCreateHome;
 
     private void AddRoster()
     {
@@ -166,7 +166,7 @@ else
         {
             if (string.IsNullOrWhiteSpace(mTeamName))
             {
-                mError = "팀 이름을 입력해 주세요.";
+                mError = AppText.Auth.ErrorTeamName;
                 return;
             }
 
@@ -182,7 +182,7 @@ else
     {
         if (string.IsNullOrWhiteSpace(mTeamName))
         {
-            mError = "팀 이름을 입력해 주세요.";
+            mError = AppText.Auth.ErrorTeamName;
             mStep = 1;
             return;
         }

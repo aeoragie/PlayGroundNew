@@ -4,250 +4,472 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Correction", "Landing", "Records" };
+        internal static readonly string[] Domains = { "Auth", "Correction", "Landing", "Records" };
+
+        public static class Auth
+        {
+            /// <summary>시작하기 — PlayGround</summary>
+            public static string LoginPageTitle => Loc.Get("Auth.LoginPageTitle");
+            /// <summary>시작하기</summary>
+            public static string LoginTitle => Loc.Get("Auth.LoginTitle");
+            /// <summary>가입과 로그인이 한 번에</summary>
+            public static string LoginSubtitleLine1 => Loc.Get("Auth.LoginSubtitleLine1");
+            /// <summary>계정이 없으면 자동으로 만들어 드려요.</summary>
+            public static string LoginSubtitleLine2 => Loc.Get("Auth.LoginSubtitleLine2");
+            /// <summary>Google로 계속하기</summary>
+            public static string ContinueGoogle => Loc.Get("Auth.ContinueGoogle");
+            /// <summary>카카오로 계속하기</summary>
+            public static string ContinueKakao => Loc.Get("Auth.ContinueKakao");
+            /// <summary>LINE으로 계속하기</summary>
+            public static string ContinueLine => Loc.Get("Auth.ContinueLine");
+            /// <summary>네이버 (준비중)</summary>
+            public static string ProviderNaverSoon => Loc.Get("Auth.ProviderNaverSoon");
+            /// <summary>Apple (준비중)</summary>
+            public static string ProviderAppleSoon => Loc.Get("Auth.ProviderAppleSoon");
+            /// <summary>또는 이메일로</summary>
+            public static string OrEmail => Loc.Get("Auth.OrEmail");
+            /// <summary>이메일 주소</summary>
+            public static string EmailPlaceholder => Loc.Get("Auth.EmailPlaceholder");
+            /// <summary>비밀번호</summary>
+            public static string PasswordPlaceholder => Loc.Get("Auth.PasswordPlaceholder");
+            /// <summary>처리 중…</summary>
+            public static string Processing => Loc.Get("Auth.Processing");
+            /// <summary>이메일로 계속하기</summary>
+            public static string ContinueEmail => Loc.Get("Auth.ContinueEmail");
+            /// <summary>계속하면 </summary>
+            public static string TermsPrefix => Loc.Get("Auth.TermsPrefix");
+            /// <summary>이용약관</summary>
+            public static string Terms => Loc.Get("Auth.Terms");
+            /// <summary>과 </summary>
+            public static string TermsMiddle => Loc.Get("Auth.TermsMiddle");
+            /// <summary>개인정보처리방침</summary>
+            public static string Privacy => Loc.Get("Auth.Privacy");
+            /// <summary>에 동의하는 것으로 간주됩니다.</summary>
+            public static string TermsSuffix => Loc.Get("Auth.TermsSuffix");
+            /// <summary>로그인 시 General 역할로 자동 가입됩니다.</summary>
+            public static string TermsGeneralNote => Loc.Get("Auth.TermsGeneralNote");
+            /// <summary>이메일과 비밀번호를 입력해 주세요.</summary>
+            public static string ErrorEmptyCredentials => Loc.Get("Auth.ErrorEmptyCredentials");
+            /// <summary>인증이 취소되었어요. 다시 시도해 주세요.</summary>
+            public static string ErrorNoCode => Loc.Get("Auth.ErrorNoCode");
+            /// <summary>아직 준비 중인 로그인 방식이에요. 다른 방법으로 시작해 주세요.</summary>
+            public static string ErrorNotConfigured => Loc.Get("Auth.ErrorNotConfigured");
+            /// <summary>소셜 로그인 제공자에서 오류가 발생했어요.</summary>
+            public static string ErrorProvider => Loc.Get("Auth.ErrorProvider");
+            /// <summary>로그인 처리 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string ErrorLoginFailed => Loc.Get("Auth.ErrorLoginFailed");
+            /// <summary>로그인에 실패했어요. 다시 시도해 주세요.</summary>
+            public static string ErrorLoginGeneric => Loc.Get("Auth.ErrorLoginGeneric");
+            /// <summary>완료 — PlayGround</summary>
+            public static string CompletePageTitle => Loc.Get("Auth.CompletePageTitle");
+            /// <summary>공개됨</summary>
+            public static string CompletePublished => Loc.Get("Auth.CompletePublished");
+            /// <summary>등록 선수 {0}명 · 초대코드 {0}개 발급됨</summary>
+            public static string CompleteRosterSummary(object arg0) => Loc.Format("Auth.CompleteRosterSummary", arg0);
+            /// <summary>팀 홈페이지가 만들어졌어요!</summary>
+            public static string CompleteTeamTitle => Loc.Get("Auth.CompleteTeamTitle");
+            /// <summary>환영해요!</summary>
+            public static string CompleteGeneralTitle => Loc.Get("Auth.CompleteGeneralTitle");
+            /// <summary>선수 프로필이 만들어졌어요!</summary>
+            public static string CompletePlayerTitle => Loc.Get("Auth.CompletePlayerTitle");
+            /// <summary>이제 대시보드에서 일정과 경기 결과를 기록하고, 선수 모집 공고를 올릴 수 있어요.</summary>
+            public static string CompleteTeamBody => Loc.Get("Auth.CompleteTeamBody");
+            /// <summary>General 역할로 시작해요. 경기기록은 자유롭게 볼 수 있고, 역할은 언제든 다시 선택할 수 있어요.</summary>
+            public static string CompleteGeneralBody => Loc.Get("Auth.CompleteGeneralBody");
+            /// <summary>이제 커리어와 시즌 통계가 이 프로필에 쌓여요. 소속팀 초대코드가 있다면 대시보드에서 연결해 보세요.</summary>
+            public static string CompletePlayerBody => Loc.Get("Auth.CompletePlayerBody");
+            /// <summary>경기기록 둘러보기</summary>
+            public static string CompletePrimaryRecords => Loc.Get("Auth.CompletePrimaryRecords");
+            /// <summary>대시보드로 가기</summary>
+            public static string CompletePrimaryDashboard => Loc.Get("Auth.CompletePrimaryDashboard");
+            /// <summary>역할 선택 — PlayGround</summary>
+            public static string RolePageTitle => Loc.Get("Auth.RolePageTitle");
+            /// <summary>확인 중…</summary>
+            public static string Checking => Loc.Get("Auth.Checking");
+            /// <summary>어떤 역할로 활동하시나요?</summary>
+            public static string RoleHeading => Loc.Get("Auth.RoleHeading");
+            /// <summary>역할에 맞는 대시보드와 온보딩을 준비해 드려요. 나중에 설정에서 바꿀 수 있어요.</summary>
+            public static string RoleSubtitle => Loc.Get("Auth.RoleSubtitle");
+            /// <summary>선수 · 학부모</summary>
+            public static string RolePlayerTitle => Loc.Get("Auth.RolePlayerTitle");
+            /// <summary>선수 이력·경기기록 관리 · 학부모는 자녀 프로필을 대리 관리</summary>
+            public static string RolePlayerBody => Loc.Get("Auth.RolePlayerBody");
+            /// <summary>팀 관리자 · 코치</summary>
+            public static string RoleTeamTitle => Loc.Get("Auth.RoleTeamTitle");
+            /// <summary>팀 홈페이지 자동 생성 · 선수단·일정·경기 결과 운영</summary>
+            public static string RoleTeamBody => Loc.Get("Auth.RoleTeamBody");
+            /// <summary>에이전트</summary>
+            public static string RoleAgentTitle => Loc.Get("Auth.RoleAgentTitle");
+            /// <summary>준비중</summary>
+            public static string RoleAgentSoon => Loc.Get("Auth.RoleAgentSoon");
+            /// <summary>선수 스카우팅 · 팀 추천 — 별도 서비스로 오픈 예정</summary>
+            public static string RoleAgentBody => Loc.Get("Auth.RoleAgentBody");
+            /// <summary>나중에 선택할게요 (둘러보기)</summary>
+            public static string RoleSkip => Loc.Get("Auth.RoleSkip");
+            /// <summary>선수 온보딩 — PlayGround</summary>
+            public static string PlayerPageTitle => Loc.Get("Auth.PlayerPageTitle");
+            /// <summary>선수 이름</summary>
+            public static string PlayerNameLabel => Loc.Get("Auth.PlayerNameLabel");
+            /// <summary>예: 김민준</summary>
+            public static string PlayerNamePlaceholder => Loc.Get("Auth.PlayerNamePlaceholder");
+            /// <summary>생년월일</summary>
+            public static string BirthDateLabel => Loc.Get("Auth.BirthDateLabel");
+            /// <summary>학부모이신가요? 자녀의 정보를 입력하면 </summary>
+            public static string GuardianHint => Loc.Get("Auth.GuardianHint");
+            /// <summary>보호자 대리 관리</summary>
+            public static string GuardianHintBold => Loc.Get("Auth.GuardianHintBold");
+            /// <summary> 프로필로 만들어져요. 자녀가 크면 계정을 넘겨줄 수 있어요.</summary>
+            public static string GuardianHintSuffix => Loc.Get("Auth.GuardianHintSuffix");
+            /// <summary>연령대</summary>
+            public static string AgeGroupLabel => Loc.Get("Auth.AgeGroupLabel");
+            /// <summary>종목</summary>
+            public static string SportLabel => Loc.Get("Auth.SportLabel");
+            /// <summary>축구</summary>
+            public static string SportSoccer => Loc.Get("Auth.SportSoccer");
+            /// <summary>현재 축구만 지원</summary>
+            public static string SportSoccerOnly => Loc.Get("Auth.SportSoccerOnly");
+            /// <summary>활동 지역</summary>
+            public static string RegionLabel => Loc.Get("Auth.RegionLabel");
+            /// <summary>예: 서울 송파구</summary>
+            public static string PlayerRegionPlaceholder => Loc.Get("Auth.PlayerRegionPlaceholder");
+            /// <summary>소속팀</summary>
+            public static string TeamLabel => Loc.Get("Auth.TeamLabel");
+            /// <summary>(선택)</summary>
+            public static string Optional => Loc.Get("Auth.Optional");
+            /// <summary>팀 이름 검색 — 없으면 비워두세요</summary>
+            public static string TeamSearchPlaceholder => Loc.Get("Auth.TeamSearchPlaceholder");
+            /// <summary>팀에서 </summary>
+            public static string InviteHintPrefix => Loc.Get("Auth.InviteHintPrefix");
+            /// <summary>초대코드</summary>
+            public static string InviteHintBold => Loc.Get("Auth.InviteHintBold");
+            /// <summary>를 받았나요? 온보딩 후 대시보드에서 입력하면 팀 로스터의 프로필과 바로 연결돼요.</summary>
+            public static string InviteHintSuffix => Loc.Get("Auth.InviteHintSuffix");
+            /// <summary>← 이전</summary>
+            public static string Back => Loc.Get("Auth.Back");
+            /// <summary>저장 중…</summary>
+            public static string Saving => Loc.Get("Auth.Saving");
+            /// <summary>다음 →</summary>
+            public static string Next => Loc.Get("Auth.Next");
+            /// <summary>프로필 만들기</summary>
+            public static string CreateProfile => Loc.Get("Auth.CreateProfile");
+            /// <summary>이 단계 건너뛰기</summary>
+            public static string SkipStep => Loc.Get("Auth.SkipStep");
+            /// <summary>선수 기본 정보</summary>
+            public static string PlayerStep1Title => Loc.Get("Auth.PlayerStep1Title");
+            /// <summary>연령대와 종목</summary>
+            public static string PlayerStep2Title => Loc.Get("Auth.PlayerStep2Title");
+            /// <summary>지역과 소속</summary>
+            public static string PlayerStep3Title => Loc.Get("Auth.PlayerStep3Title");
+            /// <summary>기본 정보</summary>
+            public static string PlayerStepLabel1 => Loc.Get("Auth.PlayerStepLabel1");
+            /// <summary>연령·종목</summary>
+            public static string PlayerStepLabel2 => Loc.Get("Auth.PlayerStepLabel2");
+            /// <summary>지역·소속</summary>
+            public static string PlayerStepLabel3 => Loc.Get("Auth.PlayerStepLabel3");
+            /// <summary>선수 이름을 입력해 주세요.</summary>
+            public static string ErrorPlayerName => Loc.Get("Auth.ErrorPlayerName");
+            /// <summary>팀 온보딩 — PlayGround</summary>
+            public static string TeamPageTitle => Loc.Get("Auth.TeamPageTitle");
+            /// <summary>엠블럼</summary>
+            public static string Emblem => Loc.Get("Auth.Emblem");
+            /// <summary>팀 이름</summary>
+            public static string TeamNameLabel => Loc.Get("Auth.TeamNameLabel");
+            /// <summary>예: FC 한강 유나이티드</summary>
+            public static string TeamNamePlaceholder => Loc.Get("Auth.TeamNamePlaceholder");
+            /// <summary>팀 유형</summary>
+            public static string TeamTypeLabel => Loc.Get("Auth.TeamTypeLabel");
+            /// <summary>예: 서울 강동구</summary>
+            public static string TeamRegionPlaceholder => Loc.Get("Auth.TeamRegionPlaceholder");
+            /// <summary>다음 단계를 마치면 </summary>
+            public static string TeamHomeHintPrefix => Loc.Get("Auth.TeamHomeHintPrefix");
+            /// <summary>공개 팀 홈페이지</summary>
+            public static string TeamHomeHintBold => Loc.Get("Auth.TeamHomeHintBold");
+            /// <summary>(/team/한강유나이티드)가 자동으로 만들어져요.</summary>
+            public static string TeamHomeHintSuffix => Loc.Get("Auth.TeamHomeHintSuffix");
+            /// <summary>선수 이름</summary>
+            public static string RosterNamePlaceholder => Loc.Get("Auth.RosterNamePlaceholder");
+            /// <summary>포지션</summary>
+            public static string RosterPositionPlaceholder => Loc.Get("Auth.RosterPositionPlaceholder");
+            /// <summary>등번호</summary>
+            public static string RosterNumberPlaceholder => Loc.Get("Auth.RosterNumberPlaceholder");
+            /// <summary>＋ 추가</summary>
+            public static string RosterAdd => Loc.Get("Auth.RosterAdd");
+            /// <summary>등록한 선수마다 </summary>
+            public static string RosterHintPrefix => Loc.Get("Auth.RosterHintPrefix");
+            /// <summary>선수 프로필이 자동 생성</summary>
+            public static string RosterHintBold1 => Loc.Get("Auth.RosterHintBold1");
+            /// <summary>되고, 학부모·선수에게 보낼 </summary>
+            public static string RosterHintMiddle => Loc.Get("Auth.RosterHintMiddle");
+            /// <summary>초대코드</summary>
+            public static string RosterHintBold2 => Loc.Get("Auth.RosterHintBold2");
+            /// <summary>가 만들어져요. 초대코드로 연결(Claim)하면 가족이 직접 기록을 관리할 수 있어요.</summary>
+            public static string RosterHintSuffix => Loc.Get("Auth.RosterHintSuffix");
+            /// <summary>만드는 중…</summary>
+            public static string Creating => Loc.Get("Auth.Creating");
+            /// <summary>나중에 등록할게요</summary>
+            public static string RegisterLater => Loc.Get("Auth.RegisterLater");
+            /// <summary>클럽</summary>
+            public static string TeamTypeClub => Loc.Get("Auth.TeamTypeClub");
+            /// <summary>학교</summary>
+            public static string TeamTypeSchool => Loc.Get("Auth.TeamTypeSchool");
+            /// <summary>학원</summary>
+            public static string TeamTypeAcademy => Loc.Get("Auth.TeamTypeAcademy");
+            /// <summary>팀 정보</summary>
+            public static string TeamStepLabel1 => Loc.Get("Auth.TeamStepLabel1");
+            /// <summary>선수단 등록</summary>
+            public static string TeamStepLabel2 => Loc.Get("Auth.TeamStepLabel2");
+            /// <summary>선수단(로스터) 등록</summary>
+            public static string TeamStep2Title => Loc.Get("Auth.TeamStep2Title");
+            /// <summary>다음: 선수단 등록 →</summary>
+            public static string TeamNextRoster => Loc.Get("Auth.TeamNextRoster");
+            /// <summary>팀 홈페이지 만들기 🎉</summary>
+            public static string TeamCreateHome => Loc.Get("Auth.TeamCreateHome");
+            /// <summary>팀 이름을 입력해 주세요.</summary>
+            public static string ErrorTeamName => Loc.Get("Auth.ErrorTeamName");
+        }
 
         public static class Correction
         {
             /// <summary>기록 수정 신청</summary>
-            public static string Title => Loc.Get("Correction.title");
+            public static string Title => Loc.Get("Correction.Title");
             /// <summary>{0}건</summary>
-            public static string CountSuffix(object arg0) => Loc.Format("Correction.countSuffix", arg0);
+            public static string CountSuffix(object arg0) => Loc.Format("Correction.CountSuffix", arg0);
             /// <summary>반려 사유</summary>
-            public static string RejectReason => Loc.Get("Correction.rejectReason");
+            public static string RejectReason => Loc.Get("Correction.RejectReason");
             /// <summary>신청 취소</summary>
-            public static string Cancel => Loc.Get("Correction.cancel");
+            public static string Cancel => Loc.Get("Correction.Cancel");
             /// <summary>vs {0}</summary>
-            public static string Versus(object arg0) => Loc.Format("Correction.versus", arg0);
+            public static string Versus(object arg0) => Loc.Format("Correction.Versus", arg0);
             /// <summary>{0}/{1} 신청</summary>
-            public static string Requested(object arg0, object arg1) => Loc.Format("Correction.requested", arg0, arg1);
+            public static string Requested(object arg0, object arg1) => Loc.Format("Correction.Requested", arg0, arg1);
             /// <summary>{0} · {1}/{2} {3}</summary>
-            public static string Reviewed(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Correction.reviewed", arg0, arg1, arg2, arg3);
+            public static string Reviewed(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Correction.Reviewed", arg0, arg1, arg2, arg3);
             /// <summary>반영됨</summary>
-            public static string VerbAccepted => Loc.Get("Correction.verbAccepted");
+            public static string VerbAccepted => Loc.Get("Correction.VerbAccepted");
             /// <summary>반려됨</summary>
-            public static string VerbRejected => Loc.Get("Correction.verbRejected");
+            public static string VerbRejected => Loc.Get("Correction.VerbRejected");
             /// <summary>스코어</summary>
-            public static string FieldScore => Loc.Get("Correction.fieldScore");
+            public static string FieldScore => Loc.Get("Correction.FieldScore");
             /// <summary>득점·도움</summary>
-            public static string FieldGoalAssist => Loc.Get("Correction.fieldGoalAssist");
+            public static string FieldGoalAssist => Loc.Get("Correction.FieldGoalAssist");
             /// <summary>출전 선수</summary>
-            public static string FieldAppearance => Loc.Get("Correction.fieldAppearance");
+            public static string FieldAppearance => Loc.Get("Correction.FieldAppearance");
             /// <summary>기타</summary>
-            public static string FieldEtc => Loc.Get("Correction.fieldEtc");
+            public static string FieldEtc => Loc.Get("Correction.FieldEtc");
             /// <summary>반영</summary>
-            public static string StatusAccepted => Loc.Get("Correction.statusAccepted");
+            public static string StatusAccepted => Loc.Get("Correction.StatusAccepted");
             /// <summary>반려</summary>
-            public static string StatusRejected => Loc.Get("Correction.statusRejected");
+            public static string StatusRejected => Loc.Get("Correction.StatusRejected");
             /// <summary>접수</summary>
-            public static string StatusPending => Loc.Get("Correction.statusPending");
+            public static string StatusPending => Loc.Get("Correction.StatusPending");
         }
 
         public static class Landing
         {
             /// <summary>PlayGround — 유소년 축구, 팀과 선수를 잇다</summary>
-            public static string PageTitle => Loc.Get("Landing.pageTitle");
+            public static string PageTitle => Loc.Get("Landing.PageTitle");
             /// <summary>역동적인 유소년 축구 경기 장면</summary>
-            public static string HeroImageAlt => Loc.Get("Landing.heroImageAlt");
+            public static string HeroImageAlt => Loc.Get("Landing.HeroImageAlt");
             /// <summary>대한민국 유소년 축구 U12–U18</summary>
-            public static string HeroBadge => Loc.Get("Landing.heroBadge");
+            public static string HeroBadge => Loc.Get("Landing.HeroBadge");
             /// <summary>유소년 축구,</summary>
-            public static string HeroTitle => Loc.Get("Landing.heroTitle");
+            public static string HeroTitle => Loc.Get("Landing.HeroTitle");
             /// <summary>팀과 선수를 잇다</summary>
-            public static string HeroTitleLine2 => Loc.Get("Landing.heroTitleLine2");
+            public static string HeroTitleLine2 => Loc.Get("Landing.HeroTitleLine2");
             /// <summary>팀 홈페이지, 선수 이력, 공개 경기기록까지.</summary>
-            public static string HeroBodyLine1 => Loc.Get("Landing.heroBodyLine1");
+            public static string HeroBodyLine1 => Loc.Get("Landing.HeroBodyLine1");
             /// <summary>인맥이 아닌 정보로 결정하는 유소년 축구 플랫폼.</summary>
-            public static string HeroBodyLine2 => Loc.Get("Landing.heroBodyLine2");
+            public static string HeroBodyLine2 => Loc.Get("Landing.HeroBodyLine2");
             /// <summary>무료로 시작하기</summary>
-            public static string HeroCtaStart => Loc.Get("Landing.heroCtaStart");
+            public static string HeroCtaStart => Loc.Get("Landing.HeroCtaStart");
             /// <summary>우리 동네 팀 둘러보기</summary>
-            public static string HeroCtaExplore => Loc.Get("Landing.heroCtaExplore");
+            public static string HeroCtaExplore => Loc.Get("Landing.HeroCtaExplore");
             /// <summary>작동 방식 보기</summary>
-            public static string HeroCtaHow => Loc.Get("Landing.heroCtaHow");
+            public static string HeroCtaHow => Loc.Get("Landing.HeroCtaHow");
             /// <summary>우리 동네 팀 둘러보기</summary>
-            public static string ExploreCardTitle => Loc.Get("Landing.exploreCardTitle");
+            public static string ExploreCardTitle => Loc.Get("Landing.ExploreCardTitle");
             /// <summary>우리 지역 팀 찾기</summary>
-            public static string ExploreCardBody => Loc.Get("Landing.exploreCardBody");
+            public static string ExploreCardBody => Loc.Get("Landing.ExploreCardBody");
             /// <summary>FOR YOU</summary>
-            public static string RolesOverline => Loc.Get("Landing.rolesOverline");
+            public static string RolesOverline => Loc.Get("Landing.RolesOverline");
             /// <summary>어떤 역할로 시작하시나요?</summary>
-            public static string RolesTitle => Loc.Get("Landing.rolesTitle");
+            public static string RolesTitle => Loc.Get("Landing.RolesTitle");
             /// <summary>팀을 운영합니다</summary>
-            public static string RoleTeamTitle => Loc.Get("Landing.roleTeamTitle");
+            public static string RoleTeamTitle => Loc.Get("Landing.RoleTeamTitle");
             /// <summary>가입만 하면 팀 홈페이지가 자동으로 생성됩니다. 선수단·일정·경기 결과를 한곳에서 관리하고, 선수 모집 공고를 올려보세요.</summary>
-            public static string RoleTeamBody => Loc.Get("Landing.roleTeamBody");
+            public static string RoleTeamBody => Loc.Get("Landing.RoleTeamBody");
             /// <summary>팀 만들기 →</summary>
-            public static string RoleTeamButton => Loc.Get("Landing.roleTeamButton");
+            public static string RoleTeamButton => Loc.Get("Landing.RoleTeamButton");
             /// <summary>팀 홈페이지 자동 생성</summary>
-            public static string RoleTeamItem1 => Loc.Get("Landing.roleTeamItem1");
+            public static string RoleTeamItem1 => Loc.Get("Landing.RoleTeamItem1");
             /// <summary>선수단 등록 · 성적 자동 집계</summary>
-            public static string RoleTeamItem2 => Loc.Get("Landing.roleTeamItem2");
+            public static string RoleTeamItem2 => Loc.Get("Landing.RoleTeamItem2");
             /// <summary>선수 모집 공고</summary>
-            public static string RoleTeamItem3 => Loc.Get("Landing.roleTeamItem3");
+            public static string RoleTeamItem3 => Loc.Get("Landing.RoleTeamItem3");
             /// <summary>선수 · 학부모입니다</summary>
-            public static string RolePlayerTitle => Loc.Get("Landing.rolePlayerTitle");
+            public static string RolePlayerTitle => Loc.Get("Landing.RolePlayerTitle");
             /// <summary>자녀의 커리어와 경기기록을 한곳에 모으세요. 흩어진 이력이 포트폴리오가 되고, 주변 팀과 지도자를 정보로 비교할 수 있습니다.</summary>
-            public static string RolePlayerBody => Loc.Get("Landing.rolePlayerBody");
+            public static string RolePlayerBody => Loc.Get("Landing.RolePlayerBody");
             /// <summary>프로필 만들기 →</summary>
-            public static string RolePlayerButton => Loc.Get("Landing.rolePlayerButton");
+            public static string RolePlayerButton => Loc.Get("Landing.RolePlayerButton");
             /// <summary>선수 이력 · 시즌 통계 관리</summary>
-            public static string RolePlayerItem1 => Loc.Get("Landing.rolePlayerItem1");
+            public static string RolePlayerItem1 => Loc.Get("Landing.RolePlayerItem1");
             /// <summary>공개 프로필 · 선수 카드</summary>
-            public static string RolePlayerItem2 => Loc.Get("Landing.rolePlayerItem2");
+            public static string RolePlayerItem2 => Loc.Get("Landing.RolePlayerItem2");
             /// <summary>주변 팀 · 지도자 탐색</summary>
-            public static string RolePlayerItem3 => Loc.Get("Landing.rolePlayerItem3");
+            public static string RolePlayerItem3 => Loc.Get("Landing.RolePlayerItem3");
             /// <summary>CORE</summary>
-            public static string FeaturesOverline => Loc.Get("Landing.featuresOverline");
+            public static string FeaturesOverline => Loc.Get("Landing.FeaturesOverline");
             /// <summary>폐쇄적인 정보를, 모두에게</summary>
-            public static string FeaturesTitle => Loc.Get("Landing.featuresTitle");
+            public static string FeaturesTitle => Loc.Get("Landing.FeaturesTitle");
             /// <summary>팀 홈페이지 자동 생성</summary>
-            public static string Feature1Title => Loc.Get("Landing.feature1Title");
+            public static string Feature1Title => Loc.Get("Landing.Feature1Title");
             /// <summary>소개·선수단·시즌성적·모집까지, 대시보드에 입력한 데이터가 그대로 공개 홈페이지가 됩니다. 별도 제작 비용 없이.</summary>
-            public static string Feature1Body => Loc.Get("Landing.feature1Body");
+            public static string Feature1Body => Loc.Get("Landing.Feature1Body");
             /// <summary>선수 이력 · 기록 관리</summary>
-            public static string Feature2Title => Loc.Get("Landing.feature2Title");
+            public static string Feature2Title => Loc.Get("Landing.Feature2Title");
             /// <summary>커리어 타임라인, 시즌 통계, 대표 영상 포트폴리오. 경기 결과가 입력되면 선수 기록이 자동으로 쌓입니다.</summary>
-            public static string Feature2Body => Loc.Get("Landing.feature2Body");
+            public static string Feature2Body => Loc.Get("Landing.Feature2Body");
             /// <summary>경기기록 무료 공개</summary>
-            public static string Feature3Title => Loc.Get("Landing.feature3Title");
+            public static string Feature3Title => Loc.Get("Landing.Feature3Title");
             /// <summary>대회 결과, 순위표, 일정을 로그인 없이 누구나 조회. 자녀와 관심팀의 기록을 언제든 확인하세요.</summary>
-            public static string Feature3Body => Loc.Get("Landing.feature3Body");
+            public static string Feature3Body => Loc.Get("Landing.Feature3Body");
             /// <summary>HOW IT WORKS</summary>
-            public static string HowOverline => Loc.Get("Landing.howOverline");
+            public static string HowOverline => Loc.Get("Landing.HowOverline");
             /// <summary>3단계면 충분합니다</summary>
-            public static string HowTitle => Loc.Get("Landing.howTitle");
+            public static string HowTitle => Loc.Get("Landing.HowTitle");
             /// <summary>팀 등록</summary>
-            public static string How1Title => Loc.Get("Landing.how1Title");
+            public static string How1Title => Loc.Get("Landing.How1Title");
             /// <summary>팀 정보를 입력하면 공개 팀 홈페이지가 자동으로 생성됩니다. 엠블럼, 소개, 코칭스태프까지.</summary>
-            public static string How1Body => Loc.Get("Landing.how1Body");
+            public static string How1Body => Loc.Get("Landing.How1Body");
             /// <summary>선수단 등록</summary>
-            public static string How2Title => Loc.Get("Landing.how2Title");
+            public static string How2Title => Loc.Get("Landing.How2Title");
             /// <summary>이름·포지션·등번호만 입력하면 선수 프로필이 함께 만들어지고, 학부모가 초대코드로 연결합니다.</summary>
-            public static string How2Body => Loc.Get("Landing.how2Body");
+            public static string How2Body => Loc.Get("Landing.How2Body");
             /// <summary>기록 자동 집계</summary>
-            public static string How3Title => Loc.Get("Landing.how3Title");
+            public static string How3Title => Loc.Get("Landing.How3Title");
             /// <summary>경기 결과를 입력하면 팀 성적과 선수 개인 기록이 자동으로 쌓이고, 경기기록에 공개됩니다.</summary>
-            public static string How3Body => Loc.Get("Landing.how3Body");
+            public static string How3Body => Loc.Get("Landing.How3Body");
             /// <summary>지금 무료로 시작하세요</summary>
-            public static string CtaTitle => Loc.Get("Landing.ctaTitle");
+            public static string CtaTitle => Loc.Get("Landing.CtaTitle");
             /// <summary>팀도, 선수도, 가입 즉시</summary>
-            public static string CtaBodyLine1 => Loc.Get("Landing.ctaBodyLine1");
+            public static string CtaBodyLine1 => Loc.Get("Landing.CtaBodyLine1");
             /// <summary>홈페이지와 프로필이 만들어집니다.</summary>
-            public static string CtaBodyLine2 => Loc.Get("Landing.ctaBodyLine2");
+            public static string CtaBodyLine2 => Loc.Get("Landing.CtaBodyLine2");
             /// <summary>무료로 시작하기</summary>
-            public static string CtaButton => Loc.Get("Landing.ctaButton");
+            public static string CtaButton => Loc.Get("Landing.CtaButton");
             /// <summary>Google · Kakao 계정으로 10초 만에</summary>
-            public static string CtaNote => Loc.Get("Landing.ctaNote");
+            public static string CtaNote => Loc.Get("Landing.CtaNote");
             /// <summary>유소년 축구, 팀과 선수를 잇다</summary>
-            public static string FooterTagline => Loc.Get("Landing.footerTagline");
+            public static string FooterTagline => Loc.Get("Landing.FooterTagline");
             /// <summary>서비스</summary>
-            public static string FooterGroupService => Loc.Get("Landing.footerGroupService");
+            public static string FooterGroupService => Loc.Get("Landing.FooterGroupService");
             /// <summary>팀</summary>
-            public static string FooterLinkTeam => Loc.Get("Landing.footerLinkTeam");
+            public static string FooterLinkTeam => Loc.Get("Landing.FooterLinkTeam");
             /// <summary>선수·학부모</summary>
-            public static string FooterLinkPlayer => Loc.Get("Landing.footerLinkPlayer");
+            public static string FooterLinkPlayer => Loc.Get("Landing.FooterLinkPlayer");
             /// <summary>경기기록</summary>
-            public static string FooterLinkRecords => Loc.Get("Landing.footerLinkRecords");
+            public static string FooterLinkRecords => Loc.Get("Landing.FooterLinkRecords");
             /// <summary>회사</summary>
-            public static string FooterGroupCompany => Loc.Get("Landing.footerGroupCompany");
+            public static string FooterGroupCompany => Loc.Get("Landing.FooterGroupCompany");
             /// <summary>소개</summary>
-            public static string FooterLinkAbout => Loc.Get("Landing.footerLinkAbout");
+            public static string FooterLinkAbout => Loc.Get("Landing.FooterLinkAbout");
             /// <summary>이용약관</summary>
-            public static string FooterLinkTerms => Loc.Get("Landing.footerLinkTerms");
+            public static string FooterLinkTerms => Loc.Get("Landing.FooterLinkTerms");
             /// <summary>개인정보처리방침</summary>
-            public static string FooterLinkPrivacy => Loc.Get("Landing.footerLinkPrivacy");
+            public static string FooterLinkPrivacy => Loc.Get("Landing.FooterLinkPrivacy");
             /// <summary>팀</summary>
-            public static string NavTeam => Loc.Get("Landing.navTeam");
+            public static string NavTeam => Loc.Get("Landing.NavTeam");
             /// <summary>선수·학부모</summary>
-            public static string NavPlayer => Loc.Get("Landing.navPlayer");
+            public static string NavPlayer => Loc.Get("Landing.NavPlayer");
             /// <summary>팀 탐색</summary>
-            public static string NavExplore => Loc.Get("Landing.navExplore");
+            public static string NavExplore => Loc.Get("Landing.NavExplore");
             /// <summary>경기기록</summary>
-            public static string NavRecords => Loc.Get("Landing.navRecords");
+            public static string NavRecords => Loc.Get("Landing.NavRecords");
             /// <summary>내 대시보드</summary>
-            public static string NavDashboard => Loc.Get("Landing.navDashboard");
+            public static string NavDashboard => Loc.Get("Landing.NavDashboard");
             /// <summary>로그인</summary>
-            public static string NavLogin => Loc.Get("Landing.navLogin");
+            public static string NavLogin => Loc.Get("Landing.NavLogin");
             /// <summary>시작하기</summary>
-            public static string NavStart => Loc.Get("Landing.navStart");
+            public static string NavStart => Loc.Get("Landing.NavStart");
             /// <summary>메뉴</summary>
-            public static string NavMenuLabel => Loc.Get("Landing.navMenuLabel");
+            public static string NavMenuLabel => Loc.Get("Landing.NavMenuLabel");
         }
 
         public static class Records
         {
             /// <summary>득점</summary>
-            public static string EventGoal => Loc.Get("Records.eventGoal");
+            public static string EventGoal => Loc.Get("Records.EventGoal");
             /// <summary>자책골</summary>
-            public static string EventOwnGoal => Loc.Get("Records.eventOwnGoal");
+            public static string EventOwnGoal => Loc.Get("Records.EventOwnGoal");
             /// <summary>경고</summary>
-            public static string EventYellow => Loc.Get("Records.eventYellow");
+            public static string EventYellow => Loc.Get("Records.EventYellow");
             /// <summary>퇴장</summary>
-            public static string EventRed => Loc.Get("Records.eventRed");
+            public static string EventRed => Loc.Get("Records.EventRed");
             /// <summary>종료</summary>
-            public static string StatusCompleted => Loc.Get("Records.statusCompleted");
+            public static string StatusCompleted => Loc.Get("Records.StatusCompleted");
             /// <summary>취소</summary>
-            public static string StatusCanceled => Loc.Get("Records.statusCanceled");
+            public static string StatusCanceled => Loc.Get("Records.StatusCanceled");
             /// <summary>예정</summary>
-            public static string StatusScheduled => Loc.Get("Records.statusScheduled");
+            public static string StatusScheduled => Loc.Get("Records.StatusScheduled");
             /// <summary>조별</summary>
-            public static string StageGroup => Loc.Get("Records.stageGroup");
+            public static string StageGroup => Loc.Get("Records.StageGroup");
             /// <summary>1차 풀리그</summary>
-            public static string StageSplit1 => Loc.Get("Records.stageSplit1");
+            public static string StageSplit1 => Loc.Get("Records.StageSplit1");
             /// <summary>2차 스플릿</summary>
-            public static string StageSplit2 => Loc.Get("Records.stageSplit2");
+            public static string StageSplit2 => Loc.Get("Records.StageSplit2");
             /// <summary>토너먼트</summary>
-            public static string StageKnockout => Loc.Get("Records.stageKnockout");
+            public static string StageKnockout => Loc.Get("Records.StageKnockout");
             /// <summary>리그</summary>
-            public static string StageLeague => Loc.Get("Records.stageLeague");
+            public static string StageLeague => Loc.Get("Records.StageLeague");
             /// <summary>{0}R</summary>
-            public static string RoundGroup(object arg0) => Loc.Format("Records.roundGroup", arg0);
+            public static string RoundGroup(object arg0) => Loc.Format("Records.RoundGroup", arg0);
             /// <summary>PO</summary>
-            public static string RoundPo => Loc.Get("Records.roundPo");
+            public static string RoundPo => Loc.Get("Records.RoundPo");
             /// <summary>16강</summary>
-            public static string RoundR16 => Loc.Get("Records.roundR16");
+            public static string RoundR16 => Loc.Get("Records.RoundR16");
             /// <summary>8강</summary>
-            public static string RoundQf => Loc.Get("Records.roundQf");
+            public static string RoundQf => Loc.Get("Records.RoundQf");
             /// <summary>4강</summary>
-            public static string RoundSf => Loc.Get("Records.roundSf");
+            public static string RoundSf => Loc.Get("Records.RoundSf");
             /// <summary>결승</summary>
-            public static string RoundF => Loc.Get("Records.roundF");
+            public static string RoundF => Loc.Get("Records.RoundF");
             /// <summary>경기기록</summary>
-            public static string BreadcrumbRoot => Loc.Get("Records.breadcrumbRoot");
+            public static string BreadcrumbRoot => Loc.Get("Records.BreadcrumbRoot");
             /// <summary>경기 일정 · 결과로 돌아가기</summary>
-            public static string BackToList => Loc.Get("Records.backToList");
+            public static string BackToList => Loc.Get("Records.BackToList");
             /// <summary>친선경기</summary>
-            public static string Friendly => Loc.Get("Records.friendly");
+            public static string Friendly => Loc.Get("Records.Friendly");
             /// <summary>타임라인</summary>
-            public static string Timeline => Loc.Get("Records.timeline");
+            public static string Timeline => Loc.Get("Records.Timeline");
             /// <summary>킥오프</summary>
-            public static string Kickoff => Loc.Get("Records.kickoff");
+            public static string Kickoff => Loc.Get("Records.Kickoff");
             /// <summary>종료 {0}</summary>
-            public static string MatchEnd(object arg0) => Loc.Format("Records.matchEnd", arg0);
+            public static string MatchEnd(object arg0) => Loc.Format("Records.MatchEnd", arg0);
             /// <summary>라인업</summary>
-            public static string Lineup => Loc.Get("Records.lineup");
+            public static string Lineup => Loc.Get("Records.Lineup");
             /// <summary>선발</summary>
-            public static string Starters => Loc.Get("Records.starters");
+            public static string Starters => Loc.Get("Records.Starters");
             /// <summary>교체 명단</summary>
-            public static string Subs => Loc.Get("Records.subs");
+            public static string Subs => Loc.Get("Records.Subs");
             /// <summary>경기를 찾을 수 없어요.</summary>
-            public static string NotFound => Loc.Get("Records.notFound");
+            public static string NotFound => Loc.Get("Records.NotFound");
             /// <summary>{0} 감독</summary>
-            public static string Coach(object arg0) => Loc.Format("Records.coach", arg0);
+            public static string Coach(object arg0) => Loc.Format("Records.Coach", arg0);
             /// <summary>일시</summary>
-            public static string MetaDatetime => Loc.Get("Records.metaDatetime");
+            public static string MetaDatetime => Loc.Get("Records.MetaDatetime");
             /// <summary>장소</summary>
-            public static string MetaVenue => Loc.Get("Records.metaVenue");
+            public static string MetaVenue => Loc.Get("Records.MetaVenue");
             /// <summary>주심</summary>
-            public static string MetaReferee => Loc.Get("Records.metaReferee");
+            public static string MetaReferee => Loc.Get("Records.MetaReferee");
             /// <summary>경기 시간</summary>
-            public static string MetaMatchTime => Loc.Get("Records.metaMatchTime");
+            public static string MetaMatchTime => Loc.Get("Records.MetaMatchTime");
             /// <summary>경고 {0} · 퇴장 {1}</summary>
-            public static string CardSummary(object arg0, object arg1) => Loc.Format("Records.cardSummary", arg0, arg1);
+            public static string CardSummary(object arg0, object arg1) => Loc.Format("Records.CardSummary", arg0, arg1);
             /// <summary>전반 {0} : {1} · 후반 {2} : {3}</summary>
-            public static string Halves(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Records.halves", arg0, arg1, arg2, arg3);
+            public static string Halves(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Records.Halves", arg0, arg1, arg2, arg3);
             /// <summary>PK {0} : {1}</summary>
-            public static string Pk(object arg0, object arg1) => Loc.Format("Records.pk", arg0, arg1);
+            public static string Pk(object arg0, object arg1) => Loc.Format("Records.Pk", arg0, arg1);
         }
     }
 }

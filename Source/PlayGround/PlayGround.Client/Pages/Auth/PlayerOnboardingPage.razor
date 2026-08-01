@@ -7,7 +7,7 @@
 @inject PlayerClient Players
 @inject JwtAuthenticationStateProvider AuthProvider
 
-<PageTitle>선수 온보딩 — PlayGround</PageTitle>
+<PageTitle>@AppText.Auth.PlayerPageTitle</PageTitle>
 
 @* ③a 선수 온보딩 (3스텝) *@
 <div class="w-[480px] max-w-full flex flex-col gap-5">
@@ -22,13 +22,13 @@
         @if (mStep == 1)
         {
             <div class="flex flex-col gap-3.5">
-                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">선수 이름
-                    <input type="text" placeholder="예: 김민준" class="@Css.Auth.Input" @bind="mName" @bind:event="oninput" /></label>
-                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">생년월일
+                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">@AppText.Auth.PlayerNameLabel
+                    <input type="text" placeholder="@AppText.Auth.PlayerNamePlaceholder" class="@Css.Auth.Input" @bind="mName" @bind:event="oninput" /></label>
+                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">@AppText.Auth.BirthDateLabel
                     <input type="text" placeholder="YYYY.MM.DD" class="@Css.Auth.Input" @bind="mBirth" @bind:event="oninput" /></label>
                 <div class="flex gap-2.5 items-start bg-surface-teal border border-teal/30 rounded-[11px] px-3.5 py-3">
                     <span class="text-[15px]">👪</span>
-                    <span class="text-[12.5px] text-text-strong leading-relaxed">학부모이신가요? 자녀의 정보를 입력하면 <b>보호자 대리 관리</b> 프로필로 만들어져요. 자녀가 크면 계정을 넘겨줄 수 있어요.</span>
+                    <span class="text-[12.5px] text-text-strong leading-relaxed">@AppText.Auth.GuardianHint<b>@AppText.Auth.GuardianHintBold</b>@AppText.Auth.GuardianHintSuffix</span>
                 </div>
             </div>
         }
@@ -36,7 +36,7 @@
         {
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
-                    <span class="text-[13.5px] font-bold text-text-strong">연령대</span>
+                    <span class="text-[13.5px] font-bold text-text-strong">@AppText.Auth.AgeGroupLabel</span>
                     <div class="flex gap-2">
                         @foreach (var age in AgeOptions)
                         {
@@ -45,10 +45,10 @@
                     </div>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-[13.5px] font-bold text-text-strong">종목</span>
+                    <span class="text-[13.5px] font-bold text-text-strong">@AppText.Auth.SportLabel</span>
                     <div class="flex items-center gap-2.5 h-12 border-1.5 border-border rounded-[11px] px-[15px] bg-[#fafbfc]">
-                        <span>⚽</span><span class="text-[14.5px] font-bold text-navy-deep">축구</span>
-                        <span class="@Css.Badge.Neutral">현재 축구만 지원</span>
+                        <span>⚽</span><span class="text-[14.5px] font-bold text-navy-deep">@AppText.Auth.SportSoccer</span>
+                        <span class="@Css.Badge.Neutral">@AppText.Auth.SportSoccerOnly</span>
                     </div>
                 </div>
             </div>
@@ -56,13 +56,13 @@
         else
         {
             <div class="flex flex-col gap-3.5">
-                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">활동 지역
-                    <input type="text" placeholder="예: 서울 송파구" class="@Css.Auth.Input" @bind="mRegion" @bind:event="oninput" /></label>
-                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">소속팀 <span class="font-medium text-text-muted">(선택)</span>
-                    <input type="text" placeholder="팀 이름 검색 — 없으면 비워두세요" class="@Css.Auth.Input" /></label>
+                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">@AppText.Auth.RegionLabel
+                    <input type="text" placeholder="@AppText.Auth.PlayerRegionPlaceholder" class="@Css.Auth.Input" @bind="mRegion" @bind:event="oninput" /></label>
+                <label class="flex flex-col gap-[7px] text-[13.5px] font-bold text-text-strong">@AppText.Auth.TeamLabel <span class="font-medium text-text-muted">@AppText.Auth.Optional</span>
+                    <input type="text" placeholder="@AppText.Auth.TeamSearchPlaceholder" class="@Css.Auth.Input" /></label>
                 <div class="flex gap-2.5 items-start bg-surface-orange border border-dashed border-orange rounded-[11px] px-3.5 py-3">
                     <span class="text-[15px]">✉️</span>
-                    <span class="text-[12.5px] text-text-strong leading-relaxed">팀에서 <b>초대코드</b>를 받았나요? 온보딩 후 대시보드에서 입력하면 팀 로스터의 프로필과 바로 연결돼요.</span>
+                    <span class="text-[12.5px] text-text-strong leading-relaxed">@AppText.Auth.InviteHintPrefix<b>@AppText.Auth.InviteHintBold</b>@AppText.Auth.InviteHintSuffix</span>
                 </div>
             </div>
         }
@@ -76,21 +76,21 @@
     <div class="flex gap-2.5">
         @if (mStep > 1)
         {
-            <button type="button" @onclick="Back" disabled="@mSaving" class="@Css.Auth.SecondaryButton">← 이전</button>
+            <button type="button" @onclick="Back" disabled="@mSaving" class="@Css.Auth.SecondaryButton">@AppText.Auth.Back</button>
         }
-        <button type="button" @onclick="Next" disabled="@mSaving" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@(mSaving ? "저장 중…" : NextLabel)</button>
+        <button type="button" @onclick="Next" disabled="@mSaving" class="@($"flex-1 {Css.Auth.PrimaryButton}")">@(mSaving ? AppText.Auth.Saving : NextLabel)</button>
     </div>
     @if (mStep == 3)
     {
-        <button type="button" @onclick="Submit" disabled="@mSaving" class="@($"{Css.Auth.TextLink} !text-[13px]")">이 단계 건너뛰기</button>
+        <button type="button" @onclick="Submit" disabled="@mSaving" class="@($"{Css.Auth.TextLink} !text-[13px]")">@AppText.Auth.SkipStep</button>
     }
 </div>
 
 @code {
     private static readonly string[] AgeOptions = ["U12", "U15", "U18"];
-    private static readonly Dictionary<int, string> Titles = new() { [1] = "선수 기본 정보", [2] = "연령대와 종목", [3] = "지역과 소속" };
+    private static readonly Dictionary<int, string> Titles = new() { [1] = AppText.Auth.PlayerStep1Title, [2] = AppText.Auth.PlayerStep2Title, [3] = AppText.Auth.PlayerStep3Title };
     // 스텝퍼 레이블 — 좁은 폭(10.5px nowrap)이라 제목보다 짧게
-    private static readonly string[] StepLabels = ["기본 정보", "연령·종목", "지역·소속"];
+    private static readonly string[] StepLabels = [AppText.Auth.PlayerStepLabel1, AppText.Auth.PlayerStepLabel2, AppText.Auth.PlayerStepLabel3];
 
     private int mStep = 1;
     private string mAge = "U15";
@@ -101,7 +101,7 @@
     private bool mSaving;
 
     private string StepTitle => Titles[mStep];
-    private string NextLabel => mStep < 3 ? "다음 →" : "프로필 만들기";
+    private string NextLabel => mStep < 3 ? AppText.Auth.Next : AppText.Auth.CreateProfile;
 
     private void Back()
     {
@@ -123,7 +123,7 @@
         // 이름은 필수 — 1스텝 통과 전 검증
         if (mStep == 1 && string.IsNullOrWhiteSpace(mName))
         {
-            mError = "선수 이름을 입력해 주세요.";
+            mError = AppText.Auth.ErrorPlayerName;
             return;
         }
 
@@ -141,7 +141,7 @@
     {
         if (string.IsNullOrWhiteSpace(mName))
         {
-            mError = "선수 이름을 입력해 주세요.";
+            mError = AppText.Auth.ErrorPlayerName;
             mStep = 1;
             return;
         }
