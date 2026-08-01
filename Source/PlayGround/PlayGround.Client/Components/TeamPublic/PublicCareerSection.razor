@@ -7,15 +7,15 @@
 
 <div class="flex flex-col gap-3 md:gap-4">
     <div class="flex flex-col gap-[3px] md:gap-1">
-        <h2 class="m-0 text-base md:text-[19px] font-extrabold text-navy-deep">진학 · 진로</h2>
-        <span class="text-xs md:text-[13px] text-text-muted break-keep">우리 팀 출신 선수들의 다음 무대입니다</span>
+        <h2 class="m-0 text-base md:text-[19px] font-extrabold text-navy-deep">@AppText.Team.CareerTitle</h2>
+        <span class="text-xs md:text-[13px] text-text-muted break-keep">@AppText.Team.CareerSubtitle</span>
     </div>
 
     @if (Data.Items.Count == 0)
     {
         <div class="bg-white border-1.5 border-border rounded-2xl px-6 py-10 md:py-14 flex flex-col items-center text-center gap-1.5">
-            <span class="text-sm md:text-[15.5px] font-extrabold text-navy-deep break-keep">아직 등록된 진학·진로 사례가 없어요</span>
-            <span class="text-xs md:text-[13px] text-text-body break-keep">사례가 등록되면 이 자리에서 확인할 수 있어요.</span>
+            <span class="text-sm md:text-[15.5px] font-extrabold text-navy-deep break-keep">@AppText.Team.CareerEmptyTitle</span>
+            <span class="text-xs md:text-[13px] text-text-body break-keep">@AppText.Team.CareerEmptyBody</span>
         </div>
     }
     else
@@ -26,7 +26,7 @@
                 @foreach ((SoccerCareerOutcomeType type, int count) in Summaries)
                 {
                     <div class="bg-white border-1.5 border-border rounded-xl md:rounded-[14px] px-2 py-[13px] md:px-[22px] md:py-5 flex flex-col gap-0.5 md:gap-[3px] items-center text-center md:items-start md:text-left">
-                        <span class="text-lg md:text-[21px] font-extrabold text-navy-deep md:order-2">@(count)명</span>
+                        <span class="text-lg md:text-[21px] font-extrabold text-navy-deep md:order-2">@AppText.Team.CareerCount(count)</span>
                         <span class="text-[10.5px] md:text-xs font-bold text-text-muted break-keep md:order-1">
                             <span class="md:hidden">@MobileSummaryLabel(type)</span>
                             <span class="hidden md:inline">@type.ToSummaryLabel()</span>
@@ -51,7 +51,7 @@
                     <span class="@($"{TagClass(item)} self-center")">@TagLabel(item)</span>
                 </div>
             }
-            <span class="text-[11px] md:text-xs text-text-muted py-3 md:pt-3.5 break-keep">선수 개인이 공개에 동의한 사례만 표시됩니다.</span>
+            <span class="text-[11px] md:text-xs text-text-muted py-3 md:pt-3.5 break-keep">@AppText.Team.CareerNote</span>
         </div>
     }
 </div>
@@ -71,7 +71,7 @@
 
     // 모바일 요약 라벨 축약 (dc: "상급팀 승격")
     private static string MobileSummaryLabel(SoccerCareerOutcomeType type) =>
-        type == SoccerCareerOutcomeType.Promotion ? "상급팀 승격" : type.ToSummaryLabel();
+        type == SoccerCareerOutcomeType.Promotion ? AppText.Team.Promotion : type.ToSummaryLabel();
 
     internal static string TagLabel(TeamCareerOutcomeDto item) =>
         Enum.TryParse(item.OutcomeType, out SoccerCareerOutcomeType type) ? type.ToTagLabel() : item.OutcomeType;

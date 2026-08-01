@@ -7,7 +7,7 @@
     <div class="h-[150px] md:h-[260px] relative overflow-hidden bg-navy-deep">
         @if (Profile.CoverImageUrl is not null)
         {
-            <img src="@Profile.CoverImageUrl" alt="팀 커버 사진" class="absolute inset-0 w-full h-full object-cover" />
+            <img src="@Profile.CoverImageUrl" alt="@AppText.Team.CoverAlt" class="absolute inset-0 w-full h-full object-cover" />
         }
         <div class="absolute inset-0 bg-team-cover-overlay-m md:bg-team-cover-overlay pointer-events-none"></div>
     </div>
@@ -21,9 +21,9 @@
                 @if (Profile.IsVerified)
                 {
                     @* 인증팀 = ✓+teal 톤 고정 (Design.AvatarBadge — 기존 오렌지 톤은 카탈로그 위반이라 교정) *@
-                    <span class="@Css.Badge.Positive">✓ 인증팀</span>
+                    <span class="@Css.Badge.Positive">@AppText.Team.VerifiedBadge</span>
                     @* 서비스 고유 개념 보조 설명 (Design.TooltipHelp §2) *@
-                    <InfoPopover Title="인증팀이란?">PlayGround가 대표자·팀 정보를 확인한 팀이에요. 인증 뱃지는 팀이 직접 붙일 수 없어요.</InfoPopover>
+                    <InfoPopover Title="@AppText.Team.VerifiedInfoTitle">@AppText.Team.VerifiedInfoBody</InfoPopover>
                 }
             </div>
             @if (Meta.Length > 0)
@@ -34,10 +34,10 @@
         @* 오렌지 CTA는 "입단 문의" 1개 — 모바일은 하단 고정 바(페이지)에서 제공 *@
         <div class="hidden md:flex gap-2.5 pt-1.5">
             <button type="button" @onclick="OnInquire"
-                    class="flex items-center h-[46px] px-[26px] rounded-[11px] bg-orange hover:bg-orange-hover text-[14.5px] font-bold text-white whitespace-nowrap shadow-authbtn border-0 cursor-pointer transition-colors">입단 문의</button>
+                    class="flex items-center h-[46px] px-[26px] rounded-[11px] bg-orange hover:bg-orange-hover text-[14.5px] font-bold text-white whitespace-nowrap shadow-authbtn border-0 cursor-pointer transition-colors">@AppText.Team.JoinInquiry</button>
             <button type="button"
                     class="flex items-center gap-[7px] h-[46px] px-5 border-1.5 border-border rounded-[11px] bg-white text-[13.5px] font-bold text-text-strong hover:border-navy hover:text-navy cursor-pointer whitespace-nowrap transition-colors">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>공유
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>@AppText.Team.Share
             </button>
         </div>
     </div>
@@ -72,7 +72,7 @@
 
             if (Profile.FoundedYear is not null)
             {
-                parts.Add($"{Profile.FoundedYear} 창단");
+                parts.Add(AppText.Team.Founded(Profile.FoundedYear));
             }
 
             if (AgeGroups.Count > 0)

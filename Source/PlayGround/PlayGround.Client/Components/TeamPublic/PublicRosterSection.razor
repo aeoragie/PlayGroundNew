@@ -5,7 +5,7 @@
 
 <div class="flex flex-col gap-4">
     <div class="flex items-center gap-2.5">
-        <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">선수단 <span class="text-[13.5px] font-bold text-text-muted">@(Roster.Count)명</span></h2>
+        <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Team.RosterTitle <span class="text-[13.5px] font-bold text-text-muted">@AppText.Team.RosterCount(Roster.Count)</span></h2>
         <div class="flex-1"></div>
         @if (HasAgeTabs)
         {
@@ -51,7 +51,7 @@
                 }
                 @if (player is { HasPublicProfile: true, Slug: not null })
                 {
-                    <a href="@Routes.PlayerPublicProfile(player.Slug)" class="text-[11.5px] font-bold text-navy whitespace-nowrap">공개 프로필 →</a>
+                    <a href="@Routes.PlayerPublicProfile(player.Slug)" class="text-[11.5px] font-bold text-navy whitespace-nowrap">@AppText.Team.PublicProfileLink</a>
                 }
             </div>
         }
@@ -59,7 +59,7 @@
 
     @if (Roster.Count > 0)
     {
-        <span class="text-[12.5px] text-text-muted break-keep">공개 프로필이 있는 선수만 상세 기록으로 연결됩니다. 이름·포지션 외 개인정보는 공개되지 않아요.</span>
+        <span class="text-[12.5px] text-text-muted break-keep">@AppText.Team.RosterNote</span>
     }
 </div>
 

@@ -5,7 +5,7 @@
 @using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-4">
-    <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">선수 모집</h2>
+    <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Team.RecruitTitle</h2>
 
     @if (Data.Items.Count > 0)
     {
@@ -17,7 +17,7 @@
                     <div class="bg-white border-1.5 border-border rounded-2xl p-[26px] flex flex-col gap-3">
                         <div class="flex items-center gap-[9px]">
                             <span class="text-[16.5px] font-extrabold text-navy-deep">@item.Title</span>
-                            <span class="@Css.Badge.Pending">모집중</span>
+                            <span class="@Css.Badge.Pending">@AppText.Team.Recruiting</span>
                         </div>
                         <p class="m-0 text-[13.5px] text-text-body leading-[1.7] break-keep">@item.Description</p>
                         @if (item.Conditions.Count > 0 || item.DeadlineDate is not null)
@@ -29,21 +29,21 @@
                                 }
                                 @if (item.DeadlineDate is not null)
                                 {
-                                    <span class="text-xs font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap">마감 @DeadlineText(item)</span>
+                                    <span class="text-xs font-bold text-text-strong bg-surface-icon rounded-full px-3 py-1 whitespace-nowrap">@AppText.Team.Deadline(DeadlineText(item))</span>
                                 }
                             </div>
                         }
                         @if (AppliedRecruitmentIds.Contains(item.RecruitmentId))
                         {
-                            <a href="@Routes.Dashboard" class="flex items-center justify-center h-11 rounded-[11px] border-1.5 border-navy bg-white text-sm font-bold text-navy whitespace-nowrap mt-1 no-underline hover:bg-navy hover:text-white transition-colors">지원 완료 · 상태 보기</a>
+                            <a href="@Routes.Dashboard" class="flex items-center justify-center h-11 rounded-[11px] border-1.5 border-navy bg-white text-sm font-bold text-navy whitespace-nowrap mt-1 no-underline hover:bg-navy hover:text-white transition-colors">@AppText.Team.AppliedStatus</a>
                         }
                         else if (IsFull(item))
                         {
-                            <button type="button" disabled class="flex items-center justify-center h-11 rounded-[11px] bg-surface-icon text-sm font-bold text-text-muted whitespace-nowrap mt-1 border-0 cursor-not-allowed">모집 마감</button>
+                            <button type="button" disabled class="flex items-center justify-center h-11 rounded-[11px] bg-surface-icon text-sm font-bold text-text-muted whitespace-nowrap mt-1 border-0 cursor-not-allowed">@AppText.Team.RecruitClosed</button>
                         }
                         else
                         {
-                            <button type="button" @onclick="() => OnApply.InvokeAsync(item)" class="flex items-center justify-center h-11 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 border-0 cursor-pointer transition-colors">지원하기</button>
+                            <button type="button" @onclick="() => OnApply.InvokeAsync(item)" class="flex items-center justify-center h-11 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 border-0 cursor-pointer transition-colors">@AppText.Team.Apply</button>
                         }
                     </div>
                 }
@@ -52,7 +52,7 @@
                     <div class="bg-surface-soft border-1.5 border-border rounded-2xl p-[26px] flex flex-col gap-3 opacity-75">
                         <div class="flex items-center gap-[9px]">
                             <span class="text-[16.5px] font-extrabold text-navy-deep">@item.Title</span>
-                            <span class="@Css.Badge.Neutral">마감</span>
+                            <span class="@Css.Badge.Neutral">@AppText.Team.Closed</span>
                         </div>
                         <p class="m-0 text-[13.5px] text-text-body leading-[1.7] break-keep">@item.Description</p>
                     </div>
@@ -63,10 +63,10 @@
 
     <div class="bg-white border-1.5 border-border rounded-2xl p-[26px] flex items-center gap-[18px] flex-wrap">
         <span class="flex flex-col gap-[3px] flex-1 min-w-[260px]">
-            <span class="text-[15px] font-extrabold text-navy-deep break-keep">모집 공고가 없어도 문의할 수 있어요</span>
-            <span class="text-[13px] text-text-body break-keep">연령·포지션을 남겨주시면 자리가 생길 때 연락드립니다.</span>
+            <span class="text-[15px] font-extrabold text-navy-deep break-keep">@AppText.Team.InquiryTitle</span>
+            <span class="text-[13px] text-text-body break-keep">@AppText.Team.InquiryBody</span>
         </span>
-        <button type="button" class="flex items-center h-11 px-6 border-1.5 border-navy rounded-[11px] bg-white text-[13.5px] font-bold text-navy whitespace-nowrap cursor-pointer hover:bg-navy hover:text-white transition-colors">입단 문의 남기기</button>
+        <button type="button" class="flex items-center h-11 px-6 border-1.5 border-navy rounded-[11px] bg-white text-[13.5px] font-bold text-navy whitespace-nowrap cursor-pointer hover:bg-navy hover:text-white transition-colors">@AppText.Team.InquiryCta</button>
     </div>
 </div>
 

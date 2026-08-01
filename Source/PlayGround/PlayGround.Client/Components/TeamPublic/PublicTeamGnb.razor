@@ -16,16 +16,16 @@
         @if (IsManager)
         {
             @* 관리자 본인이 자기 팀 열람 중 — 최소 노출 원칙에 맞춰 버튼이 아닌 텍스트 링크 (Design.Navigation 배선) *@
-            <a href="@Routes.TeamDashboard" class="text-[12.5px] md:text-[13.5px] font-bold text-text-strong whitespace-nowrap">관리</a>
+            <a href="@Routes.TeamDashboard" class="text-[12.5px] md:text-[13.5px] font-bold text-text-strong whitespace-nowrap">@AppText.Team.Manage</a>
         }
-        <a href="@Routes.Records" class="text-[12.5px] md:text-[13.5px] font-bold text-text-strong whitespace-nowrap">경기기록</a>
+        <a href="@Routes.Records" class="text-[12.5px] md:text-[13.5px] font-bold text-text-strong whitespace-nowrap">@AppText.Team.Records</a>
         @* 팀 홈은 PlayGround 최소 노출 원칙 — 로그인해도 벨·아바타를 넣지 않고 텍스트 성격의 버튼 하나만 바꾼다 *@
         <AuthorizeView>
             <Authorized>
-                <a href="@Routes.Dashboard" class="@AuthButtonClass">내 대시보드</a>
+                <a href="@Routes.Dashboard" class="@AuthButtonClass">@AppText.Team.MyDashboard</a>
             </Authorized>
             <NotAuthorized>
-                <a href="@LoginHref" class="@AuthButtonClass">로그인</a>
+                <a href="@LoginHref" class="@AuthButtonClass">@AppText.Team.Login</a>
             </NotAuthorized>
         </AuthorizeView>
     </div>

@@ -19,10 +19,10 @@
 
             <div class="@Css.MatchForm.Header">
                 <span class="flex flex-col gap-1 min-w-0">
-                    <h2 class="@Css.MatchForm.Title">@($"{TeamName}에 지원하기")</h2>
+                    <h2 class="@Css.MatchForm.Title">@AppText.Team.ApplyDialogTitle(TeamName)</h2>
                     <span class="@Css.MatchForm.Subtitle">@Recruitment.Title</span>
                 </span>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <button type="button" aria-label="@AppText.Team.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -39,35 +39,35 @@
             {
                 @* 자녀 미연결 — 폼 대신 안내 + Claim CTA *@
                 <div class="@Css.MatchForm.Body items-center text-center gap-3 py-8">
-                    <span class="text-[14.5px] font-extrabold text-navy-deep break-keep">먼저 자녀를 연결해 주세요</span>
-                    <a href="@Routes.Claim" class="flex items-center justify-center h-11 px-6 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 no-underline transition-colors">자녀 연결하기</a>
+                    <span class="text-[14.5px] font-extrabold text-navy-deep break-keep">@AppText.Team.ConnectChildFirst</span>
+                    <a href="@Routes.Claim" class="flex items-center justify-center h-11 px-6 rounded-[11px] bg-navy hover:bg-navy-deep text-sm font-bold text-white whitespace-nowrap mt-1 no-underline transition-colors">@AppText.Team.ConnectChild</a>
                 </div>
             }
             else
             {
                 <CascadingValue Value="@mForm" IsFixed="true">
                     <div class="@Css.MatchForm.Body">
-                        <SelectField Label="지원 선수" TValue="Guid" @bind-Value="mPlayerId"
-                                     Options="@ChildOptions" Placeholder="지원할 선수를 선택해 주세요"
-                                     Helper="연결된 자녀 중 선택 — 프로필 정보(생년·포지션·기록)가 함께 전달돼요"
-                                     Validator="@(v => v == Guid.Empty ? "지원할 선수를 선택해 주세요." : null)" />
+                        <SelectField Label="@AppText.Team.ApplyPlayerLabel" TValue="Guid" @bind-Value="mPlayerId"
+                                     Options="@ChildOptions" Placeholder="@AppText.Team.ApplyPlayerPlaceholder"
+                                     Helper="@AppText.Team.ApplyPlayerHelper"
+                                     Validator="@(v => v == Guid.Empty ? AppText.Team.ApplyPlayerError : null)" />
 
                         @if (HasPositions)
                         {
-                            <RadioCards Label="희망 포지션" TValue="string" @bind-Value="mDesiredPosition"
+                            <RadioCards Label="@AppText.Team.DesiredPosition" TValue="string" @bind-Value="mDesiredPosition"
                                         Options="@PositionOptions"
-                                        Helper="공고에 명시된 포지션만 표시"
-                                        Validator="@(v => string.IsNullOrEmpty(v) ? "희망 포지션을 선택해 주세요." : null)" />
+                                        Helper="@AppText.Team.DesiredPositionHelper"
+                                        Validator="@(v => string.IsNullOrEmpty(v) ? AppText.Team.DesiredPositionError : null)" />
                         }
 
-                        <TextField Label="자기소개" @bind-Value="mIntroduction" IsOptional="true" Multiline="true" Rows="3"
-                                   MaxLength="500" Placeholder="자녀의 강점이나 지원 동기를 짧게 적어 주세요." />
+                        <TextField Label="@AppText.Team.Introduction" @bind-Value="mIntroduction" IsOptional="true" Multiline="true" Rows="3"
+                                   MaxLength="500" Placeholder="@AppText.Team.IntroductionPlaceholder" />
 
                         @* 연락처 — 서버 마스킹 원칙대로 실번호는 노출하지 않는다 *@
                         <div class="flex flex-col gap-1.5">
-                            <span class="@Css.Form.Label">연락처</span>
-                            <div class="h-11 rounded-[10px] border-1.5 border-surface-icon bg-surface-soft px-3 flex items-center text-[12.5px] text-text-body">계정에 등록된 번호</div>
-                            <span class="@Css.Form.Helper">계정에 등록된 번호 · 팀에는 수락 후에만 전달돼요</span>
+                            <span class="@Css.Form.Label">@AppText.Team.ContactLabel</span>
+                            <div class="h-11 rounded-[10px] border-1.5 border-surface-icon bg-surface-soft px-3 flex items-center text-[12.5px] text-text-body">@AppText.Team.ContactValue</div>
+                            <span class="@Css.Form.Helper">@AppText.Team.ContactHelper</span>
                         </div>
 
                         @if (mInlineError is not null)
@@ -77,8 +77,8 @@
                     </div>
 
                     <div class="@Css.MatchForm.Footer">
-                        <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                        <SubmitButton Label="지원하기" BusyLabel="지원 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                        <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Team.Cancel</button>
+                        <SubmitButton Label="@AppText.Team.Apply" BusyLabel="@AppText.Team.ApplyBusy" IsBusy="@mSaving" OnClick="SubmitAsync"
                                       Class="@Css.MatchForm.SubmitWidth" />
                     </div>
                 </CascadingValue>
@@ -189,21 +189,21 @@
         {
             if (result.IsDuplicate)
             {
-                mInlineError = "이미 지원한 공고예요 · 상태를 확인해 보세요";
+                mInlineError = AppText.Team.AlreadyAppliedInline;
                 return;
             }
 
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "지원하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Team.ApplyFailedToast, AppText.Team.Retry, SubmitAsync);
                 return;
             }
 
-            mInlineError = result.Error ?? "지원하지 못했어요.";
+            mInlineError = result.Error ?? AppText.Team.ApplyFailedToast;
             return;
         }
 
-        Toasts.ShowSuccess("지원이 전달됐어요");
+        Toasts.ShowSuccess(AppText.Team.ApplySentToast);
         await CloseAsync();
         await OnApplied.InvokeAsync();
     }

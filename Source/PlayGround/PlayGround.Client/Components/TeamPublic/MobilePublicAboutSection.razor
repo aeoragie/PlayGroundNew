@@ -5,7 +5,7 @@
 
 <div class="flex flex-col gap-3.5">
     <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-[11px]")">
-        <h2 class="m-0 text-base font-extrabold text-navy-deep">우리 팀은</h2>
+        <h2 class="m-0 text-base font-extrabold text-navy-deep">@AppText.Team.AboutTitle</h2>
         @if (Home.Profile.Description is not null)
         {
             <p class="m-0 text-[13.5px] leading-[1.75] text-text-strong break-keep [text-wrap:pretty]">@Home.Profile.Description</p>
@@ -15,11 +15,11 @@
             <div class="flex gap-[7px] flex-wrap">
                 @if (Home.Profile.MonthlyFee is not null)
                 {
-                    <span class="@ChipClass">월 회비 @($"{Home.Profile.MonthlyFee:N0}")원</span>
+                    <span class="@ChipClass">@AppText.Team.ChipMonthlyFee($"{Home.Profile.MonthlyFee:N0}")</span>
                 }
                 @if (Home.Profile.TrainingDays is not null)
                 {
-                    <span class="@ChipClass">훈련 주 @(Home.Profile.TrainingDays.Length)회 · @Home.Profile.TrainingDays</span>
+                    <span class="@ChipClass">@AppText.Team.ChipTraining(Home.Profile.TrainingDays.Length, Home.Profile.TrainingDays)</span>
                 }
             </div>
         }
@@ -29,8 +29,8 @@
     {
         <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-3")">
             <div class="flex flex-col gap-[3px]">
-                <h2 class="m-0 text-base font-extrabold text-navy-deep">핵심가치</h2>
-                <span class="text-xs text-text-muted break-keep">학부모님과 선수에게 드리는 약속입니다</span>
+                <h2 class="m-0 text-base font-extrabold text-navy-deep">@AppText.Team.ValuesTitle</h2>
+                <span class="text-xs text-text-muted break-keep">@AppText.Team.ValuesSubtitleMobile</span>
             </div>
             @foreach (TeamValueDto value in Home.Values)
             {
@@ -45,7 +45,7 @@
     @if (Home.Coaches.Count > 0)
     {
         <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-3")">
-            <h2 class="m-0 text-base font-extrabold text-navy-deep">코칭스태프</h2>
+            <h2 class="m-0 text-base font-extrabold text-navy-deep">@AppText.Team.CoachesTitle</h2>
             @foreach (TeamCoachDto coach in Home.Coaches)
             {
                 <div class="border border-border rounded-[13px] p-4 flex flex-col gap-2.5">
@@ -72,11 +72,11 @@
                         <div class="flex gap-[7px]">
                             @if (coach.InstagramUrl is not null)
                             {
-                                <a href="@coach.InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="13" />인스타그램</a>
+                                <a href="@coach.InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="13" />@AppText.Team.Instagram</a>
                             }
                             @if (coach.YoutubeUrl is not null)
                             {
-                                <a href="@coach.YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="13" />유튜브</a>
+                                <a href="@coach.YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="13" />@AppText.Team.Youtube</a>
                             }
                         </div>
                     }
@@ -88,7 +88,7 @@
     @if (Home.Channels.Count > 0)
     {
         <div class="@($"{Css.Dashboard.Card} p-5 flex flex-col gap-[11px]")">
-            <h2 class="m-0 text-base font-extrabold text-navy-deep">공식 채널</h2>
+            <h2 class="m-0 text-base font-extrabold text-navy-deep">@AppText.Team.OfficialChannels</h2>
             @foreach (TeamChannelDto channel in Home.Channels)
             {
                 <a href="@channel.Url" class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-3">
@@ -100,7 +100,7 @@
                             <span class="text-[11px] text-text-muted whitespace-nowrap">@channel.Description</span>
                         }
                     </span>
-                    <span class="text-[11.5px] font-bold text-navy whitespace-nowrap">열기 →</span>
+                    <span class="text-[11.5px] font-bold text-navy whitespace-nowrap">@AppText.Team.Open</span>
                 </a>
             }
         </div>
@@ -117,7 +117,7 @@
     // 모바일은 공간이 좁아 자격 뱃지에서 '인증' 접미어 제거 ('KFA P2 인증' → 'KFA P2')
     private static string ShortCertification(string certification)
     {
-        const string suffix = " 인증";
+        string suffix = AppText.Team.CertifiedSuffix;
         return certification.EndsWith(suffix, StringComparison.Ordinal)
             ? certification[..^suffix.Length]
             : certification;

@@ -6,13 +6,13 @@
 @using PlayGround.Contracts.Team
 
 <div class="flex flex-col gap-4">
-    <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@(Data.SeasonYear) 시즌</h2>
+    <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Team.SeasonTitle(Data.SeasonYear)</h2>
 
     @if (Data.Matches.Count == 0)
     {
         @* 빈 상태 Tier A — 방문자 뷰라 CTA 없이 안내 문장으로 종료 *@
-        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 경기 기록이 없어요">
-            <Description>경기가 진행되면 전적·최근 경기·영상이 여기에 표시돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Record" Title="@AppText.Team.RecordEmptyTitle">
+            <Description>@AppText.Team.RecordEmptyBody</Description>
         </EmptyState>
     }
     else
@@ -20,22 +20,22 @@
         @* 요약 4카드 *@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
             <div class="bg-gradient-navy rounded-[14px] px-5 py-5 flex flex-col gap-[3px] text-white">
-                <span class="text-xs font-bold text-white/60">전적 (공식)</span>
-                <span class="text-[21px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
+                <span class="text-xs font-bold text-white/60">@AppText.Team.RecordOfficial</span>
+                <span class="text-[21px] font-extrabold whitespace-nowrap">@AppText.Team.Record(Wins, Draws, Losses)</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">득점 (공식)</span>
+                <span class="text-xs font-bold text-text-muted">@AppText.Team.GoalsFor</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsFor</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">실점 (공식)</span>
+                <span class="text-xs font-bold text-text-muted">@AppText.Team.GoalsAgainst</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsAgainst</span>
             </div>
             @if (Data.LeagueRank is not null)
             {
                 <div class="@SummaryCardClass">
-                    <span class="text-xs font-bold text-text-muted">리그 순위</span>
-                    <span class="text-[21px] font-extrabold text-navy-deep whitespace-nowrap">@(Data.LeagueRank)위</span>
+                    <span class="text-xs font-bold text-text-muted">@AppText.Team.LeagueRank</span>
+                    <span class="text-[21px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Team.RankSuffix(Data.LeagueRank)</span>
                 </div>
             }
         </div>
@@ -43,9 +43,9 @@
         @* 최근 경기 *@
         <div class="bg-white border-1.5 border-border rounded-[16px] overflow-hidden">
             <div class="px-6 py-[18px] border-b border-surface-icon flex items-center gap-2.5">
-                <h3 class="m-0 text-[15.5px] font-extrabold text-navy-deep">최근 경기</h3>
+                <h3 class="m-0 text-[15.5px] font-extrabold text-navy-deep">@AppText.Team.RecentMatches</h3>
                 <div class="flex-1"></div>
-                <a href="@Routes.Records" class="text-[12.5px] font-bold text-navy whitespace-nowrap">경기기록에서 전체 보기 →</a>
+                <a href="@Routes.Records" class="text-[12.5px] font-bold text-navy whitespace-nowrap">@AppText.Team.AllRecords</a>
             </div>
             @foreach (TeamMatchDto match in Data.Matches)
             {
@@ -80,7 +80,7 @@
         @if (Data.Videos.Count > 0)
         {
             <div class="flex flex-col gap-3">
-                <h3 class="m-0 text-[15.5px] font-extrabold text-navy-deep">경기 영상</h3>
+                <h3 class="m-0 text-[15.5px] font-extrabold text-navy-deep">@AppText.Team.MatchVideos</h3>
                 <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
                     @foreach (TeamVideoDto video in Data.Videos)
                     {
@@ -93,7 +93,7 @@
                                 }
                                 else
                                 {
-                                    <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">영상 썸네일</span>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">@AppText.Team.VideoThumb</span>
                                 }
                                 <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
                                     <span class="w-[42px] h-[42px] rounded-full bg-black/65 flex items-center justify-center">

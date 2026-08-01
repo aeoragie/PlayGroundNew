@@ -10,7 +10,7 @@
 @if (Rows.Count > 0)
 {
     <div class="flex flex-col gap-3 mb-6">
-        <h2 class="m-0 text-base font-extrabold text-navy-deep">일정</h2>
+        <h2 class="m-0 text-base font-extrabold text-navy-deep">@AppText.Team.ScheduleTitle</h2>
 
         @foreach (ScheduleDto schedule in Rows)
         {
@@ -35,11 +35,11 @@
         @* 구독 캘린더 — 공개 iCal 피드 링크 복사 *@
         <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-3.5 flex flex-col gap-2.5")">
             <span class="flex flex-col gap-0.5">
-                <span class="text-[13.5px] font-extrabold text-navy-deep">구독 캘린더</span>
-                <span class="text-[12px] text-text-body break-keep">Google·Apple 캘린더에서 팀 일정을 자동으로 받아요</span>
+                <span class="text-[13.5px] font-extrabold text-navy-deep">@AppText.Team.SubscribeCalendar</span>
+                <span class="text-[12px] text-text-body break-keep">@AppText.Team.SubscribeBody</span>
             </span>
             <button type="button" @onclick="CopyFeedAsync"
-                    class="w-full text-[13px] font-bold text-white bg-navy hover:bg-navy-deep rounded-[10px] py-3 whitespace-nowrap border-0 cursor-pointer transition-colors">구독 링크 복사</button>
+                    class="w-full text-[13px] font-bold text-white bg-navy hover:bg-navy-deep rounded-[10px] py-3 whitespace-nowrap border-0 cursor-pointer transition-colors">@AppText.Team.CopySubscribeLink</button>
         </div>
     </div>
 }
@@ -67,7 +67,7 @@
     {
         string url = Nav.ToAbsoluteUri($"api/soccer/team/{Uri.EscapeDataString(Slug)}/schedule.ics").ToString();
         await Js.InvokeVoidAsync("navigator.clipboard.writeText", url);
-        Toasts.ShowSuccess("구독 링크가 복사됐어요");
+        Toasts.ShowSuccess(AppText.Team.CopiedToast);
     }
 
     private static SoccerScheduleEventType TypeOf(ScheduleDto s) =>
@@ -81,7 +81,7 @@
     private static string TimeOf(ScheduleDto s) => s.StartsAt.ToString("HH:mm");
 
     private static string WeekdayLabel(DateTime dt) =>
-        new[] { "일", "월", "화", "수", "목", "금", "토" }[(int)dt.DayOfWeek];
+        new[] { AppText.Team.DowSun, AppText.Team.DowMon, AppText.Team.DowTue, AppText.Team.DowWed, AppText.Team.DowThu, AppText.Team.DowFri, AppText.Team.DowSat }[(int)dt.DayOfWeek];
 
     private static string WeekdayClass(DateTime dt) =>
         dt.DayOfWeek == DayOfWeek.Sunday ? "text-weekend-sun" : "text-text-muted";
@@ -92,7 +92,7 @@
         if (ended)
         {
             bool resultLinked = s.HasResult && TypeOf(s) is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament;
-            parts.Add(resultLinked ? "종료 — 결과 입력됨" : "종료");
+            parts.Add(resultLinked ? AppText.Team.FinishedWithResult : AppText.Team.Finished);
         }
 
         return string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));

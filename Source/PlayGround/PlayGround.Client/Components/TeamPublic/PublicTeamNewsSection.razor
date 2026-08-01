@@ -10,8 +10,8 @@
 {
     <div id="news" class="@($"{Css.Dashboard.Card} p-6 md:p-[30px] flex flex-col gap-[18px]")">
         <div class="flex flex-col gap-1">
-            <h2 class="m-0 text-[17px] md:text-[19px] font-extrabold text-navy-deep">팀 소식</h2>
-            <span class="text-[13px] text-text-muted break-keep">팀이 공개한 소식이에요</span>
+            <h2 class="m-0 text-[17px] md:text-[19px] font-extrabold text-navy-deep">@AppText.Team.NewsTitle</h2>
+            <span class="text-[13px] text-text-muted break-keep">@AppText.Team.NewsSubtitle</span>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -31,7 +31,7 @@
                                     @file.FileName
                                 </span>
                             }
-                            <span class="text-[11px] text-text-faint break-keep">첨부는 로그인 후 내려받을 수 있어요</span>
+                            <span class="text-[11px] text-text-faint break-keep">@AppText.Team.NewsAttachNote</span>
                         </div>
                     }
                 </div>
@@ -41,7 +41,7 @@
         @if (mNews.Count > PreviewCount && !mExpanded)
         {
             <button type="button" class="self-start text-[13px] font-bold text-navy hover:text-orange-ink bg-transparent border-0 cursor-pointer p-0"
-                    @onclick="() => mExpanded = true">지난 소식 보기 (@(mNews.Count - PreviewCount)건 더) →</button>
+                    @onclick="() => mExpanded = true">@AppText.Team.NewsMore(mNews.Count - PreviewCount)</button>
         }
     </div>
 }

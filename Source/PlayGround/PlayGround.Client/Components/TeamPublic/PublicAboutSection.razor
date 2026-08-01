@@ -6,7 +6,7 @@
 <div class="flex flex-col gap-[22px]">
     <div class="@(Home.Channels.Count > 0 ? "grid grid-cols-[1fr_340px] gap-[22px] items-start" : "")">
         <div class="@($"{Css.Dashboard.Card} p-[30px] flex flex-col gap-3.5")">
-            <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">우리 팀은</h2>
+            <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Team.AboutTitle</h2>
             @if (Home.Profile.Description is not null)
             {
                 <p class="m-0 text-[15px] leading-[1.8] text-text-strong break-keep [text-wrap:pretty]">@Home.Profile.Description</p>
@@ -16,15 +16,15 @@
                 <div class="flex gap-[9px] flex-wrap">
                     @if (Home.Profile.MonthlyFee is not null)
                     {
-                        <span class="@ChipClass">월 회비 @($"{Home.Profile.MonthlyFee:N0}")원</span>
+                        <span class="@ChipClass">@AppText.Team.ChipMonthlyFee($"{Home.Profile.MonthlyFee:N0}")</span>
                     }
                     @if (Home.Profile.TrainingDays is not null)
                     {
-                        <span class="@ChipClass">훈련 주 @(Home.Profile.TrainingDays.Length)회 · @Home.Profile.TrainingDays</span>
+                        <span class="@ChipClass">@AppText.Team.ChipTraining(Home.Profile.TrainingDays.Length, Home.Profile.TrainingDays)</span>
                     }
                     @if (Home.Roster.Count > 0)
                     {
-                        <span class="@ChipClass">선수단 @(Home.Roster.Count)명</span>
+                        <span class="@ChipClass">@AppText.Team.ChipRoster(Home.Roster.Count)</span>
                     }
                 </div>
             }
@@ -32,7 +32,7 @@
         @if (Home.Channels.Count > 0)
         {
             <div class="@($"{Css.Dashboard.Card} p-6 flex flex-col gap-[13px]")">
-                <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">공식 채널</h3>
+                <h3 class="m-0 text-[15px] font-extrabold text-navy-deep">@AppText.Team.OfficialChannels</h3>
                 @foreach (TeamChannelDto channel in Home.Channels)
                 {
                     <a href="@channel.Url" class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-3 hover:border-navy transition-colors">
@@ -54,8 +54,8 @@
     {
         <div class="@($"{Css.Dashboard.Card} p-[30px] flex flex-col gap-[18px]")">
             <div class="flex flex-col gap-1">
-                <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">핵심가치</h2>
-                <span class="text-[13px] text-text-muted break-keep">우리 팀이 학부모님과 선수에게 드리는 약속입니다</span>
+                <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Team.ValuesTitle</h2>
+                <span class="text-[13px] text-text-muted break-keep">@AppText.Team.ValuesSubtitle</span>
             </div>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3.5">
                 @foreach (TeamValueDto value in Home.Values)
@@ -70,8 +70,8 @@
     {
         <div class="@($"{Css.Dashboard.Card} p-[30px] flex flex-col gap-[18px]")">
             <div class="flex flex-col gap-1">
-                <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">코칭스태프</h2>
-                <span class="text-[13px] text-text-muted break-keep">지도 철학과 경력을 확인하세요</span>
+                <h2 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Team.CoachesTitle</h2>
+                <span class="text-[13px] text-text-muted break-keep">@AppText.Team.CoachesSubtitle</span>
             </div>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-3.5">
                 @foreach (TeamCoachDto coach in Home.Coaches)
