@@ -272,7 +272,7 @@ namespace PlayGround.Client.Localization
             public static string InfoTitle => Loc.Get("Claim.InfoTitle");
             /// <summary>팀이 등록해 둔 선수 프로필을 보호자 계정과 연결하는 절차예요. 연결하면 기록·알림을 보호자가 직접 관리하고, 공개 범위도 정할 수 있어요.</summary>
             public static string InfoBody => Loc.Get("Claim.InfoBody");
-            /// <summary>{0} 등록한 선수 정보예요.</summary>
+            /// <summary>{0:이/가} 등록한 선수 정보예요.</summary>
             public static string ConfirmSubtitle(object arg0) => Loc.Format("Claim.ConfirmSubtitle", arg0);
             /// <summary>미연결</summary>
             public static string UnclaimedBadge => Loc.Get("Claim.UnclaimedBadge");
@@ -556,7 +556,7 @@ namespace PlayGround.Client.Localization
             public static string TitleTeamInvite => Loc.Get("Notification.TitleTeamInvite");
             /// <summary>{0} 님({1})이 {2}{3} 프로필 연결을 요청했어요</summary>
             public static string BodyClaimRequest(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Notification.BodyClaimRequest", arg0, arg1, arg2, arg3);
-            /// <summary>{0}이 {1}을 선수단에 초대했어요</summary>
+            /// <summary>{0:이/가} {1:을/를} 선수단에 초대했어요</summary>
             public static string BodyTeamInvite(object arg0, object arg1) => Loc.Format("Notification.BodyTeamInvite", arg0, arg1);
             /// <summary>승인함</summary>
             public static string StatusApproved => Loc.Get("Notification.StatusApproved");
@@ -660,7 +660,7 @@ namespace PlayGround.Client.Localization
             public static string Logout => Loc.Get("Settings.Logout");
             /// <summary>뒤로</summary>
             public static string Back => Loc.Get("Settings.Back");
-            /// <summary>{0}가 연결됐어요.</summary>
+            /// <summary>{0:이/가} 연결됐어요.</summary>
             public static string LinkedToast(object arg0) => Loc.Format("Settings.LinkedToast", arg0);
             /// <summary>이미 다른 계정에 연결된 {0}예요.</summary>
             public static string LinkDuplicateToast(object arg0) => Loc.Format("Settings.LinkDuplicateToast", arg0);
@@ -898,7 +898,7 @@ namespace PlayGround.Client.Localization
             public static string OnlyLoginMeans => Loc.Get("Settings.OnlyLoginMeans");
             /// <summary>해제</summary>
             public static string Unlink => Loc.Get("Settings.Unlink");
-            /// <summary>{0}로도 로그인할 수 있게 연결해요</summary>
+            /// <summary>{0:으로도/로도} 로그인할 수 있게 연결해요</summary>
             public static string ConnectHint(object arg0) => Loc.Format("Settings.ConnectHint", arg0);
             /// <summary>연결하기</summary>
             public static string Connect => Loc.Get("Settings.Connect");

@@ -20,7 +20,7 @@
   "ConfirmTitle": "이 프로필이 맞나요?",
   "InfoTitle": "자녀 연결이란?",
   "InfoBody": "팀이 등록해 둔 선수 프로필을 보호자 계정과 연결하는 절차예요. 연결하면 기록·알림을 보호자가 직접 관리하고, 공개 범위도 정할 수 있어요.",
-  "ConfirmSubtitle": "{0} 등록한 선수 정보예요.",
+  "ConfirmSubtitle": "{0:이/가} 등록한 선수 정보예요.",
   "UnclaimedBadge": "미연결",
   "RelationLabel": "자녀와의 관계",
   "ConfirmNoticePrefix": "연결 요청을 보내면 팀 관리자가 확인 후 승인해요. 승인되면 ",

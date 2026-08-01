@@ -8,7 +8,8 @@ namespace Generator.Localization
     /// 키에 {0}·{1} 플레이스홀더가 있으면 인자 메서드, 없으면 프로퍼티. 생성물은 커밋(수동 실행).</summary>
     public sealed class LocalizationGenerator
     {
-        private static readonly Regex PlaceholderPattern = new(@"\{(\d+)\}", RegexOptions.Compiled);
+        // `{0}` 뿐 아니라 한국어 조사 모디파이어 `{0:이/가}`도 같은 자리로 센다 (KoreanParticle).
+        private static readonly Regex PlaceholderPattern = new(@"\{(\d+)(?::[^}]*)?\}", RegexOptions.Compiled);
         private static readonly Regex NonAlphaNumeric = new(@"[^A-Za-z0-9]+", RegexOptions.Compiled);
 
         public string Generate(string resourcesPath, string baseCulture, string ns)

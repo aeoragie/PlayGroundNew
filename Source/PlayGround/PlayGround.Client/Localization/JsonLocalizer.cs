@@ -38,7 +38,7 @@ namespace PlayGround.Client.Localization
         {
             try
             {
-                return string.Format(Get(key), args);
+                return string.Format(KoreanParticle.Resolve(Get(key), args), args);
             }
             catch (FormatException)
             {

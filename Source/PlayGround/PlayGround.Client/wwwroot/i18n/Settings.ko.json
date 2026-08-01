@@ -4,7 +4,7 @@
   "ToDashboard": "대시보드로",
   "Logout": "로그아웃",
   "Back": "뒤로",
-  "LinkedToast": "{0}가 연결됐어요.",
+  "LinkedToast": "{0:이/가} 연결됐어요.",
   "LinkDuplicateToast": "이미 다른 계정에 연결된 {0}예요.",
   "LinkFailedToast": "연결하지 못했어요. 다시 시도해 주세요.",
   "ProviderKakao": "카카오",
@@ -123,6 +123,6 @@
   "ExportAcceptedToast": "요청을 접수했어요. 준비되면 알림을 보내드릴게요.",
   "OnlyLoginMeans": "유일한 로그인 수단",
   "Unlink": "해제",
-  "ConnectHint": "{0}로도 로그인할 수 있게 연결해요",
+  "ConnectHint": "{0:으로도/로도} 로그인할 수 있게 연결해요",
   "Connect": "연결하기"
 }

@@ -17,7 +17,7 @@
   "TitleClaimRequest": "프로필 연결 요청",
   "TitleTeamInvite": "선수단 초대",
   "BodyClaimRequest": "{0} 님({1})이 {2}{3} 프로필 연결을 요청했어요",
-  "BodyTeamInvite": "{0}이 {1}을 선수단에 초대했어요",
+  "BodyTeamInvite": "{0:이/가} {1:을/를} 선수단에 초대했어요",
   "StatusApproved": "승인함",
   "StatusRejected": "거절함",
   "StatusJoined": "합류함",

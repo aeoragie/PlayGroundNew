@@ -7,11 +7,8 @@ namespace PlayGround.Client.Localization
     {
         internal static ILocalizer Loc { get; set; } = new NullLocalizer();
 
-        /// <summary>활성 문화권 코드. 한국어 조사(이/가) 등 문화권 전용 문법 분기에만 쓴다.</summary>
-        public static string Culture => Loc.Culture;
-
-        /// <summary>한국어 문화권 여부 — 조사 삽입 같은 한국어 전용 처리 가드.</summary>
-        public static bool IsKorean => Culture == "ko";
+        // 문화권 분기(IsKorean 등)는 두지 않는다 — 언어별 문법은 리소스가 소유한다.
+        // 한국어 조사는 리소스의 `{0:이/가}` 모디파이어로 표현하고 KoreanParticle이 해석한다.
 
         // 기동 전(테스트·디자인타임) 안전 폴백 — 키 그대로 반환
         private sealed class NullLocalizer : ILocalizer

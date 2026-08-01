@@ -68,7 +68,7 @@
                             @* 서비스 고유 개념 보조 설명 (Design.TooltipHelp §2) *@
                             <InfoPopover Title="@AppText.Claim.InfoTitle">@AppText.Claim.InfoBody</InfoPopover>
                         </span>
-                        <p class="@Css.Claim.Subtitle">@AppText.Claim.ConfirmSubtitle(mCard.TeamName + SubjectParticle(mCard.TeamName))</p>
+                        <p class="@Css.Claim.Subtitle">@AppText.Claim.ConfirmSubtitle(mCard.TeamName)</p>
                     </div>
                     <div class="@Css.Claim.PlayerCard">
                         @* 선수 = 개인 teal (Design.AvatarBadge 유형 색 — dc의 네이비에서 카탈로그로 통일) *@
@@ -392,28 +392,5 @@
                && Enum.TryParse(relation, out SoccerClaimRelation parsed)
             ? parsed
             : SoccerClaimRelation.Mother;
-    }
-
-    /// <summary>한글 받침 유무로 주격 조사(이/가) 선택 — 팀명이 카피에 들어가는 자리.
-    /// 한국어 전용 문법이라 다른 문화권에서는 빈 문자열(조사 없음)을 돌려준다.</summary>
-    private static string SubjectParticle(string word)
-    {
-        if (!AppText.IsKorean)
-        {
-            return string.Empty;
-        }
-
-        if (string.IsNullOrEmpty(word))
-        {
-            return "가";
-        }
-
-        char last = word[^1];
-        if (last is >= '가' and <= '힣')
-        {
-            return (last - '가') % 28 == 0 ? "가" : "이";
-        }
-
-        return "가";
     }
 }
