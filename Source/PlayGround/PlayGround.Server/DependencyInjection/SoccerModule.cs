@@ -63,6 +63,11 @@ namespace PlayGround.Server.DependencyInjection
             // 첨부 문서 저장(게시판 pdf·hwp 등) — 원본 확장자 보존. 이미지 저장과 같은 로컬 디스크 어댑터.
             services.AddSingleton<IFileStorage, LocalFileStorageService>();
 
+            // 링크 공유 미리보기(OG 메타, DECISION.OGMETA) — 크롤러 감지 미들웨어 + 카드 렌더 + 24h 캐시
+            services.AddMemoryCache();
+            services.AddScoped<OgMetaService>();
+            services.AddSingleton<OgImageRenderer>();
+
             //.// 데이터 내려받기 (Design.SettingsFlows ③) — 요청 접수 + 백그라운드 잡 + 서명 URL 다운로드
             services.AddScoped<DataExportCommand>();
             services.AddSingleton<IEmailSender, LogOnlyEmailSender>();     // 발송 인프라 생기면 어댑터 교체

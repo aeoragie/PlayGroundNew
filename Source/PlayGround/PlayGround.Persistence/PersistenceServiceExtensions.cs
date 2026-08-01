@@ -23,6 +23,7 @@ namespace PlayGround.Persistence
             services.AddScoped<ISoccerRecordsRepository, SoccerRecordsRepository>();
             services.AddScoped<IClaimRepository, SoccerClaimRepository>();
             services.AddScoped<INotificationRepository, SoccerNotificationRepository>();
+            services.AddScoped<IOgMetaRepository, OgMetaRepository>();
             services.AddScoped<IAgentApprovalRepository, SoccerAgentApprovalRepository>();
             services.AddScoped<ISoccerDataExportRepository, SoccerDataExportRepository>();
             return services;

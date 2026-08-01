@@ -2,6 +2,7 @@ using NLog;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Server.DependencyInjection;
+using PlayGround.Server.Middleware;
 
 var logger = LogManager.GetCurrentClassLogger();
 
@@ -40,6 +41,10 @@ try
     app.UseHttpsRedirection();
     app.UseBlazorFrameworkFiles();
     app.UseStaticFiles();
+
+    // 링크 공유 미리보기 — 크롤러면 메타 태그 최소 HTML 반환, 사람은 SPA 그대로 (정적 자산 뒤·라우팅 앞)
+    app.UseMiddleware<OgMetaMiddleware>();
+
     app.UseRouting();
 
     app.MapStaticAssets(); // .NET 10 지문 정적 자산(js/{hash}.js)은 이 엔드포인트로만 서빙됨

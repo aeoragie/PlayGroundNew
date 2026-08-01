@@ -19,6 +19,9 @@
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="NLog.Web.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
+    <!-- OG 카드 서버 렌더 PNG (DECISION.OGMETA) -->
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
   </ItemGroup>
 
   <ItemGroup>

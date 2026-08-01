@@ -57,6 +57,9 @@
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="Moq" Version="4.20.72" />
+    <!-- OG 카드 서버 렌더 (SkiaSharp) — Win/macOS 네이티브는 기본 포함, Linux 배포 시 NativeAssets.Linux 추가 -->
+    <PackageVersion Include="SkiaSharp" Version="2.88.8" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
     <PackageVersion Include="FluentAssertions" Version="8.10.0" />
   </ItemGroup>
 </Project>

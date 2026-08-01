@@ -793,6 +793,36 @@
   `LoginWithReturn` 사용(다른 딥링크 페이지와 동일). 에이전트 열람 요청(ViewRequest)은 flag off·생산자 없음이라
   카운트에 실질 0(플래그 켜질 때 페이지 필터도 함께 노출). 알림 삭제/전체 읽음의 페이지 액션은 지시 밖이라 미구현.
 
+### 링크 공유 미리보기(OG 메타) 완료 (2026-08-01, DECISION.OGMETA — DesignWorkOrders ⑨)
+
+> 아키텍처 B 승인 — **크롤러 User-Agent면 메타 태그 최소 HTML, 사람은 SPA 그대로.** 화이트리스트 4종
+> (랜딩·팀·선수·대회), 그 외·비공개·미존재는 랜딩 카드 폴백. **API 27/27 통과**(4종 라우트 메타 + 폴백 +
+> PNG 1200×630 + 비공개 게이팅 + 사람 UA=SPA). 카톡·페북 디버거 실측은 사용자 수동(외부 서비스).
+
+- **미들웨어** `OgMetaMiddleware`(정적 자산 뒤·`UseRouting` 앞) — GET + 크롤러 UA(facebookexternalhit·
+  kakaotalk·twitterbot·slackbot·telegram·discord·googlebot·yeti·daum 등) + **자산/API 제외**(경로에 확장자
+  있거나 `/api` → 통과 = 크롤러의 og:image `.png` 요청은 컨트롤러가 처리)일 때만 최소 HTML을 쓰고 short-circuit.
+  절대 URL origin은 `Og:BaseUrl` 설정 우선, 없으면 요청 scheme+host(프록시면 X-Forwarded-Proto).
+- **태그는 문서의 최소 세트 그대로** — og:title·description·image(절대)·url(정규)·type=website·site_name·
+  locale=ko_KR + twitter:card=summary_large_image. 그 이상 안 붙임. HTML 인코딩.
+- **카드 조립** `OgMetaService`(라우트→OgCard) — 팀 `"{지역} · {연령} · 선수 N명"`(있는 조각만) · 선수는
+  **이름 + 고정 문구 "PlayGround Soccer 선수 프로필" + 공통 브랜드 이미지**(사진·소속·연령·기록·태그 절대 미포함) ·
+  대회 `"{연령} · {기간} · {N}팀"`. **비공개·검색 노출 끔·미존재는 랜딩 폴백**(선수는 Profile 가시성 off면 이름도
+  안 나옴 — 임시 토글로 실측: 비공개→"PlayGround Soccer", 공개→"이가람").
+- **이미지** `OgImageRenderer`(SkiaSharp PNG 1200×630) + `OgImageController`(`/og/brand.png`·`/og/team/{slug}.png`·
+  `/og/tournament/{id:guid}.png`) + **IMemoryCache 24h**. 팀·대회는 동적(네이비 그라디언트 + 엠블럼/이니셜 실드 +
+  이름 + 워드마크), 랜딩·선수·**모든 폴백은 공통 브랜드 카드**(빈 이미지 금지). 엠블럼은 `/uploads/` 파일 로드 실패 시
+  이니셜 실드. 한글은 시스템 폰트 매칭(`SKFontManager.MatchCharacter('가')` — 맑은 고딕 등). SkiaSharp Win/macOS
+  네이티브 기본 포함, **Linux 배포 시 `SkiaSharp.NativeAssets.Linux` + 한글 폰트 설치 필요**(CPM에 미리 추가).
+- **최소 조회 3종** — 크롤러 경로라 가볍게: `UspGetSoccerTeamOgBySlug`(공개 팀만, 이름·지역·연령·로고 + 로스터 수) ·
+  `UspGetSoccerPlayerOgBySlug`(**이름만**, Profile 가시성 off면 빈 결과 — 공개 프로필과 동일 게이팅) ·
+  `UspGetSoccerTournamentOgById`. `IOgMetaRepository`/`OgMetaRepository`(Soccer DB) → OgMetaService/컨트롤러 공유.
+- **미해결**: 24h 캐시는 시간 기반만(엠블럼·팀명 변경 즉시 무효화는 후속 — 팀 정보 저장에 캐시 evict 훅) ·
+  Linux 프로덕션 한글 폰트 번들(배포 시) · 라우트는 `/player/{slug}`(결정문 `{id}`는 실제 슬러그 라우트) ·
+  X 카드 이미지 alt·twitter:title 등 확장 태그는 "최소 세트" 원칙으로 미포함.
+- 검증(`api-ogmeta.js` 27): 랜딩·팀·선수·대회 메타 + 화이트리스트 밖/없는 선수 폴백 + 사람 UA=SPA +
+  PNG 시그니처·1200×630 3종 + `.png` 요청 비가로채기. 데이터 무변경(비공개 게이팅은 임시 토글 후 원복).
+
 ### 다음 작업 (우선순위)
 
 > **순서 판단의 단일 기준: `Handoff/PLAN.DEVELOPMENTORDER.md`** (핸드오프 30종 기준 Phase A~D).
