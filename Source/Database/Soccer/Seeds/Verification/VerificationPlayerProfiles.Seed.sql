@@ -1,6 +1,6 @@
 -- 로컬 검증용 선수 프로필 보강 — 검증 선수 계정(D01·D11)이 연결된 선수에 대시보드 프로필 데이터 주입.
 -- 선행: VerificationPlayerLinks.Seed.sql (계정↔선수 UserId 연결). PlayerId가 아니라 고정 UserId로
--- 선수를 해석하므로 리그 시드 재실행 후에도 이 스크립트만 다시 돌리면 된다.
+-- 선수를 해석하므로 로스터 재실행(Links 재실행) 후에도 이 스크립트는 그대로 유효하다.
 -- 김정현은 공개 설정을 2행만 넣어 기본값 병합(키·몸무게·주발 공개 / 학교·연락처 비공개) 경로도 검증.
 -- 재실행 안전(UPDATE + 삭제 후 삽입). 로컬 개발 DB 전용 — 운영 배포 금지.
 
@@ -27,7 +27,7 @@ WHERE [PlayerId] = @U12PlayerId;
 
 UPDATE [dbo].[SoccerPlayers]
 SET [HeightCm] = 171, [WeightKg] = 58, [PreferredFoot] = 'Left',
-    [SchoolName] = '광주북중학교', [GuardianPhone] = '010-2345-6789',
+    [SchoolName] = '서울강동중학교', [GuardianPhone] = '010-2345-6789',
     [BirthDate] = '2012-09-03', [IsGuardianManaged] = 1, [UpdatedAt] = GETUTCDATE()
 WHERE [PlayerId] = @U15PlayerId;
 

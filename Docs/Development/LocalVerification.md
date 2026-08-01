@@ -11,23 +11,17 @@
 |---|---|---|
 | `verify-teamadmin-0713@test.local` | 검증fc (로스터 11명·팀 정보 풀시드) | 팀 대시보드 — 데이터 있는 상태 |
 | `verify-empty-0714@test.local` | EmptyFC (빈 팀) | 빈 데이터 숨김(뱃지·칸·카드) 확인 |
-| `verify-u12-1@test.local` | 서울신답FCU12 (30명: 초4·5·6 각 10) | U12 대규모 로스터 |
-| `verify-u12-2@test.local` | 서울K리거강용FC (30명, 미인증·회비 없음) | U12 + 빈 항목 혼합 |
-| `verify-u12-3@test.local` | 전남순천중앙초 (30명, 학교·회비 비공개) | U12 학교 팀 |
-| `verify-u15-1@test.local` | 광주광주FCU15 (42명: 중1·2·3 각 14) | U15 대규모 로스터 |
-| `verify-u15-2@test.local` | 부산아이파크U15낙동중 (42명, 미인증) | U15 + 빈 항목 혼합 |
-| `verify-u15-3@test.local` | 전북U15군산시민축구단 (42명) | U15 시민구단 |
-| `verify-player-u12@test.local` | 서울신답FCU12 소속 신준우 (#1 MF 초6) | U12 선수 계정 (역할 Player) |
-| `verify-player-u15@test.local` | 광주광주FCU15 소속 김정현 (#1 GK 중3) | U15 선수 계정 (역할 Player) |
+| `verify-player-u15@test.local` | 검증fc #1 김정현 (GK 중3) | U15 선수 계정 (프로필·커리어 2·영상 3 시드) |
+| `verify-player-u12@test.local` | 검증fc #7 신준우 (MF 초5) | U12 선수 계정 (커리어 1·영상 0 빈 상태) |
 
-- 위 2종(검증fc·EmptyFC)은 **이메일 첫 로그인 = 가입**(find-or-create)으로 만들고,
-  아래 6종(리그 팀 관리자)·선수 2종은 **Account 시드가 계정까지 생성**한다 (동일 해시 재사용).
-- 리그 팀 선수 216명은 크롤러 백업 실데이터(팀명·선수명·포지션)에서 샘플링. Claimed 약 1/3,
-  학년별 상위 3명에 사진.
-- 선수 계정 2종은 리그 팀의 등번호 1번 선수와 `SoccerPlayers.UserId`로 연결된다
-  (Soccer의 `VerificationPlayerLinks.Seed.sql`). 나머지 Claimed 선수의 UserId는 표시용 더미.
-  선수 대시보드는 미구현 — 현재는 로그인 시 `/dashboard`에서 "선수 대시보드 준비 중" 안내가
-  뜨는 것까지가 정상이고, 선수 대시보드(Handoff/Design.PlayerDashboard) 개발·검증용 계정이다.
+- 검증fc·EmptyFC 관리자 계정은 **이메일 첫 로그인 = 가입**(find-or-create) + 팀 온보딩으로 만들고,
+  선수 계정 2종은 **Account 시드가 계정까지 생성**한다 (동일 해시 재사용).
+- 선수 계정 2종은 검증fc 로스터의 김정현(#1)·신준우(#7)와 `SoccerPlayers.UserId`로 연결된다
+  (`Seeds/Verification/VerificationPlayerLinks.Seed.sql`). 나머지 Claimed 선수의 UserId는 표시용 더미.
+- **대규모 로스터·리그·경기(Records) 데이터는 이 최소 베이스라인에서 제거됐다** (2026-08-01).
+  팀 탐색·대규모 로스터·연령 탭·순위표·기록 화면을 검증할 땐 그 상황에 맞춰 데이터를 생성한다(온디맨드).
+  과거 대형 픽스처는 git 히스토리(`f19ad41^`의 `VerificationLeagueTeams`/`VerificationMatches`·
+  `VerificationTeamAdmins.Seed.sql`)에서 참조·복원할 수 있다.
 
 ## DB 동기화 기준 커밋 (PC 이동 시 필독)
 
@@ -81,51 +75,34 @@
    Invoke-WebRequest -Uri "https://localhost:50451/api/soccer/team/me" -Method Post -ContentType "application/json; charset=utf-8" -Headers @{ Authorization = "Bearer $token2" } -Body '{"teamName":"EmptyFC","roster":[]}' -UseBasicParsing
    ```
 
-3. 검증 시드 주입 — 팀 정보(핵심가치·코칭스태프·공식 채널·확장 컬럼·엠블럼) + 선수단
-   (11명: 사진·연령 그룹·Claim 혼합·초대코드. 온보딩으로 만든 로스터는 시드가 대체한다):
+3. 검증fc 팀 정보·선수단 시드 (`Seeds/Verification/`) — 팀 정보(핵심가치·코칭스태프·공식 채널·
+   확장 컬럼·엠블럼) + 선수단 11명(사진·연령 그룹·Claim 혼합·초대코드. 온보딩 로스터는 시드가 대체):
 
    ```powershell
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationTeamInfo.Seed.sql
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationRoster.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\Verification\VerificationTeamInfo.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\Verification\VerificationRoster.Seed.sql
    ```
 
    선수 사진은 Pexels, 엠블럼은 DiceBear 외부 URL이라 인터넷 연결이 필요하다.
-   Claimed 선수의 UserId는 표시용 더미(NEWID) — Account에 실제 사용자는 없다.
+   **#1 김정현·#7 신준우가 선수 계정 연결 자리**(다음 단계). 나머지 Claimed UserId는 표시용 더미(NEWID).
 
-4. 리그 팀 시드 (U12 3팀·U15 3팀 + 관리자 계정 6종 — 계정 생성까지 시드가 처리):
-
-   ```powershell
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i Source\Database\Account\Seeds\VerificationTeamAdmins.Seed.sql
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationLeagueTeams.Seed.sql
-   ```
-
-5. 선수 계정 시드 (U12·U15 각 1명 — 계정 생성 + 리그 팀 선수 연결).
-   **연결 시드는 리그 팀 시드(4번) 이후에 실행**해야 하고, 리그 시드를 다시 돌리면
-   PlayerId가 재생성되므로 연결 시드도 다시 실행한다:
+4. 선수 계정 + 검증fc 연결 + 프로필·커리어 (Account·Soccer의 `Verification/`).
+   **로스터(3번) 이후 실행**하고, 로스터를 다시 돌리면 PlayerId가 재생성되므로 Links도 다시 실행한다:
 
    ```powershell
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i Source\Database\Account\Seeds\VerificationPlayers.Seed.sql
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationPlayerLinks.Seed.sql
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationPlayerProfiles.Seed.sql
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationPlayerCareers.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Account -b -f 65001 -i Source\Database\Account\Seeds\Verification\VerificationPlayers.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\Verification\VerificationPlayerLinks.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\Verification\VerificationPlayerProfiles.Seed.sql
+   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\Verification\VerificationPlayerCareers.Seed.sql
    ```
 
-   PlayerProfiles 시드는 선수 대시보드 프로필 데이터(키·몸무게·주발·학교·보호자 연락처 + 항목별
-   공개 설정 + 가족 계정)를 주입한다. 김정현은 공개 설정 2행만 저장해 기본값 병합도 검증.
-   PlayerCareers 시드는 커리어·포트폴리오 데이터 — 김정현(U15) = 커리어 2건(팀 확인됨/본인 입력
-   혼합) + 영상 3건(대표 1), 신준우(U12) = 커리어 1건 + 영상 0건(빈 포트폴리오 상태 검증).
+   Links는 검증fc #1/#7의 UserId를 D11/D01로 주입한다(팀이 아니라 등번호로 해석 — 리그 시드 의존 없음).
+   Profiles = 프로필 데이터(키·몸무게·주발·학교·연락처 + 항목별 공개 설정 + 가족 계정, 김정현은 공개
+   설정 2행만 저장해 기본값 병합 검증). Careers = 김정현 커리어 2·영상 3(대표 1), 신준우 커리어 1·영상 0.
 
-6. 경기 도메인 시드 (Records — 3형식 대회 + 친선 + 이벤트·출전·미디어·수상.
-   **리그 팀·선수 시드(4·5번) 이후 실행**, 순위표는 UspRecalculateSoccerTournamentStandings
-   호출로 생성되므로 재계산 경로도 함께 검증된다):
-
-   ```powershell
-   sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i Source\Database\Soccer\Seeds\VerificationMatches.Seed.sql
-   ```
-
-   구성: U15 챔피언십(Cup — 1조 6경기·2조 2경기·4강 PK "2 (4)"·결승 예정, 2025 아카이브 동일
-   시리즈 + 수상 3종), 서울 U12 주말리그(League — 월별 4경기), 왕중왕전(Split — 행만), 검증fc
-   친선 2경기(TournamentId NULL). 김정현 = 골2·도움1·4경기 265분, 신준우 = 골1·2경기(시즌 통계 검증용).
+> **대규모 로스터·리그·경기(Records) 데이터가 필요한 화면**(팀 탐색·연령 탭·순위표·기록 상세)은
+> 검증하는 그 시점에 상황에 맞춰 데이터를 만든다(온디맨드). 과거 대형 시드가 필요하면 git
+> 히스토리 `f19ad41^`의 `VerificationLeagueTeams`·`VerificationMatches`·`VerificationTeamAdmins.Seed.sql`을 꺼내 쓴다.
 
 ## 화면 검증 방법
 
@@ -139,11 +116,12 @@
    뱃지·요약 칸이 숨겨진 채 팀명만 노출 (빈 데이터 노출 금지 규칙).
 4. **선수 계정** (`verify-player-u12/u15`): 로그인 → `/dashboard`가 `/dashboard/player`로
    자동 직행. 프로필 섹션에서 실데이터(키·몸무게·주발·학교·마스킹 연락처)와 공개 토글
-   (저장 후 새로고침 유지), 가족 계정 카드 확인. 커리어·시즌 통계·포트폴리오는 목데이터.
+   (저장 후 새로고침 유지), 가족 계정 카드 확인. 커리어·포트폴리오는 시드 데이터(김정현 커리어 2·
+   영상 3 / 신준우 커리어 1·영상 0). **시즌 통계는 경기 시드가 없어 빈 상태** — 필요 시 온디맨드로 생성.
 5. **초대코드 Claim**: 팀 관리자 로스터에서 Unclaimed 선수의 "초대코드 보내기" 클릭 → 코드
    표시·복사. 새 이메일 계정(General)으로 로그인 → `/dashboard/player` "초대코드로 팀 연결"
-   카드에 입력 → Player 승격 + 팀 연결. 같은 코드 재사용은 거부됨. **검증 후 리그 시드
-   3종(League→PlayerLinks→PlayerProfiles) 재실행으로 원복**하고 임시 계정은 삭제할 것.
+   카드에 입력 → Player 승격 + 팀 연결. 같은 코드 재사용은 거부됨. **검증 후 Verification 시드
+   (Roster→Links→Profiles→Careers) 재실행으로 원복**하고 임시 계정은 삭제할 것.
 6. 모바일: 브라우저 폭 480px 이하 — 팀 대시보드 하단 탭 5개(경기 탭은 결과/영상 서브탭),
    선수 대시보드 하단 탭 4개.
 7. 로그아웃 대신 다른 계정 확인 시: 시크릿 창을 쓰거나 localStorage의 `pg.accessToken` 삭제.

@@ -67,5 +67,9 @@ foreach ($f in (Get-ChildItem Soccer\Tables\*.sql) + (Get-ChildItem Soccer\Funct
 - SQL 파일은 SSDT 선언형이라 순수 `CREATE`문 — 신규 DB 기준이며 재실행 시 "이미 존재" 오류.
   기존 DB에 변경을 반영할 때는 대상 객체를 `DROP` 후 해당 파일만 개별 적용한다.
 - 적용 후 한글 확인: `sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -u -Q "SELECT TOP 3 Title FROM SoccerLandingContents"`
+- `Seeds\*.sql` 글롭(비재귀)은 **마스터 시드만** 적용한다 — 현재 `SoccerLandingContents`(랜딩 콘텐츠)·
+  `StrengthTagPresets`(포지션 프리셋). 로컬 검증 픽스처는 `Seeds\Verification\`(하위 폴더)에 분리돼
+  있어 이 글롭에 잡히지 않는다(운영 셋업에 검증 데이터가 새지 않도록). 검증 픽스처는 계정·팀을 UI로
+  만든 뒤 `Docs/Development/LocalVerification.md` 절차대로 개별 적용한다.
 
 `appsettings.Development.json`의 커넥션이 `.\SQLEXPRESS`(PlayGround_Account / PlayGround_Soccer)를 가리킨다.

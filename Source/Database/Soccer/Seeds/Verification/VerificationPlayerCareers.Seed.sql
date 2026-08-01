@@ -1,6 +1,6 @@
 -- 로컬 검증용 선수 커리어·포트폴리오 시드 — 검증 선수 계정(D01·D11)이 연결된 선수에 주입.
 -- 선행: VerificationPlayerLinks.Seed.sql (계정↔선수 UserId 연결). 고정 UserId로 선수를 해석하므로
--- 리그 시드 재실행 후에도 이 스크립트만 다시 돌리면 된다.
+-- 로스터 재실행(PlayerId 재생성) 후에도 Links를 다시 돌리면 이 스크립트는 그대로 유효하다.
 -- 김정현(U15) = 커리어 2건(현재 팀 확인됨 + 과거 본인 입력) + 영상 3건(대표 1).
 -- 신준우(U12) = 커리어 1건(본인 입력) + 영상 0건 — 빈 포트폴리오 상태 검증.
 -- 재실행 안전(삭제 후 삽입). 로컬 개발 DB 전용 — 운영 배포 금지.
@@ -31,11 +31,11 @@ DELETE FROM [dbo].[SoccerPlayerCareers] WHERE [PlayerId] IN (@U12PlayerId, @U15P
 
 INSERT INTO [dbo].[SoccerPlayerCareers]
     ([PlayerId], [TeamName], [TeamId], [IsCurrent], [BadgeLabel], [StartDate], [EndDate], [Role], [Note], [IsVerified]) VALUES
-(@U15PlayerId, '광주광주FCU15', @U15TeamId, 1, '광주 지역 대표 선발', '2024-03-01', NULL,
+(@U15PlayerId, '검증fc', @U15TeamId, 1, '팀 주장 · 주전 GK', '2024-03-01', NULL,
  'U15 · GK · 주전', '2026 시즌 리그 무실점 경기 6회. 팀 주장.', 1),
 (@U15PlayerId, '광주서구유소년FC', NULL, 0, NULL, '2021-05-01', '2024-02-01',
  'U12 · GK', '유소년 첫 소속팀. 지역 대회 4회 출전.', 0),
-(@U12PlayerId, '서울신답FCU12', @U12TeamId, 1, NULL, '2025-03-01', NULL,
+(@U12PlayerId, '검증fc', @U12TeamId, 1, NULL, '2025-03-01', NULL,
  'U12 · MF', '드리블 돌파가 강점. 주중 훈련 개근.', 0);
 
 --.// 포트폴리오 영상 (김정현만 — 신준우는 빈 상태 검증)

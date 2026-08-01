@@ -22,6 +22,8 @@ DELETE FROM [dbo].[SoccerTeamPlayers] WHERE [TeamId] = @TeamId;
 DELETE FROM [dbo].[SoccerPlayers] WHERE [PlayerId] IN (SELECT [PlayerId] FROM @old);
 
 --.// 로스터 정의 (U15 6명 · U12 3명 · U18 2명 — 팀 대시보드 레퍼런스 구성)
+-- #1 김정현(U15 GK)·#7 신준우(U12 MF)는 검증 선수 계정과 연결되는 자리
+-- (VerificationPlayerLinks.Seed.sql이 등번호로 UserId 주입). 나머지 Claimed는 표시용 더미.
 
 DECLARE @roster TABLE (
     [PlayerId]  UNIQUEIDENTIFIER DEFAULT NEWID(),
@@ -37,10 +39,10 @@ INSERT INTO @roster ([Name], [AgeGroup], [PhotoUrl], [Position], [Grade], [Numbe
 ('김민준', 'U15', 'https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=600', 'FW', '중2', '9', 1),
 ('이서준', 'U15', 'https://images.pexels.com/photos/37044687/pexels-photo-37044687.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', '중3', '8', 1),
 ('박도윤', 'U15', 'https://images.pexels.com/photos/3886093/pexels-photo-3886093.jpeg?auto=compress&cs=tinysrgb&w=600', 'DF', '중2', '4', 0),
-('최시우', 'U15', 'https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=600', 'GK', '중1', '1', 0),
+('김정현', 'U15', 'https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=600', 'GK', '중3', '1', 1),
 ('정하준', 'U15', NULL, 'FW', '중2', '11', 0),
 ('강지호', 'U15', NULL, 'MF', '중3', '6', 1),
-('오지안', 'U12', 'https://images.pexels.com/photos/35481332/pexels-photo-35481332.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', '초5', '7', 1),
+('신준우', 'U12', 'https://images.pexels.com/photos/35481332/pexels-photo-35481332.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', '초5', '7', 1),
 ('한이든', 'U12', NULL, 'FW', '초6', '10', 0),
 ('서준우', 'U12', NULL, 'DF', '초5', '3', 0),
 ('윤태양', 'U18', 'https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', '고2', '10', 1),
@@ -48,8 +50,11 @@ INSERT INTO @roster ([Name], [AgeGroup], [PhotoUrl], [Position], [Grade], [Numbe
 
 --.// 3개 테이블 삽입
 
-INSERT INTO [dbo].[SoccerPlayers] ([PlayerId], [UserId], [Name], [PhotoUrl], [AgeGroup])
-SELECT [PlayerId], CASE WHEN [IsClaimed] = 1 THEN NEWID() END, [Name], [PhotoUrl], [AgeGroup]
+-- Slug(NOT NULL·UNIQUE)은 로마자화 + PlayerId 파생 유니크 접미 (프로시저 UspAddSoccerTeamPlayer 패턴).
+INSERT INTO [dbo].[SoccerPlayers] ([PlayerId], [UserId], [Name], [Slug], [PhotoUrl], [AgeGroup])
+SELECT [PlayerId], CASE WHEN [IsClaimed] = 1 THEN NEWID() END, [Name],
+       dbo.UfnRomanizeKoreanSlug([Name]) + '-vf' + LEFT(REPLACE(CONVERT(VARCHAR(36), [PlayerId]), '-', ''), 6),
+       [PhotoUrl], [AgeGroup]
 FROM @roster;
 
 INSERT INTO [dbo].[SoccerTeamPlayers] ([TeamId], [PlayerId], [JerseyNumber], [Position], [Grade])
