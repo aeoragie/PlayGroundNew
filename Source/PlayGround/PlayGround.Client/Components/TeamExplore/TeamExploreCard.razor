@@ -15,7 +15,7 @@
         @if (Team.IsRecruiting)
         {
             @* 오렌지 채움은 카운트 뱃지 전용 (Design.AvatarBadge) — 커버 위도 대기·주의 캡슐 톤으로 통일 *@
-            <span class="@($"absolute top-2.5 right-3 {Css.Badge.Pending}")">모집중</span>
+            <span class="@($"absolute top-2.5 right-3 {Css.Badge.Pending}")">@AppText.Team.Recruiting</span>
         }
     </div>
     <div class="px-[15px] md:px-[18px] pb-[15px] md:pb-[18px] flex flex-col gap-2.5 md:gap-[11px]">
@@ -23,7 +23,7 @@
             <span class="w-[46px] h-[46px] md:w-[52px] md:h-[52px] rounded-xl md:rounded-[14px] bg-navy-deep border-[3px] border-white flex items-center justify-center overflow-hidden shrink-0 shadow-[0_3px_10px_rgba(28,43,74,.15)]">
                 @if (Team.LogoUrl is not null)
                 {
-                    <img src="@Team.LogoUrl" alt="팀 엠블럼" class="w-full h-full object-cover" />
+                    <img src="@Team.LogoUrl" alt="@AppText.Team.EmblemAlt" class="w-full h-full object-cover" />
                 }
                 else
                 {
@@ -35,7 +35,7 @@
                     <span class="text-[14.5px] md:text-[15.5px] font-extrabold whitespace-nowrap overflow-hidden text-ellipsis">@Team.TeamName</span>
                     @if (Team.IsVerified)
                     {
-                        <span class="@($"{Css.Badge.Positive} shrink-0")">✓ 인증팀</span>
+                        <span class="@($"{Css.Badge.Positive} shrink-0")">@AppText.Team.VerifiedBadge</span>
                     }
                 </span>
                 @if (Meta.Length > 0)
@@ -59,15 +59,15 @@
                 @if (HasRecord)
                 {
                     <span class="@StatCell">
-                        <span class="@StatValue">@(Team.Wins)승 @(Team.Draws)무 @(Team.Losses)패</span>
-                        <span class="@StatLabel">올해 전적</span>
+                        <span class="@StatValue">@AppText.Team.Record(Team.Wins, Team.Draws, Team.Losses)</span>
+                        <span class="@StatLabel">@AppText.Team.RecordLabel</span>
                     </span>
                 }
                 @if (Team.PlayerCount > 0)
                 {
                     <span class="@StatCell">
-                        <span class="@StatValue">@(Team.PlayerCount)명</span>
-                        <span class="@StatLabel">선수단</span>
+                        <span class="@StatValue">@AppText.Team.PlayerCount(Team.PlayerCount)</span>
+                        <span class="@StatLabel">@AppText.Team.PlayerCountLabel</span>
                     </span>
                 }
             </div>

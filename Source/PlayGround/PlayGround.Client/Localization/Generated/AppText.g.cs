@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Landing", "Notification", "Records", "Settings" };
+        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Landing", "Notification", "Records", "Settings", "Team" };
 
         public static class Auth
         {
@@ -902,6 +902,94 @@ namespace PlayGround.Client.Localization
             public static string ConnectHint(object arg0) => Loc.Format("Settings.ConnectHint", arg0);
             /// <summary>연결하기</summary>
             public static string Connect => Loc.Get("Settings.Connect");
+        }
+
+        public static class Team
+        {
+            /// <summary>팀 탐색 — PlayGround</summary>
+            public static string ExplorePageTitle => Loc.Get("Team.ExplorePageTitle");
+            /// <summary>팀 탐색</summary>
+            public static string ExploreSection => Loc.Get("Team.ExploreSection");
+            /// <summary>팀 이름으로 검색</summary>
+            public static string SearchPlaceholder => Loc.Get("Team.SearchPlaceholder");
+            /// <summary>필터</summary>
+            public static string Filter => Loc.Get("Team.Filter");
+            /// <summary>인증팀만</summary>
+            public static string VerifiedOnly => Loc.Get("Team.VerifiedOnly");
+            /// <summary>모집중만</summary>
+            public static string RecruitingOnly => Loc.Get("Team.RecruitingOnly");
+            /// <summary>우리 지역 팀 찾기</summary>
+            public static string ExploreTitle => Loc.Get("Team.ExploreTitle");
+            /// <summary>홈페이지·리뷰·성적을 비교하고 정보로 결정하세요</summary>
+            public static string ExploreSubtitle => Loc.Get("Team.ExploreSubtitle");
+            /// <summary>연령</summary>
+            public static string AxisAge => Loc.Get("Team.AxisAge");
+            /// <summary>지역</summary>
+            public static string AxisRegion => Loc.Get("Team.AxisRegion");
+            /// <summary>유형</summary>
+            public static string AxisType => Loc.Get("Team.AxisType");
+            /// <summary>팀</summary>
+            public static string UnitTeam => Loc.Get("Team.UnitTeam");
+            /// <summary>조건에 맞는 팀이 없어요</summary>
+            public static string EmptyTitle => Loc.Get("Team.EmptyTitle");
+            /// <summary>지역이나 연령 필터를 넓혀서 다시 찾아보세요.</summary>
+            public static string EmptyDescription => Loc.Get("Team.EmptyDescription");
+            /// <summary>필터 초기화</summary>
+            public static string ResetFilters => Loc.Get("Team.ResetFilters");
+            /// <summary>더 보기 ({0}개 남음)</summary>
+            public static string ShowMore(object arg0) => Loc.Format("Team.ShowMore", arg0);
+            /// <summary>우리 팀이 아직 없나요?</summary>
+            public static string NoTeamYet => Loc.Get("Team.NoTeamYet");
+            /// <summary>팀을 등록하면 홈페이지가 자동으로 생성되고, 학부모들이 이 목록에서 찾을 수 있어요.</summary>
+            public static string NoTeamYetBody => Loc.Get("Team.NoTeamYetBody");
+            /// <summary>팀 홈페이지 만들기</summary>
+            public static string CreateTeamHome => Loc.Get("Team.CreateTeamHome");
+            /// <summary>{0}개 팀 보기</summary>
+            public static string SheetApply(object arg0) => Loc.Format("Team.SheetApply", arg0);
+            /// <summary>정렬</summary>
+            public static string SheetSort => Loc.Get("Team.SheetSort");
+            /// <summary>추천순</summary>
+            public static string SortRecommended => Loc.Get("Team.SortRecommended");
+            /// <summary>선수단순</summary>
+            public static string SortPlayers => Loc.Get("Team.SortPlayers");
+            /// <summary>인증팀</summary>
+            public static string Verified => Loc.Get("Team.Verified");
+            /// <summary>모집중</summary>
+            public static string Recruiting => Loc.Get("Team.Recruiting");
+            /// <summary> 조건</summary>
+            public static string FilterConditionSuffix => Loc.Get("Team.FilterConditionSuffix");
+            /// <summary>로그인하면 자녀 연령·지역 우선 정렬</summary>
+            public static string SortHintGuest => Loc.Get("Team.SortHintGuest");
+            /// <summary>모든 지역·연령 표시 중 (로그인하면 자녀 연령·지역 우선으로 정렬돼요)</summary>
+            public static string SortHintAll => Loc.Get("Team.SortHintAll");
+            /// <summary>팀 엠블럼</summary>
+            public static string EmblemAlt => Loc.Get("Team.EmblemAlt");
+            /// <summary>✓ 인증팀</summary>
+            public static string VerifiedBadge => Loc.Get("Team.VerifiedBadge");
+            /// <summary>{0}승 {1}무 {2}패</summary>
+            public static string Record(object arg0, object arg1, object arg2) => Loc.Format("Team.Record", arg0, arg1, arg2);
+            /// <summary>올해 전적</summary>
+            public static string RecordLabel => Loc.Get("Team.RecordLabel");
+            /// <summary>{0}명</summary>
+            public static string PlayerCount(object arg0) => Loc.Format("Team.PlayerCount", arg0);
+            /// <summary>선수단</summary>
+            public static string PlayerCountLabel => Loc.Get("Team.PlayerCountLabel");
+            /// <summary>팀 홈페이지</summary>
+            public static string HomeFallbackTitle => Loc.Get("Team.HomeFallbackTitle");
+            /// <summary>팀 홈페이지를 찾을 수 없어요</summary>
+            public static string NotFoundTitle => Loc.Get("Team.NotFoundTitle");
+            /// <summary>주소가 잘못되었거나 비공개로 전환된 팀이에요.</summary>
+            public static string NotFoundBody => Loc.Get("Team.NotFoundBody");
+            /// <summary>PlayGround 홈으로 →</summary>
+            public static string ToLanding => Loc.Get("Team.ToLanding");
+            /// <summary>이 홈페이지는 PlayGround에서 자동 생성되었습니다</summary>
+            public static string AutoGenerated => Loc.Get("Team.AutoGenerated");
+            /// <summary>우리 팀 홈페이지 만들기 →</summary>
+            public static string CreateOurHome => Loc.Get("Team.CreateOurHome");
+            /// <summary>공유</summary>
+            public static string Share => Loc.Get("Team.Share");
+            /// <summary>입단 문의</summary>
+            public static string JoinInquiry => Loc.Get("Team.JoinInquiry");
         }
     }
 }
