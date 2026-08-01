@@ -1,3 +1,4 @@
+using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
 using PlayGround.Contracts.Records;
 
@@ -20,13 +21,15 @@ namespace PlayGround.Client.Components.Records
             return $"{at.Month}/{at.Day} ({WeekdayLetters[(int)at.DayOfWeek]}) {at:HH:mm}";
         }
 
-        public static string MatchStatusLabel(RecordsMatchDto match)
+        public static string MatchStatusLabel(RecordsMatchDto match) => MatchStatusLabel(match.Status);
+
+        public static string MatchStatusLabel(string status)
         {
-            return match.Status switch
+            return status switch
             {
-                nameof(SoccerMatchStatus.Completed) => "종료",
-                nameof(SoccerMatchStatus.Canceled) => "취소",
-                _ => "예정",
+                nameof(SoccerMatchStatus.Completed) => AppText.Records.StatusCompleted,
+                nameof(SoccerMatchStatus.Canceled) => AppText.Records.StatusCanceled,
+                _ => AppText.Records.StatusScheduled,
             };
         }
 
@@ -93,10 +96,10 @@ namespace PlayGround.Client.Components.Records
         {
             return eventType switch
             {
-                "Goal" or "PenaltyGoal" => "득점",
-                "OwnGoal" => "자책골",
-                "YellowCard" => "경고",
-                "RedCard" => "퇴장",
+                "Goal" or "PenaltyGoal" => AppText.Records.EventGoal,
+                "OwnGoal" => AppText.Records.EventOwnGoal,
+                "YellowCard" => AppText.Records.EventYellow,
+                "RedCard" => AppText.Records.EventRed,
                 _ => string.Empty,
             };
         }
@@ -126,18 +129,18 @@ namespace PlayGround.Client.Components.Records
         {
             switch (roundName)
             {
-                case "PO": return "PO";
-                case "R16": return "16강";
-                case "QF": return "8강";
-                case "SF": return "4강";
-                case "F": return "결승";
+                case "PO": return AppText.Records.RoundPo;
+                case "R16": return AppText.Records.RoundR16;
+                case "QF": return AppText.Records.RoundQf;
+                case "SF": return AppText.Records.RoundSf;
+                case "F": return AppText.Records.RoundF;
                 case null:
                 case "": return string.Empty;
             }
 
             if (roundName.StartsWith('R') && int.TryParse(roundName.AsSpan(1), out int n))
             {
-                return $"{n}R";
+                return AppText.Records.RoundGroup(n);
             }
 
             return roundName;
@@ -149,11 +152,11 @@ namespace PlayGround.Client.Components.Records
             string round = RoundDisplay(roundName);
             return stageType switch
             {
-                "Group" => string.IsNullOrEmpty(round) ? "조별" : $"조별 {round}",
-                "Split1" => string.IsNullOrEmpty(round) ? "1차 풀리그" : $"1차 {round}",
-                "Split2" => string.IsNullOrEmpty(round) ? "2차 스플릿" : $"2차 {round}",
-                "Knockout" => string.IsNullOrEmpty(round) ? "토너먼트" : round,
-                "League" => string.IsNullOrEmpty(round) ? "리그" : round,
+                "Group" => string.IsNullOrEmpty(round) ? AppText.Records.StageGroup : $"{AppText.Records.StageGroup} {round}",
+                "Split1" => string.IsNullOrEmpty(round) ? AppText.Records.StageSplit1 : $"{AppText.Records.StageSplit1} {round}",
+                "Split2" => string.IsNullOrEmpty(round) ? AppText.Records.StageSplit2 : $"{AppText.Records.StageSplit2} {round}",
+                "Knockout" => string.IsNullOrEmpty(round) ? AppText.Records.StageKnockout : round,
+                "League" => string.IsNullOrEmpty(round) ? AppText.Records.StageLeague : round,
                 _ => round,
             };
         }

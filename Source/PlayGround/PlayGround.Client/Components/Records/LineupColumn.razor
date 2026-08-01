@@ -1,14 +1,15 @@
 @* 라인업 한 팀 컬럼 (선발 + 교체 명단). Design.Records 공식 경기 상세. *@
+@using PlayGround.Client.Localization
 @using PlayGround.Contracts.Records
 
-<span class="text-[10px] font-extrabold text-text-muted">선발</span>
+<span class="text-[10px] font-extrabold text-text-muted">@AppText.Records.Starters</span>
 @foreach (RecordsLineupPlayerDto p in Starters)
 {
     <LineupRow Player="p" />
 }
 @if (Subs.Count > 0)
 {
-    <span class="text-[10px] font-extrabold text-text-muted mt-2">교체 명단</span>
+    <span class="text-[10px] font-extrabold text-text-muted mt-2">@AppText.Records.Subs</span>
     @foreach (RecordsLineupPlayerDto p in Subs)
     {
         <LineupRow Player="p" Sub="true" />

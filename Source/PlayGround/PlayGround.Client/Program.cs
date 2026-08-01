@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using PlayGround.Client;
+using PlayGround.Client.Localization;
 using PlayGround.Client.Services;
 using PlayGround.Client.Services.Auth;
 using PlayGround.Client.Services.Feedback;
@@ -36,4 +38,30 @@ builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(
     sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());
 
-await builder.Build().RunAsync();
+// i18n — 타입드 로컬라이제이션 (AppText.*). 기동 시 기본 문화권(ko) 선로드 + 앰비언트 주입.
+builder.Services.AddScoped<JsonLocalizer>();
+builder.Services.AddScoped<ILocalizer>(sp => sp.GetRequiredService<JsonLocalizer>());
+builder.Services.AddScoped<CultureState>();
+
+WebAssemblyHost host = builder.Build();
+JsonLocalizer localizer = host.Services.GetRequiredService<JsonLocalizer>();
+AppText.Loc = localizer;
+
+// 지속된 문화권(localStorage) 선반영 — 없으면 기본(ko). WASM은 Build() 후 JS interop 가능.
+string startupCulture = JsonLocalizer.BaseCulture;
+try
+{
+    IJSRuntime js = host.Services.GetRequiredService<IJSRuntime>();
+    string? stored = await js.InvokeAsync<string?>("localStorage.getItem", CultureState.StorageKey);
+    if (!string.IsNullOrWhiteSpace(stored))
+    {
+        startupCulture = stored;
+    }
+}
+catch (JSException)
+{
+    // JS 불가 환경 — 기본 문화권 유지
+}
+
+await localizer.LoadAsync(startupCulture);
+await host.RunAsync();
