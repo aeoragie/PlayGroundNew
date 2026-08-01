@@ -4,6 +4,9 @@ namespace PlayGround.Client.Localization
     /// 생성된 타입드 접근자(AppText.*)가 소비한다. 직접 문자열 키 호출은 지양.</summary>
     public interface ILocalizer
     {
+        /// <summary>활성 문화권 코드 ('ko','ja'…). 한국어 조사(이/가) 같은 문화권 전용 문법 처리에 쓴다.</summary>
+        string Culture { get; }
+
         string Get(string key);
 
         string Format(string key, params object[] args);

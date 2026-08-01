@@ -15,25 +15,25 @@
 @inject TeamClient Teams
 @inject ToastService Toasts
 
-<PageTitle>알림 — PlayGround</PageTitle>
+<PageTitle>@AppText.Notification.PageTitle</PageTitle>
 
 <div class="min-h-screen bg-surface-alt text-navy-deep">
     @* 상단 바 — 뒤로(대시보드 허브 · 구조상 상위, history.back 아님) + 제목 *@
     <header class="sticky top-0 z-30 bg-bg/95 backdrop-blur-[10px] border-b border-border">
         <div class="max-w-[720px] mx-auto px-4 md:px-6 h-14 flex items-center gap-3">
-            <a href="@Routes.Dashboard" aria-label="대시보드로" class="shrink-0 text-text-muted hover:text-navy">
+            <a href="@Routes.Dashboard" aria-label="@AppText.Notification.BackAria" class="shrink-0 text-text-muted hover:text-navy">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
             </a>
-            <span class="text-[15px] font-extrabold whitespace-nowrap">알림</span>
+            <span class="text-[15px] font-extrabold whitespace-nowrap">@AppText.Notification.Title</span>
         </div>
     </header>
 
     <main class="max-w-[720px] mx-auto px-4 md:px-6 py-5 flex flex-col gap-4">
         @* 세그먼트 — URL 쿼리 동기화(?filter=action) *@
         <div class="@Css.Segment.Track">
-            <button type="button" class="@Css.Segment.Item(CurrentFilter == "all")" @onclick="@(() => ApplyFilter("all"))">@SegmentLabel("전체", mTotal)</button>
-            <button type="button" class="@Css.Segment.Item(CurrentFilter == "action")" @onclick="@(() => ApplyFilter("action"))">@SegmentLabel("처리 필요", mAction)</button>
-            <button type="button" class="@Css.Segment.Item(CurrentFilter == "unread")" @onclick="@(() => ApplyFilter("unread"))">@SegmentLabel("읽지 않음", mUnread)</button>
+            <button type="button" class="@Css.Segment.Item(CurrentFilter == "all")" @onclick="@(() => ApplyFilter("all"))">@SegmentLabel(AppText.Notification.SegAll, mTotal)</button>
+            <button type="button" class="@Css.Segment.Item(CurrentFilter == "action")" @onclick="@(() => ApplyFilter("action"))">@SegmentLabel(AppText.Notification.SegAction, mAction)</button>
+            <button type="button" class="@Css.Segment.Item(CurrentFilter == "unread")" @onclick="@(() => ApplyFilter("unread"))">@SegmentLabel(AppText.Notification.SegUnread, mUnread)</button>
         </div>
 
         <LoadingGate IsLoading="@(mItems is null && !mFailed)" HasFailed="@mFailed" OnRetry="() => LoadAsync(true)">
@@ -43,8 +43,8 @@
             <ChildContent>
                 @if (mItems!.Count == 0)
                 {
-                    <EmptyState Kind="EmptyState.Art.Record" Title="알림이 없어요">
-                        <Description>새 소식이 오면 여기에 모여요.</Description>
+                    <EmptyState Kind="EmptyState.Art.Record" Title="@AppText.Notification.EmptyTitle">
+                        <Description>@AppText.Notification.EmptyDescription</Description>
                     </EmptyState>
                 }
                 else
@@ -79,7 +79,7 @@
                                             <span class="@Css.Notification.MoveTitle">@NotificationPresenter.MoveTitle(item)</span>
                                             @if (NotificationPresenter.IsAgentType(item))
                                             {
-                                                <span class="@Css.Notification.AgentBadge">에이전트</span>
+                                                <span class="@Css.Notification.AgentBadge">@AppText.Notification.AgentBadge</span>
                                             }
                                         </span>
                                         <span class="@Css.Notification.MoveBody">@NotificationPresenter.MoveBody(item)</span>
@@ -98,11 +98,11 @@
                     @if (mHasMore)
                     {
                         <button type="button" class="@Css.Notification.MoreButton" disabled="@mLoadingMore" @onclick="MoreAsync">
-                            @(mLoadingMore ? "불러오는 중…" : "더 보기")
+                            @(mLoadingMore ? AppText.Notification.LoadingMore : AppText.Notification.LoadMore)
                         </button>
                     }
 
-                    <span class="text-center text-[11.5px] text-text-muted break-keep py-1">최근 90일의 알림을 보여드려요</span>
+                    <span class="text-center text-[11.5px] text-text-muted break-keep py-1">@AppText.Notification.RetentionCaption</span>
                 }
             </ChildContent>
         </LoadingGate>
@@ -244,7 +244,7 @@
 
         if (reviewed is null)
         {
-            Toasts.ShowError("요청을 처리하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Notification.ReviewFailedToast);
             return;
         }
 
@@ -259,22 +259,22 @@
 
         if (!ok)
         {
-            Toasts.ShowError("초대를 확인하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Notification.InviteFailedToast);
             return;
         }
 
-        Toasts.ShowSuccess($"{item.PlayerName} 선수가 {item.TeamName} 선수단에 합류했어요.");
+        Toasts.ShowSuccess(AppText.Notification.JoinedToast(item.PlayerName, item.TeamName));
         await LoadAsync(reset: true);
     }
 
     //.// 액션형 제목·본문 (연결 요청·선수단 초대)
 
     private static string ActionTitle(NotificationDto item) =>
-        item.Type == nameof(SoccerNotificationType.ClaimRequest) ? "프로필 연결 요청" : "선수단 초대";
+        item.Type == nameof(SoccerNotificationType.ClaimRequest) ? AppText.Notification.TitleClaimRequest : AppText.Notification.TitleTeamInvite;
 
     private static string ActionBody(NotificationDto item) => item.Type == nameof(SoccerNotificationType.ClaimRequest)
-        ? $"{item.ActorName} 님({NotificationPresenter.RelationLabel(item.Relation)})이 {item.PlayerName}{(item.MetaText is not null ? $"({item.MetaText})" : "")} 프로필 연결을 요청했어요"
-        : $"{item.TeamName}이 {item.PlayerName}을 선수단에 초대했어요";
+        ? AppText.Notification.BodyClaimRequest(item.ActorName, NotificationPresenter.RelationLabel(item.Relation), item.PlayerName, item.MetaText is not null ? $"({item.MetaText})" : "")
+        : AppText.Notification.BodyTeamInvite(item.TeamName, item.PlayerName);
 
     private RenderFragment RightAction(NotificationDto item) => builder =>
     {
@@ -287,7 +287,7 @@
             }
             else
             {
-                builder.AddContent(1, StatusLabel(item.RequestStatus == "Approved" ? "승인함" : "거절함"));
+                builder.AddContent(1, StatusLabel(item.RequestStatus == "Approved" ? AppText.Notification.StatusApproved : AppText.Notification.StatusRejected));
             }
         }
         else
@@ -298,19 +298,19 @@
             }
             else
             {
-                builder.AddContent(3, StatusLabel("합류함"));
+                builder.AddContent(3, StatusLabel(AppText.Notification.StatusJoined));
             }
         }
     };
 
     private RenderFragment ClaimButtons(NotificationDto item) =>
         @<span class="flex gap-1.5 flex-none self-center">
-            <button type="button" class="@Css.Notification.ApproveButton" disabled="@mBusy" @onclick="() => ReviewAsync(item, true)">승인</button>
-            <button type="button" class="@Css.Notification.RejectButton" disabled="@mBusy" @onclick="() => ReviewAsync(item, false)">거절</button>
+            <button type="button" class="@Css.Notification.ApproveButton" disabled="@mBusy" @onclick="() => ReviewAsync(item, true)">@AppText.Notification.Approve</button>
+            <button type="button" class="@Css.Notification.RejectButton" disabled="@mBusy" @onclick="() => ReviewAsync(item, false)">@AppText.Notification.Reject</button>
         </span>;
 
     private RenderFragment ConfirmButton(NotificationDto item) =>
-        @<button type="button" class="@Css.Notification.ApproveButton flex-none self-center" disabled="@mBusy" @onclick="() => ConfirmInviteAsync(item)">초대 확인</button>;
+        @<button type="button" class="@Css.Notification.ApproveButton flex-none self-center" disabled="@mBusy" @onclick="() => ConfirmInviteAsync(item)">@AppText.Notification.ConfirmInvite</button>;
 
     private static RenderFragment StatusLabel(string text) =>
         @<span class="flex-none self-center text-[11.5px] font-bold text-text-muted whitespace-nowrap">@text</span>;

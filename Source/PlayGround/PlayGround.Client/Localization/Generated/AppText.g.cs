@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Auth", "Correction", "Landing", "Records", "Settings" };
+        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Landing", "Notification", "Records", "Settings" };
 
         public static class Auth
         {
@@ -228,6 +228,128 @@ namespace PlayGround.Client.Localization
             public static string ErrorTeamName => Loc.Get("Auth.ErrorTeamName");
         }
 
+        public static class Claim
+        {
+            /// <summary>자녀 프로필 연결 — PlayGround</summary>
+            public static string PageTitle => Loc.Get("Claim.PageTitle");
+            /// <summary>자녀 프로필 연결</summary>
+            public static string CardTopLabel => Loc.Get("Claim.CardTopLabel");
+            /// <summary>코드</summary>
+            public static string StepCode => Loc.Get("Claim.StepCode");
+            /// <summary>확인</summary>
+            public static string StepConfirm => Loc.Get("Claim.StepConfirm");
+            /// <summary>대기</summary>
+            public static string StepPending => Loc.Get("Claim.StepPending");
+            /// <summary>완료</summary>
+            public static string StepDone => Loc.Get("Claim.StepDone");
+            /// <summary>초대코드를 입력해 주세요</summary>
+            public static string CodeTitle => Loc.Get("Claim.CodeTitle");
+            /// <summary>팀에서 받은 6자리 코드를 입력하면 자녀의 선수 프로필을 찾아드려요.</summary>
+            public static string CodeSubtitle => Loc.Get("Claim.CodeSubtitle");
+            /// <summary>초대코드</summary>
+            public static string CodeAriaLabel => Loc.Get("Claim.CodeAriaLabel");
+            /// <summary>프로필 찾기</summary>
+            public static string LookupCta => Loc.Get("Claim.LookupCta");
+            /// <summary>코드가 없어요</summary>
+            public static string NoCodeHead => Loc.Get("Claim.NoCodeHead");
+            /// <summary>· 소속팀 감독·코치에게 초대코드를 요청하세요</summary>
+            public static string NoCodeLine1 => Loc.Get("Claim.NoCodeLine1");
+            /// <summary>· 경기기록에서 자녀 이름을 찾았다면 </summary>
+            public static string NoCodeLine2Prefix => Loc.Get("Claim.NoCodeLine2Prefix");
+            /// <summary>프로필에서 바로 연결 요청</summary>
+            public static string NoCodeLine2Link => Loc.Get("Claim.NoCodeLine2Link");
+            /// <summary>도 가능해요</summary>
+            public static string NoCodeLine2Suffix => Loc.Get("Claim.NoCodeLine2Suffix");
+            /// <summary>· 소속팀이 없다면 </summary>
+            public static string NoCodeLine3Prefix => Loc.Get("Claim.NoCodeLine3Prefix");
+            /// <summary>프로필 직접 만들기</summary>
+            public static string NoCodeLine3Link => Loc.Get("Claim.NoCodeLine3Link");
+            /// <summary>코드를 다시 확인해 주세요</summary>
+            public static string CodeError => Loc.Get("Claim.CodeError");
+            /// <summary>이 프로필이 맞나요?</summary>
+            public static string ConfirmTitle => Loc.Get("Claim.ConfirmTitle");
+            /// <summary>자녀 연결이란?</summary>
+            public static string InfoTitle => Loc.Get("Claim.InfoTitle");
+            /// <summary>팀이 등록해 둔 선수 프로필을 보호자 계정과 연결하는 절차예요. 연결하면 기록·알림을 보호자가 직접 관리하고, 공개 범위도 정할 수 있어요.</summary>
+            public static string InfoBody => Loc.Get("Claim.InfoBody");
+            /// <summary>{0} 등록한 선수 정보예요.</summary>
+            public static string ConfirmSubtitle(object arg0) => Loc.Format("Claim.ConfirmSubtitle", arg0);
+            /// <summary>미연결</summary>
+            public static string UnclaimedBadge => Loc.Get("Claim.UnclaimedBadge");
+            /// <summary>자녀와의 관계</summary>
+            public static string RelationLabel => Loc.Get("Claim.RelationLabel");
+            /// <summary>연결 요청을 보내면 팀 관리자가 확인 후 승인해요. 승인되면 </summary>
+            public static string ConfirmNoticePrefix => Loc.Get("Claim.ConfirmNoticePrefix");
+            /// <summary>프로필 관리 권한이 보호자에게 넘어오고</summary>
+            public static string ConfirmNoticeBold => Loc.Get("Claim.ConfirmNoticeBold");
+            /// <summary>, 팀은 더 이상 정보를 수정할 수 없어요.</summary>
+            public static string ConfirmNoticeSuffix => Loc.Get("Claim.ConfirmNoticeSuffix");
+            /// <summary>연결 요청 보내기</summary>
+            public static string SendRequestCta => Loc.Get("Claim.SendRequestCta");
+            /// <summary>내 자녀가 아니에요 — 코드 다시 입력</summary>
+            public static string NotMyChild => Loc.Get("Claim.NotMyChild");
+            /// <summary>등번호 {0}</summary>
+            public static string JerseyNumber(object arg0) => Loc.Format("Claim.JerseyNumber", arg0);
+            /// <summary>{0}년생</summary>
+            public static string BirthYear(object arg0) => Loc.Format("Claim.BirthYear", arg0);
+            /// <summary>승인을 기다리고 있어요</summary>
+            public static string PendingTitle => Loc.Get("Claim.PendingTitle");
+            /// <summary>{0} 관리자에게 요청을 보냈어요.</summary>
+            public static string PendingSubtitleLine1(object arg0) => Loc.Format("Claim.PendingSubtitleLine1", arg0);
+            /// <summary>승인되면 알림으로 알려드릴게요. 보통 1~2일 안에 처리돼요.</summary>
+            public static string PendingSubtitleLine2 => Loc.Get("Claim.PendingSubtitleLine2");
+            /// <summary>{0} · 보호자({1})</summary>
+            public static string PendingGuardianOf(object arg0, object arg1) => Loc.Format("Claim.PendingGuardianOf", arg0, arg1);
+            /// <summary>{0} 요청</summary>
+            public static string RequestedAt(object arg0) => Loc.Format("Claim.RequestedAt", arg0);
+            /// <summary>승인 대기</summary>
+            public static string PendingBadge => Loc.Get("Claim.PendingBadge");
+            /// <summary>요청 취소</summary>
+            public static string CancelRequest => Loc.Get("Claim.CancelRequest");
+            /// <summary>오전</summary>
+            public static string Am => Loc.Get("Claim.Am");
+            /// <summary>오후</summary>
+            public static string Pm => Loc.Get("Claim.Pm");
+            /// <summary>{0} 선수와 연결됐어요</summary>
+            public static string DoneTitle(object arg0) => Loc.Format("Claim.DoneTitle", arg0);
+            /// <summary>이제 보호자님이 프로필의 주인이에요.</summary>
+            public static string DoneSubtitleLine1 => Loc.Get("Claim.DoneSubtitleLine1");
+            /// <summary>공개 범위를 확인하고 포트폴리오를 채워보세요.</summary>
+            public static string DoneSubtitleLine2 => Loc.Get("Claim.DoneSubtitleLine2");
+            /// <summary>항목별 공개 설정</summary>
+            public static string DoneTipVisibilityBold => Loc.Get("Claim.DoneTipVisibilityBold");
+            /// <summary> — 키·몸무게·학교 공개 여부를 정하세요</summary>
+            public static string DoneTipVisibility => Loc.Get("Claim.DoneTipVisibility");
+            /// <summary>대표 영상 등록</summary>
+            public static string DoneTipVideoBold => Loc.Get("Claim.DoneTipVideoBold");
+            /// <summary> — 공개 프로필 첫 화면에 노출돼요</summary>
+            public static string DoneTipVideo => Loc.Get("Claim.DoneTipVideo");
+            /// <summary>선수 대시보드로 가기</summary>
+            public static string GoPlayerDashboard => Loc.Get("Claim.GoPlayerDashboard");
+            /// <summary>요청을 보내지 못했어요. 다시 시도해 주세요.</summary>
+            public static string SendFailedToast => Loc.Get("Claim.SendFailedToast");
+            /// <summary>재시도</summary>
+            public static string Retry => Loc.Get("Claim.Retry");
+            /// <summary>연결 요청을 취소할까요?</summary>
+            public static string CancelTitle => Loc.Get("Claim.CancelTitle");
+            /// <summary>{0} 선수 연결 요청이 철회돼요. 필요하면 다시 요청할 수 있어요.</summary>
+            public static string CancelDescription(object arg0) => Loc.Format("Claim.CancelDescription", arg0);
+            /// <summary>요청 취소</summary>
+            public static string CancelConfirmLabel => Loc.Get("Claim.CancelConfirmLabel");
+            /// <summary>닫기</summary>
+            public static string CancelCancelLabel => Loc.Get("Claim.CancelCancelLabel");
+            /// <summary>취소하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string CancelFailedToast => Loc.Get("Claim.CancelFailedToast");
+            /// <summary>연결 요청을 취소했어요.</summary>
+            public static string CancelledToast => Loc.Get("Claim.CancelledToast");
+            /// <summary>아버지</summary>
+            public static string RelationFather => Loc.Get("Claim.RelationFather");
+            /// <summary>기타 보호자</summary>
+            public static string RelationGuardian => Loc.Get("Claim.RelationGuardian");
+            /// <summary>어머니</summary>
+            public static string RelationMother => Loc.Get("Claim.RelationMother");
+        }
+
         public static class Correction
         {
             /// <summary>기록 수정 신청</summary>
@@ -394,6 +516,60 @@ namespace PlayGround.Client.Localization
             public static string NavStart => Loc.Get("Landing.NavStart");
             /// <summary>메뉴</summary>
             public static string NavMenuLabel => Loc.Get("Landing.NavMenuLabel");
+        }
+
+        public static class Notification
+        {
+            /// <summary>알림 — PlayGround</summary>
+            public static string PageTitle => Loc.Get("Notification.PageTitle");
+            /// <summary>대시보드로</summary>
+            public static string BackAria => Loc.Get("Notification.BackAria");
+            /// <summary>알림</summary>
+            public static string Title => Loc.Get("Notification.Title");
+            /// <summary>전체</summary>
+            public static string SegAll => Loc.Get("Notification.SegAll");
+            /// <summary>처리 필요</summary>
+            public static string SegAction => Loc.Get("Notification.SegAction");
+            /// <summary>읽지 않음</summary>
+            public static string SegUnread => Loc.Get("Notification.SegUnread");
+            /// <summary>알림이 없어요</summary>
+            public static string EmptyTitle => Loc.Get("Notification.EmptyTitle");
+            /// <summary>새 소식이 오면 여기에 모여요.</summary>
+            public static string EmptyDescription => Loc.Get("Notification.EmptyDescription");
+            /// <summary>에이전트</summary>
+            public static string AgentBadge => Loc.Get("Notification.AgentBadge");
+            /// <summary>불러오는 중…</summary>
+            public static string LoadingMore => Loc.Get("Notification.LoadingMore");
+            /// <summary>더 보기</summary>
+            public static string LoadMore => Loc.Get("Notification.LoadMore");
+            /// <summary>최근 90일의 알림을 보여드려요</summary>
+            public static string RetentionCaption => Loc.Get("Notification.RetentionCaption");
+            /// <summary>요청을 처리하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string ReviewFailedToast => Loc.Get("Notification.ReviewFailedToast");
+            /// <summary>초대를 확인하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string InviteFailedToast => Loc.Get("Notification.InviteFailedToast");
+            /// <summary>{0} 선수가 {1} 선수단에 합류했어요.</summary>
+            public static string JoinedToast(object arg0, object arg1) => Loc.Format("Notification.JoinedToast", arg0, arg1);
+            /// <summary>프로필 연결 요청</summary>
+            public static string TitleClaimRequest => Loc.Get("Notification.TitleClaimRequest");
+            /// <summary>선수단 초대</summary>
+            public static string TitleTeamInvite => Loc.Get("Notification.TitleTeamInvite");
+            /// <summary>{0} 님({1})이 {2}{3} 프로필 연결을 요청했어요</summary>
+            public static string BodyClaimRequest(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Notification.BodyClaimRequest", arg0, arg1, arg2, arg3);
+            /// <summary>{0}이 {1}을 선수단에 초대했어요</summary>
+            public static string BodyTeamInvite(object arg0, object arg1) => Loc.Format("Notification.BodyTeamInvite", arg0, arg1);
+            /// <summary>승인함</summary>
+            public static string StatusApproved => Loc.Get("Notification.StatusApproved");
+            /// <summary>거절함</summary>
+            public static string StatusRejected => Loc.Get("Notification.StatusRejected");
+            /// <summary>합류함</summary>
+            public static string StatusJoined => Loc.Get("Notification.StatusJoined");
+            /// <summary>승인</summary>
+            public static string Approve => Loc.Get("Notification.Approve");
+            /// <summary>거절</summary>
+            public static string Reject => Loc.Get("Notification.Reject");
+            /// <summary>초대 확인</summary>
+            public static string ConfirmInvite => Loc.Get("Notification.ConfirmInvite");
         }
 
         public static class Records
