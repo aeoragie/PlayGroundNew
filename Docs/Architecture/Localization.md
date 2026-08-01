@@ -1,0 +1,173 @@
+# 다국어(i18n) 구조와 작업 규칙
+
+> 대상: `PlayGround.Client`(Blazor WASM)의 **사용자 노출 문자열 전량**.
+> 기본 문화권 **ko**(SPEC 카피가 원본), 확장 예정 **ja / en**.
+> 도입 커밋 `7d9de8d` · 생성기 분리 `163aecc` · 조사 모디파이어 `51c8b7e`.
+
+## 1. 원칙 5가지
+
+1. **사용자에게 보이는 문자열은 코드에 두지 않는다.** 리소스(JSON) → 타입드 접근자(`AppText.*`) 경유.
+2. **키는 매직 스트링이 아니다.** 생성기가 JSON에서 타입드 접근자를 만들어 **오타·존재하지 않는 키는 컴파일 실패**.
+3. **문법은 리소스가 소유한다.** 어순·조사·경어 등 언어별 문법은 각 언어 JSON 안에서 해결한다.
+   컴포넌트 코드에 **문화권 분기(`if (culture == "ko")`)를 만들지 않는다.**
+4. **ko 값은 SPEC 카피 그대로.** 한 글자도 바꾸지 않는다(CLAUDE.md UI 규칙과 동일). 번역은 ja/en에서 한다.
+5. **활성 문화권만 내려받는다.** WASM 다운로드를 늘리지 않기 위해 전 언어 번들링을 하지 않는다.
+
+## 2. 파일 구조
+
+```
+PlayGround.Client/
+├── wwwroot/i18n/
+│   ├── {Domain}.ko.json         ← 원본(SPEC 카피). 예: Team.ko.json
+│   └── {Domain}.ja.json         ← 번역. 없으면 ko로 폴백
+├── Localization/
+│   ├── ILocalizer.cs            ← 키 → 문자열 해석 포트
+│   ├── JsonLocalizer.cs         ← 지연 로드·병합·폴백 구현
+│   ├── KoreanParticle.cs        ← 한국어 조사 모디파이어 해석
+│   ├── CultureState.cs          ← 문화권 전환 + localStorage(`pg.culture`)
+│   ├── AppText.cs               ← 앰비언트 접근점(부분 클래스)
+│   └── Generated/AppText.g.cs   ← **생성물. 수동 편집 금지**
+└── Program.cs                   ← 기동 시 지속 문화권 로드 + AppText.Loc 주입
+
+Source/Tools/Generator.Localization/   ← 별도 콘솔 도구(DB 생성기와 분리)
+```
+
+## 3. 런타임 동작
+
+- 기동 시 `localStorage['pg.culture']`를 읽어 해당 문화권 JSON을 fetch. 없으면 **ko**.
+- **폴백 3단**: 활성 문화권 값 → ko 값 → **키 문자열 그대로**(번역 누락을 화면에서 바로 발견하기 위함).
+- 도메인 파일은 병합되고 내부 키는 `"{Domain}.{Key}"`로 네임스페이스가 붙는다.
+- 문화권 전환은 `CultureState.SetCultureAsync("ja")` — 활성 파일만 새로 받는다.
+
+## 4. 생성기
+
+```bash
+cd Source/Tools/Generator.Localization && dotnet run
+```
+
+- 입력: `wwwroot/i18n/*.ko.json`(기본 문화권이 스키마의 기준)
+- 출력: `Localization/Generated/AppText.g.cs` — **커밋한다**(clone 즉시 빌드되도록. DB 생성기와 같은 정책)
+- 값에 플레이스홀더가 없으면 **프로퍼티**, 있으면 **인자 메서드**로 생성한다.
+
+```jsonc
+"Timeline": "타임라인"              → AppText.Records.Timeline
+"Coach":    "{0} 감독"              → AppText.Records.Coach(name)
+"CardSummary": "경고 {0} · 퇴장 {1}" → AppText.Records.CardSummary(y, r)
+```
+
+**ja에만 있고 ko에 없는 키는 생성되지 않는다** — 키 추가는 반드시 ko부터.
+
+## 5. 키 컨벤션
+
+| 규칙 | 내용 |
+|---|---|
+| 파일 = 도메인 | 화면/기능 묶음 단위. `Landing` `Auth` `Settings` `Claim` `Notification` `Team` `Records` `Correction` |
+| 키 = **PascalCase** | `ContinueLine`, `ExportErrorCooldown` (camelCase 금지 — 접근자와 1:1 대응) |
+| 접두 중복 금지 | `Landing.PageTitle`이지 `Landing.LandingPageTitle`이 아니다 |
+| 의미 기반 | 문구가 아니라 **역할**로 짓는다. `ErrorLoginFailed`(○) / `LoginFailedMessage2`(✕) |
+| 접미 관례 | `...Title` `...Body` `...Placeholder` `...Helper` `...Toast` `...Error` `...Aria` |
+| 문장 조각 | 굵게/링크로 쪼개지는 문장은 `...Prefix` / `...Bold` / `...Link` / `...Suffix`로 분해 |
+
+## 6. 한국어 조사(助詞) — 모디파이어
+
+한국어 조사는 **앞 값의 받침**에 따라 달라져서 정적 번역문으로는 맞출 수 없다
+(`"{0}가 연결됐어요"` → "구글**가**" ✕). 리소스에 모디파이어를 쓴다.
+
+```jsonc
+// Settings.ko.json
+"LinkedToast": "{0:이/가} 연결됐어요."          // 구글이 / 카카오가
+"ConnectHint": "{0:으로도/로도} 로그인할 수 있게 연결해요"
+// Notification.ko.json
+"BodyTeamInvite": "{0:이/가} {1:을/를} 선수단에 초대했어요"
+```
+
+- 표기: **`{n:받침있음/받침없음}`** — `이/가`, `은/는`, `을/를`, `과/와`, `으로/로`
+- 호출부는 **원본 값만** 넘긴다: `AppText.Settings.LinkedToast(provider)`
+- **일본어·영어 리소스는 모디파이어를 쓰지 않는다** → 언어 구분이 코드가 아니라 데이터에 있다
+- 받침 판별(`KoreanParticle`): 한글은 유니코드 종성 규칙, 숫자는 발음(0·1·3·6·7·8 받침),
+  영문은 알파벳 이름 발음(L·M·N·R 받침)
+
+## 7. 작업 규칙
+
+### 신규 코드 (필수)
+
+> **하드코딩 한글 금지.** 새 문자열은 ① `{Domain}.ko.json`에 키 추가 → ② `.ja.json`에도 추가 →
+> ③ 생성기 실행 → ④ `@AppText.{Domain}.{Key}` 사용.
+
+### 기존 화면 이관 절차
+
+1. **대상 수집** — `grep -rlP "[가-힣]" <폴더> --include=*.razor`
+2. **리소스 작성** — ko는 SPEC 카피 그대로 복사(재작성 금지), ja는 번역
+3. **생성** — `cd Source/Tools/Generator.Localization && dotnet run`
+4. **치환** — 마크업·`@code`·토스트·확인 모달·검증 오류·`PageTitle`·`aria-label`·`placeholder` 전부
+5. **빌드** — `dotnet build Source/PlayGround/PlayGround.Client/PlayGround.Client.csproj`
+6. **검증** — 헤드리스로 ko 카피 동일 + 미해석 키 0 + ja 전환 렌더 (§9)
+7. **커밋** — 도메인 단위로 (`i18n 이관 — {Domain} 도메인 (N파일)`)
+
+### 이관 대상이 아닌 것 (건드리지 말 것)
+
+| 대상 | 이유 |
+|---|---|
+| DB 저장 enum 멤버명 (`'Completed'`, `'Goal'`) | 데이터 값 — 개명은 마이그레이션 동반 |
+| 로그·예외 메시지 | 영어 규칙(CLAUDE.md) |
+| Tailwind 클래스·CSS | 표시 문자열 아님 |
+| `.razor` 주석(`@* *@`), C# 주석 | 개발자용 |
+| 이모지·기호 아이콘 (`⚽`, `★`, `→`, `·`) | 디자인 요소 — 번역 대상 아님 |
+| 문자 범위 검증 로직 (`c >= '가' && c <= '힣'`) | 표시가 아니라 로직 |
+| 팀명·선수명 등 **데이터** | 사용자 입력값 |
+
+### 안티패턴
+
+```csharp
+// ✕ 문화권 분기 — 언어가 늘수록 증식한다
+if (AppText.Culture == "ko") { ... }
+
+// ✕ 키를 문자열로 직접 — 오타를 컴파일러가 못 잡는다
+Loc.Get("Team.RosterTitle")
+
+// ✕ 문장을 코드에서 조립 — 어순이 다른 언어에서 깨진다
+$"{teamName} 팀의 {count}명"        →  "Team.RosterSummary": "{0} 팀의 {1}명"
+
+// ✕ Domain enum 표시 라벨을 Domain 계층에서 반환 (한글 하드코딩)
+//   → 표시는 표현 계층(AppText)으로 라우팅한다. 예: CorrectionListSection의 FieldLabel/StatusLabel
+```
+
+## 8. 진행 현황 (2026-08-02)
+
+| 도메인 | 파일 | 상태 |
+|---|---|---|
+| Records(경기 상세) · Correction | 5 | ✅ |
+| Landing | 11 | ✅ |
+| Auth | 5 | ✅ |
+| Settings | 6 | ✅ |
+| Claim · Notification | 2 | ✅ |
+| Team(탐색 3 + 공개홈 18) | 21 | ✅ |
+| **Player** | 23 | ⏳ |
+| **Dashboard**(팀 관리·모바일·공용) | 59 | ⏳ |
+| **Shared** 컴포넌트 | 46 | ⏳ |
+| **Records 목록·상세·아카이브** 잔여 | 4 | ⏳ |
+
+리소스 키 총계: Auth 109 · Settings 126 · Team 172 · Landing 64 · Claim 59 · Records 36 · Notification 25 · Correction 16.
+
+## 9. 검증 방법
+
+빌드만으로는 **누락**을 못 잡는다(하드코딩이 남아도 빌드는 통과). 화면으로 확인한다.
+
+```bash
+# 서버 기동 (Client 수정 후에는 반드시 전체 재시작 — CLAUDE.md 반복 함정)
+dotnet build Source/PlayGround/PlayGround.Server/PlayGround.Server.csproj
+dotnet run --project Source/PlayGround/PlayGround.Server
+```
+
+헤드리스 체크 3종:
+1. **ko 카피 동일** — 이관 전 문구가 그대로 렌더되는가
+2. **미해석 키 0** — 화면 텍스트에 `"{Domain}."` 형태가 보이면 키 오타/누락
+3. **ja 전환** — `localStorage.setItem('pg.culture','ja')` 후 새로고침 시 일본어 렌더,
+   미이관 문자열만 한국어로 남는지(= 점진 이관 정상)
+
+## 10. 미착수 (ja/en 실제 오픈 시)
+
+- **언어 스위처 UI** + 전환 시 앱 전역 재렌더 배선(`CultureState.Changed` 구독)
+- 날짜·숫자 형식 문화권 대응(현재 `CultureInfo.InvariantCulture` 고정 자리 존재)
+- en 리소스 작성, 번역 워크플로(외부 번역가 전달 형식)
+- 서버 발신 문자열(이메일·알림 본문) 다국어 — 현재 Client 전용 구조

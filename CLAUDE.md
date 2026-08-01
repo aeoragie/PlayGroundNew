@@ -320,6 +320,11 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 5. 디자인 레퍼런스 HTML(`Handoff/*/*.html`)은 브라우저로 열어 시각 비교.
 6. **섹션/화면 단위로 작게 구현하고 사람이 검수 후 다음 단계 진행.**
 7. Tailwind 빌드: `cd Source/PlayGround/PlayGround.Client && npm run css:build` (watch는 `css:watch`).
+8. **사용자 노출 문자열 하드코딩 금지 (i18n)** — 새 문구는 `wwwroot/i18n/{Domain}.ko.json`(+`.ja.json`)에
+   키를 추가하고 `cd Source/Tools/Generator.Localization && dotnet run` 후 `@AppText.{Domain}.{Key}`로 쓴다.
+   ko 값은 SPEC 카피 그대로. **문화권 분기 금지** — 한국어 조사는 리소스 모디파이어 `{0:이/가}`로 표현한다.
+   구조·키 컨벤션·이관 절차·제외 대상은 **`Docs/Architecture/Localization.md`**.
+   (기존 화면은 점진 이관 중 — 완료: Landing·Auth·Settings·Claim·Notification·Team·Records 경기상세.)
 
 ## 빌드 & 테스트
 
