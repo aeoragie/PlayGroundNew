@@ -57,6 +57,24 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
+        /// <summary>요청 자격 판정 — 만료·거절 쿨다운·차단(PlayGround 단독). 에이전트 서비스가 요청 생성 전에 조회한다.
+        /// 호출자(에이전트) 본인 판정만 — 서버가 JWT UserId를 SoccerAgentProfiles로 해석한다(남의 자격 조회 불가).
+        /// **여기는 판정만** — 요청 생성 엔드포인트를 만들면 축 분리가 무너진다(설계 결정 4·6).</summary>
+        [HttpGet("me/eligibility")]
+        public async Task<Envelope<AgentRequestEligibilityResponse>> GetEligibilityAsync(
+            [FromQuery] Guid playerId, [FromQuery] Guid guardianId, CancellationToken cancellation)
+        {
+            Guid userId = CurrentUserId;
+            if (userId == Guid.Empty)
+            {
+                return Result<AgentRequestEligibilityResponse>.Error(ErrorCode.Unauthorized, "Invalid subject").ToEnvelope();
+            }
+
+            Result<AgentRequestEligibilityResponse> result = await mGateway.AskAsync<AgentRequestEligibilityResponse>(
+                ActorNames.SoccerClaim, new GetAgentEligibilityMessage(userId, playerId, guardianId), cancellation);
+            return result.ToEnvelope();
+        }
+
         /// <summary>차단 — "이 에이전트의 요청 다시 받지 않기" (대기 요청은 함께 거절 처리).</summary>
         [HttpPost("me/{requestId:guid}/block")]
         public async Task<Envelope<bool>> BlockAsync(Guid requestId, CancellationToken cancellation)

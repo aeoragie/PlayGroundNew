@@ -89,6 +89,35 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(queryResult.Values1.Count > 0);
         }
 
+        public async Task<Result<AgentRequestEligibilityResponse>> GetEligibilityAsync(
+            Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default)
+        {
+            Logger.InfoWith("Agent request eligibility requested",
+                ("RequesterUserId", requesterUserId), ("PlayerId", playerId), ("GuardianUserId", guardianUserId));
+
+            var procedure = new UspGetSoccerAgentRequestEligibility(this)
+            {
+                RequesterUserId = requesterUserId,
+                PlayerId = playerId,
+                GuardianUserId = guardianUserId
+            };
+            Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
+            if (opened.IsError)
+            {
+                return Result<AgentRequestEligibilityResponse>.Error(ErrorCode.DatabaseError, "GetAgentEligibility");
+            }
+
+            using MultiQueryReader reader = opened.Value;
+            string status = await reader.ReadSingleOrDefaultAsync<string>() ?? "NotAgent";
+            DateTime? cooldownUntil = await reader.ReadSingleOrDefaultAsync<DateTime?>();
+
+            return Result<AgentRequestEligibilityResponse>.Success(new AgentRequestEligibilityResponse
+            {
+                Status = status,
+                CooldownUntil = cooldownUntil
+            });
+        }
+
         private static AgentViewRequestResponse Map(
             SoccerAgentViewRequestRecord request, SoccerAgentProfilesEntity? agent, List<SoccerAgentViewLogsEntity> logs)
         {

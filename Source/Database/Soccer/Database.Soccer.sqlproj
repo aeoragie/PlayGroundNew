@@ -140,6 +140,7 @@
     <Build Include="Procedures\UspGetSoccerTeamOgBySlug.sql" />
     <Build Include="Procedures\UspGetSoccerPlayerOgBySlug.sql" />
     <Build Include="Procedures\UspGetSoccerTournamentOgById.sql" />
+    <Build Include="Procedures\UspGetSoccerAgentRequestEligibility.sql" />
     <Build Include="Procedures\UspCreateSoccerDataExportRequest.sql" />
     <Build Include="Procedures\UspGetSoccerDataExportByUser.sql" />
     <Build Include="Procedures\UspGetSoccerDataExportById.sql" />

@@ -15,5 +15,8 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>차단 ("다시 받지 않기") — 차단 행 생성(멱등) + 대기 요청 거절 처리.</summary>
         Task<Result<bool>> BlockAgentAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default);
+
+        /// <summary>요청 자격 판정 — 만료·거절 쿨다운·차단(PlayGround 단독). requesterUserId로 에이전트 본인 해석.</summary>
+        Task<Result<AgentRequestEligibilityResponse>> GetEligibilityAsync(Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default);
     }
 }

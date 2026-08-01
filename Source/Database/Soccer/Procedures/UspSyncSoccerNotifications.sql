@@ -34,6 +34,24 @@ BEGIN
           WHERE n.[RecipientUserId] = @UserId
             AND n.[NotificationType] = 'ViewRequest' AND n.[RefId] = r.[RequestId]);
 
+    --.// ① 에이전트 열람 승인 만료 임박 지연 동기화 (Design.AgentDashboard) — 승인 후 3일 전(만료 자동 판정 파생).
+    -- 만료는 상태를 뒤집지 않고 ExpiresAt 파생으로 처리한다(기존 결정) — 여기서는 만료 3일 전 1회 알림만 만든다.
+    -- 승인(Approved)이고 아직 미만료이며 ExpiresAt가 3일 이내인 건에 대해 멱등 INSERT(RefId=RequestId).
+    INSERT INTO [dbo].[SoccerNotifications]
+        ([RecipientUserId], [NotificationType], [RefId], [TargetPlayerId], [ActorName], [PlayerName], [CreatedAt])
+    SELECT r.[GuardianUserId], 'AgentGrantExpiring', r.[RequestId], r.[PlayerId], a.[Name], p.[Name], GETUTCDATE()
+    FROM [dbo].[SoccerAgentViewRequests] r
+    JOIN [dbo].[SoccerAgentProfiles] a ON a.[AgentId] = r.[AgentId] AND a.[DeletedAt] IS NULL
+    JOIN [dbo].[SoccerPlayers] p ON p.[PlayerId] = r.[PlayerId]
+    WHERE r.[GuardianUserId] = @UserId AND r.[Status] = 'Approved' AND r.[DeletedAt] IS NULL
+      AND r.[ExpiresAt] IS NOT NULL
+      AND r.[ExpiresAt] > GETUTCDATE()
+      AND r.[ExpiresAt] <= DATEADD(DAY, 3, GETUTCDATE())
+      AND NOT EXISTS (
+          SELECT 1 FROM [dbo].[SoccerNotifications] n
+          WHERE n.[RecipientUserId] = @UserId
+            AND n.[NotificationType] = 'AgentGrantExpiring' AND n.[RefId] = r.[RequestId]);
+
     --.// ② 보관 90일 자동 정리 — 미해소 액션형(연결 요청 Pending · 선수단 초대 미확인)은 나이와 무관하게 유지.
     DELETE n
     FROM [dbo].[SoccerNotifications] n

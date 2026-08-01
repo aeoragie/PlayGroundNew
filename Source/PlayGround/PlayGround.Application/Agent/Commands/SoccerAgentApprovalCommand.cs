@@ -72,6 +72,19 @@ namespace PlayGround.Application.Agent.Commands
             return Result<AgentViewRequestResponse>.Success(reviewed.Value);
         }
 
+        /// <summary>요청 자격 판정 — 만료·거절 쿨다운·차단(PlayGround 단독). requesterUserId로 에이전트 본인 해석
+        /// (남의 자격은 조회 불가). 에이전트 서비스가 요청 생성 전에 조회한다 — 생성 자체는 여기서 하지 않는다.</summary>
+        public async Task<Result<AgentRequestEligibilityResponse>> GetEligibilityAsync(
+            Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default)
+        {
+            if (requesterUserId == Guid.Empty || playerId == Guid.Empty || guardianUserId == Guid.Empty)
+            {
+                return Result<AgentRequestEligibilityResponse>.Error(ErrorCode.InvalidInput, "requesterUserId/playerId/guardianUserId required");
+            }
+
+            return await mRepository.GetEligibilityAsync(requesterUserId, playerId, guardianUserId, cancellation);
+        }
+
         public async Task<Result<bool>> BlockAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
         {
             if (guardianUserId == Guid.Empty || requestId == Guid.Empty)

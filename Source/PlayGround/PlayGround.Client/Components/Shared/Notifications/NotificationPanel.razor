@@ -132,7 +132,7 @@
                         <span class="flex flex-col gap-[3px] flex-1 min-w-0">
                             <span class="flex items-center gap-1.5 flex-wrap">
                                 <span class="@Css.Notification.MoveTitle">@MoveTitle(item)</span>
-                                @if (item.Type == nameof(SoccerNotificationType.ViewRequest))
+                                @if (NotificationPresenter.IsAgentType(item))
                                 {
                                     @* 에이전트 관련 알림엔 violet 뱃지 병기 (Design.ClaimFlow 알림 절) *@
                                     <span class="@Css.Notification.AgentBadge">에이전트</span>
@@ -175,10 +175,10 @@
     // 유형 → 칩 그룹 (존재하는 것만 노출) — 문구·딥링크는 NotificationPresenter가 단일 관리(페이지와 공유)
     private static string GroupOf(NotificationDto item) => NotificationPresenter.GroupOf(item);
 
-    // 에이전트 축이 꺼져 있으면 열람 요청 알림은 갈 곳이 없다 — 행 자체를 내리지 않는다
+    // 에이전트 축이 꺼져 있으면 열람 요청·만료 임박 알림은 갈 곳이 없다 — 행 자체를 내린다
     private IEnumerable<NotificationDto> Enabled => Data is null
         ? Enumerable.Empty<NotificationDto>()
-        : Data.Items.Where(i => FeatureFlags.AgentApproval || i.Type != nameof(SoccerNotificationType.ViewRequest));
+        : Data.Items.Where(i => FeatureFlags.AgentApproval || !NotificationPresenter.IsAgentType(i));
 
     private List<(string Group, int Count)> Groups =>
         Enabled.GroupBy(GroupOf).Select(g => (g.Key, g.Count())).ToList();
@@ -250,7 +250,8 @@
     {
         nameof(SoccerNotificationType.ClaimApproved) => Css.Notification.MoveIconTeal,
         nameof(SoccerNotificationType.ClaimRejected) => Css.Notification.MoveIconMuted,
-        nameof(SoccerNotificationType.ViewRequest) => Css.Notification.MoveIconViolet,
+        nameof(SoccerNotificationType.ViewRequest) or
+        nameof(SoccerNotificationType.AgentGrantExpiring) => Css.Notification.MoveIconViolet,
         _ => Css.Notification.MoveIconNavy,
     };
 

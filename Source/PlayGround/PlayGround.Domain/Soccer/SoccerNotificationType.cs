@@ -25,5 +25,8 @@ namespace PlayGround.Domain.Soccer
         /// <summary>이동형 — 본인 수신, 데이터 내려받기 파일 준비 완료 (RefId = 내보내기 RequestId). 딥링크 → 설정 계정 탭.
         /// 완료 알림은 알림 센터 + 이메일 두 채널(Design.SettingsFlows ③). 스냅샷 없음(문구는 클라 고정).</summary>
         ExportReady,
+        /// <summary>이동형 — 보호자 수신, 에이전트 열람 승인 만료 임박(3일 전, RefId = 열람 RequestId). 딥링크 → 심사 화면.
+        /// 조회 시점 지연 생성(Design.AgentDashboard). 에이전트 요소라 flag OFF면 클라가 숨긴다(ViewRequest와 동일).</summary>
+        AgentGrantExpiring,
     }
 }

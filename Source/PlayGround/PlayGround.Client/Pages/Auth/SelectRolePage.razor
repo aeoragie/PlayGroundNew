@@ -1,5 +1,6 @@
 @attribute [Route(Routes.SelectRole)]
 @layout AuthLayout
+@using PlayGround.Client.Models
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Auth
 @inject NavigationManager Nav
@@ -45,16 +46,19 @@ else
             <span class="text-[18px] text-text-faint">→</span>
         </button>
 
-        @* 에이전트 (비활성) *@
-        <div class="flex items-center gap-[18px] bg-[#fafbfc] border-1.5 border-dashed border-border rounded-2xl px-6 py-[22px] opacity-70">
-            <span class="w-[52px] h-[52px] rounded-[14px] bg-surface-icon flex items-center justify-center text-[25px] flex-none">🤝</span>
-            <span class="flex flex-col gap-1 flex-1">
-                <span class="text-[17.5px] font-extrabold text-text-muted">에이전트
-                    <span class="@Css.Badge.Agent">준비중</span>
+        @* 에이전트 (비활성) — feature flag OFF면 항목 자체 미노출 (Design.AgentDashboard). 로그인은 별도 서비스 SSO. *@
+        @if (FeatureFlags.AgentApproval)
+        {
+            <div class="flex items-center gap-[18px] bg-[#fafbfc] border-1.5 border-dashed border-border rounded-2xl px-6 py-[22px] opacity-70">
+                <span class="w-[52px] h-[52px] rounded-[14px] bg-surface-icon flex items-center justify-center text-[25px] flex-none">🤝</span>
+                <span class="flex flex-col gap-1 flex-1">
+                    <span class="text-[17.5px] font-extrabold text-text-muted">에이전트
+                        <span class="@Css.Badge.Agent">준비중</span>
+                    </span>
+                    <span class="text-[13.5px] text-text-muted leading-[1.55]">선수 스카우팅 · 팀 추천 — 별도 서비스로 오픈 예정</span>
                 </span>
-                <span class="text-[13.5px] text-text-muted leading-[1.55]">선수 스카우팅 · 팀 추천 — 별도 서비스로 오픈 예정</span>
-            </span>
-        </div>
+            </div>
+        }
     </div>
 
     <button type="button" @onclick="SkipRole" class="@($"{Css.Auth.TextLink} self-center py-1")">나중에 선택할게요 (둘러보기)</button>

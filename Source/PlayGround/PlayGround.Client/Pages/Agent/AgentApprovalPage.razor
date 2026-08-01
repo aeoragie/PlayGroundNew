@@ -46,7 +46,7 @@
 
                     <div class="grid grid-cols-[1.15fr_.85fr] gap-4 items-start">
                         <div class="flex flex-col gap-3.5">
-                            @AgentCard
+                            <AgentIdentityCard Agent="@mData!.Agent" />
                             @RequestCard
                             @if (IsApproved)
                             {
@@ -82,7 +82,7 @@
                 <Skeleton><div class="p-5"><SkeletonRows Count="3" ShowChip="false" /></div></Skeleton>
                 <ChildContent>
                     <div class="p-5 flex flex-col gap-4">
-                        @AgentCard
+                        <AgentIdentityCard Agent="@mData!.Agent" />
                         @RequestCard
                         @ScopeCard
                         @ActionBlock
@@ -293,63 +293,6 @@
     }
 
     //.// 공용 블록 (PC 2컬럼 / 모바일 스택이 같은 마크업을 쓴다)
-
-    private RenderFragment AgentCard => __builder =>
-    {
-        <div class="bg-white border-1.5 border-agent/30 rounded-2xl overflow-hidden">
-            <div class="bg-agent/[.06] px-4 py-3.5 md:px-[22px] md:py-[18px] flex items-center gap-3 md:gap-3.5">
-                <Avatar Name="@mData!.Agent.Name" Tone="Avatar.AvatarTone.Agent" Size="44" Class="flex-none md:!hidden" />
-                <Avatar Name="@mData!.Agent.Name" Tone="Avatar.AvatarTone.Agent" Size="56" Class="flex-none !hidden md:!flex" />
-                <span class="flex flex-col gap-0.5 md:gap-[3px] flex-1 min-w-0">
-                    <span class="flex items-center gap-1.5 md:gap-2 flex-wrap">
-                        <span class="text-[14.5px] md:text-[16.5px] font-extrabold whitespace-nowrap">@mData.Agent.Name</span>
-                        @if (mData.Agent.IsVerified)
-                        {
-                            <span class="@Css.Badge.Agent">인증 에이전트</span>
-                        }
-                    </span>
-                    <span class="text-[11.5px] md:text-[12.5px] text-text-body whitespace-nowrap">@AgencyLine</span>
-                </span>
-            </div>
-            @if (HasStats)
-            {
-                <div class="px-4 py-3 md:px-[22px] md:py-4 flex gap-3.5 md:gap-[18px]">
-                    @if (mData.Agent.BrokerageCount > 0)
-                    {
-                        <span class="flex flex-col gap-px md:gap-0.5 flex-1">
-                            <span class="text-sm md:text-[17px] font-extrabold">@(mData.Agent.BrokerageCount)명</span>
-                            <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">중개 이력</span>
-                        </span>
-                    }
-                    @if (mData.Agent.Rating is not null)
-                    {
-                        <span class="flex flex-col gap-px md:gap-0.5 flex-1">
-                            <span class="flex items-center gap-1 text-sm md:text-[17px] font-extrabold">
-                                <svg width="12" height="12" viewBox="0 0 24 24" class="md:w-3.5 md:h-3.5 fill-current text-orange"><path d="M12 2l2.9 6.3 6.6.8-4.9 4.6 1.3 6.6-5.9-3.4-5.9 3.4 1.3-6.6-4.9-4.6 6.6-.8z"></path></svg>@mData.Agent.Rating
-                            </span>
-                            <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">팀·학부모 평가</span>
-                        </span>
-                    }
-                    @if (mData.Agent.ActiveRegions is not null)
-                    {
-                        <span class="flex flex-col gap-px md:gap-0.5 flex-1">
-                            <span class="text-sm md:text-[17px] font-extrabold whitespace-nowrap">@mData.Agent.ActiveRegions</span>
-                            <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">활동 지역</span>
-                        </span>
-                    }
-                </div>
-            }
-        </div>
-    };
-
-    private string AgencyLine => string.Join(" · ", new[]
-    {
-        mData?.Agent.AgencyName,
-        mData?.Agent.RegisteredYear is int year ? $"등록 {year}" : null,
-    }.Where(v => v is not null));
-
-    private bool HasStats => mData is not null
-        && (mData.Agent.BrokerageCount > 0 || mData.Agent.Rating is not null || mData.Agent.ActiveRegions is not null);
 
     private RenderFragment RequestCard => __builder =>
     {

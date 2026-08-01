@@ -30,6 +30,17 @@ namespace PlayGround.Server.Actors
             RegisterHandlerAsync<GetAgentViewRequestMessage>(HandleGetAgentRequestAsync);
             RegisterHandlerAsync<ReviewAgentViewRequestMessage>(HandleReviewAgentRequestAsync);
             RegisterHandlerAsync<BlockAgentMessage>(HandleBlockAgentAsync);
+            RegisterHandlerAsync<GetAgentEligibilityMessage>(HandleGetAgentEligibilityAsync);
+        }
+
+        private async Task HandleGetAgentEligibilityAsync(GetAgentEligibilityMessage message)
+        {
+            IActorRef sender = Sender; // await 전에 캡처 (Akka Sender 함정)
+            using IServiceScope scope = ServiceProvider.CreateScope();
+            SoccerAgentApprovalCommand useCase = scope.ServiceProvider.GetRequiredService<SoccerAgentApprovalCommand>();
+            Result<AgentRequestEligibilityResponse> result =
+                await useCase.GetEligibilityAsync(message.RequesterUserId, message.PlayerId, message.GuardianUserId);
+            sender.Tell(result);
         }
 
         private async Task HandleGetAgentRequestAsync(GetAgentViewRequestMessage message)

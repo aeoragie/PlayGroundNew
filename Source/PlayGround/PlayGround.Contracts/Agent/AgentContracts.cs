@@ -52,4 +52,18 @@ namespace PlayGround.Contracts.Agent
         public Guid RequestId { get; set; }
         public string Action { get; set; } = string.Empty;
     }
+
+    /// <summary>열람 요청 자격 판정 (Design.AgentDashboard) — 만료·거절 쿨다운·차단은 PlayGround 단독 판정.
+    /// 에이전트 서비스가 요청 생성 전에 조회한다(생성 자체는 에이전트 서비스 몫). 호출자 본인(에이전트) 것만.</summary>
+    public class AgentRequestEligibilityResponse
+    {
+        /// <summary>'NotAgent' | 'Blocked' | 'Active'(승인·미만료) | 'Cooldown' | 'Allowed'.</summary>
+        public string Status { get; set; } = string.Empty;
+
+        /// <summary>Cooldown일 때만 값 — 이 시각 이후 재요청 가능(최근 거절 + 30일).</summary>
+        public DateTime? CooldownUntil { get; set; }
+
+        /// <summary>요청 생성 가능 여부 — Status == 'Allowed'.</summary>
+        public bool CanRequest => Status == "Allowed";
+    }
 }

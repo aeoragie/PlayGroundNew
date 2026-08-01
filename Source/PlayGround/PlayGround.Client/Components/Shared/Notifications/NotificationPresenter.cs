@@ -9,6 +9,11 @@ namespace PlayGround.Client.Components.Shared.Notifications
     /// 딥링크는 여기서만 조립한다(SQL에 라우트를 저장하지 않는다 — Routes.cs 단일 관리).</summary>
     public static class NotificationPresenter
     {
+        /// <summary>에이전트 축 알림 — feature flag(AgentApproval) OFF면 숨긴다(열람 요청·만료 임박).</summary>
+        public static bool IsAgentType(NotificationDto item) =>
+            item.Type == nameof(SoccerNotificationType.ViewRequest)
+            || item.Type == nameof(SoccerNotificationType.AgentGrantExpiring);
+
         /// <summary>액션형(인라인 처리 대상) — 처리 필요 세그먼트·행 우측 버튼 판정.</summary>
         public static bool IsActionType(NotificationDto item) =>
             item.Type == nameof(SoccerNotificationType.ClaimRequest)
@@ -37,7 +42,8 @@ namespace PlayGround.Client.Components.Shared.Notifications
             nameof(SoccerNotificationType.ClaimApproved) or
             nameof(SoccerNotificationType.ClaimRejected) => "연결 요청",
             nameof(SoccerNotificationType.MatchResult) => "경기",
-            nameof(SoccerNotificationType.ViewRequest) => "열람 요청",
+            nameof(SoccerNotificationType.ViewRequest) or
+            nameof(SoccerNotificationType.AgentGrantExpiring) => "열람 요청",
             nameof(SoccerNotificationType.RosterInvite) => "선수단 초대",
             nameof(SoccerNotificationType.TeamNotice) => "팀 소식",
             nameof(SoccerNotificationType.ExportReady) => "내 계정",
@@ -54,7 +60,8 @@ namespace PlayGround.Client.Components.Shared.Notifications
                 $"{Routes.PlayerDashboardSection(SoccerPlayerDashboardSection.Stats)}?playerId={item.TargetPlayerId}",
             nameof(SoccerNotificationType.CorrectionReviewed) =>
                 Routes.TeamDashboardSection(SoccerTeamDashboardSection.Results),
-            nameof(SoccerNotificationType.ViewRequest) => Routes.AgentApproval(item.RefId),
+            nameof(SoccerNotificationType.ViewRequest) or
+            nameof(SoccerNotificationType.AgentGrantExpiring) => Routes.AgentApproval(item.RefId),
             nameof(SoccerNotificationType.TeamNotice) when item.TargetPlayerId is not null =>
                 Routes.TeamNews(item.TargetPlayerId.Value),
             nameof(SoccerNotificationType.ExportReady) => Routes.SettingsSection(SettingsSection.Account),
@@ -67,6 +74,7 @@ namespace PlayGround.Client.Components.Shared.Notifications
             nameof(SoccerNotificationType.ClaimRejected) => "연결 요청이 거절됐어요",
             nameof(SoccerNotificationType.MatchResult) => "경기 결과 반영",
             nameof(SoccerNotificationType.ViewRequest) => "상세 정보 열람 요청",
+            nameof(SoccerNotificationType.AgentGrantExpiring) => "열람 승인 만료 임박",
             nameof(SoccerNotificationType.TeamNotice) => "팀 공지",
             nameof(SoccerNotificationType.ExportReady) => "데이터 파일이 준비됐어요",
             _ => item.SubText == "Accepted" ? "기록 수정 신청 반영" : "기록 수정 신청 반려",
@@ -78,6 +86,7 @@ namespace PlayGround.Client.Components.Shared.Notifications
             nameof(SoccerNotificationType.ClaimRejected) => $"{item.PlayerName} · {item.TeamName} — 팀에 문의해 보세요",
             nameof(SoccerNotificationType.MatchResult) => $"{item.TeamName} vs {item.ActorName} ({item.MetaText}) 결과가 등록됐어요",
             nameof(SoccerNotificationType.ViewRequest) => $"{item.ActorName} 님이 {item.PlayerName} 선수의 상세 정보 열람을 요청했어요",
+            nameof(SoccerNotificationType.AgentGrantExpiring) => $"{item.ActorName} 님의 {item.PlayerName} 선수 열람 권한이 3일 안에 만료돼요",
             nameof(SoccerNotificationType.TeamNotice) => $"{item.TeamName} · {item.MetaText}",
             nameof(SoccerNotificationType.ExportReady) => "설정 · 계정에서 7일 안에 내려받을 수 있어요",
             _ => $"{FieldTypeLabel(item.MetaText)} 항목 · {item.TeamName}",

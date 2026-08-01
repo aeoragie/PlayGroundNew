@@ -131,12 +131,13 @@ else if (mData is not null)
                         <a href="@ClaimHref" class="@Css.PlayerPublic.RequestButton">내 아이 프로필 관리하기</a>
                         <span class="@Css.PlayerPublic.RequestCaption">팀 관리자 승인 후 연결돼요</span>
                     }
-                    else if (mData.Grant is not null)
+                    @* 에이전트 열람 요청·연락은 feature flag 뒤 (OFF면 미노출 — Design.AgentDashboard) *@
+                    else if (FeatureFlags.AgentApproval && mData.Grant is not null)
                     {
                         <button type="button" class="@Css.PlayerPublic.RequestButton">보호자에게 연락하기</button>
                         <span class="@Css.PlayerPublic.RequestCaption">연락은 플랫폼 내 메시지로 시작됩니다</span>
                     }
-                    else
+                    else if (FeatureFlags.AgentApproval)
                     {
                         <button type="button" class="@Css.PlayerPublic.RequestButton">상세 정보 열람 요청</button>
                         <span class="@Css.PlayerPublic.RequestCaption">보호자 승인 후 열람 가능</span>
@@ -308,7 +309,11 @@ else if (mData is not null)
                class="w-12 h-12 border-1.5 border-border rounded-[11px] bg-white flex items-center justify-center shrink-0">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-text-strong"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>
             </a>
-            <button type="button" class="@Css.PlayerPublic.MobileCtaButton">@(mData.Grant is not null ? "보호자에게 연락하기" : "상세 정보 열람 요청")</button>
+            @* 에이전트 열람 요청·연락은 feature flag 뒤 (OFF면 미노출 — Design.AgentDashboard) *@
+            @if (FeatureFlags.AgentApproval)
+            {
+                <button type="button" class="@Css.PlayerPublic.MobileCtaButton">@(mData.Grant is not null ? "보호자에게 연락하기" : "상세 정보 열람 요청")</button>
+            }
         </div>
     </div>
 }

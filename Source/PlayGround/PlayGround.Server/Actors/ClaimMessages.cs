@@ -87,4 +87,10 @@ namespace PlayGround.Server.Actors
     {
         public object ConsistentHashKey => UserId;
     }
+
+    /// <summary>에이전트 요청 자격 판정 메시지 (읽기 — RequesterUserId 해시). 만료·쿨다운·차단 판정.</summary>
+    public sealed record GetAgentEligibilityMessage(Guid RequesterUserId, Guid PlayerId, Guid GuardianUserId) : IConsistentHashable
+    {
+        public object ConsistentHashKey => RequesterUserId;
+    }
 }
