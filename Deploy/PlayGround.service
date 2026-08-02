@@ -1,0 +1,44 @@
+# systemd 유닛 — /etc/systemd/system/playground.service 로 복사한다.
+#
+# 시크릿은 여기 두지 않는다. /etc/playground/playground.env (chmod 600) 에서 읽는다:
+#   Jwt__Key=...
+#   OAuth__Google__ClientSecret=...
+#   DatabaseConfiguration__Databases__Account__ConnectionString=...
+#   DatabaseConfiguration__Databases__Soccer__ConnectionString=...
+#   RedisConfig__Connections__0__ConnectionString=localhost:6379
+#
+# 적용:  sudo systemctl daemon-reload && sudo systemctl enable --now playground
+
+[Unit]
+Description=PlayGround (ASP.NET Core + Blazor WASM)
+After=network.target mssql-server.service redis-server.service
+Wants=mssql-server.service redis-server.service
+
+[Service]
+Type=notify
+WorkingDirectory=/var/www/playground
+ExecStart=/usr/bin/dotnet /var/www/playground/PlayGround.Server.dll
+Restart=always
+RestartSec=5
+User=playground
+Group=playground
+
+# Nginx가 TLS를 종료하고 127.0.0.1로 넘긴다 — 앱은 외부에 직접 노출되지 않는다
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5000
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+EnvironmentFile=/etc/playground/playground.env
+
+# 로그는 journald로 — journalctl -u playground -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=playground
+
+# 최소 권한
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
