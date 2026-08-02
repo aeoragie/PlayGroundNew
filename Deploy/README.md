@@ -104,10 +104,23 @@ SSMS 접속 정보:
 - 인증: **SQL Server 인증** (Linux는 Windows 인증을 쓰지 않는다)
 - 로그인: `sa` (운영용 계정을 따로 만들고 sa는 잠그는 것이 원칙)
 
+## 환경은 1단 (Production)
+
+투자 유치용 서비스 구축 단계라 **서버 한 대 · 파이프라인 1단**으로 간다.
+정식 스펙 재구성 시 **Local(개발자) · Dev(공동 테스트) · Staging(정식 QA) · Production(라이브)**
+4단으로 확장할 예정이고, 설정 레이어(`appsettings.{Environment}.json`)는 이미 그 구조다.
+
+> **서버가 한 대여도 `ASPNETCORE_ENVIRONMENT`는 `Production`이다.**
+> 환경 "개수"와 환경 "이름"은 별개 결정이다. `Development`로 두면
+> OpenAPI 노출 · WASM 디버깅 프록시 · **상세 예외 페이지**가 공개 URL에 켜지고 HSTS가 빠진다.
+> 투자자에게 스택 트레이스가 한 번 뜨면 그걸로 인상이 결정된다.
+
 ## 아직 남은 것
 
-- **`UseForwardedHeaders`** — Nginx가 TLS를 종료하고 앱에는 http로 넘기므로,
-  현재 `app.UseHttpsRedirection()`이 무한 리다이렉트를 일으킨다. **배포 전 코드 수정 필요.**
-- **스테이징** — 지금은 인스턴스가 하나라 `deploy.yml`의 Staging→Production 2단 구조가 맞지 않는다.
-  운영 단독으로 갈지, 스테이징을 별도로 둘지 결정 필요.
 - **백업 S3 버킷** 생성 + 인스턴스에 IAM 역할 부여 (`BackupDatabase.sh`가 전제한다)
+- **GitHub Environment `Production` 시크릿** — `DEPLOY_HOST`(Elastic IP) · `DEPLOY_USER` ·
+  `DEPLOY_SSH_KEY` · `DEPLOY_KNOWN_HOSTS`. Required reviewers도 함께 거는 것을 권한다.
+- **서버 환경변수 파일** `/etc/playground/playground.env` (chmod 600) —
+  `Jwt__Key` · OAuth 시크릿 4종 · DB 커넥션 2종 · `RedisConfig__Connections__0__ConnectionString`
+- **환경 이름 분기 정리(권장)** — `Program.cs`가 `IsDevelopment()`로 OpenAPI·디버깅을 켠다.
+  4단으로 갈 때 `Dev`는 이 조건에 안 걸려 혼란을 부르므로, 설정 플래그로 바꾸는 편이 낫다.

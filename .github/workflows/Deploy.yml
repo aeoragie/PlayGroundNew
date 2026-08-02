@@ -1,0 +1,113 @@
+name: Deploy
+
+# main 푸시 시 EC2 한 대에 배포한다. 수동 실행(workflow_dispatch)도 지원.
+#
+# **환경은 1단(Production)이다.** 투자 유치용 서비스 구축 단계라 서버가 한 대뿐이고,
+# 그래서 Staging→Production 2단 승인 구조를 쓰지 않는다.
+# 정식 스펙 재구성 시 Local · Dev · Staging · Production 4단으로 확장할 예정
+# (환경별 설정 레이어는 appsettings.{Environment}.json 으로 이미 준비돼 있다).
+#
+# **서버가 한 대여도 ASPNETCORE_ENVIRONMENT는 Production이다** —
+# Development로 두면 OpenAPI 노출·WASM 디버깅 프록시·상세 예외 페이지가 공개 URL에 켜지고
+# HSTS가 빠진다. 환경 "개수"와 환경 "이름"은 별개 결정이다.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  #.// 1) Release 산출물 생성 (환경 무관 — build once, run anywhere)
+  publish:
+    name: Publish (Release)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: Source/PlayGround/PlayGround.Client/package-lock.json
+
+      - name: Build Tailwind CSS
+        working-directory: Source/PlayGround/PlayGround.Client
+        run: |
+          npm ci
+          npm run css:build
+
+      # Server 퍼블리시 = 호스팅되는 WASM Client까지 함께 포함
+      - name: Publish Server
+        run: dotnet publish Source/PlayGround/PlayGround.Server/PlayGround.Server.csproj -c Release -o ${{ github.workspace }}/publish
+
+      # 로컬 시크릿이 산출물에 실리면 설정 체인 맨 뒤에 붙어 **운영 환경변수를 덮어쓴다**
+      # (개발용 JWT 키로 운영 토큰이 서명되는데 오류는 안 난다). csproj에서 잘라 두었지만
+      # 되돌려질 수 있으니 배포 직전에 한 번 더 막는다.
+      - name: Verify no local secrets in artifact
+        shell: pwsh
+        run: |
+          $leaked = Get-ChildItem "${{ github.workspace }}/publish" -Recurse -Filter "appsettings.Local.json"
+          if ($leaked) {
+            $leaked | ForEach-Object { Write-Error "산출물에 로컬 시크릿이 있다: $($_.FullName)" }
+            exit 1
+          }
+          Write-Host "OK - appsettings.Local.json 없음"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playground-app
+          path: publish/
+
+  #.// 2) EC2 배포 (Ubuntu 22.04 · Nginx 뒤 Kestrel · systemd)
+  deploy:
+    name: Deploy → Production
+    needs: publish
+    runs-on: ubuntu-latest
+    # GitHub → Settings → Environments → 'Production' 에 시크릿을 넣는다.
+    # Required reviewers를 걸면 수동 승인 후 배포된다(운영 안전장치 — 권장).
+    environment: Production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playground-app
+          path: publish
+
+      - name: Package artifact
+        run: |
+          cd publish
+          zip -qr ../playground-app.zip .
+
+      # 배포 키는 Environment secret으로만 둔다. known_hosts를 고정해
+      # 서버가 바뀌었을 때 조용히 성공하지 않게 한다.
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Upload to server
+        run: |
+          scp -i ~/.ssh/deploy_key playground-app.zip \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/playground-app.zip
+
+      # DeployApp.sh 가 직전 버전을 남기고 교체한 뒤 기동을 확인한다.
+      # 확인 실패 시 스스로 롤백하고 0이 아닌 코드로 끝나므로 이 스텝도 함께 실패한다.
+      - name: Deploy and verify
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            'sudo /usr/local/bin/playground-deploy /tmp/playground-app.zip'
+
+      - name: Smoke check (public URL)
+        run: |
+          curl -fsS --retry 5 --retry-delay 5 \
+            https://playgroundsport.com/api/soccer/landing/contents > /dev/null
+          echo "OK - 공개 URL 응답 정상"

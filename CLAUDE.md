@@ -40,6 +40,18 @@ Tests.Unit이 **PlayGround.Client를 참조**한다(표시 파생·조사 해석
 미착수: 실제 HTTP 왕복(Mvc.Testing 패키지 필요 — nuget.org 미접근) · E2E 저니 자동화.
 E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 검수).
 
+### 배포 (2026-08-02 확정)
+
+**AWS EC2 t3.medium 한 대**(Ubuntu 22.04)에 앱 + SQL Server 2022 Express + Redis를 함께 올린다.
+도메인 **playgroundsport.com**(Route 53) · Nginx + Let's Encrypt. 자산·절차는 **`Deploy/README.md`**.
+
+**환경은 1단이고 이름은 `Production`이다.** 투자 유치용 구축 단계라 서버가 한 대지만,
+`Development`로 두면 OpenAPI·WASM 디버깅·**상세 예외 페이지**가 공개 URL에 켜지고 HSTS가 빠진다 —
+환경 "개수"와 "이름"은 별개 결정이다. 정식 스펙 재구성 시
+**Local(개발자) · Dev(공동 테스트) · Staging(정식 QA) · Production(라이브)** 4단으로 확장 예정.
+
+> Ubuntu는 **22.04**다 — SQL Server 2022가 24.04용 저장소를 제공하지 않는다(2025만 있음).
+
 ### 다음 방향 — 첫 배포까지 (2026-08-02 결정)
 
 **지금 만들어진 것을 다듬고 · 테스트로 굳히고 · 배포한다.** 생산자 서비스(대회 운영·에이전트)는

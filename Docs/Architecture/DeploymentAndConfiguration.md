@@ -124,7 +124,7 @@ appsettings.*.Local.json
 
 ## 5. CI/CD 파이프라인 (GitHub Actions)
 
-### `ci.yml` — 모든 PR·main 푸시의 게이트
+### `CI.yml` — 모든 PR·main 푸시의 게이트
 
 ```
 checkout → setup .NET 10 / Node 20
@@ -135,7 +135,7 @@ checkout → setup .NET 10 / Node 20
 ```
 - `windows-latest` 러너 — LocalDB·SSDT(.sqlproj) 빌드가 dev와 동일하게 동작하도록.
 
-### `deploy.yml` — main 푸시 시 배포 (수동 실행도 지원)
+### `Deploy.yml` — main 푸시 시 배포 (수동 실행도 지원)
 
 ```
 git push main
@@ -143,24 +143,24 @@ git push main
    ▼
 [ publish ]  (환경 무관 단일 산출물 = build once)
    css:build → dotnet publish Server -c Release -o publish/   ← 호스팅되는 WASM Client 포함
-   → artifact 'playground-app' 업로드
+   → 로컬 시크릿 혼입 검사 → artifact 'playground-app' 업로드
    │
    ▼
-[ deploy-staging ]   environment: Staging   (main 푸시 시 자동)
-   artifact 다운로드 → Staging 호스트에 배포
-   호스트가 주입: ASPNETCORE_ENVIRONMENT=Staging  +  시크릿(env vars)
-   │  (성공 시)
-   ▼
-[ deploy-production ]   environment: Production   (승인 게이트 권장)
-   GitHub → Settings → Environments → 'Production'에 Required reviewers 설정 시
-   수동 승인 대기 후 실행 (운영 안전장치)
-   같은 artifact 다운로드 → Production 호스트에 배포
-   호스트가 주입: ASPNETCORE_ENVIRONMENT=Production  +  시크릿(env vars)
+[ deploy ]   environment: Production   (Required reviewers 권장)
+   artifact 다운로드 → zip → scp → ssh 로 playground-deploy 실행
+   DeployApp.sh 가 직전 버전 보관 → 교체 → 기동 확인 → 실패 시 자동 롤백
+   → 공개 URL 스모크 체크
 ```
 
-> **Staging과 Production은 완전히 같은 artifact를 받는다.** 차이는 오직
-> 런타임 `ASPNETCORE_ENVIRONMENT`(어떤 appsettings.{Env}.json을 읽을지)와 주입된 시크릿뿐.
-> deploy 스텝은 현재 placeholder(echo) — 실제 배포(SSH/rsync, Azure Web App, 컨테이너 등)로 교체 예정.
+> **환경은 1단(Production)이다.** 투자 유치용 서비스 구축 단계라 서버가 한 대뿐이라
+> Staging→Production 2단 승인 구조를 쓰지 않는다. 정식 스펙 재구성 시
+> **Local · Dev · Staging · Production** 4단으로 확장할 예정이고, 위 설정 레이어가 그대로 쓰인다.
+>
+> **서버가 한 대여도 `ASPNETCORE_ENVIRONMENT`는 `Production`이다** —
+> 환경 "개수"와 "이름"은 별개 결정이다. `Development`로 두면 OpenAPI·WASM 디버깅 프록시·
+> 상세 예외 페이지가 공개 URL에 켜지고 HSTS가 빠진다.
+>
+> 배포 대상·절차는 `Deploy/README.md`.
 
 ---
 
@@ -207,7 +207,7 @@ git push main
 
 ## 관련 파일
 
-- 워크플로우: `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`
+- 워크플로우: `.github/workflows/CI.yml`, `.github/workflows/Deploy.yml`
 - Server 설정: `Source/PlayGround/PlayGround.Server/appsettings*.json`, `Program.cs`(Local.json 로드)
 - Client 설정: `Source/PlayGround/PlayGround.Client/wwwroot/appsettings*.json`
 - 시크릿 템플릿: `Source/PlayGround/PlayGround.Server/appsettings.Local.json.example`

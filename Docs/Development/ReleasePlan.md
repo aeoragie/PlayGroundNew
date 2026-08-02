@@ -10,10 +10,10 @@
 |---|---|
 | 디자인된 화면 | 전부 구현 완료 |
 | 빌드 | CS 경고 0 · sqlproj 0 오류/0 경고 |
-| 테스트 | Unit 415 · Integration 5 · Infrastructure 17 (전부 DB 없이) |
+| 테스트 | Unit 415 · Integration 126 · Infrastructure 251 |
 | i18n | 15도메인 1,817키 × ko/ja, 잔여 0 |
-| CI | `.github/workflows/ci.yml` — 빌드 + 테스트 게이트 **동작함** |
-| 배포 | `.github/workflows/deploy.yml` — 골격만, **배포 스텝이 placeholder** |
+| CI | `.github/workflows/CI.yml` — 빌드 + 테스트 게이트 **동작함** |
+| 배포 | `.github/workflows/Deploy.yml` + `Deploy/` — **자산 완료, 실행 대기**(R4) |
 | 설정 | 환경별 레이어링 완비 (`Docs/Architecture/DeploymentAndConfiguration.md`) |
 
 **빠진 것은 "만들어진 기능"이 아니라 "운영에 필요한 것"이다.** 아래 4단계로 좁힌다.
@@ -26,13 +26,14 @@
 
 | # | 결정할 것 | 왜 필요한가 | 상태 |
 |---|---|---|---|
-| D1 | 호스팅 대상 | `deploy.yml`의 배포 스텝·컨테이너화 여부·DB 접속 경로가 전부 여기서 갈린다 | ✅ **AWS 확정** (2026-08-02) |
+| D1 | 호스팅 대상 | `Deploy.yml`의 배포 스텝·컨테이너화 여부·DB 접속 경로가 전부 여기서 갈린다 | ✅ **AWS 확정** (2026-08-02) |
 | D7 | 서버측 임시 상태 저장소 | 인증 토큰 무효화·일회성 상태를 어디에 둘지 | ✅ **Redis 확정** (2026-08-02) |
 | D2 | DB 호스팅 + 마이그레이션 방식 | dacpac 배포냐 스크립트 순차 적용이냐 | ✅ **EC2 동거 SQL Server 2022 Express + sqlcmd 스크립트** (2026-08-02) |
 | D4 | 도메인·인증서 | OAuth 리다이렉트 URI·쿠키·CORS가 도메인에 묶인다 | ✅ **playgroundsport.com (Route 53) + Let's Encrypt** |
 | D3 | **이메일 발송 경로** (SES · SendGrid · SMTP) | `IEmailSender` 어댑터 구현체가 달라진다 | SES (제안) |
 | D5 | **에이전트 축 flag** — 첫 배포에 off 유지? | off면 알림 센터 열람 요청 행·심사 화면이 숨겨진 채 배포된다 | **off 유지** (생산자 없음) |
-| D6 | **Records 빈 데이터 처리** — 대회 서비스가 없어 공식 기록이 비어 있다. 시드로 채울지, 빈 상태 안내로 갈지 | 첫 인상을 좌우한다 | 빈 상태 안내 |
+| D6 | **Records 빈 데이터 처리** | 첫 인상을 좌우한다. **투자 유치 단계라면 빈 화면은 "안 만들었다"로 읽힌다** — 읽기 경로는 완성됐고 생산자만 없는 건데도 | **시드로 채울 것을 권함**(미결) |
+| D8 | 환경 단수 | 서버 대수와 환경 이름은 별개 | ✅ **1단 · ASPNETCORE_ENVIRONMENT=Production** (2026-08-02) |
 
 ---
 
@@ -154,19 +155,39 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 
 ---
 
-## R4. 배포 파이프라인 완성
+## R4. 배포 파이프라인 — 자산 완료 (2026-08-02), 실행 대기
 
-목적: `deploy.yml`의 placeholder를 실물로 바꾸고 **되돌릴 수 있게** 만든다.
+**환경은 1단(Production)이다.** 투자 유치용 서비스 구축 단계라 서버 한 대·파이프라인 1단으로 간다.
+정식 스펙 재구성 시 **Local · Dev · Staging · Production** 4단으로 확장 예정.
 
-1. **D1·D2 확정** → 배포 방식 결정(컨테이너 vs 파일 배포)
-2. `deploy.yml`의 Staging·Production 스텝 실제 구현 (현재 `echo`만 있음)
-3. **GitHub Environments 시크릿 등록** — `Jwt__Key`, OAuth 시크릿, DB 커넥션 (`__`가 계층 구분자)
-4. **Production에 Required reviewers 설정** — 승인 게이트(워크플로 주석에 이미 안내됨)
-5. **DB 마이그레이션 배포 절차 확정** — `Source/Database/*/Migrations/` 순차 적용을 누가/언제
-6. **롤백 절차 문서화** — 앱 롤백 + 마이그레이션은 되돌릴 수 없는 변경이 있는지 점검
-7. Staging 배포 → R1-2 검수 재실행 → Production 승인 배포
+> 서버가 한 대여도 `ASPNETCORE_ENVIRONMENT`는 **`Production`**이다 —
+> `Development`면 OpenAPI·WASM 디버깅·상세 예외 페이지가 공개 URL에 켜진다.
 
-**완료 기준** — Staging·Production이 파이프라인으로 배포되고, 롤백을 1회 실제로 연습해 봄.
+만들어 둔 것 (`Deploy/`):
+
+| 자산 | 내용 |
+|---|---|
+| `Ec2Setup.sh` | user-data용. SQL Server·Redis·.NET·Nginx·certbot·한글 폰트·시간대(KST). **시크릿 없음** |
+| `PlayGround.service` | systemd. 시크릿은 `/etc/playground/playground.env` |
+| `Nginx.Site.conf` | 리버스 프록시(80) — certbot이 443 추가 |
+| `BackupDatabase.sh` | cron 백업 → S3 + `RESTORE VERIFYONLY` |
+| `DeployApp.sh` | 직전 버전 보관 → 교체 → 기동 확인 → **실패 시 자동 롤백** |
+| `Deploy.yml` | publish → 시크릿 혼입 검사 → scp/ssh 배포 → 공개 URL 스모크 |
+
+**사람이 해야 할 것** (AWS 콘솔·GitHub 설정):
+
+1. EC2 t3.medium (Ubuntu 22.04) 생성 + **Elastic IP** + 보안그룹(22 내 IP / 80·443 전체 / 1433 닫음)
+2. SSH 접속해 **SQL Server 초기 설정**(sa 비밀번호는 user-data에 넣지 않는다)
+3. 스키마 배포 → **DB 계약 테스트로 확인**(`Tests.Infrastructure`)
+4. **GitHub Environment `Production` 시크릿** — `DEPLOY_HOST`·`DEPLOY_USER`·`DEPLOY_SSH_KEY`·`DEPLOY_KNOWN_HOSTS`
+   + Required reviewers
+5. 서버에 `/etc/playground/playground.env` 작성 (JWT·OAuth·DB·Redis)
+6. **Route 53 A 레코드** → certbot → **OAuth 리다이렉트 URI 4곳 등록**
+7. 백업 S3 버킷 + 인스턴스 IAM 역할
+
+**완료 기준** — 파이프라인으로 배포되고, **롤백을 1회 실제로 연습**해 봄.
+
+절차 상세는 `Deploy/README.md`.
 
 ---
 
