@@ -4,7 +4,7 @@
 @using PlayGround.Client.Styles
 
 <span class="relative inline-flex">
-    <button type="button" aria-label="@($"{Title} 설명")" aria-expanded="@mOpen"
+    <button type="button" aria-label="@AppText.Shared.DescriptionAria(Title)" aria-expanded="@mOpen"
             class="@Css.Popover.Trigger" @onclick="Toggle">
         <span class="text-[11px] font-extrabold text-text-body not-italic">i</span>
     </button>

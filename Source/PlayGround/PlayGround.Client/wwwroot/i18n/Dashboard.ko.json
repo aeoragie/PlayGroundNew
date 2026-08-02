@@ -412,5 +412,7 @@
   "CancelCorrectionDescription": "{0} — 주최측에 전달된 신청이 철회돼요.",
   "CancelCorrection": "신청 취소",
   "CancelCorrectionFailedToast": "취소하지 못했어요.",
-  "CorrectionCancelledToast": "수정 신청을 취소했어요."
+  "CorrectionCancelledToast": "수정 신청을 취소했어요.",
+  "Hold": "보류",
+  "AcceptInvite": "수락 — 선수단 초대"
 }

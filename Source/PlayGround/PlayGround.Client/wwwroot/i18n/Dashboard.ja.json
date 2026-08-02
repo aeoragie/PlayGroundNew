@@ -412,5 +412,7 @@
   "CancelCorrectionDescription": "{0} — 主催者に送信された申請が撤回されます。",
   "CancelCorrection": "申請取消",
   "CancelCorrectionFailedToast": "取り消せませんでした。",
-  "CorrectionCancelledToast": "修正申請を取り消しました。"
+  "CorrectionCancelledToast": "修正申請を取り消しました。",
+  "Hold": "保留",
+  "AcceptInvite": "承諾 — チームに招待"
 }

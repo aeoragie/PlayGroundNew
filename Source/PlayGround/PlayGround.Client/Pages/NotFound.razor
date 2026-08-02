@@ -4,15 +4,15 @@
 @using PlayGround.Client.Components.Shared.Error
 @using PlayGround.Client.Styles
 
-<PageTitle>페이지를 찾을 수 없어요 — PlayGround</PageTitle>
+<PageTitle>@AppText.Shared.NotFoundPageTitle</PageTitle>
 
 <div class="min-h-screen bg-bg flex flex-col text-navy-deep">
     <PublicGnb />
-    <ErrorPageBody Kind="ErrorPageBody.Art.Pitch" StatusCode="404" Title="페이지를 찾을 수 없어요">
-        <Description>주소가 바뀌었거나 삭제된 페이지예요.<br />팀·선수를 찾고 있었다면 탐색에서 다시 검색해 보세요.</Description>
+    <ErrorPageBody Kind="ErrorPageBody.Art.Pitch" StatusCode="404" Title="@AppText.Shared.NotFoundTitle">
+        <Description>@AppText.Shared.NotFoundBody1<br />@AppText.Shared.NotFoundBody2</Description>
         <Actions>
-            <a href="@Routes.Landing" class="@Css.Error.PrimaryButton">홈으로</a>
-            <a href="@Routes.TeamExplore" class="@Css.Error.SecondaryButton">팀 탐색</a>
+            <a href="@Routes.Landing" class="@Css.Error.PrimaryButton">@AppText.Shared.GoHome</a>
+            <a href="@Routes.TeamExplore" class="@Css.Error.SecondaryButton">@AppText.Shared.ExploreTeams</a>
         </Actions>
     </ErrorPageBody>
 </div>

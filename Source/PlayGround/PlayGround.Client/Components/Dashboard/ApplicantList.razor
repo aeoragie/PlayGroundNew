@@ -209,10 +209,10 @@
     }
 
     private List<OverflowMenu.MenuItem> AcceptItemsOf(ApplicationDto app) =>
-        new() { new("수락 — 선수단 초대", () => AcceptAsync(app)) };
+        new() { new(AppText.Dashboard.AcceptInvite, () => AcceptAsync(app)) };
 
     private List<OverflowMenu.MenuItem> RejectItemsOf(ApplicationDto app) =>
-        new() { new("보류", () => RejectAsync(app)) };
+        new() { new(AppText.Dashboard.Hold, () => RejectAsync(app)) };
 
     // [테스트 요청] — 대기 → 검토중. 성공하면 목록을 다시 읽어 행이 검토중 세그먼트로 이동한다(결과가 화면에 보이므로 성공 토스트 생략, A2)
     private async Task RequestTestAsync(ApplicationDto app)

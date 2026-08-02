@@ -107,5 +107,22 @@
   "ConfirmInvite": "초대 확인",
   "ConfirmInviteFoot": "확인하면 {0} 선수가 {1} 선수단에 합류해요.",
   "AgentBadge": "에이전트",
-  "ViewAll": "전체 보기"
+  "ViewAll": "전체 보기",
+  "NotFoundPageTitle": "페이지를 찾을 수 없어요 — PlayGround",
+  "NotFoundTitle": "페이지를 찾을 수 없어요",
+  "NotFoundBody1": "주소가 바뀌었거나 삭제된 페이지예요.",
+  "NotFoundBody2": "팀·선수를 찾고 있었다면 탐색에서 다시 검색해 보세요.",
+  "GoHome": "홈으로",
+  "ServerErrorPageTitle": "일시적인 오류가 발생했어요 — PlayGround",
+  "ServerErrorTitle": "일시적인 오류가 발생했어요",
+  "ServerErrorBody1": "서버에 문제가 생겨 요청을 처리하지 못했어요.",
+  "ServerErrorBody2": "잠시 후 다시 시도해 주세요. 기록·데이터는 안전하게 보관되어 있어요.",
+  "ErrorCodeNotice": "문제가 계속되면 고객센터로 알려주세요. 오류 코드: ",
+  "ForbiddenPageTitle": "권한이 없어요 — PlayGround",
+  "ForbiddenTitle": "볼 수 있는 권한이 없어요",
+  "ForbiddenBody1": "이 페이지는 해당 역할의 계정만 열 수 있어요.",
+  "ForbiddenBody2": "다른 계정으로 로그인했는지 확인해 보세요.",
+  "ToMyDashboard": "내 대시보드로",
+  "LoginOtherAccount": "다른 계정으로 로그인",
+  "ForbiddenFootnote": "계속 문제가 있다면 팀 관리자 또는 고객센터에 문의하세요."
 }

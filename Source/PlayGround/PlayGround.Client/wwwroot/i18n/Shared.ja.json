@@ -107,5 +107,22 @@
   "ConfirmInvite": "招待を確認",
   "ConfirmInviteFoot": "確認すると {0} 選手が {1} に加入します。",
   "AgentBadge": "エージェント",
-  "ViewAll": "すべて見る"
+  "ViewAll": "すべて見る",
+  "NotFoundPageTitle": "ページが見つかりません — PlayGround",
+  "NotFoundTitle": "ページが見つかりません",
+  "NotFoundBody1": "URLが変更されたか削除されたページです。",
+  "NotFoundBody2": "チーム・選手をお探しの場合は検索から再度お試しください。",
+  "GoHome": "ホームへ",
+  "ServerErrorPageTitle": "一時的なエラーが発生しました — PlayGround",
+  "ServerErrorTitle": "一時的なエラーが発生しました",
+  "ServerErrorBody1": "サーバーに問題が発生しリクエストを処理できませんでした。",
+  "ServerErrorBody2": "しばらくしてからお試しください。記録・データは安全に保管されています。",
+  "ErrorCodeNotice": "問題が続く場合はサポートへご連絡ください。エラーコード: ",
+  "ForbiddenPageTitle": "権限がありません — PlayGround",
+  "ForbiddenTitle": "閲覧する権限がありません",
+  "ForbiddenBody1": "このページは該当する役割のアカウントのみ開けます。",
+  "ForbiddenBody2": "別のアカウントでログインしていないかご確認ください。",
+  "ToMyDashboard": "マイダッシュボードへ",
+  "LoginOtherAccount": "別のアカウントでログイン",
+  "ForbiddenFootnote": "問題が続く場合はチーム管理者またはサポートへお問い合わせください。"
 }
