@@ -2,6 +2,7 @@
   <Folder Name="/Deploy/">
     <File Path="Deploy/README.md" />
     <File Path="Deploy/AwsSetup.md" />
+    <File Path="Deploy/ManualSetup.md" />
     <File Path="Deploy/Runbook.md" />
     <File Path="Deploy/Servers.md" />
     <File Path="Deploy/backup-database.sh" />

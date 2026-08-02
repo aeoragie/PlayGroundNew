@@ -12,11 +12,11 @@
 | 항목 | 값 |
 |---|---|
 | 역할 | PlayGround 웹 앱 · SQL Server 2022 Express · Redis · Nginx |
-| **공개 IP** | `3.224.104.65` (Elastic IP) |
-| **비공개 IP** | `172.31.22.197` (VPC 내부) |
+| **공개 IP** | `…` (Elastic IP — 서울 재생성 후 기입) |
+| **비공개 IP** | `…` (VPC 내부) |
 | OS | Ubuntu 22.04 LTS |
 | 인스턴스 타입 | t3.medium (2 vCPU / 4GB) |
-| 리전 | *(확인 필요 — 아래 "리전" 참조)* |
+| 리전 | **ap-northeast-2 (서울)** |
 | 인스턴스 ID | `i-…` |
 | 도메인 | playgroundsport.com · www |
 | SSH 키 | `C:\…\playground-prod.pem` |
@@ -25,19 +25,18 @@
 > **공개 IP는 Elastic IP인지 반드시 확인한다.** 아니면 인스턴스를 중지·시작할 때
 > 바뀌고 DNS·보안 그룹이 전부 어긋난다.
 
-#### 리전
+#### 리전 — 반드시 서울(ap-northeast-2)
 
-공개 IP `3.224.x.x` 대역은 **us-east-1(버지니아)** 로 보인다. 문서·백업 버킷·Route 53 안내는
-**ap-northeast-2(서울)** 기준으로 쓰여 있다.
+**한 번 버지니아(us-east-1)에 잘못 만들어 다시 세웠다** (2026-08-02).
+콘솔 우측 상단 리전이 다른 상태에서 만들면 조용히 그쪽에 생긴다.
 
-- 서울이 아니라면 한국 사용자 왕복 지연이 **10ms대 → 200ms대**로 늘어난다.
-- 지금 바꾸는 비용은 거의 0이지만(아무 데이터도 없다), 나중엔 인스턴스·EBS·버킷을
-  전부 다시 만들어야 한다. **데이터가 쌓이기 전에 결정한다.**
+- 서울이 아니면 한국 사용자 왕복 지연이 **10ms대 → 200ms대**가 된다.
+- **인스턴스·EBS·S3 버킷·Elastic IP는 리전에 묶인다** — 나중엔 전부 다시 만들어야 한다.
 
-확인:
+만들고 나서 한 번 확인한다:
 
 ```bash
-curl -s http://169.254.169.254/latest/meta-data/placement/region   # 서버 안에서
+curl -s http://169.254.169.254/latest/meta-data/placement/region   # ap-northeast-2
 ```
 
 ### 비공개 IP는 어디에 쓰나
