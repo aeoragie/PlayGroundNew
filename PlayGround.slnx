@@ -1,17 +1,33 @@
 <Solution>
+  <Folder Name="/Deploy/">
+    <File Path="Deploy/README.md" />
+    <File Path="Deploy/AwsSetup.md" />
+    <File Path="Deploy/Runbook.md" />
+    <File Path="Deploy/backup-database.sh" />
+    <File Path="Deploy/deploy-app.sh" />
+    <File Path="Deploy/ec2-setup.sh" />
+    <File Path="Deploy/playground.conf" />
+    <File Path="Deploy/playground.service" />
+  </Folder>
   <Folder Name="/Docs/" />
   <Folder Name="/Docs/Architecture/">
     <File Path="Docs/Architecture/ActorVsDirectCall.md" />
     <File Path="Docs/Architecture/DeploymentAndConfiguration.md" />
+    <File Path="Docs/Architecture/Localization.md" />
+    <File Path="Docs/Architecture/MatchSchemaDesign.md" />
     <File Path="Docs/Architecture/NamingConventions.md" />
   </Folder>
   <Folder Name="/Docs/Development/">
-    <File Path="Docs/Development/DesignWorkOrders.md" />
-    <File Path="Docs/Development/FunctionalTestPlan.md" />
-    <File Path="Docs/Development/HandoffAudit.md" />
-    <File Path="Docs/Development/IntegrationTestPlan.md" />
     <File Path="Docs/Development/LocalVerification.md" />
-    <File Path="Docs/Development/SharedPatternsPlan.md" />
+    <File Path="Docs/Development/ReleasePlan.md" />
+    <File Path="Docs/Development/Testing.md" />
+  </Folder>
+  <Folder Name="/Docs/History/">
+    <File Path="Docs/History/DevelopmentJournal.md" />
+  </Folder>
+  <Folder Name="/Others/">
+    <File Path="Others/README.md" />
+    <File Path="Others/FetchRedis.ps1" />
   </Folder>
   <Folder Name="/Solutions/">
     <File Path=".editorconfig" />
