@@ -44,6 +44,14 @@
   적용되지 않으므로, 컬럼 추가처럼 신규 DB와 기존 DB가 갈라지는 변경은 여기에 멱등 스크립트를 함께 남긴다.
   **새 DB를 처음부터 만들 때는 실행할 필요가 없다** (`Tables/`에 이미 반영돼 있다).
   파일명 `YYYY-MM-DD_대상.변경.sql`.
+- **sqlproj는 폴더 글롭만 쓴다** — 파일을 추가하면 자동으로 검증 대상이 된다.
+  `Schema/ Tables/ Functions/ Procedures/ Indexes/`는 `<Build>`(모델 컴파일),
+  `Seeds/ Queries/ Migrations/`는 `<None>`(스키마가 아니라 데이터·이력).
+  **개별 파일을 나열하지 않는다** — 손으로 관리하다 Soccer에서 56개(테이블 13·프로시저 37)가
+  빠져 참조 경고 246건이 새고 있었다(2026-08-02 수정). `Tests.Unit`의
+  `SqlProjectCoverageTests`가 새 폴더 누락·개별 나열 재도입을 막는다.
+- **`Indexes/`처럼 한 파일에 여러 문을 넣을 때는 `GO`로 끊는다** — SSDT는 일괄 처리당 문
+  하나만 허용한다(SQL71006). sqlcmd 적용에도 그대로 쓴다.
 
 ## 로컬 개발 DB (SQLEXPRESS) 셋업
 

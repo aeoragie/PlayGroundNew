@@ -43,6 +43,7 @@ Tests/Tests.Unit/
 | `YouTubeVideoLinkTests` | 호스트 화이트리스트·11자 ID·경로 조작 차단. 클라이언트 미리보기와 서버 저장이 **같은 규칙**을 써야 한다 |
 | `SoccerEnumRulesTests` | 숫자 문자열 enum 파싱 차단 · 파싱 실패 시 기본값 · 공개/알림 기본값이 SPEC과 일치 · 승인형은 알림 설정 enum에 없음 |
 | `DisplayStringPlacementTests` | **Domain·Contracts에 표시 문자열 없음** (아래 §5) |
+| `SqlProjectCoverageTests` | **모든 `.sql`이 sqlproj 검증 대상에 포함**됨 · 개별 파일 나열 금지 · Build/None 구분 (아래 §5) |
 
 ### Application
 
@@ -98,6 +99,27 @@ Domain은 Client를 참조할 수 없어 리소스에 닿지 못한다 — 여�
 
 > **Application은 이 가드의 대상이 아니다.** 이메일·알림 본문 등 **서버 발신 문자열**이
 > 남아 있고, 이는 Client 전용인 현재 i18n 구조 밖이다(Localization.md §10 미착수 항목).
+
+## 5-2. sqlproj 검증 범위 가드
+
+`SqlProjectCoverageTests`가 `Database.{Soccer,Account}.sqlproj`를 본다.
+
+- `.sql`이 든 폴더가 전부 `<Build>` 또는 `<None>` **글롭**에 덮이는지
+- **개별 파일 나열이 없는지** (손으로 관리하면 반드시 드리프트한다)
+- 스키마 폴더는 `<Build>`, 데이터·이력 폴더(`Seeds`/`Queries`/`Migrations`)는 `<None>`인지
+
+항목을 손으로 나열하던 시절 Soccer에서 **56개**(테이블 13 · 프로시저 37 · 인덱스 1 · 마이그레이션 5)가
+빠져 있었고, 빠진 테이블을 참조하는 프로시저가 전부 SQL71502로 새고 있었다(경고 246건).
+글롭으로 바꾼 뒤 **0 오류 / 0 경고**. 글롭이라 파일 추가는 자동으로 잡히지만 **새 폴더**는
+글롭을 넣어야 하므로, 그 누락을 이 테스트가 막는다.
+
+> sqlproj는 SSDT가 필요해 `dotnet build`로는 검증되지 않는다(솔루션 빌드 시 MSB4278로 건너뛴다).
+> 실제 컴파일은 Visual Studio나 아래로 확인한다.
+>
+> ```bash
+> "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe" \
+>   Source/Database/Soccer/Database.Soccer.sqlproj -t:Rebuild -p:VisualStudioVersion=18.0
+> ```
 
 ## 6. 작업 규칙
 
