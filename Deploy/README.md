@@ -54,14 +54,17 @@
 > **SQL은 포트가 아니라 "내 IP"가 지켜 준다.** 47821을 쓰는 건 1433만 노리는 자동 봇을
 > 피하려는 것이지 은폐가 아니다 — 전 포트 스캔은 몇 분이면 끝난다.
 > **소스를 `0.0.0.0/0`으로 바꾸면 안 된다**: SQL Server on Linux에는 계정 잠금이 없어
-> 비밀번호 대입이 무제한이다. 같은 이유로 `sa`는 잠그고 `pgadmin`을 쓴다(`AwsSetup.md` 7절).
+> 비밀번호 대입이 무제한이다. 같은 이유로 `sa`는 잠그고 `pgadmin`을 쓴다(`AwsSetup.md` "SQL Server 초기 설정" 절).
 
 ## 순서
 
 ### 1~2. AWS 콘솔 작업 — **`Deploy/AwsSetup.md`**
 
-키 페어 · 보안 그룹 · 인스턴스 · Elastic IP · SQL Server 초기 설정 · S3/IAM · Route 53.
+**VPC** · 키 페어 · 보안 그룹 · 인스턴스 · Elastic IP · SQL Server 초기 설정 · S3/IAM · Route 53.
 콘솔에서 무엇을 누르는지와 **자주 막히는 지점**을 그 문서에 정리했다.
+
+> **네트워크를 가장 먼저 만든다.** 보안 그룹은 VPC에 묶여 있어서, VPC를 나중에 바꾸면
+> 보안 그룹부터 다시 만들어야 한다. 개념은 `Docs/Learning/AwsNetwork.md`.
 
 ### 3. 스키마 배포
 
@@ -189,7 +192,7 @@ ssh-keyscan <EIP>
 
 ### 5. HTTPS 발급
 
-A 레코드는 콘솔 단계(`AwsSetup.md` 9)에서 이미 걸었다. 전파를 확인한 뒤:
+A 레코드는 콘솔 단계(`AwsSetup.md` "Route 53" 절)에서 이미 걸었다. 전파를 확인한 뒤:
 
 ```bash
 sudo certbot --nginx -d playgroundsport.com -d www.playgroundsport.com
@@ -216,7 +219,7 @@ https://playgroundsport.com/api/auth/social/apple/callback
 
 - 서버 이름: `<Elastic IP>,47821` (쉼표다 — 콜론이 아니다)
 - 인증: **SQL Server 인증** (Linux는 Windows 인증을 쓰지 않는다)
-- 로그인: `pgadmin` (`sa`는 잠가 뒀다 — `AwsSetup.md` 7절)
+- 로그인: `pgadmin` (`sa`는 잠가 뒀다 — `AwsSetup.md` "SQL Server 초기 설정" 절)
 - **옵션 → 연결 속성 → "서버 인증서 신뢰" 체크** (자체 서명 인증서라 안 하면 거부된다)
 
 > **붙던 게 갑자기 안 붙으면 십중팔구 내 IP가 바뀐 것이다.**

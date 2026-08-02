@@ -10,8 +10,8 @@
 
 ## 시작 전
 
-- EC2 인스턴스를 **사용자 데이터 없이** 만든다 (`AwsSetup.md` 3절에서 8번을 건너뛴다)
-- SSH로 접속한다 (`AwsSetup.md` 5절)
+- EC2 인스턴스를 **사용자 데이터 없이** 만든다 (`AwsSetup.md` "EC2 인스턴스 시작" 절에서 **사용자 데이터** 항목만 건너뛴다)
+- SSH로 접속한다 (`AwsSetup.md` "첫 SSH 접속" 절)
 
 ```bash
 ssh -i <키.pem> ubuntu@<Elastic IP>
@@ -97,7 +97,7 @@ sudo apt-get install -y mssql-server
 ```
 
 **설치만 하고 아직 안 뜬다.** 에디션과 sa 비밀번호를 정해야 시작할 수 있고,
-그건 `AwsSetup.md` 7절에서 대화형으로 한다 — **비밀번호를 스크립트에 넣지 않기 위해서다**
+그건 `AwsSetup.md` "SQL Server 초기 설정" 절에서 대화형으로 한다 — **비밀번호를 스크립트에 넣지 않기 위해서다**
 (user-data는 인스턴스 메타데이터로 조회할 수 있다).
 
 ```bash
@@ -249,14 +249,14 @@ sudo ufw status numbered
 
 ```bash
 systemctl status nginx redis-server --no-pager   # active (running)
-systemctl status mssql-server --no-pager         # 아직 안 뜬 게 정상 (7절에서 설정)
+systemctl status mssql-server --no-pager         # 아직 안 뜬 게 정상 (AwsSetup에서 설정)
 dotnet --list-runtimes | grep AspNetCore
 which sqlcmd
 sudo ufw status
 timedatectl | grep "Time zone"                   # UTC
 ```
 
-여기까지가 `ec2-setup.sh`와 같은 상태다. 이어서 **`AwsSetup.md` 7절(SQL Server 초기 설정)** 로 간다.
+여기까지가 `ec2-setup.sh`와 같은 상태다. 이어서 **`AwsSetup.md` "SQL Server 초기 설정" 절** 로 간다.
 
 ## 이제 무엇이 달라졌나
 
