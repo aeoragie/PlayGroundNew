@@ -1118,6 +1118,104 @@ namespace PlayGround.Client.Localization
             public static string ErrorRecordRequired => Loc.Get("Dashboard.ErrorRecordRequired");
             /// <summary>신청하지 못했어요.</summary>
             public static string CorrectionFailedToast => Loc.Get("Dashboard.CorrectionFailedToast");
+            /// <summary>경기</summary>
+            public static string MatchTabTitle => Loc.Get("Dashboard.MatchTabTitle");
+            /// <summary>결과</summary>
+            public static string SegResults => Loc.Get("Dashboard.SegResults");
+            /// <summary>영상</summary>
+            public static string SegVideos => Loc.Get("Dashboard.SegVideos");
+            /// <summary>＋ 결과 입력</summary>
+            public static string AddResultShort => Loc.Get("Dashboard.AddResultShort");
+            /// <summary>＋ 영상 등록</summary>
+            public static string AddVideoShort => Loc.Get("Dashboard.AddVideoShort");
+            /// <summary>득점·도움은 선수 시즌 통계에 자동 반영돼요.</summary>
+            public static string ResultsEmptyBodyMobile => Loc.Get("Dashboard.ResultsEmptyBodyMobile");
+            /// <summary>경기와 연결된 영상은 공개 홈페이지에 자동 노출돼요.</summary>
+            public static string VideosEmptyBodyMobile => Loc.Get("Dashboard.VideosEmptyBodyMobile");
+            /// <summary>득실</summary>
+            public static string GoalDiff => Loc.Get("Dashboard.GoalDiff");
+            /// <summary> · 순위</summary>
+            public static string RankSeparator => Loc.Get("Dashboard.RankSeparator");
+            /// <summary> · {0}위</summary>
+            public static string RankInline(object arg0) => Loc.Format("Dashboard.RankInline", arg0);
+            /// <summary>훈련 일정 변경이나 동의서처럼 보호자에게 알릴 내용을 올려보세요.</summary>
+            public static string BoardEmptyBodyMobile => Loc.Get("Dashboard.BoardEmptyBodyMobile");
+            /// <summary>리스트 뷰</summary>
+            public static string ListViewAria => Loc.Get("Dashboard.ListViewAria");
+            /// <summary>카드 뷰</summary>
+            public static string CardViewAria => Loc.Get("Dashboard.CardViewAria");
+            /// <summary>Unclaimed 선수에게 </summary>
+            public static string UnclaimedNoticeMobilePrefix => Loc.Get("Dashboard.UnclaimedNoticeMobilePrefix");
+            /// <summary>를 보내면 학부모·선수가 직접 기록을 관리해요.</summary>
+            public static string UnclaimedNoticeMobileSuffix => Loc.Get("Dashboard.UnclaimedNoticeMobileSuffix");
+            /// <summary>{0}월</summary>
+            public static string MonthLabelShort(object arg0) => Loc.Format("Dashboard.MonthLabelShort", arg0);
+            /// <summary>경기</summary>
+            public static string NavMatchShort => Loc.Get("Dashboard.NavMatchShort");
+            /// <summary>모집</summary>
+            public static string NavRecruitShort => Loc.Get("Dashboard.NavRecruitShort");
+            /// <summary>게시판</summary>
+            public static string NavBoardShort => Loc.Get("Dashboard.NavBoardShort");
+            /// <summary>✓ 인증팀 · 팀 관리자 모드</summary>
+            public static string VerifiedTeamAdminMode => Loc.Get("Dashboard.VerifiedTeamAdminMode");
+            /// <summary>공개 홈페이지</summary>
+            public static string PublicHomeAria => Loc.Get("Dashboard.PublicHomeAria");
+            /// <summary>유튜브</summary>
+            public static string YoutubeShort => Loc.Get("Dashboard.YoutubeShort");
+            /// <summary>열기 →</summary>
+            public static string Open => Loc.Get("Dashboard.Open");
+            /// <summary>공개를 해제했어요.</summary>
+            public static string UnpublishedToast => Loc.Get("Dashboard.UnpublishedToast");
+            /// <summary>공개로 전환했어요. 소개 탭 '팀 소식'에서 볼 수 있어요.</summary>
+            public static string PublishedToast => Loc.Get("Dashboard.PublishedToast");
+            /// <summary>공개 상태를 바꾸지 못했어요. 다시 시도해 주세요.</summary>
+            public static string PublicToggleFailedToast => Loc.Get("Dashboard.PublicToggleFailedToast");
+            /// <summary>{0} 글을 삭제할까요?</summary>
+            public static string DeletePostTitle(object arg0) => Loc.Format("Dashboard.DeletePostTitle", arg0);
+            /// <summary>첨부 파일과 함께 삭제돼요. 공개 글이었다면 공개 홈페이지에서도 바로 사라져요.</summary>
+            public static string DeletePostWithFiles => Loc.Get("Dashboard.DeletePostWithFiles");
+            /// <summary>글을 삭제했어요.</summary>
+            public static string PostDeletedToast => Loc.Get("Dashboard.PostDeletedToast");
+            /// <summary>삭제하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string DeleteFailedToast => Loc.Get("Dashboard.DeleteFailedToast");
+            /// <summary>복구하지 못했어요.</summary>
+            public static string RestoreFailedToast => Loc.Get("Dashboard.RestoreFailedToast");
+            /// <summary>팀 대시보드 — PlayGround</summary>
+            public static string PageTitle => Loc.Get("Dashboard.PageTitle");
+            /// <summary>일정을 삭제할까요?</summary>
+            public static string DeleteScheduleTitle => Loc.Get("Dashboard.DeleteScheduleTitle");
+            /// <summary>{0} {1} · 삭제하면 공개 홈페이지에서도 사라져요.</summary>
+            public static string DeleteScheduleDescription(object arg0, object arg1) => Loc.Format("Dashboard.DeleteScheduleDescription", arg0, arg1);
+            /// <summary>일정을 삭제했어요.</summary>
+            public static string ScheduleDeletedToast => Loc.Get("Dashboard.ScheduleDeletedToast");
+            /// <summary>일정을 삭제하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string ScheduleDeleteFailedToast => Loc.Get("Dashboard.ScheduleDeleteFailedToast");
+            /// <summary>일정을 복구하지 못했어요.</summary>
+            public static string ScheduleRestoreFailedToast => Loc.Get("Dashboard.ScheduleRestoreFailedToast");
+            /// <summary>{0} 선수를 선수단에서 내보낼까요?</summary>
+            public static string RemovePlayerTitle(object arg0) => Loc.Format("Dashboard.RemovePlayerTitle", arg0);
+            /// <summary>공개 홈페이지 선수단에서도 사라져요. 발급한 초대코드도 함께 회수돼요.</summary>
+            public static string RemovePlayerDescription => Loc.Get("Dashboard.RemovePlayerDescription");
+            /// <summary>내보내기</summary>
+            public static string RemoveConfirm => Loc.Get("Dashboard.RemoveConfirm");
+            /// <summary>내보내지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string RemovePlayerFailedToast => Loc.Get("Dashboard.RemovePlayerFailedToast");
+            /// <summary>{0} 선수를 내보냈어요.</summary>
+            public static string PlayerRemovedToast(object arg0) => Loc.Format("Dashboard.PlayerRemovedToast", arg0);
+            /// <summary>되돌리지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string UndoFailedToast => Loc.Get("Dashboard.UndoFailedToast");
+            /// <summary>내보내기를 되돌렸어요.</summary>
+            public static string RemoveUndoneToast => Loc.Get("Dashboard.RemoveUndoneToast");
+            /// <summary>이 수정 신청을 취소할까요?</summary>
+            public static string CancelCorrectionTitle => Loc.Get("Dashboard.CancelCorrectionTitle");
+            /// <summary>{0} — 주최측에 전달된 신청이 철회돼요.</summary>
+            public static string CancelCorrectionDescription(object arg0) => Loc.Format("Dashboard.CancelCorrectionDescription", arg0);
+            /// <summary>신청 취소</summary>
+            public static string CancelCorrection => Loc.Get("Dashboard.CancelCorrection");
+            /// <summary>취소하지 못했어요.</summary>
+            public static string CancelCorrectionFailedToast => Loc.Get("Dashboard.CancelCorrectionFailedToast");
+            /// <summary>수정 신청을 취소했어요.</summary>
+            public static string CorrectionCancelledToast => Loc.Get("Dashboard.CorrectionCancelledToast");
         }
 
         public static class Hub

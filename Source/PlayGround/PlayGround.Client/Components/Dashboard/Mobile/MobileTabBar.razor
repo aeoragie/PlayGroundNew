@@ -17,12 +17,12 @@
 
     private static readonly TabItem[] Tabs =
     [
-        new(SoccerTeamDashboardSection.Info, "팀 정보", """<path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path>"""),
-        new(SoccerTeamDashboardSection.Roster, "선수단", """<circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 5.6a2.8 2.8 0 0 1 0 5.4"></path><path d="M17.5 14.6c2 .7 3 2.4 3 4.4"></path>"""),
-        new(SoccerTeamDashboardSection.Schedule, "일정", """<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path>"""),
-        new(SoccerTeamDashboardSection.Results, "경기", """<path d="M5 20V11M12 20V4M19 20v-6"></path>"""),
-        new(SoccerTeamDashboardSection.Recruit, "모집", """<path d="M3 10.5v3h3.5l9.5 5v-13l-9.5 5z"></path><path d="M19.5 9.5a4 4 0 0 1 0 5"></path>"""),
-        new(SoccerTeamDashboardSection.Board, "게시판", """<path d="M20 15a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"></path>"""),
+        new(SoccerTeamDashboardSection.Info, AppText.Dashboard.NavInfo, """<path d="M12 3l7 3v5.5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6z"></path>"""),
+        new(SoccerTeamDashboardSection.Roster, AppText.Dashboard.NavRoster, """<circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 5.6a2.8 2.8 0 0 1 0 5.4"></path><path d="M17.5 14.6c2 .7 3 2.4 3 4.4"></path>"""),
+        new(SoccerTeamDashboardSection.Schedule, AppText.Dashboard.NavSchedule, """<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path>"""),
+        new(SoccerTeamDashboardSection.Results, AppText.Dashboard.NavMatchShort, """<path d="M5 20V11M12 20V4M19 20v-6"></path>"""),
+        new(SoccerTeamDashboardSection.Recruit, AppText.Dashboard.NavRecruitShort, """<path d="M3 10.5v3h3.5l9.5 5v-13l-9.5 5z"></path><path d="M19.5 9.5a4 4 0 0 1 0 5"></path>"""),
+        new(SoccerTeamDashboardSection.Board, AppText.Dashboard.NavBoardShort, """<path d="M20 15a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"></path>"""),
     ];
 
     private string TabClass(TabItem tab)

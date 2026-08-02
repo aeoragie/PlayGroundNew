@@ -7,8 +7,8 @@
 <div class="flex flex-col gap-3.5">
     @* 수정 진입점 — 모바일은 상단 바에 자리가 없어 섹션 헤더에 둔다 *@
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">팀 정보</h1>
-        <button type="button" class="@Css.Dashboard.MobileSecondaryButton" @onclick="OnEdit">정보 수정</button>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Dashboard.TeamInfoTitle</h1>
+        <button type="button" class="@Css.Dashboard.MobileSecondaryButton" @onclick="OnEdit">@AppText.Dashboard.EditInfo</button>
     </div>
 
     @* 기본: 뱃지 + 회비/훈련 요약 2칸 *@
@@ -20,7 +20,7 @@
                 <div class="flex gap-2 flex-wrap">
                     @if (Info.Profile.IsVerified)
                     {
-                        <span class="@Css.Badge.Positive">✓ 인증팀</span>
+                        <span class="@Css.Badge.Positive">@AppText.Dashboard.VerifiedBadge</span>
                     }
                     @if (Info.Profile.TeamType is not null)
                     {
@@ -32,7 +32,7 @@
                     }
                     @if (Info.Profile.FoundedYear is not null)
                     {
-                        <span class="@Css.Dashboard.BadgeGray">@(Info.Profile.FoundedYear) 창단</span>
+                        <span class="@Css.Dashboard.BadgeGray">@AppText.Dashboard.Founded(Info.Profile.FoundedYear)</span>
                     }
                 </div>
             }
@@ -42,15 +42,15 @@
                     @if (Info.Profile.MonthlyFee is not null)
                     {
                         <div class="bg-surface-alt rounded-[11px] px-3.5 py-3 flex flex-col gap-[3px]">
-                            <span class="text-[11.5px] font-bold text-text-muted">월 회비</span>
-                            <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@($"{Info.Profile.MonthlyFee:N0}")원</span>
+                            <span class="text-[11.5px] font-bold text-text-muted">@AppText.Dashboard.MonthlyFee</span>
+                            <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Dashboard.FeeAmount($"{Info.Profile.MonthlyFee:N0}")</span>
                         </div>
                     }
                     @if (Info.Profile.TrainingDays is not null)
                     {
                         <div class="bg-surface-alt rounded-[11px] px-3.5 py-3 flex flex-col gap-[3px]">
-                            <span class="text-[11.5px] font-bold text-text-muted">훈련</span>
-                            <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">주 @(Info.Profile.TrainingDays.Length)회 · @Info.Profile.TrainingDays</span>
+                            <span class="text-[11.5px] font-bold text-text-muted">@AppText.Dashboard.Training</span>
+                            <span class="text-[14.5px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Dashboard.TrainingCount(Info.Profile.TrainingDays.Length) · @Info.Profile.TrainingDays</span>
                         </div>
                     }
                 </div>
@@ -63,8 +63,8 @@
     {
         <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3")">
             <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-[15px] font-extrabold text-navy-deep">핵심가치</span>
-                <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
+                <span class="text-[15px] font-extrabold text-navy-deep">@AppText.Dashboard.ValuesTitle</span>
+                <span class="@Css.Dashboard.BadgeTeal">@AppText.Dashboard.PublishedBadge</span>
             </div>
             <div class="flex flex-col gap-2.5">
                 @foreach (TeamValueDto value in Info.Values)
@@ -83,8 +83,8 @@
     {
         <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3")">
             <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-[15px] font-extrabold text-navy-deep">코칭스태프</span>
-                <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
+                <span class="text-[15px] font-extrabold text-navy-deep">@AppText.Dashboard.CoachesTitle</span>
+                <span class="@Css.Dashboard.BadgeTeal">@AppText.Dashboard.PublishedBadge</span>
             </div>
             @foreach (TeamCoachDto coach in Info.Coaches)
             {
@@ -112,11 +112,11 @@
                         <div class="flex gap-[7px]">
                             @if (coach.InstagramUrl is not null)
                             {
-                                <a href="@coach.InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="14" />인스타그램</a>
+                                <a href="@coach.InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" Size="14" />@AppText.Dashboard.Instagram</a>
                             }
                             @if (coach.YoutubeUrl is not null)
                             {
-                                <a href="@coach.YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />유튜브</a>
+                                <a href="@coach.YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" Size="14" />@AppText.Dashboard.YoutubeShort</a>
                             }
                         </div>
                     }
@@ -129,7 +129,7 @@
     @if (Info.Channels.Count > 0)
     {
         <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-[11px]")">
-            <span class="text-[15px] font-extrabold text-navy-deep">공식 채널</span>
+            <span class="text-[15px] font-extrabold text-navy-deep">@AppText.Dashboard.ChannelsTitle</span>
             @foreach (TeamChannelDto channel in Info.Channels)
             {
                 <div class="flex items-center gap-3 border border-border rounded-xl px-3.5 py-[13px]">
@@ -138,7 +138,7 @@
                         <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@channel.Name</span>
                         <span class="text-[11.5px] text-text-body whitespace-nowrap overflow-hidden text-ellipsis">@ChannelMeta(channel)</span>
                     </span>
-                    <a href="@channel.Url" class="text-xs font-bold text-navy whitespace-nowrap">열기 →</a>
+                    <a href="@channel.Url" class="text-xs font-bold text-navy whitespace-nowrap">@AppText.Dashboard.Open</a>
                 </div>
             }
         </div>
@@ -148,7 +148,7 @@
     @if (Info.Profile.Slug is not null)
     {
         <div class="bg-gradient-navy rounded-[16px] p-[18px] flex flex-col gap-[7px] text-white">
-            <span class="text-xs font-extrabold text-teal">공개 팀 홈페이지</span>
+            <span class="text-xs font-extrabold text-teal">@AppText.Dashboard.PublicTeamHome</span>
             <span class="text-[13.5px] font-bold whitespace-nowrap overflow-hidden text-ellipsis">playground.kr/team/@Info.Profile.Slug</span>
             <span class="text-[11.5px] text-white/65 leading-[1.55] break-keep">핵심가치·코칭스태프·공식 채널이 자동 노출돼요</span>
         </div>

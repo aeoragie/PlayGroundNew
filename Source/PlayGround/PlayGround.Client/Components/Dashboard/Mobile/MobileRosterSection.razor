@@ -5,8 +5,8 @@
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">선수단 <span class="text-[13px] font-bold text-text-muted">@(Players.Count)명</span></h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">＋ 선수 추가</button>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Dashboard.RosterTitle <span class="text-[13px] font-bold text-text-muted">@AppText.Dashboard.CountPeople(Players.Count)</span></h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">@AppText.Dashboard.AddPlayer</button>
     </div>
 
     <div class="flex gap-[7px] items-center">
@@ -20,10 +20,10 @@
         }
         <div class="flex-1"></div>
         <div class="flex border-1.5 border-border rounded-[9px] overflow-hidden h-9">
-            <button type="button" aria-label="리스트 뷰" class="@ViewToggleClass(isList: true)" @onclick="() => mIsListView = true">
+            <button type="button" aria-label="@AppText.Dashboard.ListViewAria" class="@ViewToggleClass(isList: true)" @onclick="() => mIsListView = true">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <button type="button" aria-label="카드 뷰" class="@ViewToggleClass(isList: false)" @onclick="() => mIsListView = false">
+            <button type="button" aria-label="@AppText.Dashboard.CardViewAria" class="@ViewToggleClass(isList: false)" @onclick="() => mIsListView = false">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg>
             </button>
         </div>
@@ -32,19 +32,19 @@
     @* 이름 검색 (SearchFilter — 부분 일치) *@
     @if (Players.Count > 0)
     {
-        <SearchBar @bind-Value="mSearch" Placeholder="선수 이름 검색" />
+        <SearchBar @bind-Value="mSearch" Placeholder="@AppText.Dashboard.SearchPlayer" />
     }
 
     @if (Players.Count == 0)
     {
         @* 빈 상태 Tier A (주 액션은 헤더 버튼 하나 유지 — 카드 안 CTA 없음) *@
-        <EmptyState Kind="EmptyState.Art.Players" Title="아직 등록된 선수가 없어요">
-            <Description>선수를 등록하면 공개 홈페이지 선수단에도 함께 표시돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Players" Title="@AppText.Dashboard.RosterEmptyTitle">
+            <Description>@AppText.Dashboard.RosterEmptyBody</Description>
         </EmptyState>
     }
     else if (!VisiblePlayers.Any())
     {
-        <EmptySlot Title="@($"'{mSearch.Trim()}'에 해당하는 선수가 없어요")">
+        <EmptySlot Title="@AppText.Dashboard.SearchEmpty(mSearch.Trim())">
             <Icon><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></Icon>
         </EmptySlot>
     }
@@ -86,7 +86,7 @@
                         <span class="absolute top-1.5 left-1.5 w-[26px] h-[26px] rounded-full bg-navy-deep/85 flex items-center justify-center text-[11.5px] font-extrabold text-white pointer-events-none">@(player.JerseyNumber ?? "-")</span>
                         @* 사진 변경 — 팀 관리자 전용 섹션 *@
                         <button type="button" class="@Css.Uploader.CameraBadge !right-1.5 !bottom-1.5"
-                                aria-label="@($"{player.Name} 선수 사진 변경")" @onclick="() => OpenPhotoDialog(player)">
+                                aria-label="@AppText.Dashboard.ChangePhotoAria(player.Name)" @onclick="() => OpenPhotoDialog(player)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                                  stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 8h3l2-2.5h6L17 8h3v11H4z"></path><circle cx="12" cy="13" r="3.2"></circle>
@@ -110,7 +110,7 @@
     {
         <div class="flex gap-[9px] items-start bg-surface-orange border border-dashed border-orange rounded-xl px-3.5 py-3">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="shrink-0 mt-0.5 text-orange-ink"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.1"></path></svg>
-            <span class="text-xs text-text-strong leading-[1.6] break-keep">Unclaimed 선수에게 <b>초대코드</b>를 보내면 학부모·선수가 직접 기록을 관리해요.</span>
+            <span class="text-xs text-text-strong leading-[1.6] break-keep">@AppText.Dashboard.UnclaimedNoticeMobilePrefix<b>@AppText.Dashboard.AddPlayerNoticeBold</b>@AppText.Dashboard.UnclaimedNoticeMobileSuffix</span>
         </div>
     }
 </div>
@@ -133,7 +133,7 @@
     // 단일 파괴 액션을 ⋯에 담는다(PC 로스터와 같은 판단 — 오클릭 방지).
     private List<OverflowMenu.MenuItem> RemoveItems(TeamRosterPlayerDto player) => new()
     {
-        new OverflowMenu.MenuItem("선수 내보내기", () => OnRemove.InvokeAsync(player)),
+        new OverflowMenu.MenuItem(AppText.Dashboard.RemovePlayer, () => OnRemove.InvokeAsync(player)),
     };
 
     private SoccerAgeGroup? mAgeTab;

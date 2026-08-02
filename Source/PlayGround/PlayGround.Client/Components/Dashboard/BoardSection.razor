@@ -156,12 +156,12 @@
     {
         if (await Teams.SetPostPublicAsync(post.PostId, !post.IsPublic))
         {
-            Toasts.ShowSuccess(post.IsPublic ? "공개를 해제했어요." : "공개로 전환했어요. 소개 탭 '팀 소식'에서 볼 수 있어요.");
+            Toasts.ShowSuccess(post.IsPublic ? AppText.Dashboard.UnpublishedToast : AppText.Dashboard.PublishedToast);
             await OnChangedAsync();
             return;
         }
 
-        Toasts.ShowError("공개 상태를 바꾸지 못했어요. 다시 시도해 주세요.");
+        Toasts.ShowError(AppText.Dashboard.PublicToggleFailedToast);
     }
 
     private async Task DeleteAsync(TeamPostDto post)
@@ -169,11 +169,11 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = $"{post.Title} 글을 삭제할까요?",
+            Title = AppText.Dashboard.DeletePostTitle(post.Title),
             Description = post.Files.Count > 0
-                ? "첨부 파일과 함께 삭제돼요. 공개 글이었다면 공개 홈페이지에서도 바로 사라져요."
+                ? AppText.Dashboard.DeletePostWithFiles
                 : "공개 글이었다면 공개 홈페이지에서도 바로 사라져요.",
-            ConfirmLabel = "삭제",
+            ConfirmLabel = AppText.Dashboard.Delete,
         });
 
         if (!confirmed)
@@ -183,12 +183,12 @@
 
         if (await Teams.DeletePostAsync(post.PostId))
         {
-            Toasts.ShowSuccess("글을 삭제했어요.", "실행취소", () => RestoreAsync(post));
+            Toasts.ShowSuccess(AppText.Dashboard.PostDeletedToast, AppText.Dashboard.Undo, () => RestoreAsync(post));
             await OnChangedAsync();
             return;
         }
 
-        Toasts.ShowError("삭제하지 못했어요. 다시 시도해 주세요.");
+        Toasts.ShowError(AppText.Dashboard.DeleteFailedToast);
     }
 
     private async Task RestoreAsync(TeamPostDto post)
@@ -199,7 +199,7 @@
             return;
         }
 
-        Toasts.ShowError("복구하지 못했어요.");
+        Toasts.ShowError(AppText.Dashboard.RestoreFailedToast);
     }
 
     private async Task OnChangedAsync()

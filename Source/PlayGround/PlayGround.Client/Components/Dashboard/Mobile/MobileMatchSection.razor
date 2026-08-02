@@ -5,23 +5,23 @@
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">경기</h1>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Dashboard.MatchTabTitle</h1>
         <button type="button" class="@Css.Dashboard.MobilePrimaryButton"
-                @onclick="@(IsResults ? OnAddResult : EventCallback.Empty)">@(IsResults ? "＋ 결과 입력" : "＋ 영상 등록")</button>
+                @onclick="@(IsResults ? OnAddResult : EventCallback.Empty)">@(IsResults ? AppText.Dashboard.AddResultShort : AppText.Dashboard.AddVideoShort)</button>
     </div>
 
     @* 결과/영상 세그먼트 — 선택 = 흰 배경 + 그림자 *@
     <div class="flex bg-surface-icon rounded-[11px] p-[3px] gap-[3px]">
-        <a href="@Routes.TeamDashboardSection(SoccerTeamDashboardSection.Results)" class="@SegmentClass(forResults: true)">결과</a>
-        <a href="@Routes.TeamDashboardSection(SoccerTeamDashboardSection.Videos)" class="@SegmentClass(forResults: false)">영상</a>
+        <a href="@Routes.TeamDashboardSection(SoccerTeamDashboardSection.Results)" class="@SegmentClass(forResults: true)">@AppText.Dashboard.SegResults</a>
+        <a href="@Routes.TeamDashboardSection(SoccerTeamDashboardSection.Videos)" class="@SegmentClass(forResults: false)">@AppText.Dashboard.SegVideos</a>
     </div>
 
     @if (IsResults)
     {
         @if (Matches.Matches.Count == 0)
         {
-            <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 경기 결과가 없어요">
-                <Description>＋ 결과 입력으로 첫 경기를 기록해 보세요.<br />득점·도움은 선수 시즌 통계에 자동 반영돼요.</Description>
+            <EmptyState Kind="EmptyState.Art.Record" Title="@AppText.Dashboard.ResultsEmptyTitle">
+                <Description>@AppText.Dashboard.ResultsEmptyBody1<br />@AppText.Dashboard.ResultsEmptyBodyMobile</Description>
             </EmptyState>
         }
         else
@@ -29,18 +29,18 @@
             @* 요약 2카드 (시즌 전적 / 득실·순위) — 공식 경기만 집계 *@
             <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-navy-deep rounded-[13px] px-[15px] py-[13px] flex flex-col gap-0.5 text-white">
-                    <span class="text-[11px] font-bold text-white/60">@(Matches.SeasonYear) 시즌 (공식)</span>
-                    <span class="text-[16.5px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
+                    <span class="text-[11px] font-bold text-white/60">@AppText.Dashboard.SeasonOfficial(Matches.SeasonYear)</span>
+                    <span class="text-[16.5px] font-extrabold whitespace-nowrap">@AppText.Dashboard.RecordWDL(Wins, Draws, Losses)</span>
                 </div>
                 <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex flex-col gap-0.5")">
-                    <span class="text-[11px] font-bold text-text-muted">득실@(Matches.LeagueRank is null ? "" : " · 순위")</span>
+                    <span class="text-[11px] font-bold text-text-muted">@AppText.Dashboard.GoalDiff@(Matches.LeagueRank is null ? "" : AppText.Dashboard.RankSeparator)</span>
                     <span class="text-[16.5px] font-extrabold text-navy-deep whitespace-nowrap">@GoalsFor : @GoalsAgainst@(Matches.LeagueRank is null ? "" : $" · {Matches.LeagueRank}위")</span>
                 </div>
             </div>
 
             @if (FriendlyCount > 0)
             {
-                <span class="@Css.FriendlyMatch.Note">친선경기 @(FriendlyCount)경기는 별도예요 — 순위표와 시즌 기록에는 반영되지 않아요.</span>
+                <span class="@Css.FriendlyMatch.Note">@AppText.Dashboard.FriendlyNote(FriendlyCount)</span>
             }
 
             @* 공식/친선 세그먼트 — 상태는 URL에 있다 *@
@@ -53,7 +53,7 @@
                     <div class="flex items-center gap-[9px]">
                         @if (isFriendly)
                         {
-                            <span class="@Css.FriendlyMatch.Label">친선경기</span>
+                            <span class="@Css.FriendlyMatch.Label">@AppText.Dashboard.Friendly</span>
                         }
                         else
                         {
@@ -97,8 +97,8 @@
     {
         @if (Videos.Videos.Count == 0)
         {
-            <EmptyState Kind="EmptyState.Art.Video" Title="아직 등록된 영상이 없어요">
-                <Description>＋ 영상 등록으로 유튜브 링크를 붙여넣어 보세요.<br />경기와 연결된 영상은 공개 홈페이지에 자동 노출돼요.</Description>
+            <EmptyState Kind="EmptyState.Art.Video" Title="@AppText.Dashboard.VideosEmptyTitle">
+                <Description>@AppText.Dashboard.VideosEmptyBody1<br />@AppText.Dashboard.VideosEmptyBodyMobile</Description>
             </EmptyState>
         }
         else
@@ -113,7 +113,7 @@
                         }
                         else
                         {
-                            <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">영상 썸네일</span>
+                            <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">@AppText.Dashboard.VideoThumb</span>
                         }
                         <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <span class="w-[42px] h-[42px] rounded-full bg-black/65 flex items-center justify-center">
@@ -188,11 +188,11 @@
     private List<OverflowMenu.MenuItem> BuildMatchMenu(TeamMatchDto match) =>
         PendingCorrectionMatchIds.Contains(match.MatchId)
             ? new List<OverflowMenu.MenuItem>()
-            : new List<OverflowMenu.MenuItem> { new("기록 수정 신청", () => OnRequestCorrection.InvokeAsync(match)) };
+            : new List<OverflowMenu.MenuItem> { new(AppText.Dashboard.RequestCorrection, () => OnRequestCorrection.InvokeAsync(match)) };
 
     private List<string> BuildMatchDisabled(TeamMatchDto match) =>
         PendingCorrectionMatchIds.Contains(match.MatchId)
-            ? new List<string> { "신청 처리 중" }
+            ? new List<string> { AppText.Dashboard.CorrectionInProgress }
             : new List<string>();
 
     private bool IsResults => ActiveSection != SoccerTeamDashboardSection.Videos;

@@ -13,7 +13,7 @@
 @inject ToastService Toasts
 @inject ConfirmService Confirm
 
-<PageTitle>팀 대시보드 — PlayGround</PageTitle>
+<PageTitle>@AppText.Dashboard.PageTitle</PageTitle>
 
 @* PC (≥768px): GNB + 사이드바 *@
 <div class="hidden md:flex min-h-screen bg-surface-alt flex-col text-navy-deep">
@@ -197,7 +197,7 @@
 
 @* 경기 결과 입력 — PC·모바일 공용 (다이얼로그가 스스로 반응형) *@
 <MatchResultFormDialog @bind-IsOpen="mResultFormOpen"
-                       TeamName="@(mInfo?.Profile.TeamName ?? "우리 팀")"
+                       TeamName="@(mInfo?.Profile.TeamName ?? AppText.Dashboard.TeamNameFallback)"
                        Players="@(mRoster?.Players ?? new List<TeamRosterPlayerDto>())"
                        MatchDays="@ExistingMatchDays"
                        RecentMatchTime="@RecentMatchTime"
@@ -216,7 +216,7 @@
 
 @* 기록 수정 신청 — 여기서 기록이 바뀌지 않는다. 주최측에 전달될 뿐이다(설계 결정 7) *@
 <CorrectionFormDialog @bind-IsOpen="mCorrectionFormOpen" Match="@mCorrectionMatch"
-                      TeamName="@(mInfo?.Profile.TeamName ?? "우리 팀")" OnSubmitted="LoadCorrectionsAsync" />
+                      TeamName="@(mInfo?.Profile.TeamName ?? AppText.Dashboard.TeamNameFallback)" OnSubmitted="LoadCorrectionsAsync" />
 
 @code {
     [Parameter]
@@ -475,9 +475,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = "일정을 삭제할까요?",
-            Description = $"{dateLabel} {title} · 삭제하면 공개 홈페이지에서도 사라져요.",
-            ConfirmLabel = "삭제",
+            Title = AppText.Dashboard.DeleteScheduleTitle,
+            Description = AppText.Dashboard.DeleteScheduleDescription(dateLabel, title),
+            ConfirmLabel = AppText.Dashboard.Delete,
         });
 
         if (!confirmed)
@@ -489,11 +489,11 @@
         {
             await ReloadSchedulesAsync();
             StateHasChanged();
-            Toasts.ShowSuccess("일정을 삭제했어요.", "실행취소", () => RestoreScheduleAsync(schedule));
+            Toasts.ShowSuccess(AppText.Dashboard.ScheduleDeletedToast, AppText.Dashboard.Undo, () => RestoreScheduleAsync(schedule));
             return;
         }
 
-        Toasts.ShowError("일정을 삭제하지 못했어요. 다시 시도해 주세요.", "재시도", () => DeleteScheduleAsync(schedule));
+        Toasts.ShowError(AppText.Dashboard.ScheduleDeleteFailedToast, AppText.Dashboard.Retry, () => DeleteScheduleAsync(schedule));
     }
 
     private async Task RestoreScheduleAsync(ScheduleDto schedule)
@@ -505,7 +505,7 @@
             return;
         }
 
-        Toasts.ShowError("일정을 복구하지 못했어요.");
+        Toasts.ShowError(AppText.Dashboard.ScheduleRestoreFailedToast);
     }
 
     // 경기는 "vs {상대}" 파생, 대회·훈련은 제목 그대로 (삭제 모달 대상 표기). Type 값은 계약 문자열("Match" 등)
@@ -580,9 +580,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = $"{player.Name} 선수를 선수단에서 내보낼까요?",
-            Description = "공개 홈페이지 선수단에서도 사라져요. 발급한 초대코드도 함께 회수돼요.",
-            ConfirmLabel = "내보내기",
+            Title = AppText.Dashboard.RemovePlayerTitle(player.Name),
+            Description = AppText.Dashboard.RemovePlayerDescription,
+            ConfirmLabel = AppText.Dashboard.RemoveConfirm,
         });
 
         if (!confirmed)
@@ -593,13 +593,13 @@
         bool ok = await Teams.RemovePlayerAsync(player.TeamPlayerId);
         if (!ok)
         {
-            Toasts.ShowError("내보내지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", () => RemovePlayerAsync(player));
+            Toasts.ShowError(AppText.Dashboard.RemovePlayerFailedToast, AppText.Dashboard.Retry, () => RemovePlayerAsync(player));
             return;
         }
 
         await LoadRosterAsync();
         StateHasChanged();
-        Toasts.ShowSuccess($"{player.Name} 선수를 내보냈어요.", "실행취소", () => RestorePlayerAsync(player));
+        Toasts.ShowSuccess(AppText.Dashboard.PlayerRemovedToast(player.Name), AppText.Dashboard.Undo, () => RestorePlayerAsync(player));
     }
 
     private async Task RestorePlayerAsync(TeamRosterPlayerDto player)
@@ -607,13 +607,13 @@
         bool ok = await Teams.RemovePlayerAsync(player.TeamPlayerId, restore: true);
         if (!ok)
         {
-            Toasts.ShowError("되돌리지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", () => RestorePlayerAsync(player));
+            Toasts.ShowError(AppText.Dashboard.UndoFailedToast, AppText.Dashboard.Retry, () => RestorePlayerAsync(player));
             return;
         }
 
         await LoadRosterAsync();
         StateHasChanged();
-        Toasts.ShowSuccess("내보내기를 되돌렸어요.");
+        Toasts.ShowSuccess(AppText.Dashboard.RemoveUndoneToast);
     }
 
     private async Task LoadMatchesAsync()
@@ -643,10 +643,10 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = "이 수정 신청을 취소할까요?",
-            Description = $"{CorrectionListSection.SummaryOf(correction)} — 주최측에 전달된 신청이 철회돼요.",
-            ConfirmLabel = "신청 취소",
-            CancelLabel = "닫기",
+            Title = AppText.Dashboard.CancelCorrectionTitle,
+            Description = AppText.Dashboard.CancelCorrectionDescription(CorrectionListSection.SummaryOf(correction)),
+            ConfirmLabel = AppText.Dashboard.CancelCorrection,
+            CancelLabel = AppText.Dashboard.Close,
         });
 
         if (!confirmed)
@@ -657,13 +657,13 @@
         CorrectionSaveResult result = await Teams.CancelRecordCorrectionAsync(correction.CorrectionId);
         if (!result.Success)
         {
-            Toasts.ShowError(result.Error ?? "취소하지 못했어요.", "재시도", () => CancelCorrectionAsync(correction));
+            Toasts.ShowError(result.Error ?? AppText.Dashboard.CancelCorrectionFailedToast, AppText.Dashboard.Retry, () => CancelCorrectionAsync(correction));
             return;
         }
 
         await LoadCorrectionsAsync();
         StateHasChanged();
-        Toasts.ShowSuccess("수정 신청을 취소했어요.");
+        Toasts.ShowSuccess(AppText.Dashboard.CorrectionCancelledToast);
     }
 
     private async Task LoadVideosAsync()

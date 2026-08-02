@@ -10,14 +10,14 @@
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">선수 모집</h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OpenCreate">＋ 공고 올리기</button>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Dashboard.RecruitTitle</h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OpenCreate">@AppText.Dashboard.AddRecruit</button>
     </div>
 
     @if (Data.Items.Count == 0)
     {
-        <EmptyState Kind="EmptyState.Art.Players" Title="아직 모집 공고가 없어요">
-            <Description>공고를 올리면 공개 홈페이지 모집 탭과 팀 탐색의 모집중 뱃지에 바로 반영돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Players" Title="@AppText.Dashboard.RecruitEmptyTitle">
+            <Description>@AppText.Dashboard.RecruitEmptyBody</Description>
         </EmptyState>
     }
     else
@@ -29,11 +29,11 @@
                     <span class="text-[14.5px] font-extrabold text-navy-deep">@item.Title</span>
                     @if (item.IsOpen)
                     {
-                        <span class="@Css.Badge.Pending">모집중</span>
+                        <span class="@Css.Badge.Pending">@AppText.Dashboard.Recruiting</span>
                     }
                     else
                     {
-                        <span class="@Css.Badge.Neutral">마감</span>
+                        <span class="@Css.Badge.Neutral">@AppText.Dashboard.Closed</span>
                     }
                     <div class="flex-1"></div>
                     <OverflowMenu Target="@item.Title"
@@ -78,13 +78,13 @@
         item.IsOpen
             ? new List<OverflowMenu.MenuItem>
             {
-                new("수정", () => { mEditing = item; mFormOpen = true; return Task.CompletedTask; }),
-                new("마감하기", () => CloseAsync(item)),
+                new(AppText.Dashboard.Edit, () => { mEditing = item; mFormOpen = true; return Task.CompletedTask; }),
+                new(AppText.Dashboard.CloseRecruit, () => CloseAsync(item)),
             }
             : new List<OverflowMenu.MenuItem>();
 
     private List<OverflowMenu.MenuItem> DestructiveItemsOf(TeamRecruitmentDto item) =>
-        new() { new("삭제", () => DeleteAsync(item)) };
+        new() { new(AppText.Dashboard.Delete, () => DeleteAsync(item)) };
 
     private void OpenCreate()
     {
@@ -97,9 +97,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Normal,
-            Title = $"{item.Title} 공고를 마감할까요?",
-            Description = "마감하면 공개 홈페이지에 마감으로 표시되고 다시 열 수 없어요. 새 모집은 새 공고로 올려 주세요.",
-            ConfirmLabel = "마감하기",
+            Title = AppText.Dashboard.CloseRecruitTitle(item.Title),
+            Description = AppText.Dashboard.CloseRecruitDescription,
+            ConfirmLabel = AppText.Dashboard.CloseRecruit,
         });
 
         if (!confirmed)
@@ -109,12 +109,12 @@
 
         if (await Teams.CloseRecruitmentAsync(item.RecruitmentId))
         {
-            Toasts.ShowSuccess("공고를 마감했어요.");
+            Toasts.ShowSuccess(AppText.Dashboard.RecruitClosedToast);
             await OnChangedAsync();
             return;
         }
 
-        Toasts.ShowError("공고를 마감하지 못했어요. 다시 시도해 주세요.");
+        Toasts.ShowError(AppText.Dashboard.RecruitCloseFailedToast);
     }
 
     private async Task DeleteAsync(TeamRecruitmentDto item)
@@ -122,9 +122,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = $"{item.Title} 공고를 삭제할까요?",
-            Description = "공개 홈페이지에서 바로 사라져요.",
-            ConfirmLabel = "삭제",
+            Title = AppText.Dashboard.DeleteRecruitTitle(item.Title),
+            Description = AppText.Dashboard.GoneFromPublicHome,
+            ConfirmLabel = AppText.Dashboard.Delete,
         });
 
         if (!confirmed)
@@ -134,12 +134,12 @@
 
         if (await Teams.DeleteRecruitmentAsync(item.RecruitmentId))
         {
-            Toasts.ShowSuccess("공고를 삭제했어요.", "실행취소", () => RestoreAsync(item));
+            Toasts.ShowSuccess(AppText.Dashboard.RecruitDeletedToast, AppText.Dashboard.Undo, () => RestoreAsync(item));
             await OnChangedAsync();
             return;
         }
 
-        Toasts.ShowError("공고를 삭제하지 못했어요. 다시 시도해 주세요.");
+        Toasts.ShowError(AppText.Dashboard.RecruitDeleteFailedToast);
     }
 
     private async Task RestoreAsync(TeamRecruitmentDto item)
