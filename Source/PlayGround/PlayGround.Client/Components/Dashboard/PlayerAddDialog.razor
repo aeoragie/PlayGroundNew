@@ -16,8 +16,8 @@
             <span class="@Css.MatchForm.GrabBar"></span>
 
             <div class="@Css.MatchForm.Header">
-                <h2 class="@Css.MatchForm.Title">선수 추가</h2>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <h2 class="@Css.MatchForm.Title">@AppText.Dashboard.AddPlayerTitle</h2>
+                <button type="button" aria-label="@AppText.Dashboard.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -25,31 +25,31 @@
 
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
-                    <TextField Label="선수 이름" @bind-Value="mName" Validator="ValidateName"
-                               Placeholder="예: 김민준" MaxLength="50" />
+                    <TextField Label="@AppText.Dashboard.PlayerNameLabel" @bind-Value="mName" Validator="ValidateName"
+                               Placeholder="@AppText.Dashboard.PlayerNamePlaceholder" MaxLength="50" />
 
                     <div class="@Css.MatchForm.DateTimeRow">
-                        <TextField Label="등번호" @bind-Value="mJersey" IsOptional="true" Validator="ValidateJersey"
+                        <TextField Label="@AppText.Dashboard.JerseyLabel" @bind-Value="mJersey" IsOptional="true" Validator="ValidateJersey"
                                    Placeholder="9" MaxLength="3" />
-                        <SelectField TValue="string" Label="포지션" @bind-Value="mPosition" IsOptional="true"
-                                     Options="@PositionOptions" Placeholder="선택" />
+                        <SelectField TValue="string" Label="@AppText.Dashboard.PositionLabel" @bind-Value="mPosition" IsOptional="true"
+                                     Options="@PositionOptions" Placeholder="@AppText.Dashboard.SelectPlaceholder" />
                     </div>
 
                     <div class="@Css.MatchForm.DateTimeRow">
-                        <TextField Label="학년" @bind-Value="mGrade" IsOptional="true"
-                                   Placeholder="예: 중2" MaxLength="20" />
-                        <SelectField TValue="string" Label="연령대" @bind-Value="mAgeGroup" IsOptional="true"
-                                     Options="@AgeOptions" Placeholder="선택" />
+                        <TextField Label="@AppText.Dashboard.GradeLabel" @bind-Value="mGrade" IsOptional="true"
+                                   Placeholder="@AppText.Dashboard.GradePlaceholder" MaxLength="20" />
+                        <SelectField TValue="string" Label="@AppText.Dashboard.AgeGroupLabel" @bind-Value="mAgeGroup" IsOptional="true"
+                                     Options="@AgeOptions" Placeholder="@AppText.Dashboard.SelectPlaceholder" />
                     </div>
 
                     <div class="@InfoNoticeClass" role="note">
-                        추가한 선수는 <b>초대코드</b>가 함께 발급돼요. 로스터에서 코드를 보내면 학부모·선수가 직접 기록을 관리하게 됩니다.
+                        @AppText.Dashboard.AddPlayerNoticePrefix<b>@AppText.Dashboard.AddPlayerNoticeBold</b>@AppText.Dashboard.AddPlayerNoticeSuffix
                     </div>
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="추가" BusyLabel="추가 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Dashboard.Cancel</button>
+                    <SubmitButton Label="@AppText.Dashboard.AddSubmit" BusyLabel="@AppText.Dashboard.AddSubmitBusy" IsBusy="@mSaving" OnClick="SubmitAsync"
                                   Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -70,9 +70,9 @@
 
     private static readonly List<SelectOption<string>> PositionOptions = new()
     {
-        new SelectOption<string>("FW", "FW · 공격수"),
-        new SelectOption<string>("MF", "MF · 미드필더"),
-        new SelectOption<string>("DF", "DF · 수비수"),
+        new SelectOption<string>("FW", AppText.Dashboard.PosFw),
+        new SelectOption<string>("MF", AppText.Dashboard.PosMf),
+        new SelectOption<string>("DF", AppText.Dashboard.PosDf),
         new SelectOption<string>("GK", "GK · 골키퍼"),
     };
 

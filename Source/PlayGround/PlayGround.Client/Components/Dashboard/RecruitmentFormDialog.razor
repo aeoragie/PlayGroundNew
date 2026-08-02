@@ -16,10 +16,10 @@
 
             <div class="@Css.MatchForm.Header">
                 <span class="flex flex-col gap-1 min-w-0">
-                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? "모집 공고 수정" : "모집 공고 올리기")</h2>
-                    <span class="@Css.MatchForm.Subtitle">저장하면 공개 홈페이지 모집 탭과 팀 탐색의 모집중 뱃지에 바로 반영돼요.</span>
+                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? AppText.Dashboard.RecruitFormEdit : AppText.Dashboard.RecruitFormAdd)</h2>
+                    <span class="@Css.MatchForm.Subtitle">@AppText.Dashboard.RecruitFormSubtitle</span>
                 </span>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <button type="button" aria-label="@AppText.Dashboard.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -27,32 +27,32 @@
 
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
-                    <TextField Label="공고 제목" @bind-Value="mTitle" Placeholder="U15 공격수 모집"
+                    <TextField Label="@AppText.Dashboard.RecruitTitleLabel" @bind-Value="mTitle" Placeholder="@AppText.Dashboard.RecruitTitlePlaceholder"
                                Validator="ValidateTitle" MaxLength="100" />
 
-                    <TextField Label="공고 내용" @bind-Value="mDescription" Multiline="true" Rows="4"
-                               Placeholder="어떤 선수를 찾는지, 테스트·합류 방식은 어떻게 되는지 적어 주세요."
+                    <TextField Label="@AppText.Dashboard.RecruitBodyLabel" @bind-Value="mDescription" Multiline="true" Rows="4"
+                               Placeholder="@AppText.Dashboard.RecruitBodyPlaceholder"
                                Validator="ValidateDescription" MaxLength="500" />
 
-                    <TextField Label="조건 칩" @bind-Value="mConditions" IsOptional="true" MaxLength="130"
-                               Placeholder="테스트 1회 · 주말, 9월 리그 등록 가능"
+                    <TextField Label="@AppText.Dashboard.RecruitConditionsLabel" @bind-Value="mConditions" IsOptional="true" MaxLength="130"
+                               Placeholder="@AppText.Dashboard.RecruitConditionsPlaceholder"
                                Validator="ValidateConditions"
-                               Helper="쉼표(,)로 구분하면 칩으로 나뉘어요. 최대 4개." />
+                               Helper="@AppText.Dashboard.RecruitConditionsHelper" />
 
                     <div class="@Css.MatchForm.PickerField">
-                        <label class="@Css.Form.Label">마감일<span class="@Css.Form.OptionalMark"> (선택)</span></label>
+                        <label class="@Css.Form.Label">@AppText.Dashboard.DeadlineFieldLabel<span class="@Css.Form.OptionalMark">@AppText.Dashboard.Optional</span></label>
                         <Calendar @bind-Value="mDeadline" Range="Calendar.DateRange.FutureOnly" />
                         @if (mDeadline is not null)
                         {
                             <button type="button" class="self-start text-xs font-bold text-text-muted bg-transparent border-0 cursor-pointer p-0"
-                                    @onclick="() => mDeadline = null">마감일 비우기</button>
+                                    @onclick="() => mDeadline = null">@AppText.Dashboard.ClearDeadline</button>
                         }
                     </div>
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="@(IsEdit ? "공고 저장" : "공고 올리기")" BusyLabel="저장 중…" IsBusy="@mSaving"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Dashboard.Cancel</button>
+                    <SubmitButton Label="@(IsEdit ? AppText.Dashboard.RecruitSave : AppText.Dashboard.RecruitPost)" BusyLabel="@AppText.Dashboard.SavingBusy" IsBusy="@mSaving"
                                   OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -107,20 +107,20 @@
     }
 
     private static string? ValidateTitle(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "공고 제목을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorRecruitTitle : null;
 
     private static string? ValidateDescription(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "공고 내용을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorRecruitBody : null;
 
     private static string? ValidateConditions(string? value)
     {
         List<string> parsed = ParseConditions(value);
         if (parsed.Count > 4)
         {
-            return "조건은 4개까지만 적을 수 있어요.";
+            return AppText.Dashboard.ErrorConditionsMax;
         }
 
-        return parsed.Any(c => c.Length > 30) ? "조건 하나는 30자를 넘을 수 없어요." : null;
+        return parsed.Any(c => c.Length > 30) ? AppText.Dashboard.ErrorConditionLength : null;
     }
 
     private static List<string> ParseConditions(string? value) =>
@@ -151,7 +151,7 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Dashboard.SaveFailedToast, AppText.Dashboard.Retry, SubmitAsync);
             }
             else
             {

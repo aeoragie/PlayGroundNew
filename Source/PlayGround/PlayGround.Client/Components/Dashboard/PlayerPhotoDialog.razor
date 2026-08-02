@@ -14,16 +14,16 @@
     <div class="@Css.Uploader.CropOverlay" @onclick="CloseAsync">
         <div class="w-full md:w-[360px] bg-white rounded-[18px] p-5 flex flex-col gap-4" @onclick:stopPropagation="true">
             <div class="flex flex-col gap-1">
-                <span class="text-[15px] font-extrabold text-navy-deep">선수 사진</span>
-                <span class="text-[12px] text-text-muted break-keep">@Player.Name 선수의 사진을 등록해요. 선수·보호자 화면에도 함께 보여요.</span>
+                <span class="text-[15px] font-extrabold text-navy-deep">@AppText.Dashboard.PlayerPhotoTitle</span>
+                <span class="text-[12px] text-text-muted break-keep">@AppText.Dashboard.PlayerPhotoBody(Player.Name)</span>
             </div>
 
             <AvatarUploader Value="@mPhotoUrl" ValueChanged="SaveAsync"
                             Shape="AvatarUploader.CropShape.Portrait" FrameClass="w-[132px] aspect-[3/4] mx-auto"
                             Placeholder="@Player.Name" InitialSize="56"
-                            Label="선수 사진" Category="player-photo" ConfirmDelete="ConfirmDeleteAsync" />
+                            Label="@AppText.Dashboard.PlayerPhotoTitle" Category="player-photo" ConfirmDelete="ConfirmDeleteAsync" />
 
-            <button type="button" class="@Css.Uploader.CropCancel" @onclick="CloseAsync">닫기</button>
+            <button type="button" class="@Css.Uploader.CropCancel" @onclick="CloseAsync">@AppText.Dashboard.Close</button>
         </div>
     </div>
 }
@@ -66,12 +66,12 @@
         {
             mPhotoUrl = photoUrl;
             Player.PhotoUrl = photoUrl;
-            Toasts.ShowSuccess(photoUrl is null ? "사진을 삭제했어요." : "사진을 저장했어요.");
+            Toasts.ShowSuccess(photoUrl is null ? AppText.Dashboard.PhotoDeletedToast : AppText.Dashboard.PhotoSavedToast);
             await OnSaved.InvokeAsync();
             return;
         }
 
-        Toasts.ShowError("사진을 저장하지 못했어요.", "재시도", () => SaveAsync(photoUrl));
+        Toasts.ShowError(AppText.Dashboard.PhotoFailedToast, AppText.Dashboard.Retry, () => SaveAsync(photoUrl));
     }
 
     private Task<bool> ConfirmDeleteAsync()
@@ -79,9 +79,9 @@
         return Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = $"{Player?.Name} 선수의 사진을 삭제할까요?",
-            Description = "삭제하면 이니셜 아바타로 돌아가요. 되돌릴 수 없어요.",
-            ConfirmLabel = "삭제",
+            Title = AppText.Dashboard.DeletePhotoTitle(Player?.Name),
+            Description = AppText.Dashboard.DeletePhotoDescription,
+            ConfirmLabel = AppText.Dashboard.Delete,
         });
     }
 

@@ -746,6 +746,140 @@ namespace PlayGround.Client.Localization
             public static string DeleteCaseTitle => Loc.Get("Dashboard.DeleteCaseTitle");
             /// <summary>"{0}" 사례가 공개 홈페이지에서 내려가요.</summary>
             public static string DeleteCaseDescription(object arg0) => Loc.Format("Dashboard.DeleteCaseDescription", arg0);
+            /// <summary>닫기</summary>
+            public static string Close => Loc.Get("Dashboard.Close");
+            /// <summary>취소</summary>
+            public static string Cancel => Loc.Get("Dashboard.Cancel");
+            /// <summary>저장 중…</summary>
+            public static string SavingBusy => Loc.Get("Dashboard.SavingBusy");
+            /// <summary>재시도</summary>
+            public static string Retry => Loc.Get("Dashboard.Retry");
+            /// <summary>저장하지 못했어요.</summary>
+            public static string SaveFailedToast => Loc.Get("Dashboard.SaveFailedToast");
+            /// <summary>선택</summary>
+            public static string SelectPlaceholder => Loc.Get("Dashboard.SelectPlaceholder");
+            /// <summary> (선택)</summary>
+            public static string Optional => Loc.Get("Dashboard.Optional");
+            /// <summary>선수 추가</summary>
+            public static string AddPlayerTitle => Loc.Get("Dashboard.AddPlayerTitle");
+            /// <summary>선수 이름</summary>
+            public static string PlayerNameLabel => Loc.Get("Dashboard.PlayerNameLabel");
+            /// <summary>예: 김민준</summary>
+            public static string PlayerNamePlaceholder => Loc.Get("Dashboard.PlayerNamePlaceholder");
+            /// <summary>등번호</summary>
+            public static string JerseyLabel => Loc.Get("Dashboard.JerseyLabel");
+            /// <summary>포지션</summary>
+            public static string PositionLabel => Loc.Get("Dashboard.PositionLabel");
+            /// <summary>학년</summary>
+            public static string GradeLabel => Loc.Get("Dashboard.GradeLabel");
+            /// <summary>예: 중2</summary>
+            public static string GradePlaceholder => Loc.Get("Dashboard.GradePlaceholder");
+            /// <summary>연령대</summary>
+            public static string AgeGroupLabel => Loc.Get("Dashboard.AgeGroupLabel");
+            /// <summary>추가한 선수는 </summary>
+            public static string AddPlayerNoticePrefix => Loc.Get("Dashboard.AddPlayerNoticePrefix");
+            /// <summary>초대코드</summary>
+            public static string AddPlayerNoticeBold => Loc.Get("Dashboard.AddPlayerNoticeBold");
+            /// <summary>가 함께 발급돼요. 로스터에서 코드를 보내면 학부모·선수가 직접 기록을 관리하게 됩니다.</summary>
+            public static string AddPlayerNoticeSuffix => Loc.Get("Dashboard.AddPlayerNoticeSuffix");
+            /// <summary>추가</summary>
+            public static string AddSubmit => Loc.Get("Dashboard.AddSubmit");
+            /// <summary>추가 중…</summary>
+            public static string AddSubmitBusy => Loc.Get("Dashboard.AddSubmitBusy");
+            /// <summary>FW · 공격수</summary>
+            public static string PosFw => Loc.Get("Dashboard.PosFw");
+            /// <summary>MF · 미드필더</summary>
+            public static string PosMf => Loc.Get("Dashboard.PosMf");
+            /// <summary>DF · 수비수</summary>
+            public static string PosDf => Loc.Get("Dashboard.PosDf");
+            /// <summary>선수 사진</summary>
+            public static string PlayerPhotoTitle => Loc.Get("Dashboard.PlayerPhotoTitle");
+            /// <summary>{0} 선수의 사진을 등록해요. 선수·보호자 화면에도 함께 보여요.</summary>
+            public static string PlayerPhotoBody(object arg0) => Loc.Format("Dashboard.PlayerPhotoBody", arg0);
+            /// <summary>사진을 삭제했어요.</summary>
+            public static string PhotoDeletedToast => Loc.Get("Dashboard.PhotoDeletedToast");
+            /// <summary>사진을 저장했어요.</summary>
+            public static string PhotoSavedToast => Loc.Get("Dashboard.PhotoSavedToast");
+            /// <summary>사진을 저장하지 못했어요.</summary>
+            public static string PhotoFailedToast => Loc.Get("Dashboard.PhotoFailedToast");
+            /// <summary>{0} 선수의 사진을 삭제할까요?</summary>
+            public static string DeletePhotoTitle(object arg0) => Loc.Format("Dashboard.DeletePhotoTitle", arg0);
+            /// <summary>삭제하면 이니셜 아바타로 돌아가요. 되돌릴 수 없어요.</summary>
+            public static string DeletePhotoDescription => Loc.Get("Dashboard.DeletePhotoDescription");
+            /// <summary>모집 공고 수정</summary>
+            public static string RecruitFormEdit => Loc.Get("Dashboard.RecruitFormEdit");
+            /// <summary>모집 공고 올리기</summary>
+            public static string RecruitFormAdd => Loc.Get("Dashboard.RecruitFormAdd");
+            /// <summary>저장하면 공개 홈페이지 모집 탭과 팀 탐색의 모집중 뱃지에 바로 반영돼요.</summary>
+            public static string RecruitFormSubtitle => Loc.Get("Dashboard.RecruitFormSubtitle");
+            /// <summary>공고 제목</summary>
+            public static string RecruitTitleLabel => Loc.Get("Dashboard.RecruitTitleLabel");
+            /// <summary>U15 공격수 모집</summary>
+            public static string RecruitTitlePlaceholder => Loc.Get("Dashboard.RecruitTitlePlaceholder");
+            /// <summary>공고 내용</summary>
+            public static string RecruitBodyLabel => Loc.Get("Dashboard.RecruitBodyLabel");
+            /// <summary>어떤 선수를 찾는지, 테스트·합류 방식은 어떻게 되는지 적어 주세요.</summary>
+            public static string RecruitBodyPlaceholder => Loc.Get("Dashboard.RecruitBodyPlaceholder");
+            /// <summary>조건 칩</summary>
+            public static string RecruitConditionsLabel => Loc.Get("Dashboard.RecruitConditionsLabel");
+            /// <summary>테스트 1회 · 주말, 9월 리그 등록 가능</summary>
+            public static string RecruitConditionsPlaceholder => Loc.Get("Dashboard.RecruitConditionsPlaceholder");
+            /// <summary>쉼표(,)로 구분하면 칩으로 나뉘어요. 최대 4개.</summary>
+            public static string RecruitConditionsHelper => Loc.Get("Dashboard.RecruitConditionsHelper");
+            /// <summary>마감일 비우기</summary>
+            public static string ClearDeadline => Loc.Get("Dashboard.ClearDeadline");
+            /// <summary>공고 저장</summary>
+            public static string RecruitSave => Loc.Get("Dashboard.RecruitSave");
+            /// <summary>공고 올리기</summary>
+            public static string RecruitPost => Loc.Get("Dashboard.RecruitPost");
+            /// <summary>공고 제목을 입력해 주세요.</summary>
+            public static string ErrorRecruitTitle => Loc.Get("Dashboard.ErrorRecruitTitle");
+            /// <summary>공고 내용을 입력해 주세요.</summary>
+            public static string ErrorRecruitBody => Loc.Get("Dashboard.ErrorRecruitBody");
+            /// <summary>조건은 4개까지만 적을 수 있어요.</summary>
+            public static string ErrorConditionsMax => Loc.Get("Dashboard.ErrorConditionsMax");
+            /// <summary>조건 하나는 30자를 넘을 수 없어요.</summary>
+            public static string ErrorConditionLength => Loc.Get("Dashboard.ErrorConditionLength");
+            /// <summary>진학·진로 사례 수정</summary>
+            public static string CareerOutcomeEdit => Loc.Get("Dashboard.CareerOutcomeEdit");
+            /// <summary>진학·진로 사례 등록</summary>
+            public static string CareerOutcomeAdd => Loc.Get("Dashboard.CareerOutcomeAdd");
+            /// <summary>선수 개인(보호자)이 공개에 동의한 사례만 등록해 주세요. 저장하면 공개 홈페이지 진학·진로 탭에 바로 반영돼요.</summary>
+            public static string CareerOutcomeSubtitle => Loc.Get("Dashboard.CareerOutcomeSubtitle");
+            /// <summary>유형</summary>
+            public static string TypeLabel => Loc.Get("Dashboard.TypeLabel");
+            /// <summary>연도</summary>
+            public static string YearLabel => Loc.Get("Dashboard.YearLabel");
+            /// <summary>제목</summary>
+            public static string TitleLabel => Loc.Get("Dashboard.TitleLabel");
+            /// <summary>K리그 산하 U18 이적 1명</summary>
+            public static string CareerTitlePlaceholder => Loc.Get("Dashboard.CareerTitlePlaceholder");
+            /// <summary>상세</summary>
+            public static string DetailLabel => Loc.Get("Dashboard.DetailLabel");
+            /// <summary>MF · U15 출신 · 3년 재적</summary>
+            public static string CareerDetailPlaceholder => Loc.Get("Dashboard.CareerDetailPlaceholder");
+            /// <summary>포지션·출신 연령·재적 기간처럼 방문자가 참고할 내용을 적어 주세요.</summary>
+            public static string CareerDetailHelper => Loc.Get("Dashboard.CareerDetailHelper");
+            /// <summary>인원</summary>
+            public static string PlayerCountLabel => Loc.Get("Dashboard.PlayerCountLabel");
+            /// <summary>요약 카드의 유형별 인원 수에 합산돼요.</summary>
+            public static string PlayerCountHelper => Loc.Get("Dashboard.PlayerCountHelper");
+            /// <summary>사례 저장</summary>
+            public static string CareerSave => Loc.Get("Dashboard.CareerSave");
+            /// <summary>사례 등록</summary>
+            public static string CareerAdd => Loc.Get("Dashboard.CareerAdd");
+            /// <summary>프로 산하 이적</summary>
+            public static string TypeProTransfer => Loc.Get("Dashboard.TypeProTransfer");
+            /// <summary>축구부 진학</summary>
+            public static string TypeSchoolTeam => Loc.Get("Dashboard.TypeSchoolTeam");
+            /// <summary>상급 연령팀 승격</summary>
+            public static string TypePromotion => Loc.Get("Dashboard.TypePromotion");
+            /// <summary>제목을 입력해 주세요.</summary>
+            public static string ErrorTitleEmpty => Loc.Get("Dashboard.ErrorTitleEmpty");
+            /// <summary>연도를 입력해 주세요.</summary>
+            public static string ErrorYearEmpty => Loc.Get("Dashboard.ErrorYearEmpty");
+            /// <summary>마감일</summary>
+            public static string DeadlineFieldLabel => Loc.Get("Dashboard.DeadlineFieldLabel");
         }
 
         public static class Hub

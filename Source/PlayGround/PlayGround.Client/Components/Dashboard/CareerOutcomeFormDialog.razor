@@ -18,10 +18,10 @@
 
             <div class="@Css.MatchForm.Header">
                 <span class="flex flex-col gap-1 min-w-0">
-                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? "진학·진로 사례 수정" : "진학·진로 사례 등록")</h2>
-                    <span class="@Css.MatchForm.Subtitle">선수 개인(보호자)이 공개에 동의한 사례만 등록해 주세요. 저장하면 공개 홈페이지 진학·진로 탭에 바로 반영돼요.</span>
+                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? AppText.Dashboard.CareerOutcomeEdit : AppText.Dashboard.CareerOutcomeAdd)</h2>
+                    <span class="@Css.MatchForm.Subtitle">@AppText.Dashboard.CareerOutcomeSubtitle</span>
                 </span>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <button type="button" aria-label="@AppText.Dashboard.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -29,27 +29,27 @@
 
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
-                    <RadioCards TValue="SoccerCareerOutcomeType" Label="유형" @bind-Value="mType"
+                    <RadioCards TValue="SoccerCareerOutcomeType" Label="@AppText.Dashboard.TypeLabel" @bind-Value="mType"
                                 Options="@TypeOptions" />
 
-                    <TextField Label="연도" @bind-Value="mYear" Placeholder="@DateTime.Now.Year.ToString()"
+                    <TextField Label="@AppText.Dashboard.YearLabel" @bind-Value="mYear" Placeholder="@DateTime.Now.Year.ToString()"
                                Validator="ValidateYear" MaxLength="4" />
 
-                    <TextField Label="제목" @bind-Value="mTitle" Placeholder="K리그 산하 U18 이적 1명"
+                    <TextField Label="@AppText.Dashboard.TitleLabel" @bind-Value="mTitle" Placeholder="@AppText.Dashboard.CareerTitlePlaceholder"
                                Validator="ValidateTitle" MaxLength="100" />
 
-                    <TextField Label="상세" @bind-Value="mDetail" IsOptional="true" MaxLength="200"
-                               Placeholder="MF · U15 출신 · 3년 재적"
-                               Helper="포지션·출신 연령·재적 기간처럼 방문자가 참고할 내용을 적어 주세요." />
+                    <TextField Label="@AppText.Dashboard.DetailLabel" @bind-Value="mDetail" IsOptional="true" MaxLength="200"
+                               Placeholder="@AppText.Dashboard.CareerDetailPlaceholder"
+                               Helper="@AppText.Dashboard.CareerDetailHelper" />
 
-                    <TextField Label="인원" @bind-Value="mPlayerCount" Placeholder="1"
+                    <TextField Label="@AppText.Dashboard.PlayerCountLabel" @bind-Value="mPlayerCount" Placeholder="1"
                                Validator="ValidatePlayerCount" MaxLength="2"
-                               Helper="요약 카드의 유형별 인원 수에 합산돼요." />
+                               Helper="@AppText.Dashboard.PlayerCountHelper" />
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="@(IsEdit ? "사례 저장" : "사례 등록")" BusyLabel="저장 중…" IsBusy="@mSaving"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Dashboard.Cancel</button>
+                    <SubmitButton Label="@(IsEdit ? AppText.Dashboard.CareerSave : AppText.Dashboard.CareerAdd)" BusyLabel="@AppText.Dashboard.SavingBusy" IsBusy="@mSaving"
                                   OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -74,9 +74,9 @@
 
     private static readonly List<SelectOption<SoccerCareerOutcomeType>> TypeOptions = new()
     {
-        new SelectOption<SoccerCareerOutcomeType>(SoccerCareerOutcomeType.ProTransfer, "프로 산하 이적"),
-        new SelectOption<SoccerCareerOutcomeType>(SoccerCareerOutcomeType.SchoolTeam, "축구부 진학"),
-        new SelectOption<SoccerCareerOutcomeType>(SoccerCareerOutcomeType.Promotion, "상급 연령팀 승격"),
+        new SelectOption<SoccerCareerOutcomeType>(SoccerCareerOutcomeType.ProTransfer, AppText.Dashboard.TypeProTransfer),
+        new SelectOption<SoccerCareerOutcomeType>(SoccerCareerOutcomeType.SchoolTeam, AppText.Dashboard.TypeSchoolTeam),
+        new SelectOption<SoccerCareerOutcomeType>(SoccerCareerOutcomeType.Promotion, AppText.Dashboard.TypePromotion),
     };
 
     private readonly FormFieldContext mForm = new();
@@ -118,13 +118,13 @@
     }
 
     private static string? ValidateTitle(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "제목을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorTitleEmpty : null;
 
     private static string? ValidateYear(string? value)
     {
         if (!int.TryParse(value, out int year))
         {
-            return "연도를 입력해 주세요.";
+            return AppText.Dashboard.ErrorYearEmpty;
         }
 
         return year < 1990 || year > DateTime.Now.Year + 1 ? "연도를 다시 확인해 주세요." : null;
