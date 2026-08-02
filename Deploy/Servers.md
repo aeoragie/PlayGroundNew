@@ -12,14 +12,15 @@
 | 항목 | 값 |
 |---|---|
 | 역할 | PlayGround 웹 앱 · SQL Server 2022 Express · Redis · Nginx |
-| **공개 IP** | `54.180.64.167` (Elastic IP) |
-| **비공개 IP** | `…` (**퍼블릭 서브넷 = `10.0.0~31.x`** 여야 한다) |
-| VPC | `playground-vpc` (10.0.0.0/16) |
+| **공개 IP** | `54.180.64.167` (Elastic IP · `eipalloc-0f8a638601ba852b0`) |
+| **비공개 IP** | `10.0.1.77` (**퍼블릭 서브넷 = `10.0.0~31.x`** 여야 한다) |
+| VPC | `playground-vpc` (`vpc-06c3c73221934327b`, 10.0.0.0/16) |
 | 서브넷 | `playground-subnet-public1-ap-northeast-2a` (10.0.0.0/20) |
+| 보안 그룹 | `playground-prod-sg` (`sg-0d7ff3505cee59980`) |
 | OS | Ubuntu 22.04 LTS |
 | 인스턴스 타입 | t3.medium (2 vCPU / 4GB) |
 | 리전 | **ap-northeast-2 (서울)** |
-| 인스턴스 ID | `i-…` |
+| 인스턴스 ID | `i-0bb7075d9a4c359e5` |
 | 도메인 | playgroundsport.com · www |
 | SSH 키 | `C:\…\playground-prod.pem` |
 | 시간대 | **UTC** (호스트 TZ로 로직을 맞추지 않는다) |
