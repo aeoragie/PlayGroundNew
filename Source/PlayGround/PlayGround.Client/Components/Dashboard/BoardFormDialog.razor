@@ -20,10 +20,10 @@
 
             <div class="@Css.MatchForm.Header">
                 <span class="flex flex-col gap-1 min-w-0">
-                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? "글 수정" : "글 작성")</h2>
-                    <span class="@Css.MatchForm.Subtitle">공지는 발행 시 소속 보호자에게 알림이 가요. 공개로 켜면 소개 탭 "팀 소식"에 보여요.</span>
+                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? AppText.Dashboard.BoardFormEdit : AppText.Dashboard.BoardFormAdd)</h2>
+                    <span class="@Css.MatchForm.Subtitle">@AppText.Dashboard.BoardFormSubtitle</span>
                 </span>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <button type="button" aria-label="@AppText.Dashboard.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -31,18 +31,18 @@
 
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
-                    <RadioCards TValue="SoccerTeamPostType" Label="유형" Value="mType"
+                    <RadioCards TValue="SoccerTeamPostType" Label="@AppText.Dashboard.TypeLabel" Value="mType"
                                 ValueChanged="OnTypeChanged" Options="@TypeOptions" />
 
-                    <TextField Label="제목" @bind-Value="mTitle" Placeholder="8월 훈련 일정 변경 안내"
+                    <TextField Label="@AppText.Dashboard.TitleLabel" @bind-Value="mTitle" Placeholder="@AppText.Dashboard.BoardTitlePlaceholder"
                                Validator="ValidateTitle" MaxLength="60" />
 
-                    <TextField Label="내용" @bind-Value="mBody" Multiline="true" Rows="5"
-                               Placeholder="보호자에게 알릴 내용을 적어 주세요." Validator="ValidateBody" MaxLength="2000" />
+                    <TextField Label="@AppText.Dashboard.BodyLabel" @bind-Value="mBody" Multiline="true" Rows="5"
+                               Placeholder="@AppText.Dashboard.BoardBodyPlaceholder" Validator="ValidateBody" MaxLength="2000" />
 
                     @* 첨부 — pdf·이미지·hwp, 10MB, 최대 3개 *@
                     <div class="flex flex-col gap-2">
-                        <label class="@Css.Form.Label">첨부<span class="@Css.Form.OptionalMark"> (선택 · 최대 3개)</span></label>
+                        <label class="@Css.Form.Label">@AppText.Dashboard.AttachLabel<span class="@Css.Form.OptionalMark">@AppText.Dashboard.AttachOptional</span></label>
 
                         @if (mFiles.Count > 0)
                         {
@@ -53,7 +53,7 @@
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a93a6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M14.5 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7.5z"></path><path d="M14 3v5h5"></path></svg>
                                         <span class="flex-1 min-w-0 text-[13px] font-semibold text-navy-deep truncate">@f.Name</span>
                                         <span class="text-[11px] text-text-muted whitespace-nowrap shrink-0">@SizeText(f.SizeBytes)</span>
-                                        <button type="button" aria-label="첨부 삭제" class="shrink-0 text-text-muted hover:text-danger bg-transparent border-0 cursor-pointer p-0"
+                                        <button type="button" aria-label="@AppText.Dashboard.DeleteAttach" class="shrink-0 text-text-muted hover:text-danger bg-transparent border-0 cursor-pointer p-0"
                                                 @onclick="() => RemoveFile(f)">
                                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                                         </button>
@@ -68,19 +68,19 @@
                                 <button type="button" class="w-full h-11 border border-dashed border-navy-muted rounded-[10px] bg-surface-soft text-[13px] font-bold text-navy flex items-center justify-center gap-2 whitespace-nowrap">
                                     @if (mUploading)
                                     {
-                                        <span>올리는 중…</span>
+                                        <span>@AppText.Dashboard.Uploading</span>
                                     }
                                     else
                                     {
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5M8 8.5L12 4.5l4 4M5 19h14"></path></svg>
-                                        <span>파일 첨부 (최대 @(MaxFiles)개)</span>
+                                        <span>@AppText.Dashboard.AttachFile(MaxFiles)</span>
                                     }
                                 </button>
                                 <InputFile OnChange="OnFilesPickedAsync" multiple
                                            accept=".pdf,.hwp,.hwpx,.jpg,.jpeg,.png,.webp"
                                            class="absolute inset-0 opacity-0 cursor-pointer" disabled="@mUploading" />
                             </div>
-                            <span class="text-[11px] text-text-muted whitespace-nowrap">pdf·이미지·hwp · 10MB · 최대 @(MaxFiles)개</span>
+                            <span class="text-[11px] text-text-muted whitespace-nowrap">@AppText.Dashboard.AttachHint(MaxFiles)</span>
                         }
 
                         @if (mAttachError is not null)
@@ -90,14 +90,14 @@
                     </div>
 
                     @* 공개 스위치 — 폼 상태만 바꾼다(즉시 저장 아님). 기본 끔 *@
-                    <Switch Label="공개 홈페이지에도 노출"
-                            Description="켜면 소개 탭 '팀 소식'에 보여요 · 끄면 소속 보호자만"
+                    <Switch Label="@AppText.Dashboard.BoardPublicSwitchLabel"
+                            Description="@AppText.Dashboard.BoardPublicSwitchDescription"
                             Value="mIsPublic" ValueChanged="(v) => mIsPublic = v" />
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="@(IsEdit ? "저장" : "올리기")" BusyLabel="저장 중…" IsBusy="@mSaving"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Dashboard.Cancel</button>
+                    <SubmitButton Label="@(IsEdit ? AppText.Dashboard.Save : AppText.Dashboard.PostSubmit)" BusyLabel="@AppText.Dashboard.SavingBusy" IsBusy="@mSaving"
                                   OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -140,8 +140,8 @@
 
     private static readonly List<SelectOption<SoccerTeamPostType>> TypeOptions = new()
     {
-        new SelectOption<SoccerTeamPostType>(SoccerTeamPostType.Notice, "공지"),
-        new SelectOption<SoccerTeamPostType>(SoccerTeamPostType.Material, "자료"),
+        new SelectOption<SoccerTeamPostType>(SoccerTeamPostType.Notice, AppText.Dashboard.SegNotice),
+        new SelectOption<SoccerTeamPostType>(SoccerTeamPostType.Material, AppText.Dashboard.SegMaterial),
     };
 
     protected override void OnParametersSet()
@@ -190,16 +190,16 @@
         string trimmed = (value ?? string.Empty).Trim();
         if (trimmed.Length < 2)
         {
-            return "제목을 2자 이상 입력해 주세요.";
+            return AppText.Dashboard.ErrorTitleMin;
         }
 
-        return trimmed.Length > 60 ? "제목은 60자를 넘을 수 없어요." : null;
+        return trimmed.Length > 60 ? AppText.Dashboard.ErrorTitleMax : null;
     }
 
     private static string? ValidateBody(string? value)
     {
         string trimmed = (value ?? string.Empty).Trim();
-        return trimmed.Length < 2 ? "내용을 2자 이상 입력해 주세요." : null;
+        return trimmed.Length < 2 ? AppText.Dashboard.ErrorBodyMin : null;
     }
 
     private async Task OnFilesPickedAsync(InputFileChangeEventArgs args)
@@ -211,20 +211,20 @@
         {
             if (mFiles.Count >= MaxFiles)
             {
-                mAttachError = $"첨부는 {MaxFiles}개까지 올릴 수 있어요.";
+                mAttachError = AppText.Dashboard.ErrorAttachMax(MaxFiles);
                 break;
             }
 
             if (file.Size > MaxBytes)
             {
-                mAttachError = $"{file.Name}이(가) 너무 커요 — 10MB 이하로 올려 주세요.";
+                mAttachError = AppText.Dashboard.ErrorAttachSize(file.Name);
                 continue;
             }
 
             UploadedFileResponse? uploaded = await Teams.UploadBoardFileAsync(file);
             if (uploaded is null)
             {
-                mAttachError = $"{file.Name}을(를) 올리지 못했어요. 형식(pdf·이미지·hwp)과 용량을 확인해 주세요.";
+                mAttachError = AppText.Dashboard.ErrorAttachFailed(file.Name);
                 continue;
             }
 
@@ -272,19 +272,19 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Dashboard.SaveFailedToast, AppText.Dashboard.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Dashboard.SaveFailedToast);
             }
 
             return;
         }
 
         Toasts.ShowSuccess(IsEdit
-            ? "글을 저장했어요."
-            : (mType == SoccerTeamPostType.Notice ? "공지를 올렸어요. 소속 보호자에게 알림이 갔어요." : "자료를 올렸어요."));
+            ? AppText.Dashboard.PostSavedToast
+            : (mType == SoccerTeamPostType.Notice ? AppText.Dashboard.NoticePostedToast : AppText.Dashboard.MaterialPostedToast));
         await IsOpenChanged.InvokeAsync(false);
         await OnSaved.InvokeAsync();
     }

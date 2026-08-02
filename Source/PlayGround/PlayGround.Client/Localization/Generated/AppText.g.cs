@@ -880,6 +880,102 @@ namespace PlayGround.Client.Localization
             public static string ErrorYearEmpty => Loc.Get("Dashboard.ErrorYearEmpty");
             /// <summary>마감일</summary>
             public static string DeadlineFieldLabel => Loc.Get("Dashboard.DeadlineFieldLabel");
+            /// <summary>일정 수정</summary>
+            public static string ScheduleFormEdit => Loc.Get("Dashboard.ScheduleFormEdit");
+            /// <summary>일정 추가</summary>
+            public static string ScheduleFormAdd => Loc.Get("Dashboard.ScheduleFormAdd");
+            /// <summary>공개로 저장하면 공개 홈페이지 Schedule 탭과 허브 "다음 경기"에 바로 반영돼요.</summary>
+            public static string ScheduleFormSubtitle => Loc.Get("Dashboard.ScheduleFormSubtitle");
+            /// <summary>상대 팀</summary>
+            public static string OpponentLabel => Loc.Get("Dashboard.OpponentLabel");
+            /// <summary>강북 드래곤즈</summary>
+            public static string OpponentPlaceholder => Loc.Get("Dashboard.OpponentPlaceholder");
+            /// <summary>날짜</summary>
+            public static string DateLabel => Loc.Get("Dashboard.DateLabel");
+            /// <summary>날짜를 선택해 주세요.</summary>
+            public static string ErrorDateRequired => Loc.Get("Dashboard.ErrorDateRequired");
+            /// <summary>시간</summary>
+            public static string TimeLabel => Loc.Get("Dashboard.TimeLabel");
+            /// <summary>시간을 선택해 주세요.</summary>
+            public static string ErrorTimeRequired => Loc.Get("Dashboard.ErrorTimeRequired");
+            /// <summary>장소</summary>
+            public static string VenueLabel => Loc.Get("Dashboard.VenueLabel");
+            /// <summary>잠실보조경기장</summary>
+            public static string VenuePlaceholder => Loc.Get("Dashboard.VenuePlaceholder");
+            /// <summary>같은 날짜·시간에 이미 등록된 일정이 있어요. 그대로 추가할 수 있어요.</summary>
+            public static string DuplicateScheduleWarn => Loc.Get("Dashboard.DuplicateScheduleWarn");
+            /// <summary>공개 홈페이지에 노출</summary>
+            public static string PublicSwitchLabel => Loc.Get("Dashboard.PublicSwitchLabel");
+            /// <summary>끄면 팀 내부(대시보드)에서만 보여요</summary>
+            public static string PublicSwitchDescription => Loc.Get("Dashboard.PublicSwitchDescription");
+            /// <summary>저장하기</summary>
+            public static string SaveSubmit => Loc.Get("Dashboard.SaveSubmit");
+            /// <summary>추가하기</summary>
+            public static string AddSubmitAction => Loc.Get("Dashboard.AddSubmitAction");
+            /// <summary>경기</summary>
+            public static string TypeMatch => Loc.Get("Dashboard.TypeMatch");
+            /// <summary>대회</summary>
+            public static string TypeTournament => Loc.Get("Dashboard.TypeTournament");
+            /// <summary>훈련</summary>
+            public static string TypeTraining => Loc.Get("Dashboard.TypeTraining");
+            /// <summary>서울시장배 8강</summary>
+            public static string TitlePlaceholderTournament => Loc.Get("Dashboard.TitlePlaceholderTournament");
+            /// <summary>전술 훈련 — 빌드업</summary>
+            public static string TitlePlaceholderTraining => Loc.Get("Dashboard.TitlePlaceholderTraining");
+            /// <summary>상대 팀 이름을 입력해 주세요.</summary>
+            public static string ErrorOpponentRequired => Loc.Get("Dashboard.ErrorOpponentRequired");
+            /// <summary>장소를 입력해 주세요.</summary>
+            public static string ErrorVenueRequired => Loc.Get("Dashboard.ErrorVenueRequired");
+            /// <summary>글 수정</summary>
+            public static string BoardFormEdit => Loc.Get("Dashboard.BoardFormEdit");
+            /// <summary>글 작성</summary>
+            public static string BoardFormAdd => Loc.Get("Dashboard.BoardFormAdd");
+            /// <summary>공지는 발행 시 소속 보호자에게 알림이 가요. 공개로 켜면 소개 탭 "팀 소식"에 보여요.</summary>
+            public static string BoardFormSubtitle => Loc.Get("Dashboard.BoardFormSubtitle");
+            /// <summary>8월 훈련 일정 변경 안내</summary>
+            public static string BoardTitlePlaceholder => Loc.Get("Dashboard.BoardTitlePlaceholder");
+            /// <summary>내용</summary>
+            public static string BodyLabel => Loc.Get("Dashboard.BodyLabel");
+            /// <summary>보호자에게 알릴 내용을 적어 주세요.</summary>
+            public static string BoardBodyPlaceholder => Loc.Get("Dashboard.BoardBodyPlaceholder");
+            /// <summary>첨부</summary>
+            public static string AttachLabel => Loc.Get("Dashboard.AttachLabel");
+            /// <summary> (선택 · 최대 3개)</summary>
+            public static string AttachOptional => Loc.Get("Dashboard.AttachOptional");
+            /// <summary>첨부 삭제</summary>
+            public static string DeleteAttach => Loc.Get("Dashboard.DeleteAttach");
+            /// <summary>올리는 중…</summary>
+            public static string Uploading => Loc.Get("Dashboard.Uploading");
+            /// <summary>파일 첨부 (최대 {0}개)</summary>
+            public static string AttachFile(object arg0) => Loc.Format("Dashboard.AttachFile", arg0);
+            /// <summary>pdf·이미지·hwp · 10MB · 최대 {0}개</summary>
+            public static string AttachHint(object arg0) => Loc.Format("Dashboard.AttachHint", arg0);
+            /// <summary>공개 홈페이지에도 노출</summary>
+            public static string BoardPublicSwitchLabel => Loc.Get("Dashboard.BoardPublicSwitchLabel");
+            /// <summary>켜면 소개 탭 '팀 소식'에 보여요 · 끄면 소속 보호자만</summary>
+            public static string BoardPublicSwitchDescription => Loc.Get("Dashboard.BoardPublicSwitchDescription");
+            /// <summary>올리기</summary>
+            public static string PostSubmit => Loc.Get("Dashboard.PostSubmit");
+            /// <summary>저장</summary>
+            public static string Save => Loc.Get("Dashboard.Save");
+            /// <summary>제목을 2자 이상 입력해 주세요.</summary>
+            public static string ErrorTitleMin => Loc.Get("Dashboard.ErrorTitleMin");
+            /// <summary>제목은 60자를 넘을 수 없어요.</summary>
+            public static string ErrorTitleMax => Loc.Get("Dashboard.ErrorTitleMax");
+            /// <summary>내용을 2자 이상 입력해 주세요.</summary>
+            public static string ErrorBodyMin => Loc.Get("Dashboard.ErrorBodyMin");
+            /// <summary>첨부는 {0}개까지 올릴 수 있어요.</summary>
+            public static string ErrorAttachMax(object arg0) => Loc.Format("Dashboard.ErrorAttachMax", arg0);
+            /// <summary>{0}이(가) 너무 커요 — 10MB 이하로 올려 주세요.</summary>
+            public static string ErrorAttachSize(object arg0) => Loc.Format("Dashboard.ErrorAttachSize", arg0);
+            /// <summary>{0}을(를) 올리지 못했어요. 형식(pdf·이미지·hwp)과 용량을 확인해 주세요.</summary>
+            public static string ErrorAttachFailed(object arg0) => Loc.Format("Dashboard.ErrorAttachFailed", arg0);
+            /// <summary>글을 저장했어요.</summary>
+            public static string PostSavedToast => Loc.Get("Dashboard.PostSavedToast");
+            /// <summary>공지를 올렸어요. 소속 보호자에게 알림이 갔어요.</summary>
+            public static string NoticePostedToast => Loc.Get("Dashboard.NoticePostedToast");
+            /// <summary>자료를 올렸어요.</summary>
+            public static string MaterialPostedToast => Loc.Get("Dashboard.MaterialPostedToast");
         }
 
         public static class Hub

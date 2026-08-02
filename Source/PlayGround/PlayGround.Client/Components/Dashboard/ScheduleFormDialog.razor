@@ -18,10 +18,10 @@
 
             <div class="@Css.MatchForm.Header">
                 <span class="flex flex-col gap-1 min-w-0">
-                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? "일정 수정" : "일정 추가")</h2>
-                    <span class="@Css.MatchForm.Subtitle">공개로 저장하면 공개 홈페이지 Schedule 탭과 허브 "다음 경기"에 바로 반영돼요.</span>
+                    <h2 class="@Css.MatchForm.Title">@(IsEdit ? AppText.Dashboard.ScheduleFormEdit : AppText.Dashboard.ScheduleFormAdd)</h2>
+                    <span class="@Css.MatchForm.Subtitle">@AppText.Dashboard.ScheduleFormSubtitle</span>
                 </span>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <button type="button" aria-label="@AppText.Dashboard.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -30,62 +30,62 @@
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
                     @* 유형 — 3종이라 RadioCards. 전환 시 필드가 즉시 바뀐다 *@
-                    <RadioCards TValue="SoccerScheduleEventType" Label="유형" Value="mType"
+                    <RadioCards TValue="SoccerScheduleEventType" Label="@AppText.Dashboard.TypeLabel" Value="mType"
                                 ValueChanged="OnTypeChangedAsync" Options="@TypeOptions" />
 
                     @* 제목 — 대회·훈련만(경기는 "vs {상대}" 파생) *@
                     @if (mType is SoccerScheduleEventType.Tournament or SoccerScheduleEventType.Training)
                     {
-                        <TextField Label="제목" @bind-Value="mTitle" Placeholder="@TitlePlaceholder"
+                        <TextField Label="@AppText.Dashboard.TitleLabel" @bind-Value="mTitle" Placeholder="@TitlePlaceholder"
                                    Validator="ValidateTitle" MaxLength="100" />
                     }
 
                     @* 상대 팀 — 경기·대회만(훈련 숨김) *@
                     @if (mType is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament)
                     {
-                        <TextField Label="상대 팀" @bind-Value="mOpponentName" Placeholder="강북 드래곤즈"
+                        <TextField Label="@AppText.Dashboard.OpponentLabel" @bind-Value="mOpponentName" Placeholder="@AppText.Dashboard.OpponentPlaceholder"
                                    Validator="ValidateOpponent" MaxLength="50" />
                     }
 
                     @* 날짜·시간은 별도 필드 (Design.DatePicker — 한 팝오버에 합치지 않는다) *@
                     <div class="@Css.MatchForm.DateTimeRow">
                         <div class="@Css.MatchForm.PickerField">
-                            <label class="@Css.Form.Label">날짜</label>
+                            <label class="@Css.Form.Label">@AppText.Dashboard.DateLabel</label>
                             <Calendar @bind-Value="mDate" Range="Calendar.DateRange.FutureOnly"
                                       HasError="@(mShowErrors && mDate is null)" />
                             @if (mShowErrors && mDate is null)
                             {
-                                <span class="@Css.Form.ErrorMessage">날짜를 선택해 주세요.</span>
+                                <span class="@Css.Form.ErrorMessage">@AppText.Dashboard.ErrorDateRequired</span>
                             }
                         </div>
                         <div class="@Css.MatchForm.PickerField">
-                            <label class="@Css.Form.Label">시간</label>
+                            <label class="@Css.Form.Label">@AppText.Dashboard.TimeLabel</label>
                             <TimeList @bind-Value="mTime" HasError="@(mShowErrors && mTime is null)" />
                             @if (mShowErrors && mTime is null)
                             {
-                                <span class="@Css.Form.ErrorMessage">시간을 선택해 주세요.</span>
+                                <span class="@Css.Form.ErrorMessage">@AppText.Dashboard.ErrorTimeRequired</span>
                             }
                         </div>
                     </div>
 
-                    <TextField Label="장소" @bind-Value="mVenue" Placeholder="잠실보조경기장"
+                    <TextField Label="@AppText.Dashboard.VenueLabel" @bind-Value="mVenue" Placeholder="@AppText.Dashboard.VenuePlaceholder"
                                Validator="ValidateVenue" MaxLength="50" />
 
                     @* 같은 일시 중복 = 비차단 경고 (더블헤더가 존재하므로 막지 않는다) *@
                     @if (HasDuplicateWarning)
                     {
-                        <span class="text-[12px] font-medium text-danger leading-[1.5] break-keep -mt-2">같은 날짜·시간에 이미 등록된 일정이 있어요. 그대로 추가할 수 있어요.</span>
+                        <span class="text-[12px] font-medium text-danger leading-[1.5] break-keep -mt-2">@AppText.Dashboard.DuplicateScheduleWarn</span>
                     }
 
                     @* 공개 스위치 — 폼 상태만 바꾼다(Save 콜백 없음, 즉시 저장 아님) *@
-                    <Switch Label="공개 홈페이지에 노출"
-                            Description="끄면 팀 내부(대시보드)에서만 보여요"
+                    <Switch Label="@AppText.Dashboard.PublicSwitchLabel"
+                            Description="@AppText.Dashboard.PublicSwitchDescription"
                             Value="mIsPublic" ValueChanged="OnPublicChanged" />
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="@(IsEdit ? "저장하기" : "추가하기")" BusyLabel="저장 중…" IsBusy="@mSaving"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Dashboard.Cancel</button>
+                    <SubmitButton Label="@(IsEdit ? AppText.Dashboard.SaveSubmit : AppText.Dashboard.AddSubmitAction)" BusyLabel="@AppText.Dashboard.SavingBusy" IsBusy="@mSaving"
                                   OnClick="SubmitAsync" Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -134,13 +134,13 @@
 
     private static readonly List<SelectOption<SoccerScheduleEventType>> TypeOptions = new()
     {
-        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Match, "경기"),
-        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Tournament, "대회"),
-        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Training, "훈련"),
+        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Match, AppText.Dashboard.TypeMatch),
+        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Tournament, AppText.Dashboard.TypeTournament),
+        new SelectOption<SoccerScheduleEventType>(SoccerScheduleEventType.Training, AppText.Dashboard.TypeTraining),
     };
 
     private string TitlePlaceholder =>
-        mType == SoccerScheduleEventType.Tournament ? "서울시장배 8강" : "전술 훈련 — 빌드업";
+        mType == SoccerScheduleEventType.Tournament ? AppText.Dashboard.TitlePlaceholderTournament : AppText.Dashboard.TitlePlaceholderTraining;
 
     private TimeOnly DefaultTime => RecentTime ?? new TimeOnly(14, 0);
 
@@ -220,13 +220,13 @@
     }
 
     private static string? ValidateTitle(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "제목을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorTitleEmpty : null;
 
     private static string? ValidateOpponent(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "상대 팀 이름을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorOpponentRequired : null;
 
     private static string? ValidateVenue(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "장소를 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorVenueRequired : null;
 
     private async Task SubmitAsync()
     {
@@ -263,7 +263,7 @@
             // 요청 실패는 토스트 + 재시도, 입력 문제는 인라인 (폼 오류에 토스트 금지)
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Dashboard.SaveFailedToast, AppText.Dashboard.Retry, SubmitAsync);
             }
             else
             {
