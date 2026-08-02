@@ -28,28 +28,10 @@
 
 ## 순서
 
-### 1. 인스턴스 생성
+### 1~2. AWS 콘솔 작업 — **`Deploy/AwsSetup.md`**
 
-- AMI: Ubuntu Server 22.04 LTS (x86_64)
-- 타입: t3.medium · 디스크: gp3 **50GB**
-- **user-data**에 `ec2-setup.sh` 내용을 붙여 넣는다 — **시크릿이 없으므로 안전하다**
-  (user-data는 인스턴스 메타데이터로 조회되므로 비밀번호를 넣으면 안 된다)
-- 생성 후 **Elastic IP 할당·연결**
-
-### 2. SQL Server 초기 설정 (SSH 접속 후, 대화형)
-
-sa 비밀번호가 들어가므로 **user-data가 아니라 여기서** 한다.
-
-```bash
-sudo MSSQL_PID=Express /opt/mssql/bin/mssql-conf setup
-# → Express 선택, sa 비밀번호 입력(8자 이상·복잡도 필요)
-
-sudo /opt/mssql/bin/mssql-conf set memory.memorylimitmb 2048   # 앱·Redis 몫을 남긴다
-sudo systemctl restart mssql-server
-```
-
-DB 생성은 `Source/Database/README.md`의 콜레이션 규칙을 그대로 따른다
-(`COLLATE Latin1_General_100_CI_AS_SC_UTF8`).
+키 페어 · 보안 그룹 · 인스턴스 · Elastic IP · SQL Server 초기 설정 · S3/IAM · Route 53.
+콘솔에서 무엇을 누르는지와 **자주 막히는 지점**을 그 문서에 정리했다.
 
 ### 3. 스키마 배포
 
@@ -65,19 +47,116 @@ $env:PLAYGROUND_TEST_SOCCER_CONNSTR  = "Server=127.0.0.1,14330;Database=PlayGrou
 dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 ```
 
-### 4. 앱 배포
+### 4. 서버측 설치 + 첫 배포
 
-`deploy-app.sh` 참조. CI가 만든 publish 산출물을 올리고 서비스를 재시작한다.
+**4-1. 스크립트·설정 파일을 서버로 올린다** (로컬 PowerShell):
 
-### 5. 도메인 연결 (Route 53)
+```powershell
+$key = "C:\Workspace\Keys\playground-prod.pem"
+scp -i $key Deploy/deploy-app.sh Deploy/backup-database.sh `
+    Deploy/playground.service Deploy/playground.conf ubuntu@<EIP>:/tmp/
+```
 
-- A 레코드 `playgroundsport.com` → Elastic IP
-- A 레코드 `www.playgroundsport.com` → Elastic IP
-- 전파 확인 후 TLS 발급:
+**4-2. 서버에서 제자리에 놓는다** (SSH 접속 후):
+
+```bash
+sudo install -m 750 /tmp/deploy-app.sh      /usr/local/bin/playground-deploy
+sudo install -m 750 /tmp/backup-database.sh /usr/local/bin/playground-backup
+sudo install -m 644 /tmp/playground.service /etc/systemd/system/playground.service
+sudo install -m 644 /tmp/playground.conf    /etc/nginx/sites-available/playground
+
+sudo ln -sf /etc/nginx/sites-available/playground /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+**4-3. 환경변수 파일** — 시크릿이라 파일로만 둔다:
+
+```bash
+sudo mkdir -p /etc/playground
+sudo nano /etc/playground/playground.env
+```
+
+내용 (`__`가 계층 구분자 — `Jwt__Key` = `Jwt:Key`):
+
+```
+Jwt__Key=<32자 이상 임의 문자열>
+Jwt__Issuer=playground
+Jwt__Audience=playground-client
+OAuth__Google__ClientId=...
+OAuth__Google__ClientSecret=...
+OAuth__Kakao__ClientId=...
+OAuth__Naver__ClientId=...
+OAuth__Naver__ClientSecret=...
+OAuth__Apple__ClientId=...
+DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost;Database=PlayGround_Account;User Id=sa;Password=<sa비번>;TrustServerCertificate=True
+DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost;Database=PlayGround_Soccer;User Id=sa;Password=<sa비번>;TrustServerCertificate=True
+RedisConfig__Connections__0__ConnectionString=localhost:6379
+```
+
+```bash
+sudo chmod 600 /etc/playground/playground.env
+sudo systemctl daemon-reload
+sudo systemctl enable playground
+```
+
+> **OAuth 리다이렉트 URI는 `appsettings.json`이 아니라 각 소셜 콘솔에 등록한다**(6단계).
+> 위 파일에는 ClientId/Secret만 넣는다.
+
+**4-4. 백업 설정**:
+
+```bash
+sudo tee /etc/playground/backup.env > /dev/null <<'EOF'
+SA_PASSWORD=<sa비번>
+S3_BUCKET=<버킷이름>
+EOF
+sudo chmod 600 /etc/playground/backup.env
+sudo apt-get install -y awscli
+
+sudo crontab -e
+# 아래 한 줄 추가 (새벽 4시)
+# 0 4 * * * /usr/local/bin/playground-backup >> /var/log/playground/backup.log 2>&1
+```
+
+**한 번 수동으로 돌려 S3에 올라가는지 확인한다** — 백업은 "돌아간다고 믿는 것"이 가장 위험하다:
+
+```bash
+sudo /usr/local/bin/playground-backup
+aws s3 ls s3://<버킷이름>/db/ --recursive
+```
+
+**4-5. 첫 배포** — GitHub → Settings → Environments → `Production`에 시크릿 4개 등록:
+
+| 시크릿 | 값 |
+|---|---|
+| `DEPLOY_HOST` | `<EIP>` |
+| `DEPLOY_USER` | `ubuntu` |
+| `DEPLOY_SSH_KEY` | `playground-prod.pem` **파일 내용 전체** |
+| `DEPLOY_KNOWN_HOSTS` | 아래 명령의 출력 |
+
+```powershell
+ssh-keyscan <EIP>
+```
+
+등록 후 GitHub **Actions → Deploy → Run workflow**로 수동 실행한다.
+
+> **첫 배포는 `deploy.yml`의 마지막 스모크 체크(공개 URL)가 실패한다** — 아직 HTTPS가 없기 때문이다.
+> 앱 자체는 올라갔는지 `curl http://<EIP>/api/soccer/landing/contents`로 확인하고,
+> 5단계(HTTPS)를 마친 뒤 다시 실행하면 통과한다.
+
+### 5. HTTPS 발급
+
+A 레코드는 콘솔 단계(`AwsSetup.md` 9)에서 이미 걸었다. 전파를 확인한 뒤:
 
 ```bash
 sudo certbot --nginx -d playgroundsport.com -d www.playgroundsport.com
 ```
+
+certbot이 443 서버 블록과 80→443 리다이렉트를 `playground.conf`에 자동으로 추가한다.
+갱신은 systemd 타이머가 알아서 한다(`systemctl list-timers | grep certbot`으로 확인).
+
+> **도메인·HTTPS 전에 `http://<Elastic IP>`로 앱이 뜨는지 먼저 확인한다.**
+> HTTPS·OAuth 문제와 앱 자체 문제가 섞이면 원인을 가리기 어려워진다.
 
 ### 6. OAuth 리다이렉트 URI 등록
 
@@ -115,12 +194,25 @@ SSMS 접속 정보:
 > OpenAPI 노출 · WASM 디버깅 프록시 · **상세 예외 페이지**가 공개 URL에 켜지고 HSTS가 빠진다.
 > 투자자에게 스택 트레이스가 한 번 뜨면 그걸로 인상이 결정된다.
 
-## 아직 남은 것
+## 배포 후 확인 (첫 배포 직후 한 번)
 
-- **백업 S3 버킷** 생성 + 인스턴스에 IAM 역할 부여 (`backup-database.sh`가 전제한다)
-- **GitHub Environment `Production` 시크릿** — `DEPLOY_HOST`(Elastic IP) · `DEPLOY_USER` ·
-  `DEPLOY_SSH_KEY` · `DEPLOY_KNOWN_HOSTS`. Required reviewers도 함께 거는 것을 권한다.
-- **서버 환경변수 파일** `/etc/playground/playground.env` (chmod 600) —
-  `Jwt__Key` · OAuth 시크릿 4종 · DB 커넥션 2종 · `RedisConfig__Connections__0__ConnectionString`
-- **환경 이름 분기 정리(권장)** — `Program.cs`가 `IsDevelopment()`로 OpenAPI·디버깅을 켠다.
-  4단으로 갈 때 `Dev`는 이 조건에 안 걸려 혼란을 부르므로, 설정 플래그로 바꾸는 편이 낫다.
+- [ ] `https://playgroundsport.com` 접속 — 랜딩이 뜨는가
+- [ ] **상세 예외 페이지가 안 뜨는가** — 없는 경로(`/api/nope`)로 404 확인.
+      스택 트레이스가 보이면 `ASPNETCORE_ENVIRONMENT`가 `Production`이 아니다
+- [ ] 소셜 로그인 4종 — 리다이렉트 URI 등록이 빠지면 여기서 드러난다
+- [ ] **로그아웃 후 같은 토큰으로 API 호출 → 401** (Redis 무효화가 서버에서 도는지)
+- [ ] OG 카드 한글 — `https://playgroundsport.com/og/brand.png` 이미지에 글자가 깨지지 않는가
+- [ ] 이미지 업로드 → 표시 (현재는 로컬 디스크. S3 전환은 H2)
+- [ ] **롤백 1회 연습** — 이전 커밋으로 워크플로를 재실행해 되돌아가는지 본다.
+      되돌릴 수 있다는 걸 사고 전에 확인해 둔다
+
+## 알려진 한계 (첫 배포 시점)
+
+- **이메일 발송이 로그로만 나간다**(`LogOnlyEmailSender`) — 데이터 내려받기 완료 알림의
+  이메일 채널이 비어 있다. 알림 센터로는 정상 도착한다. D3 결정 후 어댑터 교체(H1).
+- **이미지가 서버 로컬 디스크에 저장된다** — 인스턴스를 재생성하면 사라진다.
+  S3 전환(H2) 전까지는 업로드 이미지도 백업 대상으로 볼 것.
+- **export 큐가 인메모리** — 서버 재시작 시 진행 중이던 내려받기 작업이 유실된다(H3).
+- **환경 이름 분기** — `Program.cs`가 `IsDevelopment()`로 OpenAPI·디버깅을 켠다.
+  1단에서는 문제없지만, 4단으로 갈 때 `Dev`는 이 조건에 안 걸려 혼란을 부른다.
+  그때 설정 플래그로 바꾸는 편이 낫다.
