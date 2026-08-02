@@ -6,7 +6,7 @@
 
 <section class="@Css.Application.StatusCard">
     <div class="@Css.Application.StatusHeader">
-        <h2 class="@Css.Application.StatusTitle">내 지원 현황</h2>
+        <h2 class="@Css.Application.StatusTitle">@AppText.Player.MyApplications</h2>
         <span class="@Css.Application.StatusCount">@Applications.Count</span>
     </div>
 
@@ -33,14 +33,14 @@
                 {
                     <div class="@Css.Application.StatusActions">
                         <button type="button" class="@Css.Application.StatusConfirmButton" disabled="@Busy"
-                                @onclick="() => OnConfirm.InvokeAsync(app)">초대 확인</button>
+                                @onclick="() => OnConfirm.InvokeAsync(app)">@AppText.Player.ConfirmInvite</button>
                     </div>
                 }
                 else if (app.Status == "Pending")
                 {
                     <div class="@Css.Application.StatusActions">
                         <button type="button" class="@Css.Application.StatusCancelButton" disabled="@Busy"
-                                @onclick="() => OnCancel.InvokeAsync(app)">지원 취소</button>
+                                @onclick="() => OnCancel.InvokeAsync(app)">@AppText.Player.CancelApply</button>
                     </div>
                 }
             </div>
@@ -74,19 +74,19 @@
 
     private static string LabelOf(MyApplicationDto a) => a.Status switch
     {
-        "Reviewing" => "검토중",
-        "Accepted" => a.Confirmed ? "합류" : "수락",
-        "Rejected" => "종료",
-        _ => "대기",
+        "Reviewing" => AppText.Player.AppReviewing,
+        "Accepted" => a.Confirmed ? AppText.Player.AppJoined : AppText.Player.AppAccepted,
+        "Rejected" => AppText.Player.AppRejected,
+        _ => AppText.Player.AppPending,
     };
 
     // 지원자 관점 완화 문구 — SPEC.APPLICATION 카피 고정 (한 글자도 바꾸지 않는다)
     private static string BodyOf(MyApplicationDto a) => a.Status switch
     {
-        "Reviewing" => "팀이 확인했어요",
-        "Accepted" => a.Confirmed ? "선수단에 합류했어요" : "함께하게 됐어요 — 초대를 확인해 주세요",
-        "Rejected" => "이번에는 함께하지 못했어요",
-        _ => "팀에 전달됐어요",
+        "Reviewing" => AppText.Player.AppReviewingBody,
+        "Accepted" => a.Confirmed ? AppText.Player.AppJoinedBody : AppText.Player.AppAcceptedBody,
+        "Rejected" => AppText.Player.AppRejectedBody,
+        _ => AppText.Player.AppPendingBody,
     };
 
     private static string PlayerMeta(MyApplicationDto a) =>

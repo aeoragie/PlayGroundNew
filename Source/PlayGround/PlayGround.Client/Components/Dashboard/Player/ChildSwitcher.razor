@@ -7,7 +7,7 @@
 @if (Players.Count > 1)
 {
     <div class="flex items-center gap-2.5 flex-wrap">
-        <span class="text-[11.5px] font-bold text-text-muted whitespace-nowrap">관리 중인 자녀</span>
+        <span class="text-[11.5px] font-bold text-text-muted whitespace-nowrap">@AppText.Player.ManagingChild</span>
         <div class="@Css.Segment.Track" role="tablist">
             @foreach (ManagedPlayerDto player in Players)
             {

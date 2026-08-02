@@ -18,20 +18,20 @@
         </a>
     }
 
-    <div class="text-[10.5px] font-extrabold text-text-faint tracking-[.08em] px-2.5 pt-4 pb-1.5">P1 예정</div>
+    <div class="text-[10.5px] font-extrabold text-text-faint tracking-[.08em] px-2.5 pt-4 pb-1.5">@AppText.Player.P1Planned</div>
     <span class="@DisabledClass">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c2-6 5-9 8-9s6 3 8 9"></path><path d="M12 10V4M9 6l3-2 3 2"></path></svg>성장 지표
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c2-6 5-9 8-9s6 3 8 9"></path><path d="M12 10V4M9 6l3-2 3 2"></path></svg>@AppText.Player.GrowthMetrics
     </span>
     <span class="@DisabledClass">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4.5"></circle><path d="M12 10.5v1.5l1 1"></path></svg>목표 · 일정
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4.5"></circle><path d="M12 10.5v1.5l1 1"></path></svg>@AppText.Player.GoalsSchedule
     </span>
 
     <div class="flex-1"></div>
     @if (TeamName is not null)
     {
         <div class="bg-surface-alt rounded-xl px-3.5 py-[13px] flex flex-col gap-1.5">
-            <span class="text-[11.5px] font-extrabold text-text-strong">소속팀 연결됨</span>
-            <span class="text-[11px] text-text-body leading-[1.5] break-keep">@TeamName · 경기 기록이 자동으로 쌓여요</span>
+            <span class="text-[11.5px] font-extrabold text-text-strong">@AppText.Player.TeamLinked</span>
+            <span class="text-[11px] text-text-body leading-[1.5] break-keep">@AppText.Player.TeamLinkedBody(TeamName)</span>
         </div>
     }
 </aside>

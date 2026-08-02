@@ -6,14 +6,14 @@
 
 <div class="@($"{Css.Dashboard.Card} p-[18px] md:p-[22px] flex flex-col gap-3")">
     <div class="flex flex-col gap-1">
-        <span class="text-sm md:text-[15px] font-extrabold text-navy-deep">초대코드로 팀 연결</span>
-        <span class="text-xs text-text-muted leading-[1.6] break-keep">팀 관리자에게 받은 초대코드를 입력하면 팀 로스터의 내 프로필과 연결돼요.</span>
+        <span class="text-sm md:text-[15px] font-extrabold text-navy-deep">@AppText.Player.ClaimTitle</span>
+        <span class="text-xs text-text-muted leading-[1.6] break-keep">@AppText.Player.ClaimBody</span>
     </div>
     <div class="flex gap-2">
         <input class="flex-1 min-w-0 h-[42px] px-3.5 border-1.5 border-border rounded-[10px] text-sm font-bold text-navy-deep uppercase tracking-[.08em] placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-text-faint focus:border-navy outline-none"
-               placeholder="예: 3F82AC91" maxlength="12" @bind="mCode" @bind:event="oninput" @onkeydown="OnKeyDown" />
+               placeholder="@AppText.Player.ClaimPlaceholder" maxlength="12" @bind="mCode" @bind:event="oninput" @onkeydown="OnKeyDown" />
         <button type="button" disabled="@mBusy" @onclick="SubmitAsync"
-                class="h-[42px] px-[18px] rounded-[10px] bg-navy hover:bg-navy-deep text-[13px] font-bold text-white whitespace-nowrap border-0 cursor-pointer transition-colors disabled:opacity-60">@(mBusy ? "연결 중…" : "연결하기")</button>
+                class="h-[42px] px-[18px] rounded-[10px] bg-navy hover:bg-navy-deep text-[13px] font-bold text-white whitespace-nowrap border-0 cursor-pointer transition-colors disabled:opacity-60">@(mBusy ? AppText.Player.ClaimBusy : AppText.Player.ClaimSubmit)</button>
     </div>
     @if (mError is not null)
     {
@@ -22,9 +22,9 @@
 
     @* 무소속 선수의 팀 탐색 진입 (Design.Navigation 7/21 보강 ②) — 이 카드 자체가 무소속일 때만 뜬다 *@
     <div class="border-t border-dashed border-border pt-3 flex items-center gap-2.5">
-        <span class="text-xs text-text-muted break-keep flex-1">받은 코드가 없다면 우리 지역 팀을 둘러보세요.</span>
+        <span class="text-xs text-text-muted break-keep flex-1">@AppText.Player.ClaimNoCode</span>
         <a href="@Routes.TeamExplore"
-           class="h-9 px-3.5 flex items-center rounded-[9px] bg-navy hover:bg-navy-deep text-xs font-bold text-white whitespace-nowrap transition-colors">팀 찾아보기</a>
+           class="h-9 px-3.5 flex items-center rounded-[9px] bg-navy hover:bg-navy-deep text-xs font-bold text-white whitespace-nowrap transition-colors">@AppText.Player.ClaimFindTeam</a>
     </div>
 </div>
 
@@ -51,7 +51,7 @@
 
         if (string.IsNullOrWhiteSpace(mCode))
         {
-            mError = "초대코드를 입력해 주세요.";
+            mError = AppText.Player.ClaimErrorEmpty;
             return;
         }
 
@@ -64,7 +64,7 @@
             // 코드 오류는 입력 문제 → 인라인. 요청 실패는 시스템 오류 → 토스트 + 재시도
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "연결하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Player.ClaimFailedToast, AppText.Player.Retry, SubmitAsync);
             }
             else
             {
@@ -80,7 +80,7 @@
             await AuthProvider.MarkUserAuthenticatedAsync(result.AccessToken);
         }
 
-        Toasts.ShowSuccess(result.TeamName is not null ? $"{result.TeamName}에 연결됐어요." : "팀에 연결됐어요.");
+        Toasts.ShowSuccess(result.TeamName is not null ? AppText.Player.ClaimLinkedToast(result.TeamName) : AppText.Player.ClaimLinkedFallback);
         await OnClaimed.InvokeAsync();
     }
 }

@@ -4,7 +4,7 @@
 
 <header class="sticky top-0 z-40 h-[60px] bg-navy-deep flex items-center gap-4 px-6 text-white">
     <BrandLogo Href="@Routes.Landing" InheritColor="true" />
-    <span class="@Css.Dashboard.BadgeTeal">보호자 관리 모드</span>
+    <span class="@Css.Dashboard.BadgeTeal">@AppText.Player.GuardianMode</span>
     <div class="flex-1"></div>
     @if (!string.IsNullOrEmpty(Slug))
     {
@@ -13,11 +13,11 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                 <path d="M15 3h6v6M10 14L21 3"></path>
-            </svg>공개 프로필 보기
+            </svg>@AppText.Player.ViewPublicProfile
         </a>
     }
     <NotificationBell Appearance="NotificationBell.BellAppearance.Box" />
-    <AccountMenu DisplayName="@DisplayName" RoleCaption="보호자" />
+    <AccountMenu DisplayName="@DisplayName" RoleCaption="@AppText.Player.RoleGuardian" />
 </header>
 
 @code {
