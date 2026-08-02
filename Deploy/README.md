@@ -9,6 +9,7 @@
 |---|---|
 | **처음 서버를 세운다** (1회) | `AwsSetup.md` — 콘솔에서 무엇을 누르는지 |
 | 우리 배포 구성·규칙을 알고 싶다 | **이 문서** |
+| **서버 IP·접속·자주 쓰는 명령** | `Servers.md` — 서버 목록과 명령 모음 |
 | **뭔가 잘못됐다** | `Runbook.md` — 증상별 대응 |
 | 설정값·시크릿이 어떻게 주입되나 | `Docs/Architecture/DeploymentAndConfiguration.md` |
 | 배포까지 뭐가 남았나 | `Docs/Development/ReleasePlan.md` |

@@ -179,6 +179,7 @@ PlayGroundNew/
 ├── Deploy/                            **배포는 여기 하나로 완결** — 문서 + 서버에 올라가는 실행물
 │   ├── README.md                      구성·규칙·설치·배포 후 확인
 │   ├── AwsSetup.md                    AWS 콘솔 클릭 가이드 (최초 1회)
+│   ├── Servers.md                     서버 목록(IP·포트·경로) + 자주 쓰는 명령
 │   ├── Runbook.md                     장애 대응 (증상으로 찾는다)
 │   └── ec2-setup.sh · deploy-app.sh · backup-database.sh · playground.service · playground.conf
 │
