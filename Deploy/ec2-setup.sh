@@ -3,7 +3,7 @@
 # EC2 최초 셋업 (Ubuntu 22.04 LTS) — user-data에 그대로 붙여 넣는다.
 #
 # **시크릿을 넣지 않는다.** user-data는 인스턴스 메타데이터로 조회되므로
-# sa 비밀번호 같은 값은 SSH 접속 후 대화형으로 설정한다(Deploy/README.md 2단계).
+# sa 비밀번호 같은 값은 SSH 접속 후 대화형으로 설정한다(Docs/Development/Deployment.md 2단계).
 #
 # 로그: /var/log/cloud-init-output.log
 
@@ -84,4 +84,4 @@ ufw allow OpenSSH
 ufw allow 'Nginx Full'
 ufw --force enable
 
-log "완료 — 다음: Deploy/README.md 2단계(SQL Server 초기 설정)"
+log "완료 — 다음: Docs/Development/Deployment.md 2단계(SQL Server 초기 설정)"

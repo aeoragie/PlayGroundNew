@@ -187,7 +187,7 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 
 **완료 기준** — 파이프라인으로 배포되고, **롤백을 1회 실제로 연습**해 봄.
 
-절차 상세는 `Deploy/README.md`.
+절차 상세는 `Docs/Development/Deployment.md`.
 
 ---
 

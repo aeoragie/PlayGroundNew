@@ -1,7 +1,7 @@
 # AWS 콘솔 셋업 가이드
 
 > 대상: **playgroundsport.com** · 서울 리전 · EC2 t3.medium 한 대
-> 결정 근거는 `Deploy/README.md`. 이 문서는 **콘솔에서 실제로 무엇을 누르는지**만 다룬다.
+> 결정 근거는 `Docs/Development/Deployment.md`. 이 문서는 **콘솔에서 실제로 무엇을 누르는지**만 다룬다.
 >
 > 콘솔 UI는 자주 바뀌므로 버튼 위치가 아니라 **이름·기능**으로 적었다.
 
@@ -240,7 +240,7 @@ nslookup playgroundsport.com
 
 ## 다음 — 서버 안에서 할 일
 
-여기까지가 콘솔 작업이다. 이후는 `Deploy/README.md`의 3~6단계:
+여기까지가 콘솔 작업이다. 이후는 `Docs/Development/Deployment.md`의 3~6단계:
 
 1. **스키마 배포** — 로컬에서 SSH 터널 + `sqlcmd`
 2. **Nginx 설정 · systemd 유닛 설치** — `playground.conf` · `playground.service`

@@ -43,7 +43,7 @@ E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 
 ### 배포 (2026-08-02 확정)
 
 **AWS EC2 t3.medium 한 대**(Ubuntu 22.04)에 앱 + SQL Server 2022 Express + Redis를 함께 올린다.
-도메인 **playgroundsport.com**(Route 53) · Nginx + Let's Encrypt. 자산·절차는 **`Deploy/README.md`**.
+도메인 **playgroundsport.com**(Route 53) · Nginx + Let's Encrypt. 자산·절차는 **`Docs/Development/Deployment.md`**.
 
 **환경은 1단이고 이름은 `Production`이다.** 투자 유치용 구축 단계라 서버가 한 대지만,
 `Development`로 두면 OpenAPI·WASM 디버깅·**상세 예외 페이지**가 공개 URL에 켜지고 HSTS가 빠진다 —
@@ -166,6 +166,14 @@ PlayGroundNew/
 │   ├── Tests.Unit/                    단위 테스트 (Domain, Application, Core.Shared, Client 순수 로직)
 │   ├── Tests.Integration/             통합 테스트 (Server 서비스)
 │   └── Tests.Infrastructure/          인프라 테스트 (DB 계약 등 외부 의존 — 없으면 Skip)
+│
+├── Docs/                              문서 (절차·설계 근거는 전부 여기)
+│   ├── Architecture/                  설계·구조 (배포 설정 플로우·i18n·네이밍 등)
+│   ├── Development/                   작업 절차 (로컬 검증·테스트·배포·AWS 셋업·릴리스 계획)
+│   └── History/                       구현 이력 (DevelopmentJournal)
+│
+├── Deploy/                            서버에 올라가는 실행물만 (절차는 Docs/Development/)
+│   └── ec2-setup.sh · deploy-app.sh · backup-database.sh · playground.service · playground.conf
 │
 └── Others/                            로컬 개발용 외부 실행물 (제품 소스 아님)
     ├── README.md                      무엇을·왜·어떻게

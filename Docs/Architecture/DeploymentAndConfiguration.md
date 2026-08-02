@@ -160,7 +160,7 @@ git push main
 > 환경 "개수"와 "이름"은 별개 결정이다. `Development`로 두면 OpenAPI·WASM 디버깅 프록시·
 > 상세 예외 페이지가 공개 URL에 켜지고 HSTS가 빠진다.
 >
-> 배포 대상·절차는 `Deploy/README.md`.
+> 배포 대상·절차는 `Docs/Development/Deployment.md`.
 
 ---
 
