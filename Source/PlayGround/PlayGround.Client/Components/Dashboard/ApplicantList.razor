@@ -10,12 +10,12 @@
 @inject ConfirmService Confirm
 
 <div class="@Css.Application.Wrapper">
-    <h2 class="@Css.Application.SubTitle">지원자</h2>
+    <h2 class="@Css.Application.SubTitle">@AppText.Dashboard.ApplicantsTitle</h2>
 
     @if (Applications.Count == 0)
     {
         @* 공고에 지원한 선수가 아직 없다 — Tier B 빈 슬롯 *@
-        <EmptySlot Title="아직 지원자가 없어요">
+        <EmptySlot Title="@AppText.Dashboard.ApplicantsEmpty">
             <Icon>
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
@@ -39,7 +39,7 @@
 
         @if (Filtered.Count == 0)
         {
-            <span class="@Css.Application.SegmentEmpty">이 상태의 지원자가 없어요</span>
+            <span class="@Css.Application.SegmentEmpty">@AppText.Dashboard.SegmentEmpty</span>
         }
         else
         {
@@ -68,11 +68,11 @@
 
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <button type="button" class="@Css.Application.ProfileButton"
-                                        @onclick="() => ToggleExpand(app.ApplicationId)">프로필</button>
+                                        @onclick="() => ToggleExpand(app.ApplicationId)">@AppText.Dashboard.ViewProfilePanel</button>
                                 @if (app.Status == StatusPending)
                                 {
                                     <button type="button" class="@Css.Application.TestButton"
-                                            @onclick="() => RequestTestAsync(app)">테스트 요청</button>
+                                            @onclick="() => RequestTestAsync(app)">@AppText.Dashboard.RequestTest</button>
                                 }
                                 @if (app.Status is StatusPending or StatusReviewing)
                                 {
@@ -86,14 +86,14 @@
                         @if (mExpanded.Contains(app.ApplicationId))
                         {
                             <div class="@Css.Application.ProfilePanel">
-                                <span class="@Css.Application.ProfilePanelLabel">자기소개</span>
+                                <span class="@Css.Application.ProfilePanelLabel">@AppText.Dashboard.IntroductionLabel</span>
                                 @if (!string.IsNullOrWhiteSpace(app.Introduction))
                                 {
                                     <span class="@Css.Application.ProfilePanelBody">@app.Introduction</span>
                                 }
                                 else
                                 {
-                                    <span class="@Css.Application.ProfilePanelBody text-text-muted">등록된 자기소개가 없어요.</span>
+                                    <span class="@Css.Application.ProfilePanelBody text-text-muted">@AppText.Dashboard.IntroductionEmpty</span>
                                 }
                             </div>
                         }
@@ -148,9 +148,9 @@
 
     private static string LabelOf(ApplicantSegment seg) => seg switch
     {
-        ApplicantSegment.Reviewing => "검토중",
-        ApplicantSegment.Closed => "종료",
-        _ => "대기",
+        ApplicantSegment.Reviewing => AppText.Dashboard.StatusReviewing,
+        ApplicantSegment.Closed => AppText.Dashboard.StatusClosed,
+        _ => AppText.Dashboard.StatusPending,
     };
 
     // 상태 뱃지 톤 계승 — 대기 회색 / 검토중 오렌지 / 수락 teal / 종료(반려) 회색
@@ -163,10 +163,10 @@
 
     private static string StatusLabelOf(string status) => status switch
     {
-        StatusReviewing => "검토중",
-        StatusAccepted => "수락",
-        StatusRejected => "종료",
-        _ => "대기",
+        StatusReviewing => AppText.Dashboard.StatusReviewing,
+        StatusAccepted => AppText.Dashboard.StatusAccepted,
+        StatusRejected => AppText.Dashboard.StatusClosed,
+        _ => AppText.Dashboard.StatusPending,
     };
 
     // 이름 옆 회색 메타 — 연령대 · 희망 포지션(있는 것만)
@@ -180,7 +180,7 @@
 
         if (!string.IsNullOrWhiteSpace(app.DesiredPosition))
         {
-            parts.Add($"{app.DesiredPosition} 희망");
+            parts.Add(AppText.Dashboard.DesiredPositionSuffix(app.DesiredPosition));
         }
 
         return parts.Count == 0 ? null : string.Join(" · ", parts);
@@ -192,11 +192,11 @@
         List<string> parts = new();
         if (isAgent && !string.IsNullOrWhiteSpace(app.RefAgentName))
         {
-            parts.Add($"{app.RefAgentName} 추천");
+            parts.Add(AppText.Dashboard.AgentRecommend(app.RefAgentName));
         }
 
         parts.Add(app.RecruitmentTitle);
-        parts.Add($"{PlayGround.Client.Components.Shared.Notifications.NotificationPresenter.TimeAgo(app.CreatedAt)} 지원");
+        parts.Add(AppText.Dashboard.AppliedAgo(PlayGround.Client.Components.Shared.Notifications.NotificationPresenter.TimeAgo(app.CreatedAt)));
         return string.Join(" · ", parts);
     }
 

@@ -12,19 +12,19 @@
 
 <div class="@($"{Css.Dashboard.Card} p-[18px] md:p-[22px] flex flex-col gap-3")">
     <div class="flex items-center gap-2.5 flex-wrap">
-        <span class="text-[15px] md:text-base font-extrabold text-navy-deep">진학 · 진로</span>
-        <span class="@Css.Dashboard.BadgeTeal">공개 홈페이지 노출중</span>
+        <span class="text-[15px] md:text-base font-extrabold text-navy-deep">@AppText.Dashboard.CareerOutcomeTitle</span>
+        <span class="@Css.Dashboard.BadgeTeal">@AppText.Dashboard.PublishedBadge</span>
         <div class="flex-1"></div>
-        <button type="button" class="@Css.Dashboard.SecondaryButton" @onclick="OpenCreate">＋ 사례 추가</button>
+        <button type="button" class="@Css.Dashboard.SecondaryButton" @onclick="OpenCreate">@AppText.Dashboard.AddCareerOutcome</button>
     </div>
-    <span class="text-[11.5px] md:text-xs text-text-muted break-keep">선수 개인(보호자)이 공개에 동의한 사례만 등록해 주세요. 공개 홈페이지 진학·진로 탭에 그대로 노출돼요.</span>
+    <span class="text-[11.5px] md:text-xs text-text-muted break-keep">@AppText.Dashboard.CareerOutcomeNote</span>
 
     <LoadingGate IsLoading="@(Data is null && !HasFailed)" HasFailed="@HasFailed" OnRetry="OnRetry">
         <Skeleton><SkeletonRows Count="2" ShowChip="false" /></Skeleton>
         <ChildContent>
             @if (Data!.Items.Count == 0)
             {
-                <EmptySlot Title="아직 등록된 사례가 없어요 — ＋ 사례 추가로 시작해 보세요.">
+                <EmptySlot Title="@AppText.Dashboard.CareerOutcomeEmpty">
                     <Icon><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></Icon>
                 </EmptySlot>
             }
@@ -85,7 +85,7 @@
 
     private List<OverflowMenu.MenuItem> BuildMenuItems(TeamCareerOutcomeDto item) => new()
     {
-        new OverflowMenu.MenuItem("사례 수정", () =>
+        new OverflowMenu.MenuItem(AppText.Dashboard.EditCase, () =>
         {
             mEditing = item;
             mFormOpen = true;
@@ -96,7 +96,7 @@
 
     private List<OverflowMenu.MenuItem> BuildDestructiveItems(TeamCareerOutcomeDto item) => new()
     {
-        new OverflowMenu.MenuItem("사례 삭제", () => DeleteAsync(item)),
+        new OverflowMenu.MenuItem(AppText.Dashboard.DeleteCase, () => DeleteAsync(item)),
     };
 
     private async Task DeleteAsync(TeamCareerOutcomeDto item)
@@ -104,9 +104,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = "사례를 삭제할까요?",
-            Description = $"\"{item.Title}\" 사례가 공개 홈페이지에서 내려가요.",
-            ConfirmLabel = "삭제",
+            Title = AppText.Dashboard.DeleteCaseTitle,
+            Description = AppText.Dashboard.DeleteCaseDescription(item.Title),
+            ConfirmLabel = AppText.Dashboard.Delete,
         });
 
         if (!confirmed)

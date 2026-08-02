@@ -7,15 +7,15 @@
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
-        <h1 class="@Css.Dashboard.SectionTitle">경기 결과</h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAddResult">＋ 결과 입력</button>
+        <h1 class="@Css.Dashboard.SectionTitle">@AppText.Dashboard.ResultsTitle</h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAddResult">@AppText.Dashboard.AddResult</button>
     </div>
 
     @if (Data.Matches.Count == 0)
     {
         @* 빈 상태 Tier A (주 액션은 헤더의 ＋ 결과 입력 하나 유지 — 카드 안 CTA 없음) *@
-        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 경기 결과가 없어요">
-            <Description>＋ 결과 입력으로 첫 경기를 기록해 보세요.<br />득점·도움은 선수 시즌 통계에, 결과는 공개 홈페이지와 경기기록(Records)에 자동 반영돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Record" Title="@AppText.Dashboard.ResultsEmptyTitle">
+            <Description>@AppText.Dashboard.ResultsEmptyBody1<br />@AppText.Dashboard.ResultsEmptyBody2</Description>
         </EmptyState>
     }
     else
@@ -23,22 +23,22 @@
         @* 시즌 요약 — 공식 경기만 *@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="bg-navy-deep rounded-[14px] px-[18px] py-4 flex flex-col gap-[3px] text-white">
-                <span class="text-xs font-bold text-white/60">@(Data.SeasonYear) 시즌 (공식)</span>
-                <span class="text-[21px] font-extrabold whitespace-nowrap">@(Wins)승 @(Draws)무 @(Losses)패</span>
+                <span class="text-xs font-bold text-white/60">@AppText.Dashboard.SeasonOfficial(Data.SeasonYear)</span>
+                <span class="text-[21px] font-extrabold whitespace-nowrap">@AppText.Dashboard.RecordWDL(Wins, Draws, Losses)</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">득점 (공식)</span>
+                <span class="text-xs font-bold text-text-muted">@AppText.Dashboard.GoalsFor</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsFor</span>
             </div>
             <div class="@SummaryCardClass">
-                <span class="text-xs font-bold text-text-muted">실점 (공식)</span>
+                <span class="text-xs font-bold text-text-muted">@AppText.Dashboard.GoalsAgainst</span>
                 <span class="text-[21px] font-extrabold text-navy-deep">@GoalsAgainst</span>
             </div>
             @if (Data.LeagueRank is not null)
             {
                 <div class="@SummaryCardClass">
-                    <span class="text-xs font-bold text-text-muted">리그 순위</span>
-                    <span class="text-[21px] font-extrabold text-navy-deep">@(Data.LeagueRank)위</span>
+                    <span class="text-xs font-bold text-text-muted">@AppText.Dashboard.LeagueRank</span>
+                    <span class="text-[21px] font-extrabold text-navy-deep">@AppText.Dashboard.RankSuffix(Data.LeagueRank)</span>
                 </div>
             }
         </div>
@@ -46,7 +46,7 @@
         @* 요약에 합산되지 않은 친선 — 왜 목록과 수가 다른지 알려 준다 *@
         @if (FriendlyCount > 0)
         {
-            <span class="@Css.FriendlyMatch.Note">친선경기 @(FriendlyCount)경기는 별도예요 — 순위표와 시즌 기록에는 반영되지 않아요.</span>
+            <span class="@Css.FriendlyMatch.Note">@AppText.Dashboard.FriendlyNote(FriendlyCount)</span>
         }
 
         @* 세그먼트 (전체 / 공식 / 친선경기) — 상태는 URL에 있다 *@
@@ -67,7 +67,7 @@
                                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"></path>
                                     <circle cx="12" cy="12" r="4"></circle>
-                                </svg>친선경기
+                                </svg>@AppText.Dashboard.Friendly
                             </span>
                         }
                         else
@@ -108,7 +108,7 @@
         @* 내 수정 신청 — 신청이 있을 때만. 신청이 시작된 자리 바로 아래에 둔다 *@
         <CorrectionListSection Corrections="@Corrections" OnCancel="OnCancelCorrection" />
 
-        <div class="text-[12.5px] text-text-muted break-keep">득점·도움은 해당 선수 프로필의 시즌 통계에 자동 반영 · 결과는 공개 홈페이지와 경기기록(Records)에 노출돼요</div>
+        <div class="text-[12.5px] text-text-muted break-keep">@AppText.Dashboard.ResultsFootNote</div>
     }
 </div>
 
@@ -158,13 +158,13 @@
 
         return new List<OverflowMenu.MenuItem>
         {
-            new("기록 수정 신청", () => OnRequestCorrection.InvokeAsync(match)),
+            new(AppText.Dashboard.RequestCorrection, () => OnRequestCorrection.InvokeAsync(match)),
         };
     }
 
     internal List<string> BuildMatchDisabled(TeamMatchDto match) =>
         PendingCorrectionMatchIds.Contains(match.MatchId)
-            ? new List<string> { "신청 처리 중" }
+            ? new List<string> { AppText.Dashboard.CorrectionInProgress }
             : new List<string>();
 
     private IEnumerable<TeamMatchDto> FilteredMatches =>
@@ -209,8 +209,8 @@
     // "7/5 · 신답체육공원" — 구장 없으면 홈/원정
     internal static string MetaLine(TeamMatchDto match)
     {
-        string date = match.MatchedAt is null ? "일정 미정" : $"{match.MatchedAt.Value.Month}/{match.MatchedAt.Value.Day}";
-        return $"{date} · {match.VenueName ?? (match.IsHome ? "홈" : "원정")}";
+        string date = match.MatchedAt is null ? AppText.Dashboard.DateTbd : $"{match.MatchedAt.Value.Month}/{match.MatchedAt.Value.Day}";
+        return $"{date} · {match.VenueName ?? (match.IsHome ? AppText.Dashboard.Home : AppText.Dashboard.Away)}";
     }
 
     // "득점 김민준 ×2" / "도움 이서준" — 이름 있는 이벤트만, 자책골 제외
@@ -220,11 +220,11 @@
         chips.AddRange(match.Events
             .Where(e => e.EventType != "OwnGoal" && e.PlayerName is not null)
             .GroupBy(e => e.PlayerName!)
-            .Select(g => g.Count() > 1 ? $"득점 {g.Key} ×{g.Count()}" : $"득점 {g.Key}"));
+            .Select(g => g.Count() > 1 ? AppText.Dashboard.GoalByMulti(g.Key, g.Count()) : AppText.Dashboard.GoalBy(g.Key)));
         chips.AddRange(match.Events
             .Where(e => e.AssistPlayerName is not null)
             .GroupBy(e => e.AssistPlayerName!)
-            .Select(g => g.Count() > 1 ? $"도움 {g.Key} ×{g.Count()}" : $"도움 {g.Key}"));
+            .Select(g => g.Count() > 1 ? AppText.Dashboard.AssistByMulti(g.Key, g.Count()) : AppText.Dashboard.AssistBy(g.Key)));
         return chips;
     }
 

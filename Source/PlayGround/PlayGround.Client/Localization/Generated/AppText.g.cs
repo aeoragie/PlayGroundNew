@@ -584,6 +584,168 @@ namespace PlayGround.Client.Localization
             public static string LinkedToMatch => Loc.Get("Dashboard.LinkedToMatch");
             /// <summary>전체</summary>
             public static string FilterAll => Loc.Get("Dashboard.FilterAll");
+            /// <summary>경기 결과</summary>
+            public static string ResultsTitle => Loc.Get("Dashboard.ResultsTitle");
+            /// <summary>＋ 결과 입력</summary>
+            public static string AddResult => Loc.Get("Dashboard.AddResult");
+            /// <summary>아직 등록된 경기 결과가 없어요</summary>
+            public static string ResultsEmptyTitle => Loc.Get("Dashboard.ResultsEmptyTitle");
+            /// <summary>＋ 결과 입력으로 첫 경기를 기록해 보세요.</summary>
+            public static string ResultsEmptyBody1 => Loc.Get("Dashboard.ResultsEmptyBody1");
+            /// <summary>득점·도움은 선수 시즌 통계에, 결과는 공개 홈페이지와 경기기록(Records)에 자동 반영돼요.</summary>
+            public static string ResultsEmptyBody2 => Loc.Get("Dashboard.ResultsEmptyBody2");
+            /// <summary>{0} 시즌 (공식)</summary>
+            public static string SeasonOfficial(object arg0) => Loc.Format("Dashboard.SeasonOfficial", arg0);
+            /// <summary>{0}승 {1}무 {2}패</summary>
+            public static string RecordWDL(object arg0, object arg1, object arg2) => Loc.Format("Dashboard.RecordWDL", arg0, arg1, arg2);
+            /// <summary>득점 (공식)</summary>
+            public static string GoalsFor => Loc.Get("Dashboard.GoalsFor");
+            /// <summary>실점 (공식)</summary>
+            public static string GoalsAgainst => Loc.Get("Dashboard.GoalsAgainst");
+            /// <summary>리그 순위</summary>
+            public static string LeagueRank => Loc.Get("Dashboard.LeagueRank");
+            /// <summary>{0}위</summary>
+            public static string RankSuffix(object arg0) => Loc.Format("Dashboard.RankSuffix", arg0);
+            /// <summary>친선경기 {0}경기는 별도예요 — 순위표와 시즌 기록에는 반영되지 않아요.</summary>
+            public static string FriendlyNote(object arg0) => Loc.Format("Dashboard.FriendlyNote", arg0);
+            /// <summary>친선경기</summary>
+            public static string Friendly => Loc.Get("Dashboard.Friendly");
+            /// <summary>득점·도움은 해당 선수 프로필의 시즌 통계에 자동 반영 · 결과는 공개 홈페이지와 경기기록(Records)에 노출돼요</summary>
+            public static string ResultsFootNote => Loc.Get("Dashboard.ResultsFootNote");
+            /// <summary>기록 수정 신청</summary>
+            public static string RequestCorrection => Loc.Get("Dashboard.RequestCorrection");
+            /// <summary>신청 처리 중</summary>
+            public static string CorrectionInProgress => Loc.Get("Dashboard.CorrectionInProgress");
+            /// <summary>일정 미정</summary>
+            public static string DateTbd => Loc.Get("Dashboard.DateTbd");
+            /// <summary>홈</summary>
+            public static string Home => Loc.Get("Dashboard.Home");
+            /// <summary>원정</summary>
+            public static string Away => Loc.Get("Dashboard.Away");
+            /// <summary>득점 {0}</summary>
+            public static string GoalBy(object arg0) => Loc.Format("Dashboard.GoalBy", arg0);
+            /// <summary>득점 {0} ×{1}</summary>
+            public static string GoalByMulti(object arg0, object arg1) => Loc.Format("Dashboard.GoalByMulti", arg0, arg1);
+            /// <summary>도움 {0}</summary>
+            public static string AssistBy(object arg0) => Loc.Format("Dashboard.AssistBy", arg0);
+            /// <summary>도움 {0} ×{1}</summary>
+            public static string AssistByMulti(object arg0, object arg1) => Loc.Format("Dashboard.AssistByMulti", arg0, arg1);
+            /// <summary>팀 게시판</summary>
+            public static string BoardTitle => Loc.Get("Dashboard.BoardTitle");
+            /// <summary>＋ 글 작성</summary>
+            public static string WritePost => Loc.Get("Dashboard.WritePost");
+            /// <summary>아직 올린 글이 없어요</summary>
+            public static string BoardEmptyTitle => Loc.Get("Dashboard.BoardEmptyTitle");
+            /// <summary>훈련 일정 변경이나 동의서처럼 보호자에게 알릴 내용을 올려보세요. 공지는 소속 보호자에게 알림이 가요.</summary>
+            public static string BoardEmptyBody => Loc.Get("Dashboard.BoardEmptyBody");
+            /// <summary>전체</summary>
+            public static string SegAll => Loc.Get("Dashboard.SegAll");
+            /// <summary>공지</summary>
+            public static string SegNotice => Loc.Get("Dashboard.SegNotice");
+            /// <summary>자료</summary>
+            public static string SegMaterial => Loc.Get("Dashboard.SegMaterial");
+            /// <summary>이 유형의 글이 아직 없어요.</summary>
+            public static string BoardTypeEmpty => Loc.Get("Dashboard.BoardTypeEmpty");
+            /// <summary>고정</summary>
+            public static string Pinned => Loc.Get("Dashboard.Pinned");
+            /// <summary>공개홈에 노출 중</summary>
+            public static string PublicOnHome => Loc.Get("Dashboard.PublicOnHome");
+            /// <summary>첨부 {0}</summary>
+            public static string AttachmentCount(object arg0) => Loc.Format("Dashboard.AttachmentCount", arg0);
+            /// <summary>조회 {0}</summary>
+            public static string ViewCount(object arg0) => Loc.Format("Dashboard.ViewCount", arg0);
+            /// <summary>수정됨</summary>
+            public static string Edited => Loc.Get("Dashboard.Edited");
+            /// <summary>고정 해제</summary>
+            public static string Unpin => Loc.Get("Dashboard.Unpin");
+            /// <summary>고정</summary>
+            public static string Pin => Loc.Get("Dashboard.Pin");
+            /// <summary>공개 해제</summary>
+            public static string Unpublish => Loc.Get("Dashboard.Unpublish");
+            /// <summary>공개 전환</summary>
+            public static string Publish => Loc.Get("Dashboard.Publish");
+            /// <summary>고정을 해제하지 못했어요.</summary>
+            public static string UnpinFailedToast => Loc.Get("Dashboard.UnpinFailedToast");
+            /// <summary>고정은 최대 2개까지 가능해요.</summary>
+            public static string PinLimitToast => Loc.Get("Dashboard.PinLimitToast");
+            /// <summary>선수 모집</summary>
+            public static string RecruitTitle => Loc.Get("Dashboard.RecruitTitle");
+            /// <summary>＋ 공고 올리기</summary>
+            public static string AddRecruit => Loc.Get("Dashboard.AddRecruit");
+            /// <summary>아직 모집 공고가 없어요</summary>
+            public static string RecruitEmptyTitle => Loc.Get("Dashboard.RecruitEmptyTitle");
+            /// <summary>공고를 올리면 공개 홈페이지 모집 탭과 팀 탐색의 모집중 뱃지에 바로 반영돼요.</summary>
+            public static string RecruitEmptyBody => Loc.Get("Dashboard.RecruitEmptyBody");
+            /// <summary>모집중</summary>
+            public static string Recruiting => Loc.Get("Dashboard.Recruiting");
+            /// <summary>마감</summary>
+            public static string Closed => Loc.Get("Dashboard.Closed");
+            /// <summary>마감하기</summary>
+            public static string CloseRecruit => Loc.Get("Dashboard.CloseRecruit");
+            /// <summary>마감 {0}</summary>
+            public static string DeadlineLabel(object arg0) => Loc.Format("Dashboard.DeadlineLabel", arg0);
+            /// <summary>{0} 공고를 마감할까요?</summary>
+            public static string CloseRecruitTitle(object arg0) => Loc.Format("Dashboard.CloseRecruitTitle", arg0);
+            /// <summary>마감하면 공개 홈페이지에 마감으로 표시되고 다시 열 수 없어요. 새 모집은 새 공고로 올려 주세요.</summary>
+            public static string CloseRecruitDescription => Loc.Get("Dashboard.CloseRecruitDescription");
+            /// <summary>공고를 마감했어요.</summary>
+            public static string RecruitClosedToast => Loc.Get("Dashboard.RecruitClosedToast");
+            /// <summary>공고를 마감하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string RecruitCloseFailedToast => Loc.Get("Dashboard.RecruitCloseFailedToast");
+            /// <summary>{0} 공고를 삭제할까요?</summary>
+            public static string DeleteRecruitTitle(object arg0) => Loc.Format("Dashboard.DeleteRecruitTitle", arg0);
+            /// <summary>공개 홈페이지에서 바로 사라져요.</summary>
+            public static string GoneFromPublicHome => Loc.Get("Dashboard.GoneFromPublicHome");
+            /// <summary>공고를 삭제했어요.</summary>
+            public static string RecruitDeletedToast => Loc.Get("Dashboard.RecruitDeletedToast");
+            /// <summary>실행취소</summary>
+            public static string Undo => Loc.Get("Dashboard.Undo");
+            /// <summary>공고를 삭제하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string RecruitDeleteFailedToast => Loc.Get("Dashboard.RecruitDeleteFailedToast");
+            /// <summary>지원자</summary>
+            public static string ApplicantsTitle => Loc.Get("Dashboard.ApplicantsTitle");
+            /// <summary>아직 지원자가 없어요</summary>
+            public static string ApplicantsEmpty => Loc.Get("Dashboard.ApplicantsEmpty");
+            /// <summary>이 상태의 지원자가 없어요</summary>
+            public static string SegmentEmpty => Loc.Get("Dashboard.SegmentEmpty");
+            /// <summary>프로필</summary>
+            public static string ViewProfilePanel => Loc.Get("Dashboard.ViewProfilePanel");
+            /// <summary>테스트 요청</summary>
+            public static string RequestTest => Loc.Get("Dashboard.RequestTest");
+            /// <summary>자기소개</summary>
+            public static string IntroductionLabel => Loc.Get("Dashboard.IntroductionLabel");
+            /// <summary>등록된 자기소개가 없어요.</summary>
+            public static string IntroductionEmpty => Loc.Get("Dashboard.IntroductionEmpty");
+            /// <summary>검토중</summary>
+            public static string StatusReviewing => Loc.Get("Dashboard.StatusReviewing");
+            /// <summary>종료</summary>
+            public static string StatusClosed => Loc.Get("Dashboard.StatusClosed");
+            /// <summary>대기</summary>
+            public static string StatusPending => Loc.Get("Dashboard.StatusPending");
+            /// <summary>수락</summary>
+            public static string StatusAccepted => Loc.Get("Dashboard.StatusAccepted");
+            /// <summary>{0} 희망</summary>
+            public static string DesiredPositionSuffix(object arg0) => Loc.Format("Dashboard.DesiredPositionSuffix", arg0);
+            /// <summary>{0} 추천</summary>
+            public static string AgentRecommend(object arg0) => Loc.Format("Dashboard.AgentRecommend", arg0);
+            /// <summary>{0} 지원</summary>
+            public static string AppliedAgo(object arg0) => Loc.Format("Dashboard.AppliedAgo", arg0);
+            /// <summary>진학 · 진로</summary>
+            public static string CareerOutcomeTitle => Loc.Get("Dashboard.CareerOutcomeTitle");
+            /// <summary>＋ 사례 추가</summary>
+            public static string AddCareerOutcome => Loc.Get("Dashboard.AddCareerOutcome");
+            /// <summary>선수 개인(보호자)이 공개에 동의한 사례만 등록해 주세요. 공개 홈페이지 진학·진로 탭에 그대로 노출돼요.</summary>
+            public static string CareerOutcomeNote => Loc.Get("Dashboard.CareerOutcomeNote");
+            /// <summary>아직 등록된 사례가 없어요 — ＋ 사례 추가로 시작해 보세요.</summary>
+            public static string CareerOutcomeEmpty => Loc.Get("Dashboard.CareerOutcomeEmpty");
+            /// <summary>사례 수정</summary>
+            public static string EditCase => Loc.Get("Dashboard.EditCase");
+            /// <summary>사례 삭제</summary>
+            public static string DeleteCase => Loc.Get("Dashboard.DeleteCase");
+            /// <summary>사례를 삭제할까요?</summary>
+            public static string DeleteCaseTitle => Loc.Get("Dashboard.DeleteCaseTitle");
+            /// <summary>"{0}" 사례가 공개 홈페이지에서 내려가요.</summary>
+            public static string DeleteCaseDescription(object arg0) => Loc.Format("Dashboard.DeleteCaseDescription", arg0);
         }
 
         public static class Hub
