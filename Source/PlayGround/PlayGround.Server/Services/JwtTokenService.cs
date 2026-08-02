@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -33,13 +34,20 @@ namespace PlayGround.Server.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var expirationMinutes = mConfiguration.GetValue("Jwt:AccessTokenExpirationMinutes", 30);
 
+            // iat는 JwtSecurityToken이 자동으로 넣지 않는다 — 탈퇴 시 "이 시각 이전 토큰 전부 무효"
+            // 판정(ITokenRevocationStore)이 이 값에 기대므로 명시적으로 담는다.
+            var issuedAt = DateTimeOffset.UtcNow;
+
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new(JwtRegisteredClaimNames.Email, email),
                 new("name", displayName),
                 new(ClaimTypes.Role, role),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(JwtRegisteredClaimNames.Iat,
+                    issuedAt.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
+                    ClaimValueTypes.Integer64)
             };
 
             if (!string.IsNullOrWhiteSpace(avatarUrl))

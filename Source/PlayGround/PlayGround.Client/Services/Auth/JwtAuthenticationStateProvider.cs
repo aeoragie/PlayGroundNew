@@ -75,13 +75,41 @@ namespace PlayGround.Client.Services.Auth
                 Task.FromResult(new AuthenticationState(BuildPrincipal(claims))));
         }
 
-        /// <summary>로그아웃 — 토큰을 삭제하고 익명 상태로 전환한다.</summary>
+        /// <summary>로그아웃 — 서버에 토큰 무효화를 알린 뒤 로컬 토큰을 지우고 익명으로 전환한다.
+        /// 로컬만 지우면 이미 나간 토큰이 남은 수명 동안 계속 통한다(가로챈 토큰·공용 PC).</summary>
         public async Task MarkUserLoggedOutAsync()
         {
+            await RevokeOnServerAsync();
+
             await mTokenStore.ClearTokenAsync();
             ApplyAuthorizationHeader(null);
             mLogger.LogInformation("User signed out.");
             NotifyAuthenticationStateChanged(Task.FromResult(Anonymous));
+        }
+
+        /// <summary>서버측 무효화 요청. **실패해도 로컬 로그아웃은 그대로 진행한다** —
+        /// 네트워크 문제로 로그아웃이 막히면 그게 더 나쁘다(탈퇴 직후처럼 이미 무효인 경우도 있다).</summary>
+        private async Task RevokeOnServerAsync()
+        {
+            if (mHttp.DefaultRequestHeaders.Authorization is null)
+            {
+                return; // 이미 익명
+            }
+
+            try
+            {
+                using HttpResponseMessage response =
+                    await mHttp.PostAsync("api/auth/logout", content: null);
+                if (!response.IsSuccessStatusCode)
+                {
+                    mLogger.LogWarning(
+                        "Server logout returned {{ Status:{Status} }}", (int)response.StatusCode);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                mLogger.LogWarning(ex, "Server logout failed — clearing local session anyway.");
+            }
         }
 
         private void ApplyAuthorizationHeader(string? token)

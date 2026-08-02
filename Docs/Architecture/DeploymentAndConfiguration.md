@@ -166,7 +166,18 @@ git push main
 - 개발: `appsettings.Development.json` → LocalDB 커넥션(비-시크릿이라 커밋).
 - 운영: 환경변수 `DatabaseConfiguration__Databases__Account__ConnectionString`.
 
-### 예 3) `Features:AgentEnabled` (Client, 공개값)
+### 예 3) Redis 커넥션 (시크릿) — 토큰 무효화
+
+- 커밋 `appsettings.json`: `RedisConfig:Connections[0]`에 이름(`Auth`)만 있고 커넥션 문자열은 **빈 값**.
+- 운영: 환경변수 `RedisConfig__Connections__0__ConnectionString` (AWS면 ElastiCache 엔드포인트).
+- **비어 있으면 기동 시 경고만 남기고 건너뛴다** — 로컬 개발은 Redis 없이 돌아간다.
+  다만 그 상태에서는 **로그아웃·탈퇴가 토큰을 실제로 끊지 못한다**(fail-open, 아래).
+
+> **fail-open을 택한 이유**: Redis를 못 쓸 때 토큰을 막는 쪽으로 가면 캐시 장애가 곧바로
+> 전체 로그인 불가가 된다. 액세스 토큰 수명이 짧아(기본 30분) 노출 창이 그만큼으로 제한되는 것과
+> 저울질했다. 그 상황은 Warn 로그로 남는다 — **운영에서는 이 경고를 모니터링 대상에 넣는다.**
+
+### 예 4) `Features:AgentEnabled` (Client, 공개값)
 - `wwwroot/appsettings.Production.json` → `false` (커밋, 공개 서빙돼도 무방).
 - Client 환경이 Production이면(=Server가 Production) 이 값이 로드되어 에이전트 UI가 숨겨짐.
 

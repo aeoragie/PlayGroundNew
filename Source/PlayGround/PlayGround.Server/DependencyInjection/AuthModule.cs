@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using PlayGround.Infrastructure.Store;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Settings.Commands;
@@ -34,6 +35,12 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<DisplayNameChangeCommand>();
             services.AddScoped<SocialLinkCommand>();
 
+            //.// 서버측 임시 상태 저장소 (Redis) — 토큰 무효화가 여기 얹힌다.
+            // RedisService는 IHostedService라 기동 시 연결하고, 설정이 없으면 경고만 남기고 논다.
+            services.AddSingleton<RedisService>();
+            services.AddHostedService(sp => sp.GetRequiredService<RedisService>());
+            services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
+
             //.// JWT 발급 + Bearer 검증
             services.AddSingleton<IJwtTokenService, JwtTokenService>();
             services.AddAuthentication(options =>
@@ -53,6 +60,13 @@ namespace PlayGround.Server.DependencyInjection
                     ValidAudience = configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? "dev-only-insecure-placeholder-key-change-me"))
+                };
+
+                // 서명·만료가 멀쩡해도 로그아웃·탈퇴한 토큰이면 여기서 떨군다.
+                // 서명 검증을 통과한 뒤라 조회 비용은 정상 요청에만 든다.
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = TokenRevocationCheck.OnTokenValidatedAsync,
                 };
             });
             services.AddAuthorization();

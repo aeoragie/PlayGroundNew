@@ -58,6 +58,14 @@ namespace PlayGround.Infrastructure.Store
                     continue;
                 }
 
+                // 커넥션 문자열이 비어 있는 항목은 "설정 자리만 있고 미구성"이다 —
+                // 파싱 예외로 시끄럽게 실패시키지 않고 건너뛴다 (로컬 개발 기본값).
+                if (string.IsNullOrWhiteSpace(connConfig.ConnectionString))
+                {
+                    Logger.Warn("Redis connection string is empty — skipped. {{ Name:{Name} }}", connConfig.Name);
+                    continue;
+                }
+
                 try
                 {
                     var options = ConfigurationOptions.Parse(connConfig.ConnectionString);

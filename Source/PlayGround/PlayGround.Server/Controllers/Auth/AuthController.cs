@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Auth;
 using PlayGround.Contracts.Settings;
 using PlayGround.Application.Auth.Commands;
+using PlayGround.Application.Interfaces;
 using PlayGround.Application.Settings.Commands;
 using PlayGround.Server.Services;
 
@@ -28,6 +30,7 @@ namespace PlayGround.Server.Controllers.Auth
         private readonly AccountDeleteCommand mAccountDelete;
         private readonly DisplayNameChangeCommand mDisplayNameChange;
         private readonly SocialLinkCommand mSocialLink;
+        private readonly ITokenRevocationStore mTokenRevocation;
 
         public AuthController(
             OAuthService oauth,
@@ -37,7 +40,8 @@ namespace PlayGround.Server.Controllers.Auth
             NotificationPreferenceCommand notificationPreference,
             AccountDeleteCommand accountDelete,
             DisplayNameChangeCommand displayNameChange,
-            SocialLinkCommand socialLink)
+            SocialLinkCommand socialLink,
+            ITokenRevocationStore tokenRevocation)
         {
             mOAuth = oauth;
             mLoginBySocial = loginBySocial;
@@ -47,10 +51,18 @@ namespace PlayGround.Server.Controllers.Auth
             mAccountDelete = accountDelete;
             mDisplayNameChange = displayNameChange;
             mSocialLink = socialLink;
+            mTokenRevocation = tokenRevocation;
         }
 
         private Guid CurrentUserId =>
             Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : Guid.Empty;
+
+        /// <summary>현재 토큰의 만료 시각 — 무효화 기록을 그때까지만 들고 있으면 된다.
+        /// exp를 못 읽으면 액세스 토큰 최대 수명만큼 보수적으로 잡는다.</summary>
+        private DateTimeOffset CurrentTokenExpiresAt =>
+            long.TryParse(User.FindFirstValue(JwtRegisteredClaimNames.Exp), out long seconds)
+                ? DateTimeOffset.FromUnixTimeSeconds(seconds)
+                : DateTimeOffset.UtcNow.AddHours(1);
 
         /// <summary>이메일 로그인/가입 (없으면 자동 생성). 성공 시 액세스 토큰 반환.</summary>
         [HttpPost("login/email")]
@@ -125,6 +137,19 @@ namespace PlayGround.Server.Controllers.Auth
             return result.ToEnvelope();
         }
 
+        /// <summary>로그아웃 — **이 토큰만** 무효화한다(다른 기기 세션은 유지).
+        /// 클라이언트가 로컬 토큰을 지우는 것만으로는 이미 나간 토큰이 남은 수명 동안 계속 통한다.</summary>
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<Envelope<bool>> LogoutAsync(CancellationToken cancellation)
+        {
+            string tokenId = User.FindFirstValue(JwtRegisteredClaimNames.Jti) ?? string.Empty;
+            await mTokenRevocation.RevokeTokenAsync(tokenId, CurrentTokenExpiresAt, cancellation);
+
+            Logger.InfoWith("Logout", ("UserId", CurrentUserId));
+            return Result<bool>.Success(true).ToEnvelope();
+        }
+
         /// <summary>계정 삭제 (소프트 삭제). 클라이언트는 성공 시 로그아웃 → 랜딩으로 보낸다.</summary>
         [Authorize]
         [HttpDelete("me")]
@@ -134,7 +159,11 @@ namespace PlayGround.Server.Controllers.Auth
             if (result.IsError)
             {
                 result.LogWith(Logger, "DeleteAccount");
+                return result.ToEnvelope();
             }
+
+            // 탈퇴는 기기 하나가 아니라 **그 사용자의 토큰 전부**를 끊는다
+            await mTokenRevocation.RevokeAllForUserAsync(CurrentUserId, DateTimeOffset.UtcNow, cancellation);
 
             return result.ToEnvelope();
         }
