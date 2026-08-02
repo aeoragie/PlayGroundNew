@@ -1,7 +1,7 @@
 # PLAN.DEVELOPMENTORDER — 디자인 핸드오프 구현 순서 가이드
 
 > 위치: `Handoff\PLAN.DEVELOPMENTORDER.md` · 기준: 루트 CLAUDE.md 진행 상황(2026-07-16 갱신분) + Handoff 30개 패키지
-> 기존 `Docs/Development/SharedPatternsPlan.md`(패턴 4부작 계획)를 **대체·확장**한다 — 이후 순서 판단은 이 문서 기준.
+> 이전 패턴 4부작 계획(`SharedPatternsPlan.md`, 삭제됨)을 **대체·확장**한다 — 이후 순서 판단은 이 문서 기준.
 > 각 단계는 "섹션/화면 단위로 작게 구현 → 사람 검수 → 다음" 규칙(CLAUDE.md UI 규칙 6) 유지.
 
 ## 전체 그림

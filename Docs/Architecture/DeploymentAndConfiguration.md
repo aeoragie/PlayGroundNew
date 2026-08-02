@@ -135,32 +135,17 @@ checkout → setup .NET 10 / Node 20
 ```
 - `windows-latest` 러너 — LocalDB·SSDT(.sqlproj) 빌드가 dev와 동일하게 동작하도록.
 
-### `deploy.yml` — main 푸시 시 배포 (수동 실행도 지원)
+### `deploy.yml` — main 푸시 시 배포
 
-```
-git push main
-   │
-   ▼
-[ publish ]  (환경 무관 단일 산출물 = build once)
-   css:build → dotnet publish Server -c Release -o publish/   ← 호스팅되는 WASM Client 포함
-   → 로컬 시크릿 혼입 검사 → artifact 'playground-app' 업로드
-   │
-   ▼
-[ deploy ]   environment: Production   (Required reviewers 권장)
-   artifact 다운로드 → zip → scp → ssh 로 playground-deploy 실행
-   deploy-app.sh 가 직전 버전 보관 → 교체 → 기동 확인 → 실패 시 자동 롤백
-   → 공개 URL 스모크 체크
-```
+**파이프라인 단계·배포 대상·절차는 `Deploy/README.md`에만 적는다.** 여기 옮겨 적으면
+바꿀 때 두 곳을 고쳐야 하고, 실제로 한 번 어긋났다(1단 전환 때).
 
-> **환경은 1단(Production)이다.** 투자 유치용 서비스 구축 단계라 서버가 한 대뿐이라
-> Staging→Production 2단 승인 구조를 쓰지 않는다. 정식 스펙 재구성 시
-> **Local · Dev · Staging · Production** 4단으로 확장할 예정이고, 위 설정 레이어가 그대로 쓰인다.
->
-> **서버가 한 대여도 `ASPNETCORE_ENVIRONMENT`는 `Production`이다** —
-> 환경 "개수"와 "이름"은 별개 결정이다. `Development`로 두면 OpenAPI·WASM 디버깅 프록시·
-> 상세 예외 페이지가 공개 URL에 켜지고 HSTS가 빠진다.
->
-> 배포 대상·절차는 `Docs/Development/Deployment.md`.
+이 문서가 책임지는 것은 **설정이 어떻게 주입되는가**뿐이다:
+
+> 배포되는 산출물은 하나이고, 환경 차이는 **런타임 `ASPNETCORE_ENVIRONMENT` + 주입된 시크릿**으로만
+> 갈린다. 지금은 환경이 1단이라 그 값이 항상 `Production`이다 —
+> **서버 대수와 환경 이름은 별개 결정**이라, 한 대여도 `Development`로 두면
+> OpenAPI·WASM 디버깅·상세 예외 페이지가 공개 URL에 켜지고 HSTS가 빠진다.
 
 ---
 
@@ -211,3 +196,4 @@ git push main
 - Server 설정: `Source/PlayGround/PlayGround.Server/appsettings*.json`, `Program.cs`(Local.json 로드)
 - Client 설정: `Source/PlayGround/PlayGround.Client/wwwroot/appsettings*.json`
 - 시크릿 템플릿: `Source/PlayGround/PlayGround.Server/appsettings.Local.json.example`
+- **배포 자체**(구성·설치·절차·장애 대응): `Deploy/README.md` · `Deploy/AwsSetup.md` · `Deploy/Runbook.md`

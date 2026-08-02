@@ -157,47 +157,31 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 
 ## R4. 배포 파이프라인 — 자산 완료 (2026-08-02), 실행 대기
 
-**환경은 1단(Production)이다.** 투자 유치용 서비스 구축 단계라 서버 한 대·파이프라인 1단으로 간다.
-정식 스펙 재구성 시 **Local · Dev · Staging · Production** 4단으로 확장 예정.
+**스크립트·워크플로·설치 절차는 모두 만들어 뒀다.** 남은 것은 AWS 콘솔·GitHub 설정과
+실제 실행이며, **전부 `Deploy/`에 있다** — 여기 옮겨 적지 않는다(고칠 때 두 곳이 어긋난다).
 
-> 서버가 한 대여도 `ASPNETCORE_ENVIRONMENT`는 **`Production`**이다 —
-> `Development`면 OpenAPI·WASM 디버깅·상세 예외 페이지가 공개 URL에 켜진다.
-
-만들어 둔 것 (`Deploy/`):
-
-| 자산 | 내용 |
+| 무엇 | 어디 |
 |---|---|
-| `ec2-setup.sh` | user-data용. SQL Server·Redis·.NET·Nginx·certbot·한글 폰트·시간대(KST). **시크릿 없음** |
-| `playground.service` | systemd. 시크릿은 `/etc/playground/playground.env` |
-| `playground.conf` | 리버스 프록시(80) — certbot이 443 추가 |
-| `backup-database.sh` | cron 백업 → S3 + `RESTORE VERIFYONLY` |
-| `deploy-app.sh` | 직전 버전 보관 → 교체 → 기동 확인 → **실패 시 자동 롤백** |
-| `deploy.yml` | publish → 시크릿 혼입 검사 → scp/ssh 배포 → 공개 URL 스모크 |
-
-**사람이 해야 할 것** (AWS 콘솔·GitHub 설정):
-
-1. EC2 t3.medium (Ubuntu 22.04) 생성 + **Elastic IP** + 보안그룹(22 내 IP / 80·443 전체 / 1433 닫음)
-2. SSH 접속해 **SQL Server 초기 설정**(sa 비밀번호는 user-data에 넣지 않는다)
-3. 스키마 배포 → **DB 계약 테스트로 확인**(`Tests.Infrastructure`)
-4. **GitHub Environment `Production` 시크릿** — `DEPLOY_HOST`·`DEPLOY_USER`·`DEPLOY_SSH_KEY`·`DEPLOY_KNOWN_HOSTS`
-   + Required reviewers
-5. 서버에 `/etc/playground/playground.env` 작성 (JWT·OAuth·DB·Redis)
-6. **Route 53 A 레코드** → certbot → **OAuth 리다이렉트 URI 4곳 등록**
-7. 백업 S3 버킷 + 인스턴스 IAM 역할
+| 구성·규칙·설치·배포 후 확인 | `Deploy/README.md` |
+| AWS 콘솔 클릭 가이드 (1회) | `Deploy/AwsSetup.md` |
+| 장애 대응 | `Deploy/Runbook.md` |
 
 **완료 기준** — 파이프라인으로 배포되고, **롤백을 1회 실제로 연습**해 봄.
 
-절차 상세는 `Docs/Development/Deployment.md`.
-
 ---
 
-## R5. 운영 준비 (배포와 동시에)
+## R5. 운영 준비
 
-- **로그 수집** — 현재 NLog 파일 로깅. 호스트에서 수집·보존 기간 결정
-- **모니터링·알림** — 최소한 "서버가 죽었다"를 아는 수단
-- **DB 백업** — 주기·보존·복구 연습
-- **도메인·HTTPS 인증서** (D4)
-- **OAuth 리다이렉트 URI**를 운영 도메인으로 등록 (구글·카카오·네이버·애플 각각)
+백업·도메인·HTTPS·OAuth 등록은 배포 절차에 포함돼 있다(`Deploy/README.md`).
+**여기 남는 것은 배포 이후에 별도로 갖춰야 할 것들뿐이다:**
+
+- **모니터링·알림** — 최소한 "서버가 죽었다"를 아는 수단.
+  지금은 아무도 모른다. 헬스체크 + 이메일/슬랙 알림이 최소 구성.
+- **로그 수집** — 현재 파일·journald에만 쌓인다. 인스턴스를 잃으면 로그도 잃는다.
+- **복구 연습** — 백업에서 실제로 되살려 본다. 절차는 `Deploy/Runbook.md` "최악",
+  **해 보지 않은 복구 절차는 없는 것과 같다.**
+- **Redis fail-open 경고 모니터링** — 무효화가 조용히 죽는 상태를 알아야 한다
+  (`Revocation check skipped` 로그).
 
 ---
 

@@ -1255,10 +1255,10 @@
   체크리스트·헤드리스 자동화 팁을 정리해 둠 (PC 이동 시 이 문서대로 재구축).
 - 로컬 검증 계정: `verify-teamadmin-0713@test.local` / `password123!` (검증fc 팀, 팀 정보
   시드 주입됨), `verify-empty-0714@test.local` (EmptyFC — 빈 상태 확인용). 로컬 DB 전용.
-  시드: `Source/Database/Soccer/Seeds/VerificationTeamInfo.Seed.sql`.
-- **검증 스크립트는 `Source/Tools/Verification/`에 있다** — 각 Phase에서 실제로 돌린 것들이고,
-  README에 실행법·계정·헤드리스 함정을 정리해 뒀다. 새 검증은 여기서 시작하면 된다
-  (`npm install` 한 번 필요, 앱 빌드와 무관).
+  시드: `Source/Database/Soccer/Seeds/Verification/VerificationTeamInfo.Seed.sql`.
+- **검증 스크립트(`Source/Tools/Verification/`)는 2026-08-01에 제거했다** — 기능별 1회용이라
+  회귀 안전망이 되지 못했고, durable xUnit 스위트로 대체했다(`Docs/Development/Testing.md`).
+  아래 헤드리스 함정은 그때 얻은 지식이라 남긴다. 원본은 git `f19ad41^`에 있다.
 - 화면 검증: 헤드리스 Edge + puppeteer-core, localStorage `pg.accessToken`에 토큰 주입 후 진입.
   `python`은 스토어 스텁 — 스크립트는 PowerShell (한글 포함 .ps1은 UTF-8 BOM 필수).
 - **Edge 150부터 `puppeteer.launch()`가 "Failed to launch... Code: 0"으로 실패**(헤드리스
@@ -1266,16 +1266,8 @@
   직접 띄우고 `puppeteer.connect({browserWSEndpoint})`로 붙는다(`/json/version`의 webSocketDebuggerUrl).
   참고 스크립트 `Source/Tools/Verification/shot-connect.js`. userDataDir는 실행마다 고유(Date.now())로 — 락 충돌 방지.
 
-### 새 PC 환경 재구축 체크리스트 (gitignore 항목 — 클론만으로 안 되는 것)
+### 새 PC 환경 재구축
 
-1. **로컬 DB**: SQL Server 2019+ (UTF-8 콜레이션 필요, 개발은 SQLEXPRESS 기준) 설치 후
-   `Source/Database/README.md`의 셋업 명령 실행 (UTF-8 `COLLATE` 포함 생성 → Tables →
-   Procedures → Seeds).
-2. **시크릿**: `Source/PlayGround/PlayGround.Server/appsettings.Local.json` 을
-   `appsettings.Local.json.example` 복사로 생성 후 Jwt:Key·OAuth(Google/Kakao) 입력.
-   값은 팀 공유 저장소 또는 이전 프로젝트(`D:\Study\Workspace\PlayGround`)의 appsettings 참조.
-3. **Tailwind**: `cd Source/PlayGround/PlayGround.Client && npm install && npm run css:build`.
-4. **실행 확인**: `dotnet run --project Source/PlayGround/PlayGround.Server` →
-   `https://localhost:50451` (랜딩) / `/dashboard/team` (팀 대시보드).
-   SQL 프로젝트(.sqlproj)는 dotnet CLI로 빌드되지 않음 — VS로 열거나 앱 프로젝트만 빌드.
+체크리스트는 `Docs/Development/LocalVerification.md` "새 PC 최초 셋업"으로 옮겼다 —
+살아 있는 절차라 이 히스토리 문서에 두면 낡는다.
 

@@ -68,6 +68,21 @@
 >
 > **추가 반영(ClaimFlow 요청 취소, 2026-07-21)**: `UspCancelSoccerPlayerClaimRequest` 신규까지 로컬 반영됨.
 
+## 새 PC 최초 셋업 (클론만으로 안 되는 것 — gitignore 대상)
+
+아래를 먼저 끝내야 다음 절의 "재구축 절차"가 돈다.
+
+1. **로컬 DB**: SQL Server 2019+ (UTF-8 콜레이션 필요, 개발은 SQLEXPRESS 기준) 설치 후
+   `Source/Database/README.md`의 셋업 명령 실행 (UTF-8 `COLLATE` 포함 생성 → Tables →
+   Procedures → Seeds).
+2. **시크릿**: `Source/PlayGround/PlayGround.Server/appsettings.Local.json`을
+   `appsettings.Local.json.example` 복사로 생성 후 Jwt:Key·OAuth(Google/Kakao) 입력.
+3. **Redis**: 위 "Redis" 절 참조 (로그아웃·탈퇴 검증에 필요).
+4. **Tailwind**: `cd Source/PlayGround/PlayGround.Client && npm install && npm run css:build`.
+5. **실행 확인**: `dotnet run --project Source/PlayGround/PlayGround.Server` →
+   `https://localhost:50451` (랜딩) / `/dashboard/team` (팀 대시보드).
+   SQL 프로젝트(.sqlproj)는 dotnet CLI로 빌드되지 않음 — VS로 열거나 앱 프로젝트만 빌드.
+
 ## 재구축 절차 (새 PC · DB 재생성 후)
 
 1. 서버 실행: `dotnet run --project Source/PlayGround/PlayGround.Server`
