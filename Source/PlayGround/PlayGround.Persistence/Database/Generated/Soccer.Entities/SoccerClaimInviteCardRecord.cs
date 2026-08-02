@@ -23,13 +23,13 @@ public class SoccerClaimInviteCardRecord
 	public DateTime? BirthDate { get; set; } = null;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(60)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 
 	[StringLength(10)]
-	public string JerseyNumber { get; set; } = String.Empty;
+	public string? JerseyNumber { get; set; } = null;
 
 	[Required]
 	public Guid TeamId { get; set; } = Guid.Empty;

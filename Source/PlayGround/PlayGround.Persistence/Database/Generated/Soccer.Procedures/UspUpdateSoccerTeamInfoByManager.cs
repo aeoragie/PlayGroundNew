@@ -17,14 +17,14 @@ public class UspUpdateSoccerTeamInfoByManager(RepositoryBase repository) : Proce
     public override string Procedure => "[dbo].[UspUpdateSoccerTeamInfoByManager]";
 
 	public Guid ManagerUserId { get; set; } = Guid.Empty;
-	public string TeamName { get; set; } = null;
-	public string Description { get; set; } = null;
-	public string Region { get; set; } = null;
+	public string? TeamName { get; set; } = null;
+	public string? Description { get; set; } = null;
+	public string? Region { get; set; } = null;
 	public int? FoundedYear { get; set; } = null;
-	public string LogoUrl { get; set; } = null;
-	public string CoverImageUrl { get; set; } = null;
-	public string ValuesJson { get; set; } = null;
-	public string CoachesJson { get; set; } = null;
+	public string? LogoUrl { get; set; } = null;
+	public string? CoverImageUrl { get; set; } = null;
+	public string? ValuesJson { get; set; } = null;
+	public string? CoachesJson { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@ManagerUserId", ManagerUserId);

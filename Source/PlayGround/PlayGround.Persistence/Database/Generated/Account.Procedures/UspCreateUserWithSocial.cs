@@ -20,7 +20,7 @@ public class UspCreateUserWithSocial(RepositoryBase repository) : ProcedureBase(
 	public string DisplayName { get; set; } = String.Empty;
 	public string Provider { get; set; } = String.Empty;
 	public string ProviderUserId { get; set; } = String.Empty;
-	public string ProfileImageUrl { get; set; } = null;
+	public string? ProfileImageUrl { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@Email", Email);

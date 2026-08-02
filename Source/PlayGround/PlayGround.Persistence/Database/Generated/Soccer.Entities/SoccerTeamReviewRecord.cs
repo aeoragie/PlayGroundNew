@@ -27,7 +27,7 @@ public class SoccerTeamReviewRecord
 	public string Body { get; set; } = String.Empty;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[Required]
 	[StringLength(300)]

@@ -26,10 +26,10 @@ public class SoccerSchedulesEntity
 	public string Type { get; set; } = String.Empty;
 
 	[StringLength(300)]
-	public string Title { get; set; } = String.Empty;
+	public string? Title { get; set; } = null;
 
 	[StringLength(300)]
-	public string OpponentName { get; set; } = String.Empty;
+	public string? OpponentName { get; set; } = null;
 
 	[Required]
 	public DateTime StartsAt { get; set; } = DateTime.MinValue;

@@ -17,5 +17,5 @@ public class SoccerUpdatedTeamRecord
 	public Guid TeamId { get; set; } = Guid.Empty;
 
 	[StringLength(100)]
-	public string Slug { get; set; } = String.Empty;
+	public string? Slug { get; set; } = null;
 }

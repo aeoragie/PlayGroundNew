@@ -36,7 +36,7 @@ public class SoccerMatchAppearancesEntity
 	public int? JerseyNumber { get; set; } = null;
 
 	[StringLength(10)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 
 	[Required]
 	public bool IsCaptain { get; set; } = false;

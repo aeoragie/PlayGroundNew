@@ -34,14 +34,14 @@ public class SoccerMatchEventsEntity
 	public Guid? PlayerId { get; set; } = null;
 
 	[StringLength(150)]
-	public string PlayerName { get; set; } = String.Empty;
+	public string? PlayerName { get; set; } = null;
 
 	public int? JerseyNumber { get; set; } = null;
 
 	public Guid? AssistPlayerId { get; set; } = null;
 
 	[StringLength(150)]
-	public string AssistPlayerName { get; set; } = String.Empty;
+	public string? AssistPlayerName { get; set; } = null;
 
 	public int? MinuteOfPlay { get; set; } = null;
 

@@ -27,7 +27,7 @@ public class SoccerPendingChildClaimRecord
 	public string Name { get; set; } = String.Empty;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[Required]
 	[StringLength(300)]

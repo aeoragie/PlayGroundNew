@@ -1,11 +1,27 @@
 // ErrorOr (https://github.com/amantinband/error-or)
 // OneOf (https://github.com/mcintyre321/OneOf)
 
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+
 namespace PlayGround.Shared.Result;
 
+/// <summary>
+/// 함수형 결과.
+///
+/// **널 허용 여부는 타입 인자가 정한다.** <c>Result&lt;Team&gt;</c>은 성공하면 값이 있다는 뜻이고,
+/// <c>Result&lt;Team?&gt;</c>·<c>Result&lt;Guid?&gt;</c>는 **성공인데 값이 없음**(= 조회 결과 없음·권한 없음)을
+/// 표현하는 별개의 계약이다. 그래서 <see cref="Value"/>는 <c>T?</c>가 아니라 <c>T</c>다 —
+/// <c>T?</c>로 두면 두 계약이 뭉개져 `Result&lt;Team&gt;`을 쓰는 호출부마다 의미 없는 널 검사가 붙는다.
+///
+/// 실패 경로(Error·Unknown·Failure·FromException)는 값을 담지 않으므로,
+/// <see cref="Value"/>는 **<see cref="IsError"/>를 확인한 뒤에** 읽어야 한다(기존 사용법 그대로).
+/// </summary>
 public readonly struct Result<T>
 {
-    public T? Value { get; }
+    /// <summary>결과 값. 실패 경로에서는 채워지지 않으니 <see cref="IsError"/> 확인 후 읽는다.</summary>
+    public T Value { get; }
+
     public ResultInfo ResultData { get; }
     public string Message => ResultData.Message;
 
@@ -29,7 +45,9 @@ public readonly struct Result<T>
 
     private Result(ResultInfo info)
     {
-        Value = default;
+        // 실패 경로 — 값이 없다. T가 널 비허용이어도 여기서는 담을 값이 없으므로 억제한다
+        // (호출부는 IsError를 확인하고 읽는 것이 계약이다).
+        Value = default!;
         ResultData = info;
     }
 
@@ -37,7 +55,13 @@ public readonly struct Result<T>
 
     public static Result<T> Success(T value) => new(value);
 
-    public static Result<T> Failure(ResultInfo info) => new(info);
+    /// <summary>다른 Result의 실패를 이 타입으로 옮긴다. 값을 담지 않으므로 **오류 정보여야 한다** —
+    /// 실패가 아닌 정보를 넘기면 "성공인데 값 없음"이 되어 호출부가 값을 읽다 터진다.</summary>
+    public static Result<T> Failure(ResultInfo info)
+    {
+        Debug.Assert(info.IsError, "Failure expects an error ResultInfo");
+        return new(info.IsError ? info : ResultInfo.Unknown(info.Message));
+    }
 
     public static Result<T> Error(ErrorCode code, string? message = null, string? details = null)
     {

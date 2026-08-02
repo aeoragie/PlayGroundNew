@@ -40,8 +40,8 @@ public class SoccerAgentViewRequestRecord
 	public string Name { get; set; } = String.Empty;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(60)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 }

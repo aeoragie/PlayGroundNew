@@ -26,7 +26,7 @@ public class SoccerTournamentsEntity
 	public string Name { get; set; } = String.Empty;
 
 	[StringLength(100)]
-	public string SeriesSlug { get; set; } = String.Empty;
+	public string? SeriesSlug { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
@@ -41,7 +41,7 @@ public class SoccerTournamentsEntity
 	public string AgeGroup { get; set; } = String.Empty;
 
 	[StringLength(60)]
-	public string RegionGroup { get; set; } = String.Empty;
+	public string? RegionGroup { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
@@ -54,43 +54,43 @@ public class SoccerTournamentsEntity
 	public int? TeamCount { get; set; } = null;
 
 	[StringLength(300)]
-	public string HostName { get; set; } = String.Empty;
+	public string? HostName { get; set; } = null;
 
 	[StringLength(600)]
-	public string MethodText { get; set; } = String.Empty;
+	public string? MethodText { get; set; } = null;
 
 	[StringLength(600)]
-	public string MatchTimeText { get; set; } = String.Empty;
+	public string? MatchTimeText { get; set; } = null;
 
 	[StringLength(600)]
-	public string VenueText { get; set; } = String.Empty;
+	public string? VenueText { get; set; } = null;
 
 	[StringLength(600)]
-	public string TiebreakText { get; set; } = String.Empty;
+	public string? TiebreakText { get; set; } = null;
 
 	[StringLength(2048)]
-	public string RegulationPdfUrl { get; set; } = String.Empty;
+	public string? RegulationPdfUrl { get; set; } = null;
 
 	[StringLength(300)]
-	public string SourceName { get; set; } = String.Empty;
+	public string? SourceName { get; set; } = null;
 
 	[StringLength(2048)]
-	public string SourceUrl { get; set; } = String.Empty;
+	public string? SourceUrl { get; set; } = null;
 
 	public Guid? OrganizerUserId { get; set; } = null;
 
 	[StringLength(20)]
-	public string OrganizerType { get; set; } = String.Empty;
+	public string? OrganizerType { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
 	public string DataSource { get; set; } = String.Empty;
 
 	[StringLength(64)]
-	public string ExternalId { get; set; } = String.Empty;
+	public string? ExternalId { get; set; } = null;
 
 	[StringLength(20)]
-	public string SyncStatus { get; set; } = String.Empty;
+	public string? SyncStatus { get; set; } = null;
 
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;

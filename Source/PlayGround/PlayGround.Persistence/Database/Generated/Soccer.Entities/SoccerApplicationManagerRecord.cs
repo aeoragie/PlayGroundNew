@@ -23,10 +23,10 @@ public class SoccerApplicationManagerRecord
 	public Guid PlayerId { get; set; } = Guid.Empty;
 
 	[StringLength(20)]
-	public string DesiredPosition { get; set; } = String.Empty;
+	public string? DesiredPosition { get; set; } = null;
 
 	[StringLength(1500)]
-	public string Introduction { get; set; } = String.Empty;
+	public string? Introduction { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
@@ -46,15 +46,15 @@ public class SoccerApplicationManagerRecord
 	public string Name { get; set; } = String.Empty;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(2048)]
-	public string PhotoUrl { get; set; } = String.Empty;
+	public string? PhotoUrl { get; set; } = null;
 
 	[Required]
 	[StringLength(300)]
 	public string Title { get; set; } = String.Empty;
 
 	[StringLength(60)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 }

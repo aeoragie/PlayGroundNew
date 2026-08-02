@@ -33,7 +33,7 @@ public class SoccerTeamCareerOutcomesEntity
 	public string Title { get; set; } = String.Empty;
 
 	[StringLength(600)]
-	public string Detail { get; set; } = String.Empty;
+	public string? Detail { get; set; } = null;
 
 	[Required]
 	public int PlayerCount { get; set; } = 0;

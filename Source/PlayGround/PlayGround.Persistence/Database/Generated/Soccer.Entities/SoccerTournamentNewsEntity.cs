@@ -30,7 +30,7 @@ public class SoccerTournamentNewsEntity
 	public string Url { get; set; } = String.Empty;
 
 	[StringLength(150)]
-	public string PublisherName { get; set; } = String.Empty;
+	public string? PublisherName { get; set; } = null;
 
 	public DateTime? PublishedOn { get; set; } = null;
 

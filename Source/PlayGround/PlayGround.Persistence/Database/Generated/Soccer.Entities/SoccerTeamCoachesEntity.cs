@@ -30,22 +30,22 @@ public class SoccerTeamCoachesEntity
 	public string Role { get; set; } = String.Empty;
 
 	[StringLength(300)]
-	public string Career { get; set; } = String.Empty;
+	public string? Career { get; set; } = null;
 
 	[StringLength(100)]
-	public string Certification { get; set; } = String.Empty;
+	public string? Certification { get; set; } = null;
 
 	[StringLength(600)]
-	public string Quote { get; set; } = String.Empty;
+	public string? Quote { get; set; } = null;
 
 	[StringLength(900)]
-	public string Achievements { get; set; } = String.Empty;
+	public string? Achievements { get; set; } = null;
 
 	[StringLength(2048)]
-	public string InstagramUrl { get; set; } = String.Empty;
+	public string? InstagramUrl { get; set; } = null;
 
 	[StringLength(2048)]
-	public string YoutubeUrl { get; set; } = String.Empty;
+	public string? YoutubeUrl { get; set; } = null;
 
 	[Required]
 	public int DisplayOrder { get; set; } = 0;

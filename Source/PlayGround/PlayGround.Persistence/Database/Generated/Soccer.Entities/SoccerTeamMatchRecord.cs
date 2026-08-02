@@ -45,7 +45,7 @@ public class SoccerTeamMatchRecord
 	public DateTime? MatchedAt { get; set; } = null;
 
 	[StringLength(300)]
-	public string VenueName { get; set; } = String.Empty;
+	public string? VenueName { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]

@@ -66,6 +66,7 @@
     <Folder Include="Indexes" />
     <Folder Include="Seeds" />
     <Folder Include="Migrations" />
+    <Folder Include="Seeds\Verification\" />
   </ItemGroup>
   <!-- 빌드 대상 스키마(CREATE 구문) — 글롭이라 파일을 추가하면 자동 포함된다.
        개별 나열은 쓰지 않는다: 손으로 관리하다 56개가 빠져 참조 경고 246건이 났었다. -->

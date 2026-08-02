@@ -30,7 +30,7 @@ public class SocialAccountsEntity
 	public string ProviderUserId { get; set; } = String.Empty;
 
 	[StringLength(255)]
-	public string Email { get; set; } = String.Empty;
+	public string? Email { get; set; } = null;
 
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;

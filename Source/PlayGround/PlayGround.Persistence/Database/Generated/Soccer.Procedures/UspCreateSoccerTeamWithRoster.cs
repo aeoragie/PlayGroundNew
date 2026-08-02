@@ -18,9 +18,9 @@ public class UspCreateSoccerTeamWithRoster(RepositoryBase repository) : Procedur
 
 	public Guid ManagerUserId { get; set; } = Guid.Empty;
 	public string TeamName { get; set; } = String.Empty;
-	public string TeamType { get; set; } = null;
-	public string Region { get; set; } = null;
-	public string RosterJson { get; set; } = null;
+	public string? TeamType { get; set; } = null;
+	public string? Region { get; set; } = null;
+	public string? RosterJson { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@ManagerUserId", ManagerUserId);

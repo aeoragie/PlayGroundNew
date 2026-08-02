@@ -26,7 +26,7 @@ public class UsersEntity
 	public bool EmailConfirmed { get; set; } = false;
 
 	[StringLength(255)]
-	public string PasswordHash { get; set; } = String.Empty;
+	public string? PasswordHash { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
@@ -37,7 +37,7 @@ public class UsersEntity
 	public string DisplayName { get; set; } = String.Empty;
 
 	[StringLength(2048)]
-	public string ProfileImageUrl { get; set; } = String.Empty;
+	public string? ProfileImageUrl { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]

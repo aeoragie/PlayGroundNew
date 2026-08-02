@@ -25,13 +25,13 @@ public class SoccerMatchesEntity
 	public Guid? TournamentId { get; set; } = null;
 
 	[StringLength(20)]
-	public string StageType { get; set; } = String.Empty;
+	public string? StageType { get; set; } = null;
 
 	[StringLength(30)]
-	public string GroupName { get; set; } = String.Empty;
+	public string? GroupName { get; set; } = null;
 
 	[StringLength(30)]
-	public string RoundName { get; set; } = String.Empty;
+	public string? RoundName { get; set; } = null;
 
 	public Guid? HomeTeamId { get; set; } = null;
 
@@ -60,32 +60,32 @@ public class SoccerMatchesEntity
 	public DateTime? MatchedAt { get; set; } = null;
 
 	[StringLength(300)]
-	public string VenueName { get; set; } = String.Empty;
+	public string? VenueName { get; set; } = null;
 
 	public int? FirstHalfHomeScore { get; set; } = null;
 
 	public int? FirstHalfAwayScore { get; set; } = null;
 
 	[StringLength(90)]
-	public string RefereeName { get; set; } = String.Empty;
+	public string? RefereeName { get; set; } = null;
 
 	public int? MatchSequence { get; set; } = null;
 
 	[StringLength(90)]
-	public string HomeCoachName { get; set; } = String.Empty;
+	public string? HomeCoachName { get; set; } = null;
 
 	[StringLength(90)]
-	public string AwayCoachName { get; set; } = String.Empty;
+	public string? AwayCoachName { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
 	public string DataSource { get; set; } = String.Empty;
 
 	[StringLength(64)]
-	public string ExternalId { get; set; } = String.Empty;
+	public string? ExternalId { get; set; } = null;
 
 	[StringLength(20)]
-	public string SyncStatus { get; set; } = String.Empty;
+	public string? SyncStatus { get; set; } = null;
 
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;

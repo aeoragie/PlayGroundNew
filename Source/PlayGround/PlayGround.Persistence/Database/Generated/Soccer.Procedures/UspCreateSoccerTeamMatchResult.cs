@@ -17,13 +17,13 @@ public class UspCreateSoccerTeamMatchResult(RepositoryBase repository) : Procedu
     public override string Procedure => "[dbo].[UspCreateSoccerTeamMatchResult]";
 
 	public Guid ManagerUserId { get; set; } = Guid.Empty;
-	public string OpponentName { get; set; } = null;
+	public string? OpponentName { get; set; } = null;
 	public bool IsHome { get; set; } = true;
 	public int OurScore { get; set; } = 0;
 	public int OpponentScore { get; set; } = 0;
 	public DateTime? MatchedAt { get; set; } = null;
-	public string VenueName { get; set; } = null;
-	public string Scorers { get; set; } = null;
+	public string? VenueName { get; set; } = null;
+	public string? Scorers { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@ManagerUserId", ManagerUserId);

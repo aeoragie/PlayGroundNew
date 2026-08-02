@@ -25,13 +25,13 @@ public class SoccerTeamPlayersEntity
 	public Guid PlayerId { get; set; } = Guid.Empty;
 
 	[StringLength(10)]
-	public string JerseyNumber { get; set; } = String.Empty;
+	public string? JerseyNumber { get; set; } = null;
 
 	[StringLength(60)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 
 	[StringLength(60)]
-	public string Grade { get; set; } = String.Empty;
+	public string? Grade { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]

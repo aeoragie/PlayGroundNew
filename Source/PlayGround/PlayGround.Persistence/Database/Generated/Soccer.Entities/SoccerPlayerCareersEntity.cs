@@ -31,7 +31,7 @@ public class SoccerPlayerCareersEntity
 	public bool IsCurrent { get; set; } = false;
 
 	[StringLength(150)]
-	public string BadgeLabel { get; set; } = String.Empty;
+	public string? BadgeLabel { get; set; } = null;
 
 	[Required]
 	public DateTime StartDate { get; set; } = DateTime.MinValue;
@@ -39,10 +39,10 @@ public class SoccerPlayerCareersEntity
 	public DateTime? EndDate { get; set; } = null;
 
 	[StringLength(150)]
-	public string Role { get; set; } = String.Empty;
+	public string? Role { get; set; } = null;
 
 	[StringLength(600)]
-	public string Note { get; set; } = String.Empty;
+	public string? Note { get; set; } = null;
 
 	[Required]
 	public bool IsVerified { get; set; } = false;

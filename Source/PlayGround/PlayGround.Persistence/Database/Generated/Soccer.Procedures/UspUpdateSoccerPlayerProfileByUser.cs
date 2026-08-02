@@ -19,9 +19,9 @@ public class UspUpdateSoccerPlayerProfileByUser(RepositoryBase repository) : Pro
 	public Guid UserId { get; set; } = Guid.Empty;
 	public int? HeightCm { get; set; } = null;
 	public int? WeightKg { get; set; } = null;
-	public string PreferredFoot { get; set; } = null;
-	public string SchoolName { get; set; } = null;
-	public string Slug { get; set; } = null;
+	public string? PreferredFoot { get; set; } = null;
+	public string? SchoolName { get; set; } = null;
+	public string? Slug { get; set; } = null;
 	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {

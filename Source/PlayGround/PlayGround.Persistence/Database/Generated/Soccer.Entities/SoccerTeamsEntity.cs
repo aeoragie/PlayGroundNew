@@ -23,28 +23,28 @@ public class SoccerTeamsEntity
 	public string TeamName { get; set; } = String.Empty;
 
 	[StringLength(60)]
-	public string ShortName { get; set; } = String.Empty;
+	public string? ShortName { get; set; } = null;
 
 	[StringLength(60)]
-	public string TeamType { get; set; } = String.Empty;
+	public string? TeamType { get; set; } = null;
 
 	[StringLength(300)]
-	public string Region { get; set; } = String.Empty;
+	public string? Region { get; set; } = null;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(2048)]
-	public string LogoUrl { get; set; } = String.Empty;
+	public string? LogoUrl { get; set; } = null;
 
 	[StringLength(2048)]
-	public string CoverImageUrl { get; set; } = String.Empty;
+	public string? CoverImageUrl { get; set; } = null;
 
 	[StringLength(3000)]
-	public string Description { get; set; } = String.Empty;
+	public string? Description { get; set; } = null;
 
 	[StringLength(100)]
-	public string Slug { get; set; } = String.Empty;
+	public string? Slug { get; set; } = null;
 
 	public Guid? ManagerUserId { get; set; } = null;
 
@@ -65,14 +65,14 @@ public class SoccerTeamsEntity
 	public bool IsMonthlyFeePublic { get; set; } = false;
 
 	[StringLength(60)]
-	public string TrainingDays { get; set; } = String.Empty;
+	public string? TrainingDays { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
 	public string DataSource { get; set; } = String.Empty;
 
 	[StringLength(64)]
-	public string ExternalId { get; set; } = String.Empty;
+	public string? ExternalId { get; set; } = null;
 
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;

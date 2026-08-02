@@ -18,7 +18,7 @@ public class UspRecalculateSoccerTournamentStandings(RepositoryBase repository) 
 
 	public Guid TournamentId { get; set; } = Guid.Empty;
 	public string StageType { get; set; } = String.Empty;
-	public string GroupName { get; set; } = null;
+	public string? GroupName { get; set; } = null;
 	public string DataSource { get; set; } = String.Empty;
     public override DynamicParameters BuildParameters()
     {

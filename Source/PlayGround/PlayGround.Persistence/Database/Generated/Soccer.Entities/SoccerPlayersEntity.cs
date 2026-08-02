@@ -29,31 +29,31 @@ public class SoccerPlayersEntity
 	public string Slug { get; set; } = String.Empty;
 
 	[StringLength(2048)]
-	public string PhotoUrl { get; set; } = String.Empty;
+	public string? PhotoUrl { get; set; } = null;
 
 	public DateTime? BirthDate { get; set; } = null;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(300)]
-	public string Region { get; set; } = String.Empty;
+	public string? Region { get; set; } = null;
 
 	public int? HeightCm { get; set; } = null;
 
 	public int? WeightKg { get; set; } = null;
 
 	[StringLength(20)]
-	public string PreferredFoot { get; set; } = String.Empty;
+	public string? PreferredFoot { get; set; } = null;
 
 	[StringLength(300)]
-	public string SchoolName { get; set; } = String.Empty;
+	public string? SchoolName { get; set; } = null;
 
 	[StringLength(30)]
-	public string GuardianPhone { get; set; } = String.Empty;
+	public string? GuardianPhone { get; set; } = null;
 
 	[StringLength(400)]
-	public string StrengthTags { get; set; } = String.Empty;
+	public string? StrengthTags { get; set; } = null;
 
 	public Guid? TeamId { get; set; } = null;
 
@@ -65,7 +65,7 @@ public class SoccerPlayersEntity
 	public string DataSource { get; set; } = String.Empty;
 
 	[StringLength(64)]
-	public string ExternalId { get; set; } = String.Empty;
+	public string? ExternalId { get; set; } = null;
 
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;

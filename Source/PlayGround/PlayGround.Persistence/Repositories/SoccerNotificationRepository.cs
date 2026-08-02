@@ -188,7 +188,7 @@ namespace PlayGround.Persistence.Repositories
             };
         }
 
-        private static string? NullIfEmpty(string value)
+        private static string? NullIfEmpty(string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;
         }

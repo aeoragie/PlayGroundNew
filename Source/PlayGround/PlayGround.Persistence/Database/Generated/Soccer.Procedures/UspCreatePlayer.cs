@@ -19,8 +19,8 @@ public class UspCreatePlayer(RepositoryBase repository) : ProcedureBase(reposito
 	public Guid UserId { get; set; } = Guid.Empty;
 	public string Name { get; set; } = String.Empty;
 	public DateTime? BirthDate { get; set; } = null;
-	public string AgeGroup { get; set; } = null;
-	public string Region { get; set; } = null;
+	public string? AgeGroup { get; set; } = null;
+	public string? Region { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);

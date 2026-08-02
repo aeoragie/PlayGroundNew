@@ -25,7 +25,7 @@ public class SoccerAgentProfilesEntity
 	public string Name { get; set; } = String.Empty;
 
 	[StringLength(300)]
-	public string AgencyName { get; set; } = String.Empty;
+	public string? AgencyName { get; set; } = null;
 
 	public int? RegisteredYear { get; set; } = null;
 
@@ -38,7 +38,7 @@ public class SoccerAgentProfilesEntity
 	public decimal? Rating { get; set; } = null;
 
 	[StringLength(300)]
-	public string ActiveRegions { get; set; } = String.Empty;
+	public string? ActiveRegions { get; set; } = null;
 
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;

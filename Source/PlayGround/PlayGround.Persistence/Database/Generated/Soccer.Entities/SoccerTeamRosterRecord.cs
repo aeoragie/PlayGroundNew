@@ -17,13 +17,13 @@ public class SoccerTeamRosterRecord
 	public Guid TeamPlayerId { get; set; } = Guid.Empty;
 
 	[StringLength(10)]
-	public string JerseyNumber { get; set; } = String.Empty;
+	public string? JerseyNumber { get; set; } = null;
 
 	[StringLength(60)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 
 	[StringLength(60)]
-	public string Grade { get; set; } = String.Empty;
+	public string? Grade { get; set; } = null;
 
 	[Required]
 	public Guid PlayerId { get; set; } = Guid.Empty;
@@ -37,15 +37,15 @@ public class SoccerTeamRosterRecord
 	public string Slug { get; set; } = String.Empty;
 
 	[StringLength(2048)]
-	public string PhotoUrl { get; set; } = String.Empty;
+	public string? PhotoUrl { get; set; } = null;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	public Guid? UserId { get; set; } = null;
 
 	[StringLength(400)]
-	public string StrengthTags { get; set; } = String.Empty;
+	public string? StrengthTags { get; set; } = null;
 
 	[Required]
 	[StringLength(12)]

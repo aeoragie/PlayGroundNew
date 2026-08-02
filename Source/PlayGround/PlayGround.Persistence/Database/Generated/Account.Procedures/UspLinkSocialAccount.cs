@@ -19,7 +19,7 @@ public class UspLinkSocialAccount(RepositoryBase repository) : ProcedureBase(rep
 	public Guid UserId { get; set; } = Guid.Empty;
 	public string Provider { get; set; } = String.Empty;
 	public string ProviderUserId { get; set; } = String.Empty;
-	public string Email { get; set; } = null;
+	public string? Email { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);

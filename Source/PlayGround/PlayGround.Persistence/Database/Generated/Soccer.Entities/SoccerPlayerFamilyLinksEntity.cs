@@ -32,7 +32,7 @@ public class SoccerPlayerFamilyLinksEntity
 	public string Role { get; set; } = String.Empty;
 
 	[StringLength(20)]
-	public string Relation { get; set; } = String.Empty;
+	public string? Relation { get; set; } = null;
 
 	[Required]
 	public int DisplayOrder { get; set; } = 0;

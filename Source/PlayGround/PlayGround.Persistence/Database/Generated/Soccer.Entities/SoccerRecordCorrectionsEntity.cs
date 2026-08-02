@@ -28,21 +28,21 @@ public class SoccerRecordCorrectionsEntity
 	public string FieldType { get; set; } = String.Empty;
 
 	[StringLength(300)]
-	public string CurrentValue { get; set; } = String.Empty;
+	public string? CurrentValue { get; set; } = null;
 
 	[Required]
 	[StringLength(300)]
 	public string RequestedValue { get; set; } = String.Empty;
 
 	[StringLength(1500)]
-	public string Description { get; set; } = String.Empty;
+	public string? Description { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
 	public string Status { get; set; } = String.Empty;
 
 	[StringLength(1500)]
-	public string RejectReason { get; set; } = String.Empty;
+	public string? RejectReason { get; set; } = null;
 
 	[Required]
 	public Guid RequestedByUserId { get; set; } = Guid.Empty;

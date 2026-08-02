@@ -18,7 +18,10 @@ namespace Generator.Database.Analyzers
         public static (string CSharpType, ValueType ValueType) GetCSharpType(string mssqlType, string? defineType, bool isNullable = false)
         {
             var (csharpType, valueType) = GetBaseCSharpType(mssqlType, defineType);
-            if (isNullable && valueType != ValueType.String && valueType != ValueType.Vector)
+
+            // 참조형(string·byte[])도 NULL 허용이면 `?`를 붙인다 — 생성 프로젝트가 nullable enable이라
+            // 안 붙이면 기본값 null 대입이 CS8625로 샌다. 널 허용 여부는 SQL이 진실이다.
+            if (isNullable)
             {
                 csharpType = $"{csharpType}?";
             }
@@ -95,7 +98,7 @@ namespace Generator.Database.Analyzers
 
         public static string GetDefaultValue(ValueType valueType, bool isNullable = false)
         {
-            if (isNullable && valueType != ValueType.String && valueType != ValueType.Vector)
+            if (isNullable)
             {
                 return "null";
             }

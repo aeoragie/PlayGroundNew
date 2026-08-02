@@ -17,7 +17,7 @@ public class UspSaveSoccerPlayerStrengthTags(RepositoryBase repository) : Proced
     public override string Procedure => "[dbo].[UspSaveSoccerPlayerStrengthTags]";
 
 	public Guid UserId { get; set; } = Guid.Empty;
-	public string TagsJson { get; set; } = null;
+	public string? TagsJson { get; set; } = null;
 	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {

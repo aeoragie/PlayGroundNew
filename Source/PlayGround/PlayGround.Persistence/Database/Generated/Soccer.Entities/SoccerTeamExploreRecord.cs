@@ -21,22 +21,22 @@ public class SoccerTeamExploreRecord
 	public string TeamName { get; set; } = String.Empty;
 
 	[StringLength(60)]
-	public string TeamType { get; set; } = String.Empty;
+	public string? TeamType { get; set; } = null;
 
 	[StringLength(300)]
-	public string Region { get; set; } = String.Empty;
+	public string? Region { get; set; } = null;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(2048)]
-	public string LogoUrl { get; set; } = String.Empty;
+	public string? LogoUrl { get; set; } = null;
 
 	[StringLength(2048)]
-	public string CoverImageUrl { get; set; } = String.Empty;
+	public string? CoverImageUrl { get; set; } = null;
 
 	[StringLength(100)]
-	public string Slug { get; set; } = String.Empty;
+	public string? Slug { get; set; } = null;
 
 	[Required]
 	public bool IsVerified { get; set; } = false;

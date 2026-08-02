@@ -20,10 +20,10 @@ public class UspSaveSoccerTeamRecruitment(RepositoryBase repository) : Procedure
 	public Guid RecruitmentId { get; set; } = Guid.Empty;
 	public string Title { get; set; } = String.Empty;
 	public string Description { get; set; } = String.Empty;
-	public string ConditionsJson { get; set; } = null;
+	public string? ConditionsJson { get; set; } = null;
 	public DateTime? DeadlineDate { get; set; } = null;
-	public string AgeGroup { get; set; } = null;
-	public string PositionsJson { get; set; } = null;
+	public string? AgeGroup { get; set; } = null;
+	public string? PositionsJson { get; set; } = null;
 	public int? Capacity { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {

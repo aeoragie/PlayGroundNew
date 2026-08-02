@@ -30,15 +30,15 @@ public class SoccerTeamRecruitmentsEntity
 	public string Description { get; set; } = String.Empty;
 
 	[StringLength(600)]
-	public string ConditionsJson { get; set; } = String.Empty;
+	public string? ConditionsJson { get; set; } = null;
 
 	public DateTime? DeadlineDate { get; set; } = null;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(200)]
-	public string PositionsJson { get; set; } = String.Empty;
+	public string? PositionsJson { get; set; } = null;
 
 	public int? Capacity { get; set; } = null;
 

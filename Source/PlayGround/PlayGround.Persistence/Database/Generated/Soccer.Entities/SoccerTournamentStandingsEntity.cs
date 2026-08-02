@@ -26,7 +26,7 @@ public class SoccerTournamentStandingsEntity
 	public string StageType { get; set; } = String.Empty;
 
 	[StringLength(30)]
-	public string GroupName { get; set; } = String.Empty;
+	public string? GroupName { get; set; } = null;
 
 	public Guid? TeamId { get; set; } = null;
 
@@ -66,10 +66,10 @@ public class SoccerTournamentStandingsEntity
 	public string DataSource { get; set; } = String.Empty;
 
 	[StringLength(64)]
-	public string ExternalId { get; set; } = String.Empty;
+	public string? ExternalId { get; set; } = null;
 
 	[StringLength(20)]
-	public string SyncStatus { get; set; } = String.Empty;
+	public string? SyncStatus { get; set; } = null;
 
 	[Required]
 	public DateTime CreatedAt { get; set; } = DateTime.MinValue;

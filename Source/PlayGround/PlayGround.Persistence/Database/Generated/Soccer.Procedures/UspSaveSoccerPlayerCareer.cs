@@ -21,9 +21,9 @@ public class UspSaveSoccerPlayerCareer(RepositoryBase repository) : ProcedureBas
 	public string TeamName { get; set; } = String.Empty;
 	public DateTime StartDate { get; set; } = DateTime.MinValue;
 	public DateTime? EndDate { get; set; } = null;
-	public string Role { get; set; } = null;
-	public string Note { get; set; } = null;
-	public string BadgeLabel { get; set; } = null;
+	public string? Role { get; set; } = null;
+	public string? Note { get; set; } = null;
+	public string? BadgeLabel { get; set; } = null;
 	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {

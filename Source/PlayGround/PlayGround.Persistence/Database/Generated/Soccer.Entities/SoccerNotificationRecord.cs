@@ -26,22 +26,22 @@ public class SoccerNotificationRecord
 	public Guid? TargetPlayerId { get; set; } = null;
 
 	[StringLength(300)]
-	public string ActorName { get; set; } = String.Empty;
+	public string? ActorName { get; set; } = null;
 
 	[StringLength(300)]
-	public string PlayerName { get; set; } = String.Empty;
+	public string? PlayerName { get; set; } = null;
 
 	[StringLength(300)]
-	public string TeamName { get; set; } = String.Empty;
+	public string? TeamName { get; set; } = null;
 
 	[StringLength(300)]
-	public string MetaText { get; set; } = String.Empty;
+	public string? MetaText { get; set; } = null;
 
 	[StringLength(300)]
-	public string SubText { get; set; } = String.Empty;
+	public string? SubText { get; set; } = null;
 
 	[StringLength(20)]
-	public string Relation { get; set; } = String.Empty;
+	public string? Relation { get; set; } = null;
 
 	[Required]
 	public bool IsRead { get; set; } = false;

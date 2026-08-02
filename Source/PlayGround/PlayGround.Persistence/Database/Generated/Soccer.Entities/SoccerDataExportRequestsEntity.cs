@@ -35,10 +35,10 @@ public class SoccerDataExportRequestsEntity
 	public bool IncludeRequests { get; set; } = false;
 
 	[StringLength(64)]
-	public string DownloadToken { get; set; } = String.Empty;
+	public string? DownloadToken { get; set; } = null;
 
 	[StringLength(400)]
-	public string StorageKey { get; set; } = String.Empty;
+	public string? StorageKey { get; set; } = null;
 
 	public long? SizeBytes { get; set; } = null;
 

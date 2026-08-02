@@ -21,7 +21,7 @@ public class UspSaveSoccerTeamCareerOutcome(RepositoryBase repository) : Procedu
 	public int OutcomeYear { get; set; } = 0;
 	public string OutcomeType { get; set; } = String.Empty;
 	public string Title { get; set; } = String.Empty;
-	public string Detail { get; set; } = null;
+	public string? Detail { get; set; } = null;
 	public int PlayerCount { get; set; } = 1;
     public override DynamicParameters BuildParameters()
     {

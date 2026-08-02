@@ -25,19 +25,19 @@ public class SoccerManagedPlayerRecord
 	public string Slug { get; set; } = String.Empty;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	[StringLength(2048)]
-	public string PhotoUrl { get; set; } = String.Empty;
+	public string? PhotoUrl { get; set; } = null;
 
 	[Required]
 	public bool IsGuardianManaged { get; set; } = false;
 
 	[StringLength(10)]
-	public string JerseyNumber { get; set; } = String.Empty;
+	public string? JerseyNumber { get; set; } = null;
 
 	[StringLength(60)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 
 	[Required]
 	[StringLength(300)]

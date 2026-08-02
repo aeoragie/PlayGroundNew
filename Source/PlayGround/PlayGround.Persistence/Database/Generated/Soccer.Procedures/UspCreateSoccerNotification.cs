@@ -20,11 +20,11 @@ public class UspCreateSoccerNotification(RepositoryBase repository) : ProcedureB
 	public string NotificationType { get; set; } = String.Empty;
 	public Guid RefId { get; set; } = Guid.Empty;
 	public Guid? TargetPlayerId { get; set; } = null;
-	public string ActorName { get; set; } = null;
-	public string PlayerName { get; set; } = null;
-	public string TeamName { get; set; } = null;
-	public string MetaText { get; set; } = null;
-	public string SubText { get; set; } = null;
+	public string? ActorName { get; set; } = null;
+	public string? PlayerName { get; set; } = null;
+	public string? TeamName { get; set; } = null;
+	public string? MetaText { get; set; } = null;
+	public string? SubText { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@RecipientUserId", RecipientUserId);

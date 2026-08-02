@@ -19,8 +19,8 @@ public class UspCreateSoccerApplication(RepositoryBase repository) : ProcedureBa
 	public Guid GuardianUserId { get; set; } = Guid.Empty;
 	public Guid RecruitmentId { get; set; } = Guid.Empty;
 	public Guid PlayerId { get; set; } = Guid.Empty;
-	public string DesiredPosition { get; set; } = null;
-	public string Introduction { get; set; } = null;
+	public string? DesiredPosition { get; set; } = null;
+	public string? Introduction { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@GuardianUserId", GuardianUserId);

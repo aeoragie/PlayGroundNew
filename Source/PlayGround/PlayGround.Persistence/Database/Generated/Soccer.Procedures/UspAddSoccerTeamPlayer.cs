@@ -18,10 +18,10 @@ public class UspAddSoccerTeamPlayer(RepositoryBase repository) : ProcedureBase(r
 
 	public Guid ManagerUserId { get; set; } = Guid.Empty;
 	public string Name { get; set; } = String.Empty;
-	public string JerseyNumber { get; set; } = null;
-	public string Position { get; set; } = null;
-	public string Grade { get; set; } = null;
-	public string AgeGroup { get; set; } = null;
+	public string? JerseyNumber { get; set; } = null;
+	public string? Position { get; set; } = null;
+	public string? Grade { get; set; } = null;
+	public string? AgeGroup { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@ManagerUserId", ManagerUserId);

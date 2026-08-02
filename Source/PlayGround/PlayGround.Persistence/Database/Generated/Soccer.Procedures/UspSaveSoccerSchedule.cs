@@ -19,8 +19,8 @@ public class UspSaveSoccerSchedule(RepositoryBase repository) : ProcedureBase(re
 	public Guid ManagerUserId { get; set; } = Guid.Empty;
 	public Guid ScheduleId { get; set; } = Guid.Empty;
 	public string Type { get; set; } = String.Empty;
-	public string Title { get; set; } = null;
-	public string OpponentName { get; set; } = null;
+	public string? Title { get; set; } = null;
+	public string? OpponentName { get; set; } = null;
 	public DateTime StartsAt { get; set; } = DateTime.MinValue;
 	public string Venue { get; set; } = String.Empty;
 	public bool IsPublic { get; set; } = true;

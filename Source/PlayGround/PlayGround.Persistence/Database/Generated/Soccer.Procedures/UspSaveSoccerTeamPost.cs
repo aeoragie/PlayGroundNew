@@ -22,7 +22,7 @@ public class UspSaveSoccerTeamPost(RepositoryBase repository) : ProcedureBase(re
 	public string Title { get; set; } = String.Empty;
 	public string Body { get; set; } = String.Empty;
 	public bool IsPublic { get; set; } = false;
-	public string AuthorName { get; set; } = null;
+	public string? AuthorName { get; set; } = null;
 	public string FilesJson { get; set; } = String.Empty;
     public override DynamicParameters BuildParameters()
     {

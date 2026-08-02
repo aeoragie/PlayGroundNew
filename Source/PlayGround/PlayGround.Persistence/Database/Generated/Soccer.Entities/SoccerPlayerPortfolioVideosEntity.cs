@@ -30,7 +30,7 @@ public class SoccerPlayerPortfolioVideosEntity
 	public string VideoUrl { get; set; } = String.Empty;
 
 	[StringLength(2048)]
-	public string ThumbnailUrl { get; set; } = String.Empty;
+	public string? ThumbnailUrl { get; set; } = null;
 
 	public int? DurationSeconds { get; set; } = null;
 
@@ -38,7 +38,7 @@ public class SoccerPlayerPortfolioVideosEntity
 	public bool IsPrimary { get; set; } = false;
 
 	[StringLength(600)]
-	public string Tags { get; set; } = String.Empty;
+	public string? Tags { get; set; } = null;
 
 	public DateTime? RecordedOn { get; set; } = null;
 

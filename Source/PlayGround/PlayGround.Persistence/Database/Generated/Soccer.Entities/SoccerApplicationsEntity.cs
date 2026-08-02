@@ -28,10 +28,10 @@ public class SoccerApplicationsEntity
 	public Guid GuardianUserId { get; set; } = Guid.Empty;
 
 	[StringLength(20)]
-	public string DesiredPosition { get; set; } = String.Empty;
+	public string? DesiredPosition { get; set; } = null;
 
 	[StringLength(1500)]
-	public string Introduction { get; set; } = String.Empty;
+	public string? Introduction { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]

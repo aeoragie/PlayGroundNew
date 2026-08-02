@@ -17,5 +17,5 @@ public class SoccerPlayerPhotoRecord
 	public Guid PlayerId { get; set; } = Guid.Empty;
 
 	[StringLength(2048)]
-	public string PhotoUrl { get; set; } = String.Empty;
+	public string? PhotoUrl { get; set; } = null;
 }

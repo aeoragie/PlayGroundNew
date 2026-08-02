@@ -66,6 +66,7 @@
     <Folder Include="Seeds" />
     <Folder Include="Migrations" />
     <Folder Include="Functions" />
+    <Folder Include="Seeds\Verification\" />
   </ItemGroup>
   <!-- 빌드 대상 스키마(CREATE 구문) — 글롭이라 파일을 추가하면 자동 포함된다.
        개별 나열은 쓰지 않는다: 손으로 관리하면 빠뜨린 파일이 검증에서 통째로 빠진다. -->

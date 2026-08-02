@@ -34,7 +34,7 @@ public class SoccerTeamChannelsEntity
 	public string Url { get; set; } = String.Empty;
 
 	[StringLength(300)]
-	public string Description { get; set; } = String.Empty;
+	public string? Description { get; set; } = null;
 
 	[Required]
 	public int DisplayOrder { get; set; } = 0;

@@ -33,7 +33,7 @@ public class SoccerMatchVideosEntity
 	public string VideoUrl { get; set; } = String.Empty;
 
 	[StringLength(2048)]
-	public string ThumbnailUrl { get; set; } = String.Empty;
+	public string? ThumbnailUrl { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]

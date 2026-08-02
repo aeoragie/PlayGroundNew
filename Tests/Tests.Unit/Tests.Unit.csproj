@@ -8,6 +8,10 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <!-- xUnit1051(취소 토큰 전달)은 억제한다: 이 프로젝트는 전부 목 기반이라 실제 I/O가 없어
+         취소 응답성이 의미 없고, 호출부 74곳에 토큰을 다는 소음만 남는다.
+         실제 DB·HTTP를 타는 테스트를 넣게 되면 그 프로젝트에서는 규칙을 켜 둔다. -->
+    <NoWarn>$(NoWarn);xUnit1051</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

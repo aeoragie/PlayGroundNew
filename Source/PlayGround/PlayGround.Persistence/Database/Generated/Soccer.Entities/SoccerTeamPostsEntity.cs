@@ -43,7 +43,7 @@ public class SoccerTeamPostsEntity
 	public Guid AuthorId { get; set; } = Guid.Empty;
 
 	[StringLength(300)]
-	public string AuthorName { get; set; } = String.Empty;
+	public string? AuthorName { get; set; } = null;
 
 	public DateTime? EditedAt { get; set; } = null;
 

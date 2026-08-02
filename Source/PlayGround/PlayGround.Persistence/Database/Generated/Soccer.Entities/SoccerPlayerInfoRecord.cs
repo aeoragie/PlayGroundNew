@@ -25,40 +25,40 @@ public class SoccerPlayerInfoRecord
 	public string Slug { get; set; } = String.Empty;
 
 	[StringLength(2048)]
-	public string PhotoUrl { get; set; } = String.Empty;
+	public string? PhotoUrl { get; set; } = null;
 
 	public DateTime? BirthDate { get; set; } = null;
 
 	[StringLength(20)]
-	public string AgeGroup { get; set; } = String.Empty;
+	public string? AgeGroup { get; set; } = null;
 
 	public int? HeightCm { get; set; } = null;
 
 	public int? WeightKg { get; set; } = null;
 
 	[StringLength(20)]
-	public string PreferredFoot { get; set; } = String.Empty;
+	public string? PreferredFoot { get; set; } = null;
 
 	[StringLength(300)]
-	public string SchoolName { get; set; } = String.Empty;
+	public string? SchoolName { get; set; } = null;
 
 	[StringLength(30)]
-	public string GuardianPhone { get; set; } = String.Empty;
+	public string? GuardianPhone { get; set; } = null;
 
 	[Required]
 	public bool IsGuardianManaged { get; set; } = false;
 
 	[StringLength(400)]
-	public string StrengthTags { get; set; } = String.Empty;
+	public string? StrengthTags { get; set; } = null;
 
 	[StringLength(10)]
-	public string JerseyNumber { get; set; } = String.Empty;
+	public string? JerseyNumber { get; set; } = null;
 
 	[StringLength(60)]
-	public string Position { get; set; } = String.Empty;
+	public string? Position { get; set; } = null;
 
 	[StringLength(60)]
-	public string Grade { get; set; } = String.Empty;
+	public string? Grade { get; set; } = null;
 
 	[Required]
 	[StringLength(300)]

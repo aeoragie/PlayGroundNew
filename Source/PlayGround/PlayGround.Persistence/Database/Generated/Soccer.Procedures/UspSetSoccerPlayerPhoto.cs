@@ -18,7 +18,7 @@ public class UspSetSoccerPlayerPhoto(RepositoryBase repository) : ProcedureBase(
 
 	public Guid UserId { get; set; } = Guid.Empty;
 	public Guid PlayerId { get; set; } = Guid.Empty;
-	public string PhotoUrl { get; set; } = null;
+	public string? PhotoUrl { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@UserId", UserId);

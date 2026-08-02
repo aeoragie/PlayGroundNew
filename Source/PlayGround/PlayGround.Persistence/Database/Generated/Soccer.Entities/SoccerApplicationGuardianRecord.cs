@@ -23,7 +23,7 @@ public class SoccerApplicationGuardianRecord
 	public Guid PlayerId { get; set; } = Guid.Empty;
 
 	[StringLength(20)]
-	public string DesiredPosition { get; set; } = String.Empty;
+	public string? DesiredPosition { get; set; } = null;
 
 	[Required]
 	[StringLength(20)]
@@ -47,5 +47,5 @@ public class SoccerApplicationGuardianRecord
 	public string TeamName { get; set; } = String.Empty;
 
 	[StringLength(100)]
-	public string Slug { get; set; } = String.Empty;
+	public string? Slug { get; set; } = null;
 }

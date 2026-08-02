@@ -52,6 +52,13 @@ namespace PlayGround.Persistence.Repositories
                 return Result<string>.Error(ErrorCode.OperationFailed, "no row returned");
             }
 
+            // 슬러그는 팀 생성의 반환값이자 공개 홈 주소 — 없으면 후속 이동이 불가능하니 실패로 본다
+            if (string.IsNullOrEmpty(row.Slug))
+            {
+                Logger.ErrorWith("Team created without slug", ("TeamId", row.TeamId));
+                return Result<string>.Error(ErrorCode.OperationFailed, "slug is empty");
+            }
+
             Logger.InfoWith("Team created", ("TeamId", row.TeamId), ("Slug", row.Slug));
             return Result<string>.Success(row.Slug);
         }
@@ -841,13 +848,15 @@ namespace PlayGround.Persistence.Repositories
             var response = new TeamExploreResponse
             {
                 Teams = teams
+                    // 슬러그가 없으면 팀 홈으로 갈 수 없다 — 탐색 목록에 넣으면 죽은 카드가 된다
+                    .Where(t => !string.IsNullOrEmpty(t.Slug))
                     .Select(t =>
                     {
                         (int wins, int draws, int losses) = records.GetValueOrDefault(t.TeamId);
                         return new TeamExploreItemDto
                         {
                             TeamName = t.TeamName,
-                            Slug = t.Slug,
+                            Slug = t.Slug!,
                             TeamType = NullIfEmpty(t.TeamType),
                             Region = NullIfEmpty(t.Region),
                             AgeGroup = NullIfEmpty(t.AgeGroup),

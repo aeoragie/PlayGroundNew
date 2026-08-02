@@ -18,8 +18,8 @@ public class UspUpdateSoccerDataExportStatus(RepositoryBase repository) : Proced
 
 	public Guid RequestId { get; set; } = Guid.Empty;
 	public string Status { get; set; } = String.Empty;
-	public string DownloadToken { get; set; } = null;
-	public string StorageKey { get; set; } = null;
+	public string? DownloadToken { get; set; } = null;
+	public string? StorageKey { get; set; } = null;
 	public long? SizeBytes { get; set; } = null;
 	public DateTime? ExpiresAt { get; set; } = null;
     public override DynamicParameters BuildParameters()

@@ -19,9 +19,9 @@ public class UspCreateSoccerRecordCorrection(RepositoryBase repository) : Proced
 	public Guid ManagerUserId { get; set; } = Guid.Empty;
 	public Guid MatchId { get; set; } = Guid.Empty;
 	public string FieldType { get; set; } = String.Empty;
-	public string CurrentValue { get; set; } = null;
-	public string RequestedValue { get; set; } = null;
-	public string Description { get; set; } = null;
+	public string? CurrentValue { get; set; } = null;
+	public string? RequestedValue { get; set; } = null;
+	public string? Description { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@ManagerUserId", ManagerUserId);

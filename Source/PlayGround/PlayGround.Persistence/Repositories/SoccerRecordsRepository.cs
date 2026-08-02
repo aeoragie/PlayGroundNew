@@ -92,7 +92,7 @@ namespace PlayGround.Persistence.Repositories
             // ⑧ 등장 팀의 공개 슬러그 (TeamId·Slug만 채워진 부분 매핑) — 팀명 → 팀 홈 링크
             Dictionary<Guid, string> slugs = (await reader.ReadAsync<SoccerTeamsEntity>())
                 .Where(t => !string.IsNullOrEmpty(t.Slug))
-                .ToDictionary(t => t.TeamId, t => t.Slug);
+                .ToDictionary(t => t.TeamId, t => t.Slug!);
             string? SlugOf(Guid? teamId) => teamId is not null && slugs.TryGetValue(teamId.Value, out string? slug) ? slug : null;
 
             // ⑨ 상세 보유 경기 (이벤트/출전 존재) — 행 확장 셰브론 노출 대상
