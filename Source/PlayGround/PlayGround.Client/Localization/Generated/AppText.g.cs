@@ -2628,6 +2628,44 @@ namespace PlayGround.Client.Localization
             public static string TryLaterPeriod => Loc.Get("Shared.TryLaterPeriod");
             /// <summary>다시 시도</summary>
             public static string RetryButton => Loc.Get("Shared.RetryButton");
+            /// <summary>알림을 불러오지 못했어요. 다시 열어 주세요.</summary>
+            public static string PanelLoadFailed => Loc.Get("Shared.PanelLoadFailed");
+            /// <summary>아직 알림이 없어요.</summary>
+            public static string PanelEmpty => Loc.Get("Shared.PanelEmpty");
+            /// <summary>프로필 연결 요청</summary>
+            public static string ClaimRequestTitle => Loc.Get("Shared.ClaimRequestTitle");
+            /// <summary>이 </summary>
+            public static string ClaimRequestBodyMid => Loc.Get("Shared.ClaimRequestBodyMid");
+            /// <summary> 프로필 연결을 요청했어요</summary>
+            public static string ClaimRequestBodySuffix => Loc.Get("Shared.ClaimRequestBodySuffix");
+            /// <summary>초대코드 {0} 사용 · {1}</summary>
+            public static string InviteCodeUsed(object arg0, object arg1) => Loc.Format("Shared.InviteCodeUsed", arg0, arg1);
+            /// <summary>승인</summary>
+            public static string Approve => Loc.Get("Shared.Approve");
+            /// <summary>거절</summary>
+            public static string Reject => Loc.Get("Shared.Reject");
+            /// <summary>승인하면 프로필 관리 권한이 보호자에게 이전돼요. 이후 팀은 소속·등번호만 관리해요.</summary>
+            public static string ApproveFoot => Loc.Get("Shared.ApproveFoot");
+            /// <summary>승인 완료 — {0} 선수가 Claimed 상태가 됐어요</summary>
+            public static string ApprovedBox(object arg0) => Loc.Format("Shared.ApprovedBox", arg0);
+            /// <summary>거절한 요청이에요</summary>
+            public static string RejectedBox => Loc.Get("Shared.RejectedBox");
+            /// <summary>선수단 초대</summary>
+            public static string TeamInviteTitle => Loc.Get("Shared.TeamInviteTitle");
+            /// <summary>이 </summary>
+            public static string TeamInviteBodyMid => Loc.Get("Shared.TeamInviteBodyMid");
+            /// <summary>을 선수단에 초대했어요</summary>
+            public static string TeamInviteBodySuffix => Loc.Get("Shared.TeamInviteBodySuffix");
+            /// <summary>선수단에 합류했어요</summary>
+            public static string JoinedBox => Loc.Get("Shared.JoinedBox");
+            /// <summary>초대 확인</summary>
+            public static string ConfirmInvite => Loc.Get("Shared.ConfirmInvite");
+            /// <summary>확인하면 {0} 선수가 {1} 선수단에 합류해요.</summary>
+            public static string ConfirmInviteFoot(object arg0, object arg1) => Loc.Format("Shared.ConfirmInviteFoot", arg0, arg1);
+            /// <summary>에이전트</summary>
+            public static string AgentBadge => Loc.Get("Shared.AgentBadge");
+            /// <summary>전체 보기</summary>
+            public static string ViewAll => Loc.Get("Shared.ViewAll");
         }
 
         public static class Team

@@ -15,7 +15,7 @@
 <div class="@Css.Notification.Panel">
     <div class="@Css.Notification.Head">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-        <span class="@Css.Notification.HeadTitle">알림</span>
+        <span class="@Css.Notification.HeadTitle">@AppText.Shared.Notifications</span>
         @if (Data is { UnreadCount: > 0 })
         {
             <span class="@Css.Notification.HeadCount">@Data.UnreadCount</span>
@@ -29,7 +29,7 @@
 
     @if (Data is null)
     {
-        <span class="@Css.Notification.EmptyText">알림을 불러오지 못했어요. 다시 열어 주세요.</span>
+        <span class="@Css.Notification.EmptyText">@AppText.Shared.PanelLoadFailed</span>
     }
     else
     {
@@ -38,7 +38,7 @@
         {
             <div class="@Css.Notification.ChipRow">
                 <button type="button" class="@(mGroup is null ? Css.Notification.ChipActive : Css.Notification.Chip)"
-                        @onclick="() => mGroup = null">전체 @Data.Items.Count</button>
+                        @onclick="() => mGroup = null">@AppText.Shared.All @Data.Items.Count</button>
                 @foreach ((string group, int count) in Groups)
                 {
                     string value = group;
@@ -51,7 +51,7 @@
         <div class="@Css.Notification.List">
             @if (Visible.Count == 0)
             {
-                <span class="@Css.Notification.EmptyText">아직 알림이 없어요.</span>
+                <span class="@Css.Notification.EmptyText">@AppText.Shared.PanelEmpty</span>
             }
             @foreach (NotificationDto item in Visible)
             {
@@ -64,31 +64,31 @@
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>
                             </span>
                             <span class="flex flex-col gap-[3px] flex-1 min-w-0">
-                                <span class="@Css.Notification.ActionTitle">프로필 연결 요청</span>
-                                <span class="@Css.Notification.ActionBody"><b>@item.ActorName 님(@RelationLabel(item.Relation))</b>이 <b>@item.PlayerName</b>@(item.MetaText is not null ? $"({item.MetaText})" : "") 프로필 연결을 요청했어요</span>
-                                <span class="@Css.Notification.ActionMeta">초대코드 @item.SubText 사용 · @TimeAgo(item.CreatedAt)</span>
+                                <span class="@Css.Notification.ActionTitle">@AppText.Shared.ClaimRequestTitle</span>
+                                <span class="@Css.Notification.ActionBody"><b>@item.ActorName 님(@RelationLabel(item.Relation))</b>@AppText.Shared.ClaimRequestBodyMid<b>@item.PlayerName</b>@(item.MetaText is not null ? $"({item.MetaText})" : "")@AppText.Shared.ClaimRequestBodySuffix</span>
+                                <span class="@Css.Notification.ActionMeta">@AppText.Shared.InviteCodeUsed(item.SubText, TimeAgo(item.CreatedAt))</span>
                             </span>
                         </div>
                         @if (item.RequestStatus == "Pending")
                         {
                             <div class="flex gap-2">
                                 <button type="button" class="@Css.Notification.ApproveButton" disabled="@mBusy"
-                                        @onclick="() => ReviewAsync(item, true)">승인</button>
+                                        @onclick="() => ReviewAsync(item, true)">@AppText.Shared.Approve</button>
                                 <button type="button" class="@Css.Notification.RejectButton" disabled="@mBusy"
-                                        @onclick="() => ReviewAsync(item, false)">거절</button>
+                                        @onclick="() => ReviewAsync(item, false)">@AppText.Shared.Reject</button>
                             </div>
-                            <span class="@Css.Notification.ActionFoot">승인하면 프로필 관리 권한이 보호자에게 이전돼요. 이후 팀은 소속·등번호만 관리해요.</span>
+                            <span class="@Css.Notification.ActionFoot">@AppText.Shared.ApproveFoot</span>
                         }
                         else if (item.RequestStatus == "Approved")
                         {
                             <div class="@Css.Notification.DoneBox">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M4.5 12.5l5 5 10-11"></path></svg>
-                                <span>승인 완료 — @item.PlayerName 선수가 Claimed 상태가 됐어요</span>
+                                <span>@AppText.Shared.ApprovedBox(item.PlayerName)</span>
                             </div>
                         }
                         else
                         {
-                            <div class="@Css.Notification.RejectedBox">거절한 요청이에요</div>
+                            <div class="@Css.Notification.RejectedBox">@AppText.Shared.RejectedBox</div>
                         }
                     </div>
                 }
@@ -101,8 +101,8 @@
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>
                             </span>
                             <span class="flex flex-col gap-[3px] flex-1 min-w-0">
-                                <span class="@Css.Notification.ActionTitle">선수단 초대</span>
-                                <span class="@Css.Notification.ActionBody"><b>@item.TeamName</b>이 <b>@item.PlayerName</b>을 선수단에 초대했어요</span>
+                                <span class="@Css.Notification.ActionTitle">@AppText.Shared.TeamInviteTitle</span>
+                                <span class="@Css.Notification.ActionBody"><b>@item.TeamName</b>@AppText.Shared.TeamInviteBodyMid<b>@item.PlayerName</b>@AppText.Shared.TeamInviteBodySuffix</span>
                                 <span class="@Css.Notification.ActionMeta">@TimeAgo(item.CreatedAt)</span>
                             </span>
                         </div>
@@ -110,16 +110,16 @@
                         {
                             <div class="@Css.Notification.DoneBox">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M4.5 12.5l5 5 10-11"></path></svg>
-                                <span>선수단에 합류했어요</span>
+                                <span>@AppText.Shared.JoinedBox</span>
                             </div>
                         }
                         else
                         {
                             <div class="flex gap-2">
                                 <button type="button" class="@Css.Notification.ApproveButton" disabled="@mBusy"
-                                        @onclick="() => ConfirmInviteAsync(item)">초대 확인</button>
+                                        @onclick="() => ConfirmInviteAsync(item)">@AppText.Shared.ConfirmInvite</button>
                             </div>
-                            <span class="@Css.Notification.ActionFoot">확인하면 @item.PlayerName 선수가 @item.TeamName 선수단에 합류해요.</span>
+                            <span class="@Css.Notification.ActionFoot">@AppText.Shared.ConfirmInviteFoot(item.PlayerName, item.TeamName)</span>
                         }
                     </div>
                 }
@@ -135,7 +135,7 @@
                                 @if (NotificationPresenter.IsAgentType(item))
                                 {
                                     @* 에이전트 관련 알림엔 violet 뱃지 병기 (Design.ClaimFlow 알림 절) *@
-                                    <span class="@Css.Notification.AgentBadge">에이전트</span>
+                                    <span class="@Css.Notification.AgentBadge">@AppText.Shared.AgentBadge</span>
                                 }
                             </span>
                             <span class="@Css.Notification.MoveBody">@MoveBody(item)</span>
@@ -149,7 +149,7 @@
 
         @* 전체 보기 → 알림 센터 페이지 (누적·딥링크·검색은 페이지가 받는다 — DECISION.NOTIFICATIONCENTER) *@
         <button type="button" class="@Css.Notification.SeeAllRow" @onclick="OpenAllAsync">
-            <span>전체 보기</span>
+            <span>@AppText.Shared.ViewAll</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
         </button>
     }
@@ -194,7 +194,7 @@
 
         if (reviewed is null)
         {
-            Toasts.ShowError("요청을 처리하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Shared.NotificationFailedToast);
             return;
         }
 
@@ -210,11 +210,11 @@
 
         if (!ok)
         {
-            Toasts.ShowError("초대를 확인하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Shared.InviteFailedToast);
             return;
         }
 
-        Toasts.ShowSuccess($"{item.PlayerName} 선수가 {item.TeamName} 선수단에 합류했어요.");
+        Toasts.ShowSuccess(AppText.Shared.JoinedToast(item.PlayerName, item.TeamName));
         await OnChanged.InvokeAsync();
     }
 
