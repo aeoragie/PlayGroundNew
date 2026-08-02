@@ -11,10 +11,12 @@ set -euo pipefail
 
 log() { echo "[setup] $*"; }
 
-#.// 시간대 — 개발 PC(KST)와 맞춘다.
-# 서버측 DateTime.Now가 여러 곳에 있어 UTC로 두면 일정·시즌 판정이 9시간 어긋난다.
-log "시간대 Asia/Seoul"
-timedatectl set-timezone Asia/Seoul
+#.// 시간대 — UTC (2026-08-02 결정).
+# 서버 시간대로 애플리케이션 로직을 맞추지 않는다. 호스트 설정에 의존하는 코드는
+# 어디서 도는지에 따라 결과가 달라지고, 그 사실이 코드에 드러나지 않는다.
+# 한국 시각은 코드·DB의 명시적 래퍼가 책임진다(Docs/Development/ReleasePlan.md "시각 기준").
+log "시간대 UTC"
+timedatectl set-timezone UTC
 
 log "기본 패키지"
 export DEBIAN_FRONTEND=noninteractive

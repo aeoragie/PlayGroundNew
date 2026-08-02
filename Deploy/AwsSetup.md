@@ -160,7 +160,7 @@ systemctl status mssql-server --no-pager   # SQL Server
 systemctl status redis-server --no-pager   # Redis
 systemctl status nginx --no-pager          # Nginx
 dotnet --list-runtimes | grep AspNetCore   # .NET 런타임
-timedatectl | grep "Time zone"             # Asia/Seoul 이어야 한다
+timedatectl | grep "Time zone"             # UTC 여야 한다
 ```
 
 `active (running)`이면 정상이다. **`q`를 눌러 빠져나온다.**

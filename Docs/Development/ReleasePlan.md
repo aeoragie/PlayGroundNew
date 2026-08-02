@@ -126,6 +126,7 @@ S1~S7 전체 자동화는 비용이 크다. **권한 경계(S6)·빈 계정 스�
 | H0 | Redis 배선 | ✅ **구현됨** (2026-08-02) | ElastiCache 프로비저닝 + 커넥션 주입 | D1 ✅ |
 | H5 | OG 이미지 폰트 | Linux 네이티브 패키지는 참조됨, 한글은 **시스템 폰트 의존** | 컨테이너/호스트에 한글 폰트 설치 확인 | D1 |
 | H6 | 보안 헤더·CORS·레이트리밋 | 미점검 | 배포 전 1회 점검 | D4 |
+| H7 | **시각 기준** | 호스트 TZ에 암묵 의존 | 래퍼로 명시화 + 직접 호출 금지 (아래) | — |
 
 > **H3·H4는 D1~D4 없이도 지금 할 수 있다** — R2와 병행 가능.
 
@@ -152,6 +153,33 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 
 **스테이징에 남은 것**: ElastiCache 엔드포인트를 `RedisConfig__Connections__0__ConnectionString`으로
 주입하고 위 5개를 한 번 더 확인. 역할 승격 직후 새 토큰이 정상 동작하는지도 함께 본다.
+
+### H7. 시각 기준 — 서버는 UTC, 시각은 래퍼가 책임진다 (2026-08-02 결정)
+
+**서버 시간대를 UTC로 고정한다** (`ec2-setup.sh`). 호스트 설정으로 로직을 맞추지 않는다 —
+그렇게 하면 "어느 장비에서 도는가"에 따라 결과가 달라지고, 그 의존이 코드에 드러나지 않는다.
+
+**대신 시각은 명시적 래퍼가 책임진다. 하위 라이브러리의 직접 호출을 금지한다.**
+
+| 층 | 금지 | 대신 |
+|---|---|---|
+| C# | `DateTime.Now` · `DateTime.Today` · `DateTime.UtcNow` 직접 호출 | 공용 라이브러리의 한국 시각 래퍼 |
+| SQL | **MSSQL 내장 순수 함수 직접 사용** (`GETUTCDATE()`·`GETDATE()`·`SYSDATETIME()`) | 이를 감싸 한국 시각을 돌려주는 자체 함수. **모든 프로시저가 이것만 호출** |
+
+착수 시 정리할 것:
+
+- **적용 대상 범위** — 현재 C# 직접 호출 7곳(`DataExportCommand`·`SoccerDashboardHubCommand`·
+  `SoccerScheduleCommand`·`SoccerTeamCareerOutcomeCommand`·`SoccerTeamInfoUpdateCommand`·
+  `SoccerTeamMatchResultCommand`·`SoccerTeamRecruitmentCommand`), SQL `GETUTCDATE()` **201곳**.
+- **기존 데이터** — 지금 감사 컬럼에는 `GETUTCDATE()`가 넣은 **UTC 값**이 들어 있다.
+  함수가 한국 시각을 돌려주게 바꾸면 **같은 컬럼에 기준이 다른 두 값이 섞인다.**
+  전환 시점의 기존 행을 +9h 보정할지 결정해야 한다.
+- **금지의 강제 수단** — 규칙만으로는 새 코드에서 다시 샌다.
+  C#는 `Tests.Unit`의 배치 가드(한글 리터럴 가드와 같은 방식)로, SQL은 프로시저 텍스트 스캔으로
+  자동 검출하는 것이 이 프로젝트의 기존 패턴이다(`Docs/Development/Testing.md`).
+
+> **그때까지는 위 7곳이 UTC 서버에서 9시간 어긋난다** — 일정 지남 판정·마감일·시즌 연도.
+> 알고 받아들인 상태이며, 사용자 데이터가 쌓이기 전에 H7을 끝내는 것이 목표다.
 
 ---
 
