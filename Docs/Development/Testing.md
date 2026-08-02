@@ -1,0 +1,156 @@
+# 테스트 안전망 — 구조와 작업 규칙
+
+> 대상: `Tests.Unit` / `Tests.Integration` / `Tests.Infrastructure` (xunit.v3 · Moq · FluentAssertions).
+> 2026-08-02 durable 스위트로 전환. 그전까지 검증은 기능별 폐기용 스크립트(`shot-*`/`api-*`,
+> git 히스토리 `f19ad41^`에 보존)로 1회성이었고 회귀 안전망이 없었다.
+
+## 1. 원칙
+
+1. **DB 없이 전부 돈다.** clone 즉시 `dotnet test`가 통과해야 한다 — 목킹으로 대체하고,
+   실제 DB·브라우저가 필요한 검증은 이 스위트에 넣지 않는다.
+2. **문구가 아니라 규칙을 고정한다.** SPEC 카피가 바뀌면 리소스만 고치면 되도록, 표시 로직
+   테스트는 구조·판정을 검증하고 카피 자체는 리소스 정합성 테스트가 본다.
+3. **"왜 이 규칙인가"를 테스트가 말한다.** 테스트 이름과 주석이 설계 결정을 가리킨다
+   (예: 심사는 주최측의 몫 · 승인형 알림은 항상 켜짐 · 친선은 집계에서 제외).
+4. **보안·프라이버시 판정은 반드시 덮는다.** 사유를 구분하지 않는 실패(NotFound/Forbidden),
+   저장 화이트리스트, 호스트 허용 목록이 여기 해당한다.
+
+## 2. 프로젝트별 역할
+
+| 프로젝트 | 대상 | 외부 의존 |
+|---|---|---|
+| `Tests.Unit` | Domain 규칙 · Application 유즈케이스(Moq) · Client 순수 로직 | 없음 |
+| `Tests.Integration` | Server 서비스(JWT 등) | 없음 |
+| `Tests.Infrastructure` | Core.Infrastructure(설정 바인딩·액터·로깅) | 없음(현재) |
+
+`Tests.Unit`은 **PlayGround.Client를 참조한다** — 표시 파생·조사 해석 같은 순수 로직이 거기 있기
+때문이다. UI 렌더링(bUnit 등)은 참조하지 않는다.
+
+## 3. Tests.Unit 구성
+
+```
+Tests/Tests.Unit/
+├── Core/          Result 모나드 · Shared 원시 타입
+├── Domain/        순수 규칙 — 파싱 가드 · 기본값 · 링크 해석 · 배치 규칙
+├── Application/   유즈케이스 가드 — 인가 · 입력 검증 · 정규화 · 저장소 결과 해석
+└── Client/        표시 파생 · 조사 해석 · i18n 리소스 정합성
+```
+
+### Domain
+
+| 파일 | 무엇을 지키나 |
+|---|---|
+| `YouTubeVideoLinkTests` | 호스트 화이트리스트·11자 ID·경로 조작 차단. 클라이언트 미리보기와 서버 저장이 **같은 규칙**을 써야 한다 |
+| `SoccerEnumRulesTests` | 숫자 문자열 enum 파싱 차단 · 파싱 실패 시 기본값 · 공개/알림 기본값이 SPEC과 일치 · 승인형은 알림 설정 enum에 없음 |
+| `DisplayStringPlacementTests` | **Domain·Contracts에 표시 문자열 없음** (아래 §5) |
+
+### Application
+
+| 파일 | 무엇을 지키나 |
+|---|---|
+| `SoccerRecordCorrectionCommandTests` | 남의 경기·친선·중복을 **구분하지 않고** Forbidden · 취소는 접수 상태만 · 값 정규화/절단 · **승인/반려 메서드가 생기지 않음**(설계 결정 7) |
+| `SoccerPlayerStrengthTagsCommandTests` | 5개·12자 상한 · 중복/해시 정규화 · 연락처·링크 차단 · 빈 목록은 NULL |
+| `SoccerTeamMatchResultCommandTests` | 점수 0~99 · 미래 경기 거부(하루 여유) · 보호자 알림이 수신 설정을 존중 · **알림 실패가 저장을 되돌리지 않음** |
+| `SoccerClaimFlowCommandTests` | 코드 정규화(대문자·4~12자) · 관계 화이트리스트 · 무효 코드/연결 불가를 사유 구분 없이 처리 |
+| `SettingsGuardCommandTests` | 알림 설정·프로필 공개 항목의 **저장 화이트리스트** — 승인형은 어떤 이름으로도 저장 불가 |
+| `LoginBySocialCommandTests` · `SoccerLandingContentsCommandTests` | 기존 |
+
+### Client
+
+| 파일 | 무엇을 지키나 |
+|---|---|
+| `LocalizationResourceTests` | **생성물 최신성**(아래 §4) · ko↔ja 키/플레이스홀더 일치 · ja에 조사 모디파이어 없음 |
+| `KoreanParticleTests` | 받침 판정(한글·숫자·영문) · `으로/로`의 ㄹ 예외 · 인자 부족 시 원문 유지 |
+| `NotificationPresenterTests` | 액션 판정(처리 필요 카운트) · 딥링크 · 에이전트 유형 식별(flag OFF 숨김) · 상대 시각 구간 |
+| `RecordsFormattingTests` | PK 표기 · 승자 판정(정규시간 우선) · 라운드/스테이지 라벨 · 미종료 처리 |
+| `SoccerMatchSegmentTests` | 공식/친선 필터가 **전체를 빠짐없이 배타적으로** 나눔 · URL 왕복 |
+
+## 4. i18n 생성물 최신성 — 이 스위트의 핵심
+
+생성기(`Generator.Localization`)는 **수동 실행**이라, JSON만 고치고 재생성을 잊으면
+화면에 키 문자열이 그대로 뜬다. **빌드는 통과하므로 사람이 볼 때까지 모른다.**
+
+`LocalizationResourceTests`가 디스크의 `wwwroot/i18n`을 실제 `JsonLocalizer`로 읽어
+`AppText`에 물린 뒤, 생성된 접근자를 **전부 리플렉션으로 호출**해 확인한다.
+
+- 키가 그대로 반환되면 → 생성물이 리소스와 어긋남
+- `{0}`이 남아 있으면 → 인자 개수 불일치·`FormatException` 폴백
+- `{0:이/가}`가 남아 있으면 → 조사 해석 실패
+
+`LocalizationFixture`(컬렉션 픽스처)가 로드를 담당한다. `AppText.Loc`은 **정적 상태**라
+같은 컬렉션으로 묶어 병렬 실행을 직렬화한다. 카피를 검증하는 Client 테스트는
+`[Collection(LocalizationCollection.Name)]`을 붙인다 — 안 붙이면 `AppText`가
+`NullLocalizer`라 키 문자열이 나와 테스트가 아무것도 검증하지 못한다.
+
+Client의 `internal` 주입점(`AppText.Loc`·`AppText.Domains`)은 csproj의
+`<InternalsVisibleTo Include="PlayGround.Tests.Unit" />`로 열어 두었다.
+
+## 5. 표시 문자열 배치 가드
+
+`DisplayStringPlacementTests`가 `PlayGround.Domain`·`PlayGround.Contracts`의 `.cs`를 훑어
+**문자열 리터럴 안의 한글**을 찾는다(주석은 제외). 발견되면 실패한다.
+
+Domain은 Client를 참조할 수 없어 리소스에 닿지 못한다 — 여기에 라벨이 생기면 그 문구만
+영원히 번역되지 않는다. 실제로 `SoccerCareerOutcomeType.ToTagLabel()`,
+`SoccerCorrectionField.ToLabel()`이 i18n 이관에서 누락된 채 남아 있었고, Client가 직접
+호출하고 있었다. 표시 라벨은 `Client/Models/SoccerDomainEnumLabels.cs`로 옮겨
+`AppText.Enums`를 거치게 했다.
+
+> **Application은 이 가드의 대상이 아니다.** 이메일·알림 본문 등 **서버 발신 문자열**이
+> 남아 있고, 이는 Client 전용인 현재 i18n 구조 밖이다(Localization.md §10 미착수 항목).
+
+## 6. 작업 규칙
+
+### 새 유즈케이스를 만들 때
+
+가드가 있으면 테스트도 함께 만든다. 최소 4종:
+
+1. 인가 실패(빈 사용자 → Unauthorized)
+2. 입력 검증 경계(상한/하한 **양쪽** — 99는 통과, 100은 거부)
+3. 정규화 결과(공백 제거·절단·enum 이름화)를 **저장소에 전달된 값으로** 확인
+4. 저장소가 `null`/`false`를 줄 때의 해석(Forbidden인지 NotFound인지)
+
+### 새 리소스 키를 추가할 때
+
+`LocalizationResourceTests`가 자동으로 덮는다 — 생성기만 돌리면 된다.
+ja를 빼먹거나 플레이스홀더가 어긋나면 테스트가 잡는다.
+
+### 테스트를 믿기 전에
+
+**새로 만든 테스트는 일부러 깨뜨려 본다.** 통과만 확인하면 아무것도 검증하지 않는
+테스트를 통과로 착각한다(`LocalizationResourceTests`도 리소스 키를 개명해 실패를 확인한 뒤
+확정했다). 리소스·소스를 잠깐 고쳐 실패를 보고 되돌린다.
+
+### 이름 규칙
+
+- 클래스: `{대상}Tests`
+- 메서드: `{메서드}_{조건}_{기대}` 한글 (예: `ExecuteAsync_빈_사용자는_Unauthorized다`)
+  — 실패 목록이 곧 규칙 목록이 된다
+- 섹션 구분은 `//.// 섹션명` (CLAUDE.md 컨벤션)
+
+## 7. 실행
+
+```bash
+dotnet test PlayGround.slnx                      # 전체 (sqlproj 2건 오류는 SSDT 미설치 — 무관)
+dotnet test Tests/Tests.Unit/Tests.Unit.csproj   # 단위만
+```
+
+특정 클래스만 돌릴 때는 테스트 exe를 직접 부른다 (실패 상세가 콘솔에 그대로 나온다 —
+`dotnet test`의 로그 파일은 UTF-16이라 읽기 나쁘다).
+
+```bash
+cd Binary/Debug/Tests.Unit
+./PlayGround.Tests.Unit.exe -class "*LocalizationResourceTests"
+./PlayGround.Tests.Unit.exe -method "*조사*"
+```
+
+현재: **Tests.Unit 410 · Tests.Integration 5 · Tests.Infrastructure 17**.
+
+## 8. 미착수
+
+- **실제 DB 프로시저 계약** — 컬럼 추가/개명 같은 SQL↔C# 어긋남은 지금 못 잡는다.
+  `Seeds/Verification*` 기반으로 `Tests.Infrastructure`에 넣되, DB 미연결 환경에서는
+  Skip 처리가 필요하다.
+- **API 엔드포인트 통합** — `WebApplicationFactory`로 컨트롤러→유즈케이스→DB 왕복.
+- **E2E 저니** — `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7)는 현재 수동 검수.
+  자동화한다면 Playwright(헤드리스 Edge 연결은 환경 의존적 — CLAUDE.md 반복 함정 참조).

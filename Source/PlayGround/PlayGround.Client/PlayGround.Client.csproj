@@ -16,6 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- 로컬라이저 주입점(AppText.Loc)·도메인 목록이 internal이라 테스트에 열어 준다 -->
+    <InternalsVisibleTo Include="PlayGround.Tests.Unit" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Core\Shared\Core.Shared.csproj" />
     <ProjectReference Include="..\PlayGround.Contracts\PlayGround.Contracts.csproj" />
     <ProjectReference Include="..\PlayGround.Domain\PlayGround.Domain.csproj" />

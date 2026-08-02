@@ -25,13 +25,20 @@
 > (2026-08-01 CLAUDE.md에서 이관). 특정 기능이 "왜 이렇게 됐나"를 알아야 하면 거기서 검색한다.
 > 이 파일에는 **영속 규칙 + 현재 상태 + 반복 함정 + 미해결**만 압축해 남긴다.
 
-### 현재 착수 — durable 테스트 안전망
+### durable 테스트 안전망 (2026-08-02 구축)
 
-지금까지 검증은 기능별 폐기용 스크립트(`shot-*`/`api-*`, 2026-08-01 제거 — git 히스토리
-`f19ad41^`에 보존)로 1회성이었고 회귀 안전망이 없다. durable xUnit 스위트로 전환 중.
-기존 테스트: Tests.Unit 29 · Tests.Integration 5 · Tests.Infrastructure 17(xunit.v3·Moq·
-FluentAssertions). 통합 테스트 시드 자산 = `Source/Database/Soccer/Seeds/Verification*.Seed.sql`.
-E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7).
+폐기용 스크립트(`shot-*`/`api-*`, 제거됨 — git 히스토리 `f19ad41^`) 대신 xUnit 스위트로 전환.
+**Tests.Unit 410 · Tests.Integration 5 · Tests.Infrastructure 17** — 전부 DB 없이 돈다
+(clone 즉시 `dotnet test` 통과). 구조·작업 규칙·미착수는 **`Docs/Development/Testing.md`**.
+
+핵심 3가지: ① i18n **생성물 최신성**(생성기가 수동 실행이라 빌드로는 못 잡는다 — 리플렉션으로
+전 접근자 호출) ② **표시 문자열 배치 가드**(Domain·Contracts에 한글 리터럴 금지)
+③ 유즈케이스 가드(인가·경계·정규화·저장소 결과 해석).
+Tests.Unit이 **PlayGround.Client를 참조**한다(표시 파생·조사 해석이 거기 있다).
+
+미착수: 실제 DB 프로시저 계약 · API 엔드포인트 통합 · E2E 저니 자동화.
+통합 테스트 시드 자산 = `Source/Database/Soccer/Seeds/Verification*.Seed.sql`.
+E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 검수).
 
 ### 미착수 큰 덩어리 (여러 "빈 데이터·flag off"의 원천)
 
@@ -246,9 +253,11 @@ PlayGroundNew/
 
 ### Tests.* — 테스트
 
-- **Tests.Unit**: 외부 의존 없는 순수 단위 테스트 (Domain, Application, Core.Shared).
+- **Tests.Unit**: 외부 의존 없는 순수 단위 테스트 (Domain, Application, Core.Shared, **Client 순수 로직**).
 - **Tests.Integration**: API 엔드포인트 통합 테스트 (Server 참조).
 - **Tests.Infrastructure**: 실제 DB/Redis가 필요한 테스트.
+- 상세는 `Docs/Development/Testing.md` — 새 유즈케이스에 붙일 최소 4종 가드, 리소스 테스트가
+  자동으로 덮는 범위, **새 테스트는 일부러 깨뜨려 확인**하는 규칙.
 
 ### 의존성 그래프
 
