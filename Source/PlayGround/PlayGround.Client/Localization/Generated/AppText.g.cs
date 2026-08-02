@@ -976,6 +976,148 @@ namespace PlayGround.Client.Localization
             public static string NoticePostedToast => Loc.Get("Dashboard.NoticePostedToast");
             /// <summary>자료를 올렸어요.</summary>
             public static string MaterialPostedToast => Loc.Get("Dashboard.MaterialPostedToast");
+            /// <summary>팀 정보 수정</summary>
+            public static string TeamInfoEditTitle => Loc.Get("Dashboard.TeamInfoEditTitle");
+            /// <summary>엠블럼</summary>
+            public static string EmblemLabel => Loc.Get("Dashboard.EmblemLabel");
+            /// <summary>커버 사진</summary>
+            public static string CoverPhotoLabel => Loc.Get("Dashboard.CoverPhotoLabel");
+            /// <summary>공개 홈페이지 상단에 넓게 깔려요.</summary>
+            public static string CoverPhotoHelper => Loc.Get("Dashboard.CoverPhotoHelper");
+            /// <summary>팀명</summary>
+            public static string TeamNameLabel => Loc.Get("Dashboard.TeamNameLabel");
+            /// <summary>검증fc</summary>
+            public static string TeamNamePlaceholder => Loc.Get("Dashboard.TeamNamePlaceholder");
+            /// <summary>지역</summary>
+            public static string RegionLabel => Loc.Get("Dashboard.RegionLabel");
+            /// <summary>서울 강동구</summary>
+            public static string RegionPlaceholder => Loc.Get("Dashboard.RegionPlaceholder");
+            /// <summary>창단연도</summary>
+            public static string FoundedYearLabel => Loc.Get("Dashboard.FoundedYearLabel");
+            /// <summary>팀 소개</summary>
+            public static string TeamDescriptionLabel => Loc.Get("Dashboard.TeamDescriptionLabel");
+            /// <summary>어떤 팀인지 학부모가 알기 쉽게 적어 주세요.</summary>
+            public static string TeamDescriptionPlaceholder => Loc.Get("Dashboard.TeamDescriptionPlaceholder");
+            /// <summary>핵심가치</summary>
+            public static string ValuesFieldLabel => Loc.Get("Dashboard.ValuesFieldLabel");
+            /// <summary>공개 홈페이지 소개 탭에 그대로 노출돼요.</summary>
+            public static string ValuesFieldHelper => Loc.Get("Dashboard.ValuesFieldHelper");
+            /// <summary>가치 {0}</summary>
+            public static string ValueIndex(object arg0) => Loc.Format("Dashboard.ValueIndex", arg0);
+            /// <summary>성장 중심 지도</summary>
+            public static string ValueTitlePlaceholder => Loc.Get("Dashboard.ValueTitlePlaceholder");
+            /// <summary>분기마다 1:1 성장 리뷰를 드려요.</summary>
+            public static string ValueBodyPlaceholder => Loc.Get("Dashboard.ValueBodyPlaceholder");
+            /// <summary>＋ 가치 추가</summary>
+            public static string AddValue => Loc.Get("Dashboard.AddValue");
+            /// <summary>코칭스태프</summary>
+            public static string CoachesFieldLabel => Loc.Get("Dashboard.CoachesFieldLabel");
+            /// <summary>지도 철학과 SNS는 학부모의 선택 기준이 돼요.</summary>
+            public static string CoachesFieldHelper => Loc.Get("Dashboard.CoachesFieldHelper");
+            /// <summary>코치 {0}</summary>
+            public static string CoachIndex(object arg0) => Loc.Format("Dashboard.CoachIndex", arg0);
+            /// <summary>김성호</summary>
+            public static string CoachNamePlaceholder => Loc.Get("Dashboard.CoachNamePlaceholder");
+            /// <summary>감독</summary>
+            public static string CoachRolePlaceholder => Loc.Get("Dashboard.CoachRolePlaceholder");
+            /// <summary>지도 12년차 · 前 K리그 유스 코치</summary>
+            public static string CoachCareerPlaceholder => Loc.Get("Dashboard.CoachCareerPlaceholder");
+            /// <summary>KFA 1급</summary>
+            public static string CoachCertPlaceholder => Loc.Get("Dashboard.CoachCertPlaceholder");
+            /// <summary>지도 철학을 한두 문장으로 적어 주세요.</summary>
+            public static string CoachQuotePlaceholder => Loc.Get("Dashboard.CoachQuotePlaceholder");
+            /// <summary>인스타그램 URL</summary>
+            public static string InstagramUrlPlaceholder => Loc.Get("Dashboard.InstagramUrlPlaceholder");
+            /// <summary>유튜브 URL</summary>
+            public static string YoutubeUrlPlaceholder => Loc.Get("Dashboard.YoutubeUrlPlaceholder");
+            /// <summary>＋ 코치 추가</summary>
+            public static string AddCoach => Loc.Get("Dashboard.AddCoach");
+            /// <summary>친선경기 결과 입력</summary>
+            public static string MatchResultTitle => Loc.Get("Dashboard.MatchResultTitle");
+            /// <summary>대회·리그 공식 기록은 주최측이 입력해요. 기록에 오류가 있다면 수정 신청으로 알려 주세요.</summary>
+            public static string MatchResultSubtitle => Loc.Get("Dashboard.MatchResultSubtitle");
+            /// <summary>강동 SC</summary>
+            public static string MatchOpponentPlaceholder => Loc.Get("Dashboard.MatchOpponentPlaceholder");
+            /// <summary>장소</summary>
+            public static string PlaceLabel => Loc.Get("Dashboard.PlaceLabel");
+            /// <summary>{0} 득점</summary>
+            public static string OurScoreLabel(object arg0) => Loc.Format("Dashboard.OurScoreLabel", arg0);
+            /// <summary>상대 득점</summary>
+            public static string OpponentScoreLabel => Loc.Get("Dashboard.OpponentScoreLabel");
+            /// <summary>경기 날짜</summary>
+            public static string MatchDateLabel => Loc.Get("Dashboard.MatchDateLabel");
+            /// <summary>경기 날짜를 선택해 주세요.</summary>
+            public static string ErrorMatchDateRequired => Loc.Get("Dashboard.ErrorMatchDateRequired");
+            /// <summary>경기 시각</summary>
+            public static string MatchTimeLabel => Loc.Get("Dashboard.MatchTimeLabel");
+            /// <summary>경기 시각을 선택해 주세요.</summary>
+            public static string ErrorMatchTimeRequired => Loc.Get("Dashboard.ErrorMatchTimeRequired");
+            /// <summary>강동구민운동장</summary>
+            public static string MatchVenuePlaceholder => Loc.Get("Dashboard.MatchVenuePlaceholder");
+            /// <summary>득점자</summary>
+            public static string ScorersLabel => Loc.Get("Dashboard.ScorersLabel");
+            /// <summary>고른 선수의 시즌 통계에 자동 반영돼요. 몰라도 비워 두면 돼요.</summary>
+            public static string ScorersHelper => Loc.Get("Dashboard.ScorersHelper");
+            /// <summary>득점자 비우기</summary>
+            public static string ClearScorers => Loc.Get("Dashboard.ClearScorers");
+            /// <summary>결과 저장</summary>
+            public static string SaveResult => Loc.Get("Dashboard.SaveResult");
+            /// <summary>우리 팀</summary>
+            public static string TeamNameFallback => Loc.Get("Dashboard.TeamNameFallback");
+            /// <summary>득점을 입력해 주세요.</summary>
+            public static string ErrorScoreRequired => Loc.Get("Dashboard.ErrorScoreRequired");
+            /// <summary>0 이상의 숫자로 입력해 주세요.</summary>
+            public static string ErrorScoreNumber => Loc.Get("Dashboard.ErrorScoreNumber");
+            /// <summary>99점을 넘을 수 없어요.</summary>
+            public static string ErrorScoreMax => Loc.Get("Dashboard.ErrorScoreMax");
+            /// <summary>친선경기 결과를 저장했어요.</summary>
+            public static string MatchResultSavedToast => Loc.Get("Dashboard.MatchResultSavedToast");
+            /// <summary>기록 수정 신청</summary>
+            public static string CorrectionTitle => Loc.Get("Dashboard.CorrectionTitle");
+            /// <summary>오류 항목</summary>
+            public static string CorrectionFieldLabel => Loc.Get("Dashboard.CorrectionFieldLabel");
+            /// <summary>기록</summary>
+            public static string CorrectionRecordLabel => Loc.Get("Dashboard.CorrectionRecordLabel");
+            /// <summary>현재 기록</summary>
+            public static string CorrectionCurrent => Loc.Get("Dashboard.CorrectionCurrent");
+            /// <summary>올바른 기록</summary>
+            public static string CorrectionTarget => Loc.Get("Dashboard.CorrectionTarget");
+            /// <summary>우리 팀 득점</summary>
+            public static string CorrectionOurScore => Loc.Get("Dashboard.CorrectionOurScore");
+            /// <summary>상대 득점</summary>
+            public static string CorrectionOpponentScore => Loc.Get("Dashboard.CorrectionOpponentScore");
+            /// <summary>현재 기록과 같아요. 고쳐야 할 값을 적어 주세요.</summary>
+            public static string CorrectionSameError => Loc.Get("Dashboard.CorrectionSameError");
+            /// <summary>설명</summary>
+            public static string CorrectionDescriptionLabel => Loc.Get("Dashboard.CorrectionDescriptionLabel");
+            /// <summary>후반 39분 실점이 기록에서 빠졌어요. 경기 영상 34:20 참고.</summary>
+            public static string CorrectionDescriptionPlaceholder => Loc.Get("Dashboard.CorrectionDescriptionPlaceholder");
+            /// <summary>근거가 있으면 심사가 빨라져요. 영상 타임코드나 기록지 내용을 적어 주세요.</summary>
+            public static string CorrectionDescriptionHelper => Loc.Get("Dashboard.CorrectionDescriptionHelper");
+            /// <summary>신청은 주최측에 전달돼요. 검토 후 반영되며, 결과는 신청 목록에서 확인할 수 있어요.</summary>
+            public static string CorrectionNotice => Loc.Get("Dashboard.CorrectionNotice");
+            /// <summary>신청하기</summary>
+            public static string CorrectionSubmit => Loc.Get("Dashboard.CorrectionSubmit");
+            /// <summary>신청 중…</summary>
+            public static string CorrectionSubmitBusy => Loc.Get("Dashboard.CorrectionSubmitBusy");
+            /// <summary>공식 경기</summary>
+            public static string OfficialMatch => Loc.Get("Dashboard.OfficialMatch");
+            /// <summary>출전 기록</summary>
+            public static string AppearanceRecord => Loc.Get("Dashboard.AppearanceRecord");
+            /// <summary>기록 없음</summary>
+            public static string NoRecord => Loc.Get("Dashboard.NoRecord");
+            /// <summary>김민준 ×2, 정하준</summary>
+            public static string TargetGoalAssistExample => Loc.Get("Dashboard.TargetGoalAssistExample");
+            /// <summary>박지호 출전 추가</summary>
+            public static string TargetAppearanceExample => Loc.Get("Dashboard.TargetAppearanceExample");
+            /// <summary>고쳐야 할 내용</summary>
+            public static string TargetFallback => Loc.Get("Dashboard.TargetFallback");
+            /// <summary>올바른 스코어를 입력해 주세요.</summary>
+            public static string ErrorScoreRequired2 => Loc.Get("Dashboard.ErrorScoreRequired2");
+            /// <summary>올바른 기록을 입력해 주세요.</summary>
+            public static string ErrorRecordRequired => Loc.Get("Dashboard.ErrorRecordRequired");
+            /// <summary>신청하지 못했어요.</summary>
+            public static string CorrectionFailedToast => Loc.Get("Dashboard.CorrectionFailedToast");
         }
 
         public static class Hub

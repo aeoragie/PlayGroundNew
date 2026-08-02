@@ -15,8 +15,8 @@
             <span class="@Css.MatchForm.GrabBar"></span>
 
             <div class="@Css.MatchForm.Header">
-                <h2 class="@Css.MatchForm.Title">팀 정보 수정</h2>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <h2 class="@Css.MatchForm.Title">@AppText.Dashboard.TeamInfoEditTitle</h2>
+                <button type="button" aria-label="@AppText.Dashboard.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -26,90 +26,90 @@
                 <div class="@Css.MatchForm.Body">
                     @* 엠블럼 — 삭제 시 이니셜로 복귀 *@
                     <div class="flex flex-col gap-2">
-                        <label class="@Css.Form.Label">엠블럼</label>
+                        <label class="@Css.Form.Label">@AppText.Dashboard.EmblemLabel</label>
                         <AvatarUploader @bind-Value="mLogoUrl" Placeholder="@InitialOf(mTeamName)"
-                                        Label="엠블럼" Category="team-logo" />
+                                        Label="@AppText.Dashboard.EmblemLabel" Category="team-logo" />
                     </div>
 
                     @* 커버 — 공개홈 히어로에 쓰인다 *@
                     <div class="flex flex-col gap-2">
                         <label class="@Css.Form.Label">
-                            커버 사진<span class="@Css.Form.OptionalMark"> (선택)</span>
+                            @AppText.Dashboard.CoverPhotoLabel<span class="@Css.Form.OptionalMark">@AppText.Dashboard.Optional</span>
                         </label>
-                        <span class="@Css.Form.Helper">공개 홈페이지 상단에 넓게 깔려요.</span>
+                        <span class="@Css.Form.Helper">@AppText.Dashboard.CoverPhotoHelper</span>
                         <CoverUploader @bind-Value="mCoverUrl" Category="team-cover" />
                     </div>
 
-                    <TextField Label="팀명" @bind-Value="mTeamName" Placeholder="검증fc"
+                    <TextField Label="@AppText.Dashboard.TeamNameLabel" @bind-Value="mTeamName" Placeholder="@AppText.Dashboard.TeamNamePlaceholder"
                                Validator="ValidateTeamName" MaxLength="50" />
 
-                    <TextField Label="지역" @bind-Value="mRegion" Placeholder="서울 강동구"
+                    <TextField Label="@AppText.Dashboard.RegionLabel" @bind-Value="mRegion" Placeholder="@AppText.Dashboard.RegionPlaceholder"
                                IsOptional="true" MaxLength="50" />
 
-                    <TextField Label="창단연도" @bind-Value="mFoundedYear" Placeholder="2015"
+                    <TextField Label="@AppText.Dashboard.FoundedYearLabel" @bind-Value="mFoundedYear" Placeholder="2015"
                                Validator="ValidateFoundedYear" IsOptional="true" MaxLength="4" InputType="text" />
 
-                    <TextField Label="팀 소개" @bind-Value="mDescription" Multiline="true" Rows="4"
-                               Placeholder="어떤 팀인지 학부모가 알기 쉽게 적어 주세요."
+                    <TextField Label="@AppText.Dashboard.TeamDescriptionLabel" @bind-Value="mDescription" Multiline="true" Rows="4"
+                               Placeholder="@AppText.Dashboard.TeamDescriptionPlaceholder"
                                IsOptional="true" MaxLength="500" />
 
                     @* 핵심가치 — 학부모가 팀을 고르는 첫 기준 *@
                     <div class="flex flex-col gap-2">
-                        <label class="@Css.Form.Label">핵심가치</label>
-                        <span class="@Css.Form.Helper">공개 홈페이지 소개 탭에 그대로 노출돼요.</span>
+                        <label class="@Css.Form.Label">@AppText.Dashboard.ValuesFieldLabel</label>
+                        <span class="@Css.Form.Helper">@AppText.Dashboard.ValuesFieldHelper</span>
 
                         @foreach (TeamValueInput value in mValues)
                         {
                             TeamValueInput current = value;
                             <div class="@Css.TeamEdit.ItemCard">
                                 <div class="@Css.TeamEdit.ItemHeader">
-                                    <span class="@Css.TeamEdit.ItemIndex">가치 @(mValues.IndexOf(current) + 1)</span>
+                                    <span class="@Css.TeamEdit.ItemIndex">@AppText.Dashboard.ValueIndex(mValues.IndexOf(current) + 1)</span>
                                     <button type="button" class="@Css.TeamEdit.RemoveButton"
-                                            @onclick="() => mValues.Remove(current)">삭제</button>
+                                            @onclick="() => mValues.Remove(current)">@AppText.Dashboard.Delete</button>
                                 </div>
-                                <input class="@Css.TeamEdit.Input" placeholder="성장 중심 지도"
+                                <input class="@Css.TeamEdit.Input" placeholder="@AppText.Dashboard.ValueTitlePlaceholder"
                                        value="@current.Title" @oninput="e => current.Title = e.Value?.ToString() ?? string.Empty" />
-                                <textarea class="@Css.TeamEdit.TextArea" rows="2" placeholder="분기마다 1:1 성장 리뷰를 드려요."
+                                <textarea class="@Css.TeamEdit.TextArea" rows="2" placeholder="@AppText.Dashboard.ValueBodyPlaceholder"
                                           @oninput="e => current.Description = e.Value?.ToString() ?? string.Empty">@current.Description</textarea>
                             </div>
                         }
 
                         @if (mValues.Count < MaxValues)
                         {
-                            <button type="button" class="@Css.TeamEdit.AddButton" @onclick="AddValue">＋ 가치 추가</button>
+                            <button type="button" class="@Css.TeamEdit.AddButton" @onclick="AddValue">@AppText.Dashboard.AddValue</button>
                         }
                     </div>
 
                     @* 코칭스태프 — 가치관(인용문) + SNS 링크 *@
                     <div class="flex flex-col gap-2">
-                        <label class="@Css.Form.Label">코칭스태프</label>
-                        <span class="@Css.Form.Helper">지도 철학과 SNS는 학부모의 선택 기준이 돼요.</span>
+                        <label class="@Css.Form.Label">@AppText.Dashboard.CoachesFieldLabel</label>
+                        <span class="@Css.Form.Helper">@AppText.Dashboard.CoachesFieldHelper</span>
 
                         @foreach (TeamCoachInput coach in mCoaches)
                         {
                             TeamCoachInput current = coach;
                             <div class="@Css.TeamEdit.ItemCard">
                                 <div class="@Css.TeamEdit.ItemHeader">
-                                    <span class="@Css.TeamEdit.ItemIndex">코치 @(mCoaches.IndexOf(current) + 1)</span>
+                                    <span class="@Css.TeamEdit.ItemIndex">@AppText.Dashboard.CoachIndex(mCoaches.IndexOf(current) + 1)</span>
                                     <button type="button" class="@Css.TeamEdit.RemoveButton"
-                                            @onclick="() => mCoaches.Remove(current)">삭제</button>
+                                            @onclick="() => mCoaches.Remove(current)">@AppText.Dashboard.Delete</button>
                                 </div>
                                 <div class="@Css.TeamEdit.Pair">
-                                    <input class="@Css.TeamEdit.Input" placeholder="김성호"
+                                    <input class="@Css.TeamEdit.Input" placeholder="@AppText.Dashboard.CoachNamePlaceholder"
                                            value="@current.Name" @oninput="e => current.Name = e.Value?.ToString() ?? string.Empty" />
-                                    <input class="@Css.TeamEdit.Input" placeholder="감독"
+                                    <input class="@Css.TeamEdit.Input" placeholder="@AppText.Dashboard.CoachRolePlaceholder"
                                            value="@current.Role" @oninput="e => current.Role = e.Value?.ToString() ?? string.Empty" />
                                 </div>
-                                <input class="@Css.TeamEdit.Input" placeholder="지도 12년차 · 前 K리그 유스 코치"
+                                <input class="@Css.TeamEdit.Input" placeholder="@AppText.Dashboard.CoachCareerPlaceholder"
                                        value="@current.Career" @oninput="e => current.Career = e.Value?.ToString()" />
-                                <input class="@Css.TeamEdit.Input" placeholder="KFA 1급"
+                                <input class="@Css.TeamEdit.Input" placeholder="@AppText.Dashboard.CoachCertPlaceholder"
                                        value="@current.Certification" @oninput="e => current.Certification = e.Value?.ToString()" />
-                                <textarea class="@Css.TeamEdit.TextArea" rows="2" placeholder="지도 철학을 한두 문장으로 적어 주세요."
+                                <textarea class="@Css.TeamEdit.TextArea" rows="2" placeholder="@AppText.Dashboard.CoachQuotePlaceholder"
                                           @oninput="e => current.Quote = e.Value?.ToString()">@current.Quote</textarea>
                                 <div class="@Css.TeamEdit.Pair">
-                                    <input class="@Css.TeamEdit.Input" placeholder="인스타그램 URL"
+                                    <input class="@Css.TeamEdit.Input" placeholder="@AppText.Dashboard.InstagramUrlPlaceholder"
                                            value="@current.InstagramUrl" @oninput="e => current.InstagramUrl = e.Value?.ToString()" />
-                                    <input class="@Css.TeamEdit.Input" placeholder="유튜브 URL"
+                                    <input class="@Css.TeamEdit.Input" placeholder="@AppText.Dashboard.YoutubeUrlPlaceholder"
                                            value="@current.YoutubeUrl" @oninput="e => current.YoutubeUrl = e.Value?.ToString()" />
                                 </div>
                             </div>
@@ -117,7 +117,7 @@
 
                         @if (mCoaches.Count < MaxCoaches)
                         {
-                            <button type="button" class="@Css.TeamEdit.AddButton" @onclick="AddCoach">＋ 코치 추가</button>
+                            <button type="button" class="@Css.TeamEdit.AddButton" @onclick="AddCoach">@AppText.Dashboard.AddCoach</button>
                         }
                     </div>
                 </div>

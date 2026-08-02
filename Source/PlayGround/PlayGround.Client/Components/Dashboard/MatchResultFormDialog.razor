@@ -16,10 +16,10 @@
 
             <div class="@Css.MatchForm.Header">
                 <span class="flex flex-col gap-1 min-w-0">
-                    <h2 class="@Css.MatchForm.Title">친선경기 결과 입력</h2>
-                    <span class="@Css.MatchForm.Subtitle">대회·리그 공식 기록은 주최측이 입력해요. 기록에 오류가 있다면 수정 신청으로 알려 주세요.</span>
+                    <h2 class="@Css.MatchForm.Title">@AppText.Dashboard.MatchResultTitle</h2>
+                    <span class="@Css.MatchForm.Subtitle">@AppText.Dashboard.MatchResultSubtitle</span>
                 </span>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <button type="button" aria-label="@AppText.Dashboard.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -28,43 +28,43 @@
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
                     @* 경기 성격 선택은 없다 — 팀 입력은 전부 친선으로 저장된다(설계 결정 7) *@
-                    <TextField Label="상대 팀" @bind-Value="mOpponentName" Placeholder="강동 SC"
+                    <TextField Label="@AppText.Dashboard.OpponentLabel" @bind-Value="mOpponentName" Placeholder="@AppText.Dashboard.MatchOpponentPlaceholder"
                                Validator="ValidateOpponent" MaxLength="50" />
 
                     @* 홈/원정 — 2개뿐이라 RadioCards *@
-                    <RadioCards TValue="bool" Label="장소" @bind-Value="mIsHome" Options="@HomeAwayOptions" />
+                    <RadioCards TValue="bool" Label="@AppText.Dashboard.PlaceLabel" @bind-Value="mIsHome" Options="@HomeAwayOptions" />
 
                     @* 스코어 — 좌: 우리, 우: 상대 *@
                     <div class="@Css.MatchForm.ScoreRow">
-                        <TextField Label="@($"{TeamName} 득점")" @bind-Value="mOurScore" Placeholder="3"
+                        <TextField Label="@AppText.Dashboard.OurScoreLabel(TeamName)" @bind-Value="mOurScore" Placeholder="3"
                                    Validator="ValidateScore" InputType="text" MaxLength="2" Class="flex-1" />
                         <span class="@Css.MatchForm.ScoreColon">:</span>
-                        <TextField Label="상대 득점" @bind-Value="mOpponentScore" Placeholder="1"
+                        <TextField Label="@AppText.Dashboard.OpponentScoreLabel" @bind-Value="mOpponentScore" Placeholder="1"
                                    Validator="ValidateScore" InputType="text" MaxLength="2" Class="flex-1" />
                     </div>
 
                     @* 날짜·시간은 별도 필드 (한 팝오버에 합치지 않는다 — Design.DatePicker) *@
                     <div class="@Css.MatchForm.DateTimeRow">
                         <div class="@Css.MatchForm.PickerField">
-                            <label class="@Css.Form.Label">경기 날짜</label>
+                            <label class="@Css.Form.Label">@AppText.Dashboard.MatchDateLabel</label>
                             <Calendar @bind-Value="mMatchDate" Range="Calendar.DateRange.PastOnly"
                                       MatchDays="@MatchDays" HasError="@(mShowErrors && mMatchDate is null)" />
                             @if (mShowErrors && mMatchDate is null)
                             {
-                                <span class="@Css.Form.ErrorMessage">경기 날짜를 선택해 주세요.</span>
+                                <span class="@Css.Form.ErrorMessage">@AppText.Dashboard.ErrorMatchDateRequired</span>
                             }
                         </div>
                         <div class="@Css.MatchForm.PickerField">
-                            <label class="@Css.Form.Label">경기 시각</label>
+                            <label class="@Css.Form.Label">@AppText.Dashboard.MatchTimeLabel</label>
                             <TimeList @bind-Value="mMatchTime" HasError="@(mShowErrors && mMatchTime is null)" />
                             @if (mShowErrors && mMatchTime is null)
                             {
-                                <span class="@Css.Form.ErrorMessage">경기 시각을 선택해 주세요.</span>
+                                <span class="@Css.Form.ErrorMessage">@AppText.Dashboard.ErrorMatchTimeRequired</span>
                             }
                         </div>
                     </div>
 
-                    <TextField Label="장소" @bind-Value="mVenueName" Placeholder="강동구민운동장"
+                    <TextField Label="@AppText.Dashboard.PlaceLabel" @bind-Value="mVenueName" Placeholder="@AppText.Dashboard.MatchVenuePlaceholder"
                                IsOptional="true" MaxLength="50" />
 
                     @* 득점자(선택) — 로스터에서 고르거나 비워 둔다 *@
@@ -72,9 +72,9 @@
                     {
                         <div class="@Css.MatchForm.ScorerBlock">
                             <label class="@Css.Form.Label">
-                                득점자<span class="@Css.Form.OptionalMark"> (선택)</span>
+                                @AppText.Dashboard.ScorersLabel<span class="@Css.Form.OptionalMark">@AppText.Dashboard.Optional</span>
                             </label>
-                            <span class="@Css.Form.Helper">고른 선수의 시즌 통계에 자동 반영돼요. 몰라도 비워 두면 돼요.</span>
+                            <span class="@Css.Form.Helper">@AppText.Dashboard.ScorersHelper</span>
                             <div class="@Css.MatchForm.ScorerChips">
                                 @foreach (TeamRosterPlayerDto player in Players)
                                 {
@@ -91,15 +91,15 @@
                             </div>
                             @if (mScorers.Count > 0)
                             {
-                                <button type="button" class="@Css.MatchForm.ScorerReset" @onclick="ClearScorers">득점자 비우기</button>
+                                <button type="button" class="@Css.MatchForm.ScorerReset" @onclick="ClearScorers">@AppText.Dashboard.ClearScorers</button>
                             }
                         </div>
                     }
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="결과 저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Dashboard.Cancel</button>
+                    <SubmitButton Label="@AppText.Dashboard.SaveResult" BusyLabel="@AppText.Dashboard.SavingBusy" IsBusy="@mSaving" OnClick="SubmitAsync"
                                   Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -116,7 +116,7 @@
 
     /// <summary>우리 팀 이름 — 스코어 라벨에 쓴다.</summary>
     [Parameter]
-    public string TeamName { get; set; } = "우리 팀";
+    public string TeamName { get; set; } = AppText.Dashboard.TeamNameFallback;
 
     /// <summary>득점자 후보 (로스터). 비어 있으면 득점자 블록을 숨긴다.</summary>
     [Parameter]
@@ -145,8 +145,8 @@
 
     private static readonly List<SelectOption<bool>> HomeAwayOptions = new()
     {
-        new SelectOption<bool>(true, "홈"),
-        new SelectOption<bool>(false, "원정"),
+        new SelectOption<bool>(true, AppText.Dashboard.Home),
+        new SelectOption<bool>(false, AppText.Dashboard.Away),
     };
 
     protected override void OnParametersSet()
@@ -167,21 +167,21 @@
     private TimeOnly DefaultTime => RecentMatchTime ?? new TimeOnly(14, 0);
 
     private static string? ValidateOpponent(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "상대 팀 이름을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorOpponentRequired : null;
 
     private static string? ValidateScore(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return "득점을 입력해 주세요.";
+            return AppText.Dashboard.ErrorScoreRequired;
         }
 
         if (!int.TryParse(value, out int score) || score < 0)
         {
-            return "0 이상의 숫자로 입력해 주세요.";
+            return AppText.Dashboard.ErrorScoreNumber;
         }
 
-        return score > 99 ? "99점을 넘을 수 없어요." : null;
+        return score > 99 ? AppText.Dashboard.ErrorScoreMax : null;
     }
 
     private int CountOf(Guid playerId) => mScorers.Count(s => s.PlayerId == playerId);
@@ -224,18 +224,18 @@
             // 요청 실패는 토스트 + 재시도, 입력 문제는 인라인 (폼 오류에 토스트 금지)
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Dashboard.SaveFailedToast, AppText.Dashboard.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Dashboard.SaveFailedToast);
             }
 
             return;
         }
 
         // 순위표는 리그에서만 갱신된다 — 컵·스플릿은 조(組)를 아직 입력받지 않아 스코프를 특정할 수 없다
-        Toasts.ShowSuccess("친선경기 결과를 저장했어요.");
+        Toasts.ShowSuccess(AppText.Dashboard.MatchResultSavedToast);
 
         await CloseAsync();
         await OnSaved.InvokeAsync();
