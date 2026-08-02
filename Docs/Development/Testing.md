@@ -152,6 +152,26 @@ dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 > 테이블과 프로시저 4종(`UspDeleteUser`·알림 설정 3종)이 배포돼 있지 않았다.
 > 알림 설정 화면과 계정 탈퇴가 런타임에 터지는 상태였다.
 
+## 5-4. 인가 누락 가드 (Tests.Integration/Api)
+
+`EndpointAuthorizationTests`는 컨트롤러 액션을 리플렉션으로 훑어 **익명으로 열린 것이
+명시적 허용 목록에 있는지** 본다. 없으면 실패한다.
+
+대부분의 컨트롤러는 클래스에 `[Authorize]`를 걸고 공개 액션만 `[AllowAnonymous]`로 여는데,
+**`AuthController`·`SoccerLandingController`·`SoccerExportController`는 클래스 수준 가드가 없다.**
+여기에 액션을 추가하면서 `[Authorize]`를 빠뜨리면 아무 경고 없이 공개된다 — 그 사고를 막는다.
+
+- 판정 순서는 MVC와 같다: 액션의 `[AllowAnonymous]` > 액션의 `[Authorize]` >
+  클래스의 `[AllowAnonymous]` > 클래스의 `[Authorize]` > (없으면) 익명
+- 허용 목록에 **죽은 항목이 남는 것도 실패**로 본다 — 지운 액션 이름이 남아 있으면
+  나중에 같은 이름이 생겼을 때 조용히 통과한다
+- 새로 공개할 때는 목록에 줄을 추가하게 만들어 **실수가 아니라 결정**이 되게 한다.
+  넣기 전에 "비로그인 아무나 봐도 되는 데이터인가"를 확인한다.
+
+> **한계: 특성만 본다.** 미들웨어·라우팅·토큰 검증까지 실제로 태우는 검증은
+> `WebApplicationFactory`가 필요하고, 그건 `Microsoft.AspNetCore.Mvc.Testing` 패키지가 있어야 한다.
+> 지금 개발 환경에서 nuget.org에 닿지 않아 도입하지 못했다(§8).
+
 ## 6. 작업 규칙
 
 ### 새 유즈케이스를 만들 때
@@ -197,13 +217,16 @@ cd Binary/Debug/Tests.Unit
 ./PlayGround.Tests.Unit.exe -method "*조사*"
 ```
 
-현재: **Tests.Unit 415 · Tests.Integration 5 · Tests.Infrastructure 251**
+현재: **Tests.Unit 415 · Tests.Integration 126 · Tests.Infrastructure 251**
 (DB 미연결 시 Infrastructure는 18 통과 + 233 Skip).
 
 ## 8. 미착수
 
-- **API 엔드포인트 통합** — `WebApplicationFactory`로 컨트롤러→유즈케이스→DB 왕복.
-  인증 가드(401/403)·`Envelope<T>` 형태·주요 왕복 1~2개.
+- **실제 HTTP 왕복** — `WebApplicationFactory`로 미들웨어·라우팅·토큰 검증까지 태운다.
+  덮을 것: 토큰 없음/서명 불일치/무효화 토큰 → 401 · 남의 자원 → 403 · `Envelope<T>` 형태.
+  **`Microsoft.AspNetCore.Mvc.Testing` 패키지가 필요한데 지금 개발 환경에서 nuget.org에 닿지 않아
+  도입하지 못했다**(§5-4의 한계). 네트워크가 되면 패키지만 추가해 얹으면 된다 —
+  현재 인가 가드는 특성만 보므로 파이프라인 회귀는 못 잡는다.
 - **결과셋 계약의 나머지 프로시저** — 다중 결과셋 23개 중 현재 2개(MatchDetail·TournamentDetail)만
   계약 표에 있다. 나머지는 필요할 때 표에 줄을 추가하면 된다.
 - **E2E 저니** — `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7)는 현재 수동 검수.
