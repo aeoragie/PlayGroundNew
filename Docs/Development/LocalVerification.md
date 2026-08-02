@@ -34,7 +34,12 @@
    컬럼 추가는 여기) → Procedures(변경분은 `DROP PROCEDURE` 후 재생성) → Seeds**
 3. 반영을 마치면 아래 기준 커밋을 갱신하고 함께 커밋한다.
 
-> **기준 커밋: `c74166a` (2026-07-21, 전체 DB 동기화 — 이 PC 로컬 SQLEXPRESS를 소스 기준으로 전량 재반영)**
+> **이제 뒤처짐을 손으로 찾지 않는다** — `dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj`
+> 가 프로시저 미배포·파라미터 불일치를 전량 자동으로 보고한다(`Testing.md` §5-3).
+> 테이블 누락은 프로시저 배포 실패로 드러난다. **DB 작업 전후로 이 테스트를 돌린다.**
+>
+> **기준 커밋: `b022a51` (2026-08-02, Account 누락분 반영 — NotificationPreferences 테이블 +
+> UspDeleteUser·알림 설정 프로시저 3종. 이전 기준 `c74166a`는 이 누락을 담지 못했다)**
 > — 이 줄은 "이 커밋까지의 DB 산출물이 로컬 SQLEXPRESS에 반영돼 있다"는 뜻이다.
 > DB 산출물이 포함된 커밋을 만들고 로컬에 반영했다면 그 해시로 갱신할 것.
 >
