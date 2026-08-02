@@ -15,7 +15,7 @@
             <span class="text-[10.5px] font-bold text-text-muted border border-border rounded-full px-[9px] py-0.5 whitespace-nowrap shrink-0">@FormatLabel</span>
             @if (Tournament.TeamCount is not null)
             {
-                <span class="text-xs text-text-muted whitespace-nowrap md:w-[38px] md:text-right">@(Tournament.TeamCount)팀</span>
+                <span class="text-xs text-text-muted whitespace-nowrap md:w-[38px] md:text-right">@AppText.Records.TeamCountSuffix(Tournament.TeamCount)</span>
             }
             <span class="@StatusBadgeClass">@Status.ToLabel()</span>
         </div>
@@ -54,7 +54,7 @@
     // "전국" / "전국/부산" / "지방/서울" — 범위 + 지역
     internal static string ScopeLabel(RecordsTournamentDto tournament)
     {
-        string baseLabel = tournament.Scope == "National" ? "전국" : "지방";
+        string baseLabel = tournament.Scope == "National" ? AppText.Records.ScopeNational : AppText.Records.ScopeRegional;
         return tournament.RegionGroup is null ? baseLabel : $"{baseLabel}/{tournament.RegionGroup}";
     }
 }

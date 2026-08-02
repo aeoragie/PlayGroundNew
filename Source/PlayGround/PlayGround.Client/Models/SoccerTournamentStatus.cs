@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>대회 진행 상태. DB 저장 문자열 = 멤버 이름 (SoccerTournaments.Status).
@@ -15,9 +17,9 @@ namespace PlayGround.Client.Models
         {
             return status switch
             {
-                SoccerTournamentStatus.InProgress => "진행중",
-                SoccerTournamentStatus.Scheduled => "예정",
-                _ => "종료",
+                SoccerTournamentStatus.InProgress => AppText.Enums.TournamentInProgress,
+                SoccerTournamentStatus.Scheduled => AppText.Enums.TournamentScheduled,
+                _ => AppText.Enums.TournamentEnded,
             };
         }
 

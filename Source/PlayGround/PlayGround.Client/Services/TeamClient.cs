@@ -6,6 +6,8 @@ using PlayGround.Shared.Http;
 using PlayGround.Contracts.Common;
 using PlayGround.Contracts.Team;
 
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Services
 {
     /// <summary>팀 API 호출. 인증 토큰은 공유 HttpClient 기본 헤더로 자동 부착됨.</summary>
@@ -76,11 +78,11 @@ namespace PlayGround.Client.Services
                     return new TeamInfoSaveResult(true, envelope.Data?.Slug, null);
                 }
 
-                return new TeamInfoSaveResult(false, null, envelope?.Message ?? "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new TeamInfoSaveResult(false, null, envelope?.Message ?? AppText.Errors.SaveInvalid);
             }
             catch
             {
-                return new TeamInfoSaveResult(false, null, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new TeamInfoSaveResult(false, null, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -113,11 +115,11 @@ namespace PlayGround.Client.Services
                     return new MatchResultSaveResult(true, null);
                 }
 
-                return new MatchResultSaveResult(false, envelope?.Message ?? "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new MatchResultSaveResult(false, envelope?.Message ?? AppText.Errors.SaveInvalid);
             }
             catch
             {
-                return new MatchResultSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new MatchResultSaveResult(false, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -167,11 +169,11 @@ namespace PlayGround.Client.Services
                     return new PlayerAddResult(true, null);
                 }
 
-                return new PlayerAddResult(false, "선수를 추가하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new PlayerAddResult(false, AppText.Errors.PlayerAddInvalid);
             }
             catch
             {
-                return new PlayerAddResult(false, "선수를 추가하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new PlayerAddResult(false, AppText.Errors.PlayerAddRetry, IsNetworkError: true);
             }
         }
 
@@ -204,11 +206,11 @@ namespace PlayGround.Client.Services
                     return new RecruitmentSaveResult(true, null);
                 }
 
-                return new RecruitmentSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new RecruitmentSaveResult(false, AppText.Errors.SaveInvalid);
             }
             catch
             {
-                return new RecruitmentSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new RecruitmentSaveResult(false, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -306,11 +308,11 @@ namespace PlayGround.Client.Services
                     return new BoardPostSaveResult(true, null);
                 }
 
-                return new BoardPostSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new BoardPostSaveResult(false, AppText.Errors.SaveInvalid);
             }
             catch
             {
-                return new BoardPostSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new BoardPostSaveResult(false, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -418,11 +420,11 @@ namespace PlayGround.Client.Services
 
                 // 중복 지원 — 코드로 판별해 전용 안내를 보여준다(다른 실패는 일반 인라인)
                 bool isDuplicate = string.Equals(envelope?.CodeName, "DuplicateValue", StringComparison.Ordinal);
-                return new ApplicationSaveResult(false, isDuplicate, "지원하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new ApplicationSaveResult(false, isDuplicate, AppText.Errors.ApplyInvalid);
             }
             catch
             {
-                return new ApplicationSaveResult(false, false, "지원하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new ApplicationSaveResult(false, false, AppText.Errors.ApplyRetry, IsNetworkError: true);
             }
         }
 
@@ -551,11 +553,11 @@ namespace PlayGround.Client.Services
                     return new ScheduleSaveResult(true, null);
                 }
 
-                return new ScheduleSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new ScheduleSaveResult(false, AppText.Errors.SaveInvalid);
             }
             catch
             {
-                return new ScheduleSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new ScheduleSaveResult(false, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -619,11 +621,11 @@ namespace PlayGround.Client.Services
                     return new RecruitmentSaveResult(true, null);
                 }
 
-                return new RecruitmentSaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new RecruitmentSaveResult(false, AppText.Errors.SaveInvalid);
             }
             catch
             {
-                return new RecruitmentSaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new RecruitmentSaveResult(false, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -672,11 +674,11 @@ namespace PlayGround.Client.Services
                     return new RecruitmentSaveResult(true, null);
                 }
 
-                return new RecruitmentSaveResult(false, "리뷰를 저장하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new RecruitmentSaveResult(false, AppText.Errors.ReviewSaveInvalid);
             }
             catch
             {
-                return new RecruitmentSaveResult(false, "리뷰를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new RecruitmentSaveResult(false, AppText.Errors.ReviewSaveRetry, IsNetworkError: true);
             }
         }
 
@@ -739,11 +741,11 @@ namespace PlayGround.Client.Services
                 }
 
                 // Envelope.Message는 영어 진단 문구라 사용자에게 보여주지 않는다
-                return new CorrectionSaveResult(false, "신청하지 못했어요. 이미 처리 중인 신청이 있는지 확인해 주세요.");
+                return new CorrectionSaveResult(false, AppText.Errors.CorrectionDuplicate);
             }
             catch
             {
-                return new CorrectionSaveResult(false, "신청하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new CorrectionSaveResult(false, AppText.Errors.CorrectionRetry, IsNetworkError: true);
             }
         }
 
@@ -760,11 +762,11 @@ namespace PlayGround.Client.Services
                     return new CorrectionSaveResult(true, null);
                 }
 
-                return new CorrectionSaveResult(false, "취소하지 못했어요. 이미 심사가 시작됐을 수 있어요.");
+                return new CorrectionSaveResult(false, AppText.Errors.CancelReviewStarted);
             }
             catch
             {
-                return new CorrectionSaveResult(false, "취소하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new CorrectionSaveResult(false, AppText.Errors.CancelRetry, IsNetworkError: true);
             }
         }
 
@@ -835,7 +837,7 @@ namespace PlayGround.Client.Services
                 HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/team/me", request);
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    return new TeamSaveResult(false, null, 0, null, "로그인이 필요해요. 다시 로그인해 주세요.");
+                    return new TeamSaveResult(false, null, 0, null, AppText.Errors.LoginRequired);
                 }
 
                 Envelope<CreateTeamResponse>? envelope =
@@ -845,11 +847,11 @@ namespace PlayGround.Client.Services
                     return new TeamSaveResult(true, envelope.Data.Slug, envelope.Data.PlayerCount, envelope.Data.AccessToken, null);
                 }
 
-                return new TeamSaveResult(false, null, 0, null, envelope?.Message ?? "팀 생성에 실패했어요.");
+                return new TeamSaveResult(false, null, 0, null, envelope?.Message ?? AppText.Errors.TeamCreateFailed);
             }
             catch
             {
-                return new TeamSaveResult(false, null, 0, null, "네트워크 오류로 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
+                return new TeamSaveResult(false, null, 0, null, AppText.Errors.SaveNetwork);
             }
         }
     }

@@ -305,5 +305,22 @@
   "Lose": "패",
   "Draw": "무",
   "MinutesLabel": "출전 {0}'",
-  "MinutesEmpty": "출전 -"
+  "MinutesEmpty": "출전 -",
+  "LockTitleLine1": "경기별 상세 기록 · 학교 · 연락 수단은",
+  "LockTitleLine2": "보호자 승인 후 열람할 수 있어요",
+  "LockTitle": "경기별 상세 기록 · 학교 · 연락 수단은 보호자 승인 후 열람할 수 있어요",
+  "LockDescription": "에이전트·지도자 계정으로 열람을 요청하면 보호자에게 알림이 갑니다. 승인 내역과 열람 기록은 모두 보호자에게 공개됩니다.",
+  "CreateChildProfileLink": "내 아이 프로필 만들기",
+  "ChipFoot": "주발 {0}",
+  "DeletePhotoDescription": "삭제하면 이니셜 아바타로 돌아가요. 되돌릴 수 없어요.",
+  "RoleSuffixGuardian": "보호자",
+  "RoleSuffixSelf": "본인",
+  "RoleDescriptionGuardian": "프로필 관리 · 공개 설정 권한",
+  "RoleDescriptionSelf": "만 14세 이상 시 관리 권한 이전 가능",
+  "ErrorNumeric": "{0:은/는} 숫자로 입력해 주세요.",
+  "ErrorNumericRange": "{0:은/는} {1}~{2} 사이로 입력해 주세요.",
+  "ProfileSavedToast": "프로필을 수정했어요.",
+  "CorrectionSubmittedToast": "수정 신청을 보냈어요. 주최측 검토 후 반영돼요.",
+  "CareerUpdatedToast": "이력을 수정했어요.",
+  "CareerAddedToast": "이력을 등록했어요."
 }

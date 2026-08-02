@@ -267,13 +267,13 @@
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Errors.SaveFailed);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess(IsEdit ? "일정을 저장했어요." : "일정을 추가했어요.");
+        Toasts.ShowSuccess(IsEdit ? AppText.Dashboard.ScheduleSavedToast : AppText.Dashboard.ScheduleAddedToast);
         await CloseAsync();
         await OnSaved.InvokeAsync();
     }

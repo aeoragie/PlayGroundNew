@@ -38,7 +38,7 @@
         <div class="border-t border-soft bg-surface-soft px-4 md:px-[22px] py-3 flex flex-col gap-[7px]">
             @if (Logs is null)
             {
-                <span class="text-[11.5px] text-text-muted">불러오는 중…</span>
+                <span class="text-[11.5px] text-text-muted">@AppText.Shared.Loading</span>
             }
             else
             {
@@ -53,7 +53,7 @@
                 }
             }
             <button type="button" @onclick:stopPropagation="true" @onclick="OnGoDetail"
-                    class="border-0 bg-transparent p-0 self-start text-[11.5px] font-extrabold text-navy cursor-pointer whitespace-nowrap mt-[3px]">경기 상세 전체 보기 →</button>
+                    class="border-0 bg-transparent p-0 self-start text-[11.5px] font-extrabold text-navy cursor-pointer whitespace-nowrap mt-[3px]">@AppText.Records.MatchDetailFull →</button>
         </div>
     }
 </div>

@@ -117,12 +117,12 @@
         bool deleted = await Teams.DeleteCareerOutcomeAsync(item.OutcomeId);
         if (!deleted)
         {
-            Toasts.ShowError("삭제하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Errors.DeleteRetry);
             return;
         }
 
         await NotifyChangedAsync();
-        Toasts.ShowSuccess("사례를 삭제했어요.", "실행취소", async () =>
+        Toasts.ShowSuccess(AppText.Dashboard.CareerOutcomeDeletedToast, AppText.Dashboard.Undo, async () =>
         {
             bool restored = await Teams.DeleteCareerOutcomeAsync(item.OutcomeId, restore: true);
             if (restored)
@@ -131,7 +131,7 @@
             }
             else
             {
-                Toasts.ShowError("되돌리지 못했어요. 다시 시도해 주세요.");
+                Toasts.ShowError(AppText.Errors.UndoRetry);
             }
         });
     }

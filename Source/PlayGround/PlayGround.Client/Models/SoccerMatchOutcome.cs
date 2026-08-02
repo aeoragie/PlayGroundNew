@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>경기 결과 (승·무·패).</summary>
@@ -14,9 +16,9 @@ namespace PlayGround.Client.Models
         {
             return outcome switch
             {
-                SoccerMatchOutcome.Win => "승",
-                SoccerMatchOutcome.Draw => "무",
-                _ => "패",
+                SoccerMatchOutcome.Win => AppText.Enums.OutcomeWin,
+                SoccerMatchOutcome.Draw => AppText.Enums.OutcomeDraw,
+                _ => AppText.Enums.OutcomeLose,
             };
         }
     }

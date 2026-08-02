@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>일정 이벤트 유형 (경기·대회·훈련).</summary>
@@ -14,9 +16,9 @@ namespace PlayGround.Client.Models
         {
             return type switch
             {
-                SoccerScheduleEventType.Match => "경기",
-                SoccerScheduleEventType.Tournament => "대회",
-                _ => "훈련",
+                SoccerScheduleEventType.Match => AppText.Enums.ScheduleMatch,
+                SoccerScheduleEventType.Tournament => AppText.Enums.ScheduleTournament,
+                _ => AppText.Enums.ScheduleTraining,
             };
         }
     }

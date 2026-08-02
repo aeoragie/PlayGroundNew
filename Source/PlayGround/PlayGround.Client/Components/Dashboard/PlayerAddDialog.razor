@@ -73,7 +73,7 @@
         new SelectOption<string>("FW", AppText.Dashboard.PosFw),
         new SelectOption<string>("MF", AppText.Dashboard.PosMf),
         new SelectOption<string>("DF", AppText.Dashboard.PosDf),
-        new SelectOption<string>("GK", "GK · 골키퍼"),
+        new SelectOption<string>("GK", AppText.Dashboard.PosGkOption),
     };
 
     private static readonly List<SelectOption<string>> AgeOptions = new()
@@ -112,7 +112,7 @@
     }
 
     private static string? ValidateName(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "선수 이름을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorPlayerNameEmpty : null;
 
     private static string? ValidateJersey(string? value)
     {
@@ -121,7 +121,7 @@
             return null;
         }
 
-        return value.Trim().All(char.IsAsciiDigit) ? null : "등번호는 숫자만 입력해 주세요.";
+        return value.Trim().All(char.IsAsciiDigit) ? null : AppText.Dashboard.ErrorJerseyDigits;
     }
 
     private async Task SubmitAsync()
@@ -148,17 +148,17 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "선수를 추가하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Errors.PlayerAddFailed, AppText.Dashboard.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "선수를 추가하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Errors.PlayerAddFailed);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess($"{request.Name} 선수를 추가했어요.");
+        Toasts.ShowSuccess(AppText.Dashboard.PlayerAddedToast(request.Name));
         await CloseAsync();
         await OnSaved.InvokeAsync();
     }

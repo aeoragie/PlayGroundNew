@@ -11,7 +11,7 @@
            @onfocus="() => mFocused = true" @onblur="() => mFocused = false" />
     @if (mText.Length > 0)
     {
-        <button type="button" aria-label="지우기" class="@Css.SearchFilter.SearchClear" @onclick="ClearAsync">
+        <button type="button" aria-label="@AppText.Shared.Clear" class="@Css.SearchFilter.SearchClear" @onclick="ClearAsync">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                  class="text-text-body"><path d="M18 6L6 18M6 6l12 12"></path></svg>
         </button>

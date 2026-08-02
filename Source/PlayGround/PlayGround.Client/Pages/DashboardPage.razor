@@ -244,10 +244,10 @@ else
         get
         {
             int actions = mHub?.Actions.TotalCount ?? 0;
-            return actions > 0 ? $"처리할 알림 {actions}건이 있어요" : "오늘도 좋은 하루 보내세요";
+            return actions > 0 ? AppText.Dashboard.GreetingActions(actions) : AppText.Dashboard.GreetingIdle;
         }
     }
 
-    private static string Today => DateTime.Now.ToString("M월 d일 (ddd)",
-        System.Globalization.CultureInfo.GetCultureInfo("ko-KR"));
+    private static string Today => DateTime.Now.ToString(AppText.Dashboard.TodayFormat,
+        System.Globalization.CultureInfo.GetCultureInfo(AppText.Culture));
 }

@@ -124,5 +124,7 @@
   "ForbiddenBody2": "別のアカウントでログインしていないかご確認ください。",
   "ToMyDashboard": "マイダッシュボードへ",
   "LoginOtherAccount": "別のアカウントでログイン",
-  "ForbiddenFootnote": "問題が続く場合はチーム管理者またはサポートへお問い合わせください。"
+  "ForbiddenFootnote": "問題が続く場合はチーム管理者またはサポートへお問い合わせください。",
+  "Reset": "リセット",
+  "ActorWithRelation": "{0} さん({1})"
 }

@@ -29,7 +29,13 @@ namespace PlayGround.Client.Localization
                 }
 
                 string value = args[index]?.ToString() ?? string.Empty;
-                return $"{{{index}}}" + (HasFinalConsonant(value) ? withFinal : withoutFinal);
+
+                // 으로/로 계열만 ㄹ 받침을 '받침 없음'으로 본다 ('이메일로'가 맞고 '이메일으로'는 틀리다).
+                bool hasFinal = withFinal.StartsWith("으", StringComparison.Ordinal)
+                    ? HasFinalConsonantExceptRieul(value)
+                    : HasFinalConsonant(value);
+
+                return $"{{{index}}}" + (hasFinal ? withFinal : withoutFinal);
             });
         }
 
@@ -63,6 +69,19 @@ namespace PlayGround.Client.Localization
             }
 
             return false; // 기호·기타 — 받침 없음으로 처리
+        }
+
+        /// <summary>ㄹ 받침을 제외한 종성 유무 — '으로/로' 판정 전용.</summary>
+        private static bool HasFinalConsonantExceptRieul(string value)
+        {
+            if (!HasFinalConsonant(value))
+            {
+                return false;
+            }
+
+            char last = value[^1];
+            const int Rieul = 8; // 한글 종성 인덱스 (ㄹ)
+            return !(last is >= '가' and <= '힣') || (last - '가') % 28 != Rieul;
         }
     }
 }

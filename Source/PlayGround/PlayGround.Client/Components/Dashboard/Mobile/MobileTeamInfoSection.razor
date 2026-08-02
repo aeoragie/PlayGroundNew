@@ -150,7 +150,7 @@
         <div class="bg-gradient-navy rounded-[16px] p-[18px] flex flex-col gap-[7px] text-white">
             <span class="text-xs font-extrabold text-teal">@AppText.Dashboard.PublicTeamHome</span>
             <span class="text-[13.5px] font-bold whitespace-nowrap overflow-hidden text-ellipsis">playground.kr/team/@Info.Profile.Slug</span>
-            <span class="text-[11.5px] text-white/65 leading-[1.55] break-keep">핵심가치·코칭스태프·공식 채널이 자동 노출돼요</span>
+            <span class="text-[11.5px] text-white/65 leading-[1.55] break-keep">@AppText.Dashboard.PublicHomeAutoNote</span>
         </div>
     }
 </div>
@@ -170,7 +170,7 @@
     // 모바일은 공간이 좁아 자격 뱃지에서 '인증' 접미어 제거 ('KFA P2 인증' → 'KFA P2')
     private static string ShortCertification(string certification)
     {
-        const string suffix = " 인증";
+        string suffix = AppText.Dashboard.CertificationSuffix;
         return certification.EndsWith(suffix, StringComparison.Ordinal)
             ? certification[..^suffix.Length]
             : certification;

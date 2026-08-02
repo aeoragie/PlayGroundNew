@@ -18,7 +18,7 @@
         <span class="text-[13px] md:text-[12.5px] leading-[1.55] break-keep text-navy-deep">
             @Label@if (IsOptional)
             {
-                <span class="@Css.Form.OptionalMark"> (선택)</span>
+                <span class="@Css.Form.OptionalMark"> @AppText.Shared.Optional</span>
             }
             @ChildContent
         </span>

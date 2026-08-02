@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>주발. 멤버 이름 = 서버 저장 문자열 (SoccerPlayers.PreferredFoot).</summary>
@@ -15,9 +17,9 @@ namespace PlayGround.Client.Models
         {
             return foot switch
             {
-                SoccerPreferredFoot.Left => "왼발",
-                SoccerPreferredFoot.Right => "오른발",
-                _ => "양발",
+                SoccerPreferredFoot.Left => AppText.Enums.FootLeft,
+                SoccerPreferredFoot.Right => AppText.Enums.FootRight,
+                _ => AppText.Enums.FootBoth,
             };
         }
 

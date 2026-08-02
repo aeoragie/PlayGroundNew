@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Agent", "Auth", "Claim", "Correction", "Dashboard", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Shared", "Team" };
+        internal static readonly string[] Domains = { "Agent", "Auth", "Claim", "Correction", "Dashboard", "Enums", "Errors", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Shared", "Team" };
 
         public static class Agent
         {
@@ -1322,6 +1322,212 @@ namespace PlayGround.Client.Localization
             public static string Hold => Loc.Get("Dashboard.Hold");
             /// <summary>수락 — 선수단 초대</summary>
             public static string AcceptInvite => Loc.Get("Dashboard.AcceptInvite");
+            /// <summary>지원을 보류할까요?</summary>
+            public static string HoldApplyTitle => Loc.Get("Dashboard.HoldApplyTitle");
+            /// <summary>{0} · 보류하면 지원자에게 알림이 가요. 30일 후 다시 지원할 수 있어요.</summary>
+            public static string HoldApplyDescription(object arg0) => Loc.Format("Dashboard.HoldApplyDescription", arg0);
+            /// <summary>공개 글이었다면 공개 홈페이지에서도 바로 사라져요.</summary>
+            public static string DeletePostPublicNote => Loc.Get("Dashboard.DeletePostPublicNote");
+            /// <summary>연도를 다시 확인해 주세요.</summary>
+            public static string ErrorYearRange => Loc.Get("Dashboard.ErrorYearRange");
+            /// <summary>인원을 입력해 주세요.</summary>
+            public static string ErrorPlayerCountEmpty => Loc.Get("Dashboard.ErrorPlayerCountEmpty");
+            /// <summary>인원은 1~99명 사이여야 해요.</summary>
+            public static string ErrorPlayerCountRange => Loc.Get("Dashboard.ErrorPlayerCountRange");
+            /// <summary>사례를 저장했어요.</summary>
+            public static string CareerOutcomeSavedToast => Loc.Get("Dashboard.CareerOutcomeSavedToast");
+            /// <summary>사례를 등록했어요. 공개 홈페이지에서 확인할 수 있어요.</summary>
+            public static string CareerOutcomeAddedToast => Loc.Get("Dashboard.CareerOutcomeAddedToast");
+            /// <summary>사례를 삭제했어요.</summary>
+            public static string CareerOutcomeDeletedToast => Loc.Get("Dashboard.CareerOutcomeDeletedToast");
+            /// <summary>수정 신청을 보냈어요. 주최측 검토 후 반영돼요.</summary>
+            public static string CorrectionSubmittedToast => Loc.Get("Dashboard.CorrectionSubmittedToast");
+            /// <summary>선수 이름을 입력해 주세요.</summary>
+            public static string ErrorPlayerNameEmpty => Loc.Get("Dashboard.ErrorPlayerNameEmpty");
+            /// <summary>등번호는 숫자만 입력해 주세요.</summary>
+            public static string ErrorJerseyDigits => Loc.Get("Dashboard.ErrorJerseyDigits");
+            /// <summary>{0} 선수를 추가했어요.</summary>
+            public static string PlayerAddedToast(object arg0) => Loc.Format("Dashboard.PlayerAddedToast", arg0);
+            /// <summary>GK · 골키퍼</summary>
+            public static string PosGkOption => Loc.Get("Dashboard.PosGkOption");
+            /// <summary>공고를 저장했어요.</summary>
+            public static string RecruitSavedToast => Loc.Get("Dashboard.RecruitSavedToast");
+            /// <summary>공고를 올렸어요. 공개 홈페이지에서 확인할 수 있어요.</summary>
+            public static string RecruitPostedToast => Loc.Get("Dashboard.RecruitPostedToast");
+            /// <summary>일정을 저장했어요.</summary>
+            public static string ScheduleSavedToast => Loc.Get("Dashboard.ScheduleSavedToast");
+            /// <summary>일정을 추가했어요.</summary>
+            public static string ScheduleAddedToast => Loc.Get("Dashboard.ScheduleAddedToast");
+            /// <summary>팀명을 입력해 주세요.</summary>
+            public static string ErrorTeamNameEmpty => Loc.Get("Dashboard.ErrorTeamNameEmpty");
+            /// <summary>숫자 4자리로 입력해 주세요.</summary>
+            public static string ErrorYearDigits => Loc.Get("Dashboard.ErrorYearDigits");
+            /// <summary>1900 ~ {0} 사이로 입력해 주세요.</summary>
+            public static string ErrorFoundedYearRange(object arg0) => Loc.Format("Dashboard.ErrorFoundedYearRange", arg0);
+            /// <summary>팀 정보를 저장했어요. 공개 홈페이지에도 반영됐어요.</summary>
+            public static string TeamInfoSavedToast => Loc.Get("Dashboard.TeamInfoSavedToast");
+            /// <summary>핵심가치·코칭스태프·공식 채널이 자동 노출돼요</summary>
+            public static string PublicHomeAutoNote => Loc.Get("Dashboard.PublicHomeAutoNote");
+            /// <summary> 인증</summary>
+            public static string CertificationSuffix => Loc.Get("Dashboard.CertificationSuffix");
+            /// <summary>처리할 알림 {0}건이 있어요</summary>
+            public static string GreetingActions(object arg0) => Loc.Format("Dashboard.GreetingActions", arg0);
+            /// <summary>오늘도 좋은 하루 보내세요</summary>
+            public static string GreetingIdle => Loc.Get("Dashboard.GreetingIdle");
+            /// <summary>M월 d일 (ddd)</summary>
+            public static string TodayFormat => Loc.Get("Dashboard.TodayFormat");
+        }
+
+        public static class Enums
+        {
+            /// <summary>역할</summary>
+            public static string SettingsRoles => Loc.Get("Enums.SettingsRoles");
+            /// <summary>알림</summary>
+            public static string SettingsNotifications => Loc.Get("Enums.SettingsNotifications");
+            /// <summary>계정</summary>
+            public static string SettingsAccount => Loc.Get("Enums.SettingsAccount");
+            /// <summary>테스트 확정</summary>
+            public static string ApplicantTestConfirmed => Loc.Get("Enums.ApplicantTestConfirmed");
+            /// <summary>검토중</summary>
+            public static string ApplicantReviewing => Loc.Get("Enums.ApplicantReviewing");
+            /// <summary>대기</summary>
+            public static string ApplicantPending => Loc.Get("Enums.ApplicantPending");
+            /// <summary>리그</summary>
+            public static string CompetitionLeague => Loc.Get("Enums.CompetitionLeague");
+            /// <summary>컵</summary>
+            public static string CompetitionCup => Loc.Get("Enums.CompetitionCup");
+            /// <summary>친선</summary>
+            public static string CompetitionFriendly => Loc.Get("Enums.CompetitionFriendly");
+            /// <summary>승</summary>
+            public static string OutcomeWin => Loc.Get("Enums.OutcomeWin");
+            /// <summary>무</summary>
+            public static string OutcomeDraw => Loc.Get("Enums.OutcomeDraw");
+            /// <summary>패</summary>
+            public static string OutcomeLose => Loc.Get("Enums.OutcomeLose");
+            /// <summary>공식</summary>
+            public static string MatchSegmentOfficial => Loc.Get("Enums.MatchSegmentOfficial");
+            /// <summary>친선경기</summary>
+            public static string MatchSegmentFriendly => Loc.Get("Enums.MatchSegmentFriendly");
+            /// <summary>전체</summary>
+            public static string MatchSegmentAll => Loc.Get("Enums.MatchSegmentAll");
+            /// <summary>커리어</summary>
+            public static string PlayerSectionCareer => Loc.Get("Enums.PlayerSectionCareer");
+            /// <summary>시즌 통계</summary>
+            public static string PlayerSectionStats => Loc.Get("Enums.PlayerSectionStats");
+            /// <summary>포트폴리오</summary>
+            public static string PlayerSectionPortfolio => Loc.Get("Enums.PlayerSectionPortfolio");
+            /// <summary>프로필</summary>
+            public static string PlayerSectionProfile => Loc.Get("Enums.PlayerSectionProfile");
+            /// <summary>왼발</summary>
+            public static string FootLeft => Loc.Get("Enums.FootLeft");
+            /// <summary>오른발</summary>
+            public static string FootRight => Loc.Get("Enums.FootRight");
+            /// <summary>양발</summary>
+            public static string FootBoth => Loc.Get("Enums.FootBoth");
+            /// <summary>경기</summary>
+            public static string ScheduleMatch => Loc.Get("Enums.ScheduleMatch");
+            /// <summary>대회</summary>
+            public static string ScheduleTournament => Loc.Get("Enums.ScheduleTournament");
+            /// <summary>훈련</summary>
+            public static string ScheduleTraining => Loc.Get("Enums.ScheduleTraining");
+            /// <summary>선수단</summary>
+            public static string TeamTabRoster => Loc.Get("Enums.TeamTabRoster");
+            /// <summary>시즌성적</summary>
+            public static string TeamTabRecord => Loc.Get("Enums.TeamTabRecord");
+            /// <summary>모집</summary>
+            public static string TeamTabRecruit => Loc.Get("Enums.TeamTabRecruit");
+            /// <summary>진학·진로</summary>
+            public static string TeamTabCareer => Loc.Get("Enums.TeamTabCareer");
+            /// <summary>리뷰</summary>
+            public static string TeamTabReview => Loc.Get("Enums.TeamTabReview");
+            /// <summary>소개</summary>
+            public static string TeamTabIntro => Loc.Get("Enums.TeamTabIntro");
+            /// <summary>조별+토너먼트</summary>
+            public static string TournamentFormatCup => Loc.Get("Enums.TournamentFormatCup");
+            /// <summary>풀리그+스플릿</summary>
+            public static string TournamentFormatSplit => Loc.Get("Enums.TournamentFormatSplit");
+            /// <summary>리그</summary>
+            public static string TournamentFormatLeague => Loc.Get("Enums.TournamentFormatLeague");
+            /// <summary>진행중</summary>
+            public static string TournamentInProgress => Loc.Get("Enums.TournamentInProgress");
+            /// <summary>예정</summary>
+            public static string TournamentScheduled => Loc.Get("Enums.TournamentScheduled");
+            /// <summary>종료</summary>
+            public static string TournamentEnded => Loc.Get("Enums.TournamentEnded");
+            /// <summary>하이라이트</summary>
+            public static string VideoHighlight => Loc.Get("Enums.VideoHighlight");
+            /// <summary>풀경기</summary>
+            public static string VideoFullMatch => Loc.Get("Enums.VideoFullMatch");
+            /// <summary>훈련</summary>
+            public static string VideoTraining => Loc.Get("Enums.VideoTraining");
+        }
+
+        public static class Errors
+        {
+            /// <summary>로그인에 실패했어요.</summary>
+            public static string LoginFailed => Loc.Get("Errors.LoginFailed");
+            /// <summary>네트워크 오류로 로그인하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string LoginNetwork => Loc.Get("Errors.LoginNetwork");
+            /// <summary>로그인이 필요해요. 다시 로그인해 주세요.</summary>
+            public static string LoginRequired => Loc.Get("Errors.LoginRequired");
+            /// <summary>이름을 변경하지 못했어요. 입력을 다시 확인해 주세요.</summary>
+            public static string NameChangeInvalid => Loc.Get("Errors.NameChangeInvalid");
+            /// <summary>이름을 변경하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string NameChangeRetry => Loc.Get("Errors.NameChangeRetry");
+            /// <summary>저장하지 못했어요.</summary>
+            public static string SaveFailed => Loc.Get("Errors.SaveFailed");
+            /// <summary>저장하지 못했어요. 입력을 다시 확인해 주세요.</summary>
+            public static string SaveInvalid => Loc.Get("Errors.SaveInvalid");
+            /// <summary>저장하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string SaveRetry => Loc.Get("Errors.SaveRetry");
+            /// <summary>네트워크 오류로 저장하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string SaveNetwork => Loc.Get("Errors.SaveNetwork");
+            /// <summary>상태를 바꾸지 못했어요. 다시 시도해 주세요.</summary>
+            public static string SaveRetryToast => Loc.Get("Errors.SaveRetryToast");
+            /// <summary>프로필 저장에 실패했어요.</summary>
+            public static string ProfileSaveFailed => Loc.Get("Errors.ProfileSaveFailed");
+            /// <summary>코드가 유효하지 않아요. 팀 관리자에게 다시 확인해 주세요.</summary>
+            public static string ClaimCodeInvalid => Loc.Get("Errors.ClaimCodeInvalid");
+            /// <summary>연결하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string ClaimRetry => Loc.Get("Errors.ClaimRetry");
+            /// <summary>신청하지 못했어요.</summary>
+            public static string CorrectionFailed => Loc.Get("Errors.CorrectionFailed");
+            /// <summary>신청하지 못했어요. 입력을 다시 확인해 주세요.</summary>
+            public static string CorrectionInvalid => Loc.Get("Errors.CorrectionInvalid");
+            /// <summary>신청하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string CorrectionRetry => Loc.Get("Errors.CorrectionRetry");
+            /// <summary>신청하지 못했어요. 이미 처리 중인 신청이 있는지 확인해 주세요.</summary>
+            public static string CorrectionDuplicate => Loc.Get("Errors.CorrectionDuplicate");
+            /// <summary>취소하지 못했어요.</summary>
+            public static string CancelFailed => Loc.Get("Errors.CancelFailed");
+            /// <summary>취소하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string CancelRetry => Loc.Get("Errors.CancelRetry");
+            /// <summary>취소하지 못했어요. 이미 심사가 시작됐을 수 있어요.</summary>
+            public static string CancelReviewStarted => Loc.Get("Errors.CancelReviewStarted");
+            /// <summary>선수를 추가하지 못했어요.</summary>
+            public static string PlayerAddFailed => Loc.Get("Errors.PlayerAddFailed");
+            /// <summary>선수를 추가하지 못했어요. 입력을 다시 확인해 주세요.</summary>
+            public static string PlayerAddInvalid => Loc.Get("Errors.PlayerAddInvalid");
+            /// <summary>선수를 추가하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string PlayerAddRetry => Loc.Get("Errors.PlayerAddRetry");
+            /// <summary>지원하지 못했어요. 입력을 다시 확인해 주세요.</summary>
+            public static string ApplyInvalid => Loc.Get("Errors.ApplyInvalid");
+            /// <summary>지원하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string ApplyRetry => Loc.Get("Errors.ApplyRetry");
+            /// <summary>리뷰를 저장하지 못했어요. 입력을 다시 확인해 주세요.</summary>
+            public static string ReviewSaveInvalid => Loc.Get("Errors.ReviewSaveInvalid");
+            /// <summary>리뷰를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string ReviewSaveRetry => Loc.Get("Errors.ReviewSaveRetry");
+            /// <summary>팀 생성에 실패했어요.</summary>
+            public static string TeamCreateFailed => Loc.Get("Errors.TeamCreateFailed");
+            /// <summary>삭제하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string DeleteRetry => Loc.Get("Errors.DeleteRetry");
+            /// <summary>되돌리지 못했어요. 다시 시도해 주세요.</summary>
+            public static string UndoRetry => Loc.Get("Errors.UndoRetry");
+            /// <summary>공고를 복구하지 못했어요.</summary>
+            public static string RecruitRestoreFailed => Loc.Get("Errors.RecruitRestoreFailed");
+            /// <summary>강점 태그를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.</summary>
+            public static string StrengthTagsSaveRetry => Loc.Get("Errors.StrengthTagsSaveRetry");
         }
 
         public static class Hub
@@ -1628,6 +1834,78 @@ namespace PlayGround.Client.Localization
             public static string Reject => Loc.Get("Notification.Reject");
             /// <summary>초대 확인</summary>
             public static string ConfirmInvite => Loc.Get("Notification.ConfirmInvite");
+            /// <summary>연결 요청</summary>
+            public static string GroupClaim => Loc.Get("Notification.GroupClaim");
+            /// <summary>경기</summary>
+            public static string GroupMatch => Loc.Get("Notification.GroupMatch");
+            /// <summary>열람 요청</summary>
+            public static string GroupViewRequest => Loc.Get("Notification.GroupViewRequest");
+            /// <summary>선수단 초대</summary>
+            public static string GroupRosterInvite => Loc.Get("Notification.GroupRosterInvite");
+            /// <summary>팀 소식</summary>
+            public static string GroupTeamNews => Loc.Get("Notification.GroupTeamNews");
+            /// <summary>내 계정</summary>
+            public static string GroupAccount => Loc.Get("Notification.GroupAccount");
+            /// <summary>기록</summary>
+            public static string GroupRecords => Loc.Get("Notification.GroupRecords");
+            /// <summary>프로필 연결 승인</summary>
+            public static string TitleClaimApproved => Loc.Get("Notification.TitleClaimApproved");
+            /// <summary>연결 요청이 거절됐어요</summary>
+            public static string TitleClaimRejected => Loc.Get("Notification.TitleClaimRejected");
+            /// <summary>경기 결과 반영</summary>
+            public static string TitleMatchResult => Loc.Get("Notification.TitleMatchResult");
+            /// <summary>상세 정보 열람 요청</summary>
+            public static string TitleViewRequest => Loc.Get("Notification.TitleViewRequest");
+            /// <summary>열람 승인 만료 임박</summary>
+            public static string TitleGrantExpiring => Loc.Get("Notification.TitleGrantExpiring");
+            /// <summary>팀 공지</summary>
+            public static string TitleTeamNotice => Loc.Get("Notification.TitleTeamNotice");
+            /// <summary>데이터 파일이 준비됐어요</summary>
+            public static string TitleExportReady => Loc.Get("Notification.TitleExportReady");
+            /// <summary>기록 수정 신청 반영</summary>
+            public static string TitleCorrectionAccepted => Loc.Get("Notification.TitleCorrectionAccepted");
+            /// <summary>기록 수정 신청 반려</summary>
+            public static string TitleCorrectionRejected => Loc.Get("Notification.TitleCorrectionRejected");
+            /// <summary>{0} 선수와 연결됐어요 — {1}</summary>
+            public static string BodyClaimApproved(object arg0, object arg1) => Loc.Format("Notification.BodyClaimApproved", arg0, arg1);
+            /// <summary>{0} · {1} — 팀에 문의해 보세요</summary>
+            public static string BodyClaimRejected(object arg0, object arg1) => Loc.Format("Notification.BodyClaimRejected", arg0, arg1);
+            /// <summary>{0} vs {1} ({2}) 결과가 등록됐어요</summary>
+            public static string BodyMatchResult(object arg0, object arg1, object arg2) => Loc.Format("Notification.BodyMatchResult", arg0, arg1, arg2);
+            /// <summary>{0} 님이 {1} 선수의 상세 정보 열람을 요청했어요</summary>
+            public static string BodyViewRequest(object arg0, object arg1) => Loc.Format("Notification.BodyViewRequest", arg0, arg1);
+            /// <summary>{0} 님의 {1} 선수 열람 권한이 3일 안에 만료돼요</summary>
+            public static string BodyGrantExpiring(object arg0, object arg1) => Loc.Format("Notification.BodyGrantExpiring", arg0, arg1);
+            /// <summary>{0} · {1}</summary>
+            public static string BodyTeamNotice(object arg0, object arg1) => Loc.Format("Notification.BodyTeamNotice", arg0, arg1);
+            /// <summary>설정 · 계정에서 7일 안에 내려받을 수 있어요</summary>
+            public static string BodyExportReady => Loc.Get("Notification.BodyExportReady");
+            /// <summary>{0} 항목 · {1}</summary>
+            public static string BodyCorrection(object arg0, object arg1) => Loc.Format("Notification.BodyCorrection", arg0, arg1);
+            /// <summary>아버지</summary>
+            public static string RelationFather => Loc.Get("Notification.RelationFather");
+            /// <summary>기타 보호자</summary>
+            public static string RelationGuardian => Loc.Get("Notification.RelationGuardian");
+            /// <summary>어머니</summary>
+            public static string RelationMother => Loc.Get("Notification.RelationMother");
+            /// <summary>스코어</summary>
+            public static string FieldScore => Loc.Get("Notification.FieldScore");
+            /// <summary>득점·도움</summary>
+            public static string FieldGoalAssist => Loc.Get("Notification.FieldGoalAssist");
+            /// <summary>출전 선수</summary>
+            public static string FieldAppearance => Loc.Get("Notification.FieldAppearance");
+            /// <summary>기타</summary>
+            public static string FieldEtc => Loc.Get("Notification.FieldEtc");
+            /// <summary>방금 전</summary>
+            public static string TimeJustNow => Loc.Get("Notification.TimeJustNow");
+            /// <summary>{0}분 전</summary>
+            public static string TimeMinutesAgo(object arg0) => Loc.Format("Notification.TimeMinutesAgo", arg0);
+            /// <summary>{0}시간 전</summary>
+            public static string TimeHoursAgo(object arg0) => Loc.Format("Notification.TimeHoursAgo", arg0);
+            /// <summary>어제</summary>
+            public static string TimeYesterday => Loc.Get("Notification.TimeYesterday");
+            /// <summary>{0}/{1}</summary>
+            public static string TimeDate(object arg0, object arg1) => Loc.Format("Notification.TimeDate", arg0, arg1);
         }
 
         public static class Player
@@ -2246,6 +2524,40 @@ namespace PlayGround.Client.Localization
             public static string MinutesLabel(object arg0) => Loc.Format("Player.MinutesLabel", arg0);
             /// <summary>출전 -</summary>
             public static string MinutesEmpty => Loc.Get("Player.MinutesEmpty");
+            /// <summary>경기별 상세 기록 · 학교 · 연락 수단은</summary>
+            public static string LockTitleLine1 => Loc.Get("Player.LockTitleLine1");
+            /// <summary>보호자 승인 후 열람할 수 있어요</summary>
+            public static string LockTitleLine2 => Loc.Get("Player.LockTitleLine2");
+            /// <summary>경기별 상세 기록 · 학교 · 연락 수단은 보호자 승인 후 열람할 수 있어요</summary>
+            public static string LockTitle => Loc.Get("Player.LockTitle");
+            /// <summary>에이전트·지도자 계정으로 열람을 요청하면 보호자에게 알림이 갑니다. 승인 내역과 열람 기록은 모두 보호자에게 공개됩니다.</summary>
+            public static string LockDescription => Loc.Get("Player.LockDescription");
+            /// <summary>내 아이 프로필 만들기</summary>
+            public static string CreateChildProfileLink => Loc.Get("Player.CreateChildProfileLink");
+            /// <summary>주발 {0}</summary>
+            public static string ChipFoot(object arg0) => Loc.Format("Player.ChipFoot", arg0);
+            /// <summary>삭제하면 이니셜 아바타로 돌아가요. 되돌릴 수 없어요.</summary>
+            public static string DeletePhotoDescription => Loc.Get("Player.DeletePhotoDescription");
+            /// <summary>보호자</summary>
+            public static string RoleSuffixGuardian => Loc.Get("Player.RoleSuffixGuardian");
+            /// <summary>본인</summary>
+            public static string RoleSuffixSelf => Loc.Get("Player.RoleSuffixSelf");
+            /// <summary>프로필 관리 · 공개 설정 권한</summary>
+            public static string RoleDescriptionGuardian => Loc.Get("Player.RoleDescriptionGuardian");
+            /// <summary>만 14세 이상 시 관리 권한 이전 가능</summary>
+            public static string RoleDescriptionSelf => Loc.Get("Player.RoleDescriptionSelf");
+            /// <summary>{0:은/는} 숫자로 입력해 주세요.</summary>
+            public static string ErrorNumeric(object arg0) => Loc.Format("Player.ErrorNumeric", arg0);
+            /// <summary>{0:은/는} {1}~{2} 사이로 입력해 주세요.</summary>
+            public static string ErrorNumericRange(object arg0, object arg1, object arg2) => Loc.Format("Player.ErrorNumericRange", arg0, arg1, arg2);
+            /// <summary>프로필을 수정했어요.</summary>
+            public static string ProfileSavedToast => Loc.Get("Player.ProfileSavedToast");
+            /// <summary>수정 신청을 보냈어요. 주최측 검토 후 반영돼요.</summary>
+            public static string CorrectionSubmittedToast => Loc.Get("Player.CorrectionSubmittedToast");
+            /// <summary>이력을 수정했어요.</summary>
+            public static string CareerUpdatedToast => Loc.Get("Player.CareerUpdatedToast");
+            /// <summary>이력을 등록했어요.</summary>
+            public static string CareerAddedToast => Loc.Get("Player.CareerAddedToast");
         }
 
         public static class Records
@@ -2488,6 +2800,40 @@ namespace PlayGround.Client.Localization
             public static string VideoTraining => Loc.Get("Records.VideoTraining");
             /// <summary>하이라이트</summary>
             public static string VideoHighlight => Loc.Get("Records.VideoHighlight");
+            /// <summary>경기 상세 — PlayGround</summary>
+            public static string MatchPageTitle => Loc.Get("Records.MatchPageTitle");
+            /// <summary>{0}. {1}. {2} ~ {3}. {4}</summary>
+            public static string PeriodValue(object arg0, object arg1, object arg2, object arg3, object arg4) => Loc.Format("Records.PeriodValue", arg0, arg1, arg2, arg3, arg4);
+            /// <summary>{0}/{1} ~ {2}/{3}</summary>
+            public static string PeriodShort(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Records.PeriodShort", arg0, arg1, arg2, arg3);
+            /// <summary>경기 상세 전체 보기</summary>
+            public static string MatchDetailFull => Loc.Get("Records.MatchDetailFull");
+            /// <summary>순위</summary>
+            public static string ColRank => Loc.Get("Records.ColRank");
+            /// <summary>팀</summary>
+            public static string ColTeam => Loc.Get("Records.ColTeam");
+            /// <summary>경기</summary>
+            public static string ColMatches => Loc.Get("Records.ColMatches");
+            /// <summary>승점</summary>
+            public static string ColPoints => Loc.Get("Records.ColPoints");
+            /// <summary>승</summary>
+            public static string ColWin => Loc.Get("Records.ColWin");
+            /// <summary>무</summary>
+            public static string ColDraw => Loc.Get("Records.ColDraw");
+            /// <summary>패</summary>
+            public static string ColLose => Loc.Get("Records.ColLose");
+            /// <summary>득실</summary>
+            public static string ColGoalDiff => Loc.Get("Records.ColGoalDiff");
+            /// <summary>승-무-패</summary>
+            public static string ColWdl => Loc.Get("Records.ColWdl");
+            /// <summary>승점 3/1/0</summary>
+            public static string PointsLegend => Loc.Get("Records.PointsLegend");
+            /// <summary>일월화수목금토</summary>
+            public static string WeekdayLetters => Loc.Get("Records.WeekdayLetters");
+            /// <summary>일정 미정</summary>
+            public static string ScheduleTbd => Loc.Get("Records.ScheduleTbd");
+            /// <summary>{0} · {1}번</summary>
+            public static string EventDetailWithNumber(object arg0, object arg1) => Loc.Format("Records.EventDetailWithNumber", arg0, arg1);
         }
 
         public static class Settings
@@ -2580,7 +2926,7 @@ namespace PlayGround.Client.Localization
             public static string LinkStartFailedToast(object arg0) => Loc.Format("Settings.LinkStartFailedToast", arg0);
             /// <summary>{0} 연결을 해제할까요?</summary>
             public static string UnlinkTitle(object arg0) => Loc.Format("Settings.UnlinkTitle", arg0);
-            /// <summary>해제하면 {0}로 로그인할 수 없어요. 남은 로그인 수단은 {1}개예요.</summary>
+            /// <summary>해제하면 {0:으로/로} 로그인할 수 없어요. 남은 로그인 수단은 {1}개예요.</summary>
             public static string UnlinkDescription(object arg0, object arg1) => Loc.Format("Settings.UnlinkDescription", arg0, arg1);
             /// <summary>해제</summary>
             public static string UnlinkConfirmLabel => Loc.Get("Settings.UnlinkConfirmLabel");
@@ -2812,7 +3158,7 @@ namespace PlayGround.Client.Localization
             public static string ThisWeekend => Loc.Get("Shared.ThisWeekend");
             /// <summary>그 팀의 최근 일정과 같은 시각</summary>
             public static string SameAsRecent => Loc.Get("Shared.SameAsRecent");
-            /// <summary>{0}로 선택</summary>
+            /// <summary>{0:으로/로} 선택</summary>
             public static string SelectedAs(object arg0) => Loc.Format("Shared.SelectedAs", arg0);
             /// <summary>자동으로 채워져요</summary>
             public static string AutoFilled => Loc.Get("Shared.AutoFilled");
@@ -3000,6 +3346,10 @@ namespace PlayGround.Client.Localization
             public static string LoginOtherAccount => Loc.Get("Shared.LoginOtherAccount");
             /// <summary>계속 문제가 있다면 팀 관리자 또는 고객센터에 문의하세요.</summary>
             public static string ForbiddenFootnote => Loc.Get("Shared.ForbiddenFootnote");
+            /// <summary>초기화</summary>
+            public static string Reset => Loc.Get("Shared.Reset");
+            /// <summary>{0} 님({1})</summary>
+            public static string ActorWithRelation(object arg0, object arg1) => Loc.Format("Shared.ActorWithRelation", arg0, arg1);
         }
 
         public static class Team

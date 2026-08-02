@@ -324,7 +324,8 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
    키를 추가하고 `cd Source/Tools/Generator.Localization && dotnet run` 후 `@AppText.{Domain}.{Key}`로 쓴다.
    ko 값은 SPEC 카피 그대로. **문화권 분기 금지** — 한국어 조사는 리소스 모디파이어 `{0:이/가}`로 표현한다.
    구조·키 컨벤션·이관 절차·제외 대상은 **`Docs/Architecture/Localization.md`**.
-   (기존 화면은 점진 이관 중 — 완료: Landing·Auth·Settings·Claim·Notification·Team·Records 경기상세.)
+   **이관 완료**(2026-08-02) — `.razor`·`Models/`·`Services/` 잔여 0, 15도메인 1,817키 × ko/ja.
+   열거형 표시 라벨은 `Enums`, API 폴백 실패 메시지는 `Errors` 도메인(횡단 관심사).
 
 ## 빌드 & 테스트
 

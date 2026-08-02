@@ -7,14 +7,14 @@ namespace PlayGround.Client.Components.Records
     /// <summary>Records 화면 공용 표시 포맷 (경기 일시·상태 뱃지·PK 스코어).</summary>
     public static class RecordsFormatting
     {
-        private const string WeekdayLetters = "일월화수목금토";
+        private static string WeekdayLetters => AppText.Records.WeekdayLetters;
 
         /// <summary>"6/7 (일) 10:00" — 일시 미정이면 "일정 미정".</summary>
         public static string WhenLabel(DateTime? matchedAt)
         {
             if (matchedAt is null)
             {
-                return "일정 미정";
+                return AppText.Records.ScheduleTbd;
             }
 
             DateTime at = matchedAt.Value;
@@ -121,7 +121,7 @@ namespace PlayGround.Client.Components.Records
         public static string EventDetailText(RecordsMatchEventDto e)
         {
             string kind = EventKindLabel(e.EventType);
-            return e.JerseyNumber is int no ? $"{kind} · {no}번" : kind;
+            return e.JerseyNumber is int no ? AppText.Records.EventDetailWithNumber(kind, no) : kind;
         }
 
         /// <summary>라운드 표시 — 'R1'→'1R', 'R16'→'16강', 'PO'/'QF'/'SF'/'F' 매핑.</summary>

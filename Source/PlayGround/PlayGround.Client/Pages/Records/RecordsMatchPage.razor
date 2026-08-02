@@ -9,10 +9,10 @@
 @inject RecordsClient Records
 @inject NavigationManager Nav
 
-<PageTitle>경기 상세 — PlayGround</PageTitle>
+<PageTitle>@AppText.Records.MatchPageTitle</PageTitle>
 
 <div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
-    <PublicGnb SectionLabel="경기기록" />
+    <PublicGnb SectionLabel="@AppText.Records.SectionLabel" />
 
     <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-4 md:pt-6 pb-20 flex flex-col gap-4">
         @if (mData is not null)

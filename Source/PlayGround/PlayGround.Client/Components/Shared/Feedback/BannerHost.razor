@@ -21,7 +21,7 @@
             </span>
             @if (banner.CanDismiss)
             {
-                <button type="button" class="@Css.Banner.Close" aria-label="닫기" @onclick="() => DismissAsync(banner)">
+                <button type="button" class="@Css.Banner.Close" aria-label="@AppText.Shared.Close" @onclick="() => DismissAsync(banner)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>

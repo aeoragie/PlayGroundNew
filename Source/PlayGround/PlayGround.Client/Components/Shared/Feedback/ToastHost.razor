@@ -20,7 +20,7 @@
             @if (toast.Kind == ToastKind.Error)
             {
                 @* 오류는 자동 소멸하지 않으므로 수동 닫기 제공 *@
-                <button type="button" class="@Css.Feedback.ToastClose" aria-label="닫기" @onclick="Toasts.Dismiss">
+                <button type="button" class="@Css.Feedback.ToastClose" aria-label="@AppText.Shared.Close" @onclick="Toasts.Dismiss">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>

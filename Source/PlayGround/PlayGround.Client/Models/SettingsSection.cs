@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>설정 화면 탭. 라우트 슬러그는 소문자 이름 (/settings/{slug}).</summary>
@@ -21,9 +23,9 @@ namespace PlayGround.Client.Models
         {
             return section switch
             {
-                SettingsSection.Roles => "역할",
-                SettingsSection.Notifications => "알림",
-                _ => "계정",
+                SettingsSection.Roles => AppText.Enums.SettingsRoles,
+                SettingsSection.Notifications => AppText.Enums.SettingsNotifications,
+                _ => AppText.Enums.SettingsAccount,
             };
         }
 

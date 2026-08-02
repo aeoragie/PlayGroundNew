@@ -266,13 +266,13 @@
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "신청하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Errors.CorrectionFailed);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess("수정 신청을 보냈어요. 주최측 검토 후 반영돼요.");
+        Toasts.ShowSuccess(AppText.Dashboard.CorrectionSubmittedToast);
         await CloseAsync();
         await OnSubmitted.InvokeAsync();
     }

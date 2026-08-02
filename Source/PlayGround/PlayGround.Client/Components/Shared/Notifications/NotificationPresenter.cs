@@ -1,6 +1,7 @@
 using System;
 using PlayGround.Contracts.Notification;
 using PlayGround.Domain.Soccer;
+using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
 
 namespace PlayGround.Client.Components.Shared.Notifications
@@ -40,14 +41,14 @@ namespace PlayGround.Client.Components.Shared.Notifications
         {
             nameof(SoccerNotificationType.ClaimRequest) or
             nameof(SoccerNotificationType.ClaimApproved) or
-            nameof(SoccerNotificationType.ClaimRejected) => "연결 요청",
-            nameof(SoccerNotificationType.MatchResult) => "경기",
+            nameof(SoccerNotificationType.ClaimRejected) => AppText.Notification.GroupClaim,
+            nameof(SoccerNotificationType.MatchResult) => AppText.Notification.GroupMatch,
             nameof(SoccerNotificationType.ViewRequest) or
-            nameof(SoccerNotificationType.AgentGrantExpiring) => "열람 요청",
-            nameof(SoccerNotificationType.RosterInvite) => "선수단 초대",
-            nameof(SoccerNotificationType.TeamNotice) => "팀 소식",
-            nameof(SoccerNotificationType.ExportReady) => "내 계정",
-            _ => "기록",
+            nameof(SoccerNotificationType.AgentGrantExpiring) => AppText.Notification.GroupViewRequest,
+            nameof(SoccerNotificationType.RosterInvite) => AppText.Notification.GroupRosterInvite,
+            nameof(SoccerNotificationType.TeamNotice) => AppText.Notification.GroupTeamNews,
+            nameof(SoccerNotificationType.ExportReady) => AppText.Notification.GroupAccount,
+            _ => AppText.Notification.GroupRecords,
         };
 
         // 딥링크 — 이동형(내비게이션형) 알림의 착지점. 없으면 null.
@@ -70,42 +71,42 @@ namespace PlayGround.Client.Components.Shared.Notifications
 
         public static string MoveTitle(NotificationDto item) => item.Type switch
         {
-            nameof(SoccerNotificationType.ClaimApproved) => "프로필 연결 승인",
-            nameof(SoccerNotificationType.ClaimRejected) => "연결 요청이 거절됐어요",
-            nameof(SoccerNotificationType.MatchResult) => "경기 결과 반영",
-            nameof(SoccerNotificationType.ViewRequest) => "상세 정보 열람 요청",
-            nameof(SoccerNotificationType.AgentGrantExpiring) => "열람 승인 만료 임박",
-            nameof(SoccerNotificationType.TeamNotice) => "팀 공지",
-            nameof(SoccerNotificationType.ExportReady) => "데이터 파일이 준비됐어요",
-            _ => item.SubText == "Accepted" ? "기록 수정 신청 반영" : "기록 수정 신청 반려",
+            nameof(SoccerNotificationType.ClaimApproved) => AppText.Notification.TitleClaimApproved,
+            nameof(SoccerNotificationType.ClaimRejected) => AppText.Notification.TitleClaimRejected,
+            nameof(SoccerNotificationType.MatchResult) => AppText.Notification.TitleMatchResult,
+            nameof(SoccerNotificationType.ViewRequest) => AppText.Notification.TitleViewRequest,
+            nameof(SoccerNotificationType.AgentGrantExpiring) => AppText.Notification.TitleGrantExpiring,
+            nameof(SoccerNotificationType.TeamNotice) => AppText.Notification.TitleTeamNotice,
+            nameof(SoccerNotificationType.ExportReady) => AppText.Notification.TitleExportReady,
+            _ => item.SubText == "Accepted" ? AppText.Notification.TitleCorrectionAccepted : AppText.Notification.TitleCorrectionRejected,
         };
 
         public static string MoveBody(NotificationDto item) => item.Type switch
         {
-            nameof(SoccerNotificationType.ClaimApproved) => $"{item.PlayerName} 선수와 연결됐어요 — {item.TeamName}",
-            nameof(SoccerNotificationType.ClaimRejected) => $"{item.PlayerName} · {item.TeamName} — 팀에 문의해 보세요",
-            nameof(SoccerNotificationType.MatchResult) => $"{item.TeamName} vs {item.ActorName} ({item.MetaText}) 결과가 등록됐어요",
-            nameof(SoccerNotificationType.ViewRequest) => $"{item.ActorName} 님이 {item.PlayerName} 선수의 상세 정보 열람을 요청했어요",
-            nameof(SoccerNotificationType.AgentGrantExpiring) => $"{item.ActorName} 님의 {item.PlayerName} 선수 열람 권한이 3일 안에 만료돼요",
-            nameof(SoccerNotificationType.TeamNotice) => $"{item.TeamName} · {item.MetaText}",
-            nameof(SoccerNotificationType.ExportReady) => "설정 · 계정에서 7일 안에 내려받을 수 있어요",
-            _ => $"{FieldTypeLabel(item.MetaText)} 항목 · {item.TeamName}",
+            nameof(SoccerNotificationType.ClaimApproved) => AppText.Notification.BodyClaimApproved(item.PlayerName, item.TeamName),
+            nameof(SoccerNotificationType.ClaimRejected) => AppText.Notification.BodyClaimRejected(item.PlayerName, item.TeamName),
+            nameof(SoccerNotificationType.MatchResult) => AppText.Notification.BodyMatchResult(item.TeamName, item.ActorName, item.MetaText),
+            nameof(SoccerNotificationType.ViewRequest) => AppText.Notification.BodyViewRequest(item.ActorName, item.PlayerName),
+            nameof(SoccerNotificationType.AgentGrantExpiring) => AppText.Notification.BodyGrantExpiring(item.ActorName, item.PlayerName),
+            nameof(SoccerNotificationType.TeamNotice) => AppText.Notification.BodyTeamNotice(item.TeamName, item.MetaText),
+            nameof(SoccerNotificationType.ExportReady) => AppText.Notification.BodyExportReady,
+            _ => AppText.Notification.BodyCorrection(FieldTypeLabel(item.MetaText), item.TeamName),
         };
 
         public static string RelationLabel(string? relation) => relation switch
         {
-            "Father" => "아버지",
-            "Guardian" => "기타 보호자",
-            _ => "어머니",
+            "Father" => AppText.Notification.RelationFather,
+            "Guardian" => AppText.Notification.RelationGuardian,
+            _ => AppText.Notification.RelationMother,
         };
 
         // 기록 수정 신청 항목 라벨 (B6 폼 4항목과 동일)
         public static string FieldTypeLabel(string? fieldType) => fieldType switch
         {
-            "Score" => "스코어",
-            "GoalAssist" => "득점·도움",
-            "Appearance" => "출전 선수",
-            _ => "기타",
+            "Score" => AppText.Notification.FieldScore,
+            "GoalAssist" => AppText.Notification.FieldGoalAssist,
+            "Appearance" => AppText.Notification.FieldAppearance,
+            _ => AppText.Notification.FieldEtc,
         };
 
         public static string TimeAgo(DateTime createdAtUtc)
@@ -113,26 +114,26 @@ namespace PlayGround.Client.Components.Shared.Notifications
             TimeSpan span = DateTime.UtcNow - createdAtUtc;
             if (span.TotalMinutes < 1)
             {
-                return "방금 전";
+                return AppText.Notification.TimeJustNow;
             }
 
             if (span.TotalMinutes < 60)
             {
-                return $"{(int)span.TotalMinutes}분 전";
+                return AppText.Notification.TimeMinutesAgo((int)span.TotalMinutes);
             }
 
             if (span.TotalHours < 24)
             {
-                return $"{(int)span.TotalHours}시간 전";
+                return AppText.Notification.TimeHoursAgo((int)span.TotalHours);
             }
 
             if (span.TotalHours < 48)
             {
-                return "어제";
+                return AppText.Notification.TimeYesterday;
             }
 
             DateTime local = createdAtUtc.ToLocalTime();
-            return $"{local.Month}/{local.Day}";
+            return AppText.Notification.TimeDate(local.Month, local.Day);
         }
     }
 }

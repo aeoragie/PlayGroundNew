@@ -305,5 +305,22 @@
   "Lose": "敗",
   "Draw": "分",
   "MinutesLabel": "出場 {0}'",
-  "MinutesEmpty": "出場 -"
+  "MinutesEmpty": "出場 -",
+  "LockTitleLine1": "試合別の詳細記録 · 学校 · 連絡手段は",
+  "LockTitleLine2": "保護者の承認後に閲覧できます",
+  "LockTitle": "試合別の詳細記録 · 学校 · 連絡手段は保護者の承認後に閲覧できます",
+  "LockDescription": "エージェント・指導者アカウントで閲覧をリクエストすると保護者に通知が届きます。承認内容と閲覧履歴はすべて保護者に公開されます。",
+  "CreateChildProfileLink": "子どものプロフィールを作成",
+  "ChipFoot": "利き足 {0}",
+  "DeletePhotoDescription": "削除するとイニシャルアバターに戻ります。元に戻せません。",
+  "RoleSuffixGuardian": "保護者",
+  "RoleSuffixSelf": "本人",
+  "RoleDescriptionGuardian": "プロフィール管理 · 公開設定の権限",
+  "RoleDescriptionSelf": "満14歳以上で管理権限の移譲が可能",
+  "ErrorNumeric": "{0}は数字で入力してください。",
+  "ErrorNumericRange": "{0}は{1}~{2}の範囲で入力してください。",
+  "ProfileSavedToast": "プロフィールを修正しました。",
+  "CorrectionSubmittedToast": "修正申請を送りました。主催者の確認後に反映されます。",
+  "CareerUpdatedToast": "経歴を修正しました。",
+  "CareerAddedToast": "経歴を登録しました。"
 }

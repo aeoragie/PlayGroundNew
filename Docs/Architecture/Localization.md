@@ -61,7 +61,7 @@ cd Source/Tools/Generator.Localization && dotnet run
 
 | 규칙 | 내용 |
 |---|---|
-| 파일 = 도메인 | 화면/기능 묶음 단위. `Landing` `Auth` `Settings` `Claim` `Notification` `Team` `Records` `Correction` |
+| 파일 = 도메인 | 화면/기능 묶음 단위. `Landing` `Auth` `Settings` `Claim` `Notification` `Team` `Player` `Dashboard` `Hub` `Records` `Agent` `Correction` `Shared` + 횡단 `Enums` `Errors` |
 | 키 = **PascalCase** | `ContinueLine`, `ExportErrorCooldown` (camelCase 금지 — 접근자와 1:1 대응) |
 | 접두 중복 금지 | `Landing.PageTitle`이지 `Landing.LandingPageTitle`이 아니다 |
 | 의미 기반 | 문구가 아니라 **역할**로 짓는다. `ErrorLoginFailed`(○) / `LoginFailedMessage2`(✕) |
@@ -86,6 +86,9 @@ cd Source/Tools/Generator.Localization && dotnet run
 - **일본어·영어 리소스는 모디파이어를 쓰지 않는다** → 언어 구분이 코드가 아니라 데이터에 있다
 - 받침 판별(`KoreanParticle`): 한글은 유니코드 종성 규칙, 숫자는 발음(0·1·3·6·7·8 받침),
   영문은 알파벳 이름 발음(L·M·N·R 받침)
+- **`으로/로`만 ㄹ 받침이 예외** — "이메일**로**"가 맞고 "이메일으로"는 틀리다.
+  받침 문자열이 `으`로 시작하면 ㄹ 종성을 받침 없음으로 본다.
+- 회귀 방지: `Tests.Unit/Client/KoreanParticleTests.cs` (한글·숫자·영문·ㄹ 예외·인자 부족 24케이스)
 
 ## 7. 작업 규칙
 
@@ -115,6 +118,7 @@ cd Source/Tools/Generator.Localization && dotnet run
 | 이모지·기호 아이콘 (`⚽`, `★`, `→`, `·`) | 디자인 요소 — 번역 대상 아님 |
 | 문자 범위 검증 로직 (`c >= '가' && c <= '힣'`) | 표시가 아니라 로직 |
 | 팀명·선수명 등 **데이터** | 사용자 입력값 |
+| `Pages/Dev/*` 컴포넌트 카탈로그 | 개발자 전용 — 사용자에게 노출되지 않는다 |
 
 ### 안티패턴
 
@@ -134,20 +138,33 @@ $"{teamName} 팀의 {count}명"        →  "Team.RosterSummary": "{0} 팀의 {1
 
 ## 8. 진행 현황 (2026-08-02)
 
-| 도메인 | 파일 | 상태 |
-|---|---|---|
-| Records(경기 상세) · Correction | 5 | ✅ |
-| Landing | 11 | ✅ |
-| Auth | 5 | ✅ |
-| Settings | 6 | ✅ |
-| Claim · Notification | 2 | ✅ |
-| Team(탐색 3 + 공개홈 18) | 21 | ✅ |
-| **Player** | 23 | ⏳ |
-| **Dashboard**(팀 관리·모바일·공용) | 59 | ⏳ |
-| **Shared** 컴포넌트 | 46 | ⏳ |
-| **Records 목록·상세·아카이브** 잔여 | 4 | ⏳ |
+**이관 완료** — `Pages/`·`Components/`의 `.razor` 잔여 0줄, `Models/`·`Services/`의 표시 문자열 0건.
+(`Pages/Dev/*` 개발자 카탈로그는 §7 "이관 대상이 아닌 것"에 따라 제외.)
 
-리소스 키 총계: Auth 109 · Settings 126 · Team 172 · Landing 64 · Claim 59 · Records 36 · Notification 25 · Correction 16.
+| 도메인 | 키 | 비고 |
+|---|---:|---|
+| Dashboard | 443 | 팀 관리·모바일·공용 다이얼로그 |
+| Player | 324 | 선수 대시보드·공개 프로필 |
+| Team | 172 | 탐색 + 공개홈 |
+| Records | 136 | 목록·대회 상세·경기 상세·아카이브 |
+| Shared | 128 | 공용 컴포넌트·폼·업로더·알림 패널 |
+| Settings | 126 | |
+| Auth | 109 | |
+| Landing | 64 | |
+| Notification | 61 | 알림 문구·딥링크 라벨·상대 시각 |
+| Claim | 59 | |
+| Hub | 58 | |
+| Agent | 49 | flag off 표면 포함 |
+| **Enums** | 40 | `Models/*.ToLabel()` 표시 라벨 |
+| **Errors** | 32 | API 클라이언트·다이얼로그 공통 실패 메시지 |
+| Correction | 16 | |
+
+합계 **1,817키** × ko/ja. 키 일치·플레이스홀더 인덱스 일치는 §9로 검증한다.
+
+`Enums`·`Errors`는 화면이 아니라 **횡단 관심사** 도메인이다.
+- `Enums` — `SoccerCompetitionType.ToLabel()` 같은 열거형 표시 라벨. 코드가 라벨 문자열로
+  분기하면 안 된다(`label switch { "리그" => ... }` ✕ → `type switch { SoccerCompetitionType.League => ... }` ○).
+- `Errors` — `*Client.cs`의 폴백 실패 메시지. 같은 문구가 20곳 넘게 중복돼 있어 값 단위로 묶었다.
 
 ## 9. 검증 방법
 
@@ -157,6 +174,24 @@ $"{teamName} 팀의 {count}명"        →  "Team.RosterSummary": "{0} 팀의 {1
 # 서버 기동 (Client 수정 후에는 반드시 전체 재시작 — CLAUDE.md 반복 함정)
 dotnet build Source/PlayGround/PlayGround.Server/PlayGround.Server.csproj
 dotnet run --project Source/PlayGround/PlayGround.Server
+```
+
+리소스 정합성(ko/ja 키 일치 + 플레이스홀더 인덱스 일치 + ja에 조사 모디파이어 혼입)은
+빌드가 못 잡으므로 `wwwroot/i18n`에서 스크립트로 확인한다 — ja의 `{0}`이 하나 빠지면
+문화권 전환 시 `string.Format`이 던진다.
+
+```bash
+cd Source/PlayGround/PlayGround.Client/wwwroot/i18n
+node -e "const fs=require('fs');const P=/\{(\d+)(?::[^}]*)?\}/g;
+const idx=s=>{const t=new Set();let m;P.lastIndex=0;while((m=P.exec(s)))t.add(+m[1]);return [...t].sort().join(',')};
+let bad=0;
+for(const d of [...new Set(fs.readdirSync('.').map(f=>f.split('.')[0]))]){
+ const ko=JSON.parse(fs.readFileSync(d+'.ko.json','utf8')),ja=JSON.parse(fs.readFileSync(d+'.ja.json','utf8'));
+ for(const k of Object.keys(ko)){
+  if(!(k in ja)){console.log('ja누락',d,k);bad++;continue}
+  if(idx(ko[k])!==idx(ja[k])){console.log('플레이스홀더 불일치',d,k);bad++}
+  if(/\{\d+:[^}]*\/[^}]*\}/.test(ja[k])){console.log('ja에 조사 모디파이어',d,k);bad++}}}
+console.log(bad?'❌ '+bad:'✅ 정합')"
 ```
 
 헤드리스 체크 3종:

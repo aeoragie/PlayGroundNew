@@ -4,6 +4,8 @@ using PlayGround.Shared.Http;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Team;
 
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Services
 {
     /// <summary>선수 프로필 API 호출. 인증 토큰은 공유 HttpClient 기본 헤더로 자동 부착됨.</summary>
@@ -216,7 +218,7 @@ namespace PlayGround.Client.Services
             }
             catch
             {
-                return new PlayerEntrySaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new PlayerEntrySaveResult(false, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -229,7 +231,7 @@ namespace PlayGround.Client.Services
             }
             catch
             {
-                return new PlayerEntrySaveResult(false, "저장하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new PlayerEntrySaveResult(false, AppText.Errors.SaveRetry, IsNetworkError: true);
             }
         }
 
@@ -243,7 +245,7 @@ namespace PlayGround.Client.Services
 
             // Envelope.Message는 영어 진단 문구다(로그용) — 사용자에게는 우리 문장을 보여준다.
             // 여기까지 온 입력 오류는 클라이언트 검증이 놓친 경우라 항목을 특정할 수 없다.
-            return new PlayerEntrySaveResult(false, "저장하지 못했어요. 입력을 다시 확인해 주세요.");
+            return new PlayerEntrySaveResult(false, AppText.Errors.SaveInvalid);
         }
 
         /// <summary>선수 사진 설정·삭제(photoUrl null = 삭제). 권한은 서버가 판정 — 거부되면 false.</summary>
@@ -277,11 +279,11 @@ namespace PlayGround.Client.Services
                     return new PlayerClaimResult(true, envelope.Data.TeamName, envelope.Data.AccessToken, null);
                 }
 
-                return new PlayerClaimResult(false, null, null, "코드가 유효하지 않아요. 팀 관리자에게 다시 확인해 주세요.");
+                return new PlayerClaimResult(false, null, null, AppText.Errors.ClaimCodeInvalid);
             }
             catch
             {
-                return new PlayerClaimResult(false, null, null, "연결하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new PlayerClaimResult(false, null, null, AppText.Errors.ClaimRetry, IsNetworkError: true);
             }
         }
 
@@ -292,7 +294,7 @@ namespace PlayGround.Client.Services
                 HttpResponseMessage response = await mHttp.PostAsJsonAsync("api/soccer/player/me/profile", request);
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    return new PlayerSaveResult(false, null, "로그인이 필요해요. 다시 로그인해 주세요.");
+                    return new PlayerSaveResult(false, null, AppText.Errors.LoginRequired);
                 }
 
                 Envelope<CreatePlayerProfileResponse>? envelope =
@@ -302,11 +304,11 @@ namespace PlayGround.Client.Services
                     return new PlayerSaveResult(true, envelope.Data?.AccessToken, null);
                 }
 
-                return new PlayerSaveResult(false, null, envelope?.Message ?? "프로필 저장에 실패했어요.");
+                return new PlayerSaveResult(false, null, envelope?.Message ?? AppText.Errors.ProfileSaveFailed);
             }
             catch
             {
-                return new PlayerSaveResult(false, null, "네트워크 오류로 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
+                return new PlayerSaveResult(false, null, AppText.Errors.SaveNetwork);
             }
         }
     }
@@ -323,11 +325,11 @@ namespace PlayGround.Client.Services
                 Envelope<Guid>? envelope = await response.Content.ReadFromJsonAsync<Envelope<Guid>>();
                 return envelope is { IsSuccess: true }
                     ? new CorrectionSaveResult(true, null)
-                    : new CorrectionSaveResult(false, "신청하지 못했어요. 입력을 다시 확인해 주세요.");
+                    : new CorrectionSaveResult(false, AppText.Errors.CorrectionInvalid);
             }
             catch
             {
-                return new CorrectionSaveResult(false, "신청하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new CorrectionSaveResult(false, AppText.Errors.CorrectionRetry, IsNetworkError: true);
             }
         }
 
@@ -355,11 +357,11 @@ namespace PlayGround.Client.Services
                 Envelope<bool>? envelope = await response.Content.ReadFromJsonAsync<Envelope<bool>>();
                 return envelope is { IsSuccess: true }
                     ? new CorrectionSaveResult(true, null)
-                    : new CorrectionSaveResult(false, "취소하지 못했어요.");
+                    : new CorrectionSaveResult(false, AppText.Errors.CancelFailed);
             }
             catch
             {
-                return new CorrectionSaveResult(false, "취소하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new CorrectionSaveResult(false, AppText.Errors.CancelRetry, IsNetworkError: true);
             }
         }
     }

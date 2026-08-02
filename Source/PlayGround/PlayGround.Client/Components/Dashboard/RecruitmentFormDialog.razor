@@ -155,13 +155,13 @@
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Errors.SaveFailed);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess(IsEdit ? "공고를 저장했어요." : "공고를 올렸어요. 공개 홈페이지에서 확인할 수 있어요.");
+        Toasts.ShowSuccess(IsEdit ? AppText.Dashboard.RecruitSavedToast : AppText.Dashboard.RecruitPostedToast);
         Reset();
         await IsOpenChanged.InvokeAsync(false);
         await OnSaved.InvokeAsync();

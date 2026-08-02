@@ -123,8 +123,8 @@
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Shared.Cancel</button>
+                    <SubmitButton Label="@AppText.Shared.Save" BusyLabel="@AppText.Shared.SavingBusy" IsBusy="@mSaving" OnClick="SubmitAsync"
                                   Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -214,7 +214,7 @@
         string.IsNullOrWhiteSpace(name) ? "?" : name[..1];
 
     private static string? ValidateTeamName(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "팀명을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Dashboard.ErrorTeamNameEmpty : null;
 
     private static string? ValidateFoundedYear(string? value)
     {
@@ -225,10 +225,10 @@
 
         if (!int.TryParse(value, out int year))
         {
-            return "숫자 4자리로 입력해 주세요.";
+            return AppText.Dashboard.ErrorYearDigits;
         }
 
-        return year < 1900 || year > DateTime.Now.Year ? $"1900 ~ {DateTime.Now.Year} 사이로 입력해 주세요." : null;
+        return year < 1900 || year > DateTime.Now.Year ? AppText.Dashboard.ErrorFoundedYearRange(DateTime.Now.Year) : null;
     }
 
     private void AddValue() => mValues.Add(new TeamValueInput());
@@ -268,17 +268,17 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Errors.SaveFailed, AppText.Dashboard.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Errors.SaveFailed);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess("팀 정보를 저장했어요. 공개 홈페이지에도 반영됐어요.");
+        Toasts.ShowSuccess(AppText.Dashboard.TeamInfoSavedToast);
         await CloseAsync();
         await OnSaved.InvokeAsync();
     }

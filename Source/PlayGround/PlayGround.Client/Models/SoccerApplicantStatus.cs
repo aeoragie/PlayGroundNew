@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>선수 모집 지원자 상태.</summary>
@@ -14,9 +16,9 @@ namespace PlayGround.Client.Models
         {
             return status switch
             {
-                SoccerApplicantStatus.TestConfirmed => "테스트 확정",
-                SoccerApplicantStatus.Reviewing => "검토중",
-                _ => "대기",
+                SoccerApplicantStatus.TestConfirmed => AppText.Enums.ApplicantTestConfirmed,
+                SoccerApplicantStatus.Reviewing => AppText.Enums.ApplicantReviewing,
+                _ => AppText.Enums.ApplicantPending,
             };
         }
     }

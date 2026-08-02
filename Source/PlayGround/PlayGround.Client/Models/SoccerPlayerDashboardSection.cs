@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>축구 선수 대시보드 섹션. 라우트 슬러그는 소문자 이름 (/dashboard/player/{slug}).</summary>
@@ -22,10 +24,10 @@ namespace PlayGround.Client.Models
         {
             return section switch
             {
-                SoccerPlayerDashboardSection.Career => "커리어",
-                SoccerPlayerDashboardSection.Stats => "시즌 통계",
-                SoccerPlayerDashboardSection.Portfolio => "포트폴리오",
-                _ => "프로필",
+                SoccerPlayerDashboardSection.Career => AppText.Enums.PlayerSectionCareer,
+                SoccerPlayerDashboardSection.Stats => AppText.Enums.PlayerSectionStats,
+                SoccerPlayerDashboardSection.Portfolio => AppText.Enums.PlayerSectionPortfolio,
+                _ => AppText.Enums.PlayerSectionProfile,
             };
         }
 

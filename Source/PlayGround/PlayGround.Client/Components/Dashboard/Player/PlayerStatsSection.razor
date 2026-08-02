@@ -82,7 +82,7 @@
                         }
                         else
                         {
-                            <span class="@CompClass(CompetitionOf(match).ToLabel())">@CompetitionOf(match).ToLabel()</span>
+                            <span class="@CompClass(CompetitionOf(match))">@CompetitionOf(match).ToLabel()</span>
                         }
                     </span>
                     <span class="text-[13.5px] font-extrabold text-navy-deep text-center">@match.Goals</span>
@@ -193,11 +193,11 @@
         return $"vs {match.OpponentName} ({match.TeamScore}:{match.OpponentScore} {outcome})";
     }
 
-    internal static string CompClass(string label) =>
-        "text-[11px] font-bold rounded-full px-2.5 py-[3px] whitespace-nowrap " + label switch
+    internal static string CompClass(SoccerCompetitionType type) =>
+        "text-[11px] font-bold rounded-full px-2.5 py-[3px] whitespace-nowrap " + type switch
         {
-            "리그" => "text-navy bg-surface-icon",
-            "컵" => "text-orange-ink bg-surface-orange-badge",
+            SoccerCompetitionType.League => "text-navy bg-surface-icon",
+            SoccerCompetitionType.Cup => "text-orange-ink bg-surface-orange-badge",
             _ => "text-teal-ink bg-teal/[.12]",
         };
 }

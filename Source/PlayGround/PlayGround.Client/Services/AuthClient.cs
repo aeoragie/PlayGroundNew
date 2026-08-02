@@ -3,6 +3,8 @@ using PlayGround.Shared.Http;
 using PlayGround.Contracts.Auth;
 using PlayGround.Contracts.Settings;
 
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Services
 {
     /// <summary>현재 사용자 조회. 인증 토큰은 공유 HttpClient 기본 헤더로 자동 부착됨.</summary>
@@ -41,11 +43,11 @@ namespace PlayGround.Client.Services
                     return new EmailLoginResult(true, envelope.Data.AccessToken, null);
                 }
 
-                return new EmailLoginResult(false, null, envelope?.Message ?? "로그인에 실패했어요.");
+                return new EmailLoginResult(false, null, envelope?.Message ?? AppText.Errors.LoginFailed);
             }
             catch
             {
-                return new EmailLoginResult(false, null, "네트워크 오류로 로그인하지 못했어요. 잠시 후 다시 시도해 주세요.");
+                return new EmailLoginResult(false, null, AppText.Errors.LoginNetwork);
             }
         }
 
@@ -130,11 +132,11 @@ namespace PlayGround.Client.Services
                     return new NameChangeResult(true, envelope.Data.AccessToken, null);
                 }
 
-                return new NameChangeResult(false, null, "이름을 변경하지 못했어요. 입력을 다시 확인해 주세요.");
+                return new NameChangeResult(false, null, AppText.Errors.NameChangeInvalid);
             }
             catch
             {
-                return new NameChangeResult(false, null, "이름을 변경하지 못했어요. 잠시 후 다시 시도해 주세요.", IsNetworkError: true);
+                return new NameChangeResult(false, null, AppText.Errors.NameChangeRetry, IsNetworkError: true);
             }
         }
 

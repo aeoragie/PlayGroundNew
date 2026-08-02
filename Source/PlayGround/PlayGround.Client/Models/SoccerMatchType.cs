@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>경기 성격 (Design.FriendlyMatch). DB 저장 문자열과 멤버 이름이 같다.
@@ -43,9 +45,9 @@ namespace PlayGround.Client.Models
 
         public static string ToLabel(this SoccerMatchSegment segment) => segment switch
         {
-            SoccerMatchSegment.Official => "공식",
-            SoccerMatchSegment.Friendly => "친선경기",
-            _ => "전체",
+            SoccerMatchSegment.Official => AppText.Enums.MatchSegmentOfficial,
+            SoccerMatchSegment.Friendly => AppText.Enums.MatchSegmentFriendly,
+            _ => AppText.Enums.MatchSegmentAll,
         };
 
         /// <summary>세그먼트가 이 경기를 통과시키는지.</summary>

@@ -2,14 +2,14 @@
 @using PlayGround.Client.Styles
 
 <div class="flex items-center gap-2 md:gap-2.5 flex-wrap">
-    <span class="@Css.SearchFilter.ResultCount">@Count@("개") @Unit</span>
+    <span class="@Css.SearchFilter.ResultCount">@AppText.Shared.CountSuffix(Count) @Unit</span>
     @if (Description is not null)
     {
         <span class="text-[11.5px] md:text-xs text-text-muted break-keep">@Description</span>
     }
     @if (ShowReset)
     {
-        <button type="button" class="@Css.SearchFilter.ResultReset" @onclick="() => OnReset.InvokeAsync()">필터 초기화</button>
+        <button type="button" class="@Css.SearchFilter.ResultReset" @onclick="() => OnReset.InvokeAsync()">@AppText.Shared.ResetFilters</button>
     }
     <div class="flex-1"></div>
     @Right

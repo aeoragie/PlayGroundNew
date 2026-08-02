@@ -43,7 +43,7 @@
   "LinkedAt": "{0}.{1}.{2} 연결",
   "LinkStartFailedToast": "{0} 연결을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.",
   "UnlinkTitle": "{0} 연결을 해제할까요?",
-  "UnlinkDescription": "해제하면 {0}로 로그인할 수 없어요. 남은 로그인 수단은 {1}개예요.",
+  "UnlinkDescription": "해제하면 {0:으로/로} 로그인할 수 없어요. 남은 로그인 수단은 {1}개예요.",
   "UnlinkConfirmLabel": "해제",
   "UnlinkedToast": "{0} 연결을 해제했어요.",
   "UnlinkLastMeansToast": "유일한 로그인 수단이라 해제할 수 없어요.",

@@ -127,17 +127,17 @@
             return AppText.Dashboard.ErrorYearEmpty;
         }
 
-        return year < 1990 || year > DateTime.Now.Year + 1 ? "연도를 다시 확인해 주세요." : null;
+        return year < 1990 || year > DateTime.Now.Year + 1 ? AppText.Dashboard.ErrorYearRange : null;
     }
 
     private static string? ValidatePlayerCount(string? value)
     {
         if (!int.TryParse(value, out int count))
         {
-            return "인원을 입력해 주세요.";
+            return AppText.Dashboard.ErrorPlayerCountEmpty;
         }
 
-        return count is < 1 or > 99 ? "인원은 1~99명 사이여야 해요." : null;
+        return count is < 1 or > 99 ? AppText.Dashboard.ErrorPlayerCountRange : null;
     }
 
     private async Task SubmitAsync()
@@ -166,17 +166,17 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Errors.SaveFailed, AppText.Dashboard.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Errors.SaveFailed);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess(IsEdit ? "사례를 저장했어요." : "사례를 등록했어요. 공개 홈페이지에서 확인할 수 있어요.");
+        Toasts.ShowSuccess(IsEdit ? AppText.Dashboard.CareerOutcomeSavedToast : AppText.Dashboard.CareerOutcomeAddedToast);
         Reset();
         await IsOpenChanged.InvokeAsync(false);
         await OnSaved.InvokeAsync();

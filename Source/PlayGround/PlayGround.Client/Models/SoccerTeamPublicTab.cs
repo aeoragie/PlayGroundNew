@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>공개 팀 홈페이지 탭. 라우트 슬러그는 소문자 이름 (/team/{slug}/{tab}).</summary>
@@ -24,12 +26,12 @@ namespace PlayGround.Client.Models
         {
             return tab switch
             {
-                SoccerTeamPublicTab.Roster => "선수단",
-                SoccerTeamPublicTab.Record => "시즌성적",
-                SoccerTeamPublicTab.Recruit => "모집",
-                SoccerTeamPublicTab.Career => "진학·진로",
-                SoccerTeamPublicTab.Review => "리뷰",
-                _ => "소개",
+                SoccerTeamPublicTab.Roster => AppText.Enums.TeamTabRoster,
+                SoccerTeamPublicTab.Record => AppText.Enums.TeamTabRecord,
+                SoccerTeamPublicTab.Recruit => AppText.Enums.TeamTabRecruit,
+                SoccerTeamPublicTab.Career => AppText.Enums.TeamTabCareer,
+                SoccerTeamPublicTab.Review => AppText.Enums.TeamTabReview,
+                _ => AppText.Enums.TeamTabIntro,
             };
         }
 

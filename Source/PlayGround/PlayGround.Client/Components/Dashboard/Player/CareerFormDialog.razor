@@ -230,7 +230,7 @@
             return;
         }
 
-        Toasts.ShowSuccess(IsEdit ? "이력을 수정했어요." : "이력을 등록했어요.");
+        Toasts.ShowSuccess(IsEdit ? AppText.Player.CareerUpdatedToast : AppText.Player.CareerAddedToast);
         await CloseAsync();
         await OnSaved.InvokeAsync();
     }

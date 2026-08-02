@@ -43,14 +43,14 @@
                 <span class="@Css.Uploader.CoverAdjustHint">@AppText.Shared.CropHint@AppText.Shared.CropHintSuffix</span>
                 <span class="@Css.Uploader.CoverControls">
                     <button type="button" class="@Css.Uploader.CoverButton" @onclick="CancelAdjust">@AppText.Shared.Cancel</button>
-                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="ApplyAdjustAsync">적용</button>
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="ApplyAdjustAsync">@AppText.Shared.Apply</button>
                 </span>
             }
             else
             {
                 <span class="@Css.Uploader.CoverControls">
-                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="PickFileAsync">교체</button>
-                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="StartAdjust">위치 조정</button>
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="PickFileAsync">@AppText.Shared.Replace2</button>
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="StartAdjust">@AppText.Shared.Adjust</button>
                 </span>
             }
         </div>
@@ -76,7 +76,7 @@
                 <span class="@Css.Uploader.ErrorTitle">@mError</span>
                 <span class="@Css.Uploader.ErrorHint">@mHint</span>
             </span>
-            <button type="button" class="@Css.Uploader.ErrorRetry" @onclick="PickFileAsync">다시 선택</button>
+            <button type="button" class="@Css.Uploader.ErrorRetry" @onclick="PickFileAsync">@AppText.Shared.Reselect</button>
         </div>
     }
 </div>
@@ -156,8 +156,8 @@
         if (prepared is null || prepared.Error is not null)
         {
             mBusy = false;
-            mError = prepared?.Error ?? "이미지를 열지 못했어요";
-            mHint = prepared?.Hint ?? "다시 선택해 주세요";
+            mError = prepared?.Error ?? AppText.Shared.ImageOpenFailed;
+            mHint = prepared?.Hint ?? AppText.Shared.ReselectPlease;
             return;
         }
 
@@ -245,8 +245,8 @@
 
         if (uploaded is null || uploaded.Error is not null)
         {
-            mError = uploaded?.Error ?? "업로드하지 못했어요";
-            mHint = uploaded?.Hint ?? "잠시 후 다시 시도해 주세요";
+            mError = uploaded?.Error ?? AppText.Shared.UploadFailed;
+            mHint = uploaded?.Hint ?? AppText.Shared.TryLater;
             return;
         }
 

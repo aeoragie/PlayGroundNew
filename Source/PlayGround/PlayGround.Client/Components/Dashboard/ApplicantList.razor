@@ -232,9 +232,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = "지원을 보류할까요?",
-            Description = $"{app.PlayerName} · 보류하면 지원자에게 알림이 가요. 30일 후 다시 지원할 수 있어요.",
-            ConfirmLabel = "보류",
+            Title = AppText.Dashboard.HoldApplyTitle,
+            Description = AppText.Dashboard.HoldApplyDescription(app.PlayerName),
+            ConfirmLabel = AppText.Dashboard.Hold,
         });
 
         if (!confirmed)
@@ -253,6 +253,6 @@
             return;
         }
 
-        Toasts.ShowError("상태를 바꾸지 못했어요. 다시 시도해 주세요.", "재시도", () => ChangeStatusAsync(app, status));
+        Toasts.ShowError(AppText.Errors.SaveRetryToast, AppText.Dashboard.Retry, () => ChangeStatusAsync(app, status));
     }
 }

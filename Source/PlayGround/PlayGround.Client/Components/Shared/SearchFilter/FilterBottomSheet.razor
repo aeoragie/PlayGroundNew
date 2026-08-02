@@ -9,9 +9,9 @@
         <div class="@Css.SearchFilter.SheetPanel" @onclick:stopPropagation="true">
             <span class="@Css.SearchFilter.SheetGrab"></span>
             <div class="flex items-center mt-3">
-                <span class="text-[15px] font-extrabold text-navy-deep">필터</span>
+                <span class="text-[15px] font-extrabold text-navy-deep">@AppText.Shared.Filter</span>
                 <div class="flex-1"></div>
-                <button type="button" class="@Css.SearchFilter.ResultReset" @onclick="() => OnReset.InvokeAsync()">초기화</button>
+                <button type="button" class="@Css.SearchFilter.ResultReset" @onclick="() => OnReset.InvokeAsync()">@AppText.Shared.Reset</button>
             </div>
             @ChildContent
             <button type="button" class="@Css.SearchFilter.SheetApply" @onclick="() => OnApply.InvokeAsync()">@ApplyLabel</button>

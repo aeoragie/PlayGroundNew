@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Services.Feedback
 {
     /// <summary>확인 모달 단계 (Design.FeedbackPatterns B).</summary>
@@ -28,7 +30,7 @@ namespace PlayGround.Client.Services.Feedback
         /// <summary>**동사형** 레이블 — "확인" 금지 ("공개하기", "삭제").</summary>
         public required string ConfirmLabel { get; init; }
 
-        public string CancelLabel { get; init; } = "취소";
+        public string CancelLabel { get; init; } = AppText.Shared.Cancel;
 
         /// <summary>HighRisk 전용 — 이 문구를 정확히 입력해야 주 버튼이 활성화된다.</summary>
         public string? RequiredPhrase { get; init; }

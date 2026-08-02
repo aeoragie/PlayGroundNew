@@ -1,3 +1,5 @@
+using PlayGround.Client.Localization;
+
 namespace PlayGround.Client.Models
 {
     /// <summary>축구 대회 유형 (경기 결과 필터·pill).</summary>
@@ -14,9 +16,9 @@ namespace PlayGround.Client.Models
         {
             return type switch
             {
-                SoccerCompetitionType.League => "리그",
-                SoccerCompetitionType.Cup => "컵",
-                _ => "친선",
+                SoccerCompetitionType.League => AppText.Enums.CompetitionLeague,
+                SoccerCompetitionType.Cup => AppText.Enums.CompetitionCup,
+                _ => AppText.Enums.CompetitionFriendly,
             };
         }
     }

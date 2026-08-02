@@ -65,7 +65,7 @@
                             </span>
                             <span class="flex flex-col gap-[3px] flex-1 min-w-0">
                                 <span class="@Css.Notification.ActionTitle">@AppText.Shared.ClaimRequestTitle</span>
-                                <span class="@Css.Notification.ActionBody"><b>@item.ActorName 님(@RelationLabel(item.Relation))</b>@AppText.Shared.ClaimRequestBodyMid<b>@item.PlayerName</b>@(item.MetaText is not null ? $"({item.MetaText})" : "")@AppText.Shared.ClaimRequestBodySuffix</span>
+                                <span class="@Css.Notification.ActionBody"><b>@AppText.Shared.ActorWithRelation(item.ActorName, RelationLabel(item.Relation))</b>@AppText.Shared.ClaimRequestBodyMid<b>@item.PlayerName</b>@(item.MetaText is not null ? $"({item.MetaText})" : "")@AppText.Shared.ClaimRequestBodySuffix</span>
                                 <span class="@Css.Notification.ActionMeta">@AppText.Shared.InviteCodeUsed(item.SubText, TimeAgo(item.CreatedAt))</span>
                             </span>
                         </div>

@@ -247,17 +247,17 @@
         {
             Kind = ConfirmKind.Destructive,
             Title = AppText.Player.DeletePhotoTitle(playerName),
-            Description = "삭제하면 이니셜 아바타로 돌아가요. 되돌릴 수 없어요.",
-            ConfirmLabel = "삭제",
+            Description = AppText.Player.DeletePhotoDescription,
+            ConfirmLabel = AppText.Player.Delete,
         });
     }
 
     internal static bool IsGuardian(PlayerFamilyMemberDto member) => member.Role == "Guardian";
 
-    internal static string RoleSuffix(PlayerFamilyMemberDto member) => IsGuardian(member) ? "보호자" : "본인";
+    internal static string RoleSuffix(PlayerFamilyMemberDto member) => IsGuardian(member) ? AppText.Player.RoleSuffixGuardian : AppText.Player.RoleSuffixSelf;
 
     internal static string RoleDescription(PlayerFamilyMemberDto member) =>
-        IsGuardian(member) ? "프로필 관리 · 공개 설정 권한" : "만 14세 이상 시 관리 권한 이전 가능";
+        IsGuardian(member) ? AppText.Player.RoleDescriptionGuardian : AppText.Player.RoleDescriptionSelf;
 
     private static string? Compose(string? first, string? second)
     {

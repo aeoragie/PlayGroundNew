@@ -117,5 +117,22 @@
   "AwardFairPlay": "フェアプレー",
   "VideoFullMatch": "フル動画",
   "VideoTraining": "練習",
-  "VideoHighlight": "ハイライト"
+  "VideoHighlight": "ハイライト",
+  "MatchPageTitle": "試合詳細 — PlayGround",
+  "PeriodValue": "{0}. {1}. {2} ~ {3}. {4}",
+  "PeriodShort": "{0}/{1} ~ {2}/{3}",
+  "MatchDetailFull": "試合詳細をすべて見る",
+  "ColRank": "順位",
+  "ColTeam": "チーム",
+  "ColMatches": "試合",
+  "ColPoints": "勝点",
+  "ColWin": "勝",
+  "ColDraw": "分",
+  "ColLose": "敗",
+  "ColGoalDiff": "得失",
+  "ColWdl": "勝-分-敗",
+  "PointsLegend": "勝点 3/1/0",
+  "WeekdayLetters": "日月火水木金土",
+  "ScheduleTbd": "日程未定",
+  "EventDetailWithNumber": "{0} · {1}番"
 }

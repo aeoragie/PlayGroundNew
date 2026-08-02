@@ -31,7 +31,7 @@
   "ManualTime": "시간 직접 입력",
   "ThisWeekend": "이번 주말",
   "SameAsRecent": "그 팀의 최근 일정과 같은 시각",
-  "SelectedAs": "{0}로 선택",
+  "SelectedAs": "{0:으로/로} 선택",
   "AutoFilled": "자동으로 채워져요",
   "DowSun": "일",
   "DowMon": "월",
@@ -124,5 +124,7 @@
   "ForbiddenBody2": "다른 계정으로 로그인했는지 확인해 보세요.",
   "ToMyDashboard": "내 대시보드로",
   "LoginOtherAccount": "다른 계정으로 로그인",
-  "ForbiddenFootnote": "계속 문제가 있다면 팀 관리자 또는 고객센터에 문의하세요."
+  "ForbiddenFootnote": "계속 문제가 있다면 팀 관리자 또는 고객센터에 문의하세요.",
+  "Reset": "초기화",
+  "ActorWithRelation": "{0} 님({1})"
 }

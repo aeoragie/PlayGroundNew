@@ -164,7 +164,7 @@
                             <div class="flex-1"></div>
                             @if (roundNames.Count > 1)
                             {
-                                @foreach (string round in Prepend전체(roundNames))
+                                @foreach (string round in PrependAll(roundNames))
                                 {
                                     string chip = round;
                                     <button type="button" class="@PillClass(mRound == chip)" @onclick="() => mRound = chip">@chip</button>
@@ -247,7 +247,7 @@
                             <div class="flex-1"></div>
                             @if (months.Count > 1)
                             {
-                                @foreach (string month in Prepend전체(months))
+                                @foreach (string month in PrependAll(months))
                                 {
                                     string chip = month;
                                     <button type="button" class="@PillClass(mMonth == chip)" @onclick="() => mMonth = chip">@chip</button>
@@ -578,7 +578,7 @@
         _ => round,
     };
 
-    private static List<string> Prepend전체(List<string> values)
+    private static List<string> PrependAll(List<string> values)
     {
         List<string> result = [AppText.Records.All];
         result.AddRange(values);
@@ -615,7 +615,7 @@
             }
             if (t.TeamCount is not null)
             {
-                parts.Add($"{t.TeamCount}팀");
+                parts.Add(AppText.Records.TeamCountSuffix(t.TeamCount));
             }
             if (t.MethodText is not null)
             {
@@ -637,8 +637,8 @@
             RecordsTournamentDetailDto t = mData!.Tournament;
             List<(string, string)> rows = new();
             if (t.HostName is not null) { rows.Add((AppText.Records.InfoHost, t.HostName)); }
-            if (t.StartDate is not null && t.EndDate is not null) { rows.Add(("기간", $"{t.StartDate.Value.Year}. {t.StartDate.Value.Month}. {t.StartDate.Value.Day} ~ {t.EndDate.Value.Month}. {t.EndDate.Value.Day}")); }
-            if (t.TeamCount is not null) { rows.Add(("참가", $"{t.TeamCount}팀 ({t.AgeGroup})")); }
+            if (t.StartDate is not null && t.EndDate is not null) { rows.Add((AppText.Records.InfoPeriod, AppText.Records.PeriodValue(t.StartDate.Value.Year, t.StartDate.Value.Month, t.StartDate.Value.Day, t.EndDate.Value.Month, t.EndDate.Value.Day))); }
+            if (t.TeamCount is not null) { rows.Add((AppText.Records.InfoParticipants, AppText.Records.ParticipantsValue(t.TeamCount, t.AgeGroup))); }
             if (t.MethodText is not null) { rows.Add((AppText.Records.InfoMethod, t.MethodText)); }
             if (t.MatchTimeText is not null) { rows.Add((AppText.Records.InfoMatchTime, t.MatchTimeText)); }
             if (t.VenueText is not null) { rows.Add((AppText.Records.InfoVenue, t.VenueText)); }

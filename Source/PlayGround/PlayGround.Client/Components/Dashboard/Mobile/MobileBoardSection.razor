@@ -152,7 +152,7 @@
             Title = AppText.Dashboard.DeletePostTitle(post.Title),
             Description = post.Files.Count > 0
                 ? AppText.Dashboard.DeletePostWithFiles
-                : "공개 글이었다면 공개 홈페이지에서도 바로 사라져요.",
+                : AppText.Dashboard.DeletePostPublicNote,
             ConfirmLabel = AppText.Dashboard.Delete,
         });
 

@@ -242,17 +242,17 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "신청하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Errors.CorrectionFailed, AppText.Player.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "신청하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Errors.CorrectionFailed);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess("수정 신청을 보냈어요. 주최측 검토 후 반영돼요.");
+        Toasts.ShowSuccess(AppText.Player.CorrectionSubmittedToast);
         await CloseAsync();
         await OnSubmitted.InvokeAsync();
     }

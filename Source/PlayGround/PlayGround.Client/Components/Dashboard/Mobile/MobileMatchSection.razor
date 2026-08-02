@@ -34,7 +34,7 @@
                 </div>
                 <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex flex-col gap-0.5")">
                     <span class="text-[11px] font-bold text-text-muted">@AppText.Dashboard.GoalDiff@(Matches.LeagueRank is null ? "" : AppText.Dashboard.RankSeparator)</span>
-                    <span class="text-[16.5px] font-extrabold text-navy-deep whitespace-nowrap">@GoalsFor : @GoalsAgainst@(Matches.LeagueRank is null ? "" : $" · {Matches.LeagueRank}위")</span>
+                    <span class="text-[16.5px] font-extrabold text-navy-deep whitespace-nowrap">@GoalsFor : @GoalsAgainst@(Matches.LeagueRank is null ? "" : AppText.Dashboard.RankInline(Matches.LeagueRank))</span>
                 </div>
             </div>
 

@@ -13,11 +13,11 @@
 
     @* PC 8열 *@
     <div class="hidden md:grid grid-cols-[44px_1fr_48px_48px_40px_40px_40px_56px] px-[22px] py-2.5 bg-surface-soft border-b border-surface-icon text-[11px] font-extrabold text-text-muted">
-        <span>순위</span><span>팀</span><span class="text-center">경기</span><span class="text-center">승점</span><span class="text-center">승</span><span class="text-center">무</span><span class="text-center">패</span><span class="text-center">득실</span>
+        <span>@AppText.Records.ColRank</span><span>@AppText.Records.ColTeam</span><span class="text-center">@AppText.Records.ColMatches</span><span class="text-center">@AppText.Records.ColPoints</span><span class="text-center">@AppText.Records.ColWin</span><span class="text-center">@AppText.Records.ColDraw</span><span class="text-center">@AppText.Records.ColLose</span><span class="text-center">@AppText.Records.ColGoalDiff</span>
     </div>
     @* 모바일 5열 *@
     <div class="grid md:hidden grid-cols-[40px_1fr_44px_44px_64px] px-4 py-2.5 bg-surface-soft border-b border-surface-icon text-[11px] font-extrabold text-text-muted">
-        <span>순위</span><span>팀</span><span class="text-center">경기</span><span class="text-center">승점</span><span class="text-center">승-무-패</span>
+        <span>@AppText.Records.ColRank</span><span>@AppText.Records.ColTeam</span><span class="text-center">@AppText.Records.ColMatches</span><span class="text-center">@AppText.Records.ColPoints</span><span class="text-center">@AppText.Records.ColWdl</span>
     </div>
 
     @foreach (RecordsStandingDto row in Rows)
@@ -48,7 +48,7 @@
             {
                 <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-teal"></span>@ZoneLegend</span>
             }
-            <span>승점 3/1/0</span>
+            <span>@AppText.Records.PointsLegend</span>
         </div>
     }
 </div>

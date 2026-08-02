@@ -186,12 +186,12 @@
 
         if (!int.TryParse(value.Trim(), out int n))
         {
-            return $"{label}는 숫자로 입력해 주세요.";
+            return AppText.Player.ErrorNumeric(label);
         }
 
         if (n < min || n > max)
         {
-            return $"{label}는 {min}~{max} 사이로 입력해 주세요.";
+            return AppText.Player.ErrorNumericRange(label, min, max);
         }
 
         return null;
@@ -227,7 +227,7 @@
 
         if (outcome == ProfileInfoSaveOutcome.Failed)
         {
-            Toasts.ShowError("저장하지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", SubmitAsync);
+            Toasts.ShowError(AppText.Errors.SaveRetry, AppText.Player.Retry, SubmitAsync);
             return;
         }
 
@@ -237,12 +237,12 @@
         {
             if (!await Players.SaveStrengthTagsAsync(mTags, PlayerId))
             {
-                Toasts.ShowError("강점 태그를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.", "재시도", SubmitAsync);
+                Toasts.ShowError(AppText.Errors.StrengthTagsSaveRetry, AppText.Player.Retry, SubmitAsync);
                 return;
             }
         }
 
-        Toasts.ShowSuccess("프로필을 수정했어요.");
+        Toasts.ShowSuccess(AppText.Player.ProfileSavedToast);
         await CloseAsync();
         await OnSaved.InvokeAsync();
     }

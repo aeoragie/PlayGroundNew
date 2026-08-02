@@ -117,5 +117,22 @@
   "AwardFairPlay": "페어플레이",
   "VideoFullMatch": "다시보기",
   "VideoTraining": "훈련",
-  "VideoHighlight": "하이라이트"
+  "VideoHighlight": "하이라이트",
+  "MatchPageTitle": "경기 상세 — PlayGround",
+  "PeriodValue": "{0}. {1}. {2} ~ {3}. {4}",
+  "PeriodShort": "{0}/{1} ~ {2}/{3}",
+  "MatchDetailFull": "경기 상세 전체 보기",
+  "ColRank": "순위",
+  "ColTeam": "팀",
+  "ColMatches": "경기",
+  "ColPoints": "승점",
+  "ColWin": "승",
+  "ColDraw": "무",
+  "ColLose": "패",
+  "ColGoalDiff": "득실",
+  "ColWdl": "승-무-패",
+  "PointsLegend": "승점 3/1/0",
+  "WeekdayLetters": "일월화수목금토",
+  "ScheduleTbd": "일정 미정",
+  "EventDetailWithNumber": "{0} · {1}번"
 }

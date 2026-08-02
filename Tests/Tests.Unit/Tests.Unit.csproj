@@ -26,6 +26,8 @@
     <ProjectReference Include="..\..\Source\Core\Shared\Core.Shared.csproj" />
     <ProjectReference Include="..\..\Source\PlayGround\PlayGround.Domain\PlayGround.Domain.csproj" />
     <ProjectReference Include="..\..\Source\PlayGround\PlayGround.Application\PlayGround.Application.csproj" />
+    <!-- Client 순수 로직(조사 해석 등) 단위 테스트용 — UI 렌더링은 참조하지 않는다 -->
+    <ProjectReference Include="..\..\Source\PlayGround\PlayGround.Client\PlayGround.Client.csproj" />
   </ItemGroup>
 
 </Project>
