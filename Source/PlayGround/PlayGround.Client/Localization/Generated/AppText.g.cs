@@ -4,7 +4,109 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Dashboard", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Shared", "Team" };
+        internal static readonly string[] Domains = { "Agent", "Auth", "Claim", "Correction", "Dashboard", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Shared", "Team" };
+
+        public static class Agent
+        {
+            /// <summary>상세 정보 열람 요청 — PlayGround</summary>
+            public static string PageTitle => Loc.Get("Agent.PageTitle");
+            /// <summary>알림 센터</summary>
+            public static string NotificationCenter => Loc.Get("Agent.NotificationCenter");
+            /// <summary>대시보드로</summary>
+            public static string ToDashboard => Loc.Get("Agent.ToDashboard");
+            /// <summary>뒤로</summary>
+            public static string Back => Loc.Get("Agent.Back");
+            /// <summary>알림 센터 · 열람 요청</summary>
+            public static string Breadcrumb => Loc.Get("Agent.Breadcrumb");
+            /// <summary>상세 정보 열람 요청</summary>
+            public static string Title => Loc.Get("Agent.Title");
+            /// <summary>상세 정보 열람 요청 — {0}{1}</summary>
+            public static string TitleWithPlayer(object arg0, object arg1) => Loc.Format("Agent.TitleWithPlayer", arg0, arg1);
+            /// <summary>알림 센터에서 열림</summary>
+            public static string OpenedFromNotifications => Loc.Get("Agent.OpenedFromNotifications");
+            /// <summary>요청을 처리하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string ProcessFailedToast => Loc.Get("Agent.ProcessFailedToast");
+            /// <summary>{0} 에이전트의 열람 권한을 철회할까요?</summary>
+            public static string RevokeTitle(object arg0) => Loc.Format("Agent.RevokeTitle", arg0);
+            /// <summary>즉시 열람이 차단되고 되돌릴 수 없어요.</summary>
+            public static string RevokeDescription => Loc.Get("Agent.RevokeDescription");
+            /// <summary>철회</summary>
+            public static string RevokeConfirm => Loc.Get("Agent.RevokeConfirm");
+            /// <summary>{0} 에이전트의 요청을 다시 받지 않을까요?</summary>
+            public static string BlockTitle(object arg0) => Loc.Format("Agent.BlockTitle", arg0);
+            /// <summary>이 요청은 거절되고, 같은 에이전트의 새 요청이 차단돼요.</summary>
+            public static string BlockDescription => Loc.Get("Agent.BlockDescription");
+            /// <summary>다시 받지 않기</summary>
+            public static string BlockConfirm => Loc.Get("Agent.BlockConfirm");
+            /// <summary>이 에이전트의 요청을 더 받지 않아요.</summary>
+            public static string BlockedToast => Loc.Get("Agent.BlockedToast");
+            /// <summary>만료됨 — {0}/{1}까지 열람</summary>
+            public static string Expired(object arg0, object arg1) => Loc.Format("Agent.Expired", arg0, arg1);
+            /// <summary>승인됨 — {0}/{1}까지 열람 가능 ({2}일 남음)</summary>
+            public static string ApprovedUntil(object arg0, object arg1, object arg2) => Loc.Format("Agent.ApprovedUntil", arg0, arg1, arg2);
+            /// <summary>{0}/{1} {2} {3}:{4} 요청</summary>
+            public static string RequestedAt(object arg0, object arg1, object arg2, object arg3, object arg4) => Loc.Format("Agent.RequestedAt", arg0, arg1, arg2, arg3, arg4);
+            /// <summary>오전</summary>
+            public static string Am => Loc.Get("Agent.Am");
+            /// <summary>오후</summary>
+            public static string Pm => Loc.Get("Agent.Pm");
+            /// <summary>경기별 상세 기록 열람</summary>
+            public static string LogRecordView => Loc.Get("Agent.LogRecordView");
+            /// <summary>디테일 권한 뷰 방문</summary>
+            public static string LogProfileView => Loc.Get("Agent.LogProfileView");
+            /// <summary>승인 완료</summary>
+            public static string LogApproved => Loc.Get("Agent.LogApproved");
+            /// <summary>오늘 {0}</summary>
+            public static string Today(object arg0) => Loc.Format("Agent.Today", arg0);
+            /// <summary>어제 {0}</summary>
+            public static string Yesterday(object arg0) => Loc.Format("Agent.Yesterday", arg0);
+            /// <summary>요청 내용</summary>
+            public static string RequestContent => Loc.Get("Agent.RequestContent");
+            /// <summary>승인 시 열람되는 정보</summary>
+            public static string ScopeTitle => Loc.Get("Agent.ScopeTitle");
+            /// <summary>에이전트 열람이란?</summary>
+            public static string InfoTitle => Loc.Get("Agent.InfoTitle");
+            /// <summary>인증된 에이전트가 자녀의 상세 기록을 보려면 보호자 승인이 필요해요. 승인 후 30일이 지나면 자동 만료돼요.</summary>
+            public static string InfoBody => Loc.Get("Agent.InfoBody");
+            /// <summary>연락처 직접 노출</summary>
+            public static string ContactExcluded => Loc.Get("Agent.ContactExcluded");
+            /// <summary>항상 제외 — 플랫폼 메시지만</summary>
+            public static string ContactExcludedNote => Loc.Get("Agent.ContactExcludedNote");
+            /// <summary>승인은 </summary>
+            public static string SafetyPrefix => Loc.Get("Agent.SafetyPrefix");
+            /// <summary>30일 후 자동 만료</summary>
+            public static string SafetyBold => Loc.Get("Agent.SafetyBold");
+            /// <summary>되고, 에이전트의 모든 열람 기록이 보호자님께 표시됩니다. 언제든 철회할 수 있어요.</summary>
+            public static string SafetySuffix => Loc.Get("Agent.SafetySuffix");
+            /// <summary>경기별 상세 기록</summary>
+            public static string ScopeMatchRecords => Loc.Get("Agent.ScopeMatchRecords");
+            /// <summary>득점·도움·출전분</summary>
+            public static string ScopeMatchRecordsNote => Loc.Get("Agent.ScopeMatchRecordsNote");
+            /// <summary>학교 · 학년</summary>
+            public static string ScopeSchool => Loc.Get("Agent.ScopeSchool");
+            /// <summary>커리어 검증 상태</summary>
+            public static string ScopeCareer => Loc.Get("Agent.ScopeCareer");
+            /// <summary>팀 확인됨 표시</summary>
+            public static string ScopeCareerNote => Loc.Get("Agent.ScopeCareerNote");
+            /// <summary>보호자에게 연락하기</summary>
+            public static string ScopeContactGuardian => Loc.Get("Agent.ScopeContactGuardian");
+            /// <summary>플랫폼 메시지</summary>
+            public static string ScopeContactGuardianNote => Loc.Get("Agent.ScopeContactGuardianNote");
+            /// <summary>열람 기록</summary>
+            public static string ViewLogs => Loc.Get("Agent.ViewLogs");
+            /// <summary>30일 열람 승인</summary>
+            public static string Approve30Days => Loc.Get("Agent.Approve30Days");
+            /// <summary>거절</summary>
+            public static string Reject => Loc.Get("Agent.Reject");
+            /// <summary>이 에이전트의 요청 다시 받지 않기</summary>
+            public static string BlockAction => Loc.Get("Agent.BlockAction");
+            /// <summary>열람 권한 철회</summary>
+            public static string RevokeAction => Loc.Get("Agent.RevokeAction");
+            /// <summary>거절됨 — 에이전트에게는 사유 없이 "거절"만 전달돼요</summary>
+            public static string RejectedNote => Loc.Get("Agent.RejectedNote");
+            /// <summary>같은 에이전트는 30일간 다시 요청할 수 없어요. 마음이 바뀌면 알림 센터의 요청 기록에서 다시 승인할 수 있습니다.</summary>
+            public static string RejectedFoot => Loc.Get("Agent.RejectedFoot");
+        }
 
         public static class Auth
         {

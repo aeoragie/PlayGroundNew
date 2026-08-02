@@ -14,7 +14,7 @@
 @inject ToastService Toasts
 @inject ConfirmService Confirm
 
-<PageTitle>상세 정보 열람 요청 — PlayGround</PageTitle>
+<PageTitle>@AppText.Agent.PageTitle</PageTitle>
 
 @if (mReady)
 {
@@ -23,9 +23,9 @@
         <header class="bg-navy-deep h-[58px] flex items-center px-7 gap-3.5 text-white">
             <BrandLogo Href="@Routes.Landing" InheritColor="true" />
             <span class="w-px h-[18px] bg-white/[.18]"></span>
-            <span class="text-[13px] font-bold text-white/85 whitespace-nowrap">알림 센터</span>
+            <span class="text-[13px] font-bold text-white/85 whitespace-nowrap">@AppText.Agent.NotificationCenter</span>
             <div class="flex-1"></div>
-            <a href="@Routes.Dashboard" class="text-[12.5px] font-bold text-white/75 hover:text-white whitespace-nowrap transition-colors">대시보드로</a>
+            <a href="@Routes.Dashboard" class="text-[12.5px] font-bold text-white/75 hover:text-white whitespace-nowrap transition-colors">@AppText.Agent.ToDashboard</a>
             <Avatar Name="@mInitial" Size="32" />
         </header>
 
@@ -34,13 +34,13 @@
                 <Skeleton><SkeletonSection ShowAction="false"><SkeletonRows Count="3" ShowChip="false" /></SkeletonSection></Skeleton>
                 <ChildContent>
                     <div class="flex items-center gap-2.5">
-                        <button type="button" aria-label="뒤로" @onclick="GoBack"
+                        <button type="button" aria-label="@AppText.Agent.Back" @onclick="GoBack"
                                 class="w-[34px] h-[34px] rounded-[10px] bg-white border-1.5 border-border flex items-center justify-center flex-none cursor-pointer">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-strong"><path d="M15 18l-6-6 6-6"></path></svg>
                         </button>
                         <span class="flex flex-col gap-px">
-                            <span class="text-[11.5px] text-text-muted whitespace-nowrap">알림 센터 · 열람 요청</span>
-                            <h1 class="m-0 text-xl font-extrabold whitespace-nowrap">상세 정보 열람 요청 — @mData!.PlayerName@(PlayerMeta is not null ? $" ({PlayerMeta})" : "")</h1>
+                            <span class="text-[11.5px] text-text-muted whitespace-nowrap">@AppText.Agent.Breadcrumb</span>
+                            <h1 class="m-0 text-xl font-extrabold whitespace-nowrap">@AppText.Agent.TitleWithPlayer(mData!.PlayerName, PlayerMeta is not null ? $" ({PlayerMeta})" : "")</h1>
                         </span>
                     </div>
 
@@ -69,13 +69,13 @@
     <div class="md:hidden min-h-screen bg-flow-bg flex flex-col items-center gap-3.5 px-4 pt-5 pb-[60px]">
         <div class="w-full max-w-[420px] bg-bg rounded-card shadow-flow overflow-hidden flex flex-col">
             <div class="px-5 py-3.5 border-b border-border flex items-center gap-2">
-                <button type="button" aria-label="뒤로" @onclick="GoBack"
+                <button type="button" aria-label="@AppText.Agent.Back" @onclick="GoBack"
                         class="w-8 h-8 rounded-[9px] bg-surface-alt flex items-center justify-center -ml-1 flex-none border-0 cursor-pointer">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-strong"><path d="M15 18l-6-6 6-6"></path></svg>
                 </button>
-                <span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">상세 정보 열람 요청</span>
+                <span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@AppText.Agent.Title</span>
                 <div class="flex-1"></div>
-                <span class="text-[11.5px] text-text-muted whitespace-nowrap">알림 센터에서 열림</span>
+                <span class="text-[11.5px] text-text-muted whitespace-nowrap">@AppText.Agent.OpenedFromNotifications</span>
             </div>
 
             <LoadingGate IsLoading="@(mData is null && !mFailed)" HasFailed="@mFailed" OnRetry="LoadAsync">
@@ -159,7 +159,7 @@
 
         if (result is null)
         {
-            Toasts.ShowError("요청을 처리하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Agent.ProcessFailedToast);
             return;
         }
 
@@ -174,7 +174,7 @@
 
         if (result is null)
         {
-            Toasts.ShowError("요청을 처리하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Agent.ProcessFailedToast);
             return;
         }
 
@@ -187,9 +187,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = $"{mData?.Agent.Name} 에이전트의 열람 권한을 철회할까요?",
-            Description = "즉시 열람이 차단되고 되돌릴 수 없어요.",
-            ConfirmLabel = "철회",
+            Title = AppText.Agent.RevokeTitle(mData?.Agent.Name),
+            Description = AppText.Agent.RevokeDescription,
+            ConfirmLabel = AppText.Agent.RevokeConfirm,
         });
 
         if (!confirmed)
@@ -203,7 +203,7 @@
 
         if (result is null)
         {
-            Toasts.ShowError("요청을 처리하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Agent.ProcessFailedToast);
             return;
         }
 
@@ -215,9 +215,9 @@
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
             Kind = ConfirmKind.Destructive,
-            Title = $"{mData?.Agent.Name} 에이전트의 요청을 다시 받지 않을까요?",
-            Description = "이 요청은 거절되고, 같은 에이전트의 새 요청이 차단돼요.",
-            ConfirmLabel = "다시 받지 않기",
+            Title = AppText.Agent.BlockTitle(mData?.Agent.Name),
+            Description = AppText.Agent.BlockDescription,
+            ConfirmLabel = AppText.Agent.BlockConfirm,
         });
 
         if (!confirmed)
@@ -231,11 +231,11 @@
 
         if (!blocked)
         {
-            Toasts.ShowError("요청을 처리하지 못했어요. 다시 시도해 주세요.");
+            Toasts.ShowError(AppText.Agent.ProcessFailedToast);
             return;
         }
 
-        Toasts.ShowSuccess("이 에이전트의 요청을 더 받지 않아요.");
+        Toasts.ShowSuccess(AppText.Agent.BlockedToast);
         await LoadAsync();
     }
 
@@ -253,40 +253,40 @@
             DateTime local = mData.ExpiresAt.Value.ToLocalTime();
             if (mData.IsExpired)
             {
-                return $"만료됨 — {local.Month}/{local.Day}까지 열람";
+                return AppText.Agent.Expired(local.Month, local.Day);
             }
 
             int daysLeft = Math.Max(0, (int)Math.Ceiling((mData.ExpiresAt.Value - DateTime.UtcNow).TotalDays));
-            return $"승인됨 — {local.Month}/{local.Day}까지 열람 가능 ({daysLeft}일 남음)";
+            return AppText.Agent.ApprovedUntil(local.Month, local.Day, daysLeft);
         }
     }
 
     private static string RequestedAtText(DateTime utc)
     {
         DateTime local = utc.ToLocalTime();
-        return $"{local.Month}/{local.Day} {(local.Hour < 12 ? "오전" : "오후")} {((local.Hour + 11) % 12) + 1}:{local.Minute:D2} 요청";
+        return AppText.Agent.RequestedAt(local.Month, local.Day, local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm, ((local.Hour + 11) % 12) + 1, local.Minute.ToString("D2"));
     }
 
     private static string LogLabel(string eventType) => eventType switch
     {
-        "RecordView" => "경기별 상세 기록 열람",
-        "ProfileView" => "디테일 권한 뷰 방문",
-        _ => "승인 완료",
+        "RecordView" => AppText.Agent.LogRecordView,
+        "ProfileView" => AppText.Agent.LogProfileView,
+        _ => AppText.Agent.LogApproved,
     };
 
     private static string LogTimeText(DateTime utc)
     {
         DateTime local = utc.ToLocalTime();
         DateTime today = DateTime.Now.Date;
-        string clock = $"{(local.Hour < 12 ? "오전" : "오후")} {((local.Hour + 11) % 12) + 1}:{local.Minute:D2}";
+        string clock = $"{(local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm)} {((local.Hour + 11) % 12) + 1}:{local.Minute:D2}";
         if (local.Date == today)
         {
-            return $"오늘 {clock}";
+            return AppText.Agent.Today(clock);
         }
 
         if (local.Date == today.AddDays(-1))
         {
-            return $"어제 {clock}";
+            return AppText.Agent.Yesterday(clock);
         }
 
         return $"{local.Month}/{local.Day}";
@@ -297,7 +297,7 @@
     private RenderFragment RequestCard => __builder =>
     {
         <div class="flex flex-col gap-[9px] md:bg-white md:border-1.5 md:border-border md:rounded-2xl md:p-[20px_22px] md:gap-[11px]">
-            <span class="text-[13px] md:text-[13.5px] font-extrabold text-text-strong">요청 내용</span>
+            <span class="text-[13px] md:text-[13.5px] font-extrabold text-text-strong">@AppText.Agent.RequestContent</span>
             <div class="bg-surface-soft rounded-xl px-4 py-3.5 flex flex-col gap-2.5 md:bg-transparent md:rounded-none md:p-0">
                 <span class="text-[13px] md:text-[13.5px] text-text-strong leading-[1.65] md:leading-[1.7] break-keep"><b>@mData!.PlayerName</b>@(PlayerMeta is not null ? $"({PlayerMeta})" : "") @mData.Message</span>
                 <span class="text-[11px] md:text-[11.5px] text-text-muted whitespace-nowrap">@RequestedAtText(mData.RequestedAt)</span>
@@ -309,9 +309,9 @@
     {
         <div class="flex flex-col gap-[9px] md:bg-white md:border-1.5 md:border-border md:rounded-2xl md:p-[18px_20px] md:gap-2.5">
             <span class="flex items-center gap-1.5">
-                <span class="text-[13px] md:text-[13.5px] font-extrabold text-text-strong">승인 시 열람되는 정보</span>
+                <span class="text-[13px] md:text-[13.5px] font-extrabold text-text-strong">@AppText.Agent.ScopeTitle</span>
                 @* 서비스 고유 개념 보조 설명 (Design.TooltipHelp §2 — dc 데모 카피 그대로) *@
-                <InfoPopover Title="에이전트 열람이란?">인증된 에이전트가 자녀의 상세 기록을 보려면 보호자 승인이 필요해요. 승인 후 30일이 지나면 자동 만료돼요.</InfoPopover>
+                <InfoPopover Title="@AppText.Agent.InfoTitle">@AppText.Agent.InfoBody</InfoPopover>
             </span>
             <div class="border-1.5 border-border rounded-xl px-4 py-1.5 flex flex-col md:border-0 md:rounded-none md:p-0">
                 @foreach ((string label, string note) in Scopes)
@@ -327,29 +327,29 @@
                 }
                 <div class="flex items-center gap-2.5 py-[9px]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" class="flex-none text-danger"><path d="M6 6l12 12M18 6L6 18"></path></svg>
-                    <span class="text-[12.5px] font-bold text-text-muted flex-1 break-keep">연락처 직접 노출</span>
-                    <span class="text-[11px] text-text-muted whitespace-nowrap">항상 제외 — 플랫폼 메시지만</span>
+                    <span class="text-[12.5px] font-bold text-text-muted flex-1 break-keep">@AppText.Agent.ContactExcluded</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap">@AppText.Agent.ContactExcludedNote</span>
                 </div>
             </div>
             <div class="bg-teal/[.08] rounded-[11px] px-3.5 py-[11px] flex gap-[9px] items-start">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-none mt-px text-teal-ink"><rect x="4" y="9" width="16" height="11" rx="2.5"></rect><path d="M8 9V6.5a4 4 0 0 1 8 0V9"></path></svg>
-                <span class="text-[11.5px] text-teal-ink leading-[1.6] break-keep">승인은 <b>30일 후 자동 만료</b>되고, 에이전트의 모든 열람 기록이 보호자님께 표시됩니다. 언제든 철회할 수 있어요.</span>
+                <span class="text-[11.5px] text-teal-ink leading-[1.6] break-keep">@AppText.Agent.SafetyPrefix<b>@AppText.Agent.SafetyBold</b>@AppText.Agent.SafetySuffix</span>
             </div>
         </div>
     };
 
     private static readonly (string Label, string Note)[] Scopes =
     {
-        ("경기별 상세 기록", "득점·도움·출전분"),
-        ("학교 · 학년", ""),
-        ("커리어 검증 상태", "팀 확인됨 표시"),
-        ("보호자에게 연락하기", "플랫폼 메시지"),
+        (AppText.Agent.ScopeMatchRecords, AppText.Agent.ScopeMatchRecordsNote),
+        (AppText.Agent.ScopeSchool, ""),
+        (AppText.Agent.ScopeCareer, AppText.Agent.ScopeCareerNote),
+        (AppText.Agent.ScopeContactGuardian, AppText.Agent.ScopeContactGuardianNote),
     };
 
     private RenderFragment ViewLogCard => __builder =>
     {
         <div class="border-1.5 border-border rounded-xl px-4 py-1.5 flex flex-col md:bg-white md:rounded-2xl md:px-[22px] md:py-4">
-            <span class="text-xs md:text-[13.5px] font-extrabold text-text-strong pt-[9px] pb-1 md:pt-0 md:pb-1.5">열람 기록</span>
+            <span class="text-xs md:text-[13.5px] font-extrabold text-text-strong pt-[9px] pb-1 md:pt-0 md:pb-1.5">@AppText.Agent.ViewLogs</span>
             @foreach (AgentViewLogDto log in mData!.Logs)
             {
                 <div class="flex items-center gap-[9px] md:gap-2.5 py-2 md:py-[9px] border-t border-surface-soft">
@@ -368,14 +368,14 @@
             <div class="flex flex-col gap-[9px]">
                 <div class="flex gap-[9px]">
                     <button type="button" disabled="@mBusy" @onclick="ApproveAsync"
-                            class="flex-[1.6] md:flex-1 h-[50px] border-0 rounded-xl bg-teal hover:bg-teal/90 text-[14.5px] font-bold text-white cursor-pointer whitespace-nowrap shadow-[0_5px_16px_rgba(46,196,182,.3)] transition-colors">30일 열람 승인</button>
+                            class="flex-[1.6] md:flex-1 h-[50px] border-0 rounded-xl bg-teal hover:bg-teal/90 text-[14.5px] font-bold text-white cursor-pointer whitespace-nowrap shadow-[0_5px_16px_rgba(46,196,182,.3)] transition-colors">@AppText.Agent.Approve30Days</button>
                     <button type="button" disabled="@mBusy" @onclick="DenyAsync"
-                            class="flex-1 md:hidden h-[50px] border-1.5 border-border rounded-xl bg-white text-sm font-bold text-text-body cursor-pointer whitespace-nowrap hover:border-danger hover:text-danger transition-colors">거절</button>
+                            class="flex-1 md:hidden h-[50px] border-1.5 border-border rounded-xl bg-white text-sm font-bold text-text-body cursor-pointer whitespace-nowrap hover:border-danger hover:text-danger transition-colors">@AppText.Agent.Reject</button>
                 </div>
                 <button type="button" disabled="@mBusy" @onclick="DenyAsync"
-                        class="hidden md:block h-[46px] border-1.5 border-border rounded-xl bg-white text-[13.5px] font-bold text-text-body cursor-pointer whitespace-nowrap hover:border-danger hover:text-danger transition-colors">거절</button>
+                        class="hidden md:block h-[46px] border-1.5 border-border rounded-xl bg-white text-[13.5px] font-bold text-text-body cursor-pointer whitespace-nowrap hover:border-danger hover:text-danger transition-colors">@AppText.Agent.Reject</button>
                 <button type="button" disabled="@mBusy" @onclick="BlockAsync"
-                        class="h-10 md:h-9 border-0 bg-transparent text-[12.5px] md:text-xs font-bold text-text-muted cursor-pointer whitespace-nowrap">이 에이전트의 요청 다시 받지 않기</button>
+                        class="h-10 md:h-9 border-0 bg-transparent text-[12.5px] md:text-xs font-bold text-text-muted cursor-pointer whitespace-nowrap">@AppText.Agent.BlockAction</button>
             </div>
         }
         else if (IsApproved)
@@ -386,7 +386,7 @@
                     <span class="text-[12.5px] md:text-[13px] font-bold text-teal-ink break-keep">@ExpiryText</span>
                 </div>
                 <button type="button" disabled="@mBusy" @onclick="RevokeAsync"
-                        class="h-[46px] border-1.5 border-danger/25 rounded-xl bg-white text-[13px] font-bold text-danger cursor-pointer whitespace-nowrap hover:bg-danger/5 transition-colors">열람 권한 철회</button>
+                        class="h-[46px] border-1.5 border-danger/25 rounded-xl bg-white text-[13px] font-bold text-danger cursor-pointer whitespace-nowrap hover:bg-danger/5 transition-colors">@AppText.Agent.RevokeAction</button>
             </div>
         }
         else
@@ -394,9 +394,9 @@
             <div class="flex flex-col gap-2.5">
                 <div class="flex items-center gap-[9px] bg-surface-alt rounded-xl px-3.5 py-3">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" class="flex-none text-text-body"><path d="M6 6l12 12M18 6L6 18"></path></svg>
-                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-body break-keep">거절됨 — 에이전트에게는 사유 없이 "거절"만 전달돼요</span>
+                    <span class="text-[12.5px] md:text-[13px] font-bold text-text-body break-keep">@AppText.Agent.RejectedNote</span>
                 </div>
-                <span class="text-[11.5px] text-text-muted leading-[1.6] break-keep">같은 에이전트는 30일간 다시 요청할 수 없어요. 마음이 바뀌면 알림 센터의 요청 기록에서 다시 승인할 수 있습니다.</span>
+                <span class="text-[11.5px] text-text-muted leading-[1.6] break-keep">@AppText.Agent.RejectedFoot</span>
             </div>
         }
     };
