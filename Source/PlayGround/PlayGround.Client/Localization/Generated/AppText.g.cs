@@ -2154,7 +2154,7 @@ namespace PlayGround.Client.Localization
             public static string RoundF => Loc.Get("Records.RoundF");
             /// <summary>경기기록</summary>
             public static string BreadcrumbRoot => Loc.Get("Records.BreadcrumbRoot");
-            /// <summary>경기 일정 · 결과로 돌아가기</summary>
+            /// <summary>목록으로</summary>
             public static string BackToList => Loc.Get("Records.BackToList");
             /// <summary>친선경기</summary>
             public static string Friendly => Loc.Get("Records.Friendly");
@@ -2188,6 +2188,172 @@ namespace PlayGround.Client.Localization
             public static string Halves(object arg0, object arg1, object arg2, object arg3) => Loc.Format("Records.Halves", arg0, arg1, arg2, arg3);
             /// <summary>PK {0} : {1}</summary>
             public static string Pk(object arg0, object arg1) => Loc.Format("Records.Pk", arg0, arg1);
+            /// <summary>경기기록 — PlayGround</summary>
+            public static string PageTitle => Loc.Get("Records.PageTitle");
+            /// <summary>경기기록</summary>
+            public static string SectionLabel => Loc.Get("Records.SectionLabel");
+            /// <summary>{0} 시즌</summary>
+            public static string SeasonTitle(object arg0) => Loc.Format("Records.SeasonTitle", arg0);
+            /// <summary>대회</summary>
+            public static string SegCup => Loc.Get("Records.SegCup");
+            /// <summary>리그</summary>
+            public static string SegLeague => Loc.Get("Records.SegLeague");
+            /// <summary>대회 · 팀 · 선수 검색</summary>
+            public static string SearchPlaceholder => Loc.Get("Records.SearchPlaceholder");
+            /// <summary>지난 시즌 기록</summary>
+            public static string ArchiveLink => Loc.Get("Records.ArchiveLink");
+            /// <summary>진행중</summary>
+            public static string StatusInProgress => Loc.Get("Records.StatusInProgress");
+            /// <summary>종료</summary>
+            public static string StatusEnded => Loc.Get("Records.StatusEnded");
+            /// <summary>진행중 → 예정 → 종료 순 자동 정렬</summary>
+            public static string SortNote => Loc.Get("Records.SortNote");
+            /// <summary>내 연령({0})만 보기</summary>
+            public static string MyAgeToggle(object arg0) => Loc.Format("Records.MyAgeToggle", arg0);
+            /// <summary>지금 진행 중인 대회가 없어요</summary>
+            public static string ListEmptyTitle => Loc.Get("Records.ListEmptyTitle");
+            /// <summary>시즌 사이 기간이에요. 지난 시즌 기록은 아카이브에서 볼 수 있어요.</summary>
+            public static string ListEmptyBody => Loc.Get("Records.ListEmptyBody");
+            /// <summary>지난 시즌 아카이브</summary>
+            public static string ArchiveCta => Loc.Get("Records.ArchiveCta");
+            /// <summary>내 연령</summary>
+            public static string MyAgeBadge => Loc.Get("Records.MyAgeBadge");
+            /// <summary>{0}개</summary>
+            public static string CountItems(object arg0) => Loc.Format("Records.CountItems", arg0);
+            /// <summary>경기기록은 누구에게나 무료로 공개됩니다</summary>
+            public static string FooterFree => Loc.Get("Records.FooterFree");
+            /// <summary>출처: KFA 공식 · 대회 주최자 입력 · 팀 입력</summary>
+            public static string FooterSource => Loc.Get("Records.FooterSource");
+            /// <summary>기록은 어떻게 집계되나요?</summary>
+            public static string InfoTitle => Loc.Get("Records.InfoTitle");
+            /// <summary>공식 대회·리그 기록은 주최측이 입력하고 팀은 수정 신청만 할 수 있어요. 순위표와 시즌 기록에는 공식 경기만 집계되고, 친선경기는 별도로 표시돼요.</summary>
+            public static string InfoBody => Loc.Get("Records.InfoBody");
+            /// <summary>안내</summary>
+            public static string BannerPrefix => Loc.Get("Records.BannerPrefix");
+            /// <summary>역할을 선택하면 나만의 대시보드가 열려요.</summary>
+            public static string BannerMessage => Loc.Get("Records.BannerMessage");
+            /// <summary>역할 선택하기</summary>
+            public static string BannerLink => Loc.Get("Records.BannerLink");
+            /// <summary>기타</summary>
+            public static string RegionEtc => Loc.Get("Records.RegionEtc");
+            /// <summary>고등 · 17~18세</summary>
+            public static string AgeU18 => Loc.Get("Records.AgeU18");
+            /// <summary>중등 · 14~15세</summary>
+            public static string AgeU15 => Loc.Get("Records.AgeU15");
+            /// <summary>초등 · 11~12세</summary>
+            public static string AgeU12 => Loc.Get("Records.AgeU12");
+            /// <summary>지난 시즌 기록 — PlayGround</summary>
+            public static string ArchivePageTitle => Loc.Get("Records.ArchivePageTitle");
+            /// <summary>{0} 시즌으로</summary>
+            public static string BackToSeason(object arg0) => Loc.Format("Records.BackToSeason", arg0);
+            /// <summary>지난 시즌 기록</summary>
+            public static string ArchiveTitle => Loc.Get("Records.ArchiveTitle");
+            /// <summary>우승</summary>
+            public static string Champion => Loc.Get("Records.Champion");
+            /// <summary>종료된 대회의 전체 기록(순위·경기·수상)을 그대로 볼 수 있어요.</summary>
+            public static string ArchiveNote => Loc.Get("Records.ArchiveNote");
+            /// <summary>{0}팀</summary>
+            public static string TeamCountSuffix(object arg0) => Loc.Format("Records.TeamCountSuffix", arg0);
+            /// <summary>총 경기 · 종료</summary>
+            public static string StatTotalMatches => Loc.Get("Records.StatTotalMatches");
+            /// <summary>득점 · 경기당</summary>
+            public static string StatGoalsPerGame => Loc.Get("Records.StatGoalsPerGame");
+            /// <summary>대회 규정 PDF</summary>
+            public static string RegulationPdf => Loc.Get("Records.RegulationPdf");
+            /// <summary>대회 개요</summary>
+            public static string OverviewTitle => Loc.Get("Records.OverviewTitle");
+            /// <summary>대회 수상</summary>
+            public static string AwardsTitle => Loc.Get("Records.AwardsTitle");
+            /// <summary>수상 내역은 대회 종료 후 제공됩니다</summary>
+            public static string AwardsPending => Loc.Get("Records.AwardsPending");
+            /// <summary>역대 우승팀</summary>
+            public static string SeriesChampionsTitle => Loc.Get("Records.SeriesChampionsTitle");
+            /// <summary>2차 스플릿리그는 1차 풀리그 결과(조 1~4위)로 재배치됩니다 · 표기된 순위는 2차 기준</summary>
+            public static string Split2Note => Loc.Get("Records.Split2Note");
+            /// <summary>전체</summary>
+            public static string All => Loc.Get("Records.All");
+            /// <summary>{0} 순위</summary>
+            public static string StandingsTitle(object arg0) => Loc.Format("Records.StandingsTitle", arg0);
+            /// <summary>경기 일정 · 결과</summary>
+            public static string MatchScheduleResults => Loc.Get("Records.MatchScheduleResults");
+            /// <summary>득실·조 순위는 예선 기준입니다 · PK는 괄호로 표기</summary>
+            public static string BracketNote => Loc.Get("Records.BracketNote");
+            /// <summary>리그 순위</summary>
+            public static string LeagueStandingsTitle => Loc.Get("Records.LeagueStandingsTitle");
+            /// <summary>상위 3팀 왕중왕전 진출</summary>
+            public static string LeagueZoneNote => Loc.Get("Records.LeagueZoneNote");
+            /// <summary>왕중왕전 진출</summary>
+            public static string LeagueZoneLegend => Loc.Get("Records.LeagueZoneLegend");
+            /// <summary>{0}월</summary>
+            public static string MonthSuffix(object arg0) => Loc.Format("Records.MonthSuffix", arg0);
+            /// <summary>영상 {0}</summary>
+            public static string MediaVideos(object arg0) => Loc.Format("Records.MediaVideos", arg0);
+            /// <summary>인터넷 뉴스 {0}</summary>
+            public static string MediaNews(object arg0) => Loc.Format("Records.MediaNews", arg0);
+            /// <summary>대회 관련 기사가 등록되면 여기에 표시돼요</summary>
+            public static string NewsEmpty => Loc.Get("Records.NewsEmpty");
+            /// <summary>대회 정보</summary>
+            public static string TabInfo => Loc.Get("Records.TabInfo");
+            /// <summary>예선</summary>
+            public static string TabStage1Cup => Loc.Get("Records.TabStage1Cup");
+            /// <summary>토너먼트</summary>
+            public static string TabBracket => Loc.Get("Records.TabBracket");
+            /// <summary>미디어</summary>
+            public static string TabMedia => Loc.Get("Records.TabMedia");
+            /// <summary>리그 경기</summary>
+            public static string TabLeagueGames => Loc.Get("Records.TabLeagueGames");
+            /// <summary>1차 풀리그</summary>
+            public static string TabSplit1 => Loc.Get("Records.TabSplit1");
+            /// <summary>2차 스플릿리그</summary>
+            public static string TabSplit2 => Loc.Get("Records.TabSplit2");
+            /// <summary>전국</summary>
+            public static string ScopeNational => Loc.Get("Records.ScopeNational");
+            /// <summary>지방</summary>
+            public static string ScopeRegional => Loc.Get("Records.ScopeRegional");
+            /// <summary>조별 예선 + 토너먼트</summary>
+            public static string FormatCup => Loc.Get("Records.FormatCup");
+            /// <summary>풀리그 + 스플릿리그</summary>
+            public static string FormatSplit => Loc.Get("Records.FormatSplit");
+            /// <summary>리그</summary>
+            public static string FormatLeague => Loc.Get("Records.FormatLeague");
+            /// <summary>주최</summary>
+            public static string InfoHost => Loc.Get("Records.InfoHost");
+            /// <summary>기간</summary>
+            public static string InfoPeriod => Loc.Get("Records.InfoPeriod");
+            /// <summary>참가</summary>
+            public static string InfoParticipants => Loc.Get("Records.InfoParticipants");
+            /// <summary>방식</summary>
+            public static string InfoMethod => Loc.Get("Records.InfoMethod");
+            /// <summary>경기시간</summary>
+            public static string InfoMatchTime => Loc.Get("Records.InfoMatchTime");
+            /// <summary>구장</summary>
+            public static string InfoVenue => Loc.Get("Records.InfoVenue");
+            /// <summary>순위 결정</summary>
+            public static string InfoTiebreak => Loc.Get("Records.InfoTiebreak");
+            /// <summary>출처</summary>
+            public static string InfoSource => Loc.Get("Records.InfoSource");
+            /// <summary>{0}팀 ({1})</summary>
+            public static string ParticipantsValue(object arg0, object arg1) => Loc.Format("Records.ParticipantsValue", arg0, arg1);
+            /// <summary>1차 결과로 2차 조 배치</summary>
+            public static string ZoneNoteSplit1 => Loc.Get("Records.ZoneNoteSplit1");
+            /// <summary>상위 2팀 본선 진출</summary>
+            public static string ZoneNoteCup => Loc.Get("Records.ZoneNoteCup");
+            /// <summary>상위 스플릿 배치</summary>
+            public static string ZoneLegendSplit1 => Loc.Get("Records.ZoneLegendSplit1");
+            /// <summary>본선 진출</summary>
+            public static string ZoneLegendCup => Loc.Get("Records.ZoneLegendCup");
+            /// <summary>우승</summary>
+            public static string AwardChampion => Loc.Get("Records.AwardChampion");
+            /// <summary>준우승</summary>
+            public static string AwardRunnerUp => Loc.Get("Records.AwardRunnerUp");
+            /// <summary>페어플레이</summary>
+            public static string AwardFairPlay => Loc.Get("Records.AwardFairPlay");
+            /// <summary>다시보기</summary>
+            public static string VideoFullMatch => Loc.Get("Records.VideoFullMatch");
+            /// <summary>훈련</summary>
+            public static string VideoTraining => Loc.Get("Records.VideoTraining");
+            /// <summary>하이라이트</summary>
+            public static string VideoHighlight => Loc.Get("Records.VideoHighlight");
         }
 
         public static class Settings

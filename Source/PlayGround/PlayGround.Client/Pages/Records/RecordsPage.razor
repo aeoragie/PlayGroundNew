@@ -14,23 +14,23 @@
 @inject NavigationManager Nav
 @inject BannerService Banners
 
-<PageTitle>경기기록 — PlayGround</PageTitle>
+<PageTitle>@AppText.Records.PageTitle</PageTitle>
 
 <div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
-    <PublicGnb SectionLabel="경기기록" />
+    <PublicGnb SectionLabel="@AppText.Records.SectionLabel" />
 
     <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-6 pb-20 flex flex-col gap-3.5">
         <div class="flex items-center gap-3.5 flex-wrap">
-            <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em] whitespace-nowrap">@(mSeasonYear) 시즌</h1>
+            <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em] whitespace-nowrap">@AppText.Records.SeasonTitle(mSeasonYear)</h1>
             <div class="flex bg-surface-segment rounded-[11px] p-[3px] gap-[3px] w-full order-last md:w-auto md:order-none">
-                <button type="button" class="@SegmentClass(isLeague: false)" @onclick="() => SwitchSegment(isLeague: false)">대회</button>
-                <button type="button" class="@SegmentClass(isLeague: true)" @onclick="() => SwitchSegment(isLeague: true)">리그</button>
+                <button type="button" class="@SegmentClass(isLeague: false)" @onclick="() => SwitchSegment(isLeague: false)">@AppText.Records.SegCup</button>
+                <button type="button" class="@SegmentClass(isLeague: true)" @onclick="() => SwitchSegment(isLeague: true)">@AppText.Records.SegLeague</button>
             </div>
             <div class="flex-1"></div>
             <div class="hidden md:flex items-center gap-[9px] bg-white border-1.5 border-border rounded-[11px] px-[15px] h-[42px] w-[260px]">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-text-muted shrink-0"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
                 <input class="w-full min-w-0 border-0 outline-none bg-transparent text-[13px] text-navy-deep placeholder:text-text-muted"
-                       placeholder="대회 · 팀 · 선수 검색" @bind="mSearch" @bind:event="oninput" />
+                       placeholder="@AppText.Records.SearchPlaceholder" @bind="mSearch" @bind:event="oninput" />
             </div>
             <a href="@Routes.RecordsArchive" class="flex items-center gap-1.5 text-[12.5px] font-bold text-navy whitespace-nowrap">지난 시즌 기록
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
@@ -40,15 +40,15 @@
         @* 상태 범례 + 내 연령 토글 (토글은 내 연령이 있을 때만) *@
         <div class="flex items-center gap-3.5 flex-wrap">
             <div class="flex gap-3.5 text-[11.5px] text-text-muted items-center flex-wrap">
-                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-teal"></span>진행중</span>
-                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-navy"></span>예정</span>
-                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-border"></span>종료</span>
-                <span class="whitespace-nowrap">진행중 → 예정 → 종료 순 자동 정렬</span>
+                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-teal"></span>@AppText.Records.StatusInProgress</span>
+                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-navy"></span>@AppText.Records.StatusScheduled</span>
+                <span class="flex items-center gap-[5px]"><span class="w-2 h-2 rounded-[2px] bg-border"></span>@AppText.Records.StatusEnded</span>
+                <span class="whitespace-nowrap">@AppText.Records.SortNote</span>
             </div>
             <div class="flex-1"></div>
             @if (mMyAge is not null)
             {
-                <button type="button" class="@MyAgeToggleClass" @onclick="() => mMyAgeOnly = !mMyAgeOnly">내 연령(@mMyAge)만 보기</button>
+                <button type="button" class="@MyAgeToggleClass" @onclick="() => mMyAgeOnly = !mMyAgeOnly">@AppText.Records.MyAgeToggle(mMyAge)</button>
             }
         </div>
 
@@ -56,10 +56,10 @@
         @if (VisibleAges.Count == 0)
         {
             @* 빈 상태 Tier A — 소유자 액션이 없는 공개 화면이라 보조 탐색(아웃라인)만 *@
-            <EmptyState Kind="EmptyState.Art.Trophy" Title="지금 진행 중인 대회가 없어요">
-                <Description>시즌 사이 기간이에요. 지난 시즌 기록은 아카이브에서 볼 수 있어요.</Description>
+            <EmptyState Kind="EmptyState.Art.Trophy" Title="@AppText.Records.ListEmptyTitle">
+                <Description>@AppText.Records.ListEmptyBody</Description>
                 <Cta>
-                    <a href="@Routes.RecordsArchive" class="@Css.State.EmptyCtaGhost">지난 시즌 아카이브</a>
+                    <a href="@Routes.RecordsArchive" class="@Css.State.EmptyCtaGhost">@AppText.Records.ArchiveCta</a>
                 </Cta>
             </EmptyState>
         }
@@ -75,11 +75,11 @@
                         <span class="text-[15.5px] font-extrabold text-navy-deep w-11">@age</span>
                         @if (isMine)
                         {
-                            <span class="@Css.Badge.Positive">내 연령</span>
+                            <span class="@Css.Badge.Positive">@AppText.Records.MyAgeBadge</span>
                         }
                         <span class="text-xs text-text-muted whitespace-nowrap">@AgeDescription(age)</span>
                         <div class="flex-1"></div>
-                        <span class="text-[11.5px] font-bold text-navy bg-surface-icon rounded-full px-[11px] py-[3px] whitespace-nowrap">@(items.Count)개</span>
+                        <span class="text-[11.5px] font-bold text-navy bg-surface-icon rounded-full px-[11px] py-[3px] whitespace-nowrap">@AppText.Records.CountItems(items.Count)</span>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="@($"text-text-muted shrink-0 transition-transform {(isOpen ? "rotate-180" : "")}")"><path d="M6 9l6 6 6-6"></path></svg>
                     </button>
@@ -106,12 +106,12 @@
 
     <footer class="border-t border-border bg-white px-4 md:px-8 py-6">
         <div class="max-w-[1100px] mx-auto flex items-center gap-3.5 flex-wrap">
-            <span class="text-xs text-text-muted break-keep">경기기록은 누구에게나 무료로 공개됩니다</span>
+            <span class="text-xs text-text-muted break-keep">@AppText.Records.FooterFree</span>
             <div class="flex-1"></div>
             <span class="flex items-center gap-1.5">
-                <span class="text-[11.5px] text-text-faint whitespace-nowrap">출처: KFA 공식 · 대회 주최자 입력 · 팀 입력</span>
+                <span class="text-[11.5px] text-text-faint whitespace-nowrap">@AppText.Records.FooterSource</span>
                 @* 서비스 고유 개념 보조 설명 (Design.TooltipHelp §2) *@
-                <InfoPopover Title="기록은 어떻게 집계되나요?" OpenUp="true">공식 대회·리그 기록은 주최측이 입력하고 팀은 수정 신청만 할 수 있어요. 순위표와 시즌 기록에는 공식 경기만 집계되고, 친선경기는 별도로 표시돼요.</InfoPopover>
+                <InfoPopover Title="@AppText.Records.InfoTitle" OpenUp="true">@AppText.Records.InfoBody</InfoPopover>
             </span>
         </div>
     </footer>
@@ -150,9 +150,9 @@
                 {
                     Id = "general-role-nudge",
                     Severity = BannerSeverity.Info,
-                    Prefix = "안내",
-                    Message = "역할을 선택하면 나만의 대시보드가 열려요.",
-                    LinkLabel = "역할 선택하기",
+                    Prefix = AppText.Records.BannerPrefix,
+                    Message = AppText.Records.BannerMessage,
+                    LinkLabel = AppText.Records.BannerLink,
                     LinkHref = Routes.SelectRole,
                 });
             }
@@ -208,16 +208,16 @@
         }
 
         return items
-            .GroupBy(t => t.RegionGroup ?? "기타")
+            .GroupBy(t => t.RegionGroup ?? AppText.Records.RegionEtc)
             .Select(g => ((string?)g.Key, g.ToList()))
             .ToList();
     }
 
     private static string AgeDescription(string age) => age switch
     {
-        "U18" => "고등 · 17~18세",
-        "U15" => "중등 · 14~15세",
-        _ => "초등 · 11~12세",
+        "U18" => AppText.Records.AgeU18,
+        "U15" => AppText.Records.AgeU15,
+        _ => AppText.Records.AgeU12,
     };
 
     private void ToggleAge(string age)

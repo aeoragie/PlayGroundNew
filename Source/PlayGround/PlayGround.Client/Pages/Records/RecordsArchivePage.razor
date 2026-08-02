@@ -5,18 +5,18 @@
 @using PlayGround.Contracts.Records
 @inject RecordsClient Records
 
-<PageTitle>지난 시즌 기록 — PlayGround</PageTitle>
+<PageTitle>@AppText.Records.ArchivePageTitle</PageTitle>
 
 <div class="min-h-screen bg-surface-alt flex flex-col text-navy-deep">
-    <PublicGnb SectionLabel="경기기록" />
+    <PublicGnb SectionLabel="@AppText.Records.SectionLabel" />
 
     <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 md:px-8 pt-6 pb-20 flex flex-col gap-4">
         <a href="@Routes.Records" class="self-start flex items-center gap-1.5 text-[13px] font-bold text-text-body hover:text-navy transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>@(CurrentYear) 시즌으로
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>@AppText.Records.BackToSeason(CurrentYear)
         </a>
 
         <div class="flex items-center gap-3.5 flex-wrap">
-            <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em] whitespace-nowrap">지난 시즌 기록</h1>
+            <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em] whitespace-nowrap">@AppText.Records.ArchiveTitle</h1>
             <div class="flex-1"></div>
             <div class="flex gap-[7px] flex-wrap">
                 @foreach (int year in ArchiveYears)
@@ -43,7 +43,7 @@
                                 @if (tournament.ChampionTeamName is not null)
                                 {
                                     <span class="flex items-center gap-[7px] shrink-0">
-                                        <span class="text-[10.5px] font-extrabold text-orange-ink bg-surface-orange rounded-full px-[9px] py-0.5 whitespace-nowrap">우승</span>
+                                        <span class="text-[10.5px] font-extrabold text-orange-ink bg-surface-orange rounded-full px-[9px] py-0.5 whitespace-nowrap">@AppText.Records.Champion</span>
                                         <span class="text-xs font-bold text-text-body whitespace-nowrap">@tournament.ChampionTeamName</span>
                                     </span>
                                 }
@@ -53,14 +53,14 @@
                 }
             </div>
         }
-        <span class="text-xs text-text-muted break-keep">종료된 대회의 전체 기록(순위·경기·수상)을 그대로 볼 수 있어요.</span>
+        <span class="text-xs text-text-muted break-keep">@AppText.Records.ArchiveNote</span>
     </main>
 
     <footer class="border-t border-border bg-white px-4 md:px-8 py-6">
         <div class="max-w-[1100px] mx-auto flex items-center gap-3.5 flex-wrap">
-            <span class="text-xs text-text-muted break-keep">경기기록은 누구에게나 무료로 공개됩니다</span>
+            <span class="text-xs text-text-muted break-keep">@AppText.Records.FooterFree</span>
             <div class="flex-1"></div>
-            <span class="text-[11.5px] text-text-faint whitespace-nowrap">출처: KFA 공식 · 대회 주최자 입력 · 팀 입력</span>
+            <span class="text-[11.5px] text-text-faint whitespace-nowrap">@AppText.Records.FooterSource</span>
         </div>
     </footer>
 </div>
@@ -104,7 +104,7 @@
             ? parsed.ToLabel()
             : tournament.Format;
         string meta = $"{tournament.AgeGroup} · {format}";
-        return tournament.TeamCount is null ? meta : $"{meta} · {tournament.TeamCount}팀";
+        return tournament.TeamCount is null ? meta : meta + " · " + AppText.Records.TeamCountSuffix(tournament.TeamCount);
     }
 
     private static string ScopeBadgeClass(RecordsTournamentDto tournament) =>
