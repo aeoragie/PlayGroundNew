@@ -69,6 +69,16 @@ namespace PlayGround.Infrastructure.Store
                 try
                 {
                     var options = ConfigurationOptions.Parse(connConfig.ConnectionString);
+
+                    // 기동 시점에 Redis가 죽어 있어도 멀티플렉서를 만들고 **뒤에서 계속 재연결**한다.
+                    // 기본값(AbortOnConnectFail=true)이면 여기서 예외가 나고 연결이 등록되지 않아,
+                    // Redis가 살아나도 앱을 재시작하기 전까지 영영 붙지 않는다(배포 중 블립 한 번이면 그렇게 된다).
+                    // 연결 문자열에 명시했다면 그 뜻을 존중한다.
+                    if (!connConfig.ConnectionString.Contains("abortConnect", StringComparison.OrdinalIgnoreCase))
+                    {
+                        options.AbortOnConnectFail = false;
+                    }
+
                     var multiplexer = await ConnectionMultiplexer.ConnectAsync(options);
 
                     var entry = new RedisConnectionEntry(multiplexer, connConfig.DatabaseId);

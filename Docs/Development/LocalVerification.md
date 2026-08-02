@@ -3,6 +3,16 @@
 로컬 개발 DB 전용이다. 계정·시드는 커밋되지 않으므로 **PC를 옮기면 이 문서대로 재구축**한다.
 (선행: `Source/Database/README.md`의 로컬 DB 셋업이 끝난 상태)
 
+## Redis (로그아웃·탈퇴 검증에 필요)
+
+```powershell
+.\Others\FetchRedis.ps1              # 최초 1회 — 바이너리는 커밋되지 않는다
+.\Others\Redis\start.bat              # 기동 (또는 서비스로 등록 — Others/README.md)
+```
+
+없어도 앱은 돌지만 **로그아웃·탈퇴가 토큰을 실제로 끊지 못한다**(fail-open, 기동 시 경고).
+연결은 `appsettings.Development.json`의 `RedisConfig`에 `localhost:6379`로 잡혀 있다.
+
 ## 검증 계정
 
 비밀번호는 전부 `password123!`.

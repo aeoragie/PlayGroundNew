@@ -43,3 +43,6 @@ Source/Tools/Verification/*.png
 
 # Notion 등 외부 익스포트 zip은 소스가 아니다
 *.zip
+
+# 로컬 개발용 외부 실행물 — 바이너리는 커밋하지 않는다 (Others/FetchRedis.ps1 로 받는다)
+Others/Redis/

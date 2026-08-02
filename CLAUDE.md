@@ -28,16 +28,16 @@
 ### durable 테스트 안전망 (2026-08-02 구축)
 
 폐기용 스크립트(`shot-*`/`api-*`, 제거됨 — git 히스토리 `f19ad41^`) 대신 xUnit 스위트로 전환.
-**Tests.Unit 410 · Tests.Integration 5 · Tests.Infrastructure 17** — 전부 DB 없이 돈다
-(clone 즉시 `dotnet test` 통과). 구조·작업 규칙·미착수는 **`Docs/Development/Testing.md`**.
+**Tests.Unit 415 · Tests.Integration 14 · Tests.Infrastructure 251**.
+구조·작업 규칙·미착수는 **`Docs/Development/Testing.md`**.
 
-핵심 3가지: ① i18n **생성물 최신성**(생성기가 수동 실행이라 빌드로는 못 잡는다 — 리플렉션으로
+핵심 4가지: ① i18n **생성물 최신성**(생성기가 수동 실행이라 빌드로는 못 잡는다 — 리플렉션으로
 전 접근자 호출) ② **표시 문자열 배치 가드**(Domain·Contracts에 한글 리터럴 금지)
-③ 유즈케이스 가드(인가·경계·정규화·저장소 결과 해석).
+③ **DB 프로시저 계약**(배포 여부·파라미터 일치를 전량 자동 — 로컬 DB 없으면 Skip)
+④ 유즈케이스 가드(인가·경계·정규화·저장소 결과 해석).
 Tests.Unit이 **PlayGround.Client를 참조**한다(표시 파생·조사 해석이 거기 있다).
 
-미착수: 실제 DB 프로시저 계약 · API 엔드포인트 통합 · E2E 저니 자동화.
-통합 테스트 시드 자산 = `Source/Database/Soccer/Seeds/Verification*.Seed.sql`.
+미착수: API 엔드포인트 통합 · E2E 저니 자동화.
 E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 검수).
 
 ### 다음 방향 — 첫 배포까지 (2026-08-02 결정)
@@ -150,10 +150,15 @@ PlayGroundNew/
 │       └── Soccer/  Database.Soccer.sqlproj   도메인 DB (Team, Player, Match, Agent, Content)
 │           └── (각) Schema/ Tables/ Procedures/ Queries/ Indexes/ Seeds/
 │
-└── Tests/
-    ├── Tests.Unit/                    단위 테스트 (Domain, Application, Core.Shared)
-    ├── Tests.Integration/             통합 테스트 (API 엔드포인트)
-    └── Tests.Infrastructure/          인프라 테스트 (DB, Redis 등 외부 의존)
+├── Tests/
+│   ├── Tests.Unit/                    단위 테스트 (Domain, Application, Core.Shared, Client 순수 로직)
+│   ├── Tests.Integration/             통합 테스트 (Server 서비스)
+│   └── Tests.Infrastructure/          인프라 테스트 (DB 계약 등 외부 의존 — 없으면 Skip)
+│
+└── Others/                            로컬 개발용 외부 실행물 (제품 소스 아님)
+    ├── README.md                      무엇을·왜·어떻게
+    ├── FetchRedis.ps1                Redis 내려받기 + 해시 검증 (바이너리는 커밋 안 함)
+    └── Redis/                         gitignore — 스크립트로 받는다
 ```
 
 ## 프로젝트별 역할과 규칙 (반드시 준수)
@@ -354,6 +359,14 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 ---
 
 # 코딩 컨벤션
+
+## 파일 네이밍 (모든 종류 — 소스·스크립트·SQL·문서)
+
+- **PascalCase.** `FetchRedis.ps1`, `KoreanParticleTests.cs`, `ReleasePlan.md`.
+- **하이픈(`-`) 금지.** 구분이 필요하면 **점(`.`)** 을 쓴다 —
+  `VerificationRoster.Seed.sql`, `Css.Dashboard.cs`, `Design.Records`.
+  (예외: 마이그레이션 앞의 ISO 날짜 `2026-08-01_…` — 날짜 표기 자체다.)
+- 테스트 클래스 파일은 `{대상}Tests.cs`.
 
 ## C# 네이밍
 
