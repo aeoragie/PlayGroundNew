@@ -1460,6 +1460,26 @@ namespace PlayGround.Client.Localization
             public static string VideoFullMatch => Loc.Get("Enums.VideoFullMatch");
             /// <summary>훈련</summary>
             public static string VideoTraining => Loc.Get("Enums.VideoTraining");
+            /// <summary>스코어</summary>
+            public static string CorrectionFieldScore => Loc.Get("Enums.CorrectionFieldScore");
+            /// <summary>득점·도움</summary>
+            public static string CorrectionFieldGoalAssist => Loc.Get("Enums.CorrectionFieldGoalAssist");
+            /// <summary>출전 선수</summary>
+            public static string CorrectionFieldAppearance => Loc.Get("Enums.CorrectionFieldAppearance");
+            /// <summary>기타</summary>
+            public static string CorrectionFieldOther => Loc.Get("Enums.CorrectionFieldOther");
+            /// <summary>프로 산하</summary>
+            public static string CareerOutcomeTagProTransfer => Loc.Get("Enums.CareerOutcomeTagProTransfer");
+            /// <summary>축구부</summary>
+            public static string CareerOutcomeTagSchoolTeam => Loc.Get("Enums.CareerOutcomeTagSchoolTeam");
+            /// <summary>승격</summary>
+            public static string CareerOutcomeTagPromotion => Loc.Get("Enums.CareerOutcomeTagPromotion");
+            /// <summary>프로 산하 이적</summary>
+            public static string CareerOutcomeSummaryProTransfer => Loc.Get("Enums.CareerOutcomeSummaryProTransfer");
+            /// <summary>축구부 진학</summary>
+            public static string CareerOutcomeSummarySchoolTeam => Loc.Get("Enums.CareerOutcomeSummarySchoolTeam");
+            /// <summary>상급 연령팀 승격</summary>
+            public static string CareerOutcomeSummaryPromotion => Loc.Get("Enums.CareerOutcomeSummaryPromotion");
         }
 
         public static class Errors
@@ -1888,14 +1908,6 @@ namespace PlayGround.Client.Localization
             public static string RelationGuardian => Loc.Get("Notification.RelationGuardian");
             /// <summary>어머니</summary>
             public static string RelationMother => Loc.Get("Notification.RelationMother");
-            /// <summary>스코어</summary>
-            public static string FieldScore => Loc.Get("Notification.FieldScore");
-            /// <summary>득점·도움</summary>
-            public static string FieldGoalAssist => Loc.Get("Notification.FieldGoalAssist");
-            /// <summary>출전 선수</summary>
-            public static string FieldAppearance => Loc.Get("Notification.FieldAppearance");
-            /// <summary>기타</summary>
-            public static string FieldEtc => Loc.Get("Notification.FieldEtc");
             /// <summary>방금 전</summary>
             public static string TimeJustNow => Loc.Get("Notification.TimeJustNow");
             /// <summary>{0}분 전</summary>

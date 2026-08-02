@@ -100,14 +100,9 @@ namespace PlayGround.Client.Components.Shared.Notifications
             _ => AppText.Notification.RelationMother,
         };
 
-        // 기록 수정 신청 항목 라벨 (B6 폼 4항목과 동일)
-        public static string FieldTypeLabel(string? fieldType) => fieldType switch
-        {
-            "Score" => AppText.Notification.FieldScore,
-            "GoalAssist" => AppText.Notification.FieldGoalAssist,
-            "Appearance" => AppText.Notification.FieldAppearance,
-            _ => AppText.Notification.FieldEtc,
-        };
+        // 기록 수정 신청 항목 라벨 — 폼(B6)과 같은 리소스를 쓴다
+        public static string FieldTypeLabel(string? fieldType) =>
+            SoccerDomainEnumLabels.ToCorrectionFieldLabel(fieldType);
 
         public static string TimeAgo(DateTime createdAtUtc)
         {

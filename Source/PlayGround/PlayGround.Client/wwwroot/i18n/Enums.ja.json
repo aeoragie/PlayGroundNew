@@ -38,5 +38,15 @@
   "TournamentEnded": "終了",
   "VideoHighlight": "ハイライト",
   "VideoFullMatch": "フル動画",
-  "VideoTraining": "練習"
+  "VideoTraining": "練習",
+  "CorrectionFieldScore": "スコア",
+  "CorrectionFieldGoalAssist": "得点・アシスト",
+  "CorrectionFieldAppearance": "出場選手",
+  "CorrectionFieldOther": "その他",
+  "CareerOutcomeTagProTransfer": "プロ傘下",
+  "CareerOutcomeTagSchoolTeam": "サッカー部",
+  "CareerOutcomeTagPromotion": "昇格",
+  "CareerOutcomeSummaryProTransfer": "プロ傘下へ移籍",
+  "CareerOutcomeSummarySchoolTeam": "サッカー部へ進学",
+  "CareerOutcomeSummaryPromotion": "上位年齢チームへ昇格"
 }

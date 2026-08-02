@@ -13,28 +13,5 @@ namespace PlayGround.Domain.Soccer
         Promotion,
     }
 
-    public static class SoccerCareerOutcomeTypeExtensions
-    {
-        /// <summary>타임라인 유형 태그 라벨 (dc 원문).</summary>
-        public static string ToTagLabel(this SoccerCareerOutcomeType type)
-        {
-            return type switch
-            {
-                SoccerCareerOutcomeType.ProTransfer => "프로 산하",
-                SoccerCareerOutcomeType.SchoolTeam => "축구부",
-                _ => "승격",
-            };
-        }
-
-        /// <summary>요약 카드 라벨 (dc 원문 — 모바일 "상급팀 승격" 축약은 화면 분기).</summary>
-        public static string ToSummaryLabel(this SoccerCareerOutcomeType type)
-        {
-            return type switch
-            {
-                SoccerCareerOutcomeType.ProTransfer => "프로 산하 이적",
-                SoccerCareerOutcomeType.SchoolTeam => "축구부 진학",
-                _ => "상급 연령팀 승격",
-            };
-        }
-    }
+    // 표시 라벨(태그·요약)은 Domain이 아니라 표현 계층이 가진다 — Client의 SoccerDomainEnumLabels 참조.
 }

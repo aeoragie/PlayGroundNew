@@ -38,5 +38,15 @@
   "TournamentEnded": "종료",
   "VideoHighlight": "하이라이트",
   "VideoFullMatch": "풀경기",
-  "VideoTraining": "훈련"
+  "VideoTraining": "훈련",
+  "CorrectionFieldScore": "스코어",
+  "CorrectionFieldGoalAssist": "득점·도움",
+  "CorrectionFieldAppearance": "출전 선수",
+  "CorrectionFieldOther": "기타",
+  "CareerOutcomeTagProTransfer": "프로 산하",
+  "CareerOutcomeTagSchoolTeam": "축구부",
+  "CareerOutcomeTagPromotion": "승격",
+  "CareerOutcomeSummaryProTransfer": "프로 산하 이적",
+  "CareerOutcomeSummarySchoolTeam": "축구부 진학",
+  "CareerOutcomeSummaryPromotion": "상급 연령팀 승격"
 }

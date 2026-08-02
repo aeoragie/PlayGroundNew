@@ -28,13 +28,7 @@ namespace PlayGround.Domain.Soccer
 
     public static class SoccerCorrectionFieldExtensions
     {
-        public static string ToLabel(this SoccerCorrectionField field) => field switch
-        {
-            SoccerCorrectionField.Score => "스코어",
-            SoccerCorrectionField.GoalAssist => "득점·도움",
-            SoccerCorrectionField.Appearance => "출전 선수",
-            _ => "기타",
-        };
+        // 표시 라벨은 Domain이 아니라 표현 계층이 가진다 — Client의 SoccerDomainEnumLabels 참조.
 
         public static bool TryParse(string? value, out SoccerCorrectionField field)
         {
@@ -54,12 +48,5 @@ namespace PlayGround.Domain.Soccer
     {
         public static SoccerCorrectionStatus Parse(string? value) =>
             Enum.TryParse(value, out SoccerCorrectionStatus parsed) ? parsed : SoccerCorrectionStatus.Pending;
-
-        public static string ToLabel(this SoccerCorrectionStatus status) => status switch
-        {
-            SoccerCorrectionStatus.Accepted => "반영",
-            SoccerCorrectionStatus.Rejected => "반려",
-            _ => "접수",
-        };
     }
 }
