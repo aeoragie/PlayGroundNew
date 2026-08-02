@@ -7,7 +7,7 @@
 @implements IDisposable
 
 <div class="relative shrink-0">
-    <button type="button" class="@Css.Menu.Trigger" aria-label="@($"{Target} 추가 작업")"
+    <button type="button" class="@Css.Menu.Trigger" aria-label="@AppText.Shared.MoreActions(Target)"
             aria-haspopup="true" aria-expanded="@mIsOpen.ToString().ToLowerInvariant()"
             @onclick="Toggle" @onclick:stopPropagation="true">⋯</button>
 
@@ -61,7 +61,7 @@
                 {
                     <button type="button" class="@Css.Menu.SheetItemDestructive" @onclick="() => InvokeAsync(item)">@item.Label</button>
                 }
-                <button type="button" class="@Css.Menu.SheetCancel" @onclick="Close">취소</button>
+                <button type="button" class="@Css.Menu.SheetCancel" @onclick="Close">@AppText.Shared.Cancel</button>
             </div>
         </div>
     }

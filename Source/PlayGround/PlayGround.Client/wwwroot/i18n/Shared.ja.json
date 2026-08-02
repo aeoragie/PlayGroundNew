@@ -75,5 +75,18 @@
   "DropZonePrefix": "写真をドラッグ＆ドロップまたは ",
   "DropZonePick": "ファイルを選択",
   "DropZoneHint": "推奨 1600×533 以上 · jpg/png/webp · 10MB",
-  "CropHintSuffix": "「適用」を押してください"
+  "CropHintSuffix": "「適用」を押してください",
+  "Today": "今日",
+  "YearMonth": "{0}年 {1}月",
+  "DashboardHub": "ダッシュボードハブ",
+  "Settings": "設定",
+  "Logout": "ログアウト",
+  "Login": "ログイン",
+  "BrokerageCount": "仲介実績",
+  "Rating": "チーム・保護者の評価",
+  "ActiveRegions": "活動地域",
+  "CountPeople": "{0}名",
+  "LoadFailed": "読み込めませんでした",
+  "TryLaterPeriod": "しばらくしてからお試しください。",
+  "RetryButton": "再試行"
 }

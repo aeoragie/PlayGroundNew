@@ -13,7 +13,7 @@
                 <span class="text-[14.5px] md:text-[16.5px] font-extrabold whitespace-nowrap">@Agent.Name</span>
                 @if (Agent.IsVerified)
                 {
-                    <span class="@Css.Badge.Agent">인증 에이전트</span>
+                    <span class="@Css.Badge.Agent">@AppText.Shared.VerifiedAgent</span>
                 }
             </span>
             @if (AgencyLine.Length > 0)
@@ -28,8 +28,8 @@
             @if (Agent.BrokerageCount > 0)
             {
                 <span class="flex flex-col gap-px md:gap-0.5 flex-1">
-                    <span class="text-sm md:text-[17px] font-extrabold">@(Agent.BrokerageCount)명</span>
-                    <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">중개 이력</span>
+                    <span class="text-sm md:text-[17px] font-extrabold">@AppText.Shared.CountPeople(Agent.BrokerageCount)</span>
+                    <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">@AppText.Shared.BrokerageCount</span>
                 </span>
             }
             @if (Agent.Rating is not null)
@@ -38,14 +38,14 @@
                     <span class="flex items-center gap-1 text-sm md:text-[17px] font-extrabold">
                         <svg width="12" height="12" viewBox="0 0 24 24" class="md:w-3.5 md:h-3.5 fill-current text-orange"><path d="M12 2l2.9 6.3 6.6.8-4.9 4.6 1.3 6.6-5.9-3.4-5.9 3.4 1.3-6.6-4.9-4.6 6.6-.8z"></path></svg>@Agent.Rating
                     </span>
-                    <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">팀·학부모 평가</span>
+                    <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">@AppText.Shared.Rating</span>
                 </span>
             }
             @if (Agent.ActiveRegions is not null)
             {
                 <span class="flex flex-col gap-px md:gap-0.5 flex-1">
                     <span class="text-sm md:text-[17px] font-extrabold whitespace-nowrap">@Agent.ActiveRegions</span>
-                    <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">활동 지역</span>
+                    <span class="text-[10.5px] md:text-[11px] font-bold text-text-muted whitespace-nowrap">@AppText.Shared.ActiveRegions</span>
                 </span>
             }
         </div>
@@ -59,7 +59,7 @@
     private string AgencyLine => string.Join(" · ", new[]
     {
         Agent.AgencyName,
-        Agent.RegisteredYear is int year ? $"등록 {year}" : null,
+        Agent.RegisteredYear is int year ? AppText.Shared.RegisteredYear(year) : null,
     }.Where(v => v is not null));
 
     private bool HasStats =>

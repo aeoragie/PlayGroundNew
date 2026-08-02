@@ -34,7 +34,7 @@
     </span>
     @if (Locked)
     {
-        <span class="@Css.Toggle.LockedBadge">항상 켜짐</span>
+        <span class="@Css.Toggle.LockedBadge">@AppText.Shared.AlwaysOn</span>
     }
     else
     {
@@ -74,7 +74,7 @@
     /// <summary>저장 실패 토스트 문구 (기본: "설정을 저장하지 못했어요. 다시 시도해 주세요.").</summary>
     [Parameter] public string? ErrorMessage { get; set; }
 
-    private const string DefaultError = "설정을 저장하지 못했어요. 다시 시도해 주세요.";
+    private static string DefaultError => AppText.Shared.SwitchSaveFailed;
 
     // 낙관적 반영 중 표시값 — 실패 시 null로 되돌리면 Value(구값)로 복귀한다
     private bool? mPendingValue;

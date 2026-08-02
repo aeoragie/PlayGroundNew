@@ -22,36 +22,36 @@
                 @* 경기기록·팀 탐색 링크는 PC만 — 모바일은 게스트와 같은 규칙(폭 부족: 레이블+벨+아바타가 우선) *@
                 @if (SectionLabel != RecordsLabel)
                 {
-                    <a href="@Routes.Records" class="@($"hidden md:block {NavLinkClass}")">경기기록</a>
+                    <a href="@Routes.Records" class="@($"hidden md:block {NavLinkClass}")">@AppText.Shared.Records</a>
                 }
                 @if (SectionLabel != ExploreLabel)
                 {
-                    <a href="@Routes.TeamExplore" class="@($"hidden md:block {NavLinkClass}")">팀 탐색</a>
+                    <a href="@Routes.TeamExplore" class="@($"hidden md:block {NavLinkClass}")">@AppText.Shared.ExploreTeams</a>
                 }
 
                 <NotificationBell Appearance="NotificationBell.BellAppearance.Light" />
 
                 @* 계정 메뉴 — 공용 컴포넌트(Design.DropdownMenu §1) *@
-                <AccountMenu DisplayName="@(context.User.Identity?.Name ?? "사용자")" />
+                <AccountMenu DisplayName="@(context.User.Identity?.Name ?? AppText.Shared.User)" />
             </Authorized>
             <NotAuthorized>
                 @if (SectionLabel != RecordsLabel)
                 {
-                    <a href="@Routes.Records" class="@($"hidden md:block {NavLinkClass}")">경기기록</a>
+                    <a href="@Routes.Records" class="@($"hidden md:block {NavLinkClass}")">@AppText.Shared.Records</a>
                 }
                 @if (SectionLabel != ExploreLabel)
                 {
-                    <a href="@Routes.TeamExplore" class="@($"hidden md:block {NavLinkClass}")">팀 탐색</a>
+                    <a href="@Routes.TeamExplore" class="@($"hidden md:block {NavLinkClass}")">@AppText.Shared.ExploreTeams</a>
                 }
-                <a href="@LoginHref" class="text-[12.5px] md:text-[13.5px] font-bold text-white hover:text-white bg-navy hover:bg-navy-deep px-3.5 py-2 md:px-[18px] md:py-[9px] rounded-lg md:rounded-[9px] whitespace-nowrap transition-colors">로그인</a>
+                <a href="@LoginHref" class="text-[12.5px] md:text-[13.5px] font-bold text-white hover:text-white bg-navy hover:bg-navy-deep px-3.5 py-2 md:px-[18px] md:py-[9px] rounded-lg md:rounded-[9px] whitespace-nowrap transition-colors">@AppText.Shared.Login</a>
             </NotAuthorized>
         </AuthorizeView>
     </div>
 </header>
 
 @code {
-    internal const string RecordsLabel = "경기기록";
-    internal const string ExploreLabel = "팀 탐색";
+    internal static string RecordsLabel => AppText.Shared.Records;
+    internal static string ExploreLabel => AppText.Shared.ExploreTeams;
 
     private const string NavLinkClass =
         "text-[12.5px] md:text-[13.5px] font-bold text-text-strong hover:text-navy whitespace-nowrap transition-colors";

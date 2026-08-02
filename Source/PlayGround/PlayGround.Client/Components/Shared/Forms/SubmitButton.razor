@@ -19,11 +19,11 @@
 
 @code {
     [Parameter, EditorRequired]
-    public string Label { get; set; } = "저장";
+    public string Label { get; set; } = AppText.Shared.Save;
 
     /// <summary>로딩 중 레이블 — 동작을 유지해 무엇이 진행 중인지 알린다.</summary>
     [Parameter]
-    public string BusyLabel { get; set; } = "저장 중…";
+    public string BusyLabel { get; set; } = AppText.Shared.SavingBusy;
 
     /// <summary>제출 진행 중 — 이 동안만 비활성(이중 제출 잠금).</summary>
     [Parameter]

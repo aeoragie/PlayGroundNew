@@ -75,5 +75,18 @@
   "DropZonePrefix": "사진을 끌어다 놓거나 ",
   "DropZonePick": "파일 선택",
   "DropZoneHint": "권장 1600×533 이상 · jpg/png/webp · 10MB",
-  "CropHintSuffix": "\"적용\"을 눌러 주세요"
+  "CropHintSuffix": "\"적용\"을 눌러 주세요",
+  "Today": "오늘",
+  "YearMonth": "{0}년 {1}월",
+  "DashboardHub": "대시보드 허브",
+  "Settings": "설정",
+  "Logout": "로그아웃",
+  "Login": "로그인",
+  "BrokerageCount": "중개 이력",
+  "Rating": "팀·학부모 평가",
+  "ActiveRegions": "활동 지역",
+  "CountPeople": "{0}명",
+  "LoadFailed": "불러오지 못했어요",
+  "TryLaterPeriod": "잠시 후 다시 시도해 주세요.",
+  "RetryButton": "다시 시도"
 }

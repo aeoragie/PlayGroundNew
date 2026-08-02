@@ -2602,6 +2602,32 @@ namespace PlayGround.Client.Localization
             public static string DropZoneHint => Loc.Get("Shared.DropZoneHint");
             /// <summary>"적용"을 눌러 주세요</summary>
             public static string CropHintSuffix => Loc.Get("Shared.CropHintSuffix");
+            /// <summary>오늘</summary>
+            public static string Today => Loc.Get("Shared.Today");
+            /// <summary>{0}년 {1}월</summary>
+            public static string YearMonth(object arg0, object arg1) => Loc.Format("Shared.YearMonth", arg0, arg1);
+            /// <summary>대시보드 허브</summary>
+            public static string DashboardHub => Loc.Get("Shared.DashboardHub");
+            /// <summary>설정</summary>
+            public static string Settings => Loc.Get("Shared.Settings");
+            /// <summary>로그아웃</summary>
+            public static string Logout => Loc.Get("Shared.Logout");
+            /// <summary>로그인</summary>
+            public static string Login => Loc.Get("Shared.Login");
+            /// <summary>중개 이력</summary>
+            public static string BrokerageCount => Loc.Get("Shared.BrokerageCount");
+            /// <summary>팀·학부모 평가</summary>
+            public static string Rating => Loc.Get("Shared.Rating");
+            /// <summary>활동 지역</summary>
+            public static string ActiveRegions => Loc.Get("Shared.ActiveRegions");
+            /// <summary>{0}명</summary>
+            public static string CountPeople(object arg0) => Loc.Format("Shared.CountPeople", arg0);
+            /// <summary>불러오지 못했어요</summary>
+            public static string LoadFailed => Loc.Get("Shared.LoadFailed");
+            /// <summary>잠시 후 다시 시도해 주세요.</summary>
+            public static string TryLaterPeriod => Loc.Get("Shared.TryLaterPeriod");
+            /// <summary>다시 시도</summary>
+            public static string RetryButton => Loc.Get("Shared.RetryButton");
         }
 
         public static class Team

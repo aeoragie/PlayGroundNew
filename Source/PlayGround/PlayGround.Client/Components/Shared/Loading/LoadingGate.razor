@@ -7,11 +7,11 @@
 @if (HasFailed)
 {
     <div class="@Css.State.ErrorBox">
-        <span class="@Css.State.ErrorTitle">불러오지 못했어요</span>
-        <span class="@Css.State.EmptyDescription">잠시 후 다시 시도해 주세요.</span>
+        <span class="@Css.State.ErrorTitle">@AppText.Shared.LoadFailed</span>
+        <span class="@Css.State.EmptyDescription">@AppText.Shared.TryLaterPeriod</span>
         @if (OnRetry.HasDelegate)
         {
-            <button type="button" class="@Css.State.ErrorRetry" @onclick="OnRetry">다시 시도</button>
+            <button type="button" class="@Css.State.ErrorRetry" @onclick="OnRetry">@AppText.Shared.RetryButton</button>
         }
     </div>
 }
@@ -24,7 +24,7 @@ else if (IsLoading)
             @Skeleton
             @if (mIsSlow)
             {
-                <span class="@Css.State.SlowNotice">불러오는 중이에요…</span>
+                <span class="@Css.State.SlowNotice">@AppText.Shared.Loading</span>
             }
         </div>
     }

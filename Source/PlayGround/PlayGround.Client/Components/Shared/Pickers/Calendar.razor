@@ -40,7 +40,7 @@
                     @RenderCalendar(compact: false)
                 </div>
                 <button type="button" class="@Css.Picker.SheetConfirm" disabled="@(mDraft is null)" @onclick="ConfirmDraft">
-                    @(mDraft is DateTime draft ? $"{FormatDisplay(draft)}로 선택" : "날짜를 선택해 주세요")
+                    @(mDraft is DateTime draft ? AppText.Shared.SelectedAs(FormatDisplay(draft)) : AppText.Shared.DateRequired)
                 </button>
             </div>
         </div>
@@ -61,7 +61,7 @@
         PastOnly,
     }
 
-    private static readonly string[] WeekdayNames = { "일", "월", "화", "수", "목", "금", "토" };
+    private static readonly string[] WeekdayNames = { AppText.Shared.DowSun, AppText.Shared.DowMon, AppText.Shared.DowTue, AppText.Shared.DowWed, AppText.Shared.DowThu, AppText.Shared.DowFri, AppText.Shared.DowSat };
 
     [Parameter]
     public DateTime? Value { get; set; }
@@ -73,7 +73,7 @@
     public DateRange Range { get; set; } = DateRange.Any;
 
     [Parameter]
-    public string Placeholder { get; set; } = "날짜 선택";
+    public string Placeholder { get; set; } = AppText.Shared.SelectDate;
 
     [Parameter]
     public bool HasError { get; set; }
@@ -213,12 +213,12 @@
     private RenderFragment RenderCalendar(bool compact) => __builder =>
     {
         <div class="@Css.Picker.MonthRow">
-            <button type="button" class="@Css.Picker.MonthNav" aria-label="이전 달" @onclick="PrevMonth">
+            <button type="button" class="@Css.Picker.MonthNav" aria-label="@AppText.Shared.PrevMonth" @onclick="PrevMonth">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                      stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
             </button>
-            <span class="@Css.Picker.MonthLabel">(@mMonth.Year)년 (@mMonth.Month)월</span>
-            <button type="button" class="@Css.Picker.MonthNav" aria-label="다음 달" @onclick="NextMonth">
+            <span class="@Css.Picker.MonthLabel">@AppText.Shared.YearMonth(mMonth.Year, mMonth.Month)</span>
+            <button type="button" class="@Css.Picker.MonthNav" aria-label="@AppText.Shared.NextMonth" @onclick="NextMonth">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                      stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
             </button>
@@ -255,8 +255,8 @@
         </div>
 
         <div class="@Css.Picker.QuickRow">
-            <button type="button" class="@Css.Picker.QuickButton" @onclick="QuickTodayAsync">오늘</button>
-            <button type="button" class="@Css.Picker.QuickButton" @onclick="QuickWeekendAsync">이번 주말</button>
+            <button type="button" class="@Css.Picker.QuickButton" @onclick="QuickTodayAsync">@AppText.Shared.Today</button>
+            <button type="button" class="@Css.Picker.QuickButton" @onclick="QuickWeekendAsync">@AppText.Shared.ThisWeekend</button>
         </div>
     };
 }

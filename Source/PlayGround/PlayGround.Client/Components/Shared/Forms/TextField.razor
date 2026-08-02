@@ -11,7 +11,7 @@
         <label for="@mFieldId" class="@Css.Form.Label">
             @Label@if (IsOptional)
             {
-                <span class="@Css.Form.OptionalMark"> (선택)</span>
+                <span class="@Css.Form.OptionalMark"> @AppText.Shared.Optional</span>
             }
         </label>
         @if (MaxLength is not null)

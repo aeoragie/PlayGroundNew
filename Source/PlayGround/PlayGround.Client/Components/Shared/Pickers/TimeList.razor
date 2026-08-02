@@ -26,7 +26,7 @@
         <div class="@Css.Picker.TimeList" @ref="mList">
             @* 직접 입력 — 15분 격자에 없는 시각(19:05 등)을 위해 *@
             <input class="@Css.Picker.TimeInput" placeholder="19:05" inputmode="numeric" maxlength="5"
-                   value="@mTyped" @oninput="OnTypedAsync" aria-label="시간 직접 입력" />
+                   value="@mTyped" @oninput="OnTypedAsync" aria-label="@AppText.Shared.ManualTime" />
 
             @foreach (TimeOnly option in Options)
             {
@@ -49,7 +49,7 @@
     public EventCallback<TimeOnly?> ValueChanged { get; set; }
 
     [Parameter]
-    public string Placeholder { get; set; } = "시간 선택";
+    public string Placeholder { get; set; } = AppText.Shared.SelectTime;
 
     [Parameter]
     public bool HasError { get; set; }
