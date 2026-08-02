@@ -24,6 +24,9 @@
     <File Path="Docs/Development/ReleasePlan.md" />
     <File Path="Docs/Development/Testing.md" />
   </Folder>
+  <Folder Name="/Docs/Learning/">
+    <File Path="Docs/Learning/AwsNetwork.md" />
+  </Folder>
   <Folder Name="/Docs/History/">
     <File Path="Docs/History/DevelopmentJournal.md" />
   </Folder>

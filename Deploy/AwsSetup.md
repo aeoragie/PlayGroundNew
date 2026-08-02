@@ -328,6 +328,7 @@ nslookup playgroundsport.com
 | 증상 | 확인할 것 |
 |---|---|
 | 콘솔에 만든 자원이 안 보인다 | **리전이 서울인가** |
+| "서브넷을 찾을 수 없습니다" | 이 리전에 기본 서브넷이 없다 → `Docs/Learning/AwsNetwork.md` 6절 |
 | SSH 시간 초과 | 보안 그룹 SSH 소스 = 현재 내 IP |
 | SSH 키 거부 | `icacls`로 권한 정리했는가 |
 | 재시작 후 IP가 바뀜 | Elastic IP를 **연결**했는가 |

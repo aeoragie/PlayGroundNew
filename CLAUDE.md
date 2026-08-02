@@ -174,6 +174,7 @@ PlayGroundNew/
 ├── Docs/                              문서 (설계 근거·개발 절차)
 │   ├── Architecture/                  설계·구조 (설정 주입 플로우·i18n·네이밍 등)
 │   ├── Development/                   작업 절차 (로컬 검증·테스트·릴리스 계획)
+│   ├── Learning/                      기반 기술 개념 정리 (AWS 네트워크 등)
 │   └── History/                       구현 이력 (DevelopmentJournal)
 │
 ├── Deploy/                            **배포는 여기 하나로 완결** — 문서 + 서버에 올라가는 실행물
