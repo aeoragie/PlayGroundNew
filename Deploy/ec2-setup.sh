@@ -84,6 +84,10 @@ chown -R playground:playground /var/www/playground /var/log/playground
 log "방화벽 (보안그룹과 이중 방어)"
 ufw allow OpenSSH
 ufw allow 'Nginx Full'
+# SQL Server 원격 접속(SSMS·스키마 배포). **접속 IP 제한은 보안 그룹이 한다** —
+# ufw는 "어느 포트를 여는가"만 담당하는 2차 방어다. 여기서 빠뜨리면 보안 그룹이
+# 열려 있어도 호스트에서 막혀 연결이 조용히 시간 초과된다.
+ufw allow 47821/tcp comment 'SQL Server'
 ufw --force enable
 
 log "완료 — 다음: Deploy/README.md 2단계(SQL Server 초기 설정)"
