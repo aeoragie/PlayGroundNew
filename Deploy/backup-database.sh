@@ -7,7 +7,7 @@
 # 인스턴스·EBS를 잃으면 같이 사라진다. 반드시 S3까지 올라가야 한다.
 #
 # 설치:
-#   sudo cp Deploy/BackupDatabase.sh /usr/local/bin/playground-backup
+#   sudo cp Deploy/backup-database.sh /usr/local/bin/playground-backup
 #   sudo chmod 750 /usr/local/bin/playground-backup
 #   sudo crontab -e
 #     0 4 * * * /usr/local/bin/playground-backup >> /var/log/playground/backup.log 2>&1

@@ -98,7 +98,7 @@ jobs:
           scp -i ~/.ssh/deploy_key playground-app.zip \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/playground-app.zip
 
-      # DeployApp.sh 가 직전 버전을 남기고 교체한 뒤 기동을 확인한다.
+      # deploy-app.sh 가 직전 버전을 남기고 교체한 뒤 기동을 확인한다.
       # 확인 실패 시 스스로 롤백하고 0이 아닌 코드로 끝나므로 이 스텝도 함께 실패한다.
       - name: Deploy and verify
         run: |

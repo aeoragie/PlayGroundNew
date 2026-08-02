@@ -32,7 +32,7 @@
 
 - AMI: Ubuntu Server 22.04 LTS (x86_64)
 - 타입: t3.medium · 디스크: gp3 **50GB**
-- **user-data**에 `Ec2Setup.sh` 내용을 붙여 넣는다 — **시크릿이 없으므로 안전하다**
+- **user-data**에 `ec2-setup.sh` 내용을 붙여 넣는다 — **시크릿이 없으므로 안전하다**
   (user-data는 인스턴스 메타데이터로 조회되므로 비밀번호를 넣으면 안 된다)
 - 생성 후 **Elastic IP 할당·연결**
 
@@ -67,7 +67,7 @@ dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 
 ### 4. 앱 배포
 
-`DeployApp.sh` 참조. CI가 만든 publish 산출물을 올리고 서비스를 재시작한다.
+`deploy-app.sh` 참조. CI가 만든 publish 산출물을 올리고 서비스를 재시작한다.
 
 ### 5. 도메인 연결 (Route 53)
 
@@ -117,7 +117,7 @@ SSMS 접속 정보:
 
 ## 아직 남은 것
 
-- **백업 S3 버킷** 생성 + 인스턴스에 IAM 역할 부여 (`BackupDatabase.sh`가 전제한다)
+- **백업 S3 버킷** 생성 + 인스턴스에 IAM 역할 부여 (`backup-database.sh`가 전제한다)
 - **GitHub Environment `Production` 시크릿** — `DEPLOY_HOST`(Elastic IP) · `DEPLOY_USER` ·
   `DEPLOY_SSH_KEY` · `DEPLOY_KNOWN_HOSTS`. Required reviewers도 함께 거는 것을 권한다.
 - **서버 환경변수 파일** `/etc/playground/playground.env` (chmod 600) —

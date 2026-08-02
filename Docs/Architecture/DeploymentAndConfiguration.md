@@ -124,7 +124,7 @@ appsettings.*.Local.json
 
 ## 5. CI/CD 파이프라인 (GitHub Actions)
 
-### `CI.yml` — 모든 PR·main 푸시의 게이트
+### `ci.yml` — 모든 PR·main 푸시의 게이트
 
 ```
 checkout → setup .NET 10 / Node 20
@@ -135,7 +135,7 @@ checkout → setup .NET 10 / Node 20
 ```
 - `windows-latest` 러너 — LocalDB·SSDT(.sqlproj) 빌드가 dev와 동일하게 동작하도록.
 
-### `Deploy.yml` — main 푸시 시 배포 (수동 실행도 지원)
+### `deploy.yml` — main 푸시 시 배포 (수동 실행도 지원)
 
 ```
 git push main
@@ -148,7 +148,7 @@ git push main
    ▼
 [ deploy ]   environment: Production   (Required reviewers 권장)
    artifact 다운로드 → zip → scp → ssh 로 playground-deploy 실행
-   DeployApp.sh 가 직전 버전 보관 → 교체 → 기동 확인 → 실패 시 자동 롤백
+   deploy-app.sh 가 직전 버전 보관 → 교체 → 기동 확인 → 실패 시 자동 롤백
    → 공개 URL 스모크 체크
 ```
 
@@ -207,7 +207,7 @@ git push main
 
 ## 관련 파일
 
-- 워크플로우: `.github/workflows/CI.yml`, `.github/workflows/Deploy.yml`
+- 워크플로우: `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`
 - Server 설정: `Source/PlayGround/PlayGround.Server/appsettings*.json`, `Program.cs`(Local.json 로드)
 - Client 설정: `Source/PlayGround/PlayGround.Client/wwwroot/appsettings*.json`
 - 시크릿 템플릿: `Source/PlayGround/PlayGround.Server/appsettings.Local.json.example`

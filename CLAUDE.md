@@ -372,12 +372,22 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 
 # 코딩 컨벤션
 
-## 파일 네이밍 (모든 종류 — 소스·스크립트·SQL·문서)
+## 파일 네이밍 — "읽는 생태계의 관례를 따른다"
 
-- **PascalCase.** `FetchRedis.ps1`, `KoreanParticleTests.cs`, `ReleasePlan.md`.
-- **하이픈(`-`) 금지.** 구분이 필요하면 **점(`.`)** 을 쓴다 —
-  `VerificationRoster.Seed.sql`, `Css.Dashboard.cs`, `Design.Records`.
-  (예외: 마이그레이션 앞의 ISO 날짜 `2026-08-01_…` — 날짜 표기 자체다.)
+한 가지 케이스로 통일하지 않는다. 도구가 이름을 고정한 파일(`appsettings.json`·`package.json`·
+`.gitignore`)이 이미 소문자라 애초에 불가능하고, **리눅스는 대소문자를 구분해서
+Windows에서 멀쩡하던 참조가 서버에서만 깨진다.**
+
+| 대상 | 규칙 | 예 |
+|---|---|---|
+| **우리 소유** — `.cs` `.sql` `.md` `.ps1` | **PascalCase**, 하이픈 금지(구분은 점) | `KoreanParticleTests.cs` · `VerificationRoster.Seed.sql` · `FetchRedis.ps1` |
+| **리눅스 실행물** — `.sh` `.service` `.conf` | **소문자 + 하이픈** | `ec2-setup.sh` · `playground.service` |
+| **외부 생태계 관례** — `.yml`(GitHub Actions) | 그 관례(소문자) | `ci.yml` · `deploy.yml` |
+| **도구가 고정** | 그대로 | `appsettings.json` · `nlog.config` |
+
+- 하이픈 금지는 **우리 소유 파일에만** 적용한다 — 리눅스 실행물은 하이픈이 관례이고,
+  설치되는 이름도 이미 하이픈이다(`playground-deploy`·`playground-backup`).
+- 마이그레이션 앞의 ISO 날짜(`2026-08-01_…`)는 날짜 표기 자체라 하이픈이 맞다.
 - 테스트 클래스 파일은 `{대상}Tests.cs`.
 
 ## C# 네이밍

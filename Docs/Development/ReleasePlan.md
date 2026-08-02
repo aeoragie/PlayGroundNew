@@ -12,8 +12,8 @@
 | 빌드 | CS 경고 0 · sqlproj 0 오류/0 경고 |
 | 테스트 | Unit 415 · Integration 126 · Infrastructure 251 |
 | i18n | 15도메인 1,817키 × ko/ja, 잔여 0 |
-| CI | `.github/workflows/CI.yml` — 빌드 + 테스트 게이트 **동작함** |
-| 배포 | `.github/workflows/Deploy.yml` + `Deploy/` — **자산 완료, 실행 대기**(R4) |
+| CI | `.github/workflows/ci.yml` — 빌드 + 테스트 게이트 **동작함** |
+| 배포 | `.github/workflows/deploy.yml` + `Deploy/` — **자산 완료, 실행 대기**(R4) |
 | 설정 | 환경별 레이어링 완비 (`Docs/Architecture/DeploymentAndConfiguration.md`) |
 
 **빠진 것은 "만들어진 기능"이 아니라 "운영에 필요한 것"이다.** 아래 4단계로 좁힌다.
@@ -26,7 +26,7 @@
 
 | # | 결정할 것 | 왜 필요한가 | 상태 |
 |---|---|---|---|
-| D1 | 호스팅 대상 | `Deploy.yml`의 배포 스텝·컨테이너화 여부·DB 접속 경로가 전부 여기서 갈린다 | ✅ **AWS 확정** (2026-08-02) |
+| D1 | 호스팅 대상 | `deploy.yml`의 배포 스텝·컨테이너화 여부·DB 접속 경로가 전부 여기서 갈린다 | ✅ **AWS 확정** (2026-08-02) |
 | D7 | 서버측 임시 상태 저장소 | 인증 토큰 무효화·일회성 상태를 어디에 둘지 | ✅ **Redis 확정** (2026-08-02) |
 | D2 | DB 호스팅 + 마이그레이션 방식 | dacpac 배포냐 스크립트 순차 적용이냐 | ✅ **EC2 동거 SQL Server 2022 Express + sqlcmd 스크립트** (2026-08-02) |
 | D4 | 도메인·인증서 | OAuth 리다이렉트 URI·쿠키·CORS가 도메인에 묶인다 | ✅ **playgroundsport.com (Route 53) + Let's Encrypt** |
@@ -167,12 +167,12 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 
 | 자산 | 내용 |
 |---|---|
-| `Ec2Setup.sh` | user-data용. SQL Server·Redis·.NET·Nginx·certbot·한글 폰트·시간대(KST). **시크릿 없음** |
-| `PlayGround.service` | systemd. 시크릿은 `/etc/playground/playground.env` |
-| `Nginx.Site.conf` | 리버스 프록시(80) — certbot이 443 추가 |
-| `BackupDatabase.sh` | cron 백업 → S3 + `RESTORE VERIFYONLY` |
-| `DeployApp.sh` | 직전 버전 보관 → 교체 → 기동 확인 → **실패 시 자동 롤백** |
-| `Deploy.yml` | publish → 시크릿 혼입 검사 → scp/ssh 배포 → 공개 URL 스모크 |
+| `ec2-setup.sh` | user-data용. SQL Server·Redis·.NET·Nginx·certbot·한글 폰트·시간대(KST). **시크릿 없음** |
+| `playground.service` | systemd. 시크릿은 `/etc/playground/playground.env` |
+| `playground.conf` | 리버스 프록시(80) — certbot이 443 추가 |
+| `backup-database.sh` | cron 백업 → S3 + `RESTORE VERIFYONLY` |
+| `deploy-app.sh` | 직전 버전 보관 → 교체 → 기동 확인 → **실패 시 자동 롤백** |
+| `deploy.yml` | publish → 시크릿 혼입 검사 → scp/ssh 배포 → 공개 URL 스모크 |
 
 **사람이 해야 할 것** (AWS 콘솔·GitHub 설정):
 
