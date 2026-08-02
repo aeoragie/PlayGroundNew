@@ -74,8 +74,19 @@ appsettings.*.Local.json
 
 > `Program.cs`: `builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, ...)`
 > → 마지막에 붙으므로 **로컬에선 Local.json이 최우선**으로 이긴다.
-> 배포 산출물엔 Local.json이 **없으므로**(gitignore + CI 체크아웃에 없음) 충돌하지 않고,
 > 배포에선 **③ 환경변수**가 시크릿을 공급한다.
+
+> ⚠ **Local.json이 배포 산출물에 실리면 환경변수를 덮어쓴다** — 맨 뒤에 붙기 때문이다.
+> 개발용 JWT 키로 운영 토큰이 서명되는데 아무 오류도 나지 않는다.
+> gitignore는 **저장소**만 막을 뿐 로컬에서 `dotnet publish`한 산출물은 못 막는다
+> (실제로 2026-08-02 로컬 퍼블리시에서 포함되는 것을 확인했다).
+> 그래서 csproj에서 구조적으로 잘라 둔다:
+>
+> ```xml
+> <Content Update="appsettings.Local.json" CopyToPublishDirectory="Never" />
+> ```
+>
+> **배포 전 확인**: 산출물에 `appsettings.Local.json`이 없어야 한다.
 
 **환경변수 계층 표기 (`__` → `:`)**
 

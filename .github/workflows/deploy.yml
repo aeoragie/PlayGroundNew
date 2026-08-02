@@ -37,6 +37,19 @@ jobs:
       - name: Publish Server
         run: dotnet publish Source/PlayGround/PlayGround.Server/PlayGround.Server.csproj -c Release -o ${{ github.workspace }}/publish
 
+      # 로컬 시크릿이 산출물에 실리면 설정 체인 맨 뒤에 붙어 **운영 환경변수를 덮어쓴다**
+      # (개발용 JWT 키로 운영 토큰이 서명되는데 오류는 안 난다). csproj에서 잘라 두었지만
+      # 되돌려질 수 있으니 배포 직전에 한 번 더 막는다.
+      - name: Verify no local secrets in artifact
+        shell: pwsh
+        run: |
+          $leaked = Get-ChildItem "${{ github.workspace }}/publish" -Recurse -Filter "appsettings.Local.json"
+          if ($leaked) {
+            $leaked | ForEach-Object { Write-Error "산출물에 로컬 시크릿이 있다: $($_.FullName)" }
+            exit 1
+          }
+          Write-Host "OK - appsettings.Local.json 없음"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
