@@ -40,6 +40,13 @@ Tests.Unit이 **PlayGround.Client를 참조**한다(표시 파생·조사 해석
 통합 테스트 시드 자산 = `Source/Database/Soccer/Seeds/Verification*.Seed.sql`.
 E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 검수).
 
+### 다음 방향 — 첫 배포까지 (2026-08-02 결정)
+
+**지금 만들어진 것을 다듬고 · 테스트로 굳히고 · 배포한다.** 생산자 서비스(대회 운영·에이전트)는
+그 다음이다. 단계·완료 기준·선행 결정(D1~D6)은 **`Docs/Development/ReleasePlan.md`**.
+착수 순서: DB 프로시저 계약 테스트 → 전 화면 수동 검수 → 결함·P1 처리 → API 통합 테스트 →
+export 내구성·JWT 무효화 → (호스팅 결정 후) 나머지 하드닝 → 배포 파이프라인.
+
 ### 미착수 큰 덩어리 (여러 "빈 데이터·flag off"의 원천)
 
 - **생산자 서비스 미착수** — ① 대회 운영 서비스(공식 경기 기록 입력, 설계결정 6·7 — Server
