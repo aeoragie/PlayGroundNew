@@ -8,14 +8,14 @@
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
-        <h1 class="@Css.Dashboard.SectionTitle">선수단 <span class="text-sm font-bold text-text-muted">@(Players.Count)명</span></h1>
+        <h1 class="@Css.Dashboard.SectionTitle">@AppText.Dashboard.RosterTitle <span class="text-sm font-bold text-text-muted">@AppText.Dashboard.CountPeople(Players.Count)</span></h1>
         <div class="flex gap-2">
             <div class="flex border-1.5 border-border rounded-[10px] overflow-hidden h-[42px]">
-                <button type="button" class="@ViewToggleClass(isList: true)" @onclick="() => mIsListView = true">리스트</button>
-                <button type="button" class="@ViewToggleClass(isList: false)" @onclick="() => mIsListView = false">카드</button>
+                <button type="button" class="@ViewToggleClass(isList: true)" @onclick="() => mIsListView = true">@AppText.Dashboard.ViewList</button>
+                <button type="button" class="@ViewToggleClass(isList: false)" @onclick="() => mIsListView = false">@AppText.Dashboard.ViewCard</button>
             </div>
-            <button type="button" class="@Css.Dashboard.SecondaryButton">초대코드 일괄 발송</button>
-            <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">＋ 선수 추가</button>
+            <button type="button" class="@Css.Dashboard.SecondaryButton">@AppText.Dashboard.BulkInvite</button>
+            <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">@AppText.Dashboard.AddPlayer</button>
         </div>
     </div>
 
@@ -35,21 +35,21 @@
                 </div>
                 <div class="flex-1"></div>
             }
-            <SearchBar @bind-Value="mSearch" Placeholder="선수 이름 검색" Class="md:max-w-[240px]" />
+            <SearchBar @bind-Value="mSearch" Placeholder="@AppText.Dashboard.SearchPlayer" Class="md:max-w-[240px]" />
         </div>
     }
 
     @if (Players.Count == 0)
     {
         @* 빈 상태 Tier A (주 액션은 헤더의 ＋ 선수 추가 하나 유지 — 카드 안 CTA 없음) *@
-        <EmptyState Kind="EmptyState.Art.Players" Title="아직 등록된 선수가 없어요">
-            <Description>선수를 등록하면 공개 홈페이지 선수단에도 함께 표시돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Players" Title="@AppText.Dashboard.RosterEmptyTitle">
+            <Description>@AppText.Dashboard.RosterEmptyBody</Description>
         </EmptyState>
     }
     else if (!VisiblePlayers.Any())
     {
         @* 검색·연령 필터 결과 없음 (선수는 있지만 조건에 맞는 게 없음) *@
-        <EmptySlot Title="@($"'{mSearch.Trim()}'에 해당하는 선수가 없어요")">
+        <EmptySlot Title="@AppText.Dashboard.SearchEmpty(mSearch.Trim())">
             <Icon><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></Icon>
         </EmptySlot>
     }
@@ -59,7 +59,7 @@
            둥근 모서리는 헤더 top·마지막 행 bottom을 직접 라운딩해 유지한다. *@
         <div class="@Css.Dashboard.Card">
             <div class="@($"{RowGrid} bg-surface-soft border-b border-border text-xs font-extrabold text-text-muted rounded-t-[14.5px]")">
-                <span>번호</span><span>이름</span><span>포지션</span><span>학년</span><span>연결 상태</span><span></span>
+                <span>@AppText.Dashboard.ColNumber</span><span>@AppText.Dashboard.ColName</span><span>@AppText.Dashboard.ColPosition</span><span>@AppText.Dashboard.ColGrade</span><span>@AppText.Dashboard.ColClaimStatus</span><span></span>
             </div>
             @foreach (TeamRosterPlayerDto player in VisiblePlayers)
             {
@@ -99,7 +99,7 @@
                         <span class="absolute top-2 left-2 w-[30px] h-[30px] rounded-full bg-navy-deep/85 flex items-center justify-center text-[13px] font-extrabold text-white pointer-events-none">@(player.JerseyNumber ?? "-")</span>
                         @* 사진 변경은 팀 관리자 화면에서만 — 이 섹션 자체가 관리자 전용이다 *@
                         <button type="button" class="@Css.Uploader.CameraBadge !right-2 !bottom-2"
-                                aria-label="@($"{player.Name} 선수 사진 변경")" @onclick="() => OpenPhotoDialog(player)">
+                                aria-label="@AppText.Dashboard.ChangePhotoAria(player.Name)" @onclick="() => OpenPhotoDialog(player)">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                                  stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 8h3l2-2.5h6L17 8h3v11H4z"></path><circle cx="12" cy="13" r="3.2"></circle>
@@ -136,7 +136,7 @@
     {
         <div class="flex gap-2.5 items-start bg-surface-orange border border-dashed border-orange rounded-xl px-4 py-[13px]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="shrink-0 mt-0.5 text-orange-ink"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.1"></path></svg>
-            <span class="text-[13px] text-text-strong leading-[1.6] break-keep">Unclaimed 선수는 아직 가족이 연결되지 않은 프로필이에요. <b>초대코드를 보내면</b> 학부모·선수가 직접 기록을 관리하고 알림을 받게 됩니다.</span>
+            <span class="text-[13px] text-text-strong leading-[1.6] break-keep">@AppText.Dashboard.UnclaimedNoticePrefix<b>@AppText.Dashboard.UnclaimedNoticeBold</b>@AppText.Dashboard.UnclaimedNoticeSuffix</span>
         </div>
     }
 </div>
@@ -162,7 +162,7 @@
     // 상시 버튼으로 노출하면 오클릭 위험이 크다(B6 기록 수정과 같은 판단). 행에 직접 버튼을 두지 않는다.
     private List<OverflowMenu.MenuItem> RemoveItems(TeamRosterPlayerDto player) => new()
     {
-        new OverflowMenu.MenuItem("선수 내보내기", () => OnRemove.InvokeAsync(player)),
+        new OverflowMenu.MenuItem(AppText.Dashboard.RemovePlayer, () => OnRemove.InvokeAsync(player)),
     };
 
     private SoccerAgeGroup? mAgeTab;
@@ -231,9 +231,9 @@
 
     private static string ActionLabel(SoccerClaimStatus status) => status switch
     {
-        SoccerClaimStatus.Claimed => "프로필 보기",
-        SoccerClaimStatus.Pending => "승인 대기",
-        _ => "초대코드 보내기",
+        SoccerClaimStatus.Claimed => AppText.Dashboard.ViewProfile,
+        SoccerClaimStatus.Pending => AppText.Dashboard.PendingApproval,
+        _ => AppText.Dashboard.SendInviteCode,
     };
 
     // 액션 영역: Unclaimed + 유효 코드 보유 → 클릭 시 코드 노출 + 복사. 그 외는 기존 라벨.
@@ -246,13 +246,13 @@
                 <span class="flex items-center gap-1.5 whitespace-nowrap">
                     <span class="text-xs font-extrabold tracking-[.08em] text-navy-deep bg-surface-icon rounded-md px-2 py-[3px]">@player.InviteCode</span>
                     <button type="button" class="text-xs font-bold text-navy hover:text-orange bg-transparent border-0 cursor-pointer p-0 transition-colors"
-                            @onclick="() => CopyCodeAsync(player.InviteCode)">@(mCopiedCode == player.InviteCode ? "복사됨" : "복사")</button>
+                            @onclick="() => CopyCodeAsync(player.InviteCode)">@(mCopiedCode == player.InviteCode ? AppText.Dashboard.Copied : AppText.Dashboard.Copy)</button>
                 </span>
             }
             else
             {
                 <button type="button" class="text-[12.5px] font-bold text-navy hover:text-orange bg-transparent border-0 cursor-pointer p-0 whitespace-nowrap transition-colors"
-                        @onclick="() => mOpenCodePlayerId = player.TeamPlayerId">초대코드 보내기</button>
+                        @onclick="() => mOpenCodePlayerId = player.TeamPlayerId">@AppText.Dashboard.SendInviteCode</button>
             }
         }
         else

@@ -1,7 +1,7 @@
 @* 상단 GNB(관리 모드): 네이비 sticky 60px — 로고 + 모드 pill + 공개 홈페이지 보기 / 알림 / 아바타 *@
 <header class="sticky top-0 z-40 h-[60px] bg-navy-deep flex items-center gap-3.5 px-6 text-white">
     <BrandLogo Href="@Routes.Landing" InheritColor="true" />
-    <span class="text-[11.5px] font-bold text-white/60 bg-white/10 rounded-full px-[11px] py-[3px] whitespace-nowrap">팀 관리자 모드</span>
+    <span class="text-[11.5px] font-bold text-white/60 bg-white/10 rounded-full px-[11px] py-[3px] whitespace-nowrap">@AppText.Dashboard.TeamAdminMode</span>
     <div class="flex-1"></div>
     @if (Slug is not null)
     {
@@ -9,11 +9,11 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                 <path d="M15 3h6v6M10 14L21 3"></path>
-            </svg>공개 홈페이지 보기
+            </svg>@AppText.Dashboard.ViewPublicHome
         </a>
     }
     <NotificationBell ContextLabel="@TeamName" />
-    <AccountMenu DisplayName="@DisplayName" RoleCaption="팀 관리자" />
+    <AccountMenu DisplayName="@DisplayName" RoleCaption="@AppText.Dashboard.RoleTeamAdmin" />
 </header>
 
 @code {

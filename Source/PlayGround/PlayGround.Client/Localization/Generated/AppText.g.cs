@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Team" };
+        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Dashboard", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Team" };
 
         public static class Auth
         {
@@ -384,6 +384,206 @@ namespace PlayGround.Client.Localization
             public static string StatusRejected => Loc.Get("Correction.StatusRejected");
             /// <summary>접수</summary>
             public static string StatusPending => Loc.Get("Correction.StatusPending");
+        }
+
+        public static class Dashboard
+        {
+            /// <summary>팀 관리자 모드</summary>
+            public static string TeamAdminMode => Loc.Get("Dashboard.TeamAdminMode");
+            /// <summary>공개 홈페이지 보기</summary>
+            public static string ViewPublicHome => Loc.Get("Dashboard.ViewPublicHome");
+            /// <summary>팀 관리자</summary>
+            public static string RoleTeamAdmin => Loc.Get("Dashboard.RoleTeamAdmin");
+            /// <summary>✓ 인증팀 </summary>
+            public static string VerifiedTeam => Loc.Get("Dashboard.VerifiedTeam");
+            /// <summary>P1 예정</summary>
+            public static string P1Planned => Loc.Get("Dashboard.P1Planned");
+            /// <summary>팀 탐색</summary>
+            public static string ExploreTeams => Loc.Get("Dashboard.ExploreTeams");
+            /// <summary>팀 정보</summary>
+            public static string NavInfo => Loc.Get("Dashboard.NavInfo");
+            /// <summary>선수단</summary>
+            public static string NavRoster => Loc.Get("Dashboard.NavRoster");
+            /// <summary>일정</summary>
+            public static string NavSchedule => Loc.Get("Dashboard.NavSchedule");
+            /// <summary>경기 결과</summary>
+            public static string NavResults => Loc.Get("Dashboard.NavResults");
+            /// <summary>경기영상</summary>
+            public static string NavVideos => Loc.Get("Dashboard.NavVideos");
+            /// <summary>선수 모집</summary>
+            public static string NavRecruit => Loc.Get("Dashboard.NavRecruit");
+            /// <summary>팀 게시판</summary>
+            public static string NavBoard => Loc.Get("Dashboard.NavBoard");
+            /// <summary>회비 · 출결</summary>
+            public static string NavFees => Loc.Get("Dashboard.NavFees");
+            /// <summary>메시지</summary>
+            public static string NavMessages => Loc.Get("Dashboard.NavMessages");
+            /// <summary>인스타그램</summary>
+            public static string Instagram => Loc.Get("Dashboard.Instagram");
+            /// <summary>인스타그램 미등록</summary>
+            public static string InstagramEmpty => Loc.Get("Dashboard.InstagramEmpty");
+            /// <summary>유튜브 채널</summary>
+            public static string Youtube => Loc.Get("Dashboard.Youtube");
+            /// <summary>유튜브 미등록</summary>
+            public static string YoutubeEmpty => Loc.Get("Dashboard.YoutubeEmpty");
+            /// <summary>팀 엠블럼</summary>
+            public static string EmblemAlt => Loc.Get("Dashboard.EmblemAlt");
+            /// <summary>공개 홈페이지 노출중</summary>
+            public static string PublishedBadge => Loc.Get("Dashboard.PublishedBadge");
+            /// <summary>선수단</summary>
+            public static string RosterTitle => Loc.Get("Dashboard.RosterTitle");
+            /// <summary>{0}명</summary>
+            public static string CountPeople(object arg0) => Loc.Format("Dashboard.CountPeople", arg0);
+            /// <summary>리스트</summary>
+            public static string ViewList => Loc.Get("Dashboard.ViewList");
+            /// <summary>카드</summary>
+            public static string ViewCard => Loc.Get("Dashboard.ViewCard");
+            /// <summary>초대코드 일괄 발송</summary>
+            public static string BulkInvite => Loc.Get("Dashboard.BulkInvite");
+            /// <summary>＋ 선수 추가</summary>
+            public static string AddPlayer => Loc.Get("Dashboard.AddPlayer");
+            /// <summary>선수 이름 검색</summary>
+            public static string SearchPlayer => Loc.Get("Dashboard.SearchPlayer");
+            /// <summary>아직 등록된 선수가 없어요</summary>
+            public static string RosterEmptyTitle => Loc.Get("Dashboard.RosterEmptyTitle");
+            /// <summary>선수를 등록하면 공개 홈페이지 선수단에도 함께 표시돼요.</summary>
+            public static string RosterEmptyBody => Loc.Get("Dashboard.RosterEmptyBody");
+            /// <summary>'{0}'에 해당하는 선수가 없어요</summary>
+            public static string SearchEmpty(object arg0) => Loc.Format("Dashboard.SearchEmpty", arg0);
+            /// <summary>번호</summary>
+            public static string ColNumber => Loc.Get("Dashboard.ColNumber");
+            /// <summary>이름</summary>
+            public static string ColName => Loc.Get("Dashboard.ColName");
+            /// <summary>포지션</summary>
+            public static string ColPosition => Loc.Get("Dashboard.ColPosition");
+            /// <summary>학년</summary>
+            public static string ColGrade => Loc.Get("Dashboard.ColGrade");
+            /// <summary>연결 상태</summary>
+            public static string ColClaimStatus => Loc.Get("Dashboard.ColClaimStatus");
+            /// <summary>{0} 선수 사진 변경</summary>
+            public static string ChangePhotoAria(object arg0) => Loc.Format("Dashboard.ChangePhotoAria", arg0);
+            /// <summary>Unclaimed 선수는 아직 가족이 연결되지 않은 프로필이에요. </summary>
+            public static string UnclaimedNoticePrefix => Loc.Get("Dashboard.UnclaimedNoticePrefix");
+            /// <summary>초대코드를 보내면</summary>
+            public static string UnclaimedNoticeBold => Loc.Get("Dashboard.UnclaimedNoticeBold");
+            /// <summary> 학부모·선수가 직접 기록을 관리하고 알림을 받게 됩니다.</summary>
+            public static string UnclaimedNoticeSuffix => Loc.Get("Dashboard.UnclaimedNoticeSuffix");
+            /// <summary>선수 내보내기</summary>
+            public static string RemovePlayer => Loc.Get("Dashboard.RemovePlayer");
+            /// <summary>프로필 보기</summary>
+            public static string ViewProfile => Loc.Get("Dashboard.ViewProfile");
+            /// <summary>승인 대기</summary>
+            public static string PendingApproval => Loc.Get("Dashboard.PendingApproval");
+            /// <summary>초대코드 보내기</summary>
+            public static string SendInviteCode => Loc.Get("Dashboard.SendInviteCode");
+            /// <summary>복사됨</summary>
+            public static string Copied => Loc.Get("Dashboard.Copied");
+            /// <summary>복사</summary>
+            public static string Copy => Loc.Get("Dashboard.Copy");
+            /// <summary>팀 정보</summary>
+            public static string TeamInfoTitle => Loc.Get("Dashboard.TeamInfoTitle");
+            /// <summary>정보 수정</summary>
+            public static string EditInfo => Loc.Get("Dashboard.EditInfo");
+            /// <summary>✓ 인증팀</summary>
+            public static string VerifiedBadge => Loc.Get("Dashboard.VerifiedBadge");
+            /// <summary>{0} 창단</summary>
+            public static string Founded(object arg0) => Loc.Format("Dashboard.Founded", arg0);
+            /// <summary>월 회비</summary>
+            public static string MonthlyFee => Loc.Get("Dashboard.MonthlyFee");
+            /// <summary>{0}원</summary>
+            public static string FeeAmount(object arg0) => Loc.Format("Dashboard.FeeAmount", arg0);
+            /// <summary>공개</summary>
+            public static string Public => Loc.Get("Dashboard.Public");
+            /// <summary>비공개</summary>
+            public static string Private => Loc.Get("Dashboard.Private");
+            /// <summary>훈련</summary>
+            public static string Training => Loc.Get("Dashboard.Training");
+            /// <summary>주 {0}회</summary>
+            public static string TrainingCount(object arg0) => Loc.Format("Dashboard.TrainingCount", arg0);
+            /// <summary>공개 팀 홈페이지</summary>
+            public static string PublicTeamHome => Loc.Get("Dashboard.PublicTeamHome");
+            /// <summary>팀 정보의 핵심가치와 코칭스태프가 홈페이지 소개 탭에 그대로 노출돼요</summary>
+            public static string PublicTeamHomeNote => Loc.Get("Dashboard.PublicTeamHomeNote");
+            /// <summary>핵심가치</summary>
+            public static string ValuesTitle => Loc.Get("Dashboard.ValuesTitle");
+            /// <summary>학부모가 팀을 고르는 첫 번째 기준이에요</summary>
+            public static string ValuesNote => Loc.Get("Dashboard.ValuesNote");
+            /// <summary>코칭스태프</summary>
+            public static string CoachesTitle => Loc.Get("Dashboard.CoachesTitle");
+            /// <summary>＋ 코치 초대</summary>
+            public static string InviteCoach => Loc.Get("Dashboard.InviteCoach");
+            /// <summary>공식 채널</summary>
+            public static string ChannelsTitle => Loc.Get("Dashboard.ChannelsTitle");
+            /// <summary>＋ 채널 추가</summary>
+            public static string AddChannel => Loc.Get("Dashboard.AddChannel");
+            /// <summary>프로필 열기 →</summary>
+            public static string OpenProfile => Loc.Get("Dashboard.OpenProfile");
+            /// <summary>채널 열기 →</summary>
+            public static string OpenChannel => Loc.Get("Dashboard.OpenChannel");
+            /// <summary>일정</summary>
+            public static string ScheduleTitle => Loc.Get("Dashboard.ScheduleTitle");
+            /// <summary>＋ 일정 추가</summary>
+            public static string AddSchedule => Loc.Get("Dashboard.AddSchedule");
+            /// <summary>아직 등록된 일정이 없어요</summary>
+            public static string ScheduleEmptyTitle => Loc.Get("Dashboard.ScheduleEmptyTitle");
+            /// <summary>경기·대회·훈련 일정을 추가하면 여기와 공개 홈페이지 Schedule 탭에 함께 노출돼요.</summary>
+            public static string ScheduleEmptyBody => Loc.Get("Dashboard.ScheduleEmptyBody");
+            /// <summary>경기 일정은 공개 홈페이지 Schedule 탭에 자동 노출 · 학부모는 구독 캘린더(Google/Apple)로 받아볼 수 있어요</summary>
+            public static string ScheduleFootNote => Loc.Get("Dashboard.ScheduleFootNote");
+            /// <summary>구독 링크 복사</summary>
+            public static string CopySubscribeLink => Loc.Get("Dashboard.CopySubscribeLink");
+            /// <summary>{0}년 {1}월</summary>
+            public static string MonthLabel(object arg0, object arg1) => Loc.Format("Dashboard.MonthLabel", arg0, arg1);
+            /// <summary>구독 링크가 복사됐어요</summary>
+            public static string CopiedToast => Loc.Get("Dashboard.CopiedToast");
+            /// <summary>종료 — 결과 입력됨</summary>
+            public static string FinishedWithResult => Loc.Get("Dashboard.FinishedWithResult");
+            /// <summary>종료</summary>
+            public static string Finished => Loc.Get("Dashboard.Finished");
+            /// <summary>수정</summary>
+            public static string Edit => Loc.Get("Dashboard.Edit");
+            /// <summary>삭제</summary>
+            public static string Delete => Loc.Get("Dashboard.Delete");
+            /// <summary>일</summary>
+            public static string DowSun => Loc.Get("Dashboard.DowSun");
+            /// <summary>월</summary>
+            public static string DowMon => Loc.Get("Dashboard.DowMon");
+            /// <summary>화</summary>
+            public static string DowTue => Loc.Get("Dashboard.DowTue");
+            /// <summary>수</summary>
+            public static string DowWed => Loc.Get("Dashboard.DowWed");
+            /// <summary>목</summary>
+            public static string DowThu => Loc.Get("Dashboard.DowThu");
+            /// <summary>금</summary>
+            public static string DowFri => Loc.Get("Dashboard.DowFri");
+            /// <summary>토</summary>
+            public static string DowSat => Loc.Get("Dashboard.DowSat");
+            /// <summary>경기영상</summary>
+            public static string VideosTitle => Loc.Get("Dashboard.VideosTitle");
+            /// <summary>{0}개</summary>
+            public static string CountItems(object arg0) => Loc.Format("Dashboard.CountItems", arg0);
+            /// <summary>＋ 영상 등록</summary>
+            public static string AddVideo => Loc.Get("Dashboard.AddVideo");
+            /// <summary>아직 등록된 영상이 없어요</summary>
+            public static string VideosEmptyTitle => Loc.Get("Dashboard.VideosEmptyTitle");
+            /// <summary>＋ 영상 등록으로 유튜브 링크를 붙여넣어 보세요.</summary>
+            public static string VideosEmptyBody1 => Loc.Get("Dashboard.VideosEmptyBody1");
+            /// <summary>경기와 연결된 영상은 경기 결과 상세와 공개 홈페이지에 자동으로 노출돼요.</summary>
+            public static string VideosEmptyBody2 => Loc.Get("Dashboard.VideosEmptyBody2");
+            /// <summary>영상 썸네일</summary>
+            public static string VideoThumb => Loc.Get("Dashboard.VideoThumb");
+            /// <summary>유튜브</summary>
+            public static string YoutubeLabel => Loc.Get("Dashboard.YoutubeLabel");
+            /// <summary>영상은 유튜브 링크로 등록해요 — 파일 업로드 없이 링크만 붙여넣으면 됩니다. 경기와 연결된 영상은 </summary>
+            public static string VideosNoticePrefix => Loc.Get("Dashboard.VideosNoticePrefix");
+            /// <summary>경기 결과 상세와 공개 홈페이지</summary>
+            public static string VideosNoticeBold => Loc.Get("Dashboard.VideosNoticeBold");
+            /// <summary>에 자동으로 노출돼요.</summary>
+            public static string VideosNoticeSuffix => Loc.Get("Dashboard.VideosNoticeSuffix");
+            /// <summary>경기 결과와 연결됨</summary>
+            public static string LinkedToMatch => Loc.Get("Dashboard.LinkedToMatch");
+            /// <summary>전체</summary>
+            public static string FilterAll => Loc.Get("Dashboard.FilterAll");
         }
 
         public static class Hub

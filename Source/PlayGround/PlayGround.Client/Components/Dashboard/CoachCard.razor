@@ -25,19 +25,19 @@
         <div class="flex gap-2">
             @if (InstagramUrl is not null)
             {
-                <a href="@InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" />인스타그램</a>
+                <a href="@InstagramUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.Instagram" />@AppText.Dashboard.Instagram</a>
             }
             else if (ShowEmptySnsPlaceholder)
             {
-                <span class="@SnsEmptyClass">인스타그램 미등록</span>
+                <span class="@SnsEmptyClass">@AppText.Dashboard.InstagramEmpty</span>
             }
             @if (YoutubeUrl is not null)
             {
-                <a href="@YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" />유튜브 채널</a>
+                <a href="@YoutubeUrl" class="@SnsLinkClass"><BrandIcon Type="BrandIcon.BrandIconType.YouTube" />@AppText.Dashboard.Youtube</a>
             }
             else if (ShowEmptySnsPlaceholder)
             {
-                <span class="@SnsEmptyClass">유튜브 미등록</span>
+                <span class="@SnsEmptyClass">@AppText.Dashboard.YoutubeEmpty</span>
             }
         </div>
     }

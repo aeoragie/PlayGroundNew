@@ -10,14 +10,14 @@
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
-        <h1 class="@Css.Dashboard.SectionTitle">일정 <span class="text-sm font-bold text-text-muted">@MonthLabel</span></h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">＋ 일정 추가</button>
+        <h1 class="@Css.Dashboard.SectionTitle">@AppText.Dashboard.ScheduleTitle <span class="text-sm font-bold text-text-muted">@MonthLabel</span></h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton" @onclick="OnAdd">@AppText.Dashboard.AddSchedule</button>
     </div>
 
     @if (Schedules.Count == 0)
     {
-        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 일정이 없어요">
-            <Description>경기·대회·훈련 일정을 추가하면 여기와 공개 홈페이지 Schedule 탭에 함께 노출돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Record" Title="@AppText.Dashboard.ScheduleEmptyTitle">
+            <Description>@AppText.Dashboard.ScheduleEmptyBody</Description>
         </EmptyState>
     }
     else
@@ -58,11 +58,11 @@
     }
 
     <div class="flex items-center gap-2.5 flex-wrap">
-        <div class="text-[12.5px] text-text-muted break-keep flex-1 min-w-0">경기 일정은 공개 홈페이지 Schedule 탭에 자동 노출 · 학부모는 구독 캘린더(Google/Apple)로 받아볼 수 있어요</div>
+        <div class="text-[12.5px] text-text-muted break-keep flex-1 min-w-0">@AppText.Dashboard.ScheduleFootNote</div>
         @if (!string.IsNullOrWhiteSpace(TeamSlug))
         {
             <button type="button" @onclick="CopyFeedAsync"
-                    class="text-[12.5px] font-bold text-navy hover:text-orange bg-transparent border-0 cursor-pointer p-0 whitespace-nowrap transition-colors">구독 링크 복사</button>
+                    class="text-[12.5px] font-bold text-navy hover:text-orange bg-transparent border-0 cursor-pointer p-0 whitespace-nowrap transition-colors">@AppText.Dashboard.CopySubscribeLink</button>
         }
     </div>
 </div>
@@ -87,14 +87,14 @@
     [Parameter]
     public EventCallback<ScheduleDto> OnDelete { get; set; }
 
-    private static string MonthLabel => $"{DateTime.Now.Year}년 {DateTime.Now.Month}월";
+    private static string MonthLabel => AppText.Dashboard.MonthLabel(DateTime.Now.Year, DateTime.Now.Month);
 
     // 공개 iCal 피드 절대 URL 복사(토큰 없는 공개 URL) — 공개홈 구독 카드와 같은 값
     private async Task CopyFeedAsync()
     {
         string url = Nav.ToAbsoluteUri($"api/soccer/team/{Uri.EscapeDataString(TeamSlug!)}/schedule.ics").ToString();
         await Js.InvokeVoidAsync("navigator.clipboard.writeText", url);
-        Toasts.ShowSuccess("구독 링크가 복사됐어요");
+        Toasts.ShowSuccess(AppText.Dashboard.CopiedToast);
     }
 
     private static bool IsEnded(ScheduleDto s) => s.StartsAt < DateTime.Now;
@@ -120,7 +120,7 @@
     private static string TimeOf(ScheduleDto s) => s.StartsAt.ToString("HH:mm");
 
     private static string WeekdayLabel(DateTime dt) =>
-        new[] { "일", "월", "화", "수", "목", "금", "토" }[(int)dt.DayOfWeek];
+        new[] { AppText.Dashboard.DowSun, AppText.Dashboard.DowMon, AppText.Dashboard.DowTue, AppText.Dashboard.DowWed, AppText.Dashboard.DowThu, AppText.Dashboard.DowFri, AppText.Dashboard.DowSat }[(int)dt.DayOfWeek];
 
     // dc 규칙: 일요일만 레드톤, 나머지는 muted
     private static string WeekdayClass(DateTime dt) =>
@@ -133,22 +133,22 @@
         if (ended)
         {
             bool resultLinked = s.HasResult && TypeOf(s) is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament;
-            parts.Add(resultLinked ? "종료 — 결과 입력됨" : "종료");
+            parts.Add(resultLinked ? AppText.Dashboard.FinishedWithResult : AppText.Dashboard.Finished);
         }
 
         if (!s.IsPublic)
         {
-            parts.Add("비공개");
+            parts.Add(AppText.Dashboard.Private);
         }
 
         return string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
     }
 
     private List<OverflowMenu.MenuItem> MenuItemsOf(ScheduleDto item) =>
-        new() { new("수정", () => OnEdit.InvokeAsync(item)) };
+        new() { new(AppText.Dashboard.Edit, () => OnEdit.InvokeAsync(item)) };
 
     private List<OverflowMenu.MenuItem> DestructiveItemsOf(ScheduleDto item) =>
-        new() { new("삭제", () => OnDelete.InvokeAsync(item)) };
+        new() { new(AppText.Dashboard.Delete, () => OnDelete.InvokeAsync(item)) };
 
     private static string TypeClass(SoccerScheduleEventType type) =>
         "text-xs font-bold rounded-full px-[13px] py-[5px] whitespace-nowrap shrink-0 " + type switch

@@ -6,8 +6,8 @@
 
 <div class="flex flex-col gap-5">
     <div class="flex justify-between items-center">
-        <h1 class="@Css.Dashboard.SectionTitle">팀 정보</h1>
-        <button type="button" class="@Css.Dashboard.SecondaryButton" @onclick="OnEdit">정보 수정</button>
+        <h1 class="@Css.Dashboard.SectionTitle">@AppText.Dashboard.TeamInfoTitle</h1>
+        <button type="button" class="@Css.Dashboard.SecondaryButton" @onclick="OnEdit">@AppText.Dashboard.EditInfo</button>
     </div>
 
     @* 기본 카드 + 공개 홈페이지 카드 *@
@@ -20,7 +20,7 @@
                     <span class="flex gap-1.5 flex-wrap">
                         @if (Info.Profile.IsVerified)
                         {
-                            <span class="@Css.Badge.Positive">✓ 인증팀</span>
+                            <span class="@Css.Badge.Positive">@AppText.Dashboard.VerifiedBadge</span>
                         }
                         @if (Info.Profile.TeamType is not null)
                         {
@@ -32,7 +32,7 @@
                         }
                         @if (Info.Profile.FoundedYear is not null)
                         {
-                            <span class="@Css.Dashboard.BadgeGray">@(Info.Profile.FoundedYear) 창단</span>
+                            <span class="@Css.Dashboard.BadgeGray">@AppText.Dashboard.Founded(Info.Profile.FoundedYear)</span>
                         }
                     </span>
                 </span>
@@ -43,15 +43,15 @@
                     @if (Info.Profile.MonthlyFee is not null)
                     {
                         <div class="bg-surface-alt rounded-xl px-4 py-3.5 flex flex-col gap-1">
-                            <span class="text-xs font-bold text-text-muted">월 회비</span>
-                            <span class="text-base font-extrabold text-navy-deep">@($"{Info.Profile.MonthlyFee:N0}")원 <span class="text-xs font-semibold text-text-body">· @(Info.Profile.IsMonthlyFeePublic ? "공개" : "비공개")</span></span>
+                            <span class="text-xs font-bold text-text-muted">@AppText.Dashboard.MonthlyFee</span>
+                            <span class="text-base font-extrabold text-navy-deep">@AppText.Dashboard.FeeAmount($"{Info.Profile.MonthlyFee:N0}") <span class="text-xs font-semibold text-text-body">· @(Info.Profile.IsMonthlyFeePublic ? AppText.Dashboard.Public : AppText.Dashboard.Private)</span></span>
                         </div>
                     }
                     @if (Info.Profile.TrainingDays is not null)
                     {
                         <div class="bg-surface-alt rounded-xl px-4 py-3.5 flex flex-col gap-1">
-                            <span class="text-xs font-bold text-text-muted">훈련</span>
-                            <span class="text-base font-extrabold text-navy-deep">주 @(Info.Profile.TrainingDays.Length)회 <span class="text-xs font-semibold text-text-body">· @Info.Profile.TrainingDays</span></span>
+                            <span class="text-xs font-bold text-text-muted">@AppText.Dashboard.Training</span>
+                            <span class="text-base font-extrabold text-navy-deep">@AppText.Dashboard.TrainingCount(Info.Profile.TrainingDays.Length) <span class="text-xs font-semibold text-text-body">· @Info.Profile.TrainingDays</span></span>
                         </div>
                     }
                 </div>
@@ -60,9 +60,9 @@
         @if (Info.Profile.Slug is not null)
         {
             <div class="bg-gradient-navy rounded-[16px] px-6 py-[22px] flex flex-col gap-2.5 text-white justify-center">
-                <span class="text-[13px] font-extrabold text-teal">공개 팀 홈페이지</span>
+                <span class="text-[13px] font-extrabold text-teal">@AppText.Dashboard.PublicTeamHome</span>
                 <span class="text-[14.5px] font-bold">playground.kr/team/@Info.Profile.Slug</span>
-                <span class="text-[12.5px] text-white/65 leading-[1.6] break-keep">팀 정보의 핵심가치와 코칭스태프가 홈페이지 소개 탭에 그대로 노출돼요</span>
+                <span class="text-[12.5px] text-white/65 leading-[1.6] break-keep">@AppText.Dashboard.PublicTeamHomeNote</span>
             </div>
         }
     </div>
@@ -70,9 +70,9 @@
     @* 핵심가치 — 학부모 대상 최중요 요소 *@
     @if (Info.Values.Count > 0)
     {
-        <SectionCard Title="핵심가치" ShowExposedBadge="true">
+        <SectionCard Title="@AppText.Dashboard.ValuesTitle" ShowExposedBadge="true">
             <HeaderRight>
-                <span class="text-[12.5px] text-text-muted break-keep">학부모가 팀을 고르는 첫 번째 기준이에요</span>
+                <span class="text-[12.5px] text-text-muted break-keep">@AppText.Dashboard.ValuesNote</span>
             </HeaderRight>
             <ChildContent>
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3.5">
@@ -88,9 +88,9 @@
     @* 코칭스태프 *@
     @if (Info.Coaches.Count > 0)
     {
-        <SectionCard Title="코칭스태프" ShowExposedBadge="true">
+        <SectionCard Title="@AppText.Dashboard.CoachesTitle" ShowExposedBadge="true">
             <HeaderRight>
-                <button type="button" class="@Css.Dashboard.DashedButton">＋ 코치 초대</button>
+                <button type="button" class="@Css.Dashboard.DashedButton">@AppText.Dashboard.InviteCoach</button>
             </HeaderRight>
             <ChildContent>
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3.5">
@@ -110,9 +110,9 @@
     @* 공식 채널 *@
     @if (Info.Channels.Count > 0)
     {
-        <SectionCard Title="공식 채널" ShowExposedBadge="true">
+        <SectionCard Title="@AppText.Dashboard.ChannelsTitle" ShowExposedBadge="true">
             <HeaderRight>
-                <button type="button" class="@Css.Dashboard.DashedButton">＋ 채널 추가</button>
+                <button type="button" class="@Css.Dashboard.DashedButton">@AppText.Dashboard.AddChannel</button>
             </HeaderRight>
             <ChildContent>
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
@@ -164,8 +164,8 @@
     {
         return ParseChannelType(channel) switch
         {
-            SoccerChannelType.Instagram => "프로필 열기 →",
-            _ => "채널 열기 →"
+            SoccerChannelType.Instagram => AppText.Dashboard.OpenProfile,
+            _ => AppText.Dashboard.OpenChannel
         };
     }
 }

@@ -2,7 +2,7 @@
 <span class="@($"{ContainerClass} overflow-hidden flex items-center justify-center shrink-0 {(LogoUrl is null ? "bg-navy" : "bg-surface-icon")}")">
     @if (LogoUrl is not null)
     {
-        <img src="@LogoUrl" alt="팀 엠블럼" class="w-full h-full object-cover" />
+        <img src="@LogoUrl" alt="@AppText.Dashboard.EmblemAlt" class="w-full h-full object-cover" />
     }
     else
     {

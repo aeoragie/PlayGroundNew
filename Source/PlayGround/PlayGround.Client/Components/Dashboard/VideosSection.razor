@@ -5,15 +5,15 @@
 
 <div class="flex flex-col gap-[18px]">
     <div class="flex justify-between items-center">
-        <h1 class="@Css.Dashboard.SectionTitle">경기영상 <span class="text-sm font-bold text-text-muted">@(Data.Videos.Count)개</span></h1>
-        <button type="button" class="@Css.Dashboard.PrimaryButton">＋ 영상 등록</button>
+        <h1 class="@Css.Dashboard.SectionTitle">@AppText.Dashboard.VideosTitle <span class="text-sm font-bold text-text-muted">@AppText.Dashboard.CountItems(Data.Videos.Count)</span></h1>
+        <button type="button" class="@Css.Dashboard.PrimaryButton">@AppText.Dashboard.AddVideo</button>
     </div>
 
     @if (Data.Videos.Count == 0)
     {
         @* 빈 상태 Tier A (주 액션은 헤더의 ＋ 영상 등록 하나 유지 — 카드 안 CTA 없음) *@
-        <EmptyState Kind="EmptyState.Art.Video" Title="아직 등록된 영상이 없어요">
-            <Description>＋ 영상 등록으로 유튜브 링크를 붙여넣어 보세요.<br />경기와 연결된 영상은 경기 결과 상세와 공개 홈페이지에 자동으로 노출돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Video" Title="@AppText.Dashboard.VideosEmptyTitle">
+            <Description>@AppText.Dashboard.VideosEmptyBody1<br />@AppText.Dashboard.VideosEmptyBody2</Description>
         </EmptyState>
     }
     else
@@ -40,7 +40,7 @@
                         }
                         else
                         {
-                            <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">영상 썸네일</span>
+                            <span class="absolute inset-0 flex items-center justify-center text-xs text-white/40">@AppText.Dashboard.VideoThumb</span>
                         }
                         <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <span class="w-11 h-11 rounded-full bg-black/65 flex items-center justify-center">
@@ -56,7 +56,7 @@
                         <div class="flex gap-[7px] items-center">
                             <span class="@TypeClass(TypeOf(video))">@TypeOf(video).ToLabel()</span>
                             <BrandIcon Type="BrandIcon.BrandIconType.YouTube" />
-                            <span class="text-[11.5px] text-text-muted">유튜브</span>
+                            <span class="text-[11.5px] text-text-muted">@AppText.Dashboard.YoutubeLabel</span>
                         </div>
                         <a href="@video.VideoUrl" target="_blank" rel="noopener" class="text-[14.5px] font-bold text-navy-deep hover:text-orange transition-colors leading-[1.45] break-keep">@video.Title</a>
                         @{
@@ -74,7 +74,7 @@
         @* 등록 방식 안내 *@
         <div class="flex gap-2.5 items-start bg-surface-alt rounded-xl px-4 py-[13px]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="shrink-0 mt-0.5 text-text-muted"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.1"></path></svg>
-            <span class="text-[13px] text-text-strong leading-[1.6] break-keep">영상은 유튜브 링크로 등록해요 — 파일 업로드 없이 링크만 붙여넣으면 됩니다. 경기와 연결된 영상은 <b>경기 결과 상세와 공개 홈페이지</b>에 자동으로 노출돼요.</span>
+            <span class="text-[13px] text-text-strong leading-[1.6] break-keep">@AppText.Dashboard.VideosNoticePrefix<b>@AppText.Dashboard.VideosNoticeBold</b>@AppText.Dashboard.VideosNoticeSuffix</span>
         </div>
     }
 </div>
@@ -114,12 +114,12 @@
         }
         if (video.IsMatchLinked)
         {
-            parts.Add("경기 결과와 연결됨");
+            parts.Add(AppText.Dashboard.LinkedToMatch);
         }
         return string.Join(" · ", parts);
     }
 
-    private static string FilterLabel(SoccerVideoType? filter) => filter?.ToLabel() ?? "전체";
+    private static string FilterLabel(SoccerVideoType? filter) => filter?.ToLabel() ?? AppText.Dashboard.FilterAll;
 
     internal static string TypeClass(SoccerVideoType type) =>
         "text-[11px] font-bold rounded-full px-2.5 py-[3px] whitespace-nowrap " + type switch
