@@ -5,15 +5,15 @@
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">포트폴리오</h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">＋ 영상 추가</button>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Player.PortfolioTitle</h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">@AppText.Player.AddVideo</button>
     </div>
 
     @if (Videos.Count == 0)
     {
         @* 빈 상태 Tier A (주 액션은 헤더의 ＋ 영상 추가 하나 유지 — 카드 안 CTA 없음) *@
-        <EmptyState Kind="EmptyState.Art.Video" Title="아직 등록된 영상이 없어요">
-            <Description>＋ 영상 추가로 유튜브 링크를 등록해 보세요.<br />대표 영상은 공개 프로필과 선수 카드의 첫 화면에 노출돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Video" Title="@AppText.Player.PortfolioEmptyTitle">
+            <Description>@AppText.Player.PortfolioEmptyBody1<br />@AppText.Player.PortfolioEmptyBody2</Description>
         </EmptyState>
     }
 
@@ -25,14 +25,14 @@
                class="block w-full aspect-video relative bg-navy-deep overflow-hidden rounded-t-[14px]">
                 @if (Primary.ThumbnailUrl is not null)
                 {
-                    <img src="@Primary.ThumbnailUrl" alt="대표 영상 썸네일" class="absolute inset-0 w-full h-full object-cover" />
+                    <img src="@Primary.ThumbnailUrl" alt="@AppText.Player.PrimaryThumbAlt" class="absolute inset-0 w-full h-full object-cover" />
                 }
                 <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <span class="w-[46px] h-[46px] rounded-full bg-black/[.65] flex items-center justify-center">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
                     </span>
                 </span>
-                <span class="absolute top-2.5 left-2.5 text-[10.5px] font-bold text-white bg-orange rounded-full px-2.5 py-[3px] pointer-events-none">대표 영상</span>
+                <span class="absolute top-2.5 left-2.5 text-[10.5px] font-bold text-white bg-orange rounded-full px-2.5 py-[3px] pointer-events-none">@AppText.Player.PrimaryVideo</span>
             </a>
             <div class="px-4 py-3.5 flex flex-col gap-2">
                 <div class="flex gap-1.5 items-center">
@@ -50,14 +50,14 @@
                         }
                     </div>
                 }
-                <span class="text-[11.5px] text-text-muted break-keep">공개 프로필과 선수 카드의 첫 화면에 노출됩니다</span>
+                <span class="text-[11.5px] text-text-muted break-keep">@AppText.Player.PrimaryVideoNote</span>
             </div>
         </div>
     }
 
     @if (Others.Count > 0)
     {
-        <h3 class="m-0 mt-0.5 text-sm font-extrabold text-navy-deep">영상 목록 <span class="text-xs font-bold text-text-muted">@(Others.Count)개</span></h3>
+        <h3 class="m-0 mt-0.5 text-sm font-extrabold text-navy-deep">@AppText.Player.VideoList <span class="text-xs font-bold text-text-muted">@AppText.Player.VideoCount(Others.Count)</span></h3>
         @foreach (PlayerPortfolioVideoDto clip in Others)
         {
             @* ⋯는 링크 밖에 둔다 — 앵커 안의 버튼은 클릭이 이동으로 새어 나간다 *@
@@ -66,7 +66,7 @@
                     <div class="w-[104px] aspect-video rounded-lg overflow-hidden relative bg-navy-deep shrink-0">
                         @if (clip.ThumbnailUrl is not null)
                         {
-                            <img src="@clip.ThumbnailUrl" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" />
+                            <img src="@clip.ThumbnailUrl" alt="@AppText.Player.ThumbAlt" class="absolute inset-0 w-full h-full object-cover" />
                         }
                         @if (clip.DurationSeconds is not null)
                         {
@@ -107,11 +107,11 @@
 
     private List<OverflowMenu.MenuItem> BuildMenuItems(PlayerPortfolioVideoDto clip) => new()
     {
-        new OverflowMenu.MenuItem("영상 수정", () => OnEdit.InvokeAsync(clip)),
+        new OverflowMenu.MenuItem(AppText.Player.EditVideo, () => OnEdit.InvokeAsync(clip)),
     };
 
     private List<OverflowMenu.MenuItem> BuildDestructiveItems(PlayerPortfolioVideoDto clip) => new()
     {
-        new OverflowMenu.MenuItem("영상 삭제", () => OnDelete.InvokeAsync(clip)),
+        new OverflowMenu.MenuItem(AppText.Player.DeleteVideo, () => OnDelete.InvokeAsync(clip)),
     };
 }

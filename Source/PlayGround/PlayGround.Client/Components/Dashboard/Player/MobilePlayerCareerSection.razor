@@ -5,15 +5,15 @@
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">커리어</h1>
-        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">＋ 이력 추가</button>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Player.CareerTitle</h1>
+        <button type="button" class="@Css.Dashboard.MobilePrimaryButton" @onclick="OnAdd">@AppText.Player.AddCareer</button>
     </div>
 
     @if (Entries.Count == 0)
     {
         @* 빈 상태 Tier A (주 액션은 헤더의 ＋ 이력 추가 하나 유지 — 카드 안 CTA 없음) *@
-        <EmptyState Kind="EmptyState.Art.Record" Title="아직 등록된 이력이 없어요">
-            <Description>＋ 이력 추가로 소속 이력을 등록해 보세요.<br />팀 관리자가 확인하면 "팀 확인됨"으로 공개 프로필에 신뢰 표시와 함께 노출돼요.</Description>
+        <EmptyState Kind="EmptyState.Art.Record" Title="@AppText.Player.CareerEmptyTitle">
+            <Description>@AppText.Player.CareerEmptyBody1<br />@AppText.Player.CareerEmptyBody2</Description>
         </EmptyState>
     }
 
@@ -32,7 +32,7 @@
                             <span class="text-sm font-extrabold text-navy-deep break-keep">@entry.TeamName</span>
                             @if (entry.IsCurrent)
                             {
-                                <span class="@Css.Badge.Positive">현재 소속</span>
+                                <span class="@Css.Badge.Positive">@AppText.Player.CurrentTeam</span>
                             }
                             @if (entry.BadgeLabel is not null)
                             {
@@ -44,13 +44,13 @@
                         {
                             <span class="text-xs text-text-body leading-[1.6] break-keep">@entry.Note</span>
                         }
-                        <span class="@PlayerCareerSection.VerifyClass(entry.IsVerified)">@(entry.IsVerified ? "팀 확인됨" : "본인 입력")</span>
+                        <span class="@PlayerCareerSection.VerifyClass(entry.IsVerified)">@(entry.IsVerified ? AppText.Player.VerifiedByTeam : AppText.Player.SelfEntered)</span>
                     </span>
                     <OverflowMenu Target="@entry.TeamName"
                                   Items="@BuildMenuItems(entry)" DestructiveItems="@BuildDestructiveItems(entry)" />
                 </div>
             }
-            <span class="text-[11px] text-text-muted pt-3 break-keep">팀 소속 이력은 팀 관리자가 확인하면 "팀 확인됨"으로 표시돼요.</span>
+            <span class="text-[11px] text-text-muted pt-3 break-keep">@AppText.Player.CareerFootnoteShort</span>
         </div>
     }
 </div>
@@ -70,11 +70,11 @@
 
     private List<OverflowMenu.MenuItem> BuildMenuItems(PlayerCareerEntryDto entry) => new()
     {
-        new OverflowMenu.MenuItem("이력 수정", () => OnEdit.InvokeAsync(entry)),
+        new OverflowMenu.MenuItem(AppText.Player.EditCareer, () => OnEdit.InvokeAsync(entry)),
     };
 
     private List<OverflowMenu.MenuItem> BuildDestructiveItems(PlayerCareerEntryDto entry) => new()
     {
-        new OverflowMenu.MenuItem("이력 삭제", () => OnDelete.InvokeAsync(entry)),
+        new OverflowMenu.MenuItem(AppText.Player.DeleteCareer, () => OnDelete.InvokeAsync(entry)),
     };
 }

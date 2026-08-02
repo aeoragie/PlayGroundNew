@@ -6,14 +6,14 @@
 
 <div class="flex flex-col gap-3">
     <div class="flex justify-between items-center">
-        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">시즌 통계</h1>
+        <h1 class="m-0 text-[19px] font-extrabold text-navy-deep">@AppText.Player.StatsTitle</h1>
         @if (Stats.SeasonYears.Count > 0)
         {
             <div class="flex gap-[7px]">
                 @foreach (int season in Stats.SeasonYears)
                 {
                     int tab = season;
-                    <button type="button" class="@PillClass(tab)" @onclick="() => OnSeasonSelected.InvokeAsync(tab)">@tab 시즌</button>
+                    <button type="button" class="@PillClass(tab)" @onclick="() => OnSeasonSelected.InvokeAsync(tab)">@AppText.Player.SeasonTab(tab)</button>
                 }
             </div>
         }
@@ -22,31 +22,31 @@
     @if (Stats.Matches.Count == 0)
     {
         @* 자동 집계 섹션 — CTA 없이 입력 부담 제거 문구(카탈로그 인스턴스 6) *@
-        <EmptyState Kind="EmptyState.Art.Record" Title="아직 경기 기록이 없어요">
-            <Description>첫 경기 결과가 반영되면 자동으로 채워져요. 따로 입력할 필요 없어요.</Description>
+        <EmptyState Kind="EmptyState.Art.Record" Title="@AppText.Player.StatsEmptyTitle">
+            <Description>@AppText.Player.StatsEmptyBody</Description>
         </EmptyState>
     }
     else
     {
         <div class="grid grid-cols-2 gap-2.5">
             <div class="bg-gradient-navy rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5 text-white">
-                <span class="text-[11px] font-bold text-white/60">출전 (공식)</span>
-                <span class="text-[17px] font-extrabold whitespace-nowrap">@(OfficialMatches.Count)경기@(TotalMinutes > 0 ? $" · {TotalMinutes}'" : "")</span>
+                <span class="text-[11px] font-bold text-white/60">@AppText.Player.StatsAppearance</span>
+                <span class="text-[17px] font-extrabold whitespace-nowrap">@AppText.Player.MobileMatches(OfficialMatches.Count)@(TotalMinutes > 0 ? $" · {TotalMinutes}'" : "")</span>
             </div>
             <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-4 py-3.5 flex flex-col gap-0.5")">
-                <span class="text-[11px] font-bold text-text-muted">득점 · 도움 (공식)</span>
-                <span class="text-[17px] font-extrabold text-navy-deep whitespace-nowrap">@(TotalGoals)골 · @(TotalAssists)도움</span>
+                <span class="text-[11px] font-bold text-text-muted">@AppText.Player.StatsGoalsAssists</span>
+                <span class="text-[17px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Player.GoalsAssistsValue(TotalGoals, TotalAssists)</span>
                 @if (FriendlyGoals + FriendlyAssists > 0)
                 {
-                    <span class="text-[10.5px] font-bold @Css.FriendlyMatch.SupplementValue">친선경기 별도 +@(FriendlyGoals)골 · +@(FriendlyAssists)도움</span>
+                    <span class="text-[10.5px] font-bold @Css.FriendlyMatch.SupplementValue">@AppText.Player.FriendlyExtraBoth(FriendlyGoals, FriendlyAssists)</span>
                 }
             </div>
         </div>
 
         <div class="@($"{Css.Dashboard.Card} rounded-[15px] overflow-hidden")">
             <div class="px-4 py-3.5 border-b border-surface-icon flex items-center gap-2 flex-wrap">
-                <h3 class="m-0 text-sm font-extrabold text-navy-deep">경기별 기록</h3>
-                <span class="@Css.Badge.Positive">자동 집계</span>
+                <h3 class="m-0 text-sm font-extrabold text-navy-deep">@AppText.Player.MatchRecords</h3>
+                <span class="@Css.Badge.Positive">@AppText.Player.AutoAggregatedShort</span>
             </div>
             @foreach (PlayerMatchStatDto match in Stats.Matches)
             {
@@ -55,7 +55,7 @@
                     <div class="flex items-center gap-2">
                         @if (isFriendly)
                         {
-                            <span class="@Css.FriendlyMatch.Label">친선경기</span>
+                            <span class="@Css.FriendlyMatch.Label">@AppText.Player.Friendly</span>
                         }
                         else
                         {
@@ -65,7 +65,7 @@
                         <div class="flex-1"></div>
                         @if (match.MinutesPlayed is not null)
                         {
-                            <span class="text-[11.5px] text-text-body whitespace-nowrap">출전 @(match.MinutesPlayed)'</span>
+                            <span class="text-[11.5px] text-text-body whitespace-nowrap">@AppText.Player.MinutesPlayed(match.MinutesPlayed)</span>
                         }
                     </div>
                     <div class="flex items-center gap-2.5">
@@ -108,11 +108,11 @@
     private List<OverflowMenu.MenuItem> BuildMatchMenu(PlayerMatchStatDto match) =>
         PendingCorrectionMatchIds.Contains(match.MatchId)
             ? new List<OverflowMenu.MenuItem>()
-            : new List<OverflowMenu.MenuItem> { new("기록 수정 신청", () => OnRequestCorrection.InvokeAsync(match)) };
+            : new List<OverflowMenu.MenuItem> { new(AppText.Player.RequestCorrection, () => OnRequestCorrection.InvokeAsync(match)) };
 
     private List<string> BuildMatchDisabled(PlayerMatchStatDto match) =>
         PendingCorrectionMatchIds.Contains(match.MatchId)
-            ? new List<string> { "신청 처리 중" }
+            ? new List<string> { AppText.Player.CorrectionInProgress }
             : new List<string>();
 
     // 집계는 공식만 — PC 섹션과 같은 규칙
@@ -130,15 +130,15 @@
         List<string> parts = new();
         if (match.Goals > 0)
         {
-            parts.Add($"{match.Goals}골");
+            parts.Add(AppText.Player.GoalsCount(match.Goals));
         }
 
         if (match.Assists > 0)
         {
-            parts.Add($"{match.Assists}도움");
+            parts.Add(AppText.Player.AssistsCount(match.Assists));
         }
 
-        return parts.Count > 0 ? string.Join(" · ", parts) : "기록 없음";
+        return parts.Count > 0 ? string.Join(" · ", parts) : AppText.Player.NoRecord;
     }
 
     private string PillClass(int tab) =>

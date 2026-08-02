@@ -16,8 +16,8 @@
             <span class="@Css.MatchForm.GrabBar"></span>
 
             <div class="@Css.MatchForm.Header">
-                <h2 class="@Css.MatchForm.Title">프로필 수정</h2>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <h2 class="@Css.MatchForm.Title">@AppText.Player.EditProfile</h2>
+                <button type="button" aria-label="@AppText.Player.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -26,20 +26,20 @@
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
                     <div class="@Css.MatchForm.DateTimeRow">
-                        <TextField Label="키 (cm)" @bind-Value="mHeightText" IsOptional="true"
+                        <TextField Label="@AppText.Player.HeightLabel" @bind-Value="mHeightText" IsOptional="true"
                                    Validator="ValidateHeight" Placeholder="168" MaxLength="3" />
-                        <TextField Label="몸무게 (kg)" @bind-Value="mWeightText" IsOptional="true"
+                        <TextField Label="@AppText.Player.WeightLabel" @bind-Value="mWeightText" IsOptional="true"
                                    Validator="ValidateWeight" Placeholder="58" MaxLength="3" />
                     </div>
 
-                    <SelectField TValue="string" Label="주발" @bind-Value="mFoot" IsOptional="true"
-                                 Options="@FootOptions" Placeholder="선택" />
+                    <SelectField TValue="string" Label="@AppText.Player.FieldFoot" @bind-Value="mFoot" IsOptional="true"
+                                 Options="@FootOptions" Placeholder="@AppText.Player.FootSelectPlaceholder" />
 
-                    <TextField Label="학교" @bind-Value="mSchool" IsOptional="true"
-                               Placeholder="예: 서울중학교" MaxLength="100"
-                               Helper="공개 범위 설정에서 학교 공개를 켜야 다른 사람에게 보여요." />
+                    <TextField Label="@AppText.Player.SchoolLabel" @bind-Value="mSchool" IsOptional="true"
+                               Placeholder="@AppText.Player.SchoolPlaceholder" MaxLength="100"
+                               Helper="@AppText.Player.SchoolHelper" />
 
-                    <TextField Label="프로필 주소" @bind-Value="mSlug" Validator="ValidateSlug"
+                    <TextField Label="@AppText.Player.SlugLabel" @bind-Value="mSlug" Validator="ValidateSlug"
                                Placeholder="gangmin" MaxLength="30"
                                Helper="@SlugHelper" />
 
@@ -48,8 +48,8 @@
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Player.Cancel</button>
+                    <SubmitButton Label="@AppText.Player.Save" BusyLabel="@AppText.Player.SavingBusy" IsBusy="@mSaving" OnClick="SubmitAsync"
                                   Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -82,9 +82,9 @@
 
     private static readonly List<SelectOption<string>> FootOptions = new()
     {
-        new SelectOption<string>("Left", "왼발"),
-        new SelectOption<string>("Right", "오른발"),
-        new SelectOption<string>("Both", "양발"),
+        new SelectOption<string>("Left", AppText.Player.FootLeft),
+        new SelectOption<string>("Right", AppText.Player.FootRight),
+        new SelectOption<string>("Both", AppText.Player.FootBoth),
     };
 
     // 소문자 영숫자, 하이픈 허용(양끝·연속 하이픈 금지) — 서버 규칙과 같다.
@@ -113,7 +113,7 @@
     private List<string> mInitialTags = new();
     private List<StrengthTagPresetDto> mPresets = new();
 
-    private string SlugHelper => $"공개 프로필 주소: /player/{(string.IsNullOrWhiteSpace(mSlug) ? "…" : mSlug.Trim().ToLowerInvariant())}";
+    private string SlugHelper => AppText.Player.SlugHelper(string.IsNullOrWhiteSpace(mSlug) ? "…" : mSlug.Trim().ToLowerInvariant());
 
     protected override async Task OnParametersSetAsync()
     {
@@ -146,36 +146,36 @@
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return "프로필 주소를 입력해 주세요.";
+            return AppText.Player.ErrorSlugEmpty;
         }
 
         string v = value.Trim().ToLowerInvariant();
         if (v.Length < 3 || v.Length > 30)
         {
-            return "3~30자로 입력해 주세요.";
+            return AppText.Player.ErrorSlugLength;
         }
 
         if (!SlugRegex.IsMatch(v))
         {
-            return "소문자 영문·숫자·하이픈(-)만 쓸 수 있어요.";
+            return AppText.Player.ErrorSlugCharset;
         }
 
         if (Reserved.Contains(v))
         {
-            return "사용할 수 없는 주소예요.";
+            return AppText.Player.ErrorSlugReserved;
         }
 
         if (mTakenSlug is not null && string.Equals(v, mTakenSlug, StringComparison.Ordinal))
         {
-            return "이미 사용 중인 주소예요.";
+            return AppText.Player.ErrorSlugTaken;
         }
 
         return null;
     }
 
-    private static string? ValidateHeight(string? value) => ValidateRange(value, 100, 230, "키");
+    private static string? ValidateHeight(string? value) => ValidateRange(value, 100, 230, AppText.Player.FieldHeight);
 
-    private static string? ValidateWeight(string? value) => ValidateRange(value, 20, 150, "몸무게");
+    private static string? ValidateWeight(string? value) => ValidateRange(value, 20, 150, AppText.Player.FieldWeight);
 
     private static string? ValidateRange(string? value, int min, int max, string label)
     {

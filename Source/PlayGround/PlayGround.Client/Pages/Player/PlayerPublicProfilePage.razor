@@ -7,7 +7,7 @@
 @inject PlayerClient Players
 @inject JwtAuthenticationStateProvider AuthProvider
 
-<PageTitle>@(mData?.Profile.Name ?? "선수 프로필") — PlayGround</PageTitle>
+<PageTitle>@(mData?.Profile.Name ?? AppText.Player.PublicFallbackTitle) — PlayGround</PageTitle>
 
 @* 공개 선수 프로필 — 디테일 공개/권한 뷰 (Design.PlayerPublicProfile). 카드 뷰는 다음 단계.
    뷰는 수동 전환이 아니라 서버 판정(Grant — 승인된 에이전트 + 미만료)으로 자동 결정된다.
@@ -19,16 +19,16 @@
 {
     <div class="min-h-screen bg-bg flex items-center justify-center px-4">
         <div class="@($"{Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-3 text-center max-w-[420px]")">
-            <h1 class="m-0 text-xl font-extrabold text-navy-deep">선수 프로필을 찾을 수 없어요</h1>
-            <p class="m-0 text-sm text-text-body leading-[1.7] break-keep">주소가 잘못되었거나 비공개로 전환된 프로필이에요.</p>
-            <a href="@Routes.Landing" class="mt-1 text-[13.5px] font-bold text-navy">PlayGround 홈으로 →</a>
+            <h1 class="m-0 text-xl font-extrabold text-navy-deep">@AppText.Player.PublicNotFoundTitle</h1>
+            <p class="m-0 text-sm text-text-body leading-[1.7] break-keep">@AppText.Player.PublicNotFoundBody</p>
+            <a href="@Routes.Landing" class="mt-1 text-[13.5px] font-bold text-navy">@AppText.Player.ToLanding</a>
         </div>
     </div>
 }
 else if (mData is not null)
 {
     <div class="min-h-screen bg-surface-alt text-navy-deep flex flex-col">
-        <PublicGnb SectionLabel="선수 프로필" />
+        <PublicGnb SectionLabel="@AppText.Player.PublicSection" />
 
         @* 권한 뷰 상단 배너 — 승인 상태·만료·열람 기록 고지 *@
         @if (mData.Grant is PlayerPublicGrantDto grant)
@@ -36,10 +36,10 @@ else if (mData is not null)
             <div class="@Css.PlayerPublic.GrantBanner">
                 <div class="@Css.PlayerPublic.GrantBannerInner">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-ink flex-none mt-0.5 md:mt-0"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
-                    <span class="@($"{Css.PlayerPublic.GrantBannerText} hidden md:inline")">보호자 승인으로 상세 정보 열람 중 — 에이전트 계정 · 승인일 @(grant.ApprovedAt.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture)) · @(RemainingDays(grant))일 후 만료</span>
-                    <span class="@($"{Css.PlayerPublic.GrantBannerText} md:hidden")">보호자 승인 열람 중 — 에이전트 계정 · @(RemainingDays(grant))일 후 만료 · 열람 기록이 보호자에게 표시됩니다</span>
+                    <span class="@($"{Css.PlayerPublic.GrantBannerText} hidden md:inline")">@AppText.Player.GrantBannerPc(grant.ApprovedAt.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture), RemainingDays(grant))</span>
+                    <span class="@($"{Css.PlayerPublic.GrantBannerText} md:hidden")">@AppText.Player.GrantBannerMobile(RemainingDays(grant))</span>
                     <div class="hidden md:block flex-1"></div>
-                    <span class="@Css.PlayerPublic.GrantBannerNote">열람 기록이 보호자에게 표시됩니다</span>
+                    <span class="@Css.PlayerPublic.GrantBannerNote">@AppText.Player.GrantBannerNote</span>
                 </div>
             </div>
         }
@@ -66,7 +66,7 @@ else if (mData is not null)
                             <h1 class="@Css.PlayerPublic.HeroName">@mData.Profile.Name</h1>
                             @if (mData.Profile.IsGuardianManaged)
                             {
-                                <StatusBadge Tone="StatusBadge.BadgeTone.Positive">가족 관리 프로필</StatusBadge>
+                                <StatusBadge Tone="StatusBadge.BadgeTone.Positive">@AppText.Player.FamilyManaged</StatusBadge>
                             }
                         </div>
                         @if (MetaLine is not null)
@@ -82,7 +82,7 @@ else if (mData is not null)
                                     @TeamShieldIcon @mData.Profile.TeamName
                                     @if (mData.Profile.TeamIsVerified)
                                     {
-                                        <StatusBadge Tone="StatusBadge.BadgeTone.Positive">✓ 인증팀</StatusBadge>
+                                        <StatusBadge Tone="StatusBadge.BadgeTone.Positive">@AppText.Player.VerifiedTeam</StatusBadge>
                                     }
                                 </a>
                             }
@@ -92,7 +92,7 @@ else if (mData is not null)
                                     @TeamShieldIcon @mData.Profile.TeamName
                                     @if (mData.Profile.TeamIsVerified)
                                     {
-                                        <StatusBadge Tone="StatusBadge.BadgeTone.Positive">✓ 인증팀</StatusBadge>
+                                        <StatusBadge Tone="StatusBadge.BadgeTone.Positive">@AppText.Player.VerifiedTeam</StatusBadge>
                                     }
                                 </span>
                             }
@@ -128,22 +128,22 @@ else if (mData is not null)
                     @* 미연결 선수 + 로그인 열람자 = 보호자 경로: 코드 없이 연결 요청(팀 승인 필수) *@
                     @if (CanClaim)
                     {
-                        <a href="@ClaimHref" class="@Css.PlayerPublic.RequestButton">내 아이 프로필 관리하기</a>
-                        <span class="@Css.PlayerPublic.RequestCaption">팀 관리자 승인 후 연결돼요</span>
+                        <a href="@ClaimHref" class="@Css.PlayerPublic.RequestButton">@AppText.Player.ManageMyChild</a>
+                        <span class="@Css.PlayerPublic.RequestCaption">@AppText.Player.ManageMyChildCaption</span>
                     }
                     @* 에이전트 열람 요청·연락은 feature flag 뒤 (OFF면 미노출 — Design.AgentDashboard) *@
                     else if (FeatureFlags.AgentApproval && mData.Grant is not null)
                     {
-                        <button type="button" class="@Css.PlayerPublic.RequestButton">보호자에게 연락하기</button>
-                        <span class="@Css.PlayerPublic.RequestCaption">연락은 플랫폼 내 메시지로 시작됩니다</span>
+                        <button type="button" class="@Css.PlayerPublic.RequestButton">@AppText.Player.ContactGuardian</button>
+                        <span class="@Css.PlayerPublic.RequestCaption">@AppText.Player.ContactGuardianCaption</span>
                     }
                     else if (FeatureFlags.AgentApproval)
                     {
-                        <button type="button" class="@Css.PlayerPublic.RequestButton">상세 정보 열람 요청</button>
-                        <span class="@Css.PlayerPublic.RequestCaption">보호자 승인 후 열람 가능</span>
+                        <button type="button" class="@Css.PlayerPublic.RequestButton">@AppText.Player.RequestDetailAccess</button>
+                        <span class="@Css.PlayerPublic.RequestCaption">@AppText.Player.RequestDetailCaption</span>
                     }
                     <a href="@Routes.PlayerPublicCard(Slug)" class="@Css.PlayerPublic.CardShareButton">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>선수 카드 공유
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="17.5" cy="5.5" r="2.5"></circle><circle cx="17.5" cy="18.5" r="2.5"></circle><path d="M8.2 10.8l7-4M8.2 13.2l7 4"></path></svg>@AppText.Player.ShareCard
                     </a>
                 </div>
             </div>
@@ -153,26 +153,26 @@ else if (mData is not null)
             {
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3.5">
                     <div class="@Css.PlayerPublic.StatCardNavy">
-                        <span class="@Css.PlayerPublic.StatLabelOnNavy">@(season.SeasonYear) 출전</span>
-                        <span class="@Css.PlayerPublic.StatValueOnNavy">@(season.MatchCount)경기 · @(season.TotalMinutes)'</span>
+                        <span class="@Css.PlayerPublic.StatLabelOnNavy">@AppText.Player.SeasonAppearance(season.SeasonYear)</span>
+                        <span class="@Css.PlayerPublic.StatValueOnNavy">@AppText.Player.MatchesMinutes(season.MatchCount, season.TotalMinutes)</span>
                     </div>
                     <div class="@($"{Css.PlayerPublic.StatCard} md:hidden")">
-                        <span class="@Css.PlayerPublic.StatLabel">득점 · 도움</span>
-                        <span class="@Css.PlayerPublic.StatValue">@(season.Goals)골 · @(season.Assists)도움</span>
+                        <span class="@Css.PlayerPublic.StatLabel">@AppText.Player.GoalsAssistsLabel</span>
+                        <span class="@Css.PlayerPublic.StatValue">@AppText.Player.GoalsAssistsValue(season.Goals, season.Assists)</span>
                     </div>
                     <div class="@($"{Css.PlayerPublic.StatCard} hidden md:flex")">
-                        <span class="@Css.PlayerPublic.StatLabel">득점</span>
+                        <span class="@Css.PlayerPublic.StatLabel">@AppText.Player.ColGoals</span>
                         <span class="@Css.PlayerPublic.StatValue">@season.Goals</span>
                     </div>
                     <div class="@($"{Css.PlayerPublic.StatCard} hidden md:flex")">
-                        <span class="@Css.PlayerPublic.StatLabel">도움</span>
+                        <span class="@Css.PlayerPublic.StatLabel">@AppText.Player.ColAssists</span>
                         <span class="@Css.PlayerPublic.StatValue">@season.Assists</span>
                     </div>
                     @if (season.AverageMinutes is int average)
                     {
                         <div class="@($"{Css.PlayerPublic.StatCard} hidden md:flex")">
-                            <span class="@Css.PlayerPublic.StatLabel">경기당 평균</span>
-                            <span class="@Css.PlayerPublic.StatValue">@(average)분</span>
+                            <span class="@Css.PlayerPublic.StatLabel">@AppText.Player.AvgPerMatch</span>
+                            <span class="@Css.PlayerPublic.StatValue">@AppText.Player.MinutesSuffix(average)</span>
                         </div>
                     }
                 </div>
@@ -195,7 +195,7 @@ else if (mData is not null)
                                         <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5l11 6.5-11 6.5z"></path></svg>
                                     </span>
                                 </span>
-                                <span class="@Css.PlayerPublic.VideoBadge">대표 영상</span>
+                                <span class="@Css.PlayerPublic.VideoBadge">@AppText.Player.PrimaryVideo</span>
                             </a>
                             <div class="px-3.5 py-3 md:px-5 md:py-4 flex items-center gap-2">
                                 <svg width="15" height="15" viewBox="0 0 24 24" aria-label="YouTube" class="flex-none"><path fill="#FF0000" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8z"></path><path fill="#fff" d="M9.6 15.6V8.4L15.8 12z"></path></svg>
@@ -203,7 +203,7 @@ else if (mData is not null)
                                 @if (mData.VideoCount > 1)
                                 {
                                     @* 공개 영상 목록 화면이 없어 카운트 표기만 — 링크가 아니다 *@
-                                    <span class="text-[11px] md:text-xs text-text-muted whitespace-nowrap">영상 @(mData.VideoCount - 1)개 더</span>
+                                    <span class="text-[11px] md:text-xs text-text-muted whitespace-nowrap">@AppText.Player.MoreVideos(mData.VideoCount - 1)</span>
                                 }
                             </div>
                         </div>

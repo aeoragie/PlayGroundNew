@@ -17,7 +17,7 @@
                 <AvatarUploader Value="@Info.Profile.PhotoUrl" ValueChanged="SavePhotoAsync"
                                 Shape="AvatarUploader.CropShape.Portrait" FrameClass="w-[92px] aspect-[3/4]"
                                 Placeholder="@Info.Profile.Name" InitialSize="44"
-                                Label="선수 사진" Category="player-photo" ConfirmDelete="ConfirmPhotoDeleteAsync" />
+                                Label="@AppText.Player.PlayerPhoto" Category="player-photo" ConfirmDelete="ConfirmPhotoDeleteAsync" />
             }
             else
             {
@@ -39,7 +39,7 @@
                     <span class="text-lg font-extrabold text-navy-deep whitespace-nowrap">@Info.Profile.Name</span>
                     @if (Info.Family.Any(m => m.HasAccount))
                     {
-                        <span class="@Css.Badge.Positive">가족 연결됨</span>
+                        <span class="@Css.Badge.Positive">@AppText.Player.FamilyLinked</span>
                     }
                 </div>
                 <div class="flex flex-col gap-[5px]">
@@ -52,7 +52,7 @@
                         <span class="text-[12.5px] text-text-body whitespace-nowrap">@Info.Profile.TeamName</span>
                     }
                 </div>
-                <button type="button" class="mt-auto h-[38px] rounded-[9px] bg-orange hover:bg-orange-hover text-[12.5px] font-bold text-white whitespace-nowrap shadow-cta-orange-sm border-0 cursor-pointer transition-colors" @onclick="OnEditProfile">프로필 수정</button>
+                <button type="button" class="mt-auto h-[38px] rounded-[9px] bg-orange hover:bg-orange-hover text-[12.5px] font-bold text-white whitespace-nowrap shadow-cta-orange-sm border-0 cursor-pointer transition-colors" @onclick="OnEditProfile">@AppText.Player.EditProfile</button>
             </div>
         </div>
     </div>
@@ -67,15 +67,15 @@
         @* 계층 스위치 (Design.ToggleSwitch) — 상위 "프로필 공개"를 끄면 하위 항목이 비활성+dimmed *@
         <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-1")">
             <div class="flex flex-col gap-0.5">
-                <span class="text-[15px] font-extrabold text-navy-deep">항목별 공개 설정</span>
-                <span class="text-[11.5px] text-text-muted break-keep">보호자만 변경할 수 있어요</span>
+                <span class="text-[15px] font-extrabold text-navy-deep">@AppText.Player.FieldVisibility</span>
+                <span class="text-[11.5px] text-text-muted break-keep">@AppText.Player.GuardianOnly</span>
             </div>
             @if (ProfileVisibility is PlayerFieldVisibilityDto profile)
             {
-                <Switch Label="프로필 공개" Description="끄면 검색·팀 선수단에서 숨겨져요"
+                <Switch Label="@AppText.Player.ProfilePublic" Description="@AppText.Player.ProfilePublicDescription"
                         Value="@profile.IsPublic" ValueChanged="@(v => ApplyVisibility(profile, v))"
                         Save="@(v => SaveVisibilityAsync(profile, v))"
-                        ErrorMessage="공개 설정을 저장하지 못했어요." />
+                        ErrorMessage="@AppText.Player.VisibilitySaveError" />
             }
             <div class="@SubGroupClass">
                 @foreach (PlayerProfileSection.FieldRow row in FieldRows)
@@ -83,7 +83,7 @@
                     <Switch Label="@row.Label" Description="@row.Value" Disabled="@(!ProfileIsPublic)"
                             Value="@row.Visibility.IsPublic" ValueChanged="@(v => ApplyVisibility(row.Visibility, v))"
                             Save="@(v => SaveVisibilityAsync(row.Visibility, v))"
-                            ErrorMessage="공개 설정을 저장하지 못했어요." />
+                            ErrorMessage="@AppText.Player.VisibilitySaveError" />
                 }
             </div>
         </div>
@@ -92,7 +92,7 @@
     @if (Info.Family.Count > 0)
     {
         <div class="@($"{Css.Dashboard.Card} p-[18px] flex flex-col gap-3")">
-            <span class="text-[15px] font-extrabold text-navy-deep">가족 계정</span>
+            <span class="text-[15px] font-extrabold text-navy-deep">@AppText.Player.FamilyAccounts</span>
             @foreach (PlayerFamilyMemberDto member in Info.Family)
             {
                 <div class="flex items-center gap-[11px]">
@@ -103,15 +103,15 @@
                     </span>
                     @if (PlayerProfileSection.IsGuardian(member))
                     {
-                        <span class="@Css.Badge.Positive">관리자</span>
+                        <span class="@Css.Badge.Positive">@AppText.Player.RoleManager</span>
                     }
                     else
                     {
-                        <span class="@Css.Badge.Neutral">열람</span>
+                        <span class="@Css.Badge.Neutral">@AppText.Player.RoleViewer</span>
                     }
                 </div>
             }
-            <button type="button" class="@Css.Dashboard.DashedButton">＋ 가족 초대</button>
+            <button type="button" class="@Css.Dashboard.DashedButton">@AppText.Player.InviteFamily</button>
         </div>
     }
 </div>
@@ -152,7 +152,7 @@
 
             if (Info.Profile.JerseyNumber is not null)
             {
-                parts.Add($"등번호 {Info.Profile.JerseyNumber}");
+                parts.Add(AppText.Player.JerseyNumber(Info.Profile.JerseyNumber));
             }
 
             if (Info.Profile.BirthYear is not null)
@@ -190,7 +190,7 @@
 
         if (visibility.FieldName == nameof(SoccerPlayerProfileField.Profile) && !value)
         {
-            Toasts.ShowSuccess("프로필을 비공개로 바꿨어요.", "실행취소", () => RestoreProfileAsync(visibility));
+            Toasts.ShowSuccess(AppText.Player.ProfileHiddenToast, AppText.Player.Undo, () => RestoreProfileAsync(visibility));
         }
     }
 
@@ -203,6 +203,6 @@
             return;
         }
 
-        Toasts.ShowError("공개 설정을 저장하지 못했어요.");
+        Toasts.ShowError(AppText.Player.VisibilitySaveError);
     }
 }

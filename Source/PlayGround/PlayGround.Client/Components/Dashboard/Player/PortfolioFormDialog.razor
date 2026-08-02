@@ -17,8 +17,8 @@
             <span class="@Css.MatchForm.GrabBar"></span>
 
             <div class="@Css.MatchForm.Header">
-                <h2 class="@Css.MatchForm.Title">@(IsEdit ? "영상 수정" : "영상 추가")</h2>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <h2 class="@Css.MatchForm.Title">@(IsEdit ? AppText.Player.EditVideo : AppText.Player.VideoDialogAdd)</h2>
+                <button type="button" aria-label="@AppText.Player.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -26,15 +26,15 @@
 
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
-                    <TextField Label="유튜브 링크" @bind-Value="mVideoUrl" Validator="ValidateUrl"
+                    <TextField Label="@AppText.Player.YoutubeLinkLabel" @bind-Value="mVideoUrl" Validator="ValidateUrl"
                                Placeholder="https://youtu.be/..." InputType="url"
-                               Helper="유튜브 링크만 등록할 수 있어요. 영상 파일을 올리는 방식이 아니에요." />
+                               Helper="@AppText.Player.YoutubeLinkHelper" />
 
                     @* 붙여넣기 성공 여부를 문구가 아니라 그림으로 확인시킨다 *@
                     @if (ThumbnailUrl is not null)
                     {
                         <div class="@PreviewFrameClass">
-                            <img src="@ThumbnailUrl" alt="영상 미리보기" class="w-full h-full object-cover" />
+                            <img src="@ThumbnailUrl" alt="@AppText.Player.VideoPreviewAlt" class="w-full h-full object-cover" />
                             <span class="@PreviewPlayClass">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M8 5.5v13l11-6.5z"></path>
@@ -43,32 +43,32 @@
                         </div>
                     }
 
-                    <TextField Label="제목" @bind-Value="mTitle" Validator="ValidateTitle"
-                               Placeholder="전반 12분 왼발 감아차기" MaxLength="60" />
+                    <TextField Label="@AppText.Player.TitleLabel" @bind-Value="mTitle" Validator="ValidateTitle"
+                               Placeholder="@AppText.Player.TitlePlaceholder" MaxLength="60" />
 
-                    <TextField Label="태그" @bind-Value="mTagText" IsOptional="true"
-                               Placeholder="왼발 마무리, 드리블 돌파" MaxLength="80"
-                               Helper="쉼표로 구분해요. 최대 5개까지 칩으로 보여요." />
+                    <TextField Label="@AppText.Player.TagLabel" @bind-Value="mTagText" IsOptional="true"
+                               Placeholder="@AppText.Player.TagPlaceholder" MaxLength="80"
+                               Helper="@AppText.Player.TagHelper" />
 
-                    <TextField Label="촬영 시점" @bind-Value="mRecordedText" IsOptional="true"
+                    <TextField Label="@AppText.Player.RecordedLabel" @bind-Value="mRecordedText" IsOptional="true"
                                Validator="ValidateRecorded" Format="FormInputFormat.YearMonth" Placeholder="2025. 04" />
 
                     @if (CanChoosePrimary)
                     {
-                        <CheckboxField Label="대표 영상으로 지정" @bind-Value="mIsPrimary"
-                                       Helper="공개 프로필과 선수 카드의 첫 화면에 이 영상이 나와요. 대표는 하나뿐이라 기존 대표는 해제돼요." />
+                        <CheckboxField Label="@AppText.Player.SetPrimaryLabel" @bind-Value="mIsPrimary"
+                                       Helper="@AppText.Player.SetPrimaryHelper" />
                     }
                     else
                     {
                         <div class="@FirstVideoNoticeClass" role="note">
-                            첫 영상이라 자동으로 대표 영상이 돼요.
+                            @AppText.Player.FirstVideoAutoPrimary
                         </div>
                     }
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Player.Cancel</button>
+                    <SubmitButton Label="@AppText.Player.Save" BusyLabel="@AppText.Player.SavingBusy" IsBusy="@mSaving" OnClick="SubmitAsync"
                                   Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -158,14 +158,14 @@
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return "유튜브 링크를 붙여넣어 주세요.";
+            return AppText.Player.ErrorYoutubeEmpty;
         }
 
-        return YouTubeVideoLink.IsValid(value) ? null : "유튜브 영상 링크가 아니에요. 주소를 다시 확인해 주세요.";
+        return YouTubeVideoLink.IsValid(value) ? null : AppText.Player.ErrorYoutubeInvalid;
     }
 
     private static string? ValidateTitle(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "제목을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Player.ErrorTitleEmpty : null;
 
     // 선택 항목 — 비어 있으면 통과, 값이 있으면 형태를 본다
     private static string? ValidateRecorded(string? value)
@@ -175,7 +175,7 @@
             return null;
         }
 
-        return ParseYearMonth(value) is null ? "연·월 6자리로 입력해 주세요. (예: 2025. 04)" : null;
+        return ParseYearMonth(value) is null ? AppText.Player.ErrorYearMonth : null;
     }
 
     private async Task SubmitAsync()
@@ -203,17 +203,17 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Player.SaveFailedToast, AppText.Player.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Player.SaveFailedToast);
             }
 
             return;
         }
 
-        Toasts.ShowSuccess(IsEdit ? "영상을 수정했어요." : "영상을 등록했어요.");
+        Toasts.ShowSuccess(IsEdit ? AppText.Player.VideoUpdatedToast : AppText.Player.VideoAddedToast);
         await CloseAsync();
         await OnSaved.InvokeAsync();
     }

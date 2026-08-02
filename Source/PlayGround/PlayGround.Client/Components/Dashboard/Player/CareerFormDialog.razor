@@ -16,8 +16,8 @@
             <span class="@Css.MatchForm.GrabBar"></span>
 
             <div class="@Css.MatchForm.Header">
-                <h2 class="@Css.MatchForm.Title">@(IsEdit ? "이력 수정" : "이력 추가")</h2>
-                <button type="button" aria-label="닫기" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
+                <h2 class="@Css.MatchForm.Title">@(IsEdit ? AppText.Player.EditCareer : AppText.Player.CareerDialogAdd)</h2>
+                <button type="button" aria-label="@AppText.Player.Close" class="@Css.MatchForm.CloseButton" @onclick="CancelAsync">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                          stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
@@ -25,41 +25,41 @@
 
             <CascadingValue Value="@mForm" IsFixed="true">
                 <div class="@Css.MatchForm.Body">
-                    <TextField Label="팀 이름" @bind-Value="mTeamName" Validator="ValidateTeamName"
-                               Placeholder="서울신답FC U15" MaxLength="50" />
+                    <TextField Label="@AppText.Player.TeamNameLabel" @bind-Value="mTeamName" Validator="ValidateTeamName"
+                               Placeholder="@AppText.Player.TeamNamePlaceholder" MaxLength="50" />
 
-                    <CheckboxField Label="현재 소속이에요" @bind-Value="mIsCurrent" />
+                    <CheckboxField Label="@AppText.Player.IsCurrentLabel" @bind-Value="mIsCurrent" />
 
                     <div class="@Css.MatchForm.DateTimeRow">
-                        <TextField Label="시작" @bind-Value="mStartText" Validator="ValidateStart"
+                        <TextField Label="@AppText.Player.StartLabel" @bind-Value="mStartText" Validator="ValidateStart"
                                    Format="FormInputFormat.YearMonth" Placeholder="2024. 03" />
                         @if (!mIsCurrent)
                         {
-                            <TextField Label="종료" @bind-Value="mEndText" Validator="ValidateEnd"
+                            <TextField Label="@AppText.Player.EndLabel" @bind-Value="mEndText" Validator="ValidateEnd"
                                        Format="FormInputFormat.YearMonth" Placeholder="2025. 02" />
                         }
                     </div>
 
-                    <TextField Label="역할" @bind-Value="mRole" IsOptional="true"
-                               Placeholder="U15 · FW · 주전" MaxLength="50"
-                               Helper="포지션·학년·출전 상태처럼 그 팀에서 맡은 자리를 적어요." />
+                    <TextField Label="@AppText.Player.RoleLabel" @bind-Value="mRole" IsOptional="true"
+                               Placeholder="@AppText.Player.RolePlaceholder" MaxLength="50"
+                               Helper="@AppText.Player.RoleHelper" />
 
-                    <TextField Label="메모" @bind-Value="mNote" IsOptional="true" Multiline="true" Rows="3"
-                               MaxLength="200" Placeholder="기억에 남는 경기나 성과를 적어 두면 공개 프로필에 함께 보여요." />
+                    <TextField Label="@AppText.Player.NoteLabel" @bind-Value="mNote" IsOptional="true" Multiline="true" Rows="3"
+                               MaxLength="200" Placeholder="@AppText.Player.NotePlaceholder" />
 
                     @if (IsEdit && WasVerified)
                     {
                         @* 팀이 확인한 이력을 고치면 확인이 풀린다 — 저장 전에 알려 준다 *@
                         <div class="@VerifyNoticeClass" role="note">
-                            내용을 수정하면 "팀 확인됨" 표시가 해제되고 "본인 입력"으로 돌아가요.
-                            팀 관리자가 다시 확인하면 표시가 복구돼요.
+                            @AppText.Player.EditResetsVerify1
+                            @AppText.Player.EditResetsVerify2
                         </div>
                     }
                 </div>
 
                 <div class="@Css.MatchForm.Footer">
-                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">취소</button>
-                    <SubmitButton Label="저장" BusyLabel="저장 중…" IsBusy="@mSaving" OnClick="SubmitAsync"
+                    <button type="button" class="@Css.MatchForm.CancelButton" @onclick="CancelAsync">@AppText.Player.Cancel</button>
+                    <SubmitButton Label="@AppText.Player.Save" BusyLabel="@AppText.Player.SavingBusy" IsBusy="@mSaving" OnClick="SubmitAsync"
                                   Class="@Css.MatchForm.SubmitWidth" />
                 </div>
             </CascadingValue>
@@ -154,19 +154,19 @@
     }
 
     private static string? ValidateTeamName(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "팀 이름을 입력해 주세요." : null;
+        string.IsNullOrWhiteSpace(value) ? AppText.Player.ErrorTeamName : null;
 
     private string? ValidateStart(string? value)
     {
         DateOnly? parsed = ParseYearMonth(value);
         if (parsed is null)
         {
-            return "시작 시점을 연·월 6자리로 입력해 주세요. (예: 2024. 03)";
+            return AppText.Player.ErrorStartFormat;
         }
 
         if (parsed.Value.Year < EarliestYear || parsed.Value.Year > DateTime.Now.Year + 1)
         {
-            return $"{EarliestYear}년부터 입력할 수 있어요.";
+            return AppText.Player.ErrorEarliestYear(EarliestYear);
         }
 
         return null;
@@ -182,13 +182,13 @@
         DateOnly? parsed = ParseYearMonth(value);
         if (parsed is null)
         {
-            return "종료 시점을 연·월 6자리로 입력해 주세요. (예: 2025. 02)";
+            return AppText.Player.ErrorEndFormat;
         }
 
         DateOnly? start = ParseYearMonth(mStartText);
         if (start is not null && parsed < start)
         {
-            return "종료 시점이 시작보다 빨라요.";
+            return AppText.Player.ErrorEndBeforeStart;
         }
 
         return null;
@@ -220,11 +220,11 @@
         {
             if (result.IsNetworkError)
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.", "재시도", SubmitAsync);
+                Toasts.ShowError(result.Error ?? AppText.Player.SaveFailedToast, AppText.Player.Retry, SubmitAsync);
             }
             else
             {
-                Toasts.ShowError(result.Error ?? "저장하지 못했어요.");
+                Toasts.ShowError(result.Error ?? AppText.Player.SaveFailedToast);
             }
 
             return;
