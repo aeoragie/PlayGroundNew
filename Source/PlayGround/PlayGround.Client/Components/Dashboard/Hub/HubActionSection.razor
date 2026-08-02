@@ -5,7 +5,7 @@
 
 <section class="@Css.Hub.ActionCard">
     <div class="flex items-center gap-2">
-        <h2 class="@Css.Hub.SectionTitle">처리가 필요해요</h2>
+        <h2 class="@Css.Hub.SectionTitle">@AppText.Hub.ActionSectionTitle</h2>
         <span class="@Css.Hub.ActionCount">@Items.TotalCount</span>
         @* "알림 센터 전체 보기 →"는 /notifications가 생길 때 붙인다 — 갈 곳 없는 링크를 두지 않는다 *@
     </div>
@@ -32,9 +32,9 @@
 
     private static string ChipLabel(string kind) => kind switch
     {
-        "Invite" => "연결",
-        "View" => "열람",
-        _ => "결과",
+        "Invite" => AppText.Hub.ActionInvite,
+        "View" => AppText.Hub.ActionView,
+        _ => AppText.Hub.ActionResult,
     };
 
     // 항목 전체가 딥링크 — 초대는 선수단 섹션, 수정 신청은 경기 결과 섹션이 목적지다.

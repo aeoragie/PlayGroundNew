@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Landing", "Notification", "Player", "Records", "Settings", "Team" };
+        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Team" };
 
         public static class Auth
         {
@@ -384,6 +384,126 @@ namespace PlayGround.Client.Localization
             public static string StatusRejected => Loc.Get("Correction.StatusRejected");
             /// <summary>접수</summary>
             public static string StatusPending => Loc.Get("Correction.StatusPending");
+        }
+
+        public static class Hub
+        {
+            /// <summary>대시보드 — PlayGround</summary>
+            public static string PageTitle => Loc.Get("Hub.PageTitle");
+            /// <summary>확인 중…</summary>
+            public static string Checking => Loc.Get("Hub.Checking");
+            /// <summary>잠시 문제가 있었어요</summary>
+            public static string ErrorTitle => Loc.Get("Hub.ErrorTitle");
+            /// <summary>대시보드를 불러오지 못했어요.</summary>
+            public static string ErrorBodyLine1 => Loc.Get("Hub.ErrorBodyLine1");
+            /// <summary>잠시 후 다시 시도해 주세요.</summary>
+            public static string ErrorBodyLine2 => Loc.Get("Hub.ErrorBodyLine2");
+            /// <summary>다시 시도</summary>
+            public static string RetryButton => Loc.Get("Hub.RetryButton");
+            /// <summary>환영해요!</summary>
+            public static string WelcomeTitle => Loc.Get("Hub.WelcomeTitle");
+            /// <summary>아직 역할을 선택하지 않았어요.</summary>
+            public static string WelcomeBodyLine1 => Loc.Get("Hub.WelcomeBodyLine1");
+            /// <summary>역할을 선택하면 맞춤 대시보드가 열려요.</summary>
+            public static string WelcomeBodyLine2 => Loc.Get("Hub.WelcomeBodyLine2");
+            /// <summary>역할 선택하기</summary>
+            public static string SelectRole => Loc.Get("Hub.SelectRole");
+            /// <summary>안녕하세요, {0} 님</summary>
+            public static string Greeting(object arg0) => Loc.Format("Hub.Greeting", arg0);
+            /// <summary>내 팀</summary>
+            public static string MyTeams => Loc.Get("Hub.MyTeams");
+            /// <summary>팀 관리자</summary>
+            public static string RoleTeamAdmin => Loc.Get("Hub.RoleTeamAdmin");
+            /// <summary>＋ 팀 만들기</summary>
+            public static string CreateTeam => Loc.Get("Hub.CreateTeam");
+            /// <summary>내 자녀</summary>
+            public static string MyChildren => Loc.Get("Hub.MyChildren");
+            /// <summary>보호자</summary>
+            public static string RoleGuardian => Loc.Get("Hub.RoleGuardian");
+            /// <summary>＋ 자녀 연결</summary>
+            public static string ConnectChild => Loc.Get("Hub.ConnectChild");
+            /// <summary>바로가기</summary>
+            public static string Shortcuts => Loc.Get("Hub.Shortcuts");
+            /// <summary>경기기록</summary>
+            public static string ShortcutRecords => Loc.Get("Hub.ShortcutRecords");
+            /// <summary>대회 · 리그 결과 보기</summary>
+            public static string ShortcutRecordsSub => Loc.Get("Hub.ShortcutRecordsSub");
+            /// <summary>팀 탐색</summary>
+            public static string ShortcutExplore => Loc.Get("Hub.ShortcutExplore");
+            /// <summary>우리 지역 팀 찾기</summary>
+            public static string ShortcutExploreSub => Loc.Get("Hub.ShortcutExploreSub");
+            /// <summary>계정 설정</summary>
+            public static string ShortcutSettings => Loc.Get("Hub.ShortcutSettings");
+            /// <summary>역할 · 가족 · 알림 설정</summary>
+            public static string ShortcutSettingsSub => Loc.Get("Hub.ShortcutSettingsSub");
+            /// <summary>처리가 필요해요</summary>
+            public static string ActionSectionTitle => Loc.Get("Hub.ActionSectionTitle");
+            /// <summary>연결</summary>
+            public static string ActionInvite => Loc.Get("Hub.ActionInvite");
+            /// <summary>열람</summary>
+            public static string ActionView => Loc.Get("Hub.ActionView");
+            /// <summary>결과</summary>
+            public static string ActionResult => Loc.Get("Hub.ActionResult");
+            /// <summary>승인 대기</summary>
+            public static string PendingApproval => Loc.Get("Hub.PendingApproval");
+            /// <summary>연결됨</summary>
+            public static string Linked => Loc.Get("Hub.Linked");
+            /// <summary>출전</summary>
+            public static string StatAppearances => Loc.Get("Hub.StatAppearances");
+            /// <summary>득점</summary>
+            public static string StatGoals => Loc.Get("Hub.StatGoals");
+            /// <summary>도움</summary>
+            public static string StatAssists => Loc.Get("Hub.StatAssists");
+            /// <summary>요청 상태 보기</summary>
+            public static string ViewRequestStatus => Loc.Get("Hub.ViewRequestStatus");
+            /// <summary>기록 수정 신청 {0}건 처리 중</summary>
+            public static string CorrectionInProgress(object arg0) => Loc.Format("Hub.CorrectionInProgress", arg0);
+            /// <summary>보기 →</summary>
+            public static string ViewMore => Loc.Get("Hub.ViewMore");
+            /// <summary>{0}건 지원 중 · 확인 필요</summary>
+            public static string ApplicationNeedsCheck(object arg0) => Loc.Format("Hub.ApplicationNeedsCheck", arg0);
+            /// <summary>지원 {0}건 진행 중</summary>
+            public static string ApplicationInProgress(object arg0) => Loc.Format("Hub.ApplicationInProgress", arg0);
+            /// <summary>팀 소식 {0}건 안읽음</summary>
+            public static string TeamNewsUnread(object arg0) => Loc.Format("Hub.TeamNewsUnread", arg0);
+            /// <summary>선수 대시보드</summary>
+            public static string PlayerDashboard => Loc.Get("Hub.PlayerDashboard");
+            /// <summary>공개 프로필</summary>
+            public static string PublicProfile => Loc.Get("Hub.PublicProfile");
+            /// <summary>–</summary>
+            public static string StatPlaceholder => Loc.Get("Hub.StatPlaceholder");
+            /// <summary>팀</summary>
+            public static string TeamFallback => Loc.Get("Hub.TeamFallback");
+            /// <summary>{0} 관리자의 승인을 기다리고 있어요{1}</summary>
+            public static string PendingWaiting(object arg0, object arg1) => Loc.Format("Hub.PendingWaiting", arg0, arg1);
+            /// <summary> ({0} 요청)</summary>
+            public static string RequestedAt(object arg0) => Loc.Format("Hub.RequestedAt", arg0);
+            /// <summary>✓ 인증팀</summary>
+            public static string TeamVerified => Loc.Get("Hub.TeamVerified");
+            /// <summary>다음 경기 — {0}</summary>
+            public static string NextMatch(object arg0) => Loc.Format("Hub.NextMatch", arg0);
+            /// <summary>팀 대시보드</summary>
+            public static string TeamDashboard => Loc.Get("Hub.TeamDashboard");
+            /// <summary>공개 홈페이지</summary>
+            public static string TeamPublicHome => Loc.Get("Hub.TeamPublicHome");
+            /// <summary>선수 {0}명</summary>
+            public static string PlayerCount(object arg0) => Loc.Format("Hub.PlayerCount", arg0);
+            /// <summary>미처리 연결 요청 {0}건</summary>
+            public static string PendingInvites(object arg0) => Loc.Format("Hub.PendingInvites", arg0);
+            /// <summary>일</summary>
+            public static string DowSun => Loc.Get("Hub.DowSun");
+            /// <summary>월</summary>
+            public static string DowMon => Loc.Get("Hub.DowMon");
+            /// <summary>화</summary>
+            public static string DowTue => Loc.Get("Hub.DowTue");
+            /// <summary>수</summary>
+            public static string DowWed => Loc.Get("Hub.DowWed");
+            /// <summary>목</summary>
+            public static string DowThu => Loc.Get("Hub.DowThu");
+            /// <summary>금</summary>
+            public static string DowFri => Loc.Get("Hub.DowFri");
+            /// <summary>토</summary>
+            public static string DowSat => Loc.Get("Hub.DowSat");
         }
 
         public static class Landing

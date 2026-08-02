@@ -12,11 +12,11 @@
                 @* 허브 카피는 한글 — 팀 대시보드의 ClaimBadge는 영문 표기(SPEC.TEAMDASHBOARD)라 쓰지 않는다 *@
                 @if (IsPending)
                 {
-                    <StatusBadge Tone="StatusBadge.BadgeTone.Pending">승인 대기</StatusBadge>
+                    <StatusBadge Tone="StatusBadge.BadgeTone.Pending">@AppText.Hub.PendingApproval</StatusBadge>
                 }
                 else
                 {
-                    <StatusBadge Tone="StatusBadge.BadgeTone.Positive">연결됨</StatusBadge>
+                    <StatusBadge Tone="StatusBadge.BadgeTone.Positive">@AppText.Hub.Linked</StatusBadge>
                 }
             </div>
             @if (Meta is not null)
@@ -27,16 +27,16 @@
     </div>
 
     <div class="@Css.Hub.StatGrid">
-        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Appearances)</span><span class="@Css.Hub.StatKey">출전</span></div>
-        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Goals)</span><span class="@Css.Hub.StatKey">득점</span></div>
-        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Assists)</span><span class="@Css.Hub.StatKey">도움</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Appearances)</span><span class="@Css.Hub.StatKey">@AppText.Hub.StatAppearances</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Goals)</span><span class="@Css.Hub.StatKey">@AppText.Hub.StatGoals</span></div>
+        <div class="@Css.Hub.StatCell"><span class="@Css.Hub.StatValue">@StatOf(Child.Assists)</span><span class="@Css.Hub.StatKey">@AppText.Hub.StatAssists</span></div>
     </div>
 
     @if (IsPending)
     {
         <p class="@Css.Hub.ChildMeta">@PendingNote</p>
         <div class="flex gap-2">
-            <a href="@Routes.Claim" class="@Css.Hub.ChildPrimary">요청 상태 보기</a>
+            <a href="@Routes.Claim" class="@Css.Hub.ChildPrimary">@AppText.Hub.ViewRequestStatus</a>
         </div>
     }
     else
@@ -46,8 +46,8 @@
         {
             <a href="@CorrectionHref" class="@Css.Hub.CorrectionNotice">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M12 9v4M12 17h.01"></path><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
-                <span>기록 수정 신청 @(Child.CorrectionPendingCount)건 처리 중</span>
-                <span class="ml-auto">보기 →</span>
+                <span>@AppText.Hub.CorrectionInProgress(Child.CorrectionPendingCount)</span>
+                <span class="ml-auto">@AppText.Hub.ViewMore</span>
             </a>
         }
 
@@ -58,13 +58,13 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M9 13h6M9 17h4"></path></svg>
                 @if (Child.ApplicationActionNeeded)
                 {
-                    <span>@(Child.ApplicationPendingCount)건 지원 중 · 확인 필요</span>
+                    <span>@AppText.Hub.ApplicationNeedsCheck(Child.ApplicationPendingCount)</span>
                 }
                 else
                 {
-                    <span>지원 @(Child.ApplicationPendingCount)건 진행 중</span>
+                    <span>@AppText.Hub.ApplicationInProgress(Child.ApplicationPendingCount)</span>
                 }
-                <span class="ml-auto">보기 →</span>
+                <span class="ml-auto">@AppText.Hub.ViewMore</span>
             </a>
         }
         @* 팀 소식 안읽음 요약(안읽은 글이 있을 때만) — 전체 목록은 팀 소식 화면(Design.TeamBoard) *@
@@ -72,15 +72,15 @@
         {
             <a href="@TeamNewsHref" class="@Css.Hub.ApplicationInfoNotice">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M20 15a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"></path></svg>
-                <span>팀 소식 @(Child.TeamNewsUnreadCount)건 안읽음</span>
-                <span class="ml-auto">보기 →</span>
+                <span>@AppText.Hub.TeamNewsUnread(Child.TeamNewsUnreadCount)</span>
+                <span class="ml-auto">@AppText.Hub.ViewMore</span>
             </a>
         }
         <div class="flex gap-2">
-            <a href="@ChildDashboardHref" class="@Css.Hub.ChildPrimary">선수 대시보드</a>
+            <a href="@ChildDashboardHref" class="@Css.Hub.ChildPrimary">@AppText.Hub.PlayerDashboard</a>
             @if (!string.IsNullOrEmpty(Child.Slug))
             {
-                <a href="@Routes.PlayerPublicProfile(Child.Slug)" target="_blank" rel="noopener" class="@Css.Hub.ChildSecondary">공개 프로필</a>
+                <a href="@Routes.PlayerPublicProfile(Child.Slug)" target="_blank" rel="noopener" class="@Css.Hub.ChildSecondary">@AppText.Hub.PublicProfile</a>
             }
         </div>
     }
@@ -105,18 +105,18 @@
     private string TeamNewsHref => Routes.TeamNews(Child.PlayerId);
 
     // Pending은 아직 기록이 없다 — 스탯은 "–"
-    private string StatOf(int value) => IsPending ? "–" : value.ToString();
+    private string StatOf(int value) => IsPending ? AppText.Hub.StatPlaceholder : value.ToString();
 
     // "강동 리틀 FC 관리자의 승인을 기다리고 있어요 (7/14 요청)"
     private string PendingNote
     {
         get
         {
-            string team = string.IsNullOrWhiteSpace(Child.TeamName) ? "팀" : Child.TeamName;
+            string team = string.IsNullOrWhiteSpace(Child.TeamName) ? AppText.Hub.TeamFallback : Child.TeamName;
             string when = Child.RequestedAt is DateTime d
-                ? $" ({d.ToLocalTime():M/d} 요청)"
+                ? AppText.Hub.RequestedAt(d.ToLocalTime().ToString("M/d"))
                 : string.Empty;
-            return $"{team} 관리자의 승인을 기다리고 있어요{when}";
+            return AppText.Hub.PendingWaiting(team, when);
         }
     }
 

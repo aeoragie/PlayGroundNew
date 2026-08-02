@@ -17,7 +17,7 @@
                 <h3 class="@Css.Hub.TeamName">@Team.TeamName</h3>
                 @if (Team.IsVerified)
                 {
-                    <span class="@Css.Hub.TeamVerified">✓ 인증팀</span>
+                    <span class="@Css.Hub.TeamVerified">@AppText.Hub.TeamVerified</span>
                 }
             </div>
             @* 요약은 값이 있는 조각만 잇는다 — "미처리 연결 요청 0건"을 쓰지 않는다 *@
@@ -28,14 +28,14 @@
     @* 다음 경기 — 경기·대회 중 가장 가까운 미래 1건(훈련 제외). 없으면 줄 생략(Design.Schedule) *@
     @if (Team.NextMatchStartsAt is DateTime next)
     {
-        <p class="relative mt-3 m-0 text-[13px] font-bold text-teal">다음 경기 — @NextMatchLabel(next)</p>
+        <p class="relative mt-3 m-0 text-[13px] font-bold text-teal">@AppText.Hub.NextMatch(NextMatchLabel(next))</p>
     }
 
     <div class="relative mt-4 flex gap-2">
-        <a href="@Routes.TeamDashboard" class="@($"{Css.Hub.TeamPrimary} flex-1 md:flex-none")">팀 대시보드</a>
+        <a href="@Routes.TeamDashboard" class="@($"{Css.Hub.TeamPrimary} flex-1 md:flex-none")">@AppText.Hub.TeamDashboard</a>
         @if (!string.IsNullOrWhiteSpace(Team.Slug))
         {
-            <a href="@Routes.TeamPublicHome(Team.Slug)" class="@($"{Css.Hub.TeamGhost} flex-1 md:flex-none")">공개 홈페이지</a>
+            <a href="@Routes.TeamPublicHome(Team.Slug)" class="@($"{Css.Hub.TeamGhost} flex-1 md:flex-none")">@AppText.Hub.TeamPublicHome</a>
         }
     </div>
 </article>
@@ -48,10 +48,10 @@
     {
         get
         {
-            var parts = new List<string> { $"선수 {Team.PlayerCount}명" };
+            var parts = new List<string> { AppText.Hub.PlayerCount(Team.PlayerCount) };
             if (Team.PendingInviteCount > 0)
             {
-                parts.Add($"미처리 연결 요청 {Team.PendingInviteCount}건");
+                parts.Add(AppText.Hub.PendingInvites(Team.PendingInviteCount));
             }
 
             return string.Join(" · ", parts);
@@ -61,7 +61,7 @@
     // "다음 경기 — {M/D}({요일}) {HH:mm} vs {상대}" — 상대 없으면(대회) vs 부분 생략. 포맷은 Invariant.
     private string NextMatchLabel(DateTime dt)
     {
-        string weekday = new[] { "일", "월", "화", "수", "목", "금", "토" }[(int)dt.DayOfWeek];
+        string weekday = new[] { AppText.Hub.DowSun, AppText.Hub.DowMon, AppText.Hub.DowTue, AppText.Hub.DowWed, AppText.Hub.DowThu, AppText.Hub.DowFri, AppText.Hub.DowSat }[(int)dt.DayOfWeek];
         string datePart = $"{dt.ToString("M/d", CultureInfo.InvariantCulture)}({weekday}) {dt.ToString("HH:mm", CultureInfo.InvariantCulture)}";
 
         return string.IsNullOrWhiteSpace(Team.NextMatchOpponent)

@@ -9,7 +9,7 @@
 @inject ReturnUrlStore ReturnUrls
 @inject DashboardClient Dashboards
 
-<PageTitle>대시보드 — PlayGround</PageTitle>
+<PageTitle>@AppText.Hub.PageTitle</PageTitle>
 
 @* 로그인·온보딩 후 공통 진입 지점. 라우팅 3분기 (Design.DashboardHub):
    역할 미설정 → 역할 선택 / 관리 대상 1개 → 그 대시보드로 스킵 리다이렉트 / 2개 이상 → 허브.
@@ -19,17 +19,17 @@
    "여러 자리를 오갈 일이 있을 때만 현관을 보여준다"이므로 이쪽이 그 의도에 맞다. *@
 @if (mChecking)
 {
-    <div class="min-h-screen flex items-center justify-center text-text-muted text-sm">확인 중…</div>
+    <div class="min-h-screen flex items-center justify-center text-text-muted text-sm">@AppText.Hub.Checking</div>
 }
 else if (mFailed)
 {
     @* 허브 조회 실패 — 이동하지 않고 그 자리에서 다시 시도한다(A3 규칙) *@
     <div class="min-h-screen flex items-center justify-center px-5">
         <div class="@($"w-[480px] max-w-full {Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-4 text-center")">
-            <h1 class="m-0 text-xl font-extrabold tracking-[-.02em] text-navy-deep">잠시 문제가 있었어요</h1>
-            <p class="m-0 text-[14px] text-text-body leading-[1.7]">대시보드를 불러오지 못했어요.<br />잠시 후 다시 시도해 주세요.</p>
+            <h1 class="m-0 text-xl font-extrabold tracking-[-.02em] text-navy-deep">@AppText.Hub.ErrorTitle</h1>
+            <p class="m-0 text-[14px] text-text-body leading-[1.7]">@AppText.Hub.ErrorBodyLine1<br />@AppText.Hub.ErrorBodyLine2</p>
             <button type="button" @onclick="RetryAsync"
-                    class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton} border-0 cursor-pointer")">다시 시도</button>
+                    class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton} border-0 cursor-pointer")">@AppText.Hub.RetryButton</button>
         </div>
     </div>
 }
@@ -39,11 +39,11 @@ else if (mHub is null)
     <div class="min-h-screen flex items-center justify-center px-5">
         <div class="@($"w-[480px] max-w-full {Css.Auth.Card} px-10 py-12 flex flex-col items-center gap-4 text-center")">
             <div class="w-[72px] h-[72px] rounded-full bg-surface-icon flex items-center justify-center text-[34px]">👋</div>
-            <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">환영해요!</h1>
+            <h1 class="m-0 text-2xl font-extrabold tracking-[-.02em] text-navy-deep">@AppText.Hub.WelcomeTitle</h1>
             <p class="m-0 text-[14.5px] text-text-body leading-[1.7]">
-                <text>아직 역할을 선택하지 않았어요.<br />역할을 선택하면 맞춤 대시보드가 열려요.</text>
+                <text>@AppText.Hub.WelcomeBodyLine1<br />@AppText.Hub.WelcomeBodyLine2</text>
             </p>
-            <a href="@Routes.SelectRole" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">역할 선택하기</a>
+            <a href="@Routes.SelectRole" class="@($"mt-2 px-8 flex items-center {Css.Auth.PrimaryButton}")">@AppText.Hub.SelectRole</a>
         </div>
     </div>
 }
@@ -56,7 +56,7 @@ else
             @* 인사 + 오늘 요약 *@
             <div class="flex items-start gap-4">
                 <div class="flex-1 min-w-0">
-                    <h1 class="m-0 text-[20px] md:text-2xl font-extrabold tracking-[-.02em] text-navy-deep break-keep">안녕하세요, @DisplayName 님</h1>
+                    <h1 class="m-0 text-[20px] md:text-2xl font-extrabold tracking-[-.02em] text-navy-deep break-keep">@AppText.Hub.Greeting(DisplayName)</h1>
                     <p class="m-0 mt-1.5 text-[13px] md:text-[13.5px] text-text-muted break-keep">@SummarySentence</p>
                 </div>
                 <span class="hidden md:block text-[12.5px] font-bold text-text-faint whitespace-nowrap pt-1">@Today</span>
@@ -72,8 +72,8 @@ else
             {
                 <section class="flex flex-col gap-3.5">
                     <div class="flex items-center gap-2">
-                        <h2 class="@Css.Hub.SectionTitle">내 팀</h2>
-                        <span class="@Css.Hub.RoleLabel">팀 관리자</span>
+                        <h2 class="@Css.Hub.SectionTitle">@AppText.Hub.MyTeams</h2>
+                        <span class="@Css.Hub.RoleLabel">@AppText.Hub.RoleTeamAdmin</span>
                     </div>
                     @foreach (HubTeamDto team in mHub.Teams)
                     {
@@ -81,7 +81,7 @@ else
                     }
                     @* ＋ 팀 만들기 (PC 점선 — SPEC §내 팀) — 팀 온보딩으로 직행 *@
                     <a href="@Routes.TeamOnboarding"
-                       class="hidden md:flex self-start items-center h-[34px] px-3.5 border-1.5 border-dashed border-switch-track rounded-[9px] text-xs font-bold text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors">＋ 팀 만들기</a>
+                       class="hidden md:flex self-start items-center h-[34px] px-3.5 border-1.5 border-dashed border-switch-track rounded-[9px] text-xs font-bold text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors">@AppText.Hub.CreateTeam</a>
                 </section>
             }
 
@@ -89,8 +89,8 @@ else
             {
                 <section class="flex flex-col gap-3.5">
                     <div class="flex items-center gap-2">
-                        <h2 class="@Css.Hub.SectionTitle">내 자녀</h2>
-                        <span class="@Css.Hub.RoleLabel">보호자</span>
+                        <h2 class="@Css.Hub.SectionTitle">@AppText.Hub.MyChildren</h2>
+                        <span class="@Css.Hub.RoleLabel">@AppText.Hub.RoleGuardian</span>
                     </div>
                     <div class="@Css.Hub.ChildGrid">
                         @foreach (HubChildDto child in mHub.Children)
@@ -100,13 +100,13 @@ else
                     </div>
                     @* ＋ 자녀 연결 → Claim 플로우 (SPEC §내 자녀 — 배선표 명시) *@
                     <a href="@Routes.Claim"
-                       class="self-start flex items-center h-[30px] md:h-[34px] px-3 md:px-3.5 border-1.5 border-dashed border-switch-track rounded-lg md:rounded-[9px] text-[11px] md:text-xs font-bold text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors">＋ 자녀 연결</a>
+                       class="self-start flex items-center h-[30px] md:h-[34px] px-3 md:px-3.5 border-1.5 border-dashed border-switch-track rounded-lg md:rounded-[9px] text-[11px] md:text-xs font-bold text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors">@AppText.Hub.ConnectChild</a>
                 </section>
             }
 
             @* 바로가기 — 경기기록·팀 탐색(전체) + 계정 설정(PC만 — SPEC 카드 구성) *@
             <section class="flex flex-col gap-3.5">
-                <h2 class="@Css.Hub.SectionTitle">바로가기</h2>
+                <h2 class="@Css.Hub.SectionTitle">@AppText.Hub.Shortcuts</h2>
                 <div class="@Css.Hub.ShortcutGrid">
                     <a href="@Routes.Records" class="@Css.Hub.Shortcut">
                         <span class="w-9 h-9 rounded-[10px] bg-surface-icon flex items-center justify-center shrink-0">
@@ -114,8 +114,8 @@ else
                                  stroke-linecap="round" stroke-linejoin="round" class="text-navy"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0012 0V2z"></path></svg>
                         </span>
                         <span class="min-w-0">
-                            <span class="@($"block {Css.Hub.ShortcutTitle}")">경기기록</span>
-                            <span class="@($"block {Css.Hub.ShortcutSub}")">대회 · 리그 결과 보기</span>
+                            <span class="@($"block {Css.Hub.ShortcutTitle}")">@AppText.Hub.ShortcutRecords</span>
+                            <span class="@($"block {Css.Hub.ShortcutSub}")">@AppText.Hub.ShortcutRecordsSub</span>
                         </span>
                     </a>
                     <a href="@Routes.TeamExplore" class="@Css.Hub.Shortcut">
@@ -124,8 +124,8 @@ else
                                  stroke-linecap="round" stroke-linejoin="round" class="text-navy"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
                         </span>
                         <span class="min-w-0">
-                            <span class="@($"block {Css.Hub.ShortcutTitle}")">팀 탐색</span>
-                            <span class="@($"block {Css.Hub.ShortcutSub}")">우리 지역 팀 찾기</span>
+                            <span class="@($"block {Css.Hub.ShortcutTitle}")">@AppText.Hub.ShortcutExplore</span>
+                            <span class="@($"block {Css.Hub.ShortcutSub}")">@AppText.Hub.ShortcutExploreSub</span>
                         </span>
                     </a>
                     <a href="@Routes.Settings" class="@($"!hidden md:!flex {Css.Hub.Shortcut}")">
@@ -134,8 +134,8 @@ else
                                  stroke-linecap="round" stroke-linejoin="round" class="text-navy"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                         </span>
                         <span class="min-w-0">
-                            <span class="@($"block {Css.Hub.ShortcutTitle}")">계정 설정</span>
-                            <span class="@($"block {Css.Hub.ShortcutSub}")">역할 · 가족 · 알림 설정</span>
+                            <span class="@($"block {Css.Hub.ShortcutTitle}")">@AppText.Hub.ShortcutSettings</span>
+                            <span class="@($"block {Css.Hub.ShortcutSub}")">@AppText.Hub.ShortcutSettingsSub</span>
                         </span>
                     </a>
                 </div>
