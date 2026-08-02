@@ -22,27 +22,27 @@
                 <path d="M3.5 16.5l4.5-4 3.5 3 3.5-3.5 5.5 4.5"></path>
             </svg>
             <span class="@Css.Uploader.DropZoneText">
-                사진을 끌어다 놓거나 <span class="@Css.Uploader.DropZonePick" @onclick="PickFileAsync">파일 선택</span>
+                @AppText.Shared.DropZonePrefix<span class="@Css.Uploader.DropZonePick" @onclick="PickFileAsync">@AppText.Shared.DropZonePick</span>
             </span>
-            <span class="@Css.Uploader.DropZoneHint">권장 1600×533 이상 · jpg/png/webp · 10MB</span>
+            <span class="@Css.Uploader.DropZoneHint">@AppText.Shared.DropZoneHint</span>
         </div>
 
         @* 모바일 — 드롭존 대신 버튼 *@
-        <button type="button" class="@Css.Uploader.MobilePickButton" @onclick="PickFileAsync">사진 올리기</button>
+        <button type="button" class="@Css.Uploader.MobilePickButton" @onclick="PickFileAsync">@AppText.Shared.UploadPhoto</button>
     }
     else
     {
         <div class="@Css.Uploader.CoverFrame"
              @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove"
              @onpointerup="OnPointerUp" @onpointercancel="OnPointerUp">
-            <img src="@(mPendingUrl ?? Value)" alt="팀 커버" class="@Css.Uploader.CoverImage"
+            <img src="@(mPendingUrl ?? Value)" alt="@AppText.Shared.TeamCover" class="@Css.Uploader.CoverImage"
                  style="@(mAdjusting ? AdjustStyle : PositionStyle)" />
 
             @if (mAdjusting)
             {
-                <span class="@Css.Uploader.CoverAdjustHint">위아래로 끌어 위치를 맞춘 뒤 "적용"을 눌러 주세요</span>
+                <span class="@Css.Uploader.CoverAdjustHint">@AppText.Shared.CropHint@AppText.Shared.CropHintSuffix</span>
                 <span class="@Css.Uploader.CoverControls">
-                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="CancelAdjust">취소</button>
+                    <button type="button" class="@Css.Uploader.CoverButton" @onclick="CancelAdjust">@AppText.Shared.Cancel</button>
                     <button type="button" class="@Css.Uploader.CoverButton" @onclick="ApplyAdjustAsync">적용</button>
                 </span>
             }

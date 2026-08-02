@@ -4,7 +4,7 @@ namespace PlayGround.Client.Localization
 {
     public static partial class AppText
     {
-        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Dashboard", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Team" };
+        internal static readonly string[] Domains = { "Auth", "Claim", "Correction", "Dashboard", "Hub", "Landing", "Notification", "Player", "Records", "Settings", "Shared", "Team" };
 
         public static class Auth
         {
@@ -2444,6 +2444,164 @@ namespace PlayGround.Client.Localization
             public static string ConnectHint(object arg0) => Loc.Format("Settings.ConnectHint", arg0);
             /// <summary>연결하기</summary>
             public static string Connect => Loc.Get("Settings.Connect");
+        }
+
+        public static class Shared
+        {
+            /// <summary>닫기</summary>
+            public static string Close => Loc.Get("Shared.Close");
+            /// <summary>저장</summary>
+            public static string Save => Loc.Get("Shared.Save");
+            /// <summary>저장 중…</summary>
+            public static string SavingBusy => Loc.Get("Shared.SavingBusy");
+            /// <summary>지우기</summary>
+            public static string Clear => Loc.Get("Shared.Clear");
+            /// <summary>전체</summary>
+            public static string All => Loc.Get("Shared.All");
+            /// <summary>(선택)</summary>
+            public static string Optional => Loc.Get("Shared.Optional");
+            /// <summary>재시도</summary>
+            public static string Retry => Loc.Get("Shared.Retry");
+            /// <summary>불러오는 중이에요…</summary>
+            public static string Loading => Loc.Get("Shared.Loading");
+            /// <summary>잠시 후 다시 시도해 주세요</summary>
+            public static string TryLater => Loc.Get("Shared.TryLater");
+            /// <summary>선택해 주세요</summary>
+            public static string SelectPlease => Loc.Get("Shared.SelectPlease");
+            /// <summary>다시 선택해 주세요</summary>
+            public static string ReselectPlease => Loc.Get("Shared.ReselectPlease");
+            /// <summary>자세히 보기</summary>
+            public static string ViewDetail => Loc.Get("Shared.ViewDetail");
+            /// <summary>약관 보기</summary>
+            public static string ViewTerms => Loc.Get("Shared.ViewTerms");
+            /// <summary>사용자</summary>
+            public static string User => Loc.Get("Shared.User");
+            /// <summary>빈 이미지</summary>
+            public static string EmptyImage => Loc.Get("Shared.EmptyImage");
+            /// <summary>사진 올리기</summary>
+            public static string UploadPhoto => Loc.Get("Shared.UploadPhoto");
+            /// <summary>교체 / 위치 조정</summary>
+            public static string Replace => Loc.Get("Shared.Replace");
+            /// <summary>위치 조정</summary>
+            public static string Adjust => Loc.Get("Shared.Adjust");
+            /// <summary>확대</summary>
+            public static string Zoom => Loc.Get("Shared.Zoom");
+            /// <summary>위아래로 끌어 위치를 맞춘 뒤 </summary>
+            public static string CropHint => Loc.Get("Shared.CropHint");
+            /// <summary>업로드하지 못했어요</summary>
+            public static string UploadFailed => Loc.Get("Shared.UploadFailed");
+            /// <summary>이미지를 열지 못했어요</summary>
+            public static string ImageOpenFailed => Loc.Get("Shared.ImageOpenFailed");
+            /// <summary>엠블럼</summary>
+            public static string Emblem => Loc.Get("Shared.Emblem");
+            /// <summary>팀 커버</summary>
+            public static string TeamCover => Loc.Get("Shared.TeamCover");
+            /// <summary>날짜 선택</summary>
+            public static string SelectDate => Loc.Get("Shared.SelectDate");
+            /// <summary>날짜를 선택해 주세요</summary>
+            public static string DateRequired => Loc.Get("Shared.DateRequired");
+            /// <summary>이전 달</summary>
+            public static string PrevMonth => Loc.Get("Shared.PrevMonth");
+            /// <summary>다음 달</summary>
+            public static string NextMonth => Loc.Get("Shared.NextMonth");
+            /// <summary>시간 선택</summary>
+            public static string SelectTime => Loc.Get("Shared.SelectTime");
+            /// <summary>시간 직접 입력</summary>
+            public static string ManualTime => Loc.Get("Shared.ManualTime");
+            /// <summary>이번 주말</summary>
+            public static string ThisWeekend => Loc.Get("Shared.ThisWeekend");
+            /// <summary>그 팀의 최근 일정과 같은 시각</summary>
+            public static string SameAsRecent => Loc.Get("Shared.SameAsRecent");
+            /// <summary>{0}로 선택</summary>
+            public static string SelectedAs(object arg0) => Loc.Format("Shared.SelectedAs", arg0);
+            /// <summary>자동으로 채워져요</summary>
+            public static string AutoFilled => Loc.Get("Shared.AutoFilled");
+            /// <summary>일</summary>
+            public static string DowSun => Loc.Get("Shared.DowSun");
+            /// <summary>월</summary>
+            public static string DowMon => Loc.Get("Shared.DowMon");
+            /// <summary>화</summary>
+            public static string DowTue => Loc.Get("Shared.DowTue");
+            /// <summary>수</summary>
+            public static string DowWed => Loc.Get("Shared.DowWed");
+            /// <summary>목</summary>
+            public static string DowThu => Loc.Get("Shared.DowThu");
+            /// <summary>금</summary>
+            public static string DowFri => Loc.Get("Shared.DowFri");
+            /// <summary>토</summary>
+            public static string DowSat => Loc.Get("Shared.DowSat");
+            /// <summary>계정 메뉴</summary>
+            public static string AccountMenu => Loc.Get("Shared.AccountMenu");
+            /// <summary>{0} 추가 작업</summary>
+            public static string MoreActions(object arg0) => Loc.Format("Shared.MoreActions", arg0);
+            /// <summary>{0} 변경</summary>
+            public static string ChangeAria(object arg0) => Loc.Format("Shared.ChangeAria", arg0);
+            /// <summary>{0} 설명</summary>
+            public static string DescriptionAria(object arg0) => Loc.Format("Shared.DescriptionAria", arg0);
+            /// <summary>경기기록</summary>
+            public static string Records => Loc.Get("Shared.Records");
+            /// <summary>팀 탐색</summary>
+            public static string ExploreTeams => Loc.Get("Shared.ExploreTeams");
+            /// <summary>팀 관리자</summary>
+            public static string RoleTeamAdmin => Loc.Get("Shared.RoleTeamAdmin");
+            /// <summary>보호자 · 자녀 {0}</summary>
+            public static string GuardianWithChildren(object arg0) => Loc.Format("Shared.GuardianWithChildren", arg0);
+            /// <summary>알림</summary>
+            public static string Notifications => Loc.Get("Shared.Notifications");
+            /// <summary>요청을 처리하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string NotificationFailedToast => Loc.Get("Shared.NotificationFailedToast");
+            /// <summary>초대를 확인하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string InviteFailedToast => Loc.Get("Shared.InviteFailedToast");
+            /// <summary>{0} 선수가 {1} 선수단에 합류했어요.</summary>
+            public static string JoinedToast(object arg0, object arg1) => Loc.Format("Shared.JoinedToast", arg0, arg1);
+            /// <summary>에이전트 열람이란?</summary>
+            public static string AgentViewInfoTitle => Loc.Get("Shared.AgentViewInfoTitle");
+            /// <summary>인증 에이전트</summary>
+            public static string VerifiedAgent => Loc.Get("Shared.VerifiedAgent");
+            /// <summary>등록 {0}</summary>
+            public static string RegisteredYear(object arg0) => Loc.Format("Shared.RegisteredYear", arg0);
+            /// <summary>필터</summary>
+            public static string Filter => Loc.Get("Shared.Filter");
+            /// <summary>필터 초기화</summary>
+            public static string ResetFilters => Loc.Get("Shared.ResetFilters");
+            /// <summary>{0}개 보기</summary>
+            public static string ShowCount(object arg0) => Loc.Format("Shared.ShowCount", arg0);
+            /// <summary>{0}개</summary>
+            public static string CountSuffix(object arg0) => Loc.Format("Shared.CountSuffix", arg0);
+            /// <summary>팀</summary>
+            public static string UnitTeam => Loc.Get("Shared.UnitTeam");
+            /// <summary>항상 켜짐</summary>
+            public static string AlwaysOn => Loc.Get("Shared.AlwaysOn");
+            /// <summary>설정을 저장하지 못했어요. 다시 시도해 주세요.</summary>
+            public static string SwitchSaveFailed => Loc.Get("Shared.SwitchSaveFailed");
+            /// <summary>신청 처리 중</summary>
+            public static string CorrectionInProgress => Loc.Get("Shared.CorrectionInProgress");
+            /// <summary>대시보드 · 스탯 카드 3칸</summary>
+            public static string SkeletonStatCards => Loc.Get("Shared.SkeletonStatCards");
+            /// <summary>선수단 · 선수 카드</summary>
+            public static string SkeletonPlayerCards => Loc.Get("Shared.SkeletonPlayerCards");
+            /// <summary>경기기록 · 대회/리그 행</summary>
+            public static string SkeletonRows => Loc.Get("Shared.SkeletonRows");
+            /// <summary>교체</summary>
+            public static string Replace2 => Loc.Get("Shared.Replace2");
+            /// <summary>삭제</summary>
+            public static string Delete => Loc.Get("Shared.Delete");
+            /// <summary>다시 선택</summary>
+            public static string Reselect => Loc.Get("Shared.Reselect");
+            /// <summary>사진 위치 조정</summary>
+            public static string CropTitle => Loc.Get("Shared.CropTitle");
+            /// <summary>취소</summary>
+            public static string Cancel => Loc.Get("Shared.Cancel");
+            /// <summary>적용</summary>
+            public static string Apply => Loc.Get("Shared.Apply");
+            /// <summary>사진을 끌어다 놓거나 </summary>
+            public static string DropZonePrefix => Loc.Get("Shared.DropZonePrefix");
+            /// <summary>파일 선택</summary>
+            public static string DropZonePick => Loc.Get("Shared.DropZonePick");
+            /// <summary>권장 1600×533 이상 · jpg/png/webp · 10MB</summary>
+            public static string DropZoneHint => Loc.Get("Shared.DropZoneHint");
+            /// <summary>"적용"을 눌러 주세요</summary>
+            public static string CropHintSuffix => Loc.Get("Shared.CropHintSuffix");
         }
 
         public static class Team
