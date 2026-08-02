@@ -21,7 +21,7 @@
 |---|---|---|
 | `Tests.Unit` | Domain 규칙 · Application 유즈케이스(Moq) · Client 순수 로직 | 없음 |
 | `Tests.Integration` | Server 서비스(JWT 등) | 없음 |
-| `Tests.Infrastructure` | Core.Infrastructure(설정 바인딩·액터·로깅) | 없음(현재) |
+| `Tests.Infrastructure` | Core.Infrastructure(설정 바인딩·액터·로깅) + **DB 계약** | 로컬 DB(없으면 Skip) |
 
 `Tests.Unit`은 **PlayGround.Client를 참조한다** — 표시 파생·조사 해석 같은 순수 로직이 거기 있기
 때문이다. UI 렌더링(bUnit 등)은 참조하지 않는다.
@@ -121,6 +121,37 @@ Domain은 Client를 참조할 수 없어 리소스에 닿지 못한다 — 여�
 >   Source/Database/Soccer/Database.Soccer.sqlproj -t:Rebuild -p:VisualStudioVersion=18.0
 > ```
 
+## 5-3. DB 계약 테스트 (Tests.Infrastructure/Database)
+
+SQL과 C#이 어긋나는 건 **빌드로 못 잡고 런타임에서야 터진다.** 실제로 겪은 것: SQL만 고치고
+제너레이터 미실행 · DB에 프로시저 미배포 · 프로시저가 sqlproj 빌드에서 빠져 있어 미검증.
+
+| 테스트 | 무엇을 지키나 | 범위 |
+|---|---|---|
+| `ProcedureContractTests` | 생성 객체의 프로시저가 **DB에 배포돼 있는지** + **파라미터 이름 일치** | 리플렉션으로 **전량 자동** — 새 프로시저도 자동 포함 |
+| `ResultSetContractTests` | 다중 결과셋의 **개수·순서**와 각 결과셋 컬럼을 매핑 타입이 받는지 | 계약 표에 명시(현재 MatchDetail 5 · TournamentDetail 8) |
+
+- **결과가 없는 식별자로 실행해 스키마만 본다** — 시드 데이터가 필요 없다
+  (대상 프로시저는 조기 반환이 없어 빈 결과에서도 모든 SELECT를 낸다)
+- 컬럼 검사 방향은 **"프로시저가 내는 컬럼을 타입이 받을 수 있는가"** 한쪽만 —
+  반대는 부분 매핑(슬림 조회)이 정상이라 검사하면 오탐이 난다
+- `@ReturnValue`는 Dapper가 프로시저 RETURN 값을 받는 자리라 파라미터 비교에서 제외한다
+
+### DB가 없는 환경
+
+`LocalDatabaseFixture`가 연결을 시도하고, 실패하면 **Skip**한다(실패가 아니다).
+CI·새 clone에서 빨개지면 진짜 실패와 구분이 안 된다. 커넥션 문자열은
+환경변수 `PLAYGROUND_TEST_SOCCER_CONNSTR`·`PLAYGROUND_TEST_ACCOUNT_CONNSTR` → 개발 기본값(`.\SQLEXPRESS`).
+
+```bash
+# DB 있을 때: 251 통과 / DB 없을 때: 18 통과 + 233 Skip (실패 0)
+dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
+```
+
+> **첫 실행에서 실제 드리프트 4건을 잡았다** — 로컬 Account DB에 `NotificationPreferences`
+> 테이블과 프로시저 4종(`UspDeleteUser`·알림 설정 3종)이 배포돼 있지 않았다.
+> 알림 설정 화면과 계정 탈퇴가 런타임에 터지는 상태였다.
+
 ## 6. 작업 규칙
 
 ### 새 유즈케이스를 만들 때
@@ -166,13 +197,14 @@ cd Binary/Debug/Tests.Unit
 ./PlayGround.Tests.Unit.exe -method "*조사*"
 ```
 
-현재: **Tests.Unit 410 · Tests.Integration 5 · Tests.Infrastructure 17**.
+현재: **Tests.Unit 415 · Tests.Integration 5 · Tests.Infrastructure 251**
+(DB 미연결 시 Infrastructure는 18 통과 + 233 Skip).
 
 ## 8. 미착수
 
-- **실제 DB 프로시저 계약** — 컬럼 추가/개명 같은 SQL↔C# 어긋남은 지금 못 잡는다.
-  `Seeds/Verification*` 기반으로 `Tests.Infrastructure`에 넣되, DB 미연결 환경에서는
-  Skip 처리가 필요하다.
 - **API 엔드포인트 통합** — `WebApplicationFactory`로 컨트롤러→유즈케이스→DB 왕복.
+  인증 가드(401/403)·`Envelope<T>` 형태·주요 왕복 1~2개.
+- **결과셋 계약의 나머지 프로시저** — 다중 결과셋 23개 중 현재 2개(MatchDetail·TournamentDetail)만
+  계약 표에 있다. 나머지는 필요할 때 표에 줄을 추가하면 된다.
 - **E2E 저니** — `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7)는 현재 수동 검수.
   자동화한다면 Playwright(헤드리스 Edge 연결은 환경 의존적 — CLAUDE.md 반복 함정 참조).
