@@ -17,6 +17,18 @@
 ssh -i <키.pem> ubuntu@<Elastic IP>
 ```
 
+### 첫 줄부터 확인한다 — **Ubuntu 22.04인가**
+
+접속하면 `Welcome to Ubuntu …` 가 뜬다. **22.04가 아니면 여기서 멈춘다.**
+
+```bash
+lsb_release -a          # Codename: jammy  /  Release: 22.04
+```
+
+`jammy`가 아니면 3단계(Microsoft 저장소)부터 막힌다 — **다른 버전용 저장소가 없다.**
+AMI를 잘못 고른 것이므로 인스턴스를 다시 만든다(`AwsSetup.md` "EC2 인스턴스 시작").
+**여기서 확인 안 하고 진행하면 4단계까지 가서야 실패한다.**
+
 > **user-data는 root로 돌지만 지금 나는 `ubuntu`다.** 그래서 아래 명령에는 전부 `sudo`가 붙는다.
 > 스크립트에 `sudo`가 없는 이유가 이것이다.
 
