@@ -12,8 +12,10 @@
 | 항목 | 값 |
 |---|---|
 | 역할 | PlayGround 웹 앱 · SQL Server 2022 Express · Redis · Nginx |
-| **공개 IP** | `…` (Elastic IP — 서울 재생성 후 기입) |
-| **비공개 IP** | `…` (VPC 내부) |
+| **공개 IP** | `54.180.64.167` (Elastic IP) |
+| **비공개 IP** | `…` (**퍼블릭 서브넷 = `10.0.0~31.x`** 여야 한다) |
+| VPC | `playground-vpc` (10.0.0.0/16) |
+| 서브넷 | `playground-subnet-public1-ap-northeast-2a` (10.0.0.0/20) |
 | OS | Ubuntu 22.04 LTS |
 | 인스턴스 타입 | t3.medium (2 vCPU / 4GB) |
 | 리전 | **ap-northeast-2 (서울)** |
