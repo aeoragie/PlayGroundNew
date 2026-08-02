@@ -47,7 +47,12 @@
 |---|---|---|
 | 22 | **내 IP만** | SSH |
 | 80 · 443 | 전체 | 웹. 80은 certbot 갱신에도 쓰인다 |
-| 1433 | **닫음** | SSMS는 SSH 터널로 붙는다(아래) |
+| **47821** | **내 IP만** | SQL Server. 1433은 쓰지 않는다 |
+
+> **SQL은 포트가 아니라 "내 IP"가 지켜 준다.** 47821을 쓰는 건 1433만 노리는 자동 봇을
+> 피하려는 것이지 은폐가 아니다 — 전 포트 스캔은 몇 분이면 끝난다.
+> **소스를 `0.0.0.0/0`으로 바꾸면 안 된다**: SQL Server on Linux에는 계정 잠금이 없어
+> 비밀번호 대입이 무제한이다. 같은 이유로 `sa`는 잠그고 `pgadmin`을 쓴다(`AwsSetup.md` 7절).
 
 ## 순서
 
@@ -58,17 +63,26 @@
 
 ### 3. 스키마 배포
 
-로컬에서 SSH 터널을 열고 평소처럼 `sqlcmd`로 적용한다.
+로컬에서 평소처럼 `sqlcmd`로 적용한다 — 서버 지정만 `<Elastic IP>,47821`로 바뀐다.
 순서는 **Tables → Indexes → Migrations → Procedures → Seeds**
 (`Docs/Development/LocalVerification.md`와 동일).
+
+```powershell
+sqlcmd -S <Elastic IP>,47821 -U pgadmin -P '<비번>' -C -d PlayGround_Soccer -b -f 65001 `
+       -i Source\Database\Soccer\Tables\SoccerTeams.sql
+```
 
 반영 후 **DB 계약 테스트로 확인**한다 — 누락을 손으로 찾지 않는다:
 
 ```powershell
-$env:PLAYGROUND_TEST_ACCOUNT_CONNSTR = "Server=127.0.0.1,14330;Database=PlayGround_Account;User Id=sa;Password=...;TrustServerCertificate=True"
-$env:PLAYGROUND_TEST_SOCCER_CONNSTR  = "Server=127.0.0.1,14330;Database=PlayGround_Soccer;User Id=sa;Password=...;TrustServerCertificate=True"
+$env:PLAYGROUND_TEST_ACCOUNT_CONNSTR = "Server=<Elastic IP>,47821;Database=PlayGround_Account;User Id=pgadmin;Password=...;Encrypt=True;TrustServerCertificate=True"
+$env:PLAYGROUND_TEST_SOCCER_CONNSTR  = "Server=<Elastic IP>,47821;Database=PlayGround_Soccer;User Id=pgadmin;Password=...;Encrypt=True;TrustServerCertificate=True"
 dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 ```
+
+> **인터넷을 건너가므로 `Encrypt=True`를 뺀 채로 붙이지 않는다.** 빼면 쿼리와 결과가
+> 평문으로 흐른다. 서버 인증서가 자체 서명이라 `TrustServerCertificate=True`가 함께 필요하다
+> (중간자 공격을 막지는 못하지만 평문보다는 낫다). `sqlcmd`의 `-C`가 같은 뜻이다.
 
 ### 4. 서버측 설치 + 첫 배포
 
@@ -112,10 +126,13 @@ OAuth__Kakao__ClientId=...
 OAuth__Naver__ClientId=...
 OAuth__Naver__ClientSecret=...
 OAuth__Apple__ClientId=...
-DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost;Database=PlayGround_Account;User Id=sa;Password=<sa비번>;TrustServerCertificate=True
-DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost;Database=PlayGround_Soccer;User Id=sa;Password=<sa비번>;TrustServerCertificate=True
+DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost,47821;Database=PlayGround_Account;User Id=pgadmin;Password=<비번>;TrustServerCertificate=True
+DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost,47821;Database=PlayGround_Soccer;User Id=pgadmin;Password=<비번>;TrustServerCertificate=True
 RedisConfig__Connections__0__ConnectionString=localhost:6379
 ```
+
+> **`localhost` 뒤에도 `,47821`이 필요하다.** SQL Server는 지정한 포트 하나만 듣기 때문에
+> 1433은 로컬에서도 닫혀 있다. 이걸 빠뜨리면 앱이 "DB 연결 실패"로 기동에 실패한다.
 
 ```bash
 sudo chmod 600 /etc/playground/playground.env
@@ -130,7 +147,8 @@ sudo systemctl enable playground
 
 ```bash
 sudo tee /etc/playground/backup.env > /dev/null <<'EOF'
-SA_PASSWORD=<sa비번>
+DB_USER=pgadmin
+DB_PASSWORD=<비번>
 S3_BUCKET=<버킷이름>
 EOF
 sudo chmod 600 /etc/playground/backup.env
@@ -192,19 +210,26 @@ https://playgroundsport.com/api/auth/social/naver/callback
 https://playgroundsport.com/api/auth/social/apple/callback
 ```
 
-## SSMS로 붙기 (1433을 열지 않고)
+## SSMS로 붙기
 
-로컬에서 SSH 터널을 연다:
+- 서버 이름: `<Elastic IP>,47821` (쉼표다 — 콜론이 아니다)
+- 인증: **SQL Server 인증** (Linux는 Windows 인증을 쓰지 않는다)
+- 로그인: `pgadmin` (`sa`는 잠가 뒀다 — `AwsSetup.md` 7절)
+- **옵션 → 연결 속성 → "서버 인증서 신뢰" 체크** (자체 서명 인증서라 안 하면 거부된다)
+
+> **붙던 게 갑자기 안 붙으면 십중팔구 내 IP가 바뀐 것이다.**
+> 보안 그룹 → 인바운드 규칙 편집 → 47821 규칙의 소스를 **내 IP로 다시 선택**.
+
+### 대안 — SSH 터널 (포트를 열지 않는 방법)
+
+카페·출장 등 IP가 자주 바뀌면 보안 그룹의 47821 규칙을 **지우고** 터널을 쓴다.
+열어 두는 문이 22 하나로 줄어든다.
 
 ```powershell
-ssh -i <키.pem> -L 14330:localhost:1433 ubuntu@<Elastic IP> -N
+ssh -i <키.pem> -L 14330:localhost:47821 ubuntu@<Elastic IP> -N
 ```
 
-SSMS 접속 정보:
-
-- 서버: `127.0.0.1,14330`
-- 인증: **SQL Server 인증** (Linux는 Windows 인증을 쓰지 않는다)
-- 로그인: `sa` (운영용 계정을 따로 만들고 sa는 잠그는 것이 원칙)
+이때 SSMS 서버 이름은 `127.0.0.1,14330`이다 (`14330`은 내 PC에서만 쓰는 번호라 아무 값이나 된다).
 
 ## 환경은 1단 (Production)
 

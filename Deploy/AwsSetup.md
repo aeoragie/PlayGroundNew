@@ -48,22 +48,41 @@ icacls $key /grant:r "$($env:USERNAME):(R)"   # 나만 읽기
 
 ## 2. 보안 그룹 만들기
 
-방화벽이다. **1433(SQL)은 열지 않는다** — SSMS는 SSH 터널로 붙는다.
+방화벽이다.
 
 1. **EC2** → **네트워크 및 보안** → **보안 그룹** → **보안 그룹 생성**
 2. 이름 `playground-prod-sg` · 설명 `PlayGround production`
-3. **인바운드 규칙** 3개 추가:
+3. **인바운드 규칙** 4개 추가:
 
 | 유형 | 포트 | 소스 | 설명 |
 |---|---|---|---|
 | SSH | 22 | **내 IP** | 관리 접속 |
 | HTTP | 80 | Anywhere-IPv4 (`0.0.0.0/0`) | 웹 + certbot 갱신 |
 | HTTPS | 443 | Anywhere-IPv4 (`0.0.0.0/0`) | 웹 |
+| **사용자 지정 TCP** | **47821** | **내 IP** | SQL Server (SSMS·sqlcmd·스키마 배포) |
 
 4. 아웃바운드는 기본값(전체 허용) 그대로 — 패키지 설치·S3 업로드에 필요하다
 
-> **"내 IP"는 지금 이 순간의 IP다.** 인터넷 회선이 재접속되면 바뀌어서 SSH가 막힌다.
-> 그때는 보안 그룹에서 SSH 규칙의 소스를 **내 IP로 다시 선택**하면 된다. 당황할 일이 아니다.
+> **"내 IP"는 지금 이 순간의 IP다.** 인터넷 회선이 재접속되면 바뀌어서 SSH와 SQL이 막힌다.
+> 그때는 보안 그룹에서 두 규칙의 소스를 **내 IP로 다시 선택**하면 된다. 당황할 일이 아니다.
+
+### SQL 포트에 대해 — 무엇이 지켜 주고 무엇이 아닌지
+
+`1433` 대신 `47821`을 쓰는 이유는 **1433만 노리는 자동 스캔 봇의 소음을 줄이는 것**이다.
+그게 전부다. 포트를 바꿔도 숨겨지지 않는다 — 인터넷 전 대역 전 포트 스캔은 몇 분이면 끝나고,
+SQL Server는 접속하면 TDS 핸드셰이크로 스스로를 밝힌다.
+
+**실제로 지키는 것은 소스 = "내 IP"다.** 이 한 줄이 전부이므로:
+
+- **소스를 `0.0.0.0/0`으로 바꾸지 않는다.** 그 순간 전 세계가 `sa` 비밀번호를 무제한으로
+  때려 볼 수 있고, **SQL Server on Linux에는 계정 잠금이 기본으로 없다.**
+- 규칙 설명에 `SQL Server`라고 쓰는 건 상관없다 — 콘솔은 우리만 본다.
+- 포트 번호를 다른 값으로 하고 싶으면 **이 문서와 `Deploy/README.md`의 `47821`을 일괄 치환**한다.
+  1433에서 유도되는 번호(`14330`·`1533` 등)는 피한다. `1434`는 **SQL Browser 포트라 쓰면 안 된다.**
+
+> 카페·출장 등 IP가 자주 바뀌는 환경이면 이 규칙을 지우고 **SSH 터널**을 쓰는 편이 낫다
+> (`Deploy/README.md` "SSMS로 붙기"에 방법을 남겨 뒀다). 터널은 22 하나만 쓰므로
+> 열어 두는 문이 하나 줄어든다.
 
 ---
 
@@ -160,28 +179,74 @@ sudo MSSQL_PID=Express /opt/mssql/bin/mssql-conf setup
 - sa 비밀번호: **8자 이상 + 대문자·소문자·숫자·기호** — 안 지키면 조용히 실패한다
 - **이 비밀번호를 안전한 곳에 적어 둔다** (비밀번호 관리자)
 
-메모리 상한을 잡는다. 앱·Redis 몫을 남기기 위함이다:
+메모리 상한과 **수신 포트**를 잡는다. 앱·Redis 몫을 남기고, 보안 그룹에 연 포트와 맞춘다:
 
 ```bash
 sudo /opt/mssql/bin/mssql-conf set memory.memorylimitmb 2048
+sudo /opt/mssql/bin/mssql-conf set network.tcpport 47821
 sudo systemctl restart mssql-server
 ```
+
+> **이후 `localhost` 접속도 포트를 붙여야 한다.** SQL Server는 지정한 포트 하나만 듣는다 —
+> 1433은 더 이상 열려 있지 않다. 이 문서와 스크립트의 `sqlcmd`·커넥션 문자열이
+> 전부 `localhost,47821` 형태인 이유다.
 
 동작 확인:
 
 ```bash
-sqlcmd -S localhost -U sa -P '<비밀번호>' -C -Q "SELECT @@VERSION"
+sqlcmd -S localhost,47821 -U sa -P '<비밀번호>' -C -Q "SELECT @@VERSION"
 ```
+
+### 관리 계정을 따로 만들고 `sa`를 잠근다
+
+**포트를 여는 이상 `sa`를 그대로 두면 안 된다.** 공격자가 아는 유일한 사용자 이름이고,
+SQL Server on Linux는 **로그인 실패 잠금이 기본으로 없어** 무제한 대입이 가능하다.
+이름을 모르면 비밀번호 대입 자체가 시작되지 않는다.
+
+```bash
+sqlcmd -S localhost,47821 -U sa -P '<sa비밀번호>' -C -Q "
+CREATE LOGIN pgadmin WITH PASSWORD = '<새 비밀번호>', CHECK_POLICY = ON;
+ALTER SERVER ROLE sysadmin ADD MEMBER pgadmin;"
+```
+
+새 계정으로 붙는지 **먼저 확인**한다 (여기서 실패한 채 sa를 잠그면 들어갈 길이 없다):
+
+```bash
+sqlcmd -S localhost,47821 -U pgadmin -P '<새 비밀번호>' -C -Q "SELECT SUSER_NAME()"
+```
+
+`pgadmin`이 출력되면 sa를 잠근다:
+
+```bash
+sqlcmd -S localhost,47821 -U pgadmin -P '<새 비밀번호>' -C -Q "
+ALTER LOGIN sa DISABLE;"
+```
+
+> **이후 모든 접속(앱·백업·SSMS)은 `pgadmin`을 쓴다.** sa 비밀번호도 버리지 말고
+> 비밀번호 관리자에 남겨 둔다 — 잠금을 되돌려야 할 때가 있다
+> (`ALTER LOGIN sa ENABLE;`, 로컬에서 `pgadmin`으로 실행).
+>
+> 앱 전용으로 권한을 더 좁힌 계정(`db_owner`만)을 두는 것이 원칙이지만,
+> 지금은 계정 하나로 간다. 사용자 트래픽이 붙는 시점의 하드닝 항목이다.
 
 ### DB 두 개 만들기
 
 콜레이션이 중요하다 — 우리 스키마 규칙(UTF-8)이다:
 
 ```bash
-sqlcmd -S localhost -U sa -P '<비밀번호>' -C -Q "
+sqlcmd -S localhost,47821 -U pgadmin -P '<비밀번호>' -C -Q "
 CREATE DATABASE PlayGround_Account COLLATE Latin1_General_100_CI_AS_SC_UTF8;
 CREATE DATABASE PlayGround_Soccer  COLLATE Latin1_General_100_CI_AS_SC_UTF8;"
 ```
+
+### 원격에서 붙는지 확인 (로컬 PowerShell)
+
+```powershell
+Test-NetConnection <Elastic IP> -Port 47821
+```
+
+`TcpTestSucceeded : True`면 보안 그룹·포트 설정이 맞다. 실패하면
+**보안 그룹 소스가 현재 내 IP인지**부터 본다.
 
 ---
 
@@ -263,5 +328,8 @@ nslookup playgroundsport.com
 | SSH 키 거부 | `icacls`로 권한 정리했는가 |
 | 재시작 후 IP가 바뀜 | Elastic IP를 **연결**했는가 |
 | SQL Server가 안 뜬다 | 메모리 부족일 수 있다 — `free -h`로 확인, 상한 2048 적용 여부 |
+| SSMS 연결 시간 초과 | 보안 그룹 47821 소스 = 현재 내 IP. `Test-NetConnection <EIP> -Port 47821` |
+| `sqlcmd`가 서버를 못 찾는다 | **포트를 빠뜨렸다** — `localhost`가 아니라 `localhost,47821` |
+| SSMS 인증서 오류 | 연결 속성 → **"서버 인증서 신뢰"** 체크 (자체 서명 인증서) |
 | 사용자 데이터가 안 돈 것 같다 | `sudo cat /var/log/cloud-init-output.log` 끝부분 |
 | 디스크가 8GB로 만들어졌다 | 인스턴스를 다시 만드는 편이 빠르다 (아직 아무것도 없으므로) |

@@ -152,21 +152,30 @@ sudo rm -rf /var/www/playground.new
 ```bash
 systemctl status mssql-server --no-pager
 sudo journalctl -u mssql-server -n 50 --no-pager
-sqlcmd -S localhost -U sa -P '<비번>' -C -Q "SELECT 1"
+sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "SELECT 1"
 ```
 
 | 증상 | 대응 |
 |---|---|
 | 서비스가 안 뜬다 | 메모리 부족이 대부분 — `free -h` 확인 후 `memory.memorylimitmb` 조정 |
-| 로그인 실패 | sa 비밀번호 확인. `playground.env`의 커넥션 문자열과 같은지 |
+| 로그인 실패 | `pgadmin` 비밀번호 확인. `playground.env`의 커넥션 문자열과 같은지 |
 | 시작 직후 죽음 | `sudo journalctl -u mssql-server -n 100`에 원인이 찍힌다 |
+| 연결 자체가 안 됨 | **포트를 빠뜨렸다.** `localhost`가 아니라 `localhost,47821`이다 |
+
+> **1433은 열려 있지 않다.** `mssql-conf set network.tcpport 47821`로 바꿔 뒀고,
+> SQL Server는 지정한 포트 **하나만** 듣는다. 실제 수신 포트 확인:
+>
+> ```bash
+> sudo /opt/mssql/bin/mssql-conf get network.tcpport
+> sudo ss -lntp | grep sqlservr
+> ```
 
 ### Express 10GB 한계
 
 Express는 **DB당 10GB**를 넘으면 쓰기가 실패한다. 미리 본다:
 
 ```bash
-sqlcmd -S localhost -U sa -P '<비번>' -C -Q "
+sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "
 SELECT DB_NAME(database_id) AS DB,
        CAST(SUM(size) * 8.0 / 1024 AS DECIMAL(10,1)) AS MB
 FROM sys.master_files
@@ -174,6 +183,37 @@ WHERE database_id > 4 GROUP BY database_id;"
 ```
 
 7GB를 넘기 시작하면 대응을 준비한다 — 오래된 데이터 정리, 또는 Standard/RDS로 이전.
+
+---
+
+## 내 PC에서 SSMS가 안 붙는다
+
+**대부분 내 IP가 바뀐 것이다.** 보안 그룹의 47821 규칙 소스가 "내 IP"라서,
+공유기 재접속·회선 변경만으로도 막힌다.
+
+로컬 PowerShell에서 포트가 열려 있는지부터 본다:
+
+```powershell
+Test-NetConnection <Elastic IP> -Port 47821
+```
+
+| 결과 | 원인 |
+|---|---|
+| `TcpTestSucceeded : False` | **보안 그룹** → 47821 규칙 소스를 **내 IP로 다시 선택** |
+| True인데 로그인 실패 | 계정은 `pgadmin`이다 — `sa`는 잠가 뒀다 |
+| True인데 인증서 오류 | SSMS **연결 속성 → "서버 인증서 신뢰"** 체크 |
+
+### 로그인 실패가 쌓이고 있지 않은지 (열어 둔 포트의 대가)
+
+**SQL Server on Linux에는 계정 잠금이 없다.** 소스 IP 제한이 유일한 방어이므로,
+가끔 실패 로그를 확인해 대입 시도가 도달하는지 본다.
+
+```bash
+sudo grep -i "Login failed" /var/opt/mssql/log/errorlog | tail -20
+```
+
+내 것이 아닌 IP나 모르는 사용자 이름(`sa`·`admin`·`test`)이 보이면
+**소스가 `0.0.0.0/0`으로 열려 있다는 뜻이다.** 즉시 보안 그룹을 확인한다.
 
 ---
 
@@ -273,7 +313,7 @@ EBS까지 잃으면 **S3 백업이 유일한 자산이다.**
 aws s3 cp s3://<버킷>/db/PlayGround_Soccer/<최신>.bak /var/backups/playground/
 sudo chown mssql:mssql /var/backups/playground/<최신>.bak
 
-sqlcmd -S localhost -U sa -P '<비번>' -C -Q "
+sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "
 RESTORE DATABASE [PlayGround_Soccer]
 FROM DISK = N'/var/backups/playground/<최신>.bak' WITH REPLACE;"
 ```

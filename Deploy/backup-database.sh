@@ -13,13 +13,16 @@
 #     0 4 * * * /usr/local/bin/playground-backup >> /var/log/playground/backup.log 2>&1
 #
 # 전제:
-#   - /etc/playground/backup.env 에 SA_PASSWORD, S3_BUCKET (chmod 600)
+#   - /etc/playground/backup.env 에 DB_USER, DB_PASSWORD, S3_BUCKET (chmod 600)
 #   - 인스턴스에 S3 PutObject 권한 IAM 역할 (액세스 키를 파일에 두지 않는다)
 #   - awscli 설치: sudo apt-get install -y awscli
 
 set -euo pipefail
 
-source /etc/playground/backup.env   # SA_PASSWORD, S3_BUCKET
+source /etc/playground/backup.env   # DB_USER, DB_PASSWORD, S3_BUCKET
+
+# SQL Server는 1433이 아니라 지정 포트 하나만 듣는다 (mssql-conf network.tcpport)
+DB_SERVER="localhost,47821"
 
 BACKUP_DIR=/var/backups/playground
 RETAIN_DAYS=7                        # 로컬은 짧게 — 장기 보관은 S3 수명주기 정책으로
@@ -31,11 +34,11 @@ for DB in PlayGround_Account PlayGround_Soccer; do
     FILE="$BACKUP_DIR/${DB}-${STAMP}.bak"
     echo "[backup] $DB → $FILE"
 
-    /usr/local/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -b -Q \
+    /usr/local/bin/sqlcmd -S "$DB_SERVER" -U "$DB_USER" -P "$DB_PASSWORD" -C -b -Q \
         "BACKUP DATABASE [$DB] TO DISK = N'$FILE' WITH INIT, COMPRESSION, CHECKSUM, STATS = 10;"
 
     # 복원 가능한 파일인지 즉시 확인한다 — 못 푸는 백업을 몇 달 쌓아 두는 사고를 막는다
-    /usr/local/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -b -Q \
+    /usr/local/bin/sqlcmd -S "$DB_SERVER" -U "$DB_USER" -P "$DB_PASSWORD" -C -b -Q \
         "RESTORE VERIFYONLY FROM DISK = N'$FILE';"
 
     echo "[backup] S3 업로드"
