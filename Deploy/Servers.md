@@ -5,6 +5,30 @@
 >
 > 구성·설치는 `README.md`, 콘솔 작업은 `AwsSetup.md`, 장애 대응은 `Runbook.md`.
 
+## 지금 어디까지 왔나 (2026-08-02)
+
+**네트워크는 검증 끝, 인스턴스는 AMI를 잘못 골라 재생성 대기.**
+
+| 끝난 것 | 상태 |
+|---|---|
+| VPC·서브넷·IGW·라우팅 | ✅ `playground-vpc` — 퍼블릭 서브넷 접속까지 확인 |
+| 보안 그룹 | ✅ `playground-prod-sg` (22·80·443·47821) |
+| 키 페어 | ✅ `playground-prod.pem` (권한 정리 완료) |
+| Elastic IP | ✅ `54.180.64.167` |
+| SSH 접속 | ✅ 성공 |
+
+**다음에 할 일 — 인스턴스를 다시 만든다:**
+
+1. 현재 인스턴스가 **Ubuntu 26.04**로 만들어졌다. Microsoft가 26.04용 저장소를 주지 않아
+   **SQL Server·.NET을 설치할 수 없다.** 종료하고 다시 만든다.
+2. AMI는 **`모든 AMI 찾아보기` → `ubuntu-jammy-22.04`** (소유자 Canonical).
+   빠른 시작의 `Ubuntu` 타일은 최신 LTS가 기본이라 또 잘못 잡힌다.
+3. 네트워크 설정은 **`편집`을 눌러** 서브넷 `…-public1-…` · 퍼블릭 IP **활성화**.
+4. 탄력적 IP 재연결 → 접속 후 `lsb_release -a`로 **jammy** 확인.
+5. 그다음 **`ManualSetup.md` 1단계**부터 (직접 설치해 보는 중).
+
+> 이후 절차는 `AwsSetup.md` "SQL Server 초기 설정" → S3/IAM → Route 53 순서.
+
 ## 서버 목록
 
 ### prod-01 — 앱 + DB + 캐시 (전부 한 대)
