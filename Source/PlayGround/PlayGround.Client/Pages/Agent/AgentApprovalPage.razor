@@ -256,7 +256,7 @@
                 return AppText.Agent.Expired(local.Month, local.Day);
             }
 
-            int daysLeft = Math.Max(0, (int)Math.Ceiling((mData.ExpiresAt.Value - DateTime.UtcNow).TotalDays));
+            int daysLeft = Math.Max(0, (int)Math.Ceiling((mData.ExpiresAt.Value - SystemTime.Now).TotalDays));
             return AppText.Agent.ApprovedUntil(local.Month, local.Day, daysLeft);
         }
     }
@@ -277,7 +277,7 @@
     private static string LogTimeText(DateTime utc)
     {
         DateTime local = utc.ToLocalTime();
-        DateTime today = DateTime.Now.Date;
+        DateTime today = SystemTime.Now.ToLocalTime().Date;
         string clock = $"{(local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm)} {((local.Hour + 11) % 12) + 1}:{local.Minute:D2}";
         if (local.Date == today)
         {

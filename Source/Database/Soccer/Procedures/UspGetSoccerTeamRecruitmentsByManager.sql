@@ -10,7 +10,7 @@ BEGIN
 
     SELECT
         r.[RecruitmentId], r.[TeamId], r.[Title], r.[Description], r.[ConditionsJson],
-        r.[DeadlineDate], r.[AgeGroup], r.[PositionsJson], r.[Capacity],
+        r.[DeadlineAt], r.[AgeGroup], r.[PositionsJson], r.[Capacity],
         r.[Status], r.[CreatedAt], r.[UpdatedAt], r.[DeletedAt]
     FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
     JOIN [dbo].[SoccerTeams] t WITH (NOLOCK)
@@ -18,7 +18,7 @@ BEGIN
     WHERE r.[DeletedAt] IS NULL
     ORDER BY
         CASE WHEN r.[Status] = 'Open'
-              AND (r.[DeadlineDate] IS NULL OR r.[DeadlineDate] >= CAST(GETUTCDATE() AS DATE))
+              AND (r.[DeadlineAt] IS NULL OR r.[DeadlineAt] > GETUTCDATE())
              THEN 0 ELSE 1 END,
         r.[CreatedAt] DESC;
 

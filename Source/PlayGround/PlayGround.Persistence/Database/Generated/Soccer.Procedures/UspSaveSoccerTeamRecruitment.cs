@@ -21,7 +21,7 @@ public class UspSaveSoccerTeamRecruitment(RepositoryBase repository) : Procedure
 	public string Title { get; set; } = String.Empty;
 	public string Description { get; set; } = String.Empty;
 	public string? ConditionsJson { get; set; } = null;
-	public DateTime? DeadlineDate { get; set; } = null;
+	public DateTime? DeadlineAt { get; set; } = null;
 	public string? AgeGroup { get; set; } = null;
 	public string? PositionsJson { get; set; } = null;
 	public int? Capacity { get; set; } = null;
@@ -32,7 +32,7 @@ public class UspSaveSoccerTeamRecruitment(RepositoryBase repository) : Procedure
 		Parameters.Add("@Title", Title);
 		Parameters.Add("@Description", Description);
 		Parameters.Add("@ConditionsJson", ConditionsJson);
-		Parameters.Add("@DeadlineDate", DeadlineDate);
+		Parameters.Add("@DeadlineAt", DeadlineAt);
 		Parameters.Add("@AgeGroup", AgeGroup);
 		Parameters.Add("@PositionsJson", PositionsJson);
 		Parameters.Add("@Capacity", Capacity);

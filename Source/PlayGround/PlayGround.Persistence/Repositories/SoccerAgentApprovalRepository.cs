@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Infrastructure.Logging;
@@ -130,7 +131,7 @@ namespace PlayGround.Persistence.Repositories
                 ExpiresAt = request.ExpiresAt,
                 // 만료 판정은 여기 한 곳 — 권한 뷰 접근 차단(후속)도 이 기준을 쓴다
                 IsExpired = request.Status == "Approved" && request.ExpiresAt is not null
-                            && request.ExpiresAt.Value <= DateTime.UtcNow,
+                            && request.ExpiresAt.Value <= SystemTime.Now,
                 PlayerId = request.PlayerId,
                 PlayerName = request.Name,
                 PlayerAgeGroup = NullIfEmpty(request.AgeGroup),

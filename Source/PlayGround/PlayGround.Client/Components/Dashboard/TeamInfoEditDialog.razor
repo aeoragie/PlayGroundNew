@@ -228,7 +228,7 @@
             return AppText.Dashboard.ErrorYearDigits;
         }
 
-        return year < 1900 || year > DateTime.Now.Year ? AppText.Dashboard.ErrorFoundedYearRange(DateTime.Now.Year) : null;
+        return year < 1900 || year > KoreanTime.CurrentYear ? AppText.Dashboard.ErrorFoundedYearRange(KoreanTime.CurrentYear) : null;
     }
 
     private void AddValue() => mValues.Add(new TeamValueInput());

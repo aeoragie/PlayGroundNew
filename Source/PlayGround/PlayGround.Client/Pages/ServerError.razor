@@ -40,7 +40,7 @@
     /// <summary>ERR-{시각}-{요청ID} — 고객센터가 로그를 찾는 열쇠.</summary>
     internal static string BuildErrorCode()
     {
-        string moment = DateTime.Now.ToString("yyyyMMddHHmm");
+        string moment = SystemTime.Now.ToString("yyyyMMddHHmm");   // 서버 로그(UTC)와 맞춰야 대조가 된다
         string requestId = Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
         return $"ERR-{moment}-{requestId}";
     }

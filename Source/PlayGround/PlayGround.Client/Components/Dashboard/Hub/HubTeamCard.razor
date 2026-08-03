@@ -59,8 +59,10 @@
     }
 
     // "다음 경기 — {M/D}({요일}) {HH:mm} vs {상대}" — 상대 없으면(대회) vs 부분 생략. 포맷은 Invariant.
-    private string NextMatchLabel(DateTime dt)
+    private string NextMatchLabel(DateTime utc)
     {
+        // 서버 값은 UTC 순간 — 표시 전에 현지로 되돌린다
+        DateTime dt = utc.ToLocalTime();
         string weekday = new[] { AppText.Hub.DowSun, AppText.Hub.DowMon, AppText.Hub.DowTue, AppText.Hub.DowWed, AppText.Hub.DowThu, AppText.Hub.DowFri, AppText.Hub.DowSat }[(int)dt.DayOfWeek];
         string datePart = $"{dt.ToString("M/d", CultureInfo.InvariantCulture)}({weekday}) {dt.ToString("HH:mm", CultureInfo.InvariantCulture)}";
 

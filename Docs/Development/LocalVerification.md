@@ -67,6 +67,12 @@
 > **추가 반영(온보딩 중복 방지, 2026-07-21)**: `UspCreateSoccerTeamWithRoster` 재배포(관리자 기존 팀 확인 → 멱등 반환)까지 로컬 반영됨.
 >
 > **추가 반영(ClaimFlow 요청 취소, 2026-07-21)**: `UspCancelSoccerPlayerClaimRequest` 신규까지 로컬 반영됨.
+>
+> **추가 반영(시각 기준 UTC 통일, 2026-08-03)**: 마이그레이션
+> `Migrations/2026-08-03_Utc.TimeBaseline.sql` + 모집 프로시저 7개 재배포까지 로컬 반영됨.
+> **이 마이그레이션은 멱등하지 않다** — `StartsAt`·`MatchedAt`을 −9h 시프트하므로 두 번 돌리면
+> 두 번 빠진다. 마커 테이블(`SoccerSchemaMigrations`)이 막아 주지만, 다른 PC에서 적용할 때
+> **한 번만** 돌리는지 확인한다. 이후 `DeadlineDate`는 없고 `DeadlineAt`(UTC)만 있다.
 
 ## 새 PC 최초 셋업 (클론만으로 안 되는 것 — gitignore 대상)
 

@@ -199,9 +199,12 @@ namespace PlayGround.Tests.Unit.Client
         [Fact]
         public void WhenLabel_요일과_시각을_붙인다()
         {
-            var sunday = new DateTime(2026, 6, 7, 10, 0, 0); // 일요일
+            // WhenLabel은 UTC 순간을 받아 **현지 시각으로** 표기한다.
+            // 그래서 기대값도 현지 기준으로 만든다 — 어느 시간대에서 돌려도 결과가 같다.
+            var localSunday = new DateTime(2026, 6, 7, 10, 0, 0, DateTimeKind.Local); // 일요일
+            DateTime utc = localSunday.ToUniversalTime();
 
-            string label = RecordsFormatting.WhenLabel(sunday);
+            string label = RecordsFormatting.WhenLabel(utc);
 
             label.Should().StartWith("6/7 (").And.EndWith("10:00");
         }

@@ -126,7 +126,7 @@ S1~S7 전체 자동화는 비용이 크다. **권한 경계(S6)·빈 계정 스�
 | H0 | Redis 배선 | ✅ **구현됨** (2026-08-02) | ElastiCache 프로비저닝 + 커넥션 주입 | D1 ✅ |
 | H5 | OG 이미지 폰트 | Linux 네이티브 패키지는 참조됨, 한글은 **시스템 폰트 의존** | 컨테이너/호스트에 한글 폰트 설치 확인 | D1 |
 | H6 | 보안 헤더·CORS·레이트리밋 | 미점검 | 배포 전 1회 점검 | D4 |
-| H7 | **시각 기준** | 호스트 TZ에 암묵 의존 | 래퍼로 명시화 + 직접 호출 금지 (아래) | — |
+| H7 | **시각 기준** | ✅ **완료** (2026-08-03) | UTC 통일 + 가드. 아래 참조 | — |
 
 > **H3·H4는 D1~D4 없이도 지금 할 수 있다** — R2와 병행 가능.
 
@@ -154,32 +154,51 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 **스테이징에 남은 것**: ElastiCache 엔드포인트를 `RedisConfig__Connections__0__ConnectionString`으로
 주입하고 위 5개를 한 번 더 확인. 역할 승격 직후 새 토큰이 정상 동작하는지도 함께 본다.
 
-### H7. 시각 기준 — 서버는 UTC, 시각은 래퍼가 책임진다 (2026-08-02 결정)
+### H7. 시각 기준 — UTC 하나로 통일 ✅ **완료 (2026-08-03)**
 
-**서버 시간대를 UTC로 고정한다** (`ec2-setup.sh`). 호스트 설정으로 로직을 맞추지 않는다 —
-그렇게 하면 "어느 장비에서 도는가"에 따라 결과가 달라지고, 그 의존이 코드에 드러나지 않는다.
+**저장·비교는 전부 UTC, 한국 시각은 표시와 "한국 달력" 값에만.** 서버 시간대도 UTC다
+(`ec2-setup.sh`) — 호스트 설정으로 로직을 맞추면 "어느 장비에서 도는가"에 결과가 달라지고
+그 의존이 코드에 드러나지 않는다.
 
-**대신 시각은 명시적 래퍼가 책임진다. 하위 라이브러리의 직접 호출을 금지한다.**
+#### 무엇이 깨져 있었나
 
-| 층 | 금지 | 대신 |
-|---|---|---|
-| C# | `DateTime.Now` · `DateTime.Today` · `DateTime.UtcNow` 직접 호출 | 공용 라이브러리의 한국 시각 래퍼 |
-| SQL | **MSSQL 내장 순수 함수 직접 사용** (`GETUTCDATE()`·`GETDATE()`·`SYSDATETIME()`) | 이를 감싸 한국 시각을 돌려주는 자체 함수. **모든 프로시저가 이것만 호출** |
+두 종류의 시간이 구분 없이 섞여 있었다.
 
-착수 시 정리할 것:
+| 종류 | 예 | 저장 | 문제 |
+|---|---|---|---|
+| **순간** | `CreatedAt`·`ExpiresAt` | UTC (`GETUTCDATE()`) | 일관됐다 |
+| **벽시계** | `StartsAt`·`MatchedAt`·`DeadlineDate` | 한국 시각 그대로 | **"지금"과 비교하는 순간 9시간 어긋났다** |
 
-- **적용 대상 범위** — 현재 C# 직접 호출 7곳(`DataExportCommand`·`SoccerDashboardHubCommand`·
-  `SoccerScheduleCommand`·`SoccerTeamCareerOutcomeCommand`·`SoccerTeamInfoUpdateCommand`·
-  `SoccerTeamMatchResultCommand`·`SoccerTeamRecruitmentCommand`), SQL `GETUTCDATE()` **201곳**.
-- **기존 데이터** — 지금 감사 컬럼에는 `GETUTCDATE()`가 넣은 **UTC 값**이 들어 있다.
-  함수가 한국 시각을 돌려주게 바꾸면 **같은 컬럼에 기준이 다른 두 값이 섞인다.**
-  전환 시점의 기존 행을 +9h 보정할지 결정해야 한다.
-- **금지의 강제 수단** — 규칙만으로는 새 코드에서 다시 샌다.
-  C#는 `Tests.Unit`의 배치 가드(한글 리터럴 가드와 같은 방식)로, SQL은 프로시저 텍스트 스캔으로
-  자동 검출하는 것이 이 프로젝트의 기존 패턴이다(`Docs/Development/Testing.md`).
+`DeadlineDate >= CAST(GETUTCDATE() AS DATE)`는 매일 **00~09시(KST)에 어제 마감된 모집을
+살려 뒀고**, `StartsAt < DateTime.Now`는 지난 일정을 예정으로 보이게 했다.
+개발 PC(KST)에서는 멀쩡히 돌아 **UTC 서버에서만** 드러나는 종류의 버그였다.
 
-> **그때까지는 위 7곳이 UTC 서버에서 9시간 어긋난다** — 일정 지남 판정·마감일·시즌 연도.
-> 알고 받아들인 상태이며, 사용자 데이터가 쌓이기 전에 H7을 끝내는 것이 목표다.
+#### 무엇을 했나
+
+| 층 | 규칙 |
+|---|---|
+| C# | `SystemTime.Now`(**UTC 반환**) · 한국 달력 값만 `KoreanTime`. `DateTime.Now/UtcNow/Today` 직접 호출 금지 |
+| SQL | `GETUTCDATE()`만. `GETDATE()`·`SYSDATETIME()` 금지. **시간대 산술을 SQL에 두지 않는다** |
+| Client | 순간은 `ToLocalTime()`으로 표시, 입력은 `ToUniversalTime()`으로 저장 |
+
+- **`SystemTime`**(Core.Shared) — `Now`가 UTC다. 호출부가 `Now`/`UtcNow`를 고르게 두면
+  반드시 섞이므로 **선택지를 없앴다**.
+- **`KoreanTime`**(Domain) — **+9를 아는 유일한 곳**. 마감일(`EndOfDayToUtc`)과
+  시즌 연도·범위(`CurrentYear`·`YearRangeUtc`)에만 쓴다.
+- **데이터 전환** — `StartsAt`·`MatchedAt` −9h, `DeadlineDate`(DATE) → `DeadlineAt`(DATETIME2,
+  한국 하루의 끝을 UTC로). 마이그레이션 `2026-08-03_Utc.TimeBaseline.sql`은 **멱등하지 않아**
+  마커 테이블(`SoccerSchemaMigrations`)로 1회만 돌게 막았다.
+- **`DATE`를 전부 바꾸지는 않았다** — 생년월일·커리어 기간·대회 일정은 `DATE`로 남겼다.
+  기준은 **"now와 비교해 상태가 갈리는 날짜만"**. 생년월일을 순간으로 만들면
+  보는 시간대에 따라 생일이 하루 밀린다.
+- **시즌 집계** — `YEAR(GETUTCDATE())` 대신 앱이 계산한 UTC 범위를 넘긴다
+  (`UspGetSoccerTeamExplore`). SQL에 9시간 상수가 없고, 범위 비교라 인덱스도 탄다.
+
+#### 재발 방지
+
+`TimeBaselineGuardTests`(Tests.Unit)가 `Source/` 전체를 훑어 C# 직접 호출과 SQL 지역 시각
+함수를 잡는다. **일부러 깨뜨려 두 가드가 모두 실패하는 것을 확인했다.**
+마감 경계·시즌 범위처럼 헷갈리는 계산은 값 테스트로 못 박아 뒀다.
 
 ---
 

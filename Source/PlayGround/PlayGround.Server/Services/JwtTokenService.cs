@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using PlayGround.Shared.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Server.Services
@@ -36,7 +37,7 @@ namespace PlayGround.Server.Services
 
             // iat는 JwtSecurityToken이 자동으로 넣지 않는다 — 탈퇴 시 "이 시각 이전 토큰 전부 무효"
             // 판정(ITokenRevocationStore)이 이 값에 기대므로 명시적으로 담는다.
-            var issuedAt = DateTimeOffset.UtcNow;
+            var issuedAt = SystemTime.OffsetNow;
 
             var claims = new List<Claim>
             {
@@ -59,7 +60,7 @@ namespace PlayGround.Server.Services
                 issuer: mConfiguration["Jwt:Issuer"],
                 audience: mConfiguration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
+                expires: SystemTime.Now.AddMinutes(expirationMinutes),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

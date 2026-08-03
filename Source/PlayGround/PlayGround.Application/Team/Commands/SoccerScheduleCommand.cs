@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
 using PlayGround.Application.Interfaces;
 
@@ -67,7 +68,7 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 신규·수정 모두 미래 일정이어야 한다 (지난 일정은 결과 입력으로 다룬다)
-            if (request.StartsAt <= DateTime.Now)
+            if (request.StartsAt <= SystemTime.Now)
             {
                 return Result<ScheduleDto>.Error(ErrorCode.InvalidInput, "startsAt is in the past");
             }

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using PlayGround.Shared.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Server.Services
@@ -25,7 +26,7 @@ namespace PlayGround.Server.Services
         {
             ArgumentNullException.ThrowIfNull(content);
 
-            string month = DateTime.UtcNow.ToString("yyyyMM");
+            string month = SystemTime.Now.ToString("yyyyMM");
             string relativeKey = $"{Category}/{month}/{requestId:N}.zip";
             string fullPath = Path.Combine(mEnvironment.ContentRootPath, RootFolder, NormalizeToOs(relativeKey));
 

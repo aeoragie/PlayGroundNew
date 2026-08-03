@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -141,7 +142,7 @@ namespace PlayGround.Client.Services.Auth
             }
 
             DateTimeOffset expiresAt = DateTimeOffset.FromUnixTimeSeconds(seconds);
-            return expiresAt <= DateTimeOffset.UtcNow;
+            return expiresAt <= SystemTime.OffsetNow;
         }
 
         private static List<Claim> ParseClaimsFromJwt(string jwt)

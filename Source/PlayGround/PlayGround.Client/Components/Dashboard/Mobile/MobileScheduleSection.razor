@@ -27,8 +27,8 @@
             bool ended = IsEnded(item);
             <div class="@($"{Css.Dashboard.Card} rounded-[13px] px-[15px] py-[13px] flex items-center gap-[13px] {(ended ? "opacity-[.55]" : "")}")">
                 <span class="flex flex-col items-center w-[38px] shrink-0">
-                    <span class="text-[10.5px] font-bold @WeekdayClass(item.StartsAt)">@WeekdayLabel(item.StartsAt)</span>
-                    <span class="text-lg font-extrabold text-navy-deep tabular-nums">@item.StartsAt.Day</span>
+                    <span class="text-[10.5px] font-bold @WeekdayClass(When(item))">@WeekdayLabel(When(item))</span>
+                    <span class="text-lg font-extrabold text-navy-deep tabular-nums">@When(item).Day</span>
                 </span>
                 <span class="flex flex-col gap-[3px] flex-1 min-w-0">
                     <span class="flex items-center gap-[7px]">
@@ -83,7 +83,7 @@
     [Parameter]
     public EventCallback<ScheduleDto> OnDelete { get; set; }
 
-    private static string MonthLabel => AppText.Dashboard.MonthLabelShort(DateTime.Now.Month);
+    private static string MonthLabel => AppText.Dashboard.MonthLabelShort(SystemTime.Now.ToLocalTime().Month);
 
     // 공개 iCal 피드 절대 URL 복사(토큰 없는 공개 URL)
     private async Task CopyFeedAsync()
@@ -93,7 +93,10 @@
         Toasts.ShowSuccess(AppText.Dashboard.CopiedToast);
     }
 
-    private static bool IsEnded(ScheduleDto s) => s.StartsAt < DateTime.Now;
+    private static bool IsEnded(ScheduleDto s) => s.StartsAt < SystemTime.Now;
+
+    // 서버가 주는 StartsAt은 UTC 순간이다 — 화면에 쓰는 날짜·요일·시각은 반드시 현지로 되돌린다
+    private static DateTime When(ScheduleDto s) => s.StartsAt.ToLocalTime();
 
     private IEnumerable<ScheduleDto> Sorted =>
         Schedules
@@ -111,7 +114,7 @@
             ? $"vs {s.OpponentName}"
             : (s.Title ?? string.Empty);
 
-    private static string TimeOf(ScheduleDto s) => s.StartsAt.ToString("HH:mm");
+    private static string TimeOf(ScheduleDto s) => When(s).ToString("HH:mm");
 
     private static string WeekdayLabel(DateTime dt) =>
         new[] { AppText.Dashboard.DowSun, AppText.Dashboard.DowMon, AppText.Dashboard.DowTue, AppText.Dashboard.DowWed, AppText.Dashboard.DowThu, AppText.Dashboard.DowFri, AppText.Dashboard.DowSat }[(int)dt.DayOfWeek];

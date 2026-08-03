@@ -32,7 +32,7 @@ public class SoccerTeamRecruitmentsEntity
 	[StringLength(600)]
 	public string? ConditionsJson { get; set; } = null;
 
-	public DateTime? DeadlineDate { get; set; } = null;
+	public DateTime? DeadlineAt { get; set; } = null;
 
 	[StringLength(20)]
 	public string? AgeGroup { get; set; } = null;

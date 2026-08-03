@@ -17,7 +17,8 @@ namespace PlayGround.Client.Components.Records
                 return AppText.Records.ScheduleTbd;
             }
 
-            DateTime at = matchedAt.Value;
+            // 서버가 주는 값은 UTC 순간 — 날짜·요일·시각은 반드시 현지로 되돌린 뒤 만든다
+            DateTime at = matchedAt.Value.ToLocalTime();
             return $"{at.Month}/{at.Day} ({WeekdayLetters[(int)at.DayOfWeek]}) {at:HH:mm}";
         }
 

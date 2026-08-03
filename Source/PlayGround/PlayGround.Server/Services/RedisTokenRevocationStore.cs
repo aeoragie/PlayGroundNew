@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Infrastructure.Store;
 using PlayGround.Application.Interfaces;
@@ -48,7 +49,7 @@ namespace PlayGround.Server.Services
                 return;
             }
 
-            TimeSpan remaining = expiresAt - DateTimeOffset.UtcNow;
+            TimeSpan remaining = expiresAt - SystemTime.OffsetNow;
             if (remaining <= TimeSpan.Zero)
             {
                 return; // 이미 만료 — 기억할 필요가 없다

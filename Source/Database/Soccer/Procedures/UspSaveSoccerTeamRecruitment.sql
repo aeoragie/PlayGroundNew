@@ -7,7 +7,7 @@ CREATE PROCEDURE [dbo].[UspSaveSoccerTeamRecruitment]
     @Title VARCHAR(300),
     @Description VARCHAR(1500),
     @ConditionsJson VARCHAR(600) = NULL,
-    @DeadlineDate DATE = NULL,
+    @DeadlineAt DATETIME2 = NULL,
     @AgeGroup VARCHAR(20) = NULL,
     @PositionsJson VARCHAR(200) = NULL,
     @Capacity INT = NULL
@@ -28,9 +28,9 @@ BEGIN
             SET @RecruitmentId = NEWID();
 
             INSERT INTO [dbo].[SoccerTeamRecruitments]
-                ([RecruitmentId], [TeamId], [Title], [Description], [ConditionsJson], [DeadlineDate],
+                ([RecruitmentId], [TeamId], [Title], [Description], [ConditionsJson], [DeadlineAt],
                  [AgeGroup], [PositionsJson], [Capacity])
-            VALUES (@RecruitmentId, @TeamId, @Title, @Description, @ConditionsJson, @DeadlineDate,
+            VALUES (@RecruitmentId, @TeamId, @Title, @Description, @ConditionsJson, @DeadlineAt,
                  @AgeGroup, @PositionsJson, @Capacity);
 
             SET @Applied = 1;
@@ -39,7 +39,7 @@ BEGIN
         BEGIN
             UPDATE [dbo].[SoccerTeamRecruitments]
             SET [Title] = @Title, [Description] = @Description,
-                [ConditionsJson] = @ConditionsJson, [DeadlineDate] = @DeadlineDate,
+                [ConditionsJson] = @ConditionsJson, [DeadlineAt] = @DeadlineAt,
                 [AgeGroup] = @AgeGroup, [PositionsJson] = @PositionsJson, [Capacity] = @Capacity,
                 [UpdatedAt] = GETUTCDATE()
             WHERE [RecruitmentId] = @RecruitmentId AND [TeamId] = @TeamId
@@ -51,7 +51,7 @@ BEGIN
 
     SELECT
         r.[RecruitmentId], r.[TeamId], r.[Title], r.[Description], r.[ConditionsJson],
-        r.[DeadlineDate], r.[AgeGroup], r.[PositionsJson], r.[Capacity],
+        r.[DeadlineAt], r.[AgeGroup], r.[PositionsJson], r.[Capacity],
         r.[Status], r.[CreatedAt], r.[UpdatedAt], r.[DeletedAt]
     FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
     WHERE r.[RecruitmentId] = @RecruitmentId AND @Applied = 1;

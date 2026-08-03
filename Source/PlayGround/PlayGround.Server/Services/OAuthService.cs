@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Server.Services
 {
@@ -68,7 +69,7 @@ namespace PlayGround.Server.Services
         /// <summary>연결 모드 서명 상태 생성 — "link|{userId}|{만료(unix)}" + HMAC(Jwt:Key). 15분 유효.</summary>
         public string CreateLinkState(Guid userId)
         {
-            long expiry = DateTimeOffset.UtcNow.AddMinutes(15).ToUnixTimeSeconds();
+            long expiry = SystemTime.OffsetNow.AddMinutes(15).ToUnixTimeSeconds();
             string payload = $"link|{userId:N}|{expiry}";
             return $"{ToBase64Url(Encoding.UTF8.GetBytes(payload))}.{ToBase64Url(SignPayload(payload))}";
         }
@@ -110,7 +111,7 @@ namespace PlayGround.Server.Services
                 return false;
             }
 
-            if (!long.TryParse(fields[2], out long expiry) || DateTimeOffset.UtcNow.ToUnixTimeSeconds() > expiry)
+            if (!long.TryParse(fields[2], out long expiry) || SystemTime.OffsetNow.ToUnixTimeSeconds() > expiry)
             {
                 return false;
             }

@@ -120,7 +120,7 @@
 @code {
     private static readonly string[] AgeOrder = ["U18", "U15", "U12"];
 
-    private int mSeasonYear = DateTime.Now.Year;
+    private int mSeasonYear = KoreanTime.CurrentYear;
     private RecordsTournamentsResponse? mData;
     private bool mIsLeagueSegment;
     private string mSearch = string.Empty;

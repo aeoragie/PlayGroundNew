@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 using PlayGround.Contracts.Notification;
 using PlayGround.Domain.Soccer;
@@ -106,7 +107,7 @@ namespace PlayGround.Client.Components.Shared.Notifications
 
         public static string TimeAgo(DateTime createdAtUtc)
         {
-            TimeSpan span = DateTime.UtcNow - createdAtUtc;
+            TimeSpan span = SystemTime.Now - createdAtUtc;
             if (span.TotalMinutes < 1)
             {
                 return AppText.Notification.TimeJustNow;

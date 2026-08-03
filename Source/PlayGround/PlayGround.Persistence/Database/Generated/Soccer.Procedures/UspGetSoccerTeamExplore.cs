@@ -16,9 +16,12 @@ public class UspGetSoccerTeamExplore(RepositoryBase repository) : ProcedureBase(
 {
     public override string Procedure => "[dbo].[UspGetSoccerTeamExplore]";
 
-
+	public DateTime SeasonStartUtc { get; set; } = DateTime.MinValue;
+	public DateTime SeasonEndUtc { get; set; } = DateTime.MinValue;
     public override DynamicParameters BuildParameters()
     {
+		Parameters.Add("@SeasonStartUtc", SeasonStartUtc);
+		Parameters.Add("@SeasonEndUtc", SeasonEndUtc);
 		Parameters.Add("@ReturnValue", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.ReturnValue);
         return Parameters;
     }

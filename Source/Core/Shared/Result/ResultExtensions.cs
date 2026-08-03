@@ -1,4 +1,5 @@
 using PlayGround.Shared.Http;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Shared.Result;
 
@@ -14,7 +15,7 @@ public static class ResultExtensions
             Code = result.ResultData.DetailCode.Name,
             Value = result.Value,
             Details = result.ResultData.Details,
-            Timestamp = DateTime.UtcNow
+            Timestamp = SystemTime.Now
         };
     }
 
@@ -28,7 +29,7 @@ public static class ResultExtensions
             Code = result.ResultData.DetailCode.Name,
             Value = null,
             Details = result.ResultData.Details,
-            Timestamp = DateTime.UtcNow
+            Timestamp = SystemTime.Now
         };
     }
 
@@ -55,7 +56,7 @@ public static class ResultExtensions
             IsSuccess = isSuccess,
             Priority = resultData.DetailCode.GetPriority(),
             RequiresNotification = resultData.DetailCode.RequiresNotification(),
-            Timestamp = DateTime.UtcNow
+            Timestamp = SystemTime.Now
         };
     }
 
@@ -70,7 +71,7 @@ public static class ResultExtensions
             IsRetryable = result.ResultData.DetailCode.IsRetryable(),
             Priority = result.ResultData.DetailCode.GetPriority(),
             Duration = duration ?? TimeSpan.Zero,
-            Timestamp = DateTime.UtcNow
+            Timestamp = SystemTime.Now
         };
     }
 

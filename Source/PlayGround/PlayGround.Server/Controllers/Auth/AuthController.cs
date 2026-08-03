@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlayGround.Shared.Http;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Auth;
 using PlayGround.Contracts.Settings;
@@ -62,7 +63,7 @@ namespace PlayGround.Server.Controllers.Auth
         private DateTimeOffset CurrentTokenExpiresAt =>
             long.TryParse(User.FindFirstValue(JwtRegisteredClaimNames.Exp), out long seconds)
                 ? DateTimeOffset.FromUnixTimeSeconds(seconds)
-                : DateTimeOffset.UtcNow.AddHours(1);
+                : SystemTime.OffsetNow.AddHours(1);
 
         /// <summary>이메일 로그인/가입 (없으면 자동 생성). 성공 시 액세스 토큰 반환.</summary>
         [HttpPost("login/email")]
@@ -163,7 +164,7 @@ namespace PlayGround.Server.Controllers.Auth
             }
 
             // 탈퇴는 기기 하나가 아니라 **그 사용자의 토큰 전부**를 끊는다
-            await mTokenRevocation.RevokeAllForUserAsync(CurrentUserId, DateTimeOffset.UtcNow, cancellation);
+            await mTokenRevocation.RevokeAllForUserAsync(CurrentUserId, SystemTime.OffsetNow, cancellation);
 
             return result.ToEnvelope();
         }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
 
 namespace PlayGround.Server.Feeds
@@ -24,7 +25,7 @@ namespace PlayGround.Server.Feeds
             sb.Append("X-WR-CALNAME:").Append(Escape($"PlayGround 일정 · {slug}")).Append("\r\n");
             sb.Append("X-WR-TIMEZONE:Asia/Seoul\r\n");
 
-            string stamp = DateTime.UtcNow.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+            string stamp = SystemTime.Now.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
 
             foreach (ScheduleDto s in schedules)
             {

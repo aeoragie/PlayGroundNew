@@ -2,6 +2,7 @@ using FluentAssertions;
 using Moq;
 using Xunit;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Account;
 using PlayGround.Domain.Soccer;
@@ -123,8 +124,10 @@ namespace PlayGround.Tests.Unit.Application
         [Fact]
         public async Task ExecuteAsync_시간대_차이를_감안해_내일까지는_받는다()
         {
+            // 요청의 MatchedAt은 UTC 순간이다. 판정은 한국 달력 기준이라
+            // "한국 시각으로 내일"까지는 통과해야 한다(입력 시점의 시차를 감안한 여유).
             Result<CreateTeamMatchResultResponse> result =
-                await new Harness().Command.ExecuteAsync(Manager, Request(at: DateTime.Now.AddDays(1)));
+                await new Harness().Command.ExecuteAsync(Manager, Request(at: SystemTime.Now.AddDays(1)));
 
             result.IsSuccess.Should().BeTrue();
         }

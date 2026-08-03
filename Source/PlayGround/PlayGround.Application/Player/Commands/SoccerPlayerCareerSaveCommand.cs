@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Player;
+using PlayGround.Domain.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Player.Commands
@@ -35,7 +37,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<bool>.Error(ErrorCode.InvalidInput, "team name is required");
             }
 
-            int currentYear = DateTime.UtcNow.Year;
+            int currentYear = KoreanTime.CurrentYear;
             if (request.StartDate.Year < EarliestYear || request.StartDate.Year > currentYear + 1)
             {
                 return Result<bool>.Error(ErrorCode.InvalidInput, "start date is out of range");

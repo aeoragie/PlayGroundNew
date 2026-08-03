@@ -232,7 +232,7 @@
             {
                 List<RecordsStandingDto> leagueStandings = StandingsOf(nameof(SoccerTournamentStageType.League), null);
                 List<RecordsMatchDto> leagueMatches = MatchesOf(nameof(SoccerTournamentStageType.League), null);
-                List<string> months = leagueMatches.Where(m => m.MatchedAt is not null).Select(m => AppText.Records.MonthSuffix(m.MatchedAt!.Value.Month)).Distinct().ToList();
+                List<string> months = leagueMatches.Where(m => m.MatchedAt is not null).Select(m => AppText.Records.MonthSuffix(m.MatchedAt!.Value.ToLocalTime().Month)).Distinct().ToList();
                 <div class="flex flex-col gap-3.5">
                     @if (leagueStandings.Count > 0)
                     {
@@ -254,7 +254,7 @@
                                 }
                             }
                         </div>
-                        @foreach (RecordsMatchDto match in leagueMatches.Where(m => mMonth == AppText.Records.All || (m.MatchedAt is not null && AppText.Records.MonthSuffix(m.MatchedAt.Value.Month) == mMonth)))
+                        @foreach (RecordsMatchDto match in leagueMatches.Where(m => mMonth == AppText.Records.All || (m.MatchedAt is not null && AppText.Records.MonthSuffix(m.MatchedAt.Value.ToLocalTime().Month) == mMonth)))
                         {
                             <RecordsMatchRowCard Match="@match" IsOpen="@(mOpenMatchId == match.MatchId)"
                                                  Logs="@(mOpenMatchId == match.MatchId ? mOpenLogs : null)"

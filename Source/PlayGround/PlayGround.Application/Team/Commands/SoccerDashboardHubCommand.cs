@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Claim;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Team;
@@ -81,7 +82,7 @@ namespace PlayGround.Application.Team.Commands
                 if (!schedules.IsError)
                 {
                     ScheduleDto? next = schedules.Value.Schedules
-                        .Where(s => s.StartsAt > DateTime.Now && (s.Type == "Match" || s.Type == "Tournament"))
+                        .Where(s => s.StartsAt > SystemTime.Now && (s.Type == "Match" || s.Type == "Tournament"))
                         .OrderBy(s => s.StartsAt)
                         .FirstOrDefault();
 

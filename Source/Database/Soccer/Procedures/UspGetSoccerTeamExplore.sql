@@ -5,7 +5,11 @@
 --   ① 공개 팀 목록 → ② 핵심가치(제목·순서 — 카드 칩 최대 2는 매핑에서)
 --   → ③ 로스터 소속(TeamId만 — 선수단 수 집계는 C#) → ④ 올해 종료·공식 경기(전적 집계는 C#)
 -- 필터·정렬·페이징은 클라이언트 담당 (URL 동기화·즉시 적용 — Design.SearchFilter).
+-- 올해(한국 달력)의 시작·끝을 UTC 순간으로 받는다. 앱(KoreanTime)이 계산한다 —
+-- SQL은 시간대 산술을 하지 않고, 범위 비교라 인덱스도 탄다.
 CREATE PROCEDURE [dbo].[UspGetSoccerTeamExplore]
+    @SeasonStartUtc DATETIME2,
+    @SeasonEndUtc DATETIME2
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -18,7 +22,7 @@ BEGIN
         CAST(CASE WHEN EXISTS (
             SELECT 1 FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
             WHERE r.[TeamId] = t.[TeamId] AND r.[Status] = 'Open' AND r.[DeletedAt] IS NULL
-              AND (r.[DeadlineDate] IS NULL OR r.[DeadlineDate] >= CAST(GETUTCDATE() AS DATE)))
+              AND (r.[DeadlineAt] IS NULL OR r.[DeadlineAt] > GETUTCDATE()))
         THEN 1 ELSE 0 END AS BIT) AS [IsRecruiting]
     FROM [dbo].[SoccerTeams] t WITH (NOLOCK)
     WHERE t.[IsPublicProfile] = 1 AND t.[DeletedAt] IS NULL AND t.[Slug] IS NOT NULL;
@@ -42,6 +46,6 @@ BEGIN
     SELECT m.[HomeTeamId], m.[AwayTeamId], m.[HomeScore], m.[AwayScore]
     FROM [dbo].[SoccerMatches] m WITH (NOLOCK)
     WHERE m.[Status] = 'Completed' AND m.[MatchType] = 'Official' AND m.[DeletedAt] IS NULL
-      AND m.[MatchedAt] IS NOT NULL AND YEAR(m.[MatchedAt]) = YEAR(GETUTCDATE())
+      AND m.[MatchedAt] >= @SeasonStartUtc AND m.[MatchedAt] < @SeasonEndUtc
       AND (m.[HomeTeamId] IS NOT NULL OR m.[AwayTeamId] IS NOT NULL);
 END

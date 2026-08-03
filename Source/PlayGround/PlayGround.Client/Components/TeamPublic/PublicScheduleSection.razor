@@ -19,8 +19,8 @@
                 bool ended = IsEnded(item);
                 <div class="@($"bg-white border-1.5 border-border rounded-[14px] px-5 py-4 flex items-center gap-[18px] {(ended ? "opacity-[.55]" : "")}")">
                     <span class="flex flex-col items-center w-[52px] shrink-0">
-                        <span class="text-[11.5px] font-bold @WeekdayClass(item.StartsAt)">@WeekdayLabel(item.StartsAt)</span>
-                        <span class="text-[21px] font-extrabold text-navy-deep tabular-nums">@item.StartsAt.Day</span>
+                        <span class="text-[11.5px] font-bold @WeekdayClass(When(item))">@WeekdayLabel(When(item))</span>
+                        <span class="text-[21px] font-extrabold text-navy-deep tabular-nums">@When(item).Day</span>
                     </span>
                     <span class="@TypeClass(TypeOf(item))">@TypeOf(item).ToLabel()</span>
                     <span class="flex flex-col gap-[3px] flex-1 min-w-0">
@@ -55,7 +55,10 @@
     [Parameter, EditorRequired]
     public List<ScheduleDto> Schedules { get; set; } = new();
 
-    private static bool IsEnded(ScheduleDto s) => s.StartsAt < DateTime.Now;
+    private static bool IsEnded(ScheduleDto s) => s.StartsAt < SystemTime.Now;
+
+    // 서버가 주는 StartsAt은 UTC 순간이다 — 화면에 쓰는 날짜·요일·시각은 반드시 현지로 되돌린다
+    private static DateTime When(ScheduleDto s) => s.StartsAt.ToLocalTime();
 
     // 다가오는 일정 오름차순 → 최근 종료 일정 최대 3개(최근순). 공개 일정만 서버에서 온다.
     private List<ScheduleDto> Rows =>
@@ -85,7 +88,7 @@
             ? $"vs {s.OpponentName}"
             : (s.Title ?? string.Empty);
 
-    private static string TimeOf(ScheduleDto s) => s.StartsAt.ToString("HH:mm");
+    private static string TimeOf(ScheduleDto s) => When(s).ToString("HH:mm");
 
     private static string WeekdayLabel(DateTime dt) =>
         new[] { AppText.Team.DowSun, AppText.Team.DowMon, AppText.Team.DowTue, AppText.Team.DowWed, AppText.Team.DowThu, AppText.Team.DowFri, AppText.Team.DowSat }[(int)dt.DayOfWeek];

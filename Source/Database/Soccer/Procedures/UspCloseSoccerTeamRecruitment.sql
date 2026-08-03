@@ -18,7 +18,7 @@ BEGIN
 
     SELECT
         r.[RecruitmentId], r.[TeamId], r.[Title], r.[Description], r.[ConditionsJson],
-        r.[DeadlineDate], r.[Status], r.[CreatedAt], r.[UpdatedAt], r.[DeletedAt]
+        r.[DeadlineAt], r.[Status], r.[CreatedAt], r.[UpdatedAt], r.[DeletedAt]
     FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
     WHERE r.[RecruitmentId] = @RecruitmentId AND @Closed = 1;
 END

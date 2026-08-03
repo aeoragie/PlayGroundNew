@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Infrastructure.Logging;
@@ -60,7 +61,7 @@ namespace PlayGround.Persistence.Repositories
             }
 
             // 만료된 Ready는 상태 행에서 빼서 "요청" 버튼으로 되돌린다 (판정은 여기 한 곳)
-            if (row.Status == "Ready" && row.ExpiresAt is DateTime exp && exp <= DateTime.UtcNow)
+            if (row.Status == "Ready" && row.ExpiresAt is DateTime exp && exp <= SystemTime.Now)
             {
                 return Result<DataExportStateDto?>.Success(null);
             }

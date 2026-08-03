@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Account;
 using PlayGround.Domain.Soccer;
+using PlayGround.Domain.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Team.Commands
@@ -145,7 +147,7 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 아직 열리지 않은 경기의 결과는 있을 수 없다 (시간대 차이를 감안해 하루 여유)
-            if (request.MatchedAt.Date > DateTime.Now.Date.AddDays(1))
+            if (KoreanTime.ToKoreanDate(request.MatchedAt) > KoreanTime.Today.AddDays(1))
             {
                 return Result<CreateTeamMatchResultResponse>.Error(ErrorCode.InvalidInput, "matchedAt is in the future");
             }

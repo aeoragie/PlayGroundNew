@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlayGround.Shared.Http;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
+using PlayGround.Domain.Time;
 using PlayGround.Contracts.Team;
 using PlayGround.Server.Actors;
 
@@ -33,7 +35,7 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             string displayName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? string.Empty;
-            int seasonYear = season ?? DateTime.UtcNow.Year;
+            int seasonYear = season ?? KoreanTime.CurrentYear;
 
             Result<DashboardHubResponse> result = await mGateway.AskAsync<DashboardHubResponse>(
                 ActorNames.SoccerDashboard,

@@ -183,7 +183,7 @@
 
     internal static string DateLabel(PlayerMatchStatDto match)
     {
-        return match.MatchedAt is null ? "-" : $"{match.MatchedAt.Value.Month}/{match.MatchedAt.Value.Day}";
+        return match.MatchedAt is null ? "-" : match.MatchedAt.Value.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     // "vs 강동 SC (3:1 승)"

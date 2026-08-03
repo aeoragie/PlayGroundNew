@@ -164,7 +164,7 @@
             return AppText.Player.ErrorStartFormat;
         }
 
-        if (parsed.Value.Year < EarliestYear || parsed.Value.Year > DateTime.Now.Year + 1)
+        if (parsed.Value.Year < EarliestYear || parsed.Value.Year > KoreanTime.CurrentYear + 1)
         {
             return AppText.Player.ErrorEarliestYear(EarliestYear);
         }

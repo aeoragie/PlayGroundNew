@@ -44,6 +44,7 @@ Tests/Tests.Unit/
 | `SoccerEnumRulesTests` | 숫자 문자열 enum 파싱 차단 · 파싱 실패 시 기본값 · 공개/알림 기본값이 SPEC과 일치 · 승인형은 알림 설정 enum에 없음 |
 | `DisplayStringPlacementTests` | **Domain·Contracts에 표시 문자열 없음** (아래 §5) |
 | `SqlProjectCoverageTests` | **모든 `.sql`이 sqlproj 검증 대상에 포함**됨 · 개별 파일 나열 금지 · Build/None 구분 (아래 §5) |
+| `TimeBaselineGuardTests` | **시각 기준이 UTC 하나**임 — C# `DateTime` 직접 호출 금지 · SQL 지역 시각 함수 금지 (아래 §5-3) |
 
 ### Application
 
@@ -151,6 +152,25 @@ dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 > **첫 실행에서 실제 드리프트 4건을 잡았다** — 로컬 Account DB에 `NotificationPreferences`
 > 테이블과 프로시저 4종(`UspDeleteUser`·알림 설정 3종)이 배포돼 있지 않았다.
 > 알림 설정 화면과 계정 탈퇴가 런타임에 터지는 상태였다.
+
+## 5-3. 시각 기준 가드
+
+`TimeBaselineGuardTests`가 `Source/` 전체(`.cs`·`.razor`·`.sql`)를 훑는다.
+
+| 잡는 것 | 왜 |
+|---|---|
+| C# `DateTime.Now`·`UtcNow`·`Today`, `DateTimeOffset.Now`·`UtcNow` | `SystemTime.Now`(UTC)를 쓴다. 한국 달력 값만 `KoreanTime` |
+| SQL `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | 서버 시간대에 묶인다. `GETUTCDATE()`만 쓴다 |
+
+**이 가드가 없으면 새 코드가 반드시 다시 샌다.** 개발 PC(KST)에서는 `DateTime.Now`가 멀쩡히
+돌기 때문에 리뷰로도 일반 테스트로도 안 잡히고, **UTC 서버에서만 9시간 어긋난다.**
+실제로 그 상태로 7곳이 쌓여 마감된 모집이 9시간 더 살아 있었다.
+
+주석과 문자열 리터럴은 걷어낸 뒤 검사한다(설명문의 `DateTime.Now`까지 막으면 못 쓴다).
+예외는 래퍼 자신(`SystemTime.cs`)뿐이다.
+
+경계 계산은 값 테스트로도 못 박아 뒀다 — 마감이 **한국 자정에서 갈리는지**,
+시즌 범위가 **1/1 오전 8시(KST) 경기를 포함하는지**(UTC 연도로 비교했다면 빠졌을 값).
 
 ## 5-4. 인가 누락 가드 (Tests.Integration/Api)
 

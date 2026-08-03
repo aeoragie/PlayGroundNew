@@ -49,7 +49,7 @@ BEGIN
         @RecruitmentExists = 1,
         @Capacity = r.[Capacity],
         @IsOpen = CASE WHEN r.[Status] = 'Open'
-                        AND (r.[DeadlineDate] IS NULL OR r.[DeadlineDate] >= CAST(GETUTCDATE() AS DATE))
+                        AND (r.[DeadlineAt] IS NULL OR r.[DeadlineAt] > GETUTCDATE())
                        THEN 1 ELSE 0 END
     FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
     WHERE r.[RecruitmentId] = @RecruitmentId AND r.[DeletedAt] IS NULL;

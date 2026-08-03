@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
+using PlayGround.Domain.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Team.Commands
@@ -71,7 +73,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<UpdateTeamInfoResponse>.Error(ErrorCode.InvalidInput, "teamName is required");
             }
 
-            if (request.FoundedYear is int year && (year < MinFoundedYear || year > DateTime.Now.Year))
+            if (request.FoundedYear is int year && (year < MinFoundedYear || year > KoreanTime.CurrentYear))
             {
                 return Result<UpdateTeamInfoResponse>.Error(ErrorCode.InvalidInput, "foundedYear out of range");
             }

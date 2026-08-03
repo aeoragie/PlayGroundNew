@@ -179,8 +179,10 @@
             mType = Enum.TryParse(Editing.Type, out SoccerScheduleEventType parsed) ? parsed : SoccerScheduleEventType.Match;
             mTitle = Editing.Title ?? string.Empty;
             mOpponentName = Editing.OpponentName ?? string.Empty;
-            mDate = Editing.StartsAt.Date;
-            mTime = TimeOnly.FromDateTime(Editing.StartsAt);
+            // 서버 값은 UTC 순간 — 사용자가 입력했던 현지 시각으로 되돌려 폼에 채운다
+            DateTime editingLocal = Editing.StartsAt.ToLocalTime();
+            mDate = editingLocal.Date;
+            mTime = TimeOnly.FromDateTime(editingLocal);
             mVenue = Editing.Venue;
             mIsPublic = Editing.IsPublic;
             mPublicTouched = true; // 저장된 값을 유형 자동 기본값이 덮어쓰지 않게
@@ -249,7 +251,8 @@
             // 경기는 제목을 상대명에서 파생하므로 null로 저장한다
             Title = hasTitle ? mTitle.Trim() : null,
             OpponentName = hasOpponent ? mOpponentName.Trim() : null,
-            StartsAt = mDate.Value.Date.Add(mTime.Value.ToTimeSpan()),
+            // 사용자는 현지 시각으로 입력한다 — 저장은 UTC 순간으로 (표시할 때 현지로 되돌린다)
+            StartsAt = DateTime.SpecifyKind(mDate.Value.Date.Add(mTime.Value.ToTimeSpan()), DateTimeKind.Local).ToUniversalTime(),
             Venue = mVenue.Trim(),
             IsPublic = mIsPublic,
         };

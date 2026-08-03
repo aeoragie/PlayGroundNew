@@ -1,3 +1,5 @@
+using PlayGround.Shared.Time;
+
 namespace PlayGround.Server.Services
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace PlayGround.Server.Services
         /// <summary>새 저장 키 — uploads/{category}/{yyyyMM}/{guid}{ext}. 공개 URL은 "/" + 키.</summary>
         public static string NewKey(string category, string extension)
         {
-            string month = DateTime.UtcNow.ToString("yyyyMM");
+            string month = SystemTime.Now.ToString("yyyyMM");
             return $"{Root}/{category}/{month}/{Guid.NewGuid():N}{extension}";
         }
 

@@ -52,9 +52,22 @@ E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 
 
 > Ubuntu는 **22.04**다 — SQL Server 2022가 24.04용 저장소를 제공하지 않는다(2025만 있음).
 
-**서버 시간대는 UTC다.** 호스트 TZ로 로직을 맞추지 않는다 — 한국 시각은 코드·DB의 **명시적
-래퍼**가 책임지고, 하위에서 `DateTime.Now`/`GETUTCDATE()` 직접 호출을 금지한다(ReleasePlan **H7**,
-착수 전). 그때까지 서버측 직접 호출 7곳은 9시간 어긋난 상태다 — 알고 받아들인 상태.
+**시각 기준은 UTC 하나다** (H7 완료, 2026-08-03). 저장·비교는 전부 UTC이고, 한국 시각은
+표시와 "한국 달력" 값에만 쓴다. 서버 시간대도 UTC다.
+
+| 층 | 금지 | 대신 |
+|---|---|---|
+| C# | `DateTime.Now`·`UtcNow`·`Today`, `DateTimeOffset.Now`·`UtcNow` 직접 호출 | **`SystemTime.Now`(UTC 반환)** |
+| C# — 한국 달력 값만 | | **`KoreanTime`** — 마감일(`EndOfDayToUtc`)·시즌(`CurrentYear`·`YearRangeUtc`) |
+| SQL | `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | **`GETUTCDATE()`만.** 시간대 산술을 SQL에 두지 않는다 |
+| Client | | 표시는 `ToLocalTime()`, 입력 저장은 `ToUniversalTime()` |
+
+`SystemTime.Now`가 UTC인 게 헷갈릴 수 있는데, **선택지를 두면 반드시 섞이므로 없앤 것**이다.
+`Tests.Unit`의 `TimeBaselineGuardTests`가 `Source/` 전체를 훑어 위반을 자동으로 잡는다.
+
+> **`DATE` 컬럼을 전부 바꾸지는 않았다** — 생년월일·커리어 기간·대회 일정은 `DATE`로 남는다.
+> 기준은 "**now와 비교해 상태가 갈리는 날짜만**". 생년월일을 순간으로 만들면 보는 시간대에
+> 따라 생일이 하루 밀린다.
 
 ### 다음 방향 — 첫 배포까지 (2026-08-02 결정)
 

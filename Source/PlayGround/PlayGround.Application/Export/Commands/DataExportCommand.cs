@@ -4,11 +4,13 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Export;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Settings;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
+using PlayGround.Domain.Time;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 
@@ -161,7 +163,7 @@ namespace PlayGround.Application.Export.Commands
                 string storageKey = await mStorage.SaveAsync(requestId, content, cancellation);
 
                 string token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
-                DateTime expiresAt = DateTime.UtcNow.AddDays(7);
+                DateTime expiresAt = SystemTime.Now.AddDays(7);
 
                 Result<bool> updated = await mExportRepository.UpdateStatusAsync(
                     requestId, "Ready", token, storageKey, zipBytes.LongLength, expiresAt, cancellation);
@@ -248,7 +250,7 @@ namespace PlayGround.Application.Export.Commands
                     csv.AppendLine("선수,연령,소속팀,출전,득점,도움");
                     var childData = new List<object>();
 
-                    int season = DateTime.Now.Year;
+                    int season = KoreanTime.CurrentYear;
                     foreach (ManagedPlayerDto child in childList)
                     {
                         object? info = null;
