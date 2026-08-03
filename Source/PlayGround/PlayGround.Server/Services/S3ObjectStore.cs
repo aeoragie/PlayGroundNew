@@ -7,26 +7,26 @@ using Amazon.S3.Model;
 namespace PlayGround.Server.Services
 {
     /// <summary>
-    /// <see cref="IObjectStore"/>의 AWS S3 구현 — **저장소 벤더를 아는 유일한 클래스다.**
-    /// 다른 저장소(Azure Blob·GCS·MinIO)로 옮기려면 이 파일과 DI 등록 한 줄만 바꾼다.
+    /// <see cref="IObjectStore"/>의 AWS S3 구현 (`Provider=S3`).
+    /// **AWS SDK를 아는 유일한 클래스다** — 소비자(Remote*)는 인터페이스만 본다.
     ///
     /// 자격 증명은 SDK 기본 체인(EC2 인스턴스 역할 · 개발 PC의 aws 프로필)이 정한다 —
     /// **서버에 액세스 키를 두지 않는다.**
     /// 버킷은 퍼블릭 차단 상태이고, 브라우저 서빙은 UploadsController(`/uploads` 프록시)가 맡는다.
     /// </summary>
-    public sealed class AwsObjectStore : IObjectStore
+    public sealed class S3ObjectStore : IObjectStore
     {
         private readonly IAmazonS3 mClient;
         private readonly string mBucketName;
 
         /// <summary>운영·개발 경로 — 설정만 주면 클라이언트는 스스로 만든다(호출자가 SDK를 몰라도 된다).</summary>
-        public AwsObjectStore(UploadStorageConfiguration.RemoteSettings settings)
+        public S3ObjectStore(UploadStorageConfiguration settings)
             : this(CreateClient(settings), settings)
         {
         }
 
         /// <summary>테스트가 클라이언트를 주입하기 위한 생성자.</summary>
-        public AwsObjectStore(IAmazonS3 client, UploadStorageConfiguration.RemoteSettings settings)
+        public S3ObjectStore(IAmazonS3 client, UploadStorageConfiguration settings)
         {
             Debug.Assert(client != null, "client is required");
             Debug.Assert(settings != null, "settings is required");
@@ -71,7 +71,7 @@ namespace PlayGround.Server.Services
             }
         }
 
-        private static IAmazonS3 CreateClient(UploadStorageConfiguration.RemoteSettings settings)
+        private static IAmazonS3 CreateClient(UploadStorageConfiguration settings)
         {
             ArgumentNullException.ThrowIfNull(settings);
 

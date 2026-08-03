@@ -134,8 +134,8 @@ OAuth__Apple__ClientId=...
 DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost,47821;Database=PlayGround_Account;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
 DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost,47821;Database=PlayGround_Soccer;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
 RedisConfig__Connections__0__ConnectionString=localhost:6379
-UploadStorageConfiguration__Provider=Remote
-UploadStorageConfiguration__Remote__BucketName=playgroundsport-images-599615474479-ap-northeast-2-an
+UploadStorageConfiguration__Provider=S3
+UploadStorageConfiguration__BucketName=playgroundsport-images-599615474479-ap-northeast-2-an
 ```
 
 > **`localhost` 뒤에도 `,47821`이 필요하다.** SQL Server는 지정한 포트 하나만 듣기 때문에

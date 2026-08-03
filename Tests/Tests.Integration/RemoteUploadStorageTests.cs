@@ -12,16 +12,16 @@ namespace PlayGround.Tests.Integration
     /// 원격 업로드 어댑터 계약 — 키/URL 형태가 로컬 어댑터와 동일해야 한다
     /// (URL "/uploads/..."는 DB 저장값이자 Application 검증 화이트리스트라 백엔드 교체로 바뀌면 안 된다).
     ///
-    /// 저장소 벤더는 <see cref="AwsObjectStore"/> 뒤에 있으므로 여기서만 SDK를 안다.
+    /// 저장소 벤더는 <see cref="S3ObjectStore"/> 뒤에 있으므로 여기서만 SDK를 안다.
     /// 실제 S3는 부르지 않는다 — IAmazonS3 목으로 요청 형태만 검증한다.
     /// </summary>
     public class RemoteUploadStorageTests
     {
         private const string Bucket = "test-bucket";
 
-        private static UploadStorageConfiguration.RemoteSettings Settings => new() { BucketName = Bucket };
+        private static UploadStorageConfiguration Settings => new() { Provider = UploadStorageProvider.S3, BucketName = Bucket };
 
-        private static IObjectStore StoreOf(Mock<IAmazonS3> client) => new AwsObjectStore(client.Object, Settings);
+        private static IObjectStore StoreOf(Mock<IAmazonS3> client) => new S3ObjectStore(client.Object, Settings);
 
         //.// RemoteImageStorageService
 

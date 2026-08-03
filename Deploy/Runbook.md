@@ -142,7 +142,7 @@ sudo journalctl --vacuum-time=14d
 sudo rm -rf /var/www/playground.new
 ```
 
-> **업로드 이미지는 디스크에 쌓이지 않는다** — 운영은 `Provider=Remote`(오브젝트 스토리지)다.
+> **업로드 이미지는 디스크에 쌓이지 않는다** — 운영은 `Provider=S3`(오브젝트 스토리지)다.
 > `/var/www/playground/wwwroot/uploads`가 커져 있다면 `Provider`가 `Local`로 잘못 떠 있다는 신호다.
 
 ---

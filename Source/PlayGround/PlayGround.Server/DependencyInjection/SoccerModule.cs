@@ -59,35 +59,35 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerNotificationCommand>();
             services.AddScoped<SoccerAgentApprovalCommand>();
 
-            //.// 업로드 저장 — Provider 스위치 (Local=디스크+정적 서빙 / Remote=오브젝트 스토리지+/uploads 프록시).
-            // URL은 두 백엔드 모두 "/uploads/..." — DB 저장값·클라이언트·검증 로직이 저장 위치를 모르게 유지한다.
-            // **저장소 벤더를 아는 곳은 AwsObjectStore 하나뿐이다** — 여기서도 IObjectStore로만 등록한다.
+            //.// 업로드 저장 — Provider가 어댑터를 고른다 (DatabaseConfiguration과 같은 방식).
+            // URL은 어느 Provider든 "/uploads/..." — DB 저장값·클라이언트·검증 로직이 저장 위치를 모르게 유지한다.
+            // 소비자(Remote*)는 IObjectStore만 보므로, 벤더를 아는 곳은 어댑터 한 개뿐이다.
 
             UploadStorageConfiguration uploadConfig =
                 configuration.GetSection(UploadStorageConfiguration.Section).Get<UploadStorageConfiguration>()
                 ?? new UploadStorageConfiguration();
-            if (uploadConfig.UsesRemote)
+            if (uploadConfig.UsesLocalDisk)
             {
-                if (string.IsNullOrWhiteSpace(uploadConfig.Remote.BucketName))
-                {
-                    // 설정 누락을 조용히 로컬 폴백하면 운영에서 이미지가 인스턴스와 함께 사라진다 — 기동 실패가 낫다
-                    throw new InvalidOperationException(
-                        "UploadStorageConfiguration: Provider=Remote requires Remote.BucketName");
-                }
-
-                services.AddSingleton<IObjectStore>(_ => new AwsObjectStore(uploadConfig.Remote));
-                services.AddSingleton<IImageStorage, RemoteImageStorageService>();
-                services.AddSingleton<IFileStorage, RemoteFileStorageService>();
-                services.AddSingleton<IUploadReader, RemoteUploadReader>();
-            }
-            else
-            {
-                // **운영에서 안 쓰더라도 로컬 디스크 어댑터는 남겨 둔다** — AWS 자격 증명이 없는 PC나
+                // **운영에서 안 쓰더라도 로컬 디스크 어댑터는 남겨 둔다** — 클라우드 자격 증명이 없는 PC나
                 // 오프라인에서 앱을 띄우는 경로이고, 오브젝트 스토리지 장애 시의 대피로이기도 하다.
                 // 지우면 Provider=Local이 죽는다(= appsettings 한 줄로 되돌릴 수단이 사라진다).
                 services.AddSingleton<IImageStorage, LocalImageStorageService>();
                 services.AddSingleton<IFileStorage, LocalFileStorageService>();
                 services.AddSingleton<IUploadReader, LocalUploadReader>();
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(uploadConfig.BucketName))
+                {
+                    // 설정 누락을 조용히 로컬 폴백하면 운영에서 이미지가 인스턴스와 함께 사라진다 — 기동 실패가 낫다
+                    throw new InvalidOperationException(
+                        $"UploadStorageConfiguration: Provider={uploadConfig.Provider} requires BucketName");
+                }
+
+                services.AddSingleton<IObjectStore>(_ => CreateObjectStore(uploadConfig));
+                services.AddSingleton<IImageStorage, RemoteImageStorageService>();
+                services.AddSingleton<IFileStorage, RemoteFileStorageService>();
+                services.AddSingleton<IUploadReader, RemoteUploadReader>();
             }
 
             // 링크 공유 미리보기(OG 메타, DECISION.OGMETA) — 크롤러 감지 미들웨어 + 카드 렌더 + 24h 캐시
@@ -107,5 +107,16 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerRecordsMatchDetailCommand>();
             return services;
         }
+
+        // Provider 값 하나가 어댑터 하나에 대응한다 — 새 저장소를 붙이면 여기에 한 줄이 는다.
+        // Google·Azure는 껍질만 있고 생성자가 기동 시점에 실패한다(업로드 때 알게 되면 늦다).
+        private static IObjectStore CreateObjectStore(UploadStorageConfiguration config) => config.Provider switch
+        {
+            UploadStorageProvider.S3 => new S3ObjectStore(config),
+            UploadStorageProvider.Google => new GoogleObjectStore(config),
+            UploadStorageProvider.Azure => new AzureObjectStore(config),
+            _ => throw new InvalidOperationException(
+                $"UploadStorageConfiguration: unsupported Provider '{config.Provider}'"),
+        };
     }
 }
