@@ -72,8 +72,9 @@ apt-get install -y certbot python3-certbot-nginx
 
 #.// 한글 폰트 — OG 카드가 SkiaSharp로 한글을 그린다.
 # 없으면 글자가 통째로 깨진다(Windows에는 있어서 개발 중엔 드러나지 않는다).
+# fontconfig를 명시한다 — 서버 우분투엔 기본으로 없어서 fc-cache가 command not found가 된다.
 log "한글 폰트"
-apt-get install -y fonts-nanum fonts-noto-cjk
+apt-get install -y fontconfig fonts-nanum fonts-noto-cjk
 fc-cache -f
 
 log "앱 디렉터리"

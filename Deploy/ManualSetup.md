@@ -196,12 +196,15 @@ HTTPS 인증서도 Nginx가 들고 있다(앱이 아니라).
 ## 9. 한글 폰트
 
 ```bash
-sudo apt-get install -y fonts-nanum fonts-noto-cjk
+sudo apt-get install -y fontconfig fonts-nanum fonts-noto-cjk
 sudo fc-cache -f
 ```
 
 **OG 카드(공유 미리보기 이미지)를 SkiaSharp가 서버에서 그린다.** 폰트가 없으면 한글이 통째로
 깨진다. Windows 개발 PC에는 폰트가 있어서 **개발 중에는 절대 드러나지 않는 문제**다.
+
+- `fontconfig`를 명시하는 이유 — `fc-cache`가 이 패키지 소속인데 서버 우분투엔 기본으로
+  없다. 빼면 `fc-cache: command not found` (2026-08-03 실제 겪음).
 
 ```bash
 fc-list :lang=ko | head -3
