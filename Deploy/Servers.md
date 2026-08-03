@@ -5,29 +5,32 @@
 >
 > 구성·설치는 `README.md`, 콘솔 작업은 `AwsSetup.md`, 장애 대응은 `Runbook.md`.
 
-## 지금 어디까지 왔나 (2026-08-02)
+## 지금 어디까지 왔나 (2026-08-03)
 
-**네트워크는 검증 끝, 인스턴스는 AMI를 잘못 골라 재생성 대기.**
+**인스턴스 재생성 완료 — Ubuntu 22.04(jammy) 확인 끝. 다음은 `ManualSetup.md` 1단계.**
 
 | 끝난 것 | 상태 |
 |---|---|
 | VPC·서브넷·IGW·라우팅 | ✅ `playground-vpc` — 퍼블릭 서브넷 접속까지 확인 |
 | 보안 그룹 | ✅ `playground-prod-sg` (22·80·443·47821) |
-| 키 페어 | ✅ `playground-prod.pem` (권한 정리 완료) |
-| Elastic IP | ✅ `54.180.64.167` |
+| 키 페어 | ✅ `playground-prod.pem` |
+| Elastic IP | ✅ `54.180.64.167` — 인스턴스에 연결됨 |
+| 인스턴스 | ✅ `i-001e9dbfc3b767c1f` — **jammy 22.04.5** · 49G 디스크 확인 (26.04 사고분은 종료) |
 | SSH 접속 | ✅ 성공 |
 
-**다음에 할 일 — 인스턴스를 다시 만든다:**
-
-1. 현재 인스턴스가 **Ubuntu 26.04**로 만들어졌다. Microsoft가 26.04용 저장소를 주지 않아
-   **SQL Server·.NET을 설치할 수 없다.** 종료하고 다시 만든다.
-2. AMI는 **`모든 AMI 찾아보기` → `ubuntu-jammy-22.04`** (소유자 Canonical).
-   빠른 시작의 `Ubuntu` 타일은 최신 LTS가 기본이라 또 잘못 잡힌다.
-3. 네트워크 설정은 **`편집`을 눌러** 서브넷 `…-public1-…` · 퍼블릭 IP **활성화**.
-4. 탄력적 IP 재연결 → 접속 후 `lsb_release -a`로 **jammy** 확인.
-5. 그다음 **`ManualSetup.md` 1단계**부터 (직접 설치해 보는 중).
+**다음에 할 일 — `ManualSetup.md` 1단계부터** (직접 설치해 보는 중).
 
 > 이후 절차는 `AwsSetup.md` "SQL Server 초기 설정" → S3/IAM → Route 53 순서.
+> 재생성은 CLI로 진행했다 — AMI 검증·서브넷 확인·EIP 연결 명령은 `Docs/Learning/AwsCli.md`.
+
+### 재생성 때 걸린 것들 (2026-08-03)
+
+- **Elastic IP는 인스턴스를 만들어도 저절로 붙지 않는다** — `associate-address`를 안 해서
+  SSH가 시간 초과됐다. 새 인스턴스 = 임시 IP → EIP 연결은 별도 단계.
+- **pem 키를 다른 폴더로 옮기면 권한 상속이 되살아나 SSH가 키를 거부한다**
+  (`UNPROTECTED PRIVATE KEY FILE`). 해결:
+  `icacls <키> /inheritance:r` → `/remove "BUILTIN\Users" "NT AUTHORITY\Authenticated Users"`.
+  `Administrators`·`SYSTEM`은 남아 있어도 된다.
 
 ## 서버 목록
 
@@ -37,16 +40,16 @@
 |---|---|
 | 역할 | PlayGround 웹 앱 · SQL Server 2022 Express · Redis · Nginx |
 | **공개 IP** | `54.180.64.167` (Elastic IP · `eipalloc-0f8a638601ba852b0`) |
-| **비공개 IP** | `10.0.1.77` (**퍼블릭 서브넷 = `10.0.0~31.x`** 여야 한다) |
+| **비공개 IP** | `10.0.4.155` (**퍼블릭 서브넷 = `10.0.0~15.x`** 여야 한다 — public1 = 10.0.0.0/20) |
 | VPC | `playground-vpc` (`vpc-06c3c73221934327b`, 10.0.0.0/16) |
 | 서브넷 | `playground-subnet-public1-ap-northeast-2a` (10.0.0.0/20) |
 | 보안 그룹 | `playground-prod-sg` (`sg-0d7ff3505cee59980`) |
 | OS | Ubuntu 22.04 LTS |
 | 인스턴스 타입 | t3.medium (2 vCPU / 4GB) |
 | 리전 | **ap-northeast-2 (서울)** |
-| 인스턴스 ID | `i-0bb7075d9a4c359e5` |
+| 인스턴스 ID | `i-001e9dbfc3b767c1f` (2026-08-03 재생성 — 26.04 사고분 `i-0bb70…`는 종료) |
 | 도메인 | playgroundsport.com · www |
-| SSH 키 | `C:\…\playground-prod.pem` |
+| SSH 키 | `D:\Study\Workspace\Keys\playground-prod.pem` (git 밖 — 옮기면 icacls 권한 재정리 필요) |
 | 시간대 | **UTC** (호스트 TZ로 로직을 맞추지 않는다) |
 
 > **공개 IP는 Elastic IP인지 반드시 확인한다.** 아니면 인스턴스를 중지·시작할 때
@@ -75,16 +78,16 @@ curl -s http://169.254.169.254/latest/meta-data/placement/region   # ap-northeas
 ## 접속
 
 ```powershell
-ssh -i C:\…\playground-prod.pem ubuntu@3.224.104.65
+ssh -i D:\Study\Workspace\Keys\playground-prod.pem ubuntu@54.180.64.167
 ```
 
 매번 치기 번거로우면 `~/.ssh/config`에 등록해 두고 `ssh playground`로 붙는다:
 
 ```
 Host playground
-    HostName 3.224.104.65
+    HostName 54.180.64.167
     User ubuntu
-    IdentityFile C:/…/playground-prod.pem
+    IdentityFile D:/Study/Workspace/Keys/playground-prod.pem
 ```
 
 ## 포트
@@ -137,7 +140,7 @@ sudo systemctl restart redis-server
 sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "SELECT @@VERSION"
 
 # 내 PC에서 (SSMS 서버 이름도 같은 형식)
-sqlcmd -S 3.224.104.65,47821 -U pgadmin -P '<비번>' -C -Q "SELECT 1"
+sqlcmd -S 54.180.64.167,47821 -U pgadmin -P '<비번>' -C -Q "SELECT 1"
 ```
 
 ### 배포·백업
