@@ -17,13 +17,6 @@ namespace PlayGround.Server.Services
         private static readonly SKTypeface KoreanTypeface =
             SKFontManager.Default.MatchCharacter('가') ?? SKTypeface.Default;
 
-        private readonly IWebHostEnvironment mEnvironment;
-
-        public OgImageRenderer(IWebHostEnvironment environment)
-        {
-            mEnvironment = environment ?? throw new ArgumentNullException(nameof(environment));
-        }
-
         public byte[] RenderBrand()
         {
             using SKSurface surface = CreateSurface(out SKCanvas canvas);
@@ -34,13 +27,15 @@ namespace PlayGround.Server.Services
             return Encode(surface);
         }
 
-        public byte[] RenderTeam(TeamOgCard team)
+        /// <param name="logoBytes">엠블럼 원본 바이트 — 저장 백엔드(디스크/S3)를 렌더러가 모르도록
+        /// 호출자(OgImageController)가 IUploadReader로 읽어 넘긴다. null이면 이니셜 실드.</param>
+        public byte[] RenderTeam(TeamOgCard team, byte[]? logoBytes = null)
         {
             using SKSurface surface = CreateSurface(out SKCanvas canvas);
             DrawBackground(canvas);
 
             var emblem = new SKRect((Width - 200) / 2f, 120, (Width + 200) / 2f, 320);
-            DrawEmblem(canvas, emblem, team.LogoUrl, team.TeamName);
+            DrawEmblem(canvas, emblem, logoBytes, team.TeamName);
 
             DrawCentered(canvas, Truncate(team.TeamName, 18), 410, FitSize(team.TeamName, 72, 18), SKColors.White, bold: true);
             DrawWordmark(canvas);
@@ -111,12 +106,12 @@ namespace PlayGround.Server.Services
         }
 
         // 엠블럼 — 이미지 있으면 라운드 사각형에 커버, 없으면 이니셜 실드
-        private void DrawEmblem(SKCanvas canvas, SKRect box, string? logoUrl, string teamName)
+        private void DrawEmblem(SKCanvas canvas, SKRect box, byte[]? logoBytes, string teamName)
         {
             using var clip = new SKPath();
             clip.AddRoundRect(new SKRoundRect(box, 26, 26));
 
-            SKBitmap? bitmap = TryLoadLogo(logoUrl);
+            SKBitmap? bitmap = TryDecodeLogo(logoBytes);
             if (bitmap is not null)
             {
                 using (bitmap)
@@ -139,24 +134,20 @@ namespace PlayGround.Server.Services
             DrawCentered(canvas, initial, box.MidY + 34, 96, SKColors.White, bold: true);
         }
 
-        private SKBitmap? TryLoadLogo(string? logoUrl)
+        private static SKBitmap? TryDecodeLogo(byte[]? logoBytes)
         {
-            if (string.IsNullOrEmpty(logoUrl) || !logoUrl.StartsWith("/uploads/", StringComparison.Ordinal))
+            if (logoBytes is null || logoBytes.Length == 0)
             {
                 return null;
             }
 
             try
             {
-                string webRoot = string.IsNullOrEmpty(mEnvironment.WebRootPath)
-                    ? Path.Combine(mEnvironment.ContentRootPath, "wwwroot")
-                    : mEnvironment.WebRootPath;
-                string fullPath = Path.Combine(webRoot, logoUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-                return File.Exists(fullPath) ? SKBitmap.Decode(fullPath) : null;
+                return SKBitmap.Decode(logoBytes);
             }
             catch
             {
-                return null; // 로드 실패 → 이니셜 실드 폴백
+                return null; // 디코드 실패 → 이니셜 실드 폴백
             }
         }
 

@@ -6,13 +6,10 @@ namespace PlayGround.Server.Services
     /// <summary>
     /// 로컬 디스크 이미지 저장 (wwwroot/uploads/{category}/{yyyyMM}/{guid}.{ext}).
     /// UseStaticFiles가 그대로 서빙하므로 별도 라우팅이 필요 없다.
-    /// 오브젝트 스토리지로 옮길 때는 이 어댑터만 갈아끼운다 — 호출부는 IImageStorage만 안다.
+    /// 키/URL 형태는 UploadPaths가 단일 소스 — S3 어댑터(S3ImageStorageService)와 동일하다.
     /// </summary>
     public sealed class LocalImageStorageService : IImageStorage
     {
-        /// <summary>정적 서빙 루트 기준 상대 경로 — 공개 URL의 접두사이기도 하다.</summary>
-        private const string UploadRoot = "uploads";
-
         private readonly IWebHostEnvironment mEnvironment;
         private readonly ILogger<LocalImageStorageService> mLogger;
 
@@ -30,34 +27,24 @@ namespace PlayGround.Server.Services
             ArgumentException.ThrowIfNullOrWhiteSpace(category);
             ArgumentNullException.ThrowIfNull(content);
 
-            string extension = ExtensionOf(contentType);
-            string month = DateTime.UtcNow.ToString("yyyyMM");
-            string fileName = $"{Guid.NewGuid():N}{extension}";
+            string key = UploadPaths.NewKey(category, UploadPaths.ImageExtensionOf(contentType));
 
             // WebRootPath는 게시 형태에 따라 비어 있을 수 있다 — ContentRoot 기준으로 보정
             string webRoot = string.IsNullOrEmpty(mEnvironment.WebRootPath)
                 ? Path.Combine(mEnvironment.ContentRootPath, "wwwroot")
                 : mEnvironment.WebRootPath;
 
-            string directory = Path.Combine(webRoot, UploadRoot, category, month);
-            Directory.CreateDirectory(directory);
+            string fullPath = Path.Combine(webRoot, key.Replace('/', Path.DirectorySeparatorChar));
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
 
-            string fullPath = Path.Combine(directory, fileName);
             await using (FileStream file = File.Create(fullPath))
             {
                 await content.CopyToAsync(file, cancellation);
             }
 
-            string url = $"/{UploadRoot}/{category}/{month}/{fileName}";
+            string url = "/" + key;
             mLogger.LogInformation("Image stored. {{ Category:{Category}, Url:{Url} }}", category, url);
             return url;
         }
-
-        private static string ExtensionOf(string contentType) => contentType switch
-        {
-            "image/png" => ".png",
-            "image/webp" => ".webp",
-            _ => ".jpg",
-        };
     }
 }

@@ -20,12 +20,15 @@ namespace PlayGround.Server.Controllers.Soccer
         private readonly IMemoryCache mCache;
         private readonly IOgMetaRepository mRepository;
         private readonly OgImageRenderer mRenderer;
+        private readonly IUploadReader mUploadReader;
 
-        public OgImageController(IMemoryCache cache, IOgMetaRepository repository, OgImageRenderer renderer)
+        public OgImageController(
+            IMemoryCache cache, IOgMetaRepository repository, OgImageRenderer renderer, IUploadReader uploadReader)
         {
             mCache = cache;
             mRepository = repository;
             mRenderer = renderer;
+            mUploadReader = uploadReader;
         }
 
         [HttpGet("brand.png")]
@@ -49,9 +52,18 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             Result<TeamOgCard?> result = await mRepository.GetTeamOgAsync(slug, cancellation);
-            byte[] png = result.IsError || result.Value is null
-                ? mRenderer.RenderBrand()               // 비공개·미존재 → 브랜드 폴백
-                : mRenderer.RenderTeam(result.Value);
+            byte[] png;
+            if (result.IsError || result.Value is null)
+            {
+                png = mRenderer.RenderBrand();          // 비공개·미존재 → 브랜드 폴백
+            }
+            else
+            {
+                // 엠블럼 원본은 저장 백엔드(디스크/S3)에서 읽어 렌더러에 바이트로 넘긴다 — 실패 시 이니셜 실드
+                byte[]? logo = await TryReadLogoAsync(result.Value.LogoUrl, cancellation);
+                png = mRenderer.RenderTeam(result.Value, logo);
+            }
+
             mCache.Set(key, png, CacheTtl);
             return Png(png);
         }
@@ -71,6 +83,32 @@ namespace PlayGround.Server.Controllers.Soccer
                 : mRenderer.RenderTournament(result.Value);
             mCache.Set(key, png, CacheTtl);
             return Png(png);
+        }
+
+        private async Task<byte[]?> TryReadLogoAsync(string? logoUrl, CancellationToken cancellation)
+        {
+            if (string.IsNullOrEmpty(logoUrl))
+            {
+                return null;
+            }
+
+            try
+            {
+                UploadContent? content = await mUploadReader.OpenAsync(logoUrl, cancellation);
+                if (content is null)
+                {
+                    return null;
+                }
+
+                await using Stream stream = content.Stream;
+                using var buffer = new MemoryStream();
+                await stream.CopyToAsync(buffer, cancellation);
+                return buffer.ToArray();
+            }
+            catch
+            {
+                return null; // 읽기 실패 → 이니셜 실드 폴백 (OG 카드는 빈 이미지 금지)
+            }
         }
 
         private IActionResult Png(byte[] bytes)

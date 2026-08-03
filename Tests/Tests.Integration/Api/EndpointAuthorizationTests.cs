@@ -43,6 +43,10 @@ namespace PlayGround.Tests.Integration.Api
             "OgImageController.Team",
             "OgImageController.Tournament",
 
+            // 업로드 원본 서빙(/uploads S3 프록시) — 로컬 모드의 정적 파일 서빙과 동일한 공개 범위.
+            // 공개 화면(팀 홈·선수 프로필)이 비로그인으로 이미지를 그리므로 익명이 설계다.
+            "UploadsController.GetAsync",
+
             // 공개 경기기록 — 서비스의 공개 축(DECISION.RECORDS)
             "SoccerRecordsController.GetTournamentsAsync",
             "SoccerRecordsController.GetTournamentDetailAsync",

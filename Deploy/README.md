@@ -134,10 +134,17 @@ OAuth__Apple__ClientId=...
 DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost,47821;Database=PlayGround_Account;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
 DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost,47821;Database=PlayGround_Soccer;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
 RedisConfig__Connections__0__ConnectionString=localhost:6379
+UploadStorageConfiguration__Provider=S3
+UploadStorageConfiguration__S3__BucketName=playgroundsport-images-599615474479-ap-northeast-2-an
 ```
 
 > **`localhost` 뒤에도 `,47821`이 필요하다.** SQL Server는 지정한 포트 하나만 듣기 때문에
 > 1433은 로컬에서도 닫혀 있다. 이걸 빠뜨리면 앱이 "DB 연결 실패"로 기동에 실패한다.
+>
+> **업로드 저장은 운영에서 S3다** — 자격 증명은 인스턴스 IAM 역할(`playground-ec2-role`)이라
+> 키를 넣지 않는다. 버킷은 퍼블릭 차단이고 브라우저 서빙은 앱의 `/uploads` 프록시가 한다
+> (URL 형태는 로컬 디스크 때와 동일 — DB 저장값이 백엔드를 모른다). Region은 생략 시
+> EC2 메타데이터에서 자동으로 잡는다.
 
 ```bash
 sudo chmod 600 /etc/playground/playground.env
@@ -255,7 +262,8 @@ ssh -i <키.pem> -L 14330:localhost:47821 ubuntu@<Elastic IP> -N
 - [ ] 소셜 로그인 4종 — 리다이렉트 URI 등록이 빠지면 여기서 드러난다
 - [ ] **로그아웃 후 같은 토큰으로 API 호출 → 401** (Redis 무효화가 서버에서 도는지)
 - [ ] OG 카드 한글 — `https://playgroundsport.com/og/brand.png` 이미지에 글자가 깨지지 않는가
-- [ ] 이미지 업로드 → 표시 (현재는 로컬 디스크. S3 전환은 H2)
+- [ ] 이미지 업로드 → 표시 — **S3에 실제로 올라갔는지도 본다**:
+      `aws s3 ls s3://playgroundsport-images-…-an/uploads/ --recursive` (내 PC에서)
 - [ ] **롤백 1회 연습** — 이전 커밋으로 워크플로를 재실행해 되돌아가는지 본다.
       되돌릴 수 있다는 걸 사고 전에 확인해 둔다
 
@@ -263,8 +271,8 @@ ssh -i <키.pem> -L 14330:localhost:47821 ubuntu@<Elastic IP> -N
 
 - **이메일 발송이 로그로만 나간다**(`LogOnlyEmailSender`) — 데이터 내려받기 완료 알림의
   이메일 채널이 비어 있다. 알림 센터로는 정상 도착한다. D3 결정 후 어댑터 교체(H1).
-- **이미지가 서버 로컬 디스크에 저장된다** — 인스턴스를 재생성하면 사라진다.
-  S3 전환(H2) 전까지는 업로드 이미지도 백업 대상으로 볼 것.
+- ~~이미지가 서버 로컬 디스크에 저장된다~~ — **해소(2026-08-03)**: 업로드 이미지·첨부는
+  S3에 저장된다(`UploadStorageConfiguration__Provider=S3`). 로컬 개발은 여전히 디스크.
 - **export 큐가 인메모리** — 서버 재시작 시 진행 중이던 내려받기 작업이 유실된다(H3).
 - **환경 이름 분기** — `Program.cs`가 `IsDevelopment()`로 OpenAPI·디버깅을 켠다.
   1단에서는 문제없지만, 4단으로 갈 때 `Dev`는 이 조건에 안 걸려 혼란을 부른다.

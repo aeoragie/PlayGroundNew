@@ -22,7 +22,7 @@ try
 
     builder.Services.AddAkkaPipeline();
     builder.Services.AddAuthServices(builder.Configuration);
-    builder.Services.AddSoccerServices();
+    builder.Services.AddSoccerServices(builder.Configuration);
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();

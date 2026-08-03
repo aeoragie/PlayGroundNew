@@ -68,9 +68,10 @@ export 내구성·JWT 무효화 → (호스팅 결정 후) 나머지 하드닝 �
 - **생산자 서비스 미착수** — ① 대회 운영 서비스(공식 경기 기록 입력, 설계결정 6·7 — Server
   공유·Client 분리) ② 에이전트 서비스(요청 생성·열람 로그 적재·인증 심사·조건 검색, 설계결정 4).
   이들이 없어 공식 기록 순위표 재계산 호출자 0, 에이전트 표면 flag off, 여러 화면이 빈 데이터.
-- **프로덕션 하드닝** — 실제 이메일 발송(현 `LogOnlyEmailSender`)·이미지 S3(현
-  `LocalImageStorage`)·JWT 무효화(세션 저장소)·export 내구성(인메모리 큐)·Linux 배포 SkiaSharp
-  한글 폰트·CI/CD.
+- **프로덕션 하드닝** — 실제 이메일 발송(현 `LogOnlyEmailSender`)·JWT 무효화(세션 저장소)·
+  export 내구성(인메모리 큐)·Linux 배포 SkiaSharp 한글 폰트·CI/CD.
+  이미지 S3는 **완료**(2026-08-03) — `UploadStorageConfiguration` Provider 스위치(Local/S3),
+  운영은 S3 + `/uploads` 프록시 서빙, URL 형태는 불변.
 - 소소한 잔여(P1): 요청 취소 링크·증빙 사진 첨부·일정 반복/월전환·코치 계정 권한·삭제 시 팀원
   알림 발송 훅·배너 3톤 생산자·공개 선수 프로필 강점 태그 카드 PNG 반영.
 
