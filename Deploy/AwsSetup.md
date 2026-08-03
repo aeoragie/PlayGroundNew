@@ -406,6 +406,8 @@ Test-NetConnection <Elastic IP> -Port 47821
 1. **S3** → **버킷 만들기**
 2. 이름: `playgroundsport-images-599615474479-ap-northeast-2-an` ← 실제 생성된 이름
    (버킷 이름은 전 세계에서 유일해야 한다 — 계정 ID·리전을 붙여 유일성을 확보했다)
+   - 같은 절차로 **개발용 버킷**도 만들었다: `dev-playgroundsport-images-…-an`
+     (개발 PC의 앱도 S3를 쓴다 — 운영과 코드 경로 일원화. 접근은 aws configure 자격 증명)
 3. 리전: **아시아 태평양(서울)**
 4. **퍼블릭 액세스 차단: 모두 차단** (기본값 유지 — 공개가 필요해지면 CloudFront/presigned
    방식과 함께 그때 결정한다. 유소년 사진이라 기본은 잠금이다)
