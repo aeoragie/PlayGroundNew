@@ -7,23 +7,25 @@
 
 ## 지금 어디까지 왔나 (2026-08-03)
 
-**인스턴스 재생성 완료 — Ubuntu 22.04(jammy) 확인 끝. 다음은 `ManualSetup.md` 1단계.**
+**AWS 콘솔 셋업 + 서버 설치 전부 완료. 남은 것 = 스키마 배포 → 앱 배포 → 동작 확인.**
 
 | 끝난 것 | 상태 |
 |---|---|
-| VPC·서브넷·IGW·라우팅 | ✅ `playground-vpc` — 퍼블릭 서브넷 접속까지 확인 |
-| 보안 그룹 | ✅ `playground-prod-sg` (22·80·443·47821) |
-| 키 페어 | ✅ `playground-prod.pem` |
-| Elastic IP | ✅ `54.180.64.167` — 인스턴스에 연결됨 |
-| 인스턴스 | ✅ `i-001e9dbfc3b767c1f` — **jammy 22.04.5** · 49G 디스크 확인 (26.04 사고분은 종료) |
-| SSH 접속 | ✅ 성공 |
+| 네트워크·인스턴스 | ✅ VPC·보안 그룹·키 페어·EIP·인스턴스(`i-001e9dbfc3b767c1f`, jammy 22.04.5·49G) |
+| 서버 설치 (`ManualSetup.md` 전체) | ✅ UTC·MS 저장소·SQL Server·sqlcmd·.NET 런타임·Redis(PONG)·Nginx·한글 폰트·앱 계정·ufw |
+| SQL Server 초기 설정 | ✅ Express·포트 47821·메모리 2048 · **`playgroundadmin` 생성 → `sa` 잠금** · DB 2개(`PlayGround_Account`/`PlayGround_Soccer`, UTF-8 콜레이션) |
+| 이미지 S3 + IAM 역할 | ✅ 버킷(아래 표) · `playground-ec2-role`(이미지 버킷 RW) 인스턴스 적용 |
+| Route 53 | ✅ 루트·www A 레코드 → EIP (권위 서버 응답 확인. 백업용 S3는 **보류** — 정식 구축 시) |
 
-**다음에 할 일 — `ManualSetup.md` 1단계부터** (직접 설치해 보는 중).
+**다음에 할 일 — `Deploy/README.md` 3~6단계:**
 
-> 이후 절차는 `AwsSetup.md` "SQL Server 초기 설정" → S3/IAM → Route 53 순서.
-> 재생성은 CLI로 진행했다 — AMI 검증·서브넷 확인·EIP 연결 명령은 `Docs/Learning/AwsCli.md`.
+1. **스키마 배포** — 로컬에서 sqlcmd로 테이블·프로시저·시드 적용
+2. **Nginx 설정·systemd 유닛** — `playground.conf` · `playground.service` 설치
+3. **환경변수** — `/etc/playground/playground.env` 작성
+4. **첫 배포** — GitHub Environment 시크릿 등록 → 워크플로 실행 → `http://<EIP>` 확인
+5. 그다음 HTTPS(certbot) → OAuth 리다이렉트 URI
 
-### 재생성 때 걸린 것들 (2026-08-03)
+### 셋업 때 걸린 것들 (2026-08-03)
 
 - **Elastic IP는 인스턴스를 만들어도 저절로 붙지 않는다** — `associate-address`를 안 해서
   SSH가 시간 초과됐다. 새 인스턴스 = 임시 IP → EIP 연결은 별도 단계.
@@ -31,6 +33,13 @@
   (`UNPROTECTED PRIVATE KEY FILE`). 해결:
   `icacls <키> /inheritance:r` → `/remove "BUILTIN\Users" "NT AUTHORITY\Authenticated Users"`.
   `Administrators`·`SYSTEM`은 남아 있어도 된다.
+- **`CREATE LOGIN` 비밀번호 정책 실패는 연쇄 오류로 보인다** — 첫 줄(Msg 33064, 8자+3종
+  미달)이 원인인데 둘째 줄이 "권한이 없거나 존재하지 않음"(Msg 15151)이라 권한 문제로
+  오독하기 쉽다. **오류는 첫 줄부터 읽는다.** 비밀번호 기호는 bash 큰따옴표를 통과하는
+  것만(`@ # % ^ * _ - + = . , ?`) — `$` `` ` `` `!` `'` `"` `\`는 셸이 먼저 먹는다.
+- **DNS 레코드 생성 직후의 "Non-existent domain"은 부정 캐시일 수 있다** — 레코드가 생기기
+  전의 "없다" 응답도 캐시된다(수명 = SOA TTL, 우리는 900초). 판정은 권위 서버 직접 질의:
+  `nslookup 도메인 ns-30.awsdns-03.com` (또는 `8.8.8.8`).
 
 ## 서버 목록
 
@@ -49,6 +58,7 @@
 | 리전 | **ap-northeast-2 (서울)** |
 | 인스턴스 ID | `i-001e9dbfc3b767c1f` (2026-08-03 재생성 — 26.04 사고분 `i-0bb70…`는 종료) |
 | 도메인 | playgroundsport.com · www |
+| 이미지 S3 버킷 | `playgroundsport-images-599615474479-ap-northeast-2-an` (퍼블릭 차단 · 코드 연동은 `S3ImageStorage` 구현 때) |
 | SSH 키 | `D:\Study\Workspace\Keys\playground-prod.pem` (git 밖 — 옮기면 icacls 권한 재정리 필요) |
 | 시간대 | **UTC** (호스트 TZ로 로직을 맞추지 않는다) |
 
@@ -137,10 +147,10 @@ sudo systemctl restart redis-server
 
 ```bash
 # 서버 안에서
-sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "SELECT @@VERSION"
+sqlcmd -S localhost,47821 -U playgroundadmin -P '<비번>' -C -Q "SELECT @@VERSION"
 
 # 내 PC에서 (SSMS 서버 이름도 같은 형식)
-sqlcmd -S 54.180.64.167,47821 -U pgadmin -P '<비번>' -C -Q "SELECT 1"
+sqlcmd -S 54.180.64.167,47821 -U playgroundadmin -P '<비번>' -C -Q "SELECT 1"
 ```
 
 ### 배포·백업
@@ -169,5 +179,5 @@ sudo crontab -l                              # 백업 스케줄 확인
 | 계정 | 용도 |
 |---|---|
 | `ubuntu` | SSH 로그인 (sudo 가능) |
-| `playground` | 앱 실행 전용 — 로그인 불가(`nologin`) |
-| `pgadmin` | SQL Server 관리 (`sa`는 잠가 뒀다) |
+| `playground` | 앱 실행 전용 (리눅스) — 로그인 불가(`nologin`) |
+| `playgroundadmin` | SQL Server 관리 (`sa`는 잠가 뒀다) |

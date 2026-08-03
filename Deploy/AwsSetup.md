@@ -344,26 +344,29 @@ SQL Server on Linux는 **로그인 실패 잠금이 기본으로 없어** 무제
 
 ```bash
 sqlcmd -S localhost,47821 -U sa -P '<sa비밀번호>' -C -Q "
-CREATE LOGIN pgadmin WITH PASSWORD = '<새 비밀번호>', CHECK_POLICY = ON;
-ALTER SERVER ROLE sysadmin ADD MEMBER pgadmin;"
+CREATE LOGIN playgroundadmin WITH PASSWORD = '<새 비밀번호>', CHECK_POLICY = ON;
+ALTER SERVER ROLE sysadmin ADD MEMBER playgroundadmin;"
 ```
+
+> 이름에 하이픈을 넣지 않는다 — SQL 식별자 규칙상 하이픈이 들면 T-SQL에서 매번
+> `[playground-admin]`처럼 대괄호로 감싸야 한다. 리눅스 앱 계정 `playground`와도 구분된다.
 
 새 계정으로 붙는지 **먼저 확인**한다 (여기서 실패한 채 sa를 잠그면 들어갈 길이 없다):
 
 ```bash
-sqlcmd -S localhost,47821 -U pgadmin -P '<새 비밀번호>' -C -Q "SELECT SUSER_NAME()"
+sqlcmd -S localhost,47821 -U playgroundadmin -P '<새 비밀번호>' -C -Q "SELECT SUSER_NAME()"
 ```
 
-`pgadmin`이 출력되면 sa를 잠근다:
+`playgroundadmin`이 출력되면 sa를 잠근다:
 
 ```bash
-sqlcmd -S localhost,47821 -U pgadmin -P '<새 비밀번호>' -C -Q "
+sqlcmd -S localhost,47821 -U playgroundadmin -P '<새 비밀번호>' -C -Q "
 ALTER LOGIN sa DISABLE;"
 ```
 
-> **이후 모든 접속(앱·백업·SSMS)은 `pgadmin`을 쓴다.** sa 비밀번호도 버리지 말고
+> **이후 모든 접속(앱·백업·SSMS)은 `playgroundadmin`을 쓴다.** sa 비밀번호도 버리지 말고
 > 비밀번호 관리자에 남겨 둔다 — 잠금을 되돌려야 할 때가 있다
-> (`ALTER LOGIN sa ENABLE;`, 로컬에서 `pgadmin`으로 실행).
+> (`ALTER LOGIN sa ENABLE;`, 로컬에서 `playgroundadmin`으로 실행).
 >
 > 앱 전용으로 권한을 더 좁힌 계정(`db_owner`만)을 두는 것이 원칙이지만,
 > 지금은 계정 하나로 간다. 사용자 트래픽이 붙는 시점의 하드닝 항목이다.
@@ -373,7 +376,7 @@ ALTER LOGIN sa DISABLE;"
 콜레이션이 중요하다 — 우리 스키마 규칙(UTF-8)이다:
 
 ```bash
-sqlcmd -S localhost,47821 -U pgadmin -P '<비밀번호>' -C -Q "
+sqlcmd -S localhost,47821 -U playgroundadmin -P '<비밀번호>' -C -Q "
 CREATE DATABASE PlayGround_Account COLLATE Latin1_General_100_CI_AS_SC_UTF8;
 CREATE DATABASE PlayGround_Soccer  COLLATE Latin1_General_100_CI_AS_SC_UTF8;"
 ```
@@ -389,30 +392,40 @@ Test-NetConnection <Elastic IP> -Port 47821
 
 ---
 
-## 9. 백업용 S3 + IAM 역할
+## 9. 이미지 업로드용 S3 + IAM 역할
+
+> **백업용 S3는 보류다** (2026-08-03 결정) — 정식 구축 시 만든다. 그때까지
+> `backup-database.sh`의 S3 업로드 단계는 연결되지 않는다(로컬 백업만 쌓인다).
+> 지금 만드는 버킷은 **플레이어 사진·팀 엠블럼 등 이미지 업로드용**이다.
+> 앱 코드는 아직 `LocalImageStorage`라서(하드닝 항목 "이미지 S3") **버킷을 준비만 해 둔다** —
+> 이미지를 브라우저에 어떻게 내보낼지(프록시/presigned URL/CloudFront)는
+> `S3ImageStorage` 구현 때 정한다.
 
 ### 9-1. 버킷 만들기
 
 1. **S3** → **버킷 만들기**
-2. 이름: `playground-backup-<임의문자>` (버킷 이름은 전 세계에서 유일해야 한다)
+2. 이름: `playgroundsport-images-599615474479-ap-northeast-2-an` ← 실제 생성된 이름
+   (버킷 이름은 전 세계에서 유일해야 한다 — 계정 ID·리전을 붙여 유일성을 확보했다)
 3. 리전: **아시아 태평양(서울)**
-4. **퍼블릭 액세스 차단: 모두 차단** (기본값 유지 — 백업은 절대 공개하면 안 된다)
+4. **퍼블릭 액세스 차단: 모두 차단** (기본값 유지 — 공개가 필요해지면 CloudFront/presigned
+   방식과 함께 그때 결정한다. 유소년 사진이라 기본은 잠금이다)
 5. 만들기
 
-### 9-2. 인스턴스에 쓰기 권한 주기 (액세스 키를 서버에 두지 않는다)
+### 9-2. 인스턴스에 권한 주기 (액세스 키를 서버에 두지 않는다)
 
 1. **IAM** → **역할** → **역할 생성**
 2. 신뢰할 수 있는 개체: **AWS 서비스** → **EC2**
 3. 권한: 일단 건너뛰고 생성 → 이름 `playground-ec2-role`
 4. 만든 역할 → **권한 추가** → **인라인 정책 생성** → JSON 탭에 붙여 넣기
-   (`<버킷이름>`을 실제 이름으로 바꾼다):
+   (`<버킷이름>`을 실제 이름으로 바꾼다. 이미지는 업로드·표시·교체가 다 필요해서
+   백업과 달리 읽기·삭제까지 준다):
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [{
     "Effect": "Allow",
-    "Action": ["s3:PutObject"],
+    "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
     "Resource": "arn:aws:s3:::<버킷이름>/*"
   }]
 }

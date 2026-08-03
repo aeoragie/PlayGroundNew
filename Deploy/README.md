@@ -54,7 +54,7 @@
 > **SQL은 포트가 아니라 "내 IP"가 지켜 준다.** 47821을 쓰는 건 1433만 노리는 자동 봇을
 > 피하려는 것이지 은폐가 아니다 — 전 포트 스캔은 몇 분이면 끝난다.
 > **소스를 `0.0.0.0/0`으로 바꾸면 안 된다**: SQL Server on Linux에는 계정 잠금이 없어
-> 비밀번호 대입이 무제한이다. 같은 이유로 `sa`는 잠그고 `pgadmin`을 쓴다(`AwsSetup.md` "SQL Server 초기 설정" 절).
+> 비밀번호 대입이 무제한이다. 같은 이유로 `sa`는 잠그고 `playgroundadmin`을 쓴다(`AwsSetup.md` "SQL Server 초기 설정" 절).
 
 ## 순서
 
@@ -73,15 +73,15 @@
 (`Docs/Development/LocalVerification.md`와 동일).
 
 ```powershell
-sqlcmd -S <Elastic IP>,47821 -U pgadmin -P '<비번>' -C -d PlayGround_Soccer -b -f 65001 `
+sqlcmd -S <Elastic IP>,47821 -U playgroundadmin -P '<비번>' -C -d PlayGround_Soccer -b -f 65001 `
        -i Source\Database\Soccer\Tables\SoccerTeams.sql
 ```
 
 반영 후 **DB 계약 테스트로 확인**한다 — 누락을 손으로 찾지 않는다:
 
 ```powershell
-$env:PLAYGROUND_TEST_ACCOUNT_CONNSTR = "Server=<Elastic IP>,47821;Database=PlayGround_Account;User Id=pgadmin;Password=...;Encrypt=True;TrustServerCertificate=True"
-$env:PLAYGROUND_TEST_SOCCER_CONNSTR  = "Server=<Elastic IP>,47821;Database=PlayGround_Soccer;User Id=pgadmin;Password=...;Encrypt=True;TrustServerCertificate=True"
+$env:PLAYGROUND_TEST_ACCOUNT_CONNSTR = "Server=<Elastic IP>,47821;Database=PlayGround_Account;User Id=playgroundadmin;Password=...;Encrypt=True;TrustServerCertificate=True"
+$env:PLAYGROUND_TEST_SOCCER_CONNSTR  = "Server=<Elastic IP>,47821;Database=PlayGround_Soccer;User Id=playgroundadmin;Password=...;Encrypt=True;TrustServerCertificate=True"
 dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 ```
 
@@ -131,8 +131,8 @@ OAuth__Kakao__ClientId=...
 OAuth__Naver__ClientId=...
 OAuth__Naver__ClientSecret=...
 OAuth__Apple__ClientId=...
-DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost,47821;Database=PlayGround_Account;User Id=pgadmin;Password=<비번>;TrustServerCertificate=True
-DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost,47821;Database=PlayGround_Soccer;User Id=pgadmin;Password=<비번>;TrustServerCertificate=True
+DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost,47821;Database=PlayGround_Account;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
+DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost,47821;Database=PlayGround_Soccer;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
 RedisConfig__Connections__0__ConnectionString=localhost:6379
 ```
 
@@ -152,7 +152,7 @@ sudo systemctl enable playground
 
 ```bash
 sudo tee /etc/playground/backup.env > /dev/null <<'EOF'
-DB_USER=pgadmin
+DB_USER=playgroundadmin
 DB_PASSWORD=<비번>
 S3_BUCKET=<버킷이름>
 EOF
@@ -219,7 +219,7 @@ https://playgroundsport.com/api/auth/social/apple/callback
 
 - 서버 이름: `<Elastic IP>,47821` (쉼표다 — 콜론이 아니다)
 - 인증: **SQL Server 인증** (Linux는 Windows 인증을 쓰지 않는다)
-- 로그인: `pgadmin` (`sa`는 잠가 뒀다 — `AwsSetup.md` "SQL Server 초기 설정" 절)
+- 로그인: `playgroundadmin` (`sa`는 잠가 뒀다 — `AwsSetup.md` "SQL Server 초기 설정" 절)
 - **옵션 → 연결 속성 → "서버 인증서 신뢰" 체크** (자체 서명 인증서라 안 하면 거부된다)
 
 > **붙던 게 갑자기 안 붙으면 십중팔구 내 IP가 바뀐 것이다.**

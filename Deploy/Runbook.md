@@ -152,13 +152,13 @@ sudo rm -rf /var/www/playground.new
 ```bash
 systemctl status mssql-server --no-pager
 sudo journalctl -u mssql-server -n 50 --no-pager
-sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "SELECT 1"
+sqlcmd -S localhost,47821 -U playgroundadmin -P '<비번>' -C -Q "SELECT 1"
 ```
 
 | 증상 | 대응 |
 |---|---|
 | 서비스가 안 뜬다 | 메모리 부족이 대부분 — `free -h` 확인 후 `memory.memorylimitmb` 조정 |
-| 로그인 실패 | `pgadmin` 비밀번호 확인. `playground.env`의 커넥션 문자열과 같은지 |
+| 로그인 실패 | `playground` 비밀번호 확인. `playground.env`의 커넥션 문자열과 같은지 |
 | 시작 직후 죽음 | `sudo journalctl -u mssql-server -n 100`에 원인이 찍힌다 |
 | 연결 자체가 안 됨 | **포트를 빠뜨렸다.** `localhost`가 아니라 `localhost,47821`이다 |
 
@@ -175,7 +175,7 @@ sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "SELECT 1"
 Express는 **DB당 10GB**를 넘으면 쓰기가 실패한다. 미리 본다:
 
 ```bash
-sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "
+sqlcmd -S localhost,47821 -U playgroundadmin -P '<비번>' -C -Q "
 SELECT DB_NAME(database_id) AS DB,
        CAST(SUM(size) * 8.0 / 1024 AS DECIMAL(10,1)) AS MB
 FROM sys.master_files
@@ -201,7 +201,7 @@ Test-NetConnection <Elastic IP> -Port 47821
 |---|---|
 | `TcpTestSucceeded : False` | **보안 그룹** → 47821 규칙 소스를 **내 IP로 다시 선택** |
 | 보안 그룹은 맞는데 여전히 False | **호스트 방화벽(ufw)** — 아래 |
-| True인데 로그인 실패 | 계정은 `pgadmin`이다 — `sa`는 잠가 뒀다 |
+| True인데 로그인 실패 | 계정은 `playgroundadmin`이다 — `sa`는 잠가 뒀다 |
 | True인데 인증서 오류 | SSMS **연결 속성 → "서버 인증서 신뢰"** 체크 |
 
 ### 보안 그룹은 맞는데 안 붙는다 — 방화벽이 둘이다
@@ -332,7 +332,7 @@ EBS까지 잃으면 **S3 백업이 유일한 자산이다.**
 aws s3 cp s3://<버킷>/db/PlayGround_Soccer/<최신>.bak /var/backups/playground/
 sudo chown mssql:mssql /var/backups/playground/<최신>.bak
 
-sqlcmd -S localhost,47821 -U pgadmin -P '<비번>' -C -Q "
+sqlcmd -S localhost,47821 -U playgroundadmin -P '<비번>' -C -Q "
 RESTORE DATABASE [PlayGround_Soccer]
 FROM DISK = N'/var/backups/playground/<최신>.bak' WITH REPLACE;"
 ```
