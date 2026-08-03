@@ -134,8 +134,8 @@ OAuth__Apple__ClientId=...
 DatabaseConfiguration__Databases__Account__ConnectionString=Server=localhost,47821;Database=PlayGround_Account;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
 DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost,47821;Database=PlayGround_Soccer;User Id=playgroundadmin;Password=<비번>;TrustServerCertificate=True
 RedisConfig__Connections__0__ConnectionString=localhost:6379
-UploadStorageConfiguration__Provider=S3
-UploadStorageConfiguration__S3__BucketName=playgroundsport-images-599615474479-ap-northeast-2-an
+UploadStorageConfiguration__Provider=Remote
+UploadStorageConfiguration__Remote__BucketName=playgroundsport-images-599615474479-ap-northeast-2-an
 ```
 
 > **`localhost` 뒤에도 `,47821`이 필요하다.** SQL Server는 지정한 포트 하나만 듣기 때문에
@@ -272,7 +272,7 @@ ssh -i <키.pem> -L 14330:localhost:47821 ubuntu@<Elastic IP> -N
 - **이메일 발송이 로그로만 나간다**(`LogOnlyEmailSender`) — 데이터 내려받기 완료 알림의
   이메일 채널이 비어 있다. 알림 센터로는 정상 도착한다. D3 결정 후 어댑터 교체(H1).
 - ~~이미지가 서버 로컬 디스크에 저장된다~~ — **해소(2026-08-03)**: 업로드 이미지·첨부는
-  S3에 저장된다(`UploadStorageConfiguration__Provider=S3`). 로컬 개발은 여전히 디스크.
+  오브젝트 스토리지(현재 AWS S3)에 저장된다. 개발도 같은 경로를 쓴다(버킷만 dev 전용).
 - **export 큐가 인메모리** — 서버 재시작 시 진행 중이던 내려받기 작업이 유실된다(H3).
 - **환경 이름 분기** — `Program.cs`가 `IsDevelopment()`로 OpenAPI·디버깅을 켠다.
   1단에서는 문제없지만, 4단으로 갈 때 `Dev`는 이 조건에 안 걸려 혼란을 부른다.

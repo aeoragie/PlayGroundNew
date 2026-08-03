@@ -27,7 +27,7 @@ namespace PlayGround.Server.Services
             return Encode(surface);
         }
 
-        /// <param name="logoBytes">엠블럼 원본 바이트 — 저장 백엔드(디스크/S3)를 렌더러가 모르도록
+        /// <param name="logoBytes">엠블럼 원본 바이트 — 저장 백엔드(디스크/오브젝트 스토리지)를 렌더러가 모르도록
         /// 호출자(OgImageController)가 IUploadReader로 읽어 넘긴다. null이면 이니셜 실드.</param>
         public byte[] RenderTeam(TeamOgCard team, byte[]? logoBytes = null)
         {

@@ -81,7 +81,7 @@
 4. **AWS 자격 증명**: `aws configure`로 IAM 사용자 키 등록 (`Docs/Learning/AwsCli.md`) —
    **개발도 이미지 업로드가 S3(dev 버킷)라서** 없으면 업로드·OG 엠블럼이 실패한다.
    오프라인/자격 증명 없이 돌려야 하면 `appsettings.Development.json`의
-   `UploadStorageConfiguration.Provider`를 `Local`로 바꾼다 (디스크 폴백).
+   `UploadStorageConfiguration.Provider`를 `Local`로 바꾼다 (wwwroot/uploads 디스크 폴백 — 남겨 둔 경로다).
 5. **Tailwind**: `cd Source/PlayGround/PlayGround.Client && npm install && npm run css:build`.
 6. **실행 확인**: `dotnet run --project Source/PlayGround/PlayGround.Server` →
    `https://localhost:50451` (랜딩) / `/dashboard/team` (팀 대시보드).

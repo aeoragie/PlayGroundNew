@@ -2,7 +2,7 @@ namespace PlayGround.Server.Services
 {
     /// <summary>
     /// 업로드 경로 규칙의 단일 소스 — 키/URL 형태(uploads/{category}/{yyyyMM}/{guid}{ext})와
-    /// 확장자 매핑을 로컬·S3 어댑터가 공유한다.
+    /// 확장자 매핑을 로컬·원격 어댑터가 공유한다.
     /// URL 형태("/uploads/...")는 DB에 저장돼 있고 Application 검증(프로필 사진·게시판 첨부)의
     /// 화이트리스트이기도 하므로 바꾸지 않는다 — 백엔드가 바뀌어도 URL은 그대로다.
     /// </summary>

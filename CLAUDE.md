@@ -70,8 +70,11 @@ export 내구성·JWT 무효화 → (호스팅 결정 후) 나머지 하드닝 �
   이들이 없어 공식 기록 순위표 재계산 호출자 0, 에이전트 표면 flag off, 여러 화면이 빈 데이터.
 - **프로덕션 하드닝** — 실제 이메일 발송(현 `LogOnlyEmailSender`)·JWT 무효화(세션 저장소)·
   export 내구성(인메모리 큐)·Linux 배포 SkiaSharp 한글 폰트·CI/CD.
-  이미지 S3는 **완료**(2026-08-03) — `UploadStorageConfiguration` Provider 스위치(Local/S3),
-  운영은 S3 + `/uploads` 프록시 서빙, URL 형태는 불변.
+  이미지 원격 저장은 **완료**(2026-08-03) — `UploadStorageConfiguration` Provider 스위치(Local/Remote),
+  운영·개발 모두 오브젝트 스토리지 + `/uploads` 프록시 서빙, URL 형태는 불변.
+  **벤더는 `IObjectStore` 뒤에 숨긴다** — 아는 클래스는 `AwsObjectStore` 하나뿐이라
+  다른 저장소로 옮길 때 어댑터 1개 + DI 1줄만 바뀐다. 로컬 디스크 어댑터(`Local*`)는
+  **안 쓰더라도 남겨 둔다**(자격 증명 없는 PC·오프라인 개발 경로).
 - 소소한 잔여(P1): 요청 취소 링크·증빙 사진 첨부·일정 반복/월전환·코치 계정 권한·삭제 시 팀원
   알림 발송 훅·배너 3톤 생산자·공개 선수 프로필 강점 태그 카드 PNG 반영.
 

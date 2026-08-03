@@ -5,7 +5,7 @@ using PlayGround.Server.Services;
 namespace PlayGround.Server.Controllers
 {
     /// <summary>
-    /// 업로드 원본 서빙 — S3 모드에서 "/uploads/..." URL을 프라이빗 버킷에서 스트리밍한다.
+    /// 업로드 원본 서빙 — Remote 모드에서 "/uploads/..." URL을 프라이빗 버킷에서 스트리밍한다.
     /// 로컬 모드에서는 정적 파일 미들웨어가 먼저 서빙하므로 여기까지 오면 404가 정상이다.
     /// 파일명이 GUID라 내용 변경 = URL 변경 — immutable 캐시를 걸 수 있다.
     /// </summary>

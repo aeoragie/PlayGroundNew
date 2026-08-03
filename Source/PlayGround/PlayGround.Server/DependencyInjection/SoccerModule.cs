@@ -1,5 +1,3 @@
-using Amazon;
-using Amazon.S3;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlayGround.Application.Interfaces;
@@ -61,29 +59,32 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerNotificationCommand>();
             services.AddScoped<SoccerAgentApprovalCommand>();
 
-            //.// 업로드 저장 — Provider 스위치 (Local=디스크+정적 서빙 / S3=프라이빗 버킷+/uploads 프록시).
+            //.// 업로드 저장 — Provider 스위치 (Local=디스크+정적 서빙 / Remote=오브젝트 스토리지+/uploads 프록시).
             // URL은 두 백엔드 모두 "/uploads/..." — DB 저장값·클라이언트·검증 로직이 저장 위치를 모르게 유지한다.
+            // **저장소 벤더를 아는 곳은 AwsObjectStore 하나뿐이다** — 여기서도 IObjectStore로만 등록한다.
 
             UploadStorageConfiguration uploadConfig =
                 configuration.GetSection(UploadStorageConfiguration.Section).Get<UploadStorageConfiguration>()
                 ?? new UploadStorageConfiguration();
-            if (uploadConfig.UsesS3)
+            if (uploadConfig.UsesRemote)
             {
-                if (string.IsNullOrWhiteSpace(uploadConfig.S3.BucketName))
+                if (string.IsNullOrWhiteSpace(uploadConfig.Remote.BucketName))
                 {
                     // 설정 누락을 조용히 로컬 폴백하면 운영에서 이미지가 인스턴스와 함께 사라진다 — 기동 실패가 낫다
                     throw new InvalidOperationException(
-                        "UploadStorageConfiguration: Provider=S3 requires S3.BucketName");
+                        "UploadStorageConfiguration: Provider=Remote requires Remote.BucketName");
                 }
 
-                services.AddSingleton(uploadConfig.S3);
-                services.AddSingleton<IAmazonS3>(_ => CreateS3Client(uploadConfig.S3));
-                services.AddSingleton<IImageStorage, S3ImageStorageService>();
-                services.AddSingleton<IFileStorage, S3FileStorageService>();
-                services.AddSingleton<IUploadReader, S3UploadReader>();
+                services.AddSingleton<IObjectStore>(_ => new AwsObjectStore(uploadConfig.Remote));
+                services.AddSingleton<IImageStorage, RemoteImageStorageService>();
+                services.AddSingleton<IFileStorage, RemoteFileStorageService>();
+                services.AddSingleton<IUploadReader, RemoteUploadReader>();
             }
             else
             {
+                // **운영에서 안 쓰더라도 로컬 디스크 어댑터는 남겨 둔다** — AWS 자격 증명이 없는 PC나
+                // 오프라인에서 앱을 띄우는 경로이고, 오브젝트 스토리지 장애 시의 대피로이기도 하다.
+                // 지우면 Provider=Local이 죽는다(= appsettings 한 줄로 되돌릴 수단이 사라진다).
                 services.AddSingleton<IImageStorage, LocalImageStorageService>();
                 services.AddSingleton<IFileStorage, LocalFileStorageService>();
                 services.AddSingleton<IUploadReader, LocalUploadReader>();
@@ -105,14 +106,6 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerRecordsTournamentDetailCommand>();
             services.AddScoped<SoccerRecordsMatchDetailCommand>();
             return services;
-        }
-
-        // 자격 증명은 SDK 기본 체인(EC2 인스턴스 역할·로컬 프로필) — 서버에 액세스 키를 두지 않는다
-        private static IAmazonS3 CreateS3Client(UploadStorageConfiguration.S3Settings settings)
-        {
-            return string.IsNullOrEmpty(settings.Region)
-                ? new AmazonS3Client()
-                : new AmazonS3Client(RegionEndpoint.GetBySystemName(settings.Region));
         }
     }
 }

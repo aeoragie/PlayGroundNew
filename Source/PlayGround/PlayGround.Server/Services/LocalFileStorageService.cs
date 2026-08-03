@@ -6,7 +6,7 @@ namespace PlayGround.Server.Services
     /// <summary>
     /// 로컬 디스크 첨부 저장 (wwwroot/uploads/{category}/{yyyyMM}/{guid}{ext}).
     /// LocalImageStorageService와 같은 구조지만 **원본 확장자를 보존**한다(문서는 리사이즈·크롭이 없다).
-    /// 키/URL 형태·허용 확장자는 UploadPaths가 단일 소스 — S3 어댑터(S3FileStorageService)와 동일하다.
+    /// 키/URL 형태·허용 확장자는 UploadPaths가 단일 소스 — 원격 어댑터(RemoteFileStorageService)와 동일하다.
     /// </summary>
     public sealed class LocalFileStorageService : IFileStorage
     {

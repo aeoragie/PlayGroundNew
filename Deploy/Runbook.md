@@ -142,8 +142,8 @@ sudo journalctl --vacuum-time=14d
 sudo rm -rf /var/www/playground.new
 ```
 
-> **업로드 이미지도 여기 쌓인다** (`/var/www/playground/wwwroot/uploads`).
-> S3 전환(H2) 전까지는 디스크를 함께 본다.
+> **업로드 이미지는 디스크에 쌓이지 않는다** — 운영은 `Provider=Remote`(오브젝트 스토리지)다.
+> `/var/www/playground/wwwroot/uploads`가 커져 있다면 `Provider`가 `Local`로 잘못 떠 있다는 신호다.
 
 ---
 
@@ -339,8 +339,9 @@ FROM DISK = N'/var/backups/playground/<최신>.bak' WITH REPLACE;"
 
 Account DB도 같은 방식으로. 이후 서버측 설치(`README.md` 4단계) → 워크플로 재실행.
 
-> **업로드 이미지는 복원되지 않는다** — 로컬 디스크에만 있었기 때문이다.
-> S3 전환(H2)이 미뤄질수록 이 손실 범위가 커진다.
+> **업로드 이미지는 잃지 않는다** — 인스턴스가 아니라 오브젝트 스토리지에 있다(2026-08-03 전환).
+> 새 인스턴스에 **IAM 역할(`playground-ec2-role`)만 다시 붙이면** 그대로 보인다.
+> `playground.env`의 `UploadStorageConfiguration__*`도 같은 버킷으로 채운다.
 
 ---
 

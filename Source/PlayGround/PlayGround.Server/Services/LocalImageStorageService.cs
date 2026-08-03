@@ -6,7 +6,7 @@ namespace PlayGround.Server.Services
     /// <summary>
     /// 로컬 디스크 이미지 저장 (wwwroot/uploads/{category}/{yyyyMM}/{guid}.{ext}).
     /// UseStaticFiles가 그대로 서빙하므로 별도 라우팅이 필요 없다.
-    /// 키/URL 형태는 UploadPaths가 단일 소스 — S3 어댑터(S3ImageStorageService)와 동일하다.
+    /// 키/URL 형태는 UploadPaths가 단일 소스 — 원격 어댑터(RemoteImageStorageService)와 동일하다.
     /// </summary>
     public sealed class LocalImageStorageService : IImageStorage
     {

@@ -58,7 +58,7 @@
 | 리전 | **ap-northeast-2 (서울)** |
 | 인스턴스 ID | `i-001e9dbfc3b767c1f` (2026-08-03 재생성 — 26.04 사고분 `i-0bb70…`는 종료) |
 | 도메인 | playgroundsport.com · www |
-| 이미지 S3 버킷 | `playgroundsport-images-599615474479-ap-northeast-2-an` (퍼블릭 차단 · 앱이 IAM 역할로 읽고 쓰며 `/uploads` 프록시로 서빙 — env `UploadStorageConfiguration__*`) |
+| 이미지 버킷 (S3) | `playgroundsport-images-599615474479-ap-northeast-2-an` (퍼블릭 차단 · 앱이 IAM 역할로 읽고 쓰며 `/uploads` 프록시로 서빙 — env `UploadStorageConfiguration__Provider=Remote` + `__Remote__BucketName`) |
 | 이미지 S3 (개발) | `dev-playgroundsport-images-599615474479-ap-northeast-2-an` — 개발 PC도 S3를 쓴다(코드 경로 일원화, `appsettings.Development.json`). 자격 증명 = 로컬 aws configure |
 | SSH 키 | `D:\Study\Workspace\Keys\playground-prod.pem` (git 밖 — 옮기면 icacls 권한 재정리 필요) |
 | 시간대 | **UTC** (호스트 TZ로 로직을 맞추지 않는다) |
@@ -175,7 +175,7 @@ sudo crontab -l                              # 백업 스케줄 확인
 | DB 백업 | `/var/backups/playground/` → S3 |
 | Nginx 설정 | `/etc/nginx/sites-available/playground` |
 | systemd 유닛 | `/etc/systemd/system/playground.service` |
-| 업로드 이미지 | `/var/www/playground/wwwroot/uploads` (S3 전환 전) |
+| 업로드 이미지 | 오브젝트 스토리지 (위 버킷). `Provider=Local`일 때만 `/var/www/playground/wwwroot/uploads` |
 
 | 계정 | 용도 |
 |---|---|

@@ -59,7 +59,7 @@ namespace PlayGround.Server.Controllers.Soccer
             }
             else
             {
-                // 엠블럼 원본은 저장 백엔드(디스크/S3)에서 읽어 렌더러에 바이트로 넘긴다 — 실패 시 이니셜 실드
+                // 엠블럼 원본은 저장 백엔드(디스크/오브젝트 스토리지)에서 읽어 렌더러에 바이트로 넘긴다 — 실패 시 이니셜 실드
                 byte[]? logo = await TryReadLogoAsync(result.Value.LogoUrl, cancellation);
                 png = mRenderer.RenderTeam(result.Value, logo);
             }

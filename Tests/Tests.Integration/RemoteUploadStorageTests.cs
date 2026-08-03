@@ -9,29 +9,33 @@ using Xunit;
 namespace PlayGround.Tests.Integration
 {
     /// <summary>
-    /// S3 업로드 어댑터 계약 — 키/URL 형태가 로컬 어댑터와 동일해야 한다
+    /// 원격 업로드 어댑터 계약 — 키/URL 형태가 로컬 어댑터와 동일해야 한다
     /// (URL "/uploads/..."는 DB 저장값이자 Application 검증 화이트리스트라 백엔드 교체로 바뀌면 안 된다).
+    ///
+    /// 저장소 벤더는 <see cref="AwsObjectStore"/> 뒤에 있으므로 여기서만 SDK를 안다.
     /// 실제 S3는 부르지 않는다 — IAmazonS3 목으로 요청 형태만 검증한다.
     /// </summary>
-    public class S3UploadStorageTests
+    public class RemoteUploadStorageTests
     {
         private const string Bucket = "test-bucket";
 
-        private static UploadStorageConfiguration.S3Settings Settings => new() { BucketName = Bucket };
+        private static UploadStorageConfiguration.RemoteSettings Settings => new() { BucketName = Bucket };
 
-        //.// S3ImageStorageService
+        private static IObjectStore StoreOf(Mock<IAmazonS3> client) => new AwsObjectStore(client.Object, Settings);
+
+        //.// RemoteImageStorageService
 
         [Fact]
         public async Task ImageSave_UsesUploadsKeyShape_AndReturnsMatchingUrl()
         {
-            var s3 = new Mock<IAmazonS3>(MockBehavior.Strict);
+            var client = new Mock<IAmazonS3>(MockBehavior.Strict);
             PutObjectRequest? captured = null;
-            s3.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
+            client.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<PutObjectRequest, CancellationToken>((r, _) => captured = r)
                 .ReturnsAsync(new PutObjectResponse());
 
-            var service = new S3ImageStorageService(
-                s3.Object, Settings, Mock.Of<Microsoft.Extensions.Logging.ILogger<S3ImageStorageService>>());
+            var service = new RemoteImageStorageService(
+                StoreOf(client), Mock.Of<Microsoft.Extensions.Logging.ILogger<RemoteImageStorageService>>());
             using var content = new MemoryStream(new byte[] { 1, 2, 3 });
 
             string url = await service.SaveAsync("team-logo", content, "image/png");
@@ -46,12 +50,12 @@ namespace PlayGround.Tests.Integration
         [Fact]
         public async Task ImageSave_DoesNotCloseCallerStream()
         {
-            var s3 = new Mock<IAmazonS3>();
-            s3.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
+            var client = new Mock<IAmazonS3>();
+            client.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new PutObjectResponse());
 
-            var service = new S3ImageStorageService(
-                s3.Object, Settings, Mock.Of<Microsoft.Extensions.Logging.ILogger<S3ImageStorageService>>());
+            var service = new RemoteImageStorageService(
+                StoreOf(client), Mock.Of<Microsoft.Extensions.Logging.ILogger<RemoteImageStorageService>>());
             using var content = new MemoryStream(new byte[] { 1 });
 
             await service.SaveAsync("player-photo", content, "image/webp");
@@ -60,7 +64,7 @@ namespace PlayGround.Tests.Integration
             content.CanRead.Should().BeTrue();
         }
 
-        //.// S3FileStorageService
+        //.// RemoteFileStorageService
 
         [Theory]
         [InlineData("규정.pdf", @"\.pdf$", "application/pdf")]
@@ -69,14 +73,14 @@ namespace PlayGround.Tests.Integration
         public async Task FileSave_PreservesAllowedExtension_AndDowngradesUnknown(
             string originalFileName, string keyPattern, string expectedContentType)
         {
-            var s3 = new Mock<IAmazonS3>(MockBehavior.Strict);
+            var client = new Mock<IAmazonS3>(MockBehavior.Strict);
             PutObjectRequest? captured = null;
-            s3.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
+            client.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<PutObjectRequest, CancellationToken>((r, _) => captured = r)
                 .ReturnsAsync(new PutObjectResponse());
 
-            var service = new S3FileStorageService(
-                s3.Object, Settings, Mock.Of<Microsoft.Extensions.Logging.ILogger<S3FileStorageService>>());
+            var service = new RemoteFileStorageService(
+                StoreOf(client), Mock.Of<Microsoft.Extensions.Logging.ILogger<RemoteFileStorageService>>());
             using var content = new MemoryStream(new byte[] { 1 });
 
             string url = await service.SaveAsync("team-board", content, originalFileName);
@@ -87,17 +91,18 @@ namespace PlayGround.Tests.Integration
             url.Should().Be("/" + captured.Key);
         }
 
-        //.// S3UploadReader
+        //.// RemoteUploadReader — URL 해석은 저장소를 건드리기 전에 끝난다
 
         [Theory]
         [InlineData("/not-uploads/a.png")]                  // 업로드 URL 형태가 아님
         [InlineData("https://evil.example.com/a.png")]      // 외부 URL
         [InlineData("/uploads/../appsettings.json")]        // 경로 탈출 시도
         [InlineData("/uploads/a\\b.png")]                   // 백슬래시 경로
-        public async Task Reader_RejectsNonUploadUrls_WithoutCallingS3(string url)
+        public async Task Reader_RejectsNonUploadUrls_WithoutTouchingStore(string url)
         {
-            var s3 = new Mock<IAmazonS3>(MockBehavior.Strict); // 어떤 호출도 없어야 한다 — 있으면 예외
-            var reader = new S3UploadReader(s3.Object, Settings);
+            // 저장소를 한 번이라도 부르면 Strict 목이 예외를 던진다
+            var store = new Mock<IObjectStore>(MockBehavior.Strict);
+            var reader = new RemoteUploadReader(store.Object);
 
             UploadContent? content = await reader.OpenAsync(url);
 
@@ -107,11 +112,11 @@ namespace PlayGround.Tests.Integration
         [Fact]
         public async Task Reader_ReturnsNull_WhenObjectMissing()
         {
-            var s3 = new Mock<IAmazonS3>();
-            s3.Setup(s => s.GetObjectAsync(Bucket, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            var client = new Mock<IAmazonS3>();
+            client.Setup(s => s.GetObjectAsync(Bucket, It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AmazonS3Exception("missing") { StatusCode = System.Net.HttpStatusCode.NotFound });
 
-            var reader = new S3UploadReader(s3.Object, Settings);
+            var reader = new RemoteUploadReader(StoreOf(client));
 
             UploadContent? content = await reader.OpenAsync("/uploads/team-logo/202608/deadbeef.png");
 
@@ -125,11 +130,11 @@ namespace PlayGround.Tests.Integration
             var response = new GetObjectResponse { ResponseStream = new MemoryStream(payload) };
             response.Headers.ContentType = "image/png";
 
-            var s3 = new Mock<IAmazonS3>();
-            s3.Setup(s => s.GetObjectAsync(Bucket, "uploads/team-logo/202608/deadbeef.png", It.IsAny<CancellationToken>()))
+            var client = new Mock<IAmazonS3>();
+            client.Setup(s => s.GetObjectAsync(Bucket, "uploads/team-logo/202608/deadbeef.png", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
-            var reader = new S3UploadReader(s3.Object, Settings);
+            var reader = new RemoteUploadReader(StoreOf(client));
 
             UploadContent? content = await reader.OpenAsync("/uploads/team-logo/202608/deadbeef.png");
 
