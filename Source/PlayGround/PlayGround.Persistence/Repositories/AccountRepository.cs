@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Infrastructure.Logging;
@@ -167,7 +168,7 @@ namespace PlayGround.Persistence.Repositories
 
             var socials = (await reader.ReadAsync<SocialAccountsEntity>()).ToList();
             int recentNameChanges = await reader.ReadSingleOrDefaultAsync<int>();
-            DateTime? earliestNameChange = await reader.ReadSingleOrDefaultAsync<DateTime?>();
+            SystemTime? earliestNameChange = await reader.ReadSingleOrDefaultAsync<SystemTime?>();
 
             bool hasPassword = !string.IsNullOrEmpty(user.PasswordHash);
             int remaining = Math.Max(0, 2 - recentNameChanges);
@@ -187,7 +188,7 @@ namespace PlayGround.Persistence.Repositories
                     .ToList(),
                 NameChangeRemaining = remaining,
                 // 제한 초과일 때만 "다음 변경 가능" — 가장 오래된 최근 변경 + 30일
-                NameChangeAvailableAt = remaining == 0 && earliestNameChange is DateTime d
+                NameChangeAvailableAt = remaining == 0 && earliestNameChange is SystemTime d
                     ? d.AddDays(30)
                     : null,
                 // 로그인 수단 = 소셜 수 + (비밀번호 있으면 1)

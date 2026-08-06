@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -32,7 +33,7 @@ public class SoccerTeamRecruitmentsEntity
 	[StringLength(600)]
 	public string? ConditionsJson { get; set; } = null;
 
-	public DateTime? DeadlineAt { get; set; } = null;
+	public SystemTime? DeadlineAt { get; set; } = null;
 
 	[StringLength(20)]
 	public string? AgeGroup { get; set; } = null;
@@ -47,10 +48,10 @@ public class SoccerTeamRecruitmentsEntity
 	public string Status { get; set; } = String.Empty;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
 	[Required]
-	public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime UpdatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	public SystemTime? DeletedAt { get; set; } = null;
 }

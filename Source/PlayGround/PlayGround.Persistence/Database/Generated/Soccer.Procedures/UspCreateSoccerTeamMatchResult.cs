@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -21,7 +22,7 @@ public class UspCreateSoccerTeamMatchResult(RepositoryBase repository) : Procedu
 	public bool IsHome { get; set; } = true;
 	public int OurScore { get; set; } = 0;
 	public int OpponentScore { get; set; } = 0;
-	public DateTime? MatchedAt { get; set; } = null;
+	public SystemTime? MatchedAt { get; set; } = null;
 	public string? VenueName { get; set; } = null;
 	public string? Scorers { get; set; } = null;
     public override DynamicParameters BuildParameters()

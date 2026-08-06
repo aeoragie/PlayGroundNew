@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System.Collections.Generic;
 
 namespace PlayGround.Contracts.Team
@@ -134,7 +135,7 @@ namespace PlayGround.Contracts.Team
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<string> Conditions { get; set; } = new();
-        public DateTime? DeadlineDate { get; set; }
+        public DateOnly? DeadlineDate { get; set; }
         public string Status { get; set; } = string.Empty;
         public bool IsOpen { get; set; }
 
@@ -158,7 +159,7 @@ namespace PlayGround.Contracts.Team
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<string> Conditions { get; set; } = new();
-        public DateTime? DeadlineDate { get; set; }
+        public DateOnly? DeadlineDate { get; set; }
 
         /// <summary>모집 연령대 'U12'|'U15'|'U18' (선택).</summary>
         public string? AgeGroup { get; set; }
@@ -199,7 +200,7 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>추천 에이전트 이름 — AgentRef일 때만 값. Direct면 null.</summary>
         public string? RefAgentName { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
     }
 
     /// <summary>팀 대시보드 지원자 목록 (관리자 소유 팀 공고의 지원 전부).</summary>
@@ -230,7 +231,7 @@ namespace PlayGround.Contracts.Team
         /// <summary>수락(Accepted) 후 보호자가 선수단 초대를 확인해 로스터에 편입됐는지 — ConfirmedAt != null.
         /// Accepted && !Confirmed = "초대를 확인해 주세요" + [초대 확인], Accepted && Confirmed = "선수단에 합류했어요".</summary>
         public bool Confirmed { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
     }
 
     /// <summary>보호자 지원 현황 묶음.</summary>
@@ -286,8 +287,8 @@ namespace PlayGround.Contracts.Team
         public string? AuthorName { get; set; }
 
         /// <summary>수정 시각 — 값이 있으면 "수정됨" 표기.</summary>
-        public DateTime? EditedAt { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public SystemTime? EditedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
 
         /// <summary>조회수 (읽음 행 COUNT) — 관리자·스태프에게만 표시. 보호자 뷰에서는 무의미.</summary>
         public int ViewCount { get; set; }
@@ -344,8 +345,8 @@ namespace PlayGround.Contracts.Team
         public Guid PostId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
-        public DateTime? EditedAt { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public SystemTime? EditedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
 
         /// <summary>첨부 파일명만 — 게스트는 다운로드할 수 없다(FileUrl 미포함).</summary>
         public List<TeamNewsFileDto> Files { get; set; } = new();
@@ -379,7 +380,7 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>상대 팀 이름 — 경기·대회만 값, 훈련은 null.</summary>
         public string? OpponentName { get; set; }
-        public DateTime StartsAt { get; set; }
+        public SystemTime StartsAt { get; set; }
         public string Venue { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
         public Guid? MatchId { get; set; }
@@ -397,7 +398,7 @@ namespace PlayGround.Contracts.Team
         public string Type { get; set; } = string.Empty;
         public string? Title { get; set; }
         public string? OpponentName { get; set; }
-        public DateTime StartsAt { get; set; }
+        public SystemTime StartsAt { get; set; }
         public string Venue { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
     }
@@ -576,7 +577,7 @@ namespace PlayGround.Contracts.Team
         /// 집계(승무패·득실·순위표)는 Official만 — 친선은 별도 표기한다(Design.FriendlyMatch).</summary>
         public string MatchType { get; set; } = string.Empty;
         public string? TournamentName { get; set; }
-        public DateTime? MatchedAt { get; set; }
+        public SystemTime? MatchedAt { get; set; }
         public string? VenueName { get; set; }
         public bool IsHome { get; set; }
         public string OpponentName { get; set; } = string.Empty;
@@ -644,7 +645,7 @@ namespace PlayGround.Contracts.Team
         public int OpponentScore { get; set; }
 
         /// <summary>경기 일시 (날짜 + 시각).</summary>
-        public DateTime MatchedAt { get; set; }
+        public SystemTime MatchedAt { get; set; }
 
         public string? VenueName { get; set; }
 
@@ -765,7 +766,7 @@ namespace PlayGround.Contracts.Team
         public int PendingInviteCount { get; set; }
 
         /// <summary>다음 경기(경기·대회 중 가장 가까운 미래 1건, 훈련 제외) 일시 — 없으면 null(줄 생략). 클라가 포맷.</summary>
-        public DateTime? NextMatchStartsAt { get; set; }
+        public SystemTime? NextMatchStartsAt { get; set; }
 
         /// <summary>다음 경기 상대 — 있으면 "vs {상대}", 대회로 상대가 없으면 null.</summary>
         public string? NextMatchOpponent { get; set; }
@@ -807,7 +808,7 @@ namespace PlayGround.Contracts.Team
         public int TeamNewsUnreadCount { get; set; }
 
         /// <summary>Pending일 때 요청일 — 대기 안내 문구에 쓴다("… 7/14 요청"). Claimed는 null.</summary>
-        public DateTime? RequestedAt { get; set; }
+        public SystemTime? RequestedAt { get; set; }
     }
 
     /// <summary>"처리가 필요해요" 목록 (Design.DashboardHub §3).
@@ -835,7 +836,7 @@ namespace PlayGround.Contracts.Team
         public Guid? MatchId { get; set; }
 
         /// <summary>정렬 기준 (초대 발급일 / 심사일).</summary>
-        public DateTime OccurredAt { get; set; }
+        public SystemTime OccurredAt { get; set; }
     }
 
     /// <summary>내가 관리하는 팀의 미처리 초대 목록. "처리가 필요해요"의 원천 중 하나 —
@@ -855,7 +856,7 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>초대 대상 선수 이름 — 로스터에서 만든 미연결 프로필.</summary>
         public string? PlayerName { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
     }
 
     //.// 공식 기록 수정 신청 (Design.RecordCorrection)
@@ -900,12 +901,12 @@ namespace PlayGround.Contracts.Team
         /// <summary>반려 시 주최측이 남긴 사유 — 반려 행에는 반드시 표시한다.</summary>
         public string? RejectReason { get; set; }
 
-        public DateTime RequestedAt { get; set; }
-        public DateTime? ReviewedAt { get; set; }
+        public SystemTime RequestedAt { get; set; }
+        public SystemTime? ReviewedAt { get; set; }
 
         /// <summary>경기 맥락 — "리그 12R · vs 강북 드래곤즈" 조립용.</summary>
         public string? TournamentName { get; set; }
         public string OpponentName { get; set; } = string.Empty;
-        public DateTime? MatchedAt { get; set; }
+        public SystemTime? MatchedAt { get; set; }
     }
 }

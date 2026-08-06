@@ -1,4 +1,5 @@
 using FluentAssertions;
+using PlayGround.Shared.Time;
 using Xunit;
 using PlayGround.Contracts.Notification;
 using PlayGround.Domain.Soccer;
@@ -139,15 +140,15 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData(30)]
         public void TimeAgo_1분_미만은_방금_전이다(int seconds)
         {
-            string label = NotificationPresenter.TimeAgo(DateTime.UtcNow.AddSeconds(-seconds));
+            string label = NotificationPresenter.TimeAgo(SystemTime.Now.AddSeconds(-seconds));
 
-            label.Should().Be(NotificationPresenter.TimeAgo(DateTime.UtcNow));
+            label.Should().Be(NotificationPresenter.TimeAgo(SystemTime.Now));
         }
 
         [Fact]
         public void TimeAgo_구간마다_다른_문구를_준다()
         {
-            DateTime now = DateTime.UtcNow;
+            SystemTime now = SystemTime.Now;
             string justNow = NotificationPresenter.TimeAgo(now);
             string minutes = NotificationPresenter.TimeAgo(now.AddMinutes(-30));
             string hours = NotificationPresenter.TimeAgo(now.AddHours(-5));
@@ -160,7 +161,7 @@ namespace PlayGround.Tests.Unit.Client
         [Fact]
         public void TimeAgo_48시간이_넘으면_날짜로_바뀐다()
         {
-            DateTime past = DateTime.UtcNow.AddDays(-10);
+            SystemTime past = SystemTime.Now.AddDays(-10);
 
             string label = NotificationPresenter.TimeAgo(past);
 

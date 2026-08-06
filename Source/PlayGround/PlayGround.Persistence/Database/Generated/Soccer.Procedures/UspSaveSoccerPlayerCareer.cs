@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -19,8 +20,8 @@ public class UspSaveSoccerPlayerCareer(RepositoryBase repository) : ProcedureBas
 	public Guid UserId { get; set; } = Guid.Empty;
 	public Guid CareerId { get; set; } = Guid.Empty;
 	public string TeamName { get; set; } = String.Empty;
-	public DateTime StartDate { get; set; } = DateTime.MinValue;
-	public DateTime? EndDate { get; set; } = null;
+	public DateOnly StartDate { get; set; } = DateOnly.MinValue;
+	public DateOnly? EndDate { get; set; } = null;
 	public string? Role { get; set; } = null;
 	public string? Note { get; set; } = null;
 	public string? BadgeLabel { get; set; } = null;

@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 namespace PlayGround.Shared.Result;
 
 public class HttpResponseInfo
@@ -8,5 +9,5 @@ public class HttpResponseInfo
     public string Code { get; set; } = string.Empty;
     public object? Value { get; set; }
     public string? Details { get; set; }
-    public DateTime Timestamp { get; set; }
+    public SystemTime Timestamp { get; set; }
 }

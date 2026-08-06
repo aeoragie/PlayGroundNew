@@ -76,7 +76,7 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 마감일은 과거일 수 없다 (수정으로 이미 지난 마감일을 유지하는 것도 막는다 — 마감 처리로 해결)
-            if (request.DeadlineDate is not null && request.DeadlineDate.Value.Date < KoreanTime.Today)
+            if (request.DeadlineDate is not null && request.DeadlineDate.Value < KoreanTime.Today)
             {
                 return Result<TeamRecruitmentDto>.Error(ErrorCode.InvalidInput, "deadline is in the past");
             }

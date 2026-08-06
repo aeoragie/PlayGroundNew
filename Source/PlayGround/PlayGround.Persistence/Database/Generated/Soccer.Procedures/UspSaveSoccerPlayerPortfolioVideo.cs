@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -22,7 +23,7 @@ public class UspSaveSoccerPlayerPortfolioVideo(RepositoryBase repository) : Proc
 	public string VideoUrl { get; set; } = String.Empty;
 	public string? ThumbnailUrl { get; set; } = null;
 	public string? Tags { get; set; } = null;
-	public DateTime? RecordedOn { get; set; } = null;
+	public DateOnly? RecordedOn { get; set; } = null;
 	public bool IsPrimary { get; set; } = false;
 	public Guid? TargetPlayerId { get; set; } = null;
     public override DynamicParameters BuildParameters()

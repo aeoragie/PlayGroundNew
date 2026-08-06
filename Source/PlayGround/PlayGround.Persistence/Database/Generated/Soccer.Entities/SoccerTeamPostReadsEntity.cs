@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -22,5 +23,5 @@ public class SoccerTeamPostReadsEntity
 	public Guid UserId { get; set; } = Guid.Empty;
 
 	[Required]
-	public DateTime ReadAt { get; set; } = DateTime.MinValue;
+	public SystemTime ReadAt { get; set; } = SystemTime.MinValue;
 }

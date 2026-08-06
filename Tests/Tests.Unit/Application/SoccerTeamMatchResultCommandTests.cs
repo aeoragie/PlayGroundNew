@@ -18,13 +18,13 @@ namespace PlayGround.Tests.Unit.Application
         private static readonly Guid Manager = Guid.NewGuid();
 
         private static CreateTeamMatchResultRequest Request(
-            string opponent = " 강동 SC ", int ours = 3, int theirs = 1, DateTime? at = null, string? venue = "  한강 구장  ") =>
+            string opponent = " 강동 SC ", int ours = 3, int theirs = 1, SystemTime? at = null, string? venue = "  한강 구장  ") =>
             new()
             {
                 OpponentName = opponent,
                 OurScore = ours,
                 OpponentScore = theirs,
-                MatchedAt = at ?? DateTime.Now.AddDays(-1),
+                MatchedAt = at ?? SystemTime.Now.AddDays(-1),
                 VenueName = venue,
             };
 
@@ -107,7 +107,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task ExecuteAsync_일시가_없으면_InvalidInput이다()
         {
             Result<CreateTeamMatchResultResponse> result =
-                await new Harness().Command.ExecuteAsync(Manager, Request(at: default(DateTime)));
+                await new Harness().Command.ExecuteAsync(Manager, Request(at: default(SystemTime)));
 
             result.ResultData.DetailCode.Should().Be(ErrorCode.InvalidInput);
         }
@@ -116,7 +116,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task ExecuteAsync_미래_경기의_결과는_거부한다()
         {
             Result<CreateTeamMatchResultResponse> result =
-                await new Harness().Command.ExecuteAsync(Manager, Request(at: DateTime.Now.AddDays(3)));
+                await new Harness().Command.ExecuteAsync(Manager, Request(at: SystemTime.Now.AddDays(3)));
 
             result.ResultData.DetailCode.Should().Be(ErrorCode.InvalidInput);
         }

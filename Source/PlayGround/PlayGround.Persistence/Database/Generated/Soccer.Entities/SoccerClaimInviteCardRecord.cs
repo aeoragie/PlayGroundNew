@@ -5,6 +5,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -20,7 +21,7 @@ public class SoccerClaimInviteCardRecord
 	[StringLength(150)]
 	public string Name { get; set; } = String.Empty;
 
-	public DateTime? BirthDate { get; set; } = null;
+	public DateOnly? BirthDate { get; set; } = null;
 
 	[StringLength(20)]
 	public string? AgeGroup { get; set; } = null;

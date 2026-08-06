@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -32,13 +33,13 @@ public class SoccerTournamentNewsEntity
 	[StringLength(150)]
 	public string? PublisherName { get; set; } = null;
 
-	public DateTime? PublishedOn { get; set; } = null;
+	public DateOnly? PublishedOn { get; set; } = null;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
 	[Required]
-	public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime UpdatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	public SystemTime? DeletedAt { get; set; } = null;
 }

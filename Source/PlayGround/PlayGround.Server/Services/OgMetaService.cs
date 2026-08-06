@@ -83,9 +83,9 @@ namespace PlayGround.Server.Services
             return new OgCard(d.Name, description, $"/og/tournament/{tournamentId}.png", path);
         }
 
-        private static string PeriodText(DateTime? start, DateTime? end)
+        private static string PeriodText(DateOnly? start, DateOnly? end)
         {
-            static string M(DateTime d) => d.ToString("yyyy.M", CultureInfo.InvariantCulture);
+            static string M(DateOnly d) => d.ToString("yyyy.M", CultureInfo.InvariantCulture);
             if (start is not null && end is not null)
             {
                 return $"{M(start.Value)} ~ {M(end.Value)}";

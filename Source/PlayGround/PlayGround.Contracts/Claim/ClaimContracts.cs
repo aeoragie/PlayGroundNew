@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 
 namespace PlayGround.Contracts.Claim
@@ -35,7 +36,7 @@ namespace PlayGround.Contracts.Claim
         public string Name { get; set; } = string.Empty;
         public string? AgeGroup { get; set; }
         public string TeamName { get; set; } = string.Empty;
-        public DateTime RequestedAt { get; set; }
+        public SystemTime RequestedAt { get; set; }
     }
 
     /// <summary>내 연결 요청 요약 — 대기 화면·재방문 복원. Status: 'Pending','Approved','Rejected'.</summary>
@@ -46,7 +47,7 @@ namespace PlayGround.Contracts.Claim
         public string Relation { get; set; } = string.Empty;
         public string PlayerName { get; set; } = string.Empty;
         public string TeamName { get; set; } = string.Empty;
-        public DateTime RequestedAt { get; set; }
+        public SystemTime RequestedAt { get; set; }
     }
 
     /// <summary>팀 관리자 승인/거절 요청.</summary>

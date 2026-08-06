@@ -57,13 +57,17 @@ E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 
 
 | 층 | 금지 | 대신 |
 |---|---|---|
-| C# | `DateTime.Now`·`UtcNow`·`Today`, `DateTimeOffset.Now`·`UtcNow` 직접 호출 | **`SystemTime.Now`(UTC 반환)** |
-| C# — 한국 달력 값만 | | **`KoreanTime`** — 마감일(`EndOfDayToUtc`)·시즌(`CurrentYear`·`YearRangeUtc`) |
+| C# | **`DateTime` 타입 자체** (직접 호출 포함) | 순간 = **`SystemTime` 구조체**(항상 UTC, `SystemTime.Now`가 `SystemTime` 반환), 달력 날짜(생년월일·마감일 등) = **`DateOnly`** |
+| C# — 한국 달력 값만 | | **`KoreanTime`** — 마감일(`EndOfDayToUtc`: DateOnly→SystemTime)·시즌(`CurrentYear`·`YearRangeUtc`) |
 | SQL | `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | **`GETUTCDATE()`만.** 시간대 산술을 SQL에 두지 않는다 |
-| Client | | 표시는 `ToLocalTime()`, 입력 저장은 `ToUniversalTime()` |
+| Client | 시계 직접 읽기 | 표시는 `SystemTime.ToLocalTime()`/`ToLocalString()`, 픽커 입력은 `SystemTime.FromLocal()` |
 
-`SystemTime.Now`가 UTC인 게 헷갈릴 수 있는데, **선택지를 두면 반드시 섞이므로 없앤 것**이다.
-`Tests.Unit`의 `TimeBaselineGuardTests`가 `Source/` 전체를 훑어 위반을 자동으로 잡는다.
+`SystemTime`은 타입 수준 강제다(2026-08-06 확장). 어떤 `DateTime`을 넣어도 생성자가 UTC로
+정규화하고, DB(Dapper `SystemTimeTypeHandler`)·JSON(ISO-8601 `Z`) 경계는 자동 변환이라
+로직 코드가 `DateTime`을 아예 모른다. 원시 `DateTime` 허용 파일은
+`TimeBaselineGuardTests.AllowedTypeFiles`(SystemTime·KoreanTime·Dapper 핸들러) +
+**Client 표시층**(브라우저 로컬 벽시계가 표시의 본질)뿐이고, 위반은 같은 테스트가 자동으로 잡는다.
+제너레이터도 datetime2→`SystemTime`, DATE→`DateOnly`로 생성한다.
 
 > **`DATE` 컬럼을 전부 바꾸지는 않았다** — 생년월일·커리어 기간·대회 일정은 `DATE`로 남는다.
 > 기준은 "**now와 비교해 상태가 갈리는 날짜만**". 생년월일을 순간으로 만들면 보는 시간대에
@@ -236,8 +240,9 @@ PlayGroundNew/
 
 - **역할**: Client와 Server가 함께 쓰는 요청/응답 DTO. 도메인별 폴더에
   `{Domain}Contracts.cs` 하나로 통합 (예: `Team/TeamContracts.cs`).
-- **참조**: 없음.
+- **참조**: Core.Shared만 (2026-08-06, 시각 타입 `SystemTime` 공유 목적).
 - **금지**: 로직(메서드), 엔티티, 외부 의존. 순수 데이터 클래스만.
+  시각 필드는 순간이면 `SystemTime`, 달력 날짜면 `DateOnly` — `DateTime` 금지.
 
 ### PlayGround.Domain — 도메인 모델
 
@@ -322,7 +327,7 @@ PlayGroundNew/
 ### 의존성 그래프
 
 ```
-Core.Shared (의존성 없음)          PlayGround.Contracts (의존성 없음)
+Core.Shared (의존성 없음)          PlayGround.Contracts (Core.Shared 참조 — SystemTime)
   ↑                                  ↑
 Core.Infrastructure                PlayGround.Domain (Core.Shared 참조)
   ↑                                  ↑

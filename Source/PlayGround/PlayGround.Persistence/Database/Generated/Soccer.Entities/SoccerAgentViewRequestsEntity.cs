@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -36,17 +37,17 @@ public class SoccerAgentViewRequestsEntity
 	public string Status { get; set; } = String.Empty;
 
 	[Required]
-	public DateTime RequestedAt { get; set; } = DateTime.MinValue;
+	public SystemTime RequestedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? ReviewedAt { get; set; } = null;
+	public SystemTime? ReviewedAt { get; set; } = null;
 
-	public DateTime? ExpiresAt { get; set; } = null;
-
-	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime? ExpiresAt { get; set; } = null;
 
 	[Required]
-	public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	[Required]
+	public SystemTime UpdatedAt { get; set; } = SystemTime.MinValue;
+
+	public SystemTime? DeletedAt { get; set; } = null;
 }

@@ -26,7 +26,7 @@
     </div>
 
     @* 다음 경기 — 경기·대회 중 가장 가까운 미래 1건(훈련 제외). 없으면 줄 생략(Design.Schedule) *@
-    @if (Team.NextMatchStartsAt is DateTime next)
+    @if (Team.NextMatchStartsAt is SystemTime next)
     {
         <p class="relative mt-3 m-0 text-[13px] font-bold text-teal">@AppText.Hub.NextMatch(NextMatchLabel(next))</p>
     }
@@ -59,7 +59,7 @@
     }
 
     // "다음 경기 — {M/D}({요일}) {HH:mm} vs {상대}" — 상대 없으면(대회) vs 부분 생략. 포맷은 Invariant.
-    private string NextMatchLabel(DateTime utc)
+    private string NextMatchLabel(SystemTime utc)
     {
         // 서버 값은 UTC 순간 — 표시 전에 현지로 되돌린다
         DateTime dt = utc.ToLocalTime();

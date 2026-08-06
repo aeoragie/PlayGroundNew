@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -18,7 +19,7 @@ public class UspCreatePlayer(RepositoryBase repository) : ProcedureBase(reposito
 
 	public Guid UserId { get; set; } = Guid.Empty;
 	public string Name { get; set; } = String.Empty;
-	public DateTime? BirthDate { get; set; } = null;
+	public DateOnly? BirthDate { get; set; } = null;
 	public string? AgeGroup { get; set; } = null;
 	public string? Region { get; set; } = null;
     public override DynamicParameters BuildParameters()

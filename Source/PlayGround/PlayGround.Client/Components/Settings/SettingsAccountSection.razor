@@ -32,7 +32,7 @@
                 <button type="button" class="@Css.Settings.OutlineButton opacity-45 cursor-not-allowed" disabled>@AppText.Settings.NameChange</button>
             }
         </div>
-        @if (Settings.NameChangeRemaining == 0 && Settings.NameChangeAvailableAt is DateTime next)
+        @if (Settings.NameChangeRemaining == 0 && Settings.NameChangeAvailableAt is SystemTime next)
         {
             <span class="text-[11px] text-text-muted break-keep -mt-1.5">@AppText.Settings.NameChangeCaption(next.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture))</span>
         }
@@ -240,7 +240,7 @@
     }
 
     private string ExpiryText =>
-        mExport?.ExpiresAt is DateTime e
+        mExport?.ExpiresAt is SystemTime e
             ? AppText.Settings.ExportExpiry(e.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture))
             : string.Empty;
 

@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System.Collections.Generic;
 
 namespace PlayGround.Contracts.Player
@@ -165,7 +166,7 @@ namespace PlayGround.Contracts.Player
     public class PlayerMatchStatDto
     {
         public Guid MatchId { get; set; }
-        public DateTime? MatchedAt { get; set; }
+        public SystemTime? MatchedAt { get; set; }
 
         /// <summary>SoccerCompetitionType 멤버 이름 — 친선=대회 없음, League=리그, 그 외 Cup (서버 파생).</summary>
         public string CompetitionType { get; set; } = string.Empty;
@@ -290,8 +291,8 @@ namespace PlayGround.Contracts.Player
     /// <summary>열람 승인 정보 — 상단 배너("승인일 · 30일 후 만료") 표시용.</summary>
     public class PlayerPublicGrantDto
     {
-        public DateTime ApprovedAt { get; set; }
-        public DateTime ExpiresAt { get; set; }
+        public SystemTime ApprovedAt { get; set; }
+        public SystemTime ExpiresAt { get; set; }
     }
 
     /// <summary>공개 프로필 히어로. 키·몸무게·주발은 공개 설정이 켜진 항목만 값이 실린다.</summary>

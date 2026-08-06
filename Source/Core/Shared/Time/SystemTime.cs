@@ -1,27 +1,163 @@
+using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace PlayGround.Shared.Time;
 
 /// <summary>
-/// **시각의 단일 출처.** `Now`는 UTC를 돌려준다.
+/// **시각의 단일 타입.** 이 시스템에서 "순간"은 언제나 UTC 한 가지이고, 그걸 타입으로 강제한다.
+/// 코드는 `DateTime`을 몰라도 된다. 시계 읽기는 <see cref="Now"/>, DB·JSON 경계는
+/// 핸들러·컨버터가 자동으로 이 타입을 만든다(`TimeBaselineGuardTests`가 `DateTime` 사용을 막는다).
 ///
-/// 이름이 `Now`인데 UTC인 이유: 이 시스템에서 "지금"은 언제나 UTC 한 가지다.
-/// 호출부가 `Now`와 `UtcNow` 중에 고르게 두면 반드시 섞이므로 **선택지를 없앤다.**
-/// `DateTime.Now`·`DateTime.UtcNow`·`DateTime.Today` 직접 호출은 금지이고,
-/// `SystemTimeUsageTests`가 이를 자동으로 막는다.
+/// 어떤 경로로 들어오든 생성자가 UTC로 정규화한다. Kind가 `Unspecified`인 값(DB에서 읽은 값)은
+/// 저장 규칙상 UTC이므로 UTC로 표식하고, `Local`이면 UTC로 변환한다. 그래서
+/// `new SystemTime(dbValue)`처럼 만들면 실수할 자리가 없다.
 ///
-/// **`Kind`는 항상 `Utc`다.** 이게 API 응답의 ISO-8601에 `Z`를 붙게 하고,
-/// 그 `Z` 덕분에 브라우저가 사용자 시간대로 되돌릴 수 있다 — 빠뜨리면 클라이언트가
-/// 변환 기준을 알 수 없어 조용히 어긋난다.
-///
-/// 한국 시각이 필요한 자리(마감일 계산·시즌 연도)는 `PlayGround.Domain`의 `KoreanTime`이 맡는다.
+/// 직렬화는 ISO-8601 `Z`다. 이 `Z` 덕분에 브라우저가 사용자 시간대로 되돌릴 수 있다.
+/// 화면 표시는 <see cref="ToLocalString(string)"/>, 한국 달력 값(마감일·시즌)은
+/// `PlayGround.Domain`의 `KoreanTime`이 맡는다.
 /// </summary>
-public static class SystemTime
+[JsonConverter(typeof(SystemTimeJsonConverter))]
+public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTime>, IComparable
 {
-    /// <summary>지금 (UTC). `DateTime.Now`·`DateTime.UtcNow` 대신 쓴다.</summary>
-    public static DateTime Now => DateTime.UtcNow;
+    private readonly DateTime mValue;
 
-    /// <summary>오늘 자정 (UTC). `DateTime.Today` 대신 쓴다.</summary>
-    public static DateTime Today => DateTime.UtcNow.Date;
+    /// <summary>지금 (UTC).</summary>
+    public SystemTime()
+    {
+        mValue = DateTime.UtcNow;
+    }
 
-    /// <summary>지금 (오프셋 포함). 오프셋이 필요한 외부 연동용.</summary>
+    /// <summary>UTC로 정규화해 감싼다. DB에서 읽은 값(`Unspecified`)은 UTC로 표식한다.</summary>
+    public SystemTime(DateTime value)
+    {
+        mValue = value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+        };
+    }
+
+    /// <summary>UTC 달력 성분으로 만든다 (테스트·고정 시점용).</summary>
+    public SystemTime(int year, int month, int day, int hour = 0, int minute = 0, int second = 0)
+        : this(new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc))
+    {
+    }
+
+    /// <summary>지금 (UTC).</summary>
+    public static SystemTime Now => new(DateTime.UtcNow);
+
+    /// <summary>오늘(UTC 달력) 자정.</summary>
+    public static SystemTime Today => new(DateTime.UtcNow.Date);
+
+    public static SystemTime MinValue { get; } = new(DateTime.MinValue);
+
+    public static SystemTime MaxValue { get; } = new(DateTime.MaxValue);
+
+    /// <summary>지금 (오프셋 포함). JWT·OAuth·Redis TTL처럼 `DateTimeOffset`을 요구하는 외부 라이브러리 경계용.</summary>
     public static DateTimeOffset OffsetNow => DateTimeOffset.UtcNow;
+
+    /// <summary>
+    /// 원시 UTC `DateTime`. **경계(DB 파라미터·JWT·외부 라이브러리) 전용** — 로직에서 쓰지 않는다.
+    /// `default(SystemTime)`(Kind 미지정)도 UTC로 표식해 돌려준다.
+    /// </summary>
+    public DateTime UtcDateTime => DateTime.SpecifyKind(mValue, DateTimeKind.Utc);
+
+    //.// 성분 (UTC 기준)
+
+    public int Year => mValue.Year;
+    public int Month => mValue.Month;
+    public int Day => mValue.Day;
+    public int Hour => mValue.Hour;
+    public int Minute => mValue.Minute;
+    public int Second => mValue.Second;
+    public long Ticks => mValue.Ticks;
+
+    /// <summary>UTC 달력 날짜의 자정.</summary>
+    public SystemTime Date => new(mValue.Date);
+
+    /// <summary>UTC 달력 날짜.</summary>
+    public DateOnly DateOnly => DateOnly.FromDateTime(UtcDateTime);
+
+    //.// 산술
+
+    public SystemTime Add(TimeSpan value) => new(UtcDateTime.Add(value));
+    public SystemTime AddDays(double value) => new(UtcDateTime.AddDays(value));
+    public SystemTime AddHours(double value) => new(UtcDateTime.AddHours(value));
+    public SystemTime AddMinutes(double value) => new(UtcDateTime.AddMinutes(value));
+    public SystemTime AddSeconds(double value) => new(UtcDateTime.AddSeconds(value));
+    public SystemTime AddMonths(int value) => new(UtcDateTime.AddMonths(value));
+    public SystemTime AddYears(int value) => new(UtcDateTime.AddYears(value));
+    public SystemTime AddTicks(long value) => new(UtcDateTime.AddTicks(value));
+
+    public static TimeSpan operator -(SystemTime left, SystemTime right) => left.UtcDateTime - right.UtcDateTime;
+    public static SystemTime operator +(SystemTime time, TimeSpan span) => time.Add(span);
+    public static SystemTime operator -(SystemTime time, TimeSpan span) => time.Add(-span);
+
+    //.// 비교
+
+    public static bool operator ==(SystemTime left, SystemTime right) => left.mValue == right.mValue;
+    public static bool operator !=(SystemTime left, SystemTime right) => left.mValue != right.mValue;
+    public static bool operator <(SystemTime left, SystemTime right) => left.mValue < right.mValue;
+    public static bool operator <=(SystemTime left, SystemTime right) => left.mValue <= right.mValue;
+    public static bool operator >(SystemTime left, SystemTime right) => left.mValue > right.mValue;
+    public static bool operator >=(SystemTime left, SystemTime right) => left.mValue >= right.mValue;
+
+    public bool Equals(SystemTime other) => mValue == other.mValue;
+    public override bool Equals(object? obj) => obj is SystemTime other && Equals(other);
+    public override int GetHashCode() => mValue.GetHashCode();
+    public int CompareTo(SystemTime other) => mValue.CompareTo(other.mValue);
+
+    public int CompareTo(object? obj) => obj switch
+    {
+        null => 1,
+        SystemTime other => CompareTo(other),
+        _ => throw new ArgumentException($"Cannot compare SystemTime with {obj.GetType().Name}"),
+    };
+
+    //.// 표시
+
+    /// <summary>ISO-8601 라운드트립 (`Z` 포함). 로그·디버그용.</summary>
+    public override string ToString() => UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
+
+    /// <summary>UTC 기준 포맷. 저장 키(yyyyMM 등)·로그처럼 시간대 무관 문자열용.</summary>
+    public string ToString(string format) => UtcDateTime.ToString(format, CultureInfo.InvariantCulture);
+
+    /// <summary>UTC 기준 포맷 (문화권 지정). iCal처럼 포맷 규격이 명시적인 곳용.</summary>
+    public string ToString(string format, IFormatProvider provider) => UtcDateTime.ToString(format, provider);
+
+    /// <summary>
+    /// **화면 표시 전용** — 실행 환경의 로컬 시간대로 변환해 포맷한다.
+    /// Blazor WASM은 브라우저 시간대라 "표시는 사용자 시간대" 규칙이 이 한 줄로 끝난다.
+    /// </summary>
+    public string ToLocalString(string format) =>
+        UtcDateTime.ToLocalTime().ToString(format, CultureInfo.InvariantCulture);
+
+    /// <summary>실행 환경의 로컬 달력 날짜. 표시·그룹핑 전용 — 저장·비교는 UTC로 한다.</summary>
+    public DateOnly ToLocalDate() => DateOnly.FromDateTime(UtcDateTime.ToLocalTime());
+
+    /// <summary>
+    /// **표시층 경계 전용** — 로컬 벽시계 `DateTime`으로 푼다. 캘린더 그리드·월 그룹핑처럼
+    /// 로컬 달력 산술이 본질인 화면 코드에서만 쓴다. 저장·비교·전송에 이 값을 되돌리지 않는다
+    /// (되돌릴 일이 있으면 <see cref="FromLocal"/>을 거친다).
+    /// </summary>
+    public DateTime ToLocalTime() => UtcDateTime.ToLocalTime();
+
+    /// <summary>
+    /// **폼 입력 경계 전용** — 날짜·시각 픽커가 준 로컬 벽시계 값을 UTC 순간으로 만든다.
+    /// (Kind 미지정 값은 로컬로 간주한다 — 픽커 바인딩이 그렇게 준다.)
+    /// </summary>
+    public static SystemTime FromLocal(DateTime localWallClock) =>
+        new(DateTime.SpecifyKind(localWallClock, DateTimeKind.Local));
+}
+
+/// <summary>ISO-8601 문자열과 상호 변환 — 기존 `DateTime`(UTC) 직렬화와 와이어 포맷이 같다.</summary>
+public sealed class SystemTimeJsonConverter : JsonConverter<SystemTime>
+{
+    public override SystemTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+        new(reader.GetDateTime());
+
+    public override void Write(Utf8JsonWriter writer, SystemTime value, JsonSerializerOptions options) =>
+        writer.WriteStringValue(value.UtcDateTime);
 }

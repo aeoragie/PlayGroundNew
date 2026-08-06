@@ -5,6 +5,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -42,7 +43,7 @@ public class SoccerTeamMatchRecord
 	[StringLength(20)]
 	public string Status { get; set; } = String.Empty;
 
-	public DateTime? MatchedAt { get; set; } = null;
+	public SystemTime? MatchedAt { get; set; } = null;
 
 	[StringLength(300)]
 	public string? VenueName { get; set; } = null;

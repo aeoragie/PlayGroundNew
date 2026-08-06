@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -47,9 +48,9 @@ public class SoccerTournamentsEntity
 	[StringLength(20)]
 	public string Status { get; set; } = String.Empty;
 
-	public DateTime? StartDate { get; set; } = null;
+	public DateOnly? StartDate { get; set; } = null;
 
-	public DateTime? EndDate { get; set; } = null;
+	public DateOnly? EndDate { get; set; } = null;
 
 	public int? TeamCount { get; set; } = null;
 
@@ -93,10 +94,10 @@ public class SoccerTournamentsEntity
 	public string? SyncStatus { get; set; } = null;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
 	[Required]
-	public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime UpdatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	public SystemTime? DeletedAt { get; set; } = null;
 }

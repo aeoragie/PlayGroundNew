@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Account.Entities;
 
@@ -30,5 +31,5 @@ public class UserNameChangeLogsEntity
 	public string NewName { get; set; } = String.Empty;
 
 	[Required]
-	public DateTime ChangedAt { get; set; } = DateTime.MinValue;
+	public SystemTime ChangedAt { get; set; } = SystemTime.MinValue;
 }

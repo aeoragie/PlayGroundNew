@@ -261,7 +261,7 @@
         }
     }
 
-    private static string RequestedAtText(DateTime utc)
+    private static string RequestedAtText(SystemTime utc)
     {
         DateTime local = utc.ToLocalTime();
         return AppText.Agent.RequestedAt(local.Month, local.Day, local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm, ((local.Hour + 11) % 12) + 1, local.Minute.ToString("D2"));
@@ -274,7 +274,7 @@
         _ => AppText.Agent.LogApproved,
     };
 
-    private static string LogTimeText(DateTime utc)
+    private static string LogTimeText(SystemTime utc)
     {
         DateTime local = utc.ToLocalTime();
         DateTime today = SystemTime.Now.ToLocalTime().Date;

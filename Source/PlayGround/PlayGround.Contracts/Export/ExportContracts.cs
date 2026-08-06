@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 
 namespace PlayGround.Contracts.Export
@@ -19,10 +20,10 @@ namespace PlayGround.Contracts.Export
         public string Status { get; set; } = string.Empty;
 
         public long SizeBytes { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
 
         /// <summary>Ready일 때만 값 — 만료일(요청+7일). 만료되면 서버가 이 행을 상태에서 뺀다.</summary>
-        public DateTime? ExpiresAt { get; set; }
+        public SystemTime? ExpiresAt { get; set; }
 
         /// <summary>Ready일 때만 값 — 다운로드 서명 URL 토큰. 클라가 다운로드 링크를 조립한다.</summary>
         public string? DownloadToken { get; set; }

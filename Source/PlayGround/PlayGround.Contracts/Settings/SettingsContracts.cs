@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +18,7 @@ namespace PlayGround.Contracts.Settings
         public int NameChangeRemaining { get; set; } = 2;
 
         /// <summary>다음 이름 변경 가능 시각 — 제한 초과(Remaining=0)일 때만 값. 가장 오래된 최근 변경 + 30일.</summary>
-        public DateTime? NameChangeAvailableAt { get; set; }
+        public SystemTime? NameChangeAvailableAt { get; set; }
 
         /// <summary>로그인 수단 총 개수 (소셜 + 비밀번호). 1이면 그 수단은 해제 불가 → "유일한 로그인 수단" 캡션.</summary>
         public int LoginMeansCount { get; set; }
@@ -27,7 +28,7 @@ namespace PlayGround.Contracts.Settings
     public class LinkedLoginDto
     {
         public string Provider { get; set; } = string.Empty; // 'Google' | 'Kakao'
-        public DateTime LinkedAt { get; set; }
+        public SystemTime LinkedAt { get; set; }
 
         /// <summary>연결된 소셜 계정 이메일 — 항상 마스킹 (kim***@gmail.com). 없으면 null.</summary>
         public string? MaskedEmail { get; set; }

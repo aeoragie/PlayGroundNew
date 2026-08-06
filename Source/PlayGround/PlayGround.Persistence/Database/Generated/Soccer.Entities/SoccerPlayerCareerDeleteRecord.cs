@@ -5,6 +5,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -16,5 +17,5 @@ public class SoccerPlayerCareerDeleteRecord
 	[Required]
 	public Guid CareerId { get; set; } = Guid.Empty;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	public SystemTime? DeletedAt { get; set; } = null;
 }

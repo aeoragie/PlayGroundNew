@@ -16,6 +16,7 @@ namespace Generator.Database.Generators
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace {NAMESPACE};
 

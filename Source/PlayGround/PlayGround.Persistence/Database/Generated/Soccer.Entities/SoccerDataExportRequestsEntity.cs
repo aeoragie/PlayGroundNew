@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -42,7 +43,7 @@ public class SoccerDataExportRequestsEntity
 
 	public long? SizeBytes { get; set; } = null;
 
-	public DateTime? ExpiresAt { get; set; } = null;
+	public SystemTime? ExpiresAt { get; set; } = null;
 
 	[Required]
 	public int DownloadCount { get; set; } = 0;
@@ -51,12 +52,12 @@ public class SoccerDataExportRequestsEntity
 	public int MaxDownloads { get; set; } = 0;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
 	[Required]
-	public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime UpdatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? CompletedAt { get; set; } = null;
+	public SystemTime? CompletedAt { get; set; } = null;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	public SystemTime? DeletedAt { get; set; } = null;
 }

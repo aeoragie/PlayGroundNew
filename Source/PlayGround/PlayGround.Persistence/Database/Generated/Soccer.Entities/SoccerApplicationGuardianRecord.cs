@@ -5,6 +5,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -30,9 +31,9 @@ public class SoccerApplicationGuardianRecord
 	public string Status { get; set; } = String.Empty;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? ConfirmedAt { get; set; } = null;
+	public SystemTime? ConfirmedAt { get; set; } = null;
 
 	[Required]
 	[StringLength(150)]

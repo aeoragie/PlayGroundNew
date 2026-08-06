@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 using System.Collections.Generic;
 
@@ -100,7 +101,7 @@ namespace PlayGround.Contracts.Records
         public int? HomePkScore { get; set; }
         public int? AwayPkScore { get; set; }
         public string Status { get; set; } = string.Empty;      // 'Scheduled','Completed','Canceled'
-        public DateTime? MatchedAt { get; set; }
+        public SystemTime? MatchedAt { get; set; }
         public string? VenueName { get; set; }
         public int? MatchSequence { get; set; }                 // 대회 내 경기 순번 ("N경기")
         public bool HasDetail { get; set; }                     // 이벤트/출전 보유 → 행 확장 셰브론 노출
@@ -180,7 +181,7 @@ namespace PlayGround.Contracts.Records
         public int? FirstHalfHomeScore { get; set; }            // 후반 = 총점 - 전반 (클라이언트 파생)
         public int? FirstHalfAwayScore { get; set; }
 
-        public DateTime? MatchedAt { get; set; }
+        public SystemTime? MatchedAt { get; set; }
         public string? VenueName { get; set; }
         public string? RefereeName { get; set; }                // 주심
         public string? MatchTimeText { get; set; }              // 대회의 경기 시간 텍스트 ("전·후반 25분")

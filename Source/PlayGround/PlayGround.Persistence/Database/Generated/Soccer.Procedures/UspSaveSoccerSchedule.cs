@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -21,7 +22,7 @@ public class UspSaveSoccerSchedule(RepositoryBase repository) : ProcedureBase(re
 	public string Type { get; set; } = String.Empty;
 	public string? Title { get; set; } = null;
 	public string? OpponentName { get; set; } = null;
-	public DateTime StartsAt { get; set; } = DateTime.MinValue;
+	public SystemTime StartsAt { get; set; } = SystemTime.MinValue;
 	public string Venue { get; set; } = String.Empty;
 	public bool IsPublic { get; set; } = true;
     public override DynamicParameters BuildParameters()

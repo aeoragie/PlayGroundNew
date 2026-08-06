@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 using System.Collections.Generic;
 
@@ -51,7 +52,7 @@ namespace PlayGround.Contracts.Notification
         public string? Relation { get; set; }
 
         public bool IsRead { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
 
         /// <summary>액션형(ClaimRequest) 전용 — 요청의 현재 상태(라이브). 'Pending'이면 승인/거절 버튼.</summary>
         public string? RequestStatus { get; set; }

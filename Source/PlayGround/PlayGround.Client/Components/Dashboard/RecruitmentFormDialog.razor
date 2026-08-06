@@ -102,7 +102,8 @@
             mTitle = Editing.Title;
             mDescription = Editing.Description;
             mConditions = string.Join(", ", Editing.Conditions);
-            mDeadline = Editing.DeadlineDate;
+            // 마감일은 한국 달력 날짜(DateOnly) — 캘린더 픽커 바인딩(DateTime?)으로 되돌린다
+            mDeadline = Editing.DeadlineDate?.ToDateTime(TimeOnly.MinValue);
         }
     }
 
@@ -140,7 +141,7 @@
             Title = mTitle.Trim(),
             Description = mDescription.Trim(),
             Conditions = ParseConditions(mConditions),
-            DeadlineDate = mDeadline,
+            DeadlineDate = mDeadline is null ? null : DateOnly.FromDateTime(mDeadline.Value),
         };
 
         mSaving = true;

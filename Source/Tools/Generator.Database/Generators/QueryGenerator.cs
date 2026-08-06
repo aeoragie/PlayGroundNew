@@ -15,6 +15,7 @@ namespace Generator.Database.Generators
 
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace {NAMESPACE};
 
@@ -34,6 +35,7 @@ public class {CLASS_NAME}(RepositoryBase repository) : QueryBase(repository)
 
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace {NAMESPACE};
 

@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -34,10 +35,10 @@ public class SoccerPlayerInvitesEntity
 
 	public Guid? ClaimedByUserId { get; set; } = null;
 
-	public DateTime? ExpiresAt { get; set; } = null;
+	public SystemTime? ExpiresAt { get; set; } = null;
 
-	public DateTime? ClaimedAt { get; set; } = null;
+	public SystemTime? ClaimedAt { get; set; } = null;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 }

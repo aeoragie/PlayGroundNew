@@ -211,7 +211,7 @@
             OurScore = int.Parse(mOurScore),
             OpponentScore = int.Parse(mOpponentScore),
             // 입력은 현지 시각, 저장은 UTC 순간
-            MatchedAt = DateTime.SpecifyKind(mMatchDate.Value.Date.Add(mMatchTime.Value.ToTimeSpan()), DateTimeKind.Local).ToUniversalTime(),
+            MatchedAt = SystemTime.FromLocal(mMatchDate.Value.Date.Add(mMatchTime.Value.ToTimeSpan())),
             VenueName = string.IsNullOrWhiteSpace(mVenueName) ? null : mVenueName.Trim(),
             Scorers = mScorers.ToList(),
         };

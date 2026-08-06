@@ -163,7 +163,7 @@ namespace PlayGround.Application.Export.Commands
                 string storageKey = await mStorage.SaveAsync(requestId, content, cancellation);
 
                 string token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
-                DateTime expiresAt = SystemTime.Now.AddDays(7);
+                SystemTime expiresAt = SystemTime.Now.AddDays(7);
 
                 Result<bool> updated = await mExportRepository.UpdateStatusAsync(
                     requestId, "Ready", token, storageKey, zipBytes.LongLength, expiresAt, cancellation);

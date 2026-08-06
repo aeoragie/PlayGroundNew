@@ -12,6 +12,7 @@ namespace Generator.Database.Analyzers
             Vector,
             TableType,
             DateTime,
+            Date,
             Guid,
         }
 
@@ -54,9 +55,11 @@ namespace Generator.Database.Analyzers
                 "bit" => ("bool", ValueType.Boolean),
 
                 // Date, DateTime, SmallDateTime, Time, DateTimeOffset Types
-                "date" => ("DateTime", ValueType.DateTime),
-                "datetime" => ("DateTime", ValueType.DateTime),
-                "smalldatetime" => ("DateTime", ValueType.DateTime),
+                // 순간(datetime 계열)은 SystemTime(UTC 강제), 달력 날짜(date)는 DateOnly —
+                // 원시 DateTime을 생성물에 남기지 않는다 (TimeBaselineGuardTests가 로직 코드에서 금지)
+                "date" => ("DateOnly", ValueType.Date),
+                "datetime" => ("SystemTime", ValueType.DateTime),
+                "smalldatetime" => ("SystemTime", ValueType.DateTime),
                 "time" => ("TimeSpan", ValueType.Default),
                 "datetimeoffset" => ("DateTimeOffset", ValueType.Default),
 
@@ -88,7 +91,7 @@ namespace Generator.Database.Analyzers
                 _ when normalizedType.StartsWith("nvarchar") => ("string", ValueType.String),
                 _ when normalizedType.StartsWith("nchar") => ("string", ValueType.String),
                 _ when normalizedType.StartsWith("varbinary") => ("byte[]", ValueType.Vector),
-                _ when normalizedType.StartsWith("datetime2") => ("DateTime", ValueType.DateTime),
+                _ when normalizedType.StartsWith("datetime2") => ("SystemTime", ValueType.DateTime),
                 _ when normalizedType.StartsWith("char(") => ("string", ValueType.String),
 
                 // Exception for unsupported types
@@ -111,7 +114,8 @@ namespace Generator.Database.Analyzers
                 ValueType.String => "String.Empty",
                 ValueType.Vector => "Array.Empty<byte>()",
                 ValueType.TableType => "null",
-                ValueType.DateTime => "DateTime.MinValue",
+                ValueType.DateTime => "SystemTime.MinValue",
+                ValueType.Date => "DateOnly.MinValue",
                 ValueType.Guid => "Guid.Empty",
                 _ => "default"
             };

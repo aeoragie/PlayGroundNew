@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 namespace PlayGround.Shared.Result;
 
 public class MetricInfo
@@ -9,5 +10,5 @@ public class MetricInfo
     public bool IsRetryable { get; set; }
     public int Priority { get; set; }
     public TimeSpan Duration { get; set; }
-    public DateTime Timestamp { get; set; }
+    public SystemTime Timestamp { get; set; }
 }

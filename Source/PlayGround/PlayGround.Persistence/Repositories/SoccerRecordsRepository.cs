@@ -110,8 +110,8 @@ namespace PlayGround.Persistence.Repositories
                     AgeGroup = tournament.AgeGroup,
                     RegionGroup = NullIfEmpty(tournament.RegionGroup),
                     Status = tournament.Status,
-                    StartDate = ToDateOnly(tournament.StartDate),
-                    EndDate = ToDateOnly(tournament.EndDate),
+                    StartDate = tournament.StartDate,
+                    EndDate = tournament.EndDate,
                     TeamCount = tournament.TeamCount,
                     HostName = NullIfEmpty(tournament.HostName),
                     MethodText = NullIfEmpty(tournament.MethodText),
@@ -195,7 +195,7 @@ namespace PlayGround.Persistence.Repositories
                             VideoUrl = v.VideoUrl,
                             VideoType = v.VideoType,
                             DurationSeconds = v.DurationSeconds,
-                            RecordedOn = ToDateOnly(v.RecordedOn),
+                            RecordedOn = v.RecordedOn,
                             HomeTeamName = match?.HomeTeamName,
                             AwayTeamName = match?.AwayTeamName,
                             VenueName = NullIfEmpty(match?.VenueName)
@@ -208,7 +208,7 @@ namespace PlayGround.Persistence.Repositories
                         Title = n.Title,
                         Url = n.Url,
                         PublisherName = NullIfEmpty(n.PublisherName),
-                        PublishedOn = ToDateOnly(n.PublishedOn)
+                        PublishedOn = n.PublishedOn
                     })
                     .ToList()
             };
@@ -336,9 +336,5 @@ namespace PlayGround.Persistence.Repositories
             return string.IsNullOrEmpty(value) ? null : value;
         }
 
-        private static DateOnly? ToDateOnly(DateTime? value)
-        {
-            return value is null ? null : DateOnly.FromDateTime(value.Value);
-        }
     }
 }

@@ -141,8 +141,8 @@ namespace PlayGround.Client.Services.Auth
                 return false; // exp가 없으면 만료 판단 불가 — 유효로 취급
             }
 
-            DateTimeOffset expiresAt = DateTimeOffset.FromUnixTimeSeconds(seconds);
-            return expiresAt <= SystemTime.OffsetNow;
+            SystemTime expiresAt = new(DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime);
+            return expiresAt <= SystemTime.Now;
         }
 
         private static List<Claim> ParseClaimsFromJwt(string jwt)

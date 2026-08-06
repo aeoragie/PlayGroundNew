@@ -105,7 +105,7 @@ namespace PlayGround.Client.Components.Shared.Notifications
         public static string FieldTypeLabel(string? fieldType) =>
             SoccerDomainEnumLabels.ToCorrectionFieldLabel(fieldType);
 
-        public static string TimeAgo(DateTime createdAtUtc)
+        public static string TimeAgo(SystemTime createdAtUtc)
         {
             TimeSpan span = SystemTime.Now - createdAtUtc;
             if (span.TotalMinutes < 1)

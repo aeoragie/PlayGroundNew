@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -31,7 +32,7 @@ public class SoccerPlayersEntity
 	[StringLength(2048)]
 	public string? PhotoUrl { get; set; } = null;
 
-	public DateTime? BirthDate { get; set; } = null;
+	public DateOnly? BirthDate { get; set; } = null;
 
 	[StringLength(20)]
 	public string? AgeGroup { get; set; } = null;
@@ -68,10 +69,10 @@ public class SoccerPlayersEntity
 	public string? ExternalId { get; set; } = null;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
 	[Required]
-	public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime UpdatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	public SystemTime? DeletedAt { get; set; } = null;
 }

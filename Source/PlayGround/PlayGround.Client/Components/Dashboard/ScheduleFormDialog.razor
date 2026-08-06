@@ -252,7 +252,7 @@
             Title = hasTitle ? mTitle.Trim() : null,
             OpponentName = hasOpponent ? mOpponentName.Trim() : null,
             // 사용자는 현지 시각으로 입력한다 — 저장은 UTC 순간으로 (표시할 때 현지로 되돌린다)
-            StartsAt = DateTime.SpecifyKind(mDate.Value.Date.Add(mTime.Value.ToTimeSpan()), DateTimeKind.Local).ToUniversalTime(),
+            StartsAt = SystemTime.FromLocal(mDate.Value.Date.Add(mTime.Value.ToTimeSpan())),
             Venue = mVenue.Trim(),
             IsPublic = mIsPublic,
         };

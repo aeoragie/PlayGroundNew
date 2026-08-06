@@ -61,7 +61,7 @@ namespace PlayGround.Persistence.Repositories
             }
 
             // 만료된 Ready는 상태 행에서 빼서 "요청" 버튼으로 되돌린다 (판정은 여기 한 곳)
-            if (row.Status == "Ready" && row.ExpiresAt is DateTime exp && exp <= SystemTime.Now)
+            if (row.Status == "Ready" && row.ExpiresAt is SystemTime exp && exp <= SystemTime.Now)
             {
                 return Result<DataExportStateDto?>.Success(null);
             }
@@ -96,7 +96,7 @@ namespace PlayGround.Persistence.Repositories
         }
 
         public async Task<Result<bool>> UpdateStatusAsync(Guid requestId, string status, string? downloadToken, string? storageKey,
-            long? sizeBytes, DateTime? expiresAt, CancellationToken cancellation = default)
+            long? sizeBytes, SystemTime? expiresAt, CancellationToken cancellation = default)
         {
             Logger.InfoWith("Data export status update requested", ("RequestId", requestId), ("Status", status));
 

@@ -12,6 +12,13 @@ namespace PlayGround.Infrastructure.Database.Base;
 
 public abstract class RepositoryBase
 {
+    // 모든 쿼리가 이 클래스를 지나므로 Dapper 타입 핸들러 등록 지점으로 삼는다 (프로세스당 1회)
+    static RepositoryBase()
+    {
+        SqlMapper.AddTypeHandler(new SystemTimeTypeHandler());
+        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+    }
+
     protected readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly DatabaseConfiguration mConfiguration;
 

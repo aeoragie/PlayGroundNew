@@ -1,4 +1,5 @@
 using FluentAssertions;
+using PlayGround.Shared.Time;
 using Xunit;
 using PlayGround.Contracts.Records;
 using PlayGround.Client.Components.Records;
@@ -204,7 +205,7 @@ namespace PlayGround.Tests.Unit.Client
             var localSunday = new DateTime(2026, 6, 7, 10, 0, 0, DateTimeKind.Local); // 일요일
             DateTime utc = localSunday.ToUniversalTime();
 
-            string label = RecordsFormatting.WhenLabel(utc);
+            string label = RecordsFormatting.WhenLabel(new SystemTime(utc));
 
             label.Should().StartWith("6/7 (").And.EndWith("10:00");
         }
@@ -213,7 +214,7 @@ namespace PlayGround.Tests.Unit.Client
         public void WhenLabel_요일_글자는_요일마다_다르다()
         {
             var week = Enumerable.Range(0, 7)
-                .Select(i => RecordsFormatting.WhenLabel(new DateTime(2026, 6, 7).AddDays(i)))
+                .Select(i => RecordsFormatting.WhenLabel(new SystemTime(2026, 6, 7).AddDays(i)))
                 .ToArray();
 
             week.Should().OnlyHaveUniqueItems();

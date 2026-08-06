@@ -33,7 +33,7 @@ namespace PlayGround.Persistence.Repositories
             {
                 UserId = input.UserId,
                 Name = input.Name,
-                BirthDate = input.BirthDate?.ToDateTime(TimeOnly.MinValue),
+                BirthDate = input.BirthDate,
                 AgeGroup = input.AgeGroup!,
                 Region = input.Region!
             };
@@ -294,8 +294,8 @@ namespace PlayGround.Persistence.Repositories
                         TeamName = c.TeamName,
                         IsCurrent = c.IsCurrent,
                         BadgeLabel = NullIfEmpty(c.BadgeLabel),
-                        StartDate = DateOnly.FromDateTime(c.StartDate),
-                        EndDate = c.EndDate is null ? null : DateOnly.FromDateTime(c.EndDate.Value),
+                        StartDate = c.StartDate,
+                        EndDate = c.EndDate,
                         Role = NullIfEmpty(c.Role),
                         Note = NullIfEmpty(c.Note),
                         IsVerified = c.IsVerified
@@ -331,7 +331,7 @@ namespace PlayGround.Persistence.Repositories
                         DurationSeconds = v.DurationSeconds,
                         IsPrimary = v.IsPrimary,
                         Tags = ParseTags(v.Tags),
-                        RecordedOn = v.RecordedOn is null ? null : DateOnly.FromDateTime(v.RecordedOn.Value)
+                        RecordedOn = v.RecordedOn
                     })
                     .ToList()
             };
@@ -350,8 +350,8 @@ namespace PlayGround.Persistence.Repositories
                 UserId = userId,
                 CareerId = request.CareerId,
                 TeamName = request.TeamName,
-                StartDate = request.StartDate.ToDateTime(TimeOnly.MinValue),
-                EndDate = request.EndDate?.ToDateTime(TimeOnly.MinValue),
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
                 Role = request.Role!,
                 Note = request.Note!,
                 BadgeLabel = request.BadgeLabel!,
@@ -408,7 +408,7 @@ namespace PlayGround.Persistence.Repositories
                 VideoUrl = request.VideoUrl,
                 ThumbnailUrl = request.ThumbnailUrl!,
                 Tags = request.Tags.Count > 0 ? JsonSerializer.Serialize(request.Tags) : null!,
-                RecordedOn = request.RecordedOn?.ToDateTime(TimeOnly.MinValue),
+                RecordedOn = request.RecordedOn,
                 IsPrimary = request.IsPrimary,
                 TargetPlayerId = playerId
             };
@@ -622,7 +622,7 @@ namespace PlayGround.Persistence.Repositories
                     DurationSeconds = primary.DurationSeconds,
                     IsPrimary = primary.IsPrimary,
                     Tags = ParseTags(primary.Tags),
-                    RecordedOn = primary.RecordedOn is null ? null : DateOnly.FromDateTime(primary.RecordedOn.Value)
+                    RecordedOn = primary.RecordedOn
                 },
                 VideoCount = videos.Count,
                 Careers = careers
@@ -632,8 +632,8 @@ namespace PlayGround.Persistence.Repositories
                         TeamName = c.TeamName,
                         IsCurrent = c.IsCurrent,
                         BadgeLabel = NullIfEmpty(c.BadgeLabel),
-                        StartDate = DateOnly.FromDateTime(c.StartDate),
-                        EndDate = c.EndDate is null ? null : DateOnly.FromDateTime(c.EndDate.Value),
+                        StartDate = c.StartDate,
+                        EndDate = c.EndDate,
                         Role = NullIfEmpty(c.Role),
                         Note = NullIfEmpty(c.Note),
                         IsVerified = c.IsVerified

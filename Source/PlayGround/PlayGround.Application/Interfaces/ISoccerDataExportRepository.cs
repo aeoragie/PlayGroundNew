@@ -1,4 +1,5 @@
 using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 using PlayGround.Contracts.Export;
 
 namespace PlayGround.Application.Interfaces
@@ -30,7 +31,7 @@ namespace PlayGround.Application.Interfaces
 
         /// <summary>잡 완료 전환 — Ready(토큰·키·크기·만료) 또는 Failed. Pending일 때만 반영.</summary>
         Task<Result<bool>> UpdateStatusAsync(Guid requestId, string status, string? downloadToken, string? storageKey,
-            long? sizeBytes, DateTime? expiresAt, CancellationToken cancellation = default);
+            long? sizeBytes, SystemTime? expiresAt, CancellationToken cancellation = default);
 
         /// <summary>요청 취소 — Pending + 소유자만 소프트 삭제.</summary>
         Task<Result<bool>> CancelAsync(Guid userId, Guid requestId, CancellationToken cancellation = default);

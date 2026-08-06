@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -34,9 +35,9 @@ public class SoccerPlayerCareersEntity
 	public string? BadgeLabel { get; set; } = null;
 
 	[Required]
-	public DateTime StartDate { get; set; } = DateTime.MinValue;
+	public DateOnly StartDate { get; set; } = DateOnly.MinValue;
 
-	public DateTime? EndDate { get; set; } = null;
+	public DateOnly? EndDate { get; set; } = null;
 
 	[StringLength(150)]
 	public string? Role { get; set; } = null;
@@ -48,10 +49,10 @@ public class SoccerPlayerCareersEntity
 	public bool IsVerified { get; set; } = false;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
 	[Required]
-	public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime UpdatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? DeletedAt { get; set; } = null;
+	public SystemTime? DeletedAt { get; set; } = null;
 }

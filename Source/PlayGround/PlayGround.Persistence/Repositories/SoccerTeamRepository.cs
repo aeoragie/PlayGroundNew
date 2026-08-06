@@ -475,7 +475,7 @@ namespace PlayGround.Persistence.Repositories
                 VideoUrl = video.VideoUrl,
                 ThumbnailUrl = NullIfEmpty(video.ThumbnailUrl),
                 DurationSeconds = video.DurationSeconds,
-                RecordedOn = video.RecordedOn is null ? null : DateOnly.FromDateTime(video.RecordedOn.Value),
+                RecordedOn = video.RecordedOn,
                 IsMatchLinked = video.MatchId is not null
             };
         }
@@ -815,7 +815,7 @@ namespace PlayGround.Persistence.Repositories
 
             // "올해 전적"의 올해는 한국 달력 기준이다 — 그 해의 UTC 범위를 계산해 넘긴다
             // (SQL이 시간대 산술을 하지 않게 하고, 범위 비교라 인덱스도 탄다).
-            (DateTime seasonStartUtc, DateTime seasonEndUtc) = KoreanTime.YearRangeUtc(KoreanTime.CurrentYear);
+            (SystemTime seasonStartUtc, SystemTime seasonEndUtc) = KoreanTime.YearRangeUtc(KoreanTime.CurrentYear);
 
             var procedure = new UspGetSoccerTeamExplore(this)
             {
@@ -1000,7 +1000,7 @@ namespace PlayGround.Persistence.Repositories
                 ConditionsJson = request.Conditions.Count > 0 ? JsonSerializer.Serialize(request.Conditions) : null,
                 // 사용자가 고른 "8/10 마감"은 8/10 23:59:59.999 KST까지다 — 그 순간을 UTC로 저장하면
                 // 프로시저가 [DeadlineAt] > GETUTCDATE() 하나로 판정한다(SQL에 9시간 상수가 안 들어간다).
-                DeadlineAt = request.DeadlineDate is DateTime deadline
+                DeadlineAt = request.DeadlineDate is DateOnly deadline
                     ? KoreanTime.EndOfDayToUtc(deadline)
                     : null,
                 AgeGroup = request.AgeGroup,
@@ -1609,9 +1609,9 @@ namespace PlayGround.Persistence.Repositories
                 metaParts.Add(row.AgeGroup);
             }
 
-            if (row.CreatedAt > DateTime.MinValue)
+            if (row.CreatedAt > SystemTime.MinValue)
             {
-                int years = Math.Max(1, KoreanTime.CurrentYear - KoreanTime.ToKorean(row.CreatedAt).Year + 1);
+                int years = Math.Max(1, KoreanTime.CurrentYear - KoreanTime.KoreanYearOf(row.CreatedAt) + 1);
                 metaParts.Add($"재원 {years}년차");
             }
 
@@ -1654,7 +1654,7 @@ namespace PlayGround.Persistence.Repositories
                 Conditions = ParseAchievements(row.ConditionsJson),
                 // 저장은 UTC 순간, 표시는 한국 달력 날짜 — 마감일은 "8/10 마감"이라는 한국 달력 개념이라
                 // 보는 사람의 시간대로 흔들리면 안 된다(일정·경기 시각과 다른 점).
-                DeadlineDate = row.DeadlineAt is DateTime deadlineAt
+                DeadlineDate = row.DeadlineAt is SystemTime deadlineAt
                     ? KoreanTime.ToKoreanDate(deadlineAt)
                     : null,
                 Status = row.Status,

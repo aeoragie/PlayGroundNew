@@ -16,6 +16,7 @@ namespace Generator.Database.Generators
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlayGround.Shared.Time;
 
 namespace {NAMESPACE};
 

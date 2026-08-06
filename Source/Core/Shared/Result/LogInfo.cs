@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 namespace PlayGround.Shared.Result;
 
 public class LogInfo
@@ -11,5 +12,5 @@ public class LogInfo
     public bool IsSuccess { get; set; }
     public int Priority { get; set; }
     public bool RequiresNotification { get; set; }
-    public DateTime Timestamp { get; set; }
+    public SystemTime Timestamp { get; set; }
 }

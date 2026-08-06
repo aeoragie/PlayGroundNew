@@ -110,7 +110,7 @@ namespace PlayGround.Persistence.Repositories
 
             using MultiQueryReader reader = opened.Value;
             string status = await reader.ReadSingleOrDefaultAsync<string>() ?? "NotAgent";
-            DateTime? cooldownUntil = await reader.ReadSingleOrDefaultAsync<DateTime?>();
+            SystemTime? cooldownUntil = await reader.ReadSingleOrDefaultAsync<SystemTime?>();
 
             return Result<AgentRequestEligibilityResponse>.Success(new AgentRequestEligibilityResponse
             {

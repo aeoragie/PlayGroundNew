@@ -5,6 +5,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -27,9 +28,9 @@ public class SoccerPendingInviteRecord
 	public string Code { get; set; } = String.Empty;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? ExpiresAt { get; set; } = null;
+	public SystemTime? ExpiresAt { get; set; } = null;
 
 	[Required]
 	[StringLength(150)]

@@ -5,6 +5,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Entities;
 
@@ -43,9 +44,9 @@ public class SoccerCorrectionRecord
 	public string? RejectReason { get; set; } = null;
 
 	[Required]
-	public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+	public SystemTime CreatedAt { get; set; } = SystemTime.MinValue;
 
-	public DateTime? ReviewedAt { get; set; } = null;
+	public SystemTime? ReviewedAt { get; set; } = null;
 
 	public Guid? HomeTeamId { get; set; } = null;
 
@@ -57,7 +58,7 @@ public class SoccerCorrectionRecord
 	[StringLength(300)]
 	public string AwayTeamName { get; set; } = String.Empty;
 
-	public DateTime? MatchedAt { get; set; } = null;
+	public SystemTime? MatchedAt { get; set; } = null;
 
 	[Required]
 	[StringLength(300)]

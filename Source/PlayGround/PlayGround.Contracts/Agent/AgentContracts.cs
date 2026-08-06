@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using System;
 using System.Collections.Generic;
 
@@ -12,8 +13,8 @@ namespace PlayGround.Contracts.Agent
         public string Status { get; set; } = string.Empty;
 
         public string Message { get; set; } = string.Empty;
-        public DateTime RequestedAt { get; set; }
-        public DateTime? ExpiresAt { get; set; }
+        public SystemTime RequestedAt { get; set; }
+        public SystemTime? ExpiresAt { get; set; }
 
         /// <summary>승인됐지만 30일이 지났다 — 서버 파생 (권한 뷰 접근 차단 기준과 동일).</summary>
         public bool IsExpired { get; set; }
@@ -43,7 +44,7 @@ namespace PlayGround.Contracts.Agent
     public class AgentViewLogDto
     {
         public string EventType { get; set; } = string.Empty; // 'Approved','ProfileView','RecordView'
-        public DateTime CreatedAt { get; set; }
+        public SystemTime CreatedAt { get; set; }
     }
 
     /// <summary>심사 요청 — Action은 SoccerAgentReviewAction 멤버 이름 문자열.</summary>
@@ -61,7 +62,7 @@ namespace PlayGround.Contracts.Agent
         public string Status { get; set; } = string.Empty;
 
         /// <summary>Cooldown일 때만 값 — 이 시각 이후 재요청 가능(최근 거절 + 30일).</summary>
-        public DateTime? CooldownUntil { get; set; }
+        public SystemTime? CooldownUntil { get; set; }
 
         /// <summary>요청 생성 가능 여부 — Status == 'Allowed'.</summary>
         public bool CanRequest => Status == "Allowed";

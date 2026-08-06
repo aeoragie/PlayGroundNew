@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -21,7 +22,7 @@ public class UspUpdateSoccerDataExportStatus(RepositoryBase repository) : Proced
 	public string? DownloadToken { get; set; } = null;
 	public string? StorageKey { get; set; } = null;
 	public long? SizeBytes { get; set; } = null;
-	public DateTime? ExpiresAt { get; set; } = null;
+	public SystemTime? ExpiresAt { get; set; } = null;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@RequestId", RequestId);

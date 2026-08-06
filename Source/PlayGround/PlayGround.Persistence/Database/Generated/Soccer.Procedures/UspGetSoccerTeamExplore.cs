@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -16,8 +17,8 @@ public class UspGetSoccerTeamExplore(RepositoryBase repository) : ProcedureBase(
 {
     public override string Procedure => "[dbo].[UspGetSoccerTeamExplore]";
 
-	public DateTime SeasonStartUtc { get; set; } = DateTime.MinValue;
-	public DateTime SeasonEndUtc { get; set; } = DateTime.MinValue;
+	public SystemTime SeasonStartUtc { get; set; } = SystemTime.MinValue;
+	public SystemTime SeasonEndUtc { get; set; } = SystemTime.MinValue;
     public override DynamicParameters BuildParameters()
     {
 		Parameters.Add("@SeasonStartUtc", SeasonStartUtc);

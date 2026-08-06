@@ -1,3 +1,4 @@
+using PlayGround.Shared.Time;
 using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
 using PlayGround.Contracts.Records;
@@ -10,7 +11,7 @@ namespace PlayGround.Client.Components.Records
         private static string WeekdayLetters => AppText.Records.WeekdayLetters;
 
         /// <summary>"6/7 (일) 10:00" — 일시 미정이면 "일정 미정".</summary>
-        public static string WhenLabel(DateTime? matchedAt)
+        public static string WhenLabel(SystemTime? matchedAt)
         {
             if (matchedAt is null)
             {

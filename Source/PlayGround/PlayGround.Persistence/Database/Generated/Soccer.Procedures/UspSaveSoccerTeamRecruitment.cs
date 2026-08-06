@@ -6,6 +6,7 @@
 using Dapper;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 
@@ -21,7 +22,7 @@ public class UspSaveSoccerTeamRecruitment(RepositoryBase repository) : Procedure
 	public string Title { get; set; } = String.Empty;
 	public string Description { get; set; } = String.Empty;
 	public string? ConditionsJson { get; set; } = null;
-	public DateTime? DeadlineAt { get; set; } = null;
+	public SystemTime? DeadlineAt { get; set; } = null;
 	public string? AgeGroup { get; set; } = null;
 	public string? PositionsJson { get; set; } = null;
 	public int? Capacity { get; set; } = null;

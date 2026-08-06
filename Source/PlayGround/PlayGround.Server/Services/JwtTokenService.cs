@@ -60,7 +60,7 @@ namespace PlayGround.Server.Services
                 issuer: mConfiguration["Jwt:Issuer"],
                 audience: mConfiguration["Jwt:Audience"],
                 claims: claims,
-                expires: SystemTime.Now.AddMinutes(expirationMinutes),
+                expires: SystemTime.Now.AddMinutes(expirationMinutes).UtcDateTime,
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
