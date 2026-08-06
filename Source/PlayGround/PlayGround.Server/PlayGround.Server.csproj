@@ -23,7 +23,7 @@
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="NLog.Web.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
-    <!-- 업로드 이미지·첨부 S3 저장 (UploadStorageConfiguration.Provider=S3일 때) -->
+    <!-- 업로드 이미지·첨부 S3 저장 (UploadStorageConfiguration.Provider=Aws일 때) -->
     <PackageReference Include="AWSSDK.S3" />
     <!-- OG 카드 서버 렌더 PNG (DECISION.OGMETA) -->
     <PackageReference Include="SkiaSharp" />

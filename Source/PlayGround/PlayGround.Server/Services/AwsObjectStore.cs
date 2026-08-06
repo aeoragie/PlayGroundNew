@@ -7,7 +7,7 @@ using Amazon.S3.Model;
 namespace PlayGround.Server.Services
 {
     /// <summary>
-    /// <see cref="IObjectStore"/>의 AWS S3 구현 (`Provider=S3`).
+    /// <see cref="IObjectStore"/>의 AWS S3 구현 (`Provider=Aws`).
     /// **AWS SDK를 아는 유일한 클래스다** — 소비자(Remote*)는 인터페이스만 본다.
     ///
     /// 자격 증명은 SDK 기본 체인(EC2 인스턴스 역할 · 개발 PC의 aws 프로필)이 정한다 —

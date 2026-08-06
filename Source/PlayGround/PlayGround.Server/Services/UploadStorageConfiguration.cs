@@ -5,7 +5,7 @@ namespace PlayGround.Server.Services
     /// `DatabaseConfiguration`과 같은 형태로, <see cref="Provider"/>가 어댑터를 고르고
     /// 나머지 값이 그 옆에 붙는다.
     ///
-    /// 운영 전환은 환경변수: UploadStorageConfiguration__Provider=S3
+    /// 운영 전환은 환경변수: UploadStorageConfiguration__Provider=Aws
     /// + UploadStorageConfiguration__BucketName=&lt;버킷&gt;.
     /// URL 형태("/uploads/...")는 어느 Provider든 동일하다 — DB 저장값이 바뀌지 않는다.
     /// </summary>
