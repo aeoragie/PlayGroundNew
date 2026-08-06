@@ -58,7 +58,7 @@
     private static bool IsEnded(ScheduleDto s) => s.StartsAt < SystemTime.Now;
 
     // 서버가 주는 StartsAt은 UTC 순간이다 — 화면에 쓰는 날짜·요일·시각은 반드시 현지로 되돌린다
-    private static DateTime When(ScheduleDto s) => s.StartsAt.ToLocalTime();
+    private static DateTime When(ScheduleDto s) => s.StartsAt.ToWallClock();
 
     // 다가오는 일정 오름차순 → 최근 종료 일정 최대 3개(최근순). 공개 일정만 서버에서 온다.
     private List<ScheduleDto> Rows =>

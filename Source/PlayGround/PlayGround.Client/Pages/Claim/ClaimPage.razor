@@ -205,7 +205,7 @@
 
     private string RequestedAtText => mRequest is null
         ? string.Empty
-        : $"{mRequest.RequestedAt.ToLocalTime():M/d tt h:mm}".Replace("AM", AppText.Claim.Am).Replace("PM", AppText.Claim.Pm);
+        : $"{mRequest.RequestedAt.ToWallClock():M/d tt h:mm}".Replace("AM", AppText.Claim.Am).Replace("PM", AppText.Claim.Pm);
 
     protected override async Task OnInitializedAsync()
     {

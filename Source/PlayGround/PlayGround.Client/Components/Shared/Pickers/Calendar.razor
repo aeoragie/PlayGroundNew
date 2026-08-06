@@ -83,7 +83,7 @@
     public IReadOnlyCollection<DateTime>? MatchDays { get; set; }
 
     private bool mIsOpen;
-    private DateTime mMonth = SystemTime.Now.ToLocalTime().Date;
+    private DateTime mMonth = SystemTime.Now.ToWallClock().Date;
     private DateTime? mDraft;
     private ElementReference mPopover;
     private IJSObjectReference? mModule;
@@ -117,7 +117,7 @@
         }
     }
 
-    private static DateTime Today => SystemTime.Now.ToLocalTime().Date;
+    private static DateTime Today => SystemTime.Now.ToWallClock().Date;
 
     private void Toggle()
     {

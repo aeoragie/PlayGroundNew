@@ -248,6 +248,6 @@ else
         }
     }
 
-    private static string Today => SystemTime.Now.ToLocalTime().ToString(AppText.Dashboard.TodayFormat,
+    private static string Today => SystemTime.Now.ToWallClock().ToString(AppText.Dashboard.TodayFormat,
         System.Globalization.CultureInfo.GetCultureInfo(AppText.Culture));
 }

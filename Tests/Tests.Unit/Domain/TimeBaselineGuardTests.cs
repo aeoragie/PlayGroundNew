@@ -23,9 +23,11 @@ namespace PlayGround.Tests.Unit.Domain
     /// </summary>
     public class TimeBaselineGuardTests
     {
-        /// <summary>`DateTime.Now` 같은 직접 호출. 주석·문자열은 미리 걷어낸 뒤 찾는다.</summary>
+        /// <summary>`DateTime.Now` 같은 직접 호출과 호스트 시간대 의존(`ToLocalTime`·`TimeZoneInfo.Local`).
+        /// 표시 변환은 Client의 `DisplayTime`만 안다 — 주석·문자열은 미리 걷어낸 뒤 찾는다.</summary>
         private static readonly Regex DirectClock = new(
-            @"\bDateTime(?:Offset)?\s*\.\s*(?:Now|UtcNow|Today)\b", RegexOptions.Compiled);
+            @"\bDateTime(?:Offset)?\s*\.\s*(?:Now|UtcNow|Today)\b|\.\s*ToLocalTime\s*\(|\bTimeZoneInfo\s*\.\s*Local\b",
+            RegexOptions.Compiled);
 
         /// <summary>`DateTime` 타입 사용 자체 — `UtcDateTime`·`DateTimeKind` 같은 합성어는 걸리지 않는다.</summary>
         private static readonly Regex DateTimeType = new(

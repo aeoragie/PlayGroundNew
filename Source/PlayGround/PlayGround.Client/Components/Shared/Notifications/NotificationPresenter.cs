@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Client.Services;
 using System;
 using PlayGround.Contracts.Notification;
 using PlayGround.Domain.Soccer;
@@ -128,7 +129,7 @@ namespace PlayGround.Client.Components.Shared.Notifications
                 return AppText.Notification.TimeYesterday;
             }
 
-            DateTime local = createdAtUtc.ToLocalTime();
+            DateTime local = createdAtUtc.ToWallClock();
             return AppText.Notification.TimeDate(local.Month, local.Day);
         }
     }

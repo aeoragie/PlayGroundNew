@@ -87,7 +87,7 @@
     [Parameter]
     public EventCallback<ScheduleDto> OnDelete { get; set; }
 
-    private static string MonthLabel => AppText.Dashboard.MonthLabel(SystemTime.Now.ToLocalTime().Year, SystemTime.Now.ToLocalTime().Month);
+    private static string MonthLabel => AppText.Dashboard.MonthLabel(SystemTime.Now.ToWallClock().Year, SystemTime.Now.ToWallClock().Month);
 
     // 공개 iCal 피드 절대 URL 복사(토큰 없는 공개 URL) — 공개홈 구독 카드와 같은 값
     private async Task CopyFeedAsync()
@@ -100,7 +100,7 @@
     private static bool IsEnded(ScheduleDto s) => s.StartsAt < SystemTime.Now;
 
     // 서버가 주는 StartsAt은 UTC 순간이다 — 화면에 쓰는 날짜·요일·시각은 반드시 현지로 되돌린다
-    private static DateTime When(ScheduleDto s) => s.StartsAt.ToLocalTime();
+    private static DateTime When(ScheduleDto s) => s.StartsAt.ToWallClock();
 
     // 미래(오늘 포함) 오름차순 → 종료분은 아래에 최근순
     private IEnumerable<ScheduleDto> Sorted =>

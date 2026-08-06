@@ -34,7 +34,7 @@
         </div>
         @if (Settings.NameChangeRemaining == 0 && Settings.NameChangeAvailableAt is SystemTime next)
         {
-            <span class="text-[11px] text-text-muted break-keep -mt-1.5">@AppText.Settings.NameChangeCaption(next.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture))</span>
+            <span class="text-[11px] text-text-muted break-keep -mt-1.5">@AppText.Settings.NameChangeCaption(next.ToWallClock().ToString("M/d", CultureInfo.InvariantCulture))</span>
         }
 
         @* 연결된 로그인 *@
@@ -79,7 +79,7 @@
                 </span>
                 <span class="flex flex-col gap-px flex-1 min-w-0">
                     <span class="text-[12.5px] font-bold text-navy-deep whitespace-nowrap">@AppText.Settings.ExportPreparing</span>
-                    <span class="text-[11px] text-text-muted whitespace-nowrap">@AppText.Settings.ExportRequestedAt(mExport.CreatedAt.ToLocalTime().ToString("M/d HH:mm", CultureInfo.InvariantCulture))</span>
+                    <span class="text-[11px] text-text-muted whitespace-nowrap">@AppText.Settings.ExportRequestedAt(mExport.CreatedAt.ToWallClock().ToString("M/d HH:mm", CultureInfo.InvariantCulture))</span>
                 </span>
                 <button type="button" class="text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="CancelExportAsync">@AppText.Settings.ExportCancel</button>
             </div>
@@ -241,7 +241,7 @@
 
     private string ExpiryText =>
         mExport?.ExpiresAt is SystemTime e
-            ? AppText.Settings.ExportExpiry(e.ToLocalTime().ToString("M/d", CultureInfo.InvariantCulture))
+            ? AppText.Settings.ExportExpiry(e.ToWallClock().ToString("M/d", CultureInfo.InvariantCulture))
             : string.Empty;
 
     //.// 로그인 수단 — 연결(OAuth 이동)·해제(파괴 모달, 마지막 1개는 캡션)

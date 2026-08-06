@@ -19,7 +19,7 @@
             {
                 <div class="border border-border rounded-[14px] p-4 md:p-5 flex flex-col gap-1.5">
                     <span class="text-[15px] font-extrabold text-navy-deep break-keep">@item.Title</span>
-                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">@item.CreatedAt.ToLocalTime().ToString("yyyy.M.d")</span>
+                    <span class="text-[11.5px] text-text-muted whitespace-nowrap">@item.CreatedAt.ToWallClock().ToString("yyyy.M.d")</span>
                     <p class="m-0 mt-1 text-[13.5px] text-text-strong leading-[1.65] break-keep line-clamp-3">@item.Body</p>
                     @if (item.Files.Count > 0)
                     {

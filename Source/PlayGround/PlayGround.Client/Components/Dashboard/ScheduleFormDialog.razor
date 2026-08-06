@@ -180,7 +180,7 @@
             mTitle = Editing.Title ?? string.Empty;
             mOpponentName = Editing.OpponentName ?? string.Empty;
             // 서버 값은 UTC 순간 — 사용자가 입력했던 현지 시각으로 되돌려 폼에 채운다
-            DateTime editingLocal = Editing.StartsAt.ToLocalTime();
+            DateTime editingLocal = Editing.StartsAt.ToWallClock();
             mDate = editingLocal.Date;
             mTime = TimeOnly.FromDateTime(editingLocal);
             mVenue = Editing.Venue;
@@ -252,7 +252,7 @@
             Title = hasTitle ? mTitle.Trim() : null,
             OpponentName = hasOpponent ? mOpponentName.Trim() : null,
             // 사용자는 현지 시각으로 입력한다 — 저장은 UTC 순간으로 (표시할 때 현지로 되돌린다)
-            StartsAt = SystemTime.FromLocal(mDate.Value.Date.Add(mTime.Value.ToTimeSpan())),
+            StartsAt = DisplayTime.FromWallClock(mDate.Value.Date.Add(mTime.Value.ToTimeSpan())),
             Venue = mVenue.Trim(),
             IsPublic = mIsPublic,
         };

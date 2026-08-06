@@ -62,7 +62,7 @@
     private string NextMatchLabel(SystemTime utc)
     {
         // 서버 값은 UTC 순간 — 표시 전에 현지로 되돌린다
-        DateTime dt = utc.ToLocalTime();
+        DateTime dt = utc.ToWallClock();
         string weekday = new[] { AppText.Hub.DowSun, AppText.Hub.DowMon, AppText.Hub.DowTue, AppText.Hub.DowWed, AppText.Hub.DowThu, AppText.Hub.DowFri, AppText.Hub.DowSat }[(int)dt.DayOfWeek];
         string datePart = $"{dt.ToString("M/d", CultureInfo.InvariantCulture)}({weekday}) {dt.ToString("HH:mm", CultureInfo.InvariantCulture)}";
 

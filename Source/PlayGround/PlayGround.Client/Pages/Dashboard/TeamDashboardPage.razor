@@ -442,7 +442,7 @@
         {
             DateTime? recent = mSchedules?.Schedules
                 .OrderByDescending(s => s.StartsAt)
-                .Select(s => (DateTime?)s.StartsAt.ToLocalTime())
+                .Select(s => (DateTime?)s.StartsAt.ToWallClock())
                 .FirstOrDefault();
             return recent is null ? null : TimeOnly.FromDateTime(recent.Value);
         }
@@ -452,7 +452,7 @@
     private IReadOnlyCollection<DateTime> ExistingScheduleStarts =>
         mSchedules?.Schedules
             .Where(s => mEditingSchedule is null || s.ScheduleId != mEditingSchedule.ScheduleId)
-            .Select(s => s.StartsAt.ToLocalTime())
+            .Select(s => s.StartsAt.ToWallClock())
             .ToList() ?? new List<DateTime>();
 
     private void OpenScheduleAdd()
@@ -470,7 +470,7 @@
     // 되돌릴 수 있어도 확인은 받는다(DropdownMenu: 파괴 액션 → 확인 모달). 소프트 삭제라 실행취소를 함께 준다
     private async Task DeleteScheduleAsync(ScheduleDto schedule)
     {
-        string dateLabel = schedule.StartsAt.ToLocalTime().ToString("M/d");
+        string dateLabel = schedule.StartsAt.ToWallClock().ToString("M/d");
         string title = SoccerScheduleTitleOf(schedule);
         bool confirmed = await Confirm.ShowAsync(new ConfirmRequest
         {
@@ -518,7 +518,7 @@
     private IReadOnlyCollection<DateTime> ExistingMatchDays =>
         mMatches?.Matches
             .Where(m => m.MatchedAt.HasValue)
-            .Select(m => m.MatchedAt!.Value.ToLocalTime().Date)
+            .Select(m => m.MatchedAt!.Value.ToWallClock().Date)
             .Distinct()
             .ToList() ?? new List<DateTime>();
 
@@ -530,7 +530,7 @@
             DateTime? recent = mMatches?.Matches
                 .Where(m => m.MatchedAt.HasValue)
                 .OrderByDescending(m => m.MatchedAt)
-                .Select(m => (DateTime?)m.MatchedAt!.Value.ToLocalTime())
+                .Select(m => (DateTime?)m.MatchedAt!.Value.ToWallClock())
                 .FirstOrDefault();
             return recent is null ? null : TimeOnly.FromDateTime(recent.Value);
         }

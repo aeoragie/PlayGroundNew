@@ -168,7 +168,7 @@
             parts.Add(post.AuthorName!);
         }
 
-        parts.Add(post.CreatedAt.ToLocalTime().ToString("yyyy.M.d"));
+        parts.Add(post.CreatedAt.ToWallClock().ToString("yyyy.M.d"));
         if (post.Files.Count > 0)
         {
             parts.Add(AppText.Player.AttachmentCount(post.Files.Count));

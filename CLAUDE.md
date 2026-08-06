@@ -60,7 +60,7 @@ E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 
 | C# | **`DateTime` 타입 자체** (직접 호출 포함) | 순간 = **`SystemTime` 구조체**(항상 UTC, `SystemTime.Now`가 `SystemTime` 반환), 달력 날짜(생년월일·마감일 등) = **`DateOnly`** |
 | C# — 한국 달력 값만 | | **`KoreanTime`** — 마감일(`EndOfDayToUtc`: DateOnly→SystemTime)·시즌(`CurrentYear`·`YearRangeUtc`) |
 | SQL | `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | **`GETUTCDATE()`만.** 시간대 산술을 SQL에 두지 않는다 |
-| Client | 시계 직접 읽기 | 표시는 `SystemTime.ToLocalTime()`/`ToLocalString()`, 픽커 입력은 `SystemTime.FromLocal()` |
+| Client | 시계 직접 읽기, `ToLocalTime()`·`TimeZoneInfo.Local` | **`DisplayTime`**(Client/Services)만 시간대를 안다 — 표시 `Format()`/`ToWallClock()`, 픽커 입력 `FromWallClock()`. 현재 한국 시간 고정, 계정 시간대는 이 클래스 안에서만 바뀐다 |
 
 `SystemTime`은 타입 수준 강제다(2026-08-06 확장). 어떤 `DateTime`을 넣어도 생성자가 UTC로
 정규화하고, DB(Dapper `SystemTimeTypeHandler`)·JSON(ISO-8601 `Z`) 경계는 자동 변환이라

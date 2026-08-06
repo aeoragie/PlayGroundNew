@@ -1,5 +1,6 @@
 using FluentAssertions;
 using PlayGround.Shared.Time;
+using PlayGround.Client.Services;
 using Xunit;
 using PlayGround.Contracts.Records;
 using PlayGround.Client.Components.Records;
@@ -200,12 +201,11 @@ namespace PlayGround.Tests.Unit.Client
         [Fact]
         public void WhenLabel_요일과_시각을_붙인다()
         {
-            // WhenLabel은 UTC 순간을 받아 **현지 시각으로** 표기한다.
-            // 그래서 기대값도 현지 기준으로 만든다 — 어느 시간대에서 돌려도 결과가 같다.
-            var localSunday = new DateTime(2026, 6, 7, 10, 0, 0, DateTimeKind.Local); // 일요일
-            DateTime utc = localSunday.ToUniversalTime();
+            // 표시는 DisplayTime 규칙(한국 시간 고정)이다 — 6/7 10:00 KST = 6/7 01:00 UTC.
+            // 기대값이 머신 시간대와 무관하게 결정적이다.
+            var utc = new SystemTime(2026, 6, 7, 1, 0, 0); // 일요일
 
-            string label = RecordsFormatting.WhenLabel(new SystemTime(utc));
+            string label = RecordsFormatting.WhenLabel(utc);
 
             label.Should().StartWith("6/7 (").And.EndWith("10:00");
         }

@@ -209,7 +209,7 @@
     // "7/5 · 신답체육공원" — 구장 없으면 홈/원정
     internal static string MetaLine(TeamMatchDto match)
     {
-        string date = match.MatchedAt is null ? AppText.Dashboard.DateTbd : match.MatchedAt.Value.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture);
+        string date = match.MatchedAt is null ? AppText.Dashboard.DateTbd : match.MatchedAt.Value.ToWallClock().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture);
         return $"{date} · {match.VenueName ?? (match.IsHome ? AppText.Dashboard.Home : AppText.Dashboard.Away)}";
     }
 

@@ -114,7 +114,7 @@
         {
             string team = string.IsNullOrWhiteSpace(Child.TeamName) ? AppText.Hub.TeamFallback : Child.TeamName;
             string when = Child.RequestedAt is SystemTime d
-                ? AppText.Hub.RequestedAt(d.ToLocalTime().ToString("M/d"))
+                ? AppText.Hub.RequestedAt(d.ToWallClock().ToString("M/d"))
                 : string.Empty;
             return AppText.Hub.PendingWaiting(team, when);
         }

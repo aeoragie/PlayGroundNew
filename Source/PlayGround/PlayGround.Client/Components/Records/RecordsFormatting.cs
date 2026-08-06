@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Client.Services;
 using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
 using PlayGround.Contracts.Records;
@@ -19,7 +20,7 @@ namespace PlayGround.Client.Components.Records
             }
 
             // 서버가 주는 값은 UTC 순간 — 날짜·요일·시각은 반드시 현지로 되돌린 뒤 만든다
-            DateTime at = matchedAt.Value.ToLocalTime();
+            DateTime at = matchedAt.Value.ToWallClock();
             return $"{at.Month}/{at.Day} ({WeekdayLetters[(int)at.DayOfWeek]}) {at:HH:mm}";
         }
 

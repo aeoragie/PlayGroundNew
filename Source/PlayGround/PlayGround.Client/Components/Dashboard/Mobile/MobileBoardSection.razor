@@ -89,7 +89,7 @@
             parts.Add(post.AuthorName!);
         }
 
-        parts.Add(post.CreatedAt.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture));
+        parts.Add(post.CreatedAt.ToWallClock().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture));
         if (post.Files.Count > 0)
         {
             parts.Add(AppText.Dashboard.AttachmentCount(post.Files.Count));

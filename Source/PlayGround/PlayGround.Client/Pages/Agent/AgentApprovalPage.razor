@@ -250,7 +250,7 @@
                 return string.Empty;
             }
 
-            DateTime local = mData.ExpiresAt.Value.ToLocalTime();
+            DateTime local = mData.ExpiresAt.Value.ToWallClock();
             if (mData.IsExpired)
             {
                 return AppText.Agent.Expired(local.Month, local.Day);
@@ -263,7 +263,7 @@
 
     private static string RequestedAtText(SystemTime utc)
     {
-        DateTime local = utc.ToLocalTime();
+        DateTime local = utc.ToWallClock();
         return AppText.Agent.RequestedAt(local.Month, local.Day, local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm, ((local.Hour + 11) % 12) + 1, local.Minute.ToString("D2"));
     }
 
@@ -276,8 +276,8 @@
 
     private static string LogTimeText(SystemTime utc)
     {
-        DateTime local = utc.ToLocalTime();
-        DateTime today = SystemTime.Now.ToLocalTime().Date;
+        DateTime local = utc.ToWallClock();
+        DateTime today = SystemTime.Now.ToWallClock().Date;
         string clock = $"{(local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm)} {((local.Hour + 11) % 12) + 1}:{local.Minute:D2}";
         if (local.Date == today)
         {

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using PlayGround.Shared.Time;
+using PlayGround.Client.Services;
 using Xunit;
 using PlayGround.Contracts.Notification;
 using PlayGround.Domain.Soccer;
@@ -166,7 +167,7 @@ namespace PlayGround.Tests.Unit.Client
             string label = NotificationPresenter.TimeAgo(past);
 
             // 로컬 시각 기준 월/일 — 상대 표현이 아니어야 한다
-            DateTime local = past.ToLocalTime();
+            DateTime local = past.ToWallClock();
             label.Should().Contain(local.Month.ToString()).And.Contain(local.Day.ToString());
         }
     }

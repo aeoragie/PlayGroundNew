@@ -36,7 +36,7 @@ else if (mData is not null)
             <div class="@Css.PlayerPublic.GrantBanner">
                 <div class="@Css.PlayerPublic.GrantBannerInner">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-ink flex-none mt-0.5 md:mt-0"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
-                    <span class="@($"{Css.PlayerPublic.GrantBannerText} hidden md:inline")">@AppText.Player.GrantBannerPc(grant.ApprovedAt.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture), RemainingDays(grant))</span>
+                    <span class="@($"{Css.PlayerPublic.GrantBannerText} hidden md:inline")">@AppText.Player.GrantBannerPc(grant.ApprovedAt.ToWallClock().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture), RemainingDays(grant))</span>
                     <span class="@($"{Css.PlayerPublic.GrantBannerText} md:hidden")">@AppText.Player.GrantBannerMobile(RemainingDays(grant))</span>
                     <div class="hidden md:block flex-1"></div>
                     <span class="@Css.PlayerPublic.GrantBannerNote">@AppText.Player.GrantBannerNote</span>
@@ -253,7 +253,7 @@ else if (mData is not null)
                     {
                         <div class="@Css.PlayerPublic.RecordRowPc">
                             <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@CompLabel(match)</span>
-                            <span class="text-xs text-text-muted w-11 whitespace-nowrap">@(match.MatchedAt?.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
+                            <span class="text-xs text-text-muted w-11 whitespace-nowrap">@(match.MatchedAt?.ToWallClock().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
                             <span class="@($"{Css.PlayerPublic.RecordMatchTitle} flex-1")">@MatchTitle(match)</span>
                             <span class="@Css.PlayerPublic.RecordStatChip">@StatLabel(match)</span>
                             <span class="@($"{Css.PlayerPublic.RecordMinutes} w-16 text-right")">@MinutesLabel(match)</span>
@@ -261,7 +261,7 @@ else if (mData is not null)
                         <div class="@Css.PlayerPublic.RecordRowMobile">
                             <div class="flex items-center gap-[7px]">
                                 <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@CompLabel(match)</span>
-                                <span class="text-[10.5px] text-text-muted whitespace-nowrap">@(match.MatchedAt?.ToLocalTime().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
+                                <span class="text-[10.5px] text-text-muted whitespace-nowrap">@(match.MatchedAt?.ToWallClock().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
                                 <div class="flex-1"></div>
                                 <span class="@Css.PlayerPublic.RecordMinutes">@MinutesLabel(match)</span>
                             </div>
