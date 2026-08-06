@@ -4,7 +4,7 @@ namespace PlayGround.Server.Services
     /// 업로드(이미지·첨부) 저장 백엔드 — 설정값 하나가 어댑터 하나를 고른다
     /// (`DatabaseProvider`와 같은 방식).
     ///
-    /// **이 이름이 곧 어댑터 클래스 이름이다** — S3 → <see cref="S3ObjectStore"/>.
+    /// **이 이름이 곧 어댑터 클래스 이름이다** — S3 → <see cref="AwsObjectStore"/>.
     /// 소비자(Remote*)는 <see cref="IObjectStore"/>만 보므로 어느 값이든 코드가 같다.
     /// </summary>
     public enum UploadStorageProvider
@@ -13,7 +13,7 @@ namespace PlayGround.Server.Services
         Local,
 
         /// <summary>AWS S3. 현재 운영·개발이 쓰는 값.</summary>
-        S3,
+        Aws,
 
         /// <summary>Google Cloud Storage. **아직 구현하지 않았다**(껍질만).</summary>
         Google,

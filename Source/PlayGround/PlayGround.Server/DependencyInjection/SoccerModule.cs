@@ -112,7 +112,7 @@ namespace PlayGround.Server.DependencyInjection
         // Google·Azure는 껍질만 있고 생성자가 기동 시점에 실패한다(업로드 때 알게 되면 늦다).
         private static IObjectStore CreateObjectStore(UploadStorageConfiguration config) => config.Provider switch
         {
-            UploadStorageProvider.S3 => new S3ObjectStore(config),
+            UploadStorageProvider.Aws => new AwsObjectStore(config),
             UploadStorageProvider.Google => new GoogleObjectStore(config),
             UploadStorageProvider.Azure => new AzureObjectStore(config),
             _ => throw new InvalidOperationException(

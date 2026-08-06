@@ -14,19 +14,19 @@ namespace PlayGround.Server.Services
     /// **서버에 액세스 키를 두지 않는다.**
     /// 버킷은 퍼블릭 차단 상태이고, 브라우저 서빙은 UploadsController(`/uploads` 프록시)가 맡는다.
     /// </summary>
-    public sealed class S3ObjectStore : IObjectStore
+    public sealed class AwsObjectStore : IObjectStore
     {
         private readonly IAmazonS3 mClient;
         private readonly string mBucketName;
 
         /// <summary>운영·개발 경로 — 설정만 주면 클라이언트는 스스로 만든다(호출자가 SDK를 몰라도 된다).</summary>
-        public S3ObjectStore(UploadStorageConfiguration settings)
+        public AwsObjectStore(UploadStorageConfiguration settings)
             : this(CreateClient(settings), settings)
         {
         }
 
         /// <summary>테스트가 클라이언트를 주입하기 위한 생성자.</summary>
-        public S3ObjectStore(IAmazonS3 client, UploadStorageConfiguration settings)
+        public AwsObjectStore(IAmazonS3 client, UploadStorageConfiguration settings)
         {
             Debug.Assert(client != null, "client is required");
             Debug.Assert(settings != null, "settings is required");

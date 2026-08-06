@@ -3,7 +3,7 @@ namespace PlayGround.Server.Services
     /// <summary>
     /// 원격 오브젝트 저장소 — **키로 넣고 꺼내는 것**만 아는 최소 인터페이스.
     ///
-    /// 어느 벤더를 쓰는지는 이 뒤에 숨는다. 지금 구현은 AWS S3(<see cref="S3ObjectStore"/>)뿐이지만
+    /// 어느 벤더를 쓰는지는 이 뒤에 숨는다. 지금 구현은 AWS S3(<see cref="AwsObjectStore"/>)뿐이지만
     /// 업로드 서비스(Remote*)는 그 사실을 모르므로, 다른 저장소로 옮길 때
     /// **어댑터 한 개와 DI 한 줄만** 바뀐다.
     ///
