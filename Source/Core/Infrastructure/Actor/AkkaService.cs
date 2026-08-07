@@ -8,6 +8,9 @@ using Akka.DependencyInjection;
 using Akka.Routing;
 using NLog;
 
+using PlayGround.Shared.Logging;
+using PlayGround.Infrastructure.Logging;
+
 namespace PlayGround.Infrastructure.Actor
 {
     /// <summary>
@@ -68,7 +71,7 @@ namespace PlayGround.Infrastructure.Actor
                 mApplicationLifetime.StopApplication();
             }, cancellationToken);
 
-            Logger.Info("ActorSystem started. {{ SystemName:{SystemName} }}", akkaConfig.SystemName);
+            Logger.InfoWith("ActorSystem started", ("SystemName", akkaConfig.SystemName));
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -77,7 +80,7 @@ namespace PlayGround.Infrastructure.Actor
             {
                 await CoordinatedShutdown.Get(ActorSystem)
                     .Run(CoordinatedShutdown.ClrExitReason.Instance);
-                Logger.Info("ActorSystem stopped.");
+                Logger.InfoWith("ActorSystem stopped");
             }
         }
 
@@ -135,7 +138,7 @@ namespace PlayGround.Infrastructure.Actor
             // 중복 이름을 먼저 걸러 고아 액터 생성을 방지
             if (Actors.ContainsKey(actorName))
             {
-                Logger.Warn("Actor already exists. {{ ActorName:{ActorName} }}", actorName);
+                Logger.WarnWith("Actor already exists", ("ActorName", actorName));
                 return null;
             }
 
@@ -147,17 +150,22 @@ namespace PlayGround.Infrastructure.Actor
                 var actor = new ActorRef(actorRef, actorName);
                 if (!Actors.TryAdd(actorName, actor))
                 {
-                    Logger.Warn("Actor registration raced, stopping orphan. {{ ActorName:{ActorName} }}", actorName);
+                    Logger.WarnWith("Actor registration raced, stopping orphan", ("ActorName", actorName));
                     ActorSystem.Stop(actorRef);
                     return null;
                 }
 
-                Logger.Debug("Actor created. {{ ActorName:{ActorName} }}", actorName);
+#pragma warning disable CS0162
+                if (LogSwitch.Actor)
+                {
+                    Logger.DebugWith("Actor created", ("ActorName", actorName));
+                }
+#pragma warning restore CS0162
                 return actor;
             }
             catch (InvalidActorNameException ex)
             {
-                Logger.Error(ex, "Actor creation failed. {{ ActorName:{ActorName} }}", actorName);
+                Logger.ErrorWith(ex, "Actor creation failed", ("ActorName", actorName));
                 return null;
             }
         }

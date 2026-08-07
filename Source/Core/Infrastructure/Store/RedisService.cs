@@ -5,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using StackExchange.Redis;
 
+using PlayGround.Infrastructure.Logging;
+
 namespace PlayGround.Infrastructure.Store
 {
     /// <summary>
@@ -46,7 +48,7 @@ namespace PlayGround.Infrastructure.Store
             var config = mConfiguration.GetSection(RedisConfig.Section).Get<RedisConfig>();
             if (config?.Connections == null || config.Connections.Count == 0)
             {
-                Logger.Warn("No Redis connections configured.");
+                Logger.WarnWith("No Redis connections configured");
                 return;
             }
 
@@ -62,7 +64,7 @@ namespace PlayGround.Infrastructure.Store
                 // 파싱 예외로 시끄럽게 실패시키지 않고 건너뛴다 (로컬 개발 기본값).
                 if (string.IsNullOrWhiteSpace(connConfig.ConnectionString))
                 {
-                    Logger.Warn("Redis connection string is empty — skipped. {{ Name:{Name} }}", connConfig.Name);
+                    Logger.WarnWith("Redis connection string is empty — skipped", ("Name", connConfig.Name));
                     continue;
                 }
 
@@ -84,16 +86,16 @@ namespace PlayGround.Infrastructure.Store
                     var entry = new RedisConnectionEntry(multiplexer, connConfig.DatabaseId);
                     if (!Connections.TryAdd(connConfig.Name, entry))
                     {
-                        Logger.Warn("Redis connection already exists. {{ Name:{Name} }}", connConfig.Name);
+                        Logger.WarnWith("Redis connection already exists", ("Name", connConfig.Name));
                         await multiplexer.DisposeAsync();
                         continue;
                     }
 
-                    Logger.Info("Redis connection established. {{ Name:{Name} }}", connConfig.Name);
+                    Logger.InfoWith("Redis connection established", ("Name", connConfig.Name));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Redis connection failed. {{ Name:{Name} }}", connConfig.Name);
+                    Logger.ErrorWith(ex, "Redis connection failed", ("Name", connConfig.Name));
                 }
             }
         }
@@ -110,13 +112,13 @@ namespace PlayGround.Infrastructure.Store
         {
             if (!Connections.TryGetValue(connectionName, out var entry))
             {
-                Logger.Warn("Redis connection not found. {{ Name:{Name} }}", connectionName);
+                Logger.WarnWith("Redis connection not found", ("Name", connectionName));
                 return null;
             }
 
             if (!entry.Multiplexer.IsConnected)
             {
-                Logger.Warn("Redis connection is not connected. {{ Name:{Name} }}", connectionName);
+                Logger.WarnWith("Redis connection is not connected", ("Name", connectionName));
                 return null;
             }
 
@@ -153,12 +155,12 @@ namespace PlayGround.Infrastructure.Store
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn(ex, "Failed to dispose Redis connection.");
+                    Logger.WarnWith(ex, "Failed to dispose Redis connection");
                 }
             }
 
             Connections.Clear();
-            Logger.Info("All Redis connections disposed.");
+            Logger.InfoWith("All Redis connections disposed");
         }
 
         private record RedisConnectionEntry(IConnectionMultiplexer Multiplexer, int DatabaseId);

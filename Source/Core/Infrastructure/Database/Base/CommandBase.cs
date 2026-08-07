@@ -1,6 +1,11 @@
 using NLog;
 using PlayGround.Shared.Result;
 
+using PlayGround.Shared.Logging;
+using PlayGround.Infrastructure.Logging;
+
+#pragma warning disable CS0162 // LogSwitch가 const라 꺼지면 컴파일러가 블록을 지운다
+
 namespace PlayGround.Infrastructure.Database.Base;
 
 public abstract class CommandBase(RepositoryBase repository)
@@ -17,11 +22,17 @@ public abstract class CommandBase(RepositoryBase repository)
         var result = await task;
         if (result.IsError)
         {
-            Logger.Debug("Execute failed. {{ Command:{Command}, Message:{Message} }}", CommandName, result.Message);
+            if (LogSwitch.Database)
+            {
+                Logger.DebugWith("Execute failed", ("Command", CommandName), ("Message", result.Message));
+            }
             return new QueryResultBase { ResultCode = QueryResult.Error };
         }
 
-        Logger.Debug("Execute completed. {{ Command:{Command}, AffectedRows:{AffectedRows} }}", CommandName, result.Value);
+        if (LogSwitch.Database)
+        {
+            Logger.DebugWith("Execute completed", ("Command", CommandName), ("AffectedRows", result.Value));
+        }
         return new QueryResultBase { ResultCode = QueryResult.Success };
     }
 
@@ -38,11 +49,17 @@ public abstract class CommandBase(RepositoryBase repository)
         {
             if (result.ResultData.DetailCode == ErrorCode.NotFound)
             {
-                Logger.Debug("Single query returned no data. {{ Command:{Command} }}", CommandName);
+                if (LogSwitch.Database)
+                {
+                    Logger.DebugWith("Single query returned no data", ("Command", CommandName));
+                }
             }
             else
             {
-                Logger.Debug("Single query failed. {{ Command:{Command}, Message:{Message} }}", CommandName, result.Message);
+                if (LogSwitch.Database)
+                {
+                    Logger.DebugWith("Single query failed", ("Command", CommandName), ("Message", result.Message));
+                }
             }
 
             queryResult.ResultCode = QueryResult.Error;
@@ -64,7 +81,10 @@ public abstract class CommandBase(RepositoryBase repository)
         var queryResult = new QueryResultList<T1>();
         if (result.IsError)
         {
-            Logger.Debug("Query failed. {{ Command:{Command}, Message:{Message} }}", CommandName, result.Message);
+            if (LogSwitch.Database)
+            {
+                Logger.DebugWith("Query failed", ("Command", CommandName), ("Message", result.Message));
+            }
             queryResult.ResultCode = QueryResult.Error;
             return queryResult;
         }
@@ -76,3 +96,5 @@ public abstract class CommandBase(RepositoryBase repository)
 
     #endregion
 }
+
+#pragma warning restore CS0162

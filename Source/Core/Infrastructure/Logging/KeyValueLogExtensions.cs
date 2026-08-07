@@ -1,5 +1,5 @@
-using System.Text;
 using NLog;
+using PlayGround.Shared.Logging;
 
 namespace PlayGround.Infrastructure.Logging
 {
@@ -28,6 +28,11 @@ namespace PlayGround.Infrastructure.Logging
         public static void WarnWith(this ILogger logger, string message, params (string Key, object? Value)[] fields)
         {
             Write(logger, LogLevel.Warn, null, message, fields);
+        }
+
+        public static void WarnWith(this ILogger logger, Exception exception, string message, params (string Key, object? Value)[] fields)
+        {
+            Write(logger, LogLevel.Warn, exception, message, fields);
         }
 
         public static void ErrorWith(this ILogger logger, string message, params (string Key, object? Value)[] fields)
@@ -70,34 +75,7 @@ namespace PlayGround.Infrastructure.Logging
             logger.Log(logEvent);
         }
 
-        internal static string BuildMessage(string message, (string Key, object? Value)[] fields)
-        {
-            if (fields.Length == 0)
-            {
-                return message;
-            }
-
-            var builder = new StringBuilder(message);
-            if (!message.EndsWith('.'))
-            {
-                builder.Append('.');
-            }
-
-            builder.Append(" { ");
-            for (int i = 0; i < fields.Length; i++)
-            {
-                if (i > 0)
-                {
-                    builder.Append(", ");
-                }
-
-                builder.Append(fields[i].Key)
-                    .Append(':')
-                    .Append(fields[i].Value?.ToString() ?? "null");
-            }
-            builder.Append(" }");
-
-            return builder.ToString();
-        }
+        internal static string BuildMessage(string message, (string Key, object? Value)[] fields) =>
+            LogFieldFormatter.BuildRendered(message, fields);
     }
 }

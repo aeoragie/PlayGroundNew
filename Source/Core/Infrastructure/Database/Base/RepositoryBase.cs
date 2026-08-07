@@ -6,7 +6,9 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Dapper;
 using NLog;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
+using PlayGround.Infrastructure.Logging;
 
 namespace PlayGround.Infrastructure.Database.Base;
 
@@ -54,24 +56,24 @@ public abstract class RepositoryBase
     {
         var connection = CreateConnection();
         await connection.OpenAsync(cancellation);
-        Logger.Trace("Connection opened. {{ Database:{Database} }}", Database);
+        DiagDatabase("Connection opened");
         return connection;
     }
 
     public async Task<bool> CanConnectAsync(CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
-            stopwatch.Stop();
-            Logger.Debug("Connection test succeeded. {{ Database:{Database}, ElapsedMs:{ElapsedMs} }}", Database, stopwatch.ElapsedMilliseconds);
+            stopwatch?.Stop();
+            DiagDatabase("Connection test succeeded", stopwatch);
             return true;
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Connection test failed. {{ Database:{Database}, ElapsedMs:{ElapsedMs} }}", Database, stopwatch.ElapsedMilliseconds);
+            stopwatch?.Stop();
+            Logger.ErrorWith(ex, "Connection test failed", ("Database", Database), ("ElapsedMs", stopwatch?.ElapsedMilliseconds));
             return false;
         }
     }
@@ -83,33 +85,31 @@ public abstract class RepositoryBase
     public async Task<Result<TRow>> QuerySingleOrDefaultAsync<TRow>(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
             var result = await connection.QuerySingleOrDefaultAsync<TRow>(sql, parameters, commandTimeout: commandTimeout ?? Options.CommandTimeout);
 
-            stopwatch.Stop();
+            stopwatch?.Stop();
 
             if (result == null)
             {
-                Logger.Debug("Query returned no result. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+                DiagSql("Query returned no result", stopwatch, sql);
                 return Result<TRow>.Error(ErrorCode.NotFound, "No data found");
             }
 
-            Logger.Debug("Query executed. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            DiagSql("Query executed", stopwatch, sql);
             return Result<TRow>.Success(result);
         }
         catch (SqlException ex) when (IsTransientError(ex))
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Transient SQL error. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            stopwatch?.Stop();
             return Result<TRow>.Error(ErrorCode.DatabaseTimeout, ex.Message);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Query failed. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            stopwatch?.Stop();
             return Result<TRow>.FromException(ex);
         }
     }
@@ -117,7 +117,7 @@ public abstract class RepositoryBase
     public async Task<Result<TRow>> ProcedureSingleOrDefaultAsync<TRow>(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -126,27 +126,25 @@ public abstract class RepositoryBase
                 procedure.BuildParameters(),
                 commandType: CommandType.StoredProcedure, commandTimeout: commandTimeout ?? Options.CommandTimeout);
 
-            stopwatch.Stop();
+            stopwatch?.Stop();
 
             if (result == null)
             {
-                Logger.Debug("Procedure returned no result. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+                DiagProcedure("Procedure returned no result", stopwatch, procedure.Procedure);
                 return Result<TRow>.Error(ErrorCode.NotFound, "No data found");
             }
 
-            Logger.Debug("Procedure executed. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            DiagProcedure("Procedure executed", stopwatch, procedure.Procedure);
             return Result<TRow>.Success(result);
         }
         catch (SqlException ex) when (IsTransientError(ex))
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Transient SQL error. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
             return Result<TRow>.Error(ErrorCode.DatabaseTimeout, ex.Message);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Procedure failed. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
             return Result<TRow>.FromException(ex);
         }
     }
@@ -158,29 +156,27 @@ public abstract class RepositoryBase
     public async Task<Result<IEnumerable<TRow>>> QueryAsync<TRow>(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
             var result = await connection.QueryAsync<TRow>(sql, parameters, commandTimeout: commandTimeout ?? Options.CommandTimeout);
 
-            stopwatch.Stop();
+            stopwatch?.Stop();
 
             var count = result.TryGetNonEnumeratedCount(out var c) ? c : -1;
-            Logger.Debug("Query returned rows. {{ Count:{Count}, ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", count, stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            DiagSql("Query returned rows", stopwatch, sql, count);
 
             return Result<IEnumerable<TRow>>.Success(result);
         }
         catch (SqlException ex) when (IsTransientError(ex))
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Transient SQL error. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            stopwatch?.Stop();
             return Result<IEnumerable<TRow>>.Error(ErrorCode.DatabaseTimeout, ex.Message);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Query failed. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            stopwatch?.Stop();
             return Result<IEnumerable<TRow>>.FromException(ex);
         }
     }
@@ -188,7 +184,7 @@ public abstract class RepositoryBase
     public async Task<Result<IEnumerable<TRow>>> ProcedureAsync<TRow>(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -198,21 +194,19 @@ public abstract class RepositoryBase
                 commandType: CommandType.StoredProcedure,
                 commandTimeout: commandTimeout ?? Options.CommandTimeout);
 
-            stopwatch.Stop();
+            stopwatch?.Stop();
             var count = result.TryGetNonEnumeratedCount(out var c) ? c : -1;
-            Logger.Debug("Procedure returned rows. {{ Count:{Count}, ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", count, stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            DiagProcedure("Procedure returned rows", stopwatch, procedure.Procedure, count);
             return Result<IEnumerable<TRow>>.Success(result);
         }
         catch (SqlException ex) when (IsTransientError(ex))
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Transient SQL error. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
             return Result<IEnumerable<TRow>>.Error(ErrorCode.DatabaseTimeout, ex.Message);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Procedure failed. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
             return Result<IEnumerable<TRow>>.FromException(ex);
         }
     }
@@ -220,7 +214,7 @@ public abstract class RepositoryBase
     public async Task<Result<MultiQueryReader>> ProcedureMultipleAsync(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
 
         // 리더가 커넥션을 계속 사용하므로 여기서 dispose하지 않고 MultiQueryReader에 소유권을 넘긴다
         var connection = await OpenConnectionAsync(cancellation);
@@ -232,22 +226,20 @@ public abstract class RepositoryBase
                 commandType: CommandType.StoredProcedure,
                 commandTimeout: commandTimeout ?? Options.CommandTimeout);
 
-            stopwatch.Stop();
-            Logger.Debug("Procedure multiple query executed. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
+            DiagProcedure("Procedure multiple query executed", stopwatch, procedure.Procedure);
             return Result<MultiQueryReader>.Success(new MultiQueryReader(connection, reader));
         }
         catch (SqlException ex) when (IsTransientError(ex))
         {
-            stopwatch.Stop();
+            stopwatch?.Stop();
             await connection.DisposeAsync();
-            Logger.Debug(ex, "Transient SQL error. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
             return Result<MultiQueryReader>.Error(ErrorCode.DatabaseTimeout, ex.Message);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
+            stopwatch?.Stop();
             await connection.DisposeAsync();
-            Logger.Debug(ex, "Procedure multiple query failed. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
             return Result<MultiQueryReader>.FromException(ex);
         }
     }
@@ -259,26 +251,24 @@ public abstract class RepositoryBase
     public async Task<Result<int>> ExecuteAsync(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
             var affectedRows = await connection.ExecuteAsync(sql, parameters, commandTimeout: commandTimeout ?? Options.CommandTimeout);
 
-            stopwatch.Stop();
-            Logger.Debug("Execute completed. {{ AffectedRows:{AffectedRows}, ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", affectedRows, stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            stopwatch?.Stop();
+            DiagSql("Execute completed", stopwatch, sql, affectedRows);
             return Result<int>.Success(affectedRows);
         }
         catch (SqlException ex) when (IsTransientError(ex))
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Transient SQL error. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            stopwatch?.Stop();
             return Result<int>.Error(ErrorCode.DatabaseTimeout, ex.Message);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Execute failed. {{ ElapsedMs:{ElapsedMs}, Sql:{Sql} }}", stopwatch.ElapsedMilliseconds, TruncateSql(sql));
+            stopwatch?.Stop();
             return Result<int>.FromException(ex);
         }
     }
@@ -286,7 +276,7 @@ public abstract class RepositoryBase
     public async Task<Result<int>> ProcedureExecuteAsync(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -297,20 +287,18 @@ public abstract class RepositoryBase
                 commandType: CommandType.StoredProcedure,
                 commandTimeout: commandTimeout ?? Options.CommandTimeout);
 
-            stopwatch.Stop();
-            Logger.Debug("Procedure execute completed. {{ AffectedRows:{AffectedRows}, ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", affectedRows, stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
+            DiagProcedure("Procedure execute completed", stopwatch, procedure.Procedure, affectedRows);
             return Result<int>.Success(affectedRows);
         }
         catch (SqlException ex) when (IsTransientError(ex))
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Transient SQL error. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
             return Result<int>.Error(ErrorCode.DatabaseTimeout, ex.Message);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-            Logger.Debug(ex, "Procedure execute failed. {{ ElapsedMs:{ElapsedMs}, Procedure:{Procedure} }}", stopwatch.ElapsedMilliseconds, procedure.Procedure);
+            stopwatch?.Stop();
             return Result<int>.FromException(ex);
         }
     }
@@ -322,7 +310,7 @@ public abstract class RepositoryBase
     public async Task<Result<TResult>> ExecuteInTransactionAsync<TResult>(
         Func<DbConnection, DbTransaction, Task<TResult>> operation, IsolationLevel isolationLevel = IsolationLevel.ReadCommitted, CancellationToken cancellation = default)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
         await using var connection = await OpenConnectionAsync(cancellation);
         await using var transaction = await connection.BeginTransactionAsync(isolationLevel, cancellation);
 
@@ -331,23 +319,22 @@ public abstract class RepositoryBase
             var result = await operation(connection, transaction);
             await transaction.CommitAsync(cancellation);
 
-            stopwatch.Stop();
-            Logger.Debug("Transaction committed. {{ ElapsedMs:{ElapsedMs} }}", stopwatch.ElapsedMilliseconds);
+            stopwatch?.Stop();
+            DiagDatabase("Transaction committed", stopwatch);
             return Result<TResult>.Success(result);
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
+            stopwatch?.Stop();
             try
             {
                 await transaction.RollbackAsync(CancellationToken.None);
             }
             catch (Exception rollbackEx)
             {
-                Logger.Debug(rollbackEx, "Transaction rollback failed.");
+                Logger.ErrorWith(rollbackEx, "Transaction rollback failed", ("Database", Database));
             }
 
-            Logger.Debug(ex, "Transaction rolled back. {{ ElapsedMs:{ElapsedMs} }}", stopwatch.ElapsedMilliseconds);
             return Result<TResult>.FromException(ex);
         }
     }
@@ -381,13 +368,13 @@ public abstract class RepositoryBase
             {
                 if (attempt > 1)
                 {
-                    Logger.Debug("Operation failed after retries. {{ Attempts:{Attempts} }}", attempt);
+                    Logger.WarnWith("Operation failed after retries", ("Database", Database), ("Attempts", attempt));
                 }
                 return result;
             }
 
             var delay = Options.RetryDelayMilliseconds * (int)Math.Pow(2, attempt - 1);
-            Logger.Debug("Retry scheduled. {{ Attempt:{Attempt}, MaxRetries:{MaxRetries}, DelayMs:{DelayMs} }}", attempt, retryCount, delay);
+            DiagRetry(attempt, retryCount, delay);
             await Task.Delay(delay, cancellation);
         }
     }
@@ -418,6 +405,42 @@ public abstract class RepositoryBase
     {
         return TransientErrorNumbers.Contains(ex.Number);
     }
+
+#pragma warning disable CS0162 // LogSwitch가 const라 꺼져 있으면 컴파일러가 블록을 지운다 — 의도한 제거다
+
+    private void DiagRetry(int attempt, int maxRetries, int delayMs)
+    {
+        if (LogSwitch.Database)
+        {
+            Logger.DebugWith("Retry scheduled", ("Attempt", attempt), ("MaxRetries", maxRetries), ("DelayMs", delayMs));
+        }
+    }
+
+    private void DiagDatabase(string message, Stopwatch? stopwatch = null)
+    {
+        if (LogSwitch.Database)
+        {
+            Logger.DebugWith(message, ("Database", Database), ("ElapsedMs", stopwatch?.ElapsedMilliseconds));
+        }
+    }
+
+    private void DiagSql(string message, Stopwatch? stopwatch, string sql, long? rows = null)
+    {
+        if (LogSwitch.Database)
+        {
+            Logger.DebugWith(message, ("ElapsedMs", stopwatch?.ElapsedMilliseconds), ("Rows", rows), ("Sql", TruncateSql(sql)));
+        }
+    }
+
+    private void DiagProcedure(string message, Stopwatch? stopwatch, string procedure, long? rows = null)
+    {
+        if (LogSwitch.Database)
+        {
+            Logger.DebugWith(message, ("ElapsedMs", stopwatch?.ElapsedMilliseconds), ("Rows", rows), ("Procedure", procedure));
+        }
+    }
+
+#pragma warning restore CS0162
 
     private static string TruncateSql(string sql, int maxLength = 100)
     {

@@ -389,28 +389,37 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 |---|---|
 | Core.Shared | 로그 없음 — Result가 곧 반환값 |
 | Core.Infrastructure | **Trace/Debug 진단만** (SQL 실행시간, 재시도 등) + 생명주기 Info. 오류는 Result/Exception으로 반환하고 **Error 로그 금지** (중복 방지) |
-| Application (유즈케이스) | **비즈니스 로그의 주 책임 계층** — 맥락(누가·무엇을)을 아는 곳에서 로깅 |
+| **Application (유즈케이스)** | **비즈니스 로그의 주 책임 계층** — 맥락(누가·무엇을)을 아는 곳에서 로깅 |
+| Persistence | 로그 없음 — Result로 반환만 한다 (진단은 base가 Debug로) |
 | Server (Controller) | 최소화 — 컨트롤러는 얇게 |
 
 ### 레벨 기준
 
 | 레벨 | 기준 | 예 |
 |---|---|---|
-| **Info** | **비즈니스 이벤트 — 데이터 요청/수신/상태변경은 반드시 남긴다** | 프로필 조회 요청, 팀 생성 완료 |
-| Debug | 개발 진단 | SQL 실행시간, 캐시 히트 |
+| **Info** | **상태를 바꾸는 일 + 서비스 초기화** — 예외 없이 남긴다 | 로그인, 팀 생성, 승인/반려, S3 어댑터 초기화 |
+| Debug | 개발 진단 · 일반 조회 | SQL 실행시간, 캐시 히트 |
 | Trace | 상세 덤프 (평소 꺼둠) | 파라미터 전체 |
 | Warn | 자동 복구된 이상 (NotFound 같은 정상적 빈 결과는 Warn 아님) | 재시도 후 성공, 폴백 사용 |
-| Error | 요청 실패 | 유즈케이스 실패, 예외 → Result 변환 지점 |
+| **Error** | **요청 실패는 반드시 남긴다** | 유즈케이스 실패, 예외 → Result 변환 지점 |
 | Fatal | 프로세스 지속 불가 | 기동 실패, 설정 누락 |
 
-### 포맷·헬퍼 (Core.Infrastructure/Logging)
+조회는 기본 Debug지만, **"누가 무엇을 봤는가"가 의미 있는 조회는 Info**다(공개 프로필 열람·에이전트
+열람·데이터 export). 서비스 초기화 로그에는 **어떤 구성으로 떴는지**(Provider·Endpoint 등)를 함께 남긴다.
+
+### 포맷·헬퍼 (Core.Shared/Logging — MEL `ILogger` 확장)
 
 - **메시지 포맷: `문장. { Key:Value, Key:Value }`** — 헬퍼가 자동 생성 + 구조화 속성 동시 기록.
-- `Logger.InfoWith("Player profile requested", ("PlayerId", id))` — Trace/Debug/Info/Warn/Error/Fatal 각 `~With` 제공.
+- `Logger.InfoWith("Team created", ("TeamId", id))` — Trace/Debug/Info/Warn/Error/Fatal 각 `~With` 제공.
+  식별자는 반드시 이 필드로 넘긴다. **문자열 보간(`$"Team {id}"`) 금지** — 검색·집계가 안 된다.
 - **실패 Result를 받은 로직은 반드시 `result.LogWith(Logger, "작업명")` 호출** — DetailCode가 레벨을
-  자동 결정 (시스템 오류→Error/Fatal, 비즈니스→Warn, 입력 오류·성공→Info). 라이브러리가 Error를
-  남기지 않으므로 이걸 빼먹으면 오류가 로그에 남지 않는다.
-- 민감정보(패스워드·토큰·API 키) 로깅 금지. 메시지는 영어.
+  자동 결정. 라이브러리가 Error를 남기지 않으므로 이걸 빼먹으면 오류가 로그에 남지 않는다.
+- **한 요청 = 한 줄, 한 실패 = 한 줄.** requested/received 짝으로 남기지 않고 결과 시점에 한 줄.
+  아래층이 로깅하고 위층이 또 하면 같은 실패가 3줄이 된다.
+- **catch에서 Result로 바꿀 때는 예외 객체째로** — `ErrorWith(ex, …)`. `ex`를 빼면 스택이 사라진다.
+- 로깅 금지: 패스워드·토큰·API 키 + **이메일·전화번호·생년월일·주소**(식별은 `UserId`로). 메시지는 영어.
+
+> 상세·근거·반복해서 틀린 것들은 **`Docs/Architecture/Logging.md`**. 위반은 `LoggingGuardTests`가 잡는다.
 
 ## UI 구현 규칙 (SPEC 기반 — 필수)
 

@@ -3,6 +3,9 @@ using System.Text.Json;
 using NLog;
 using StackExchange.Redis;
 
+using PlayGround.Shared.Logging;
+using PlayGround.Infrastructure.Logging;
+
 namespace PlayGround.Infrastructure.Store
 {
     /// <summary>
@@ -45,7 +48,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryStringGetAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TryStringGetAsync failed", ("Key", key));
                 return RedisResult<string>.Fail(ex);
             }
         }
@@ -69,7 +72,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryGetAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TryGetAsync failed", ("Key", key));
                 return RedisResult<T>.Fail(ex);
             }
         }
@@ -90,7 +93,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryStringSetAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TryStringSetAsync failed", ("Key", key));
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -104,7 +107,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TrySetAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TrySetAsync failed", ("Key", key));
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -129,7 +132,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryHashSetAsync failed. {{ Key:{Key}, Field:{Field} }}", key, hashField);
+                Logger.WarnWith(ex, "TryHashSetAsync failed", ("Key", key), ("Field", hashField));
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -157,7 +160,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryHashGetAsync failed. {{ Key:{Key}, Field:{Field} }}", key, hashField);
+                Logger.WarnWith(ex, "TryHashGetAsync failed", ("Key", key), ("Field", hashField));
                 return RedisResult<TValue>.Fail(ex);
             }
         }
@@ -194,7 +197,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryHashAllGetAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TryHashAllGetAsync failed", ("Key", key));
                 return RedisResult<Dictionary<string, TValue>>.Fail(ex);
             }
         }
@@ -217,7 +220,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryKeyExistsAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TryKeyExistsAsync failed", ("Key", key));
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -236,7 +239,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryKeyDeleteAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TryKeyDeleteAsync failed", ("Key", key));
                 return RedisResult<bool>.Fail(ex);
             }
         }
@@ -255,7 +258,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "TryGetExpiryRemainingAsync failed. {{ Key:{Key} }}", key);
+                Logger.WarnWith(ex, "TryGetExpiryRemainingAsync failed", ("Key", key));
                 return RedisResult<TimeSpan?>.Fail(ex);
             }
         }
@@ -276,7 +279,7 @@ namespace PlayGround.Infrastructure.Store
             }
             catch (Exception ex)
             {
-                Logger.Debug(ex, "PingAsync failed.");
+                Logger.WarnWith(ex, "PingAsync failed");
                 return false;
             }
         }
