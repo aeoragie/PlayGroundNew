@@ -16,6 +16,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     DECLARE @PlayerId UNIQUEIDENTIFIER, @TeamId UNIQUEIDENTIFIER, @InviteId UNIQUEIDENTIFIER,
             @RequesterUserId UNIQUEIDENTIFIER, @RequesterName VARCHAR(300), @Relation VARCHAR(20);
 
@@ -50,7 +55,7 @@ BEGIN
                     -- 프로필 경유 요청(코드 없음): 코드 소진 없이 직접 연결. 여전히 미연결일 때만.
                     -- (온보딩 임시 프로필 병합은 코드 경로에만 있다 — 프로필 경유는 팀 등록 선수를 바로 잡는다.)
                     UPDATE [dbo].[SoccerPlayers]
-                    SET [UserId] = @RequesterUserId, [IsGuardianManaged] = 1, [UpdatedAt] = GETUTCDATE()
+                    SET [UserId] = @RequesterUserId, [IsGuardianManaged] = 1, [UpdatedAt] = @Now
                     WHERE [PlayerId] = @PlayerId AND [UserId] IS NULL AND [DeletedAt] IS NULL;
 
                     IF @@ROWCOUNT = 1 SET @LinkOk = 1;
@@ -72,7 +77,7 @@ BEGIN
                            WHERE [PlayerId] = @PlayerId AND [UserId] = @RequesterUserId AND [DeletedAt] IS NULL)
                 BEGIN
                     UPDATE [dbo].[SoccerPlayerFamilyLinks]
-                    SET [Relation] = @Relation, [UpdatedAt] = GETUTCDATE()
+                    SET [Relation] = @Relation, [UpdatedAt] = @Now
                     WHERE [PlayerId] = @PlayerId AND [UserId] = @RequesterUserId AND [DeletedAt] IS NULL;
                 END
                 ELSE
@@ -83,11 +88,11 @@ BEGIN
                 END
 
                 UPDATE [dbo].[SoccerPlayers]
-                SET [IsGuardianManaged] = 1, [UpdatedAt] = GETUTCDATE()
+                SET [IsGuardianManaged] = 1, [UpdatedAt] = @Now
                 WHERE [PlayerId] = @PlayerId;
 
                 UPDATE [dbo].[SoccerPlayerClaimRequests]
-                SET [Status] = 'Approved', [ReviewedAt] = GETUTCDATE(), [UpdatedAt] = GETUTCDATE()
+                SET [Status] = 'Approved', [ReviewedAt] = @Now, [UpdatedAt] = @Now
                 WHERE [RequestId] = @RequestId;
 
                 INSERT INTO [dbo].[SoccerNotifications]
@@ -100,7 +105,7 @@ BEGIN
             ELSE
             BEGIN
                 UPDATE [dbo].[SoccerPlayerClaimRequests]
-                SET [Status] = 'Rejected', [ReviewedAt] = GETUTCDATE(), [UpdatedAt] = GETUTCDATE()
+                SET [Status] = 'Rejected', [ReviewedAt] = @Now, [UpdatedAt] = @Now
                 WHERE [RequestId] = @RequestId;
 
                 INSERT INTO [dbo].[SoccerNotifications]
@@ -113,7 +118,7 @@ BEGIN
 
             -- 처리 = 관리자 액션형 알림 읽음
             UPDATE [dbo].[SoccerNotifications]
-            SET [IsRead] = 1, [ReadAt] = GETUTCDATE()
+            SET [IsRead] = 1, [ReadAt] = @Now
             WHERE [RecipientUserId] = @ManagerUserId AND [NotificationType] = 'ClaimRequest'
               AND [RefId] = @RequestId AND [IsRead] = 0;
 

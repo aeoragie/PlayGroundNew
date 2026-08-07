@@ -65,6 +65,7 @@
     <Folder Include="Indexes" />
     <Folder Include="Seeds" />
     <Folder Include="Migrations" />
+    <Folder Include="Debug" />
     <Folder Include="Functions" />
     <Folder Include="Seeds\Verification\" />
   </ItemGroup>
@@ -82,5 +83,7 @@
     <None Include="Seeds\**\*.sql" />
     <None Include="Queries\**\*.sql" />
     <None Include="Migrations\**\*.sql" />
+    <!-- Debug: 시간 이동 테스트 — 운영 배포 대상이 아니다 -->
+    <None Include="Debug\**\*.sql" />
   </ItemGroup>
 </Project>

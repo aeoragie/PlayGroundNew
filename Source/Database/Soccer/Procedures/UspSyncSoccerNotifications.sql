@@ -7,11 +7,16 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     --.// ① 기록 수정 신청 심사 결과 지연 동기화 (MetaText=항목, SubText=심사 상태)
     INSERT INTO [dbo].[SoccerNotifications]
         ([RecipientUserId], [NotificationType], [RefId], [MetaText], [SubText], [TeamName], [CreatedAt])
     SELECT c.[RequestedByUserId], 'CorrectionReviewed', c.[CorrectionId],
-           c.[FieldType], c.[Status], t.[TeamName], COALESCE(c.[ReviewedAt], GETUTCDATE())
+           c.[FieldType], c.[Status], t.[TeamName], COALESCE(c.[ReviewedAt], @Now)
     FROM [dbo].[SoccerRecordCorrections] c
     LEFT JOIN [dbo].[SoccerTeams] t ON t.[TeamId] = c.[TeamId] AND t.[DeletedAt] IS NULL
     WHERE c.[RequestedByUserId] = @UserId
@@ -39,14 +44,14 @@ BEGIN
     -- 승인(Approved)이고 아직 미만료이며 ExpiresAt가 3일 이내인 건에 대해 멱등 INSERT(RefId=RequestId).
     INSERT INTO [dbo].[SoccerNotifications]
         ([RecipientUserId], [NotificationType], [RefId], [TargetPlayerId], [ActorName], [PlayerName], [CreatedAt])
-    SELECT r.[GuardianUserId], 'AgentGrantExpiring', r.[RequestId], r.[PlayerId], a.[Name], p.[Name], GETUTCDATE()
+    SELECT r.[GuardianUserId], 'AgentGrantExpiring', r.[RequestId], r.[PlayerId], a.[Name], p.[Name], @Now
     FROM [dbo].[SoccerAgentViewRequests] r
     JOIN [dbo].[SoccerAgentProfiles] a ON a.[AgentId] = r.[AgentId] AND a.[DeletedAt] IS NULL
     JOIN [dbo].[SoccerPlayers] p ON p.[PlayerId] = r.[PlayerId]
     WHERE r.[GuardianUserId] = @UserId AND r.[Status] = 'Approved' AND r.[DeletedAt] IS NULL
       AND r.[ExpiresAt] IS NOT NULL
-      AND r.[ExpiresAt] > GETUTCDATE()
-      AND r.[ExpiresAt] <= DATEADD(DAY, 3, GETUTCDATE())
+      AND r.[ExpiresAt] > @Now
+      AND r.[ExpiresAt] <= DATEADD(DAY, 3, @Now)
       AND NOT EXISTS (
           SELECT 1 FROM [dbo].[SoccerNotifications] n
           WHERE n.[RecipientUserId] = @UserId
@@ -60,7 +65,7 @@ BEGIN
     LEFT JOIN [dbo].[SoccerApplications] app
         ON n.[NotificationType] = 'RosterInvite' AND app.[ApplicationId] = n.[RefId]
     WHERE n.[RecipientUserId] = @UserId
-      AND n.[CreatedAt] < DATEADD(DAY, -90, GETUTCDATE())
+      AND n.[CreatedAt] < DATEADD(DAY, -90, @Now)
       AND NOT (
             (n.[NotificationType] = 'ClaimRequest' AND cr.[Status] = 'Pending')
          OR (n.[NotificationType] = 'RosterInvite' AND app.[ApplicationId] IS NOT NULL AND app.[ConfirmedAt] IS NULL));

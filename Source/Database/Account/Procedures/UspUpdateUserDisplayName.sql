@@ -12,6 +12,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     DECLARE @Applied INT = 0;
 
     BEGIN TRY
@@ -23,13 +28,13 @@ BEGIN
 
         DECLARE @RecentCount INT = (
             SELECT COUNT(*) FROM [dbo].[UserNameChangeLogs]
-            WHERE [UserId] = @UserId AND [ChangedAt] >= DATEADD(DAY, -30, GETUTCDATE()));
+            WHERE [UserId] = @UserId AND [ChangedAt] >= DATEADD(DAY, -30, @Now));
 
         -- 존재 + 제한 미초과 + 실제 변경일 때만 반영
         IF @PreviousName IS NOT NULL AND @RecentCount < 2 AND @PreviousName <> @NewName
         BEGIN
             UPDATE [dbo].[Users]
-            SET [DisplayName] = @NewName, [UpdatedAt] = GETUTCDATE()
+            SET [DisplayName] = @NewName, [UpdatedAt] = @Now
             WHERE [UserId] = @UserId AND [DeletedAt] IS NULL;
 
             INSERT INTO [dbo].[UserNameChangeLogs] ([UserId], [PreviousName], [NewName])

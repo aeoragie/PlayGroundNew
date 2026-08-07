@@ -32,9 +32,15 @@ namespace PlayGround.Tests.Unit.Domain
         private static readonly Regex DateTimeType = new(
             @"\bDateTime\b(?!\s*Offset)", RegexOptions.Compiled);
 
-        /// <summary>서버 시간대에 묶이는 SQL 내장 함수 — UTC 서버에서 조용히 어긋난다.</summary>
-        private static readonly Regex LocalSqlClock = new(
-            @"\b(?:GETDATE|SYSDATETIME|SYSDATETIMEOFFSET|CURRENT_TIMESTAMP)\s*\(?", RegexOptions.Compiled);
+        /// <summary>SQL 내장 시각 함수 — 프로시저는 이걸 직접 부르지 않고 `dbo.UfnSystemDate()`만 쓴다.</summary>
+        private static readonly Regex SqlClockIntrinsic = new(
+            @"\b(?:GETDATE|GETUTCDATE|SYSDATETIME|SYSUTCDATETIME|SYSDATETIMEOFFSET|CURRENT_TIMESTAMP)\s*\(",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        /// <summary>허용되는 유일한 호출 형태 — 변수로 한 번 받는다.</summary>
+        private static readonly Regex DeclareNow = new(
+            @"\bDECLARE\s+@\w+\s+DATETIME2\s*\(\d+\)\s*=\s*dbo\.UfnSystemDate\s*\(\s*\)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>시계 직접 호출 예외 — 래퍼 자신뿐이다.</summary>
         private static readonly string[] AllowedFiles =
@@ -128,19 +134,27 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void SQL은_GETUTCDATE만_쓴다()
+        public void 프로시저는_내장_시간함수를_쓰지_않는다()
         {
+            // 프로시저는 `dbo.UfnSystemDate()`만 부른다. 내장 함수를 직접 쓰면
+            // **시간 이동 테스트가 반쪽이 된다** — 옮긴 시계를 안 보는 판정이 섞인다.
+            // (`GETDATE()`류는 서버 시간대에도 묶여 UTC 서버에서 조용히 어긋난다.)
             string root = Path.Combine(DisplayStringPlacementTests.RepositoryRoot(), "Source", "Database");
             Directory.Exists(root).Should().BeTrue();
 
             var offenders = new List<string>();
             foreach (string file in Directory.EnumerateFiles(root, "*.sql", SearchOption.AllDirectories))
             {
+                // 함수 자신과 테이블 DEFAULT는 예외다 — 시각의 원천이거나, 프로시저가 값을 안 줄 때의 기본값이다
+                if (IsClockSource(file))
+                {
+                    continue;
+                }
+
                 string[] lines = File.ReadAllLines(file);
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    // GETUTCDATE는 이 정규식에 걸리지 않는다(이름이 다르다) — 지역 시각 함수만 잡는다
-                    if (LocalSqlClock.IsMatch(StripSqlComment(lines[i])))
+                    if (SqlClockIntrinsic.IsMatch(StripSqlComment(lines[i])))
                     {
                         offenders.Add($"{Path.GetFileName(file)}:{i + 1} {lines[i].Trim()}");
                     }
@@ -148,7 +162,44 @@ namespace PlayGround.Tests.Unit.Domain
             }
 
             offenders.Should().BeEmpty(
-                "GETDATE()·SYSDATETIME()은 서버 시간대에 묶인다. 저장·비교는 GETUTCDATE()로만 한다");
+                "시각은 dbo.UfnSystemDate()로만 얻는다 — 프로시저 첫머리에서 @Now로 받아 쓴다");
+        }
+
+        [Fact]
+        public void 프로시저는_UfnSystemDate를_변수로_받는다()
+        {
+            // 스칼라 UDF는 인라인되지 않는다(시간 의존 내장 함수를 부르는 UDF는 인라인 대상에서 제외).
+            // WHERE·SELECT에 직접 쓰면 **행마다** 호출된다 — 반드시 DECLARE로 한 번만 받는다.
+            string root = Path.Combine(
+                DisplayStringPlacementTests.RepositoryRoot(), "Source", "Database");
+
+            var offenders = new List<string>();
+            foreach (string file in Directory.EnumerateFiles(root, "*.sql", SearchOption.AllDirectories))
+            {
+                if (IsClockSource(file))
+                {
+                    continue;
+                }
+
+                string[] lines = File.ReadAllLines(file);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = StripSqlComment(lines[i]);
+                    if (!line.Contains("UfnSystemDate", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    // 허용되는 유일한 형태: DECLARE @... = dbo.UfnSystemDate();
+                    if (!DeclareNow.IsMatch(line))
+                    {
+                        offenders.Add($"{Path.GetFileName(file)}:{i + 1} {lines[i].Trim()}");
+                    }
+                }
+            }
+
+            offenders.Should().BeEmpty(
+                "DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate(); 로 받아서 @Now를 쓴다");
         }
 
         [Fact]
@@ -205,6 +256,22 @@ namespace PlayGround.Tests.Unit.Domain
 
             line = Regex.Replace(line, @"""(?:[^""\\]|\\.)*""", "\"\"");
             return line;
+        }
+
+        /// <summary>시각의 원천 — 함수 자신(운영·디버그)과 테이블 DEFAULT는 내장 함수를 써야 한다.</summary>
+        private static bool IsClockSource(string file)
+        {
+            if (Path.GetFileName(file).StartsWith("UfnSystemDate", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // 테이블 DEFAULT(프로시저가 값을 안 줄 때의 기본값) · 마이그레이션 · 시드 · 디버그 오버라이드
+            string[] exemptFolders = { "Tables", "Migrations", "Seeds", "Debug" };
+            return exemptFolders.Any(folder =>
+                file.Contains(
+                    $"{Path.DirectorySeparatorChar}{folder}{Path.DirectorySeparatorChar}",
+                    StringComparison.OrdinalIgnoreCase));
         }
 
         private static string StripSqlComment(string line)

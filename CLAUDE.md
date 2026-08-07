@@ -62,8 +62,23 @@ DB·서버는 시간대를 아예 모른다 — 저장·전송이 전부 UTC 순
 | 층 | 금지 | 대신 |
 |---|---|---|
 | C# | **`DateTime` 타입 자체** (직접 호출 포함) | 순간 = **`SystemTime` 구조체**(항상 UTC, `SystemTime.Now`가 `SystemTime` 반환), 달력 날짜(생년월일·커리어 기간) = **`DateOnly`** |
-| SQL | `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | **`GETUTCDATE()`만.** 시간대 산술을 SQL에 두지 않는다 |
+| SQL | **내장 시각 함수 전부** (`GETUTCDATE()`·`GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP`) | **`dbo.UfnSystemDate()`**(UTC). 프로시저 첫머리에서 `DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();`로 받아 `@Now`만 쓴다. 시간대 산술은 SQL에 두지 않는다 |
 | Client | 시계 직접 읽기, `ToLocalTime()`·`TimeZoneInfo.Local` | **`DisplayTime`**(Client/Services) — 표시 `Format()`/`ToWallClock()`, 픽커 입력 `FromWallClock()`. **기본은 브라우저 시간대**, 계정 설정은 `Override`로 덮는다 |
+
+**시간 이동(디버그 전용).** 만료·마감처럼 "며칠 뒤"를 봐야 하는 로직을 기다리지 않고 확인한다.
+DB는 `SystemClockOffset` 테이블, 앱은 `DebugClock`이 **같은 값**으로 움직인다(한쪽만 옮기면
+앱이 넘긴 시각과 DB의 "지금"이 어긋나 거짓 결과가 난다). 서버의 `DebugClockSyncService`가
+10초마다 테이블을 읽어 맞춘다.
+
+```sql
+UPDATE dbo.SystemClockOffset SET OffsetSeconds = 3*24*60*60;   -- 3일 뒤
+UPDATE dbo.SystemClockOffset SET OffsetSeconds = 0;            -- 원복
+```
+
+> **RELEASE에는 이 경로가 물리적으로 없다.** C#은 `#if DEBUG`라 컴파일되지 않고,
+> DB는 `Debug/` 폴더(오프셋 테이블 + 함수 덮어쓰기)를 **배포하지 않는다** —
+> 운영본 `Functions/UfnSystemDate.sql`은 테이블을 읽지 않고 `SYSUTCDATETIME()`만 돌려준다.
+> 런타임 플래그(`IsDevelopment()`)보다 강한 보장이다.
 
 **변환은 브라우저에서 한 번씩만 일어난다.** 입력은 `FromWallClock`으로 UTC로 바꿔 보내고
 (일정·경기 시각·**모집 마감**), 표시는 `ToWallClock`으로 되돌린다. 마감일도 등록자의 브라우저가

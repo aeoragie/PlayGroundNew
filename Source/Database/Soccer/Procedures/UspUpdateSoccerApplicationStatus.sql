@@ -14,6 +14,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     -- 소유 확인 + 현재 상태 해석 (남의 팀이면 0행 → @Current NULL)
     DECLARE @Current VARCHAR(20) = (
         SELECT a.[Status]
@@ -38,9 +43,9 @@ BEGIN
 
             UPDATE [dbo].[SoccerApplications]
             SET [Status] = @NewStatus,
-                [ReviewedAt] = GETUTCDATE(),
-                [RejectedAt] = CASE WHEN @NewStatus = 'Rejected' THEN GETUTCDATE() ELSE [RejectedAt] END,
-                [UpdatedAt] = GETUTCDATE()
+                [ReviewedAt] = @Now,
+                [RejectedAt] = CASE WHEN @NewStatus = 'Rejected' THEN @Now ELSE [RejectedAt] END,
+                [UpdatedAt] = @Now
             WHERE [ApplicationId] = @ApplicationId AND [DeletedAt] IS NULL;
 
             -- 수락 → 보호자에게 선수단 초대 알림 (스냅샷: 팀명 + 선수명, RefId = ApplicationId).

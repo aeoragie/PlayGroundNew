@@ -24,6 +24,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     IF @DesiredPosition = '' SET @DesiredPosition = NULL;
     IF @Introduction = '' SET @Introduction = NULL;
 
@@ -49,7 +54,7 @@ BEGIN
         @RecruitmentExists = 1,
         @Capacity = r.[Capacity],
         @IsOpen = CASE WHEN r.[Status] = 'Open'
-                        AND (r.[DeadlineAt] IS NULL OR r.[DeadlineAt] > GETUTCDATE())
+                        AND (r.[DeadlineAt] IS NULL OR r.[DeadlineAt] > @Now)
                        THEN 1 ELSE 0 END
     FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
     WHERE r.[RecruitmentId] = @RecruitmentId AND r.[DeletedAt] IS NULL;
@@ -80,7 +85,7 @@ BEGIN
         SELECT 1 FROM [dbo].[SoccerApplications] a WITH (NOLOCK)
         WHERE a.[RecruitmentId] = @RecruitmentId AND a.[PlayerId] = @PlayerId
           AND a.[Status] = 'Rejected' AND a.[RejectedAt] IS NOT NULL
-          AND a.[RejectedAt] >= DATEADD(DAY, -30, GETUTCDATE()))
+          AND a.[RejectedAt] >= DATEADD(DAY, -30, @Now))
     BEGIN
         SET @Status = 'Cooldown';
     END

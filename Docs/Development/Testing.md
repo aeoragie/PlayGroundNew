@@ -44,7 +44,7 @@ Tests/Tests.Unit/
 | `SoccerEnumRulesTests` | 숫자 문자열 enum 파싱 차단 · 파싱 실패 시 기본값 · 공개/알림 기본값이 SPEC과 일치 · 승인형은 알림 설정 enum에 없음 |
 | `DisplayStringPlacementTests` | **Domain·Contracts에 표시 문자열 없음** (아래 §5) |
 | `SqlProjectCoverageTests` | **모든 `.sql`이 sqlproj 검증 대상에 포함**됨 · 개별 파일 나열 금지 · Build/None 구분 (아래 §5) |
-| `TimeBaselineGuardTests` | **시각 기준이 UTC 하나**임 — C# `DateTime` 직접 호출 금지 · SQL 지역 시각 함수 금지 (아래 §5-3) |
+| `TimeBaselineGuardTests` | **시각 기준이 UTC 하나**임 — C# `DateTime` 직접 호출 금지 · SQL 지역 시각 함수 금지 (아래 §5-4) |
 
 ### Application
 
@@ -153,27 +153,41 @@ dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 > 테이블과 프로시저 4종(`UspDeleteUser`·알림 설정 3종)이 배포돼 있지 않았다.
 > 알림 설정 화면과 계정 탈퇴가 런타임에 터지는 상태였다.
 
-## 5-3. 시각 기준 가드
+## 5-4. 시각 기준 가드
 
 `TimeBaselineGuardTests`가 `Source/` 전체(`.cs`·`.razor`·`.sql`)를 훑는다.
 
 | 잡는 것 | 왜 |
 |---|---|
-| C# `DateTime.Now`·`UtcNow`·`Today`, `DateTimeOffset.Now`·`UtcNow` | `SystemTime.Now`(UTC)를 쓴다 |
-| `ToLocalTime()`·`TimeZoneInfo.Local` | 표시 변환은 Client의 `DisplayTime`만 안다 |
-| SQL `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | 서버 시간대에 묶인다. `GETUTCDATE()`만 쓴다 |
+| C# `DateTime` **타입 자체** | 순간은 `SystemTime`, 달력 날짜는 `DateOnly`. 예외는 경계 파일뿐 |
+| `DateTime.Now`·`UtcNow`·`Today`, `DateTimeOffset.Now`·`UtcNow` | 시계 읽기는 `SystemTime.Now`(UTC) 하나 |
+| `ToLocalTime()`·`TimeZoneInfo.Local` | 시간대를 아는 곳은 Client의 `DisplayTime` 하나 |
+| SQL 내장 시각 함수 (**`GETUTCDATE()` 포함**) | 프로시저는 `dbo.UfnSystemDate()`만 부른다 |
+| `dbo.UfnSystemDate()`를 `WHERE`에 직접 | `DECLARE @Now …`로 받는다 (아래) |
 
 **이 가드가 없으면 새 코드가 반드시 다시 샌다.** 개발 PC(KST)에서는 `DateTime.Now`가 멀쩡히
 돌기 때문에 리뷰로도 일반 테스트로도 안 잡히고, **UTC 서버에서만 9시간 어긋난다.**
 실제로 그 상태로 7곳이 쌓여 마감된 모집이 9시간 더 살아 있었다.
 
 주석과 문자열 리터럴은 걷어낸 뒤 검사한다(설명문의 `DateTime.Now`까지 막으면 못 쓴다).
-예외는 래퍼 자신(`SystemTime.cs`)뿐이다.
+시각의 원천(`UfnSystemDate.sql`·테이블 DEFAULT·마이그레이션·시드·`Debug/`)은 예외다.
 
-경계 계산은 값 테스트로도 못 박아 뒀다 — 마감이 **한국 자정에서 갈리는지**,
-시즌 범위가 **1/1 오전 8시(KST) 경기를 포함하는지**(UTC 연도로 비교했다면 빠졌을 값).
+### `@Now`로 받아야 하는 이유
 
-## 5-4. 인가 누락 가드 (Tests.Integration/Api)
+```sql
+DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();   -- 프로시저당 1회
+... WHERE [ExpiresAt] > @Now
+```
+
+**스칼라 UDF는 인라인되지 않는다.** SQL Server의 UDF 인라인(Froid)은 시간 의존 내장 함수를
+호출하는 함수를 제외하므로, `WHERE`에 직접 쓰면 **행마다** 호출된다. 변수로 받으면 1회로 끝나고,
+부수 이득으로 **한 프로시저 안의 "지금"이 일관**된다(예전에는 `GETUTCDATE()`를 여러 번 불러
+같은 트랜잭션의 행마다 시각이 미세하게 달랐다).
+
+`DisplayTimeTests`는 표시 쪽 경계를 따로 지킨다 — 날짜 경계(UTC 15시), 서머타임에
+**존재하지 않는 시각**, 폼 왕복 무손실, `Kind` 고정.
+
+## 5-5. 인가 누락 가드 (Tests.Integration/Api)
 
 `EndpointAuthorizationTests`는 컨트롤러 액션을 리플렉션으로 훑어 **익명으로 열린 것이
 명시적 허용 목록에 있는지** 본다. 없으면 실패한다.

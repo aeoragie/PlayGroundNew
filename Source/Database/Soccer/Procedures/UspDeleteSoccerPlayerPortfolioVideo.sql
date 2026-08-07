@@ -14,6 +14,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     DECLARE @PlayerId UNIQUEIDENTIFIER = (
         SELECT TOP 1 [PlayerId]
         FROM [dbo].[SoccerPlayers] WITH (NOLOCK)
@@ -36,7 +41,7 @@ BEGIN
     IF @Restore = 1
     BEGIN
         UPDATE [dbo].[SoccerPlayerPortfolioVideos]
-        SET [DeletedAt] = NULL, [IsPrimary] = 0, [UpdatedAt] = GETUTCDATE()
+        SET [DeletedAt] = NULL, [IsPrimary] = 0, [UpdatedAt] = @Now
         WHERE [VideoId] = @VideoId AND [PlayerId] = @PlayerId AND [DeletedAt] IS NOT NULL;
     END
     ELSE
@@ -46,7 +51,7 @@ BEGIN
         WHERE [VideoId] = @VideoId AND [PlayerId] = @PlayerId AND [DeletedAt] IS NULL;
 
         UPDATE [dbo].[SoccerPlayerPortfolioVideos]
-        SET [DeletedAt] = GETUTCDATE(), [IsPrimary] = 0, [UpdatedAt] = GETUTCDATE()
+        SET [DeletedAt] = @Now, [IsPrimary] = 0, [UpdatedAt] = @Now
         WHERE [VideoId] = @VideoId AND [PlayerId] = @PlayerId AND [DeletedAt] IS NULL;
     END
 
@@ -64,7 +69,7 @@ BEGIN
     IF @Restore = 0 AND @WasPrimary = 1
     BEGIN
         UPDATE [dbo].[SoccerPlayerPortfolioVideos]
-        SET [IsPrimary] = 1, [UpdatedAt] = GETUTCDATE()
+        SET [IsPrimary] = 1, [UpdatedAt] = @Now
         WHERE [VideoId] = (
             SELECT TOP 1 [VideoId]
             FROM [dbo].[SoccerPlayerPortfolioVideos] WITH (UPDLOCK)
@@ -78,7 +83,7 @@ BEGIN
         WHERE [PlayerId] = @PlayerId AND [DeletedAt] IS NULL AND [IsPrimary] = 1)
     BEGIN
         UPDATE [dbo].[SoccerPlayerPortfolioVideos]
-        SET [IsPrimary] = 1, [UpdatedAt] = GETUTCDATE()
+        SET [IsPrimary] = 1, [UpdatedAt] = @Now
         WHERE [VideoId] = @VideoId;
     END
 

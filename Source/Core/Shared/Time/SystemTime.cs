@@ -45,7 +45,7 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
     }
 
     /// <summary>지금 (UTC).</summary>
-    public static SystemTime Now => new(DateTime.UtcNow);
+    public static SystemTime Now => new(DateTime.UtcNow + DebugClock.Offset);
 
     // `Today`는 일부러 두지 않는다. 이름은 "오늘"인데 값은 **UTC 달력의 오늘**이라,
     // 보는 사람의 오늘과 하루 어긋날 수 있다. 화면에 보이는 오늘은

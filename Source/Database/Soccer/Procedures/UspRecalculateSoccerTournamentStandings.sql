@@ -14,6 +14,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     -- 팀별 집계 (홈/원정 관점 UNION, 승부차기는 정규시간 스코어 기준 무승부)
     ;WITH MatchSides AS
     (
@@ -64,7 +69,7 @@ BEGIN
         s.[Points] = t.[Won] * 3 + t.[Drawn],
         s.[GoalsFor] = t.[GoalsFor],
         s.[GoalsAgainst] = t.[GoalsAgainst],
-        s.[UpdatedAt] = GETUTCDATE()
+        s.[UpdatedAt] = @Now
     FROM [dbo].[SoccerTournamentStandings] s
     JOIN #Totals t ON t.[TeamName] = s.[TeamName]
     WHERE s.[TournamentId] = @TournamentId AND s.[StageType] = @StageType
@@ -99,7 +104,7 @@ BEGIN
           AND s.[DeletedAt] IS NULL
     )
     UPDATE s
-    SET s.[TeamRank] = r.NewRank, s.[UpdatedAt] = GETUTCDATE()
+    SET s.[TeamRank] = r.NewRank, s.[UpdatedAt] = @Now
     FROM [dbo].[SoccerTournamentStandings] s
     JOIN Ranked r ON r.[StandingId] = s.[StandingId]
     WHERE s.[TeamRank] <> r.NewRank;

@@ -105,6 +105,14 @@ namespace PlayGround.Server.DependencyInjection
             services.AddScoped<SoccerRecordsTournamentsCommand>();
             services.AddScoped<SoccerRecordsTournamentDetailCommand>();
             services.AddScoped<SoccerRecordsMatchDetailCommand>();
+
+#if DEBUG
+            //.// 시간 이동 — DB의 SystemClockOffset을 앱 시계(DebugClock)에 맞춘다.
+            // RELEASE 빌드에는 이 등록도 서비스도 컴파일되지 않는다.
+            services.AddSingleton<DebugClockRepository>();
+            services.AddHostedService<DebugClockSyncService>();
+#endif
+
             return services;
         }
 

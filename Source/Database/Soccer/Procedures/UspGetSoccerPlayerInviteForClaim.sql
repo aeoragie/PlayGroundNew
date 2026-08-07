@@ -11,6 +11,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     SELECT
         p.[PlayerId], p.[Name], p.[BirthDate], p.[AgeGroup],
         tp.[Position], tp.[JerseyNumber],
@@ -24,5 +29,5 @@ BEGIN
         ON tp.[TeamId] = i.[TeamId] AND tp.[PlayerId] = i.[PlayerId]
        AND tp.[Status] = 'Active' AND tp.[DeletedAt] IS NULL
     WHERE i.[Code] = UPPER(@Code) AND i.[Status] = 'Pending'
-      AND (i.[ExpiresAt] IS NULL OR i.[ExpiresAt] > GETUTCDATE());
+      AND (i.[ExpiresAt] IS NULL OR i.[ExpiresAt] > @Now);
 END

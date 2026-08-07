@@ -17,12 +17,17 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     DECLARE @InviteId UNIQUEIDENTIFIER, @PlayerId UNIQUEIDENTIFIER, @TeamId UNIQUEIDENTIFIER;
 
     SELECT TOP 1 @InviteId = [InviteId], @PlayerId = [PlayerId], @TeamId = [TeamId]
     FROM [dbo].[SoccerPlayerInvites]
     WHERE [Code] = UPPER(@Code) AND [Status] = 'Pending'
-      AND ([ExpiresAt] IS NULL OR [ExpiresAt] > GETUTCDATE());
+      AND ([ExpiresAt] IS NULL OR [ExpiresAt] > @Now);
 
     -- 대상 선수가 삭제됐거나 이미 다른 계정에 연결돼 있으면 실패
     IF @PlayerId IS NOT NULL AND NOT EXISTS (
@@ -65,16 +70,16 @@ BEGIN
                 WHERE target.[PlayerId] = @PlayerId;
 
                 UPDATE [dbo].[SoccerPlayers]
-                SET [DeletedAt] = GETUTCDATE(), [UpdatedAt] = GETUTCDATE()
+                SET [DeletedAt] = @Now, [UpdatedAt] = @Now
                 WHERE [PlayerId] = @OldPlayerId;
             END
 
             UPDATE [dbo].[SoccerPlayers]
-            SET [UserId] = @UserId, [UpdatedAt] = GETUTCDATE()
+            SET [UserId] = @UserId, [UpdatedAt] = @Now
             WHERE [PlayerId] = @PlayerId;
 
             UPDATE [dbo].[SoccerPlayerInvites]
-            SET [Status] = 'Claimed', [ClaimedByUserId] = @UserId, [ClaimedAt] = GETUTCDATE()
+            SET [Status] = 'Claimed', [ClaimedByUserId] = @UserId, [ClaimedAt] = @Now
             WHERE [InviteId] = @InviteId;
 
             COMMIT TRANSACTION;

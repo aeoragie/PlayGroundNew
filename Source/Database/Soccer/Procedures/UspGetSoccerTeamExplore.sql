@@ -14,6 +14,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- 시각은 dbo.UfnSystemDate()로만 얻는다. 변수로 한 번 받는 이유는 두 가지다 —
+    -- 스칼라 UDF는 인라인되지 않아 WHERE에 직접 쓰면 행마다 호출되고,
+    -- 한 프로시저 안의 "지금"이 호출마다 달라지는 것도 막는다.
+    DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();
+
     -- IsRecruiting은 컬럼이 아니라 **모집 공고에서 파생**한다 (모집중 = Open + 마감일 미경과 공고 보유).
     -- SoccerTeams.IsRecruiting 컬럼은 공고 스키마 도입으로 용도 종료 — 읽지 않는다.
     SELECT
@@ -22,7 +27,7 @@ BEGIN
         CAST(CASE WHEN EXISTS (
             SELECT 1 FROM [dbo].[SoccerTeamRecruitments] r WITH (NOLOCK)
             WHERE r.[TeamId] = t.[TeamId] AND r.[Status] = 'Open' AND r.[DeletedAt] IS NULL
-              AND (r.[DeadlineAt] IS NULL OR r.[DeadlineAt] > GETUTCDATE()))
+              AND (r.[DeadlineAt] IS NULL OR r.[DeadlineAt] > @Now))
         THEN 1 ELSE 0 END AS BIT) AS [IsRecruiting]
     FROM [dbo].[SoccerTeams] t WITH (NOLOCK)
     WHERE t.[IsPublicProfile] = 1 AND t.[DeletedAt] IS NULL AND t.[Slug] IS NOT NULL;
