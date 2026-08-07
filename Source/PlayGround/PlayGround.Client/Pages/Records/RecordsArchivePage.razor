@@ -66,7 +66,7 @@
 </div>
 
 @code {
-    private static readonly int CurrentYear = KoreanTime.CurrentYear;
+    private static readonly int CurrentYear = BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved);
 
     private int mYear;
     private RecordsTournamentsResponse? mData;

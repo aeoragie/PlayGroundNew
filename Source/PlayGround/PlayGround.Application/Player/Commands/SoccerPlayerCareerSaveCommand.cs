@@ -37,7 +37,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<bool>.Error(ErrorCode.InvalidInput, "team name is required");
             }
 
-            int currentYear = KoreanTime.CurrentYear;
+            int currentYear = BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved);
             if (request.StartDate.Year < EarliestYear || request.StartDate.Year > currentYear + 1)
             {
                 return Result<bool>.Error(ErrorCode.InvalidInput, "start date is out of range");

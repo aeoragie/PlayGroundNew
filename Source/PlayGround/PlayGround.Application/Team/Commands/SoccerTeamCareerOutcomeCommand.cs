@@ -73,7 +73,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "unknown outcome type");
             }
 
-            if (request.OutcomeYear < MinYear || request.OutcomeYear > KoreanTime.CurrentYear + 1)
+            if (request.OutcomeYear < MinYear || request.OutcomeYear > BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved) + 1)
             {
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "outcome year out of range");
             }

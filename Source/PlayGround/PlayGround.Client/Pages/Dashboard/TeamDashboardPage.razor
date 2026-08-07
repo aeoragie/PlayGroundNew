@@ -620,7 +620,7 @@
     {
         mMatchesRequested = true;
         mMatchesFailed = false;
-        mMatches = await Teams.GetTeamMatchesAsync(KoreanTime.CurrentYear);
+        mMatches = await Teams.GetTeamMatchesAsync(BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
         mMatchesFailed = mMatches is null;
     }
 

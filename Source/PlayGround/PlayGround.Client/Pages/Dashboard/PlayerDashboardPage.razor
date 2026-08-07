@@ -340,7 +340,7 @@
         }
         else if (CurrentSection == SoccerPlayerDashboardSection.Stats && mStats is null && !mStatsFailed)
         {
-            await LoadSeasonStatsAsync(KoreanTime.CurrentYear);
+            await LoadSeasonStatsAsync(BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
             // 신청 목록도 함께 — 경기 행 ⋯의 "신청 처리 중" 판정과 목록 표시에 쓴다
             await LoadCorrectionsAsync();
         }
@@ -505,7 +505,7 @@
         }
     }
 
-    private Task RetryStatsAsync() => LoadSeasonStatsAsync(KoreanTime.CurrentYear);
+    private Task RetryStatsAsync() => LoadSeasonStatsAsync(BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
 
     //.// 보호자 기록 수정 신청 — 진입은 경기 행 ⋯, 목록은 그 아래(B6 팀 배치와 동일)
 

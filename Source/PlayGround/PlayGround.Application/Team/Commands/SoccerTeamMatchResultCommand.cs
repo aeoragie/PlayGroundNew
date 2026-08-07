@@ -147,7 +147,7 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 아직 열리지 않은 경기의 결과는 있을 수 없다 (시간대 차이를 감안해 하루 여유)
-            if (KoreanTime.ToKoreanDate(request.MatchedAt) > KoreanTime.Today.AddDays(1))
+            if (BusinessCalendar.LocalDateOf(request.MatchedAt, BusinessCalendar.Unresolved) > BusinessCalendar.Today(BusinessCalendar.Unresolved).AddDays(1))
             {
                 return Result<CreateTeamMatchResultResponse>.Error(ErrorCode.InvalidInput, "matchedAt is in the future");
             }

@@ -813,9 +813,11 @@ namespace PlayGround.Persistence.Repositories
         {
             Logger.InfoWith("Team explore list requested");
 
-            // "올해 전적"의 올해는 한국 달력 기준이다 — 그 해의 UTC 범위를 계산해 넘긴다
+            // "올해 전적"의 올해는 그 팀이 속한 지역의 달력 기준이다 — 그 해의 UTC 범위를 계산해 넘긴다
             // (SQL이 시간대 산술을 하지 않게 하고, 범위 비교라 인덱스도 탄다).
-            (SystemTime seasonStartUtc, SystemTime seasonEndUtc) = KoreanTime.YearRangeUtc(KoreanTime.CurrentYear);
+            TimeZoneInfo zone = BusinessCalendar.Unresolved;
+            (SystemTime seasonStartUtc, SystemTime seasonEndUtc) =
+                BusinessCalendar.YearRangeUtc(BusinessCalendar.CurrentYear(zone), zone);
 
             var procedure = new UspGetSoccerTeamExplore(this)
             {
@@ -1001,7 +1003,7 @@ namespace PlayGround.Persistence.Repositories
                 // 사용자가 고른 "8/10 마감"은 8/10 23:59:59.999 KST까지다 — 그 순간을 UTC로 저장하면
                 // 프로시저가 [DeadlineAt] > GETUTCDATE() 하나로 판정한다(SQL에 9시간 상수가 안 들어간다).
                 DeadlineAt = request.DeadlineDate is DateOnly deadline
-                    ? KoreanTime.EndOfDayToUtc(deadline)
+                    ? BusinessCalendar.EndOfDayToUtc(deadline, BusinessCalendar.Unresolved)
                     : null,
                 AgeGroup = request.AgeGroup,
                 PositionsJson = request.Positions.Count > 0 ? JsonSerializer.Serialize(request.Positions) : null,
@@ -1611,7 +1613,7 @@ namespace PlayGround.Persistence.Repositories
 
             if (row.CreatedAt > SystemTime.MinValue)
             {
-                int years = Math.Max(1, KoreanTime.CurrentYear - KoreanTime.KoreanYearOf(row.CreatedAt) + 1);
+                int years = Math.Max(1, BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved) - BusinessCalendar.YearOf(row.CreatedAt, BusinessCalendar.Unresolved) + 1);
                 metaParts.Add($"재원 {years}년차");
             }
 
@@ -1655,7 +1657,7 @@ namespace PlayGround.Persistence.Repositories
                 // 저장은 UTC 순간, 표시는 한국 달력 날짜 — 마감일은 "8/10 마감"이라는 한국 달력 개념이라
                 // 보는 사람의 시간대로 흔들리면 안 된다(일정·경기 시각과 다른 점).
                 DeadlineDate = row.DeadlineAt is SystemTime deadlineAt
-                    ? KoreanTime.ToKoreanDate(deadlineAt)
+                    ? BusinessCalendar.LocalDateOf(deadlineAt, BusinessCalendar.Unresolved)
                     : null,
                 Status = row.Status,
                 IsOpen = row.Status == "Open"

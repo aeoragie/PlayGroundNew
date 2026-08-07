@@ -345,7 +345,7 @@ else if (mData is not null)
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         mViewerLoggedIn = state.User.Identity is { IsAuthenticated: true };
 
-        mData = await Players.GetPublicProfileAsync(Slug, KoreanTime.CurrentYear);
+        mData = await Players.GetPublicProfileAsync(Slug, BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
         mLoaded = true;
     }
 

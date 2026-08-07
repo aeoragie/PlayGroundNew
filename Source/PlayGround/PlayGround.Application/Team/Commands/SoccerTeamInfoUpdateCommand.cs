@@ -73,7 +73,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<UpdateTeamInfoResponse>.Error(ErrorCode.InvalidInput, "teamName is required");
             }
 
-            if (request.FoundedYear is int year && (year < MinFoundedYear || year > KoreanTime.CurrentYear))
+            if (request.FoundedYear is int year && (year < MinFoundedYear || year > BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved)))
             {
                 return Result<UpdateTeamInfoResponse>.Error(ErrorCode.InvalidInput, "foundedYear out of range");
             }

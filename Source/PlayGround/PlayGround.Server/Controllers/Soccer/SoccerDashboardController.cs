@@ -35,7 +35,7 @@ namespace PlayGround.Server.Controllers.Soccer
             }
 
             string displayName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? string.Empty;
-            int seasonYear = season ?? KoreanTime.CurrentYear;
+            int seasonYear = season ?? BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved);
 
             Result<DashboardHubResponse> result = await mGateway.AskAsync<DashboardHubResponse>(
                 ActorNames.SoccerDashboard,

@@ -250,7 +250,7 @@ namespace PlayGround.Application.Export.Commands
                     csv.AppendLine("선수,연령,소속팀,출전,득점,도움");
                     var childData = new List<object>();
 
-                    int season = KoreanTime.CurrentYear;
+                    int season = BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved);
                     foreach (ManagedPlayerDto child in childList)
                     {
                         object? info = null;

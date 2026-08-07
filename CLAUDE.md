@@ -52,24 +52,34 @@ E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 
 
 > Ubuntu는 **22.04**다 — SQL Server 2022가 24.04용 저장소를 제공하지 않는다(2025만 있음).
 
-**시각 기준은 UTC 하나다** (H7 완료, 2026-08-03). 저장·비교는 전부 UTC이고, 한국 시각은
-표시와 "한국 달력" 값에만 쓴다. 서버 시간대도 UTC다.
+**시각 기준은 UTC 하나다** (H7 완료, 2026-08-03). 저장·비교는 전부 UTC이고, 지역 시각은
+표시와 "그 지역 달력" 값에만 쓴다. 서버 시간대도 UTC다.
+
+**시간대를 아는 곳은 둘뿐이고 축이 다르다** (2026-08-07, 전 세계 대상 확정) —
+`BusinessCalendar`는 **데이터가 속한 지역**(서울 팀의 "8/10 마감"은 방콕에서 봐도 서울 8/10),
+`DisplayTime`은 **보는 사람**. 고정 오프셋을 쓰지 않고 **IANA 시간대 데이터**를 쓴다 —
+서머타임이 있는 지역(미국·유럽·남미)이 들어오면 오프셋이 해마다 바뀌고, 나라 단위로도
+부족하다(미국·인도네시아는 한 나라에 여러 존).
 
 | 층 | 금지 | 대신 |
 |---|---|---|
 | C# | **`DateTime` 타입 자체** (직접 호출 포함) | 순간 = **`SystemTime` 구조체**(항상 UTC, `SystemTime.Now`가 `SystemTime` 반환), 달력 날짜(생년월일·마감일 등) = **`DateOnly`** |
-| C# — 한국 달력 값만 | | **`KoreanTime`** — 마감일(`EndOfDayToUtc`: DateOnly→SystemTime)·시즌(`CurrentYear`·`YearRangeUtc`) |
+| C# — 지역 달력 값만 | | **`BusinessCalendar`**(Domain) — 마감일(`EndOfDayToUtc`)·시즌(`CurrentYear`·`YearRangeUtc`). **IANA 시간대 id로 지역을 받는다** |
 | SQL | `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | **`GETUTCDATE()`만.** 시간대 산술을 SQL에 두지 않는다 |
-| Client | 시계 직접 읽기, `ToLocalTime()`·`TimeZoneInfo.Local` | **`DisplayTime`**(Client/Services)만 시간대를 안다 — 표시 `Format()`/`ToWallClock()`, 픽커 입력 `FromWallClock()`. 현재 한국 시간 고정, 계정 시간대는 이 클래스 안에서만 바뀐다 |
+| Client | 시계 직접 읽기, `ToLocalTime()`·`TimeZoneInfo.Local` | **`DisplayTime`**(Client/Services) — 표시 `Format()`/`ToWallClock()`, 픽커 입력 `FromWallClock()`. **기본은 브라우저 시간대**, 계정 설정은 `Override`로 덮는다 |
 
 `SystemTime`은 타입 수준 강제다(2026-08-06 확장). 어떤 `DateTime`을 넣어도 생성자가 UTC로
 정규화하고, DB(Dapper `SystemTimeTypeHandler`)·JSON(ISO-8601 `Z`) 경계는 자동 변환이라
 로직 코드가 `DateTime`을 아예 모른다. 원시 `DateTime` 허용 파일은
-`TimeBaselineGuardTests.AllowedTypeFiles`(SystemTime·KoreanTime·Dapper 핸들러) +
+`TimeBaselineGuardTests.AllowedTypeFiles`(SystemTime·BusinessCalendar·Dapper 핸들러) +
 **Client 표시층**(벽시계 `DateTime`을 다루는 것이 표시의 본질)뿐이고, 위반은 같은 테스트가 자동으로 잡는다.
-`DisplayTime.ToWallClock()`이 돌려주는 벽시계는 **`Kind`가 `Unspecified`다** — 값은 KST인데
-`Utc`로 표식하면 누가 `ToUniversalTime()`을 부르는 순간 9시간이 그대로 샌다.
+`DisplayTime.ToWallClock()`이 돌려주는 벽시계는 **`Kind`가 `Unspecified`로 고정**이다 — `Local`·`Utc`로
+표식하면 누가 `ToUniversalTime()`을 부르는 순간 오프셋이 그대로 샌다.
 제너레이터도 datetime2→`SystemTime`, DATE→`DateOnly`로 생성한다.
+
+> **아직 데이터가 지역을 모른다.** 팀·대회에 시간대 컬럼이 없어 24곳이
+> `BusinessCalendar.Unresolved`(서울)로 돈다. 같은 가드가 **그 개수가 늘지 않는지** 지킨다 —
+> 컬럼이 생기면 그 멤버를 지우고, 컴파일러가 남은 호출부를 전부 짚어 준다.
 
 > **`DATE` 컬럼을 전부 바꾸지는 않았다** — 생년월일·커리어 기간·대회 일정은 `DATE`로 남는다.
 > 기준은 "**now와 비교해 상태가 갈리는 날짜만**". 생년월일을 순간으로 만들면 보는 시간대에
