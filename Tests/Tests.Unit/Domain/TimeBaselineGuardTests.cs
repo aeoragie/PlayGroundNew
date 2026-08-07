@@ -65,7 +65,7 @@ namespace PlayGround.Tests.Unit.Domain
 
         [Theory]
         [MemberData(nameof(SourceRoots))]
-        public void DateTime을_직접_호출하지_않는다(string relativeRoot)
+        public void DateTime_IsNotCalledDirectly(string relativeRoot)
         {
             string root = Path.Combine(DisplayStringPlacementTests.RepositoryRoot(), relativeRoot);
             Directory.Exists(root).Should().BeTrue($"{relativeRoot} 경로를 찾지 못했다");
@@ -106,7 +106,7 @@ namespace PlayGround.Tests.Unit.Domain
 
         [Theory]
         [MemberData(nameof(NonDisplayRoots))]
-        public void DateTime_타입을_쓰지_않는다(string relativeRoot)
+        public void DateTime_TypeIsNotUsed(string relativeRoot)
         {
             string root = Path.Combine(DisplayStringPlacementTests.RepositoryRoot(), relativeRoot);
             Directory.Exists(root).Should().BeTrue($"{relativeRoot} 경로를 찾지 못했다");
@@ -134,7 +134,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void 프로시저는_내장_시간함수를_쓰지_않는다()
+        public void Procedures_DoNotUseBuiltInClock()
         {
             // 프로시저는 `dbo.UfnSystemDate()`만 부른다. 내장 함수를 직접 쓰면
             // **시간 이동 테스트가 반쪽이 된다** — 옮긴 시계를 안 보는 판정이 섞인다.
@@ -166,7 +166,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void 프로시저는_UfnSystemDate를_변수로_받는다()
+        public void Procedures_TakeUfnSystemDate_IntoVariable()
         {
             // 스칼라 UDF는 인라인되지 않는다(시간 의존 내장 함수를 부르는 UDF는 인라인 대상에서 제외).
             // WHERE·SELECT에 직접 쓰면 **행마다** 호출된다 — 반드시 DECLARE로 한 번만 받는다.
@@ -203,7 +203,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void SystemTime은_UTC를_돌려준다()
+        public void SystemTime_ReturnsUtc()
         {
             // 이름이 Now라서 지역 시각으로 오해하기 쉽다 — 계약을 못 박아 둔다
             SystemTime.Now.UtcDateTime.Kind.Should().Be(DateTimeKind.Utc);
@@ -211,7 +211,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void 직렬화는_ISO8601_Z다()
+        public void Serialization_IsIso8601WithZ()
         {
             // 기존 DateTime(UTC) 직렬화와 와이어 포맷이 같아야 한다 — Z가 빠지면
             // 브라우저가 변환 기준을 잃어 표시가 조용히 어긋난다
@@ -223,7 +223,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void 어떤_Kind로_만들어도_UTC로_정규화된다()
+        public void AnyKind_IsNormalizedToUtc()
         {
             // DB에서 읽은 값(Unspecified)은 UTC로 표식하고, 로컬 값은 UTC로 변환한다
             var unspecified = new DateTime(2026, 8, 10, 12, 0, 0, DateTimeKind.Unspecified);

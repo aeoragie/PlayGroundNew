@@ -82,14 +82,14 @@ namespace PlayGround.Tests.Integration.Api
         }
 
         [Fact]
-        public void 컨트롤러_액션이_하나_이상_발견된다()
+        public void ControllerActions_AreDiscovered()
         {
             // 리플렉션 탐색이 조용히 0건이 되면 아래 테스트가 전부 통과처럼 보인다
             FindActions().Should().NotBeEmpty();
         }
 
         [Fact]
-        public void 익명으로_열린_액션은_공개_목록에_있어야_한다()
+        public void AnonymousActions_MustBeInPublicList()
         {
             List<string> unguarded = FindActions()
                 .Where(a => !IsGuarded(a.Method))
@@ -103,7 +103,7 @@ namespace PlayGround.Tests.Integration.Api
         }
 
         [Fact]
-        public void 공개_목록에_죽은_항목이_없다()
+        public void PublicList_HasNoDeadEntries()
         {
             // 액션을 지웠는데 목록에 남으면, 다음에 같은 이름이 생겼을 때 조용히 통과한다
             HashSet<string> anonymous = FindActions()
@@ -117,7 +117,7 @@ namespace PlayGround.Tests.Integration.Api
 
         [Theory]
         [MemberData(nameof(Actions))]
-        public void 액션은_인가되거나_명시적으로_공개된다(string key)
+        public void Actions_AreAuthorized_OrExplicitlyPublic(string key)
         {
             // 위 집계 테스트는 어디가 틀렸는지 한 줄로 보여주지만, 액션별로도 남겨
             // 실패 목록이 곧 "가드 없는 엔드포인트 목록"이 되게 한다.

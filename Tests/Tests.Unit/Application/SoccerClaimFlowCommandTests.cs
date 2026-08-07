@@ -57,7 +57,7 @@ namespace PlayGround.Tests.Unit.Application
         [Theory]
         [InlineData("abcd12", "ABCD12")]      // 소문자 입력을 대문자로
         [InlineData("  abcd12  ", "ABCD12")]  // 앞뒤 공백 제거
-        public async Task LookupAsync_코드를_정규화해_조회한다(string input, string expected)
+        public async Task LookupAsync_NormalizesCodeBeforeLookup(string input, string expected)
         {
             var harness = new Harness(card: new ClaimInviteCardResponse());
 
@@ -72,7 +72,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("")]
         [InlineData("   ")]
         [InlineData(null)]
-        public async Task LookupAsync_길이를_벗어난_코드는_조회하지도_않는다(string? code)
+        public async Task LookupAsync_SkipsLookup_ForOutOfRangeLength(string? code)
         {
             var harness = new Harness();
 
@@ -83,7 +83,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task LookupAsync_없는_코드는_사유를_구분하지_않고_NotFound다()
+        public async Task LookupAsync_UnknownCode_IsNotFound_WithoutReason()
         {
             // 만료·사용됨·오타를 구분해 주면 코드 추측이 쉬워진다
             Result<ClaimInviteCardResponse> result = await new Harness().Command.LookupAsync("ABCD12");
@@ -97,7 +97,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("Mother")]
         [InlineData("Father")]
         [InlineData("Guardian")]
-        public async Task CreateAsync_허용_관계는_통과한다(string relation)
+        public async Task CreateAsync_AcceptsAllowedRelations(string relation)
         {
             var harness = new Harness(created: new ClaimRequestSummaryResponse());
 
@@ -114,7 +114,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("Uncle")]
         [InlineData("")]
         [InlineData(null)]
-        public async Task CreateAsync_미지의_관계는_InvalidInput이다(string? relation)
+        public async Task CreateAsync_UnknownRelation_IsInvalidInput(string? relation)
         {
             Result<ClaimRequestSummaryResponse> result =
                 await new Harness().Command.CreateAsync(User, "김보호", Request(relation: relation!));
@@ -123,7 +123,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task CreateAsync_빈_사용자는_Unauthorized다()
+        public async Task CreateAsync_EmptyUser_IsUnauthorized()
         {
             Result<ClaimRequestSummaryResponse> result =
                 await new Harness().Command.CreateAsync(Guid.Empty, "김보호", Request());
@@ -135,7 +135,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("  김보호  ", "김보호")]
         [InlineData("", "보호자")]        // 이름이 없으면 기본 호칭으로 스냅샷을 남긴다
         [InlineData("   ", "보호자")]
-        public async Task CreateAsync_신청자_이름을_정리하고_비면_기본값을_쓴다(string input, string expected)
+        public async Task CreateAsync_TrimsRequesterName_AndUsesDefaultWhenEmpty(string input, string expected)
         {
             var harness = new Harness(created: new ClaimRequestSummaryResponse());
 
@@ -145,7 +145,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task CreateAsync_코드가_무효면_NotFound다()
+        public async Task CreateAsync_NotFound_WhenCodeInvalid()
         {
             Result<ClaimRequestSummaryResponse> result =
                 await new Harness().Command.CreateAsync(User, "김보호", Request());
@@ -156,7 +156,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 공개 프로필 경유 (코드 없음)
 
         [Fact]
-        public async Task LookupBySlugAsync_빈_슬러그는_InvalidInput이다()
+        public async Task LookupBySlugAsync_EmptySlug_IsInvalidInput()
         {
             Result<ClaimInviteCardResponse> result = await new Harness().Command.LookupBySlugAsync("   ");
 
@@ -164,7 +164,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task LookupBySlugAsync_이미_연결됐거나_없으면_NotFound다()
+        public async Task LookupBySlugAsync_NotFound_WhenAlreadyClaimedOrMissing()
         {
             // 이미 연결됨/없음을 구분하면 선수 존재 여부가 새어 나간다
             Result<ClaimInviteCardResponse> result = await new Harness().Command.LookupBySlugAsync("kim-yuhan-a1b2c3");
@@ -173,7 +173,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task CreateByPlayerAsync_빈_선수는_Unauthorized다()
+        public async Task CreateByPlayerAsync_EmptyPlayer_IsUnauthorized()
         {
             Result<ClaimRequestSummaryResponse> result =
                 await new Harness().Command.CreateByPlayerAsync(User, "김보호", Guid.Empty, "Mother");
@@ -182,7 +182,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task CreateByPlayerAsync_관계_화이트리스트는_코드_경로와_같다()
+        public async Task CreateByPlayerAsync_SharesRelationWhitelistWithCodePath()
         {
             Result<ClaimRequestSummaryResponse> result =
                 await new Harness().Command.CreateByPlayerAsync(User, "김보호", Guid.NewGuid(), "0");
@@ -193,7 +193,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 취소·복원
 
         [Fact]
-        public async Task CancelAsync_저장소가_거부하면_Forbidden이다()
+        public async Task CancelAsync_Forbidden_WhenRepositoryRejects()
         {
             // 남의 요청이거나 이미 처리된 요청
             var harness = new Harness();
@@ -206,7 +206,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task GetMineAsync_요청이_없으면_NotFound다()
+        public async Task GetMineAsync_NotFound_WhenNoRequest()
         {
             // 클라이언트는 이걸 보고 스텝 ①부터 시작한다
             var harness = new Harness();
@@ -219,7 +219,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task GetMineAsync_요청이_있으면_그대로_돌려준다()
+        public async Task GetMineAsync_ReturnsRequestAsIs()
         {
             var summary = new ClaimRequestSummaryResponse();
             var harness = new Harness();

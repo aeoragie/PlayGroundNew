@@ -16,7 +16,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("GoalAssist", SoccerCorrectionField.GoalAssist)]
         [InlineData("Appearance", SoccerCorrectionField.Appearance)]
         [InlineData("Other", SoccerCorrectionField.Other)]
-        public void CorrectionField_멤버_이름은_통과한다(string value, SoccerCorrectionField expected)
+        public void CorrectionField_ParsesMemberNames(string value, SoccerCorrectionField expected)
         {
             SoccerCorrectionFieldExtensions.TryParse(value, out SoccerCorrectionField field).Should().BeTrue();
             field.Should().Be(expected);
@@ -29,7 +29,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("Unknown")]
         [InlineData("")]
         [InlineData(null)]
-        public void CorrectionField_숫자문자열과_미지의_값은_거부하고_Other로_떨어진다(string? value)
+        public void CorrectionField_RejectsNumericAndUnknown_FallsBackToOther(string? value)
         {
             SoccerCorrectionFieldExtensions.TryParse(value, out SoccerCorrectionField field).Should().BeFalse();
             field.Should().Be(SoccerCorrectionField.Other);
@@ -43,7 +43,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("Rejected", SoccerCorrectionStatus.Rejected)]
         [InlineData("Whatever", SoccerCorrectionStatus.Pending)]
         [InlineData(null, SoccerCorrectionStatus.Pending)]
-        public void CorrectionStatus_파싱_실패는_Pending이다(string? value, SoccerCorrectionStatus expected)
+        public void CorrectionStatus_FallsBackToPending_WhenParseFails(string? value, SoccerCorrectionStatus expected)
         {
             SoccerCorrectionStatusExtensions.Parse(value).Should().Be(expected);
         }
@@ -55,7 +55,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("Correction", SoccerActionKind.Correction)]
         [InlineData("Access", SoccerActionKind.Invite)]  // 에이전트 축 도입 전 — 기본값으로 떨어진다
         [InlineData(null, SoccerActionKind.Invite)]
-        public void ActionKind_파싱_실패는_Invite다(string? value, SoccerActionKind expected)
+        public void ActionKind_FallsBackToInvite_WhenParseFails(string? value, SoccerActionKind expected)
         {
             SoccerActionKindExtensions.Parse(value).Should().Be(expected);
         }
@@ -70,7 +70,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData(SoccerPlayerProfileField.StrengthTags, true)]
         [InlineData(SoccerPlayerProfileField.School, false)]         // 미성년자 보호 — 기본 비공개
         [InlineData(SoccerPlayerProfileField.GuardianPhone, false)]  // 연락처 — 기본 비공개
-        public void ProfileField_기본_공개값이_스펙과_같다(SoccerPlayerProfileField field, bool expected)
+        public void ProfileField_DefaultVisibility_MatchesSpec(SoccerPlayerProfileField field, bool expected)
         {
             field.DefaultIsPublic().Should().Be(expected);
         }
@@ -84,13 +84,13 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData(NotificationPreferenceItem.Review, true)]
         [InlineData(NotificationPreferenceItem.EmailChannel, false)]
         [InlineData(NotificationPreferenceItem.VisitSummary, false)]
-        public void NotificationPreference_기본값이_스펙과_같다(NotificationPreferenceItem item, bool expected)
+        public void NotificationPreference_Defaults_MatchSpec(NotificationPreferenceItem item, bool expected)
         {
             item.DefaultIsEnabled().Should().Be(expected);
         }
 
         [Fact]
-        public void NotificationPreference_승인형은_enum에_없다()
+        public void NotificationPreference_ApprovalTypes_AreNotInEnum()
         {
             // 미성년자 보호 관문이라 항상 켜짐 — enum이 저장 화이트리스트이므로
             // 여기에 항목이 추가되면 클라이언트가 끌 수 있게 되어 버린다.

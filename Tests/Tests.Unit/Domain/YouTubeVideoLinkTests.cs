@@ -21,13 +21,13 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("https://www.youtube.com/embed/dQw4w9WgXcQ")]
         [InlineData("https://www.youtube.com/live/dQw4w9WgXcQ")]
         [InlineData("http://youtu.be/dQw4w9WgXcQ")]
-        public void ParseVideoId_지원_형태를_모두_해석한다(string url)
+        public void ParseVideoId_ParsesAllSupportedForms(string url)
         {
             YouTubeVideoLink.ParseVideoId(url).Should().Be(Id);
         }
 
         [Fact]
-        public void ParseVideoId_스킴_없이_붙여넣어도_해석한다()
+        public void ParseVideoId_ParsesWithoutScheme()
         {
             // 사용자가 주소창에서 복사하면 스킴이 빠지는 일이 잦다
             YouTubeVideoLink.ParseVideoId("youtu.be/dQw4w9WgXcQ").Should().Be(Id);
@@ -35,13 +35,13 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void ParseVideoId_앞뒤_공백을_무시한다()
+        public void ParseVideoId_IgnoresSurroundingWhitespace()
         {
             YouTubeVideoLink.ParseVideoId("  https://youtu.be/dQw4w9WgXcQ  ").Should().Be(Id);
         }
 
         [Fact]
-        public void ParseVideoId_watch의_다른_쿼리가_섞여도_v를_찾는다()
+        public void ParseVideoId_FindsV_AmongOtherQueryParameters()
         {
             YouTubeVideoLink.ParseVideoId("https://www.youtube.com/watch?list=PL123&v=dQw4w9WgXcQ&t=30s")
                 .Should().Be(Id);
@@ -55,7 +55,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("https://evil.kr/youtu.be/dQw4w9WgXcQ")]       // 경로에만 유튜브
         [InlineData("javascript:alert(1)")]                        // 스킴 공격
         [InlineData("ftp://youtu.be/dQw4w9WgXcQ")]                 // http(s) 아님
-        public void ParseVideoId_허용_호스트와_스킴만_통과시킨다(string url)
+        public void ParseVideoId_AllowsOnlyWhitelistedHostAndScheme(string url)
         {
             YouTubeVideoLink.ParseVideoId(url).Should().BeNull();
         }
@@ -70,7 +70,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("https://www.youtube.com/watch?v=")]           // 값 없음
         [InlineData("https://www.youtube.com/watch")]              // v 파라미터 없음
         [InlineData("https://www.youtube.com/results?search=x")]   // 영상 경로 아님
-        public void ParseVideoId_11자_URL안전_문자만_영상ID로_받는다(string url)
+        public void ParseVideoId_AcceptsOnlyElevenUrlSafeCharacters(string url)
         {
             YouTubeVideoLink.ParseVideoId(url).Should().BeNull();
         }
@@ -80,7 +80,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData("")]
         [InlineData("   ")]
         [InlineData("그냥 텍스트")]
-        public void ParseVideoId_빈값과_비URL은_null이다(string? url)
+        public void ParseVideoId_ReturnsNull_ForEmptyOrNonUrl(string? url)
         {
             YouTubeVideoLink.ParseVideoId(url).Should().BeNull();
         }
@@ -88,7 +88,7 @@ namespace PlayGround.Tests.Unit.Domain
         //.// 파생 — 정규화·썸네일
 
         [Fact]
-        public void ToCanonicalUrl_입력_형태와_무관하게_watch_하나로_모은다()
+        public void ToCanonicalUrl_NormalizesEveryFormToWatch()
         {
             const string expected = "https://www.youtube.com/watch?v=" + Id;
             YouTubeVideoLink.ToCanonicalUrl("https://youtu.be/" + Id).Should().Be(expected);
@@ -97,7 +97,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void ToThumbnailUrl_링크에서_파생한다()
+        public void ToThumbnailUrl_IsDerivedFromLink()
         {
             // 임의 이미지 주소를 저장하지 않기 위해 ID에서 만든다
             YouTubeVideoLink.ToThumbnailUrl("https://youtu.be/" + Id)
@@ -105,7 +105,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void 파생_메서드는_유효하지_않은_링크에_null을_준다()
+        public void DerivedMethods_ReturnNull_ForInvalidLink()
         {
             YouTubeVideoLink.ToCanonicalUrl("https://vimeo.com/123").Should().BeNull();
             YouTubeVideoLink.ToThumbnailUrl("https://vimeo.com/123").Should().BeNull();

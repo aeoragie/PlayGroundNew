@@ -32,7 +32,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData(SoccerNotificationType.ClaimRequest, false)]
         [InlineData(SoccerNotificationType.MatchResult, false)]
         [InlineData(SoccerNotificationType.TeamNotice, false)]
-        public void IsAgentType_에이전트_유형만_참이다(SoccerNotificationType type, bool expected)
+        public void IsAgentType_IsTrue_OnlyForAgentTypes(SoccerNotificationType type, bool expected)
         {
             NotificationPresenter.IsAgentType(Item(type)).Should().Be(expected);
         }
@@ -44,7 +44,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData(SoccerNotificationType.RosterInvite, true)]
         [InlineData(SoccerNotificationType.ClaimApproved, false)]
         [InlineData(SoccerNotificationType.ExportReady, false)]
-        public void IsActionType_인라인_처리_유형만_참이다(SoccerNotificationType type, bool expected)
+        public void IsActionType_IsTrue_OnlyForInlineActionTypes(SoccerNotificationType type, bool expected)
         {
             NotificationPresenter.IsActionType(Item(type)).Should().Be(expected);
         }
@@ -54,7 +54,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData("Approved", false)]
         [InlineData("Rejected", false)]
         [InlineData(null, false)]
-        public void IsActionRequired_연결요청은_Pending일_때만_처리_필요다(string? status, bool expected)
+        public void IsActionRequired_ClaimRequest_OnlyWhilePending(string? status, bool expected)
         {
             NotificationPresenter.IsActionRequired(Item(SoccerNotificationType.ClaimRequest, status))
                 .Should().Be(expected);
@@ -64,14 +64,14 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData("Confirmed", false)]
         [InlineData("Pending", true)]
         [InlineData(null, true)]        // 미확인 상태 — 초대 확인 버튼이 남는다
-        public void IsActionRequired_선수단초대는_확인_전까지_처리_필요다(string? status, bool expected)
+        public void IsActionRequired_RosterInvite_UntilConfirmed(string? status, bool expected)
         {
             NotificationPresenter.IsActionRequired(Item(SoccerNotificationType.RosterInvite, status))
                 .Should().Be(expected);
         }
 
         [Fact]
-        public void IsActionRequired_이동형은_언제나_거짓이다()
+        public void IsActionRequired_NavigationTypes_AreAlwaysFalse()
         {
             NotificationPresenter.IsActionRequired(Item(SoccerNotificationType.MatchResult, "Pending"))
                 .Should().BeFalse();
@@ -80,7 +80,7 @@ namespace PlayGround.Tests.Unit.Client
         //.// 딥링크
 
         [Fact]
-        public void RouteOf_연결_승인은_해당_자녀_대시보드로_보낸다()
+        public void RouteOf_ClaimApproval_GoesToChildDashboard()
         {
             var player = Guid.NewGuid();
 
@@ -90,7 +90,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void RouteOf_자녀_정보가_없으면_링크를_만들지_않는다()
+        public void RouteOf_BuildsNoLink_WhenChildMissing()
         {
             // 링크에 넣을 대상이 없는데 이동시키면 빈 화면으로 떨어진다
             NotificationPresenter.RouteOf(Item(SoccerNotificationType.ClaimApproved)).Should().BeNull();
@@ -99,7 +99,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void RouteOf_경기결과는_자녀_시즌통계로_보낸다()
+        public void RouteOf_MatchResult_GoesToChildSeasonStats()
         {
             var player = Guid.NewGuid();
 
@@ -110,7 +110,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void RouteOf_열람_요청과_만료_임박은_같은_심사_화면으로_간다()
+        public void RouteOf_ViewRequestAndExpiry_ShareReviewScreen()
         {
             NotificationDto request = Item(SoccerNotificationType.ViewRequest);
             NotificationDto expiring = Item(SoccerNotificationType.AgentGrantExpiring);
@@ -120,7 +120,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void RouteOf_액션형은_이동_링크가_없다()
+        public void RouteOf_ActionTypes_HaveNoLink()
         {
             // 인라인으로 처리하는 유형이라 클릭 이동이 없어야 한다
             NotificationPresenter.RouteOf(Item(SoccerNotificationType.ClaimRequest)).Should().BeNull();
@@ -128,7 +128,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void RouteOf_수정신청_심사결과는_팀_경기결과_탭으로_간다()
+        public void RouteOf_CorrectionReview_GoesToTeamMatchTab()
         {
             NotificationPresenter.RouteOf(Item(SoccerNotificationType.CorrectionReviewed))
                 .Should().NotBeNullOrEmpty();
@@ -139,7 +139,7 @@ namespace PlayGround.Tests.Unit.Client
         [Theory]
         [InlineData(0)]
         [InlineData(30)]
-        public void TimeAgo_1분_미만은_방금_전이다(int seconds)
+        public void TimeAgo_UnderOneMinute_IsJustNow(int seconds)
         {
             string label = NotificationPresenter.TimeAgo(SystemTime.Now.AddSeconds(-seconds));
 
@@ -147,7 +147,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void TimeAgo_구간마다_다른_문구를_준다()
+        public void TimeAgo_GivesDifferentTextPerBucket()
         {
             SystemTime now = SystemTime.Now;
             string justNow = NotificationPresenter.TimeAgo(now);
@@ -160,7 +160,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void TimeAgo_48시간이_넘으면_날짜로_바뀐다()
+        public void TimeAgo_SwitchesToDate_After48Hours()
         {
             SystemTime past = SystemTime.Now.AddDays(-10);
 

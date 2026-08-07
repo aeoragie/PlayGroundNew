@@ -14,6 +14,8 @@
    (예: 심사는 주최측의 몫 · 승인형 알림은 항상 켜짐 · 친선은 집계에서 제외).
 4. **보안·프라이버시 판정은 반드시 덮는다.** 사유를 구분하지 않는 실패(NotFound/Forbidden),
    저장 화이트리스트, 호스트 허용 목록이 여기 해당한다.
+5. **식별자는 ASCII, 설명은 한글.** 메서드·클래스 이름은 `Subject_Behavior`
+   (예: `Winner_UsesPenalties_WhenRegulationTied`), 맥락은 주석과 실패 메시지에 남긴다 — 아래 §5-6.
 
 ## 2. 프로젝트별 역할
 
@@ -44,7 +46,8 @@ Tests/Tests.Unit/
 | `SoccerEnumRulesTests` | 숫자 문자열 enum 파싱 차단 · 파싱 실패 시 기본값 · 공개/알림 기본값이 SPEC과 일치 · 승인형은 알림 설정 enum에 없음 |
 | `DisplayStringPlacementTests` | **Domain·Contracts에 표시 문자열 없음** (아래 §5) |
 | `SqlProjectCoverageTests` | **모든 `.sql`이 sqlproj 검증 대상에 포함**됨 · 개별 파일 나열 금지 · Build/None 구분 (아래 §5) |
-| `TimeBaselineGuardTests` | **시각 기준이 UTC 하나**임 — C# `DateTime` 직접 호출 금지 · SQL 지역 시각 함수 금지 (아래 §5-4) |
+| `TimeBaselineGuardTests` | **시각 기준이 UTC 하나**임 — C# `DateTime` 타입 금지 · SQL 내장 시각 함수 금지 (아래 §5-4) |
+| `TestNamingGuardTests` | **테스트 이름이 ASCII**임 — 도구가 깨지지 않게 (아래 §5-6) |
 
 ### Application
 
@@ -206,6 +209,28 @@ DECLARE @Now DATETIME2(7) = dbo.UfnSystemDate();   -- 프로시저당 1회
 > **한계: 특성만 본다.** 미들웨어·라우팅·토큰 검증까지 실제로 태우는 검증은
 > `WebApplicationFactory`가 필요하고, 그건 `Microsoft.AspNetCore.Mvc.Testing` 패키지가 있어야 한다.
 > 지금 개발 환경에서 nuget.org에 닿지 않아 도입하지 못했다(§8).
+
+## 5-6. 테스트 이름 가드
+
+`TestNamingGuardTests`가 세 테스트 프로젝트의 **메서드·타입 이름에 비ASCII가 없는지** 본다.
+
+한글 이름(`승자판정_정규시간_동점이면_PK로_가린다`)은 읽기엔 좋았지만 도구를 계속 깨뜨렸다.
+
+- **테스트 로그가 UTF-16이라** 실패한 테스트 이름을 보려면 매번 `iconv`를 거쳐야 했다
+- `--filter-method`에 한글을 넘기면 셸·CI 설정마다 이스케이프가 달라진다
+- CI 로그·TRX 리포트에서 깨져 어느 테스트가 실패했는지 못 읽는다
+
+**표현력은 이름이 아니라 주석과 실패 메시지로 낸다** — 거기는 한글이 자유롭고,
+실패했을 때 실제로 눈에 들어오는 곳이다. 이름은 `Subject_Behavior` 형태로 쓴다.
+
+```csharp
+[Fact]
+public void Winner_UsesPenalties_WhenRegulationTied()
+{
+    // 정규시간이 동점일 때만 PK로 승자를 가린다 — 정규시간에서 갈리면 PK는 보지 않는다
+```
+
+주석과 문자열 리터럴은 걷어낸 뒤 검사하므로, 설명에 쓴 한글 이름은 위반이 아니다.
 
 ## 6. 작업 규칙
 

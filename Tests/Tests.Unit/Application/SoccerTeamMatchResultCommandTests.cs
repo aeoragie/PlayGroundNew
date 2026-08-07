@@ -60,7 +60,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 인가·검증
 
         [Fact]
-        public async Task ExecuteAsync_빈_사용자는_Unauthorized다()
+        public async Task ExecuteAsync_EmptyUser_IsUnauthorized()
         {
             Result<CreateTeamMatchResultResponse> result =
                 await new Harness().Command.ExecuteAsync(Guid.Empty, Request());
@@ -71,7 +71,7 @@ namespace PlayGround.Tests.Unit.Application
         [Theory]
         [InlineData("")]
         [InlineData("   ")]
-        public async Task ExecuteAsync_상대팀명이_비면_InvalidInput이다(string opponent)
+        public async Task ExecuteAsync_EmptyOpponentName_IsInvalidInput(string opponent)
         {
             Result<CreateTeamMatchResultResponse> result =
                 await new Harness().Command.ExecuteAsync(Manager, Request(opponent: opponent));
@@ -84,7 +84,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData(0, -1)]
         [InlineData(100, 0)]   // 상한 99 — 오타·자동입력 폭주 방어
         [InlineData(0, 100)]
-        public async Task ExecuteAsync_점수가_범위를_벗어나면_InvalidInput이다(int ours, int theirs)
+        public async Task ExecuteAsync_ScoreOutOfRange_IsInvalidInput(int ours, int theirs)
         {
             Result<CreateTeamMatchResultResponse> result =
                 await new Harness().Command.ExecuteAsync(Manager, Request(ours: ours, theirs: theirs));
@@ -95,7 +95,7 @@ namespace PlayGround.Tests.Unit.Application
         [Theory]
         [InlineData(0, 0)]
         [InlineData(99, 99)]   // 경계는 허용
-        public async Task ExecuteAsync_경계_점수는_통과한다(int ours, int theirs)
+        public async Task ExecuteAsync_AcceptsBoundaryScores(int ours, int theirs)
         {
             Result<CreateTeamMatchResultResponse> result =
                 await new Harness().Command.ExecuteAsync(Manager, Request(ours: ours, theirs: theirs));
@@ -104,7 +104,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_일시가_없으면_InvalidInput이다()
+        public async Task ExecuteAsync_MissingMatchedAt_IsInvalidInput()
         {
             Result<CreateTeamMatchResultResponse> result =
                 await new Harness().Command.ExecuteAsync(Manager, Request(at: default(SystemTime)));
@@ -113,7 +113,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_미래_경기의_결과는_거부한다()
+        public async Task ExecuteAsync_RejectsFutureMatchResult()
         {
             Result<CreateTeamMatchResultResponse> result =
                 await new Harness().Command.ExecuteAsync(Manager, Request(at: SystemTime.Now.AddDays(3)));
@@ -122,7 +122,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_시간대_차이를_감안해_내일까지는_받는다()
+        public async Task ExecuteAsync_AcceptsUpToTomorrow_ForTimeZoneSpread()
         {
             // 요청의 MatchedAt은 UTC 순간이다. 판정은 한국 달력 기준이라
             // "한국 시각으로 내일"까지는 통과해야 한다(입력 시점의 시차를 감안한 여유).
@@ -135,7 +135,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 정규화·저장 결과
 
         [Fact]
-        public async Task ExecuteAsync_상대팀명과_구장명의_공백을_정리한다()
+        public async Task ExecuteAsync_TrimsOpponentAndVenueNames()
         {
             var harness = new Harness();
             CreateTeamMatchResultRequest request = Request();
@@ -147,7 +147,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_구장명이_공백뿐이면_null로_저장한다()
+        public async Task ExecuteAsync_StoresNull_WhenVenueIsWhitespace()
         {
             var harness = new Harness();
             CreateTeamMatchResultRequest request = Request(venue: "   ");
@@ -158,7 +158,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_팀을_못_찾으면_NotFound다()
+        public async Task ExecuteAsync_NotFound_WhenTeamMissing()
         {
             var harness = new Harness();
             harness.Team.Setup(r => r.CreateMatchResultByManagerAsync(It.IsAny<Guid>(), It.IsAny<CreateTeamMatchResultRequest>(), It.IsAny<CancellationToken>()))
@@ -172,7 +172,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 보호자 알림 — 수신 설정 존중
 
         [Fact]
-        public async Task ExecuteAsync_설정이_없으면_기본값으로_발송한다()
+        public async Task ExecuteAsync_SendsWithDefault_WhenNoPreference()
         {
             // MatchResult 기본값은 켬 — 저장 행이 없는 계정도 받는다
             var user = Guid.NewGuid();
@@ -184,7 +184,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_수신을_끈_계정에는_보내지_않는다()
+        public async Task ExecuteAsync_SkipsAccountsWithNotificationOff()
         {
             var off = Guid.NewGuid();
             var on = Guid.NewGuid();
@@ -198,7 +198,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_알림_조회가_실패해도_경기_저장은_성공이다()
+        public async Task ExecuteAsync_SaveSucceeds_EvenIfNotificationLookupFails()
         {
             // 알림은 부가 작업 — 실패해도 결과 저장을 되돌리지 않는다
             var harness = new Harness();
@@ -212,7 +212,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_알림은_MatchResult_유형으로_스코어를_담아_보낸다()
+        public async Task ExecuteAsync_SendsMatchResultNotification_WithScore()
         {
             var user = Guid.NewGuid();
             var harness = new Harness(recipients: [Recipient(user)]);
@@ -228,7 +228,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_수신_설정은_MatchResult_항목으로_조회한다()
+        public async Task ExecuteAsync_LooksUpPreference_ByMatchResultKey()
         {
             var harness = new Harness(recipients: [Recipient(Guid.NewGuid())]);
 

@@ -22,7 +22,7 @@ namespace PlayGround.Tests.Unit.Domain
 
         [Theory]
         [MemberData(nameof(Projects))]
-        public void 표시_문자열이_없다(string project)
+        public void DisplayStrings_AreAbsent(string project)
         {
             string root = Path.Combine(RepositoryRoot(), "Source", "PlayGround", project);
             Directory.Exists(root).Should().BeTrue($"{project} 경로를 찾지 못했다");

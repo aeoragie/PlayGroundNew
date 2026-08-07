@@ -52,7 +52,7 @@ namespace PlayGround.Tests.Infrastructure.Database
 
         [Theory]
         [MemberData(nameof(Contracts))]
-        public void 결과셋_개수가_읽는_순서와_같다(string procedure, string idParameter, Type[] expected)
+        public void ResultSetCount_MatchesReadOrder(string procedure, string idParameter, Type[] expected)
         {
             fixture.SkipIfUnavailable();
 
@@ -64,7 +64,7 @@ namespace PlayGround.Tests.Infrastructure.Database
 
         [Theory]
         [MemberData(nameof(Contracts))]
-        public void 각_결과셋의_컬럼을_매핑_타입이_받을_수_있다(string procedure, string idParameter, Type[] expected)
+        public void MappingTypes_AcceptEveryResultSetColumn(string procedure, string idParameter, Type[] expected)
         {
             fixture.SkipIfUnavailable();
 
@@ -87,7 +87,7 @@ namespace PlayGround.Tests.Infrastructure.Database
         }
 
         [Fact]
-        public void 경기_상세는_스코어보드에_필요한_컬럼을_낸다()
+        public void MatchDetail_EmitsScoreboardColumns()
         {
             // 공식 경기 상세(전후반·PK·주심·감독)는 대회 서비스 선반영 스키마다 — 조용히 빠지면
             // 화면에서 값이 사라지는 것으로만 드러난다.

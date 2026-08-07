@@ -40,14 +40,14 @@ namespace PlayGround.Tests.Unit.Client
 
         [Theory]
         [MemberData(nameof(Domains))]
-        public void 모든_도메인이_ko와_ja_파일을_가진다(string domain)
+        public void EveryDomain_HasKoAndJaFiles(string domain)
         {
             File.Exists(Path.Combine(fixture.ResourceDirectory, $"{domain}.ko.json")).Should().BeTrue();
             File.Exists(Path.Combine(fixture.ResourceDirectory, $"{domain}.ja.json")).Should().BeTrue();
         }
 
         [Fact]
-        public void 리소스_파일과_생성기_도메인_목록이_같다()
+        public void ResourceFiles_MatchGeneratorDomainList()
         {
             // JSON을 새로 넣고 생성기를 안 돌리면 그 도메인은 런타임에 로드되지 않는다
             string[] onDisk = Directory.GetFiles(fixture.ResourceDirectory, "*.ko.json")
@@ -62,7 +62,7 @@ namespace PlayGround.Tests.Unit.Client
 
         [Theory]
         [MemberData(nameof(Domains))]
-        public void ja가_ko의_키를_모두_가진다(string domain)
+        public void Ja_HasEveryKoKey(string domain)
         {
             fixture.Load(domain, "ko").Keys
                 .Except(fixture.Load(domain, "ja").Keys)
@@ -71,7 +71,7 @@ namespace PlayGround.Tests.Unit.Client
 
         [Theory]
         [MemberData(nameof(Domains))]
-        public void ja에_ko에_없는_키가_없다(string domain)
+        public void Ja_HasNoKeyMissingFromKo(string domain)
         {
             // ko가 스키마의 기준 — ja에만 있는 키는 생성되지 않아 영영 쓰이지 않는다
             fixture.Load(domain, "ja").Keys
@@ -81,7 +81,7 @@ namespace PlayGround.Tests.Unit.Client
 
         [Theory]
         [MemberData(nameof(Domains))]
-        public void ko와_ja의_플레이스홀더_인덱스가_같다(string domain)
+        public void KoAndJa_HaveSamePlaceholderIndexes(string domain)
         {
             // ja에서 {0}이 빠지면 인자가 무시되고, 인덱스가 더 크면 FormatException이 난다
             Dictionary<string, string> ja = fixture.Load(domain, "ja");
@@ -99,7 +99,7 @@ namespace PlayGround.Tests.Unit.Client
 
         [Theory]
         [MemberData(nameof(Domains))]
-        public void ja에는_한국어_조사_모디파이어가_없다(string domain)
+        public void Ja_HasNoKoreanParticleModifier(string domain)
         {
             // 조사는 한국어 문법 — ja 값에 남아 있으면 "{0}이/가" 가 그대로 화면에 뜬다
             foreach ((string key, string value) in fixture.Load(domain, "ja"))
@@ -110,7 +110,7 @@ namespace PlayGround.Tests.Unit.Client
 
         [Theory]
         [MemberData(nameof(Domains))]
-        public void ko_값이_비어_있지_않다(string domain)
+        public void KoValues_AreNotEmpty(string domain)
         {
             foreach ((string key, string value) in fixture.Load(domain, "ko"))
             {
@@ -121,7 +121,7 @@ namespace PlayGround.Tests.Unit.Client
         //.// 생성물 최신성 — 이 스위트의 핵심
 
         [Fact]
-        public void 생성된_접근자가_모든_키를_실제로_해석한다()
+        public void GeneratedAccessors_ResolveEveryKey()
         {
             // 생성기를 안 돌린 채 JSON에서 키를 지우거나 이름을 바꾸면 여기서 걸린다.
             // (반대로 JSON에만 키를 추가한 경우는 접근자가 없어 컴파일 단계에서 걸린다.)
@@ -135,7 +135,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void 인자를_받는_접근자는_플레이스홀더를_실제로_치환한다()
+        public void AccessorsWithArguments_SubstitutePlaceholders()
         {
             // 치환에 실패하면 "{0}" 이 그대로 남는다 (인자 개수 불일치·FormatException 폴백)
             List<string> leftover = InvokeAllAccessors()
@@ -147,7 +147,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void 해석된_문구에_조사_모디파이어가_남지_않는다()
+        public void ResolvedText_LeavesNoParticleModifier()
         {
             // KoreanParticle이 못 푼 모디파이어는 "{0:이/가}" 그대로 화면에 뜬다
             List<string> leftover = InvokeAllAccessors()

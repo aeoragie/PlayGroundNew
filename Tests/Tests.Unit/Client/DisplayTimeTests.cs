@@ -24,14 +24,14 @@ namespace PlayGround.Tests.Unit.Client
         public void Dispose() => DisplayTime.Override = null;
 
         [Fact]
-        public void ToWallClock은_표시_시간대로_되돌린다()
+        public void ToWallClock_ConvertsToDisplayZone()
         {
             new SystemTime(2026, 8, 10, 12, 30, 0).ToWallClock()
                 .Should().Be(new DateTime(2026, 8, 10, 21, 30, 0));
         }
 
         [Fact]
-        public void 벽시계는_Kind가_Unspecified다()
+        public void WallClock_HasUnspecifiedKind()
         {
             // Local·Utc로 표식하면 누가 ToUniversalTime()을 부르는 순간 오프셋이 샌다.
             // Override 유무에 따라 Kind가 달라지지 않도록 고정해 둔 계약이다.
@@ -44,7 +44,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void 날짜_경계가_그_시간대_자정에서_넘어간다()
+        public void DateBoundary_RollsOverAtZoneMidnight()
         {
             // 서울에서 UTC 15:00 = 다음 날 00:00 — 변환을 빠뜨리면 하루 밀린다
             new SystemTime(2026, 8, 10, 14, 59, 0).ToWallClock().Day.Should().Be(10);
@@ -52,7 +52,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void 표시_시간대가_다르면_다른_시각으로_보인다()
+        public void DifferentDisplayZones_ShowDifferentClockTimes()
         {
             var moment = new SystemTime(2026, 8, 10, 15, 0, 0);
 
@@ -63,7 +63,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void FromWallClock은_입력을_표시_시간대로_해석한다()
+        public void FromWallClock_InterpretsInputAsDisplayZone()
         {
             // 픽커가 준 "8/11 00:00"은 서울 시각이므로 8/10 15:00 UTC다
             SystemTime utc = DisplayTime.FromWallClock(new DateTime(2026, 8, 11, 0, 0, 0));
@@ -76,7 +76,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData(DateTimeKind.Unspecified)]
         [InlineData(DateTimeKind.Utc)]
         [InlineData(DateTimeKind.Local)]
-        public void FromWallClock은_입력_Kind를_무시한다(DateTimeKind kind)
+        public void FromWallClock_IgnoresInputKind(DateTimeKind kind)
         {
             // 픽커가 어떤 Kind로 만들어 주든 "사용자가 화면에서 본 시각"이라는 뜻은 같다 —
             // 기기 설정에 따라 결과가 달라지면 안 된다
@@ -86,7 +86,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void 존재하지_않는_시각을_입력해도_터지지_않는다()
+        public void NonExistentLocalTime_DoesNotThrow()
         {
             // 서머타임 시작일에는 그 지역에 아예 없는 시각이 생긴다(뉴욕 3/8 02:30).
             // 픽커가 그걸 만들어 보낼 수 있고, 저장이 예외로 죽으면 안 된다.
@@ -100,7 +100,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void 폼_왕복에서_값이_변하지_않는다()
+        public void FormRoundTrip_PreservesValue()
         {
             // 일정 수정: 서버 값 → 픽커 → 저장. 한 번 돌 때마다 시각이 밀리면 안 된다
             var original = new SystemTime(2026, 8, 10, 15, 0, 0);
@@ -109,7 +109,7 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Fact]
-        public void Format은_벽시계로_문자열을_만든다()
+        public void Format_BuildsStringFromWallClock()
         {
             new SystemTime(2026, 8, 10, 15, 0, 0).Format("M/d HH:mm").Should().Be("8/11 00:00");
         }

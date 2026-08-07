@@ -42,7 +42,7 @@ namespace PlayGround.Tests.Integration
         //.// 무효화에 필요한 클레임
 
         [Fact]
-        public void 토큰은_jti를_담는다()
+        public void Token_CarriesJti()
         {
             // 로그아웃은 "이 토큰 하나"를 지목해야 하므로 식별자가 없으면 성립하지 않는다
             JwtSecurityToken token = Decode(
@@ -55,7 +55,7 @@ namespace PlayGround.Tests.Integration
         }
 
         [Fact]
-        public void 토큰마다_jti가_다르다()
+        public void Jti_DiffersPerToken()
         {
             JwtTokenService service = CreateTokenService();
             var userId = Guid.NewGuid();
@@ -69,7 +69,7 @@ namespace PlayGround.Tests.Integration
         }
 
         [Fact]
-        public void 토큰은_iat를_담는다()
+        public void Token_CarriesIat()
         {
             // 탈퇴 시 "이 시각 이전 토큰 전부 무효" 판정이 iat에 기댄다.
             // JwtSecurityToken이 자동으로 넣어 주지 않으므로 회귀하기 쉬운 지점이다.
@@ -86,7 +86,7 @@ namespace PlayGround.Tests.Integration
         }
 
         [Fact]
-        public void 토큰은_exp를_담는다()
+        public void Token_CarriesExp()
         {
             // 무효화 기록은 토큰 만료까지만 들고 있으면 된다 — exp가 그 보관 기간을 정한다
             JwtSecurityToken token = Decode(
@@ -97,7 +97,7 @@ namespace PlayGround.Tests.Integration
         }
 
         [Fact]
-        public void 나중에_발급한_토큰의_iat가_더_크거나_같다()
+        public void LaterToken_HasGreaterOrEqualIat()
         {
             // 탈퇴 기준선 비교가 성립하려면 발급 순서가 iat에 반영돼야 한다
             JwtTokenService service = CreateTokenService();
@@ -115,7 +115,7 @@ namespace PlayGround.Tests.Integration
         //.// 검증 훅 — 무효화된 토큰만 떨군다
 
         [Fact]
-        public async Task 저장소가_없으면_토큰을_통과시킨다()
+        public async Task TokenPasses_WhenStoreUnavailable()
         {
             // 미등록(로컬 개발 등)에서 인증이 통째로 막히면 안 된다
             TokenValidatedContext context = BuildContext(store: null);
@@ -126,7 +126,7 @@ namespace PlayGround.Tests.Integration
         }
 
         [Fact]
-        public async Task 무효화되지_않은_토큰은_통과한다()
+        public async Task NonRevokedToken_Passes()
         {
             var store = new Mock<ITokenRevocationStore>();
             store.Setup(s => s.IsRevokedAsync(
@@ -141,7 +141,7 @@ namespace PlayGround.Tests.Integration
         }
 
         [Fact]
-        public async Task 무효화된_토큰은_거부한다()
+        public async Task RevokedToken_IsRejected()
         {
             var store = new Mock<ITokenRevocationStore>();
             store.Setup(s => s.IsRevokedAsync(
@@ -157,7 +157,7 @@ namespace PlayGround.Tests.Integration
         }
 
         [Fact]
-        public async Task 저장소에_토큰의_jti와_사용자와_발급시각을_넘긴다()
+        public async Task PassesJtiUserAndIssuedAt_ToStore()
         {
             // 셋 중 하나라도 빠지면 판정이 헐거워진다(예: iat 없이는 탈퇴 기준선을 못 쓴다)
             var userId = Guid.NewGuid();

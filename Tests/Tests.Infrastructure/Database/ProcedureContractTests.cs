@@ -46,7 +46,7 @@ namespace PlayGround.Tests.Infrastructure.Database
         }
 
         [Fact]
-        public void 생성된_프로시저_객체가_하나_이상_발견된다()
+        public void GeneratedProcedureTypes_AreDiscovered()
         {
             // 리플렉션 탐색이 조용히 0건이 되면 아래 테스트가 전부 통과처럼 보인다
             FindGeneratedProcedureTypes().Should().NotBeEmpty();
@@ -54,7 +54,7 @@ namespace PlayGround.Tests.Infrastructure.Database
 
         [Theory]
         [MemberData(nameof(GeneratedProcedures))]
-        public void 프로시저가_DB에_배포돼_있다(string typeName)
+        public void Procedures_AreDeployedToDatabase(string typeName)
         {
             fixture.SkipIfUnavailable();
 
@@ -67,7 +67,7 @@ namespace PlayGround.Tests.Infrastructure.Database
 
         [Theory]
         [MemberData(nameof(GeneratedProcedures))]
-        public void 파라미터_이름이_DB와_일치한다(string typeName)
+        public void ParameterNames_MatchDatabase(string typeName)
         {
             fixture.SkipIfUnavailable();
 

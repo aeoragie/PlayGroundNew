@@ -22,7 +22,7 @@ namespace PlayGround.Tests.Unit.Domain
 
         [Theory]
         [MemberData(nameof(Projects))]
-        public void 모든_sql_폴더가_프로젝트_글롭에_덮인다(string database)
+        public void EverySqlFolder_IsCoveredByProjectGlob(string database)
         {
             string root = Path.Combine(DisplayStringPlacementTests.RepositoryRoot(), "Source", "Database", database);
             string projectFile = Path.Combine(root, $"Database.{database}.sqlproj");
@@ -46,7 +46,7 @@ namespace PlayGround.Tests.Unit.Domain
 
         [Theory]
         [MemberData(nameof(Projects))]
-        public void 개별_파일_나열을_쓰지_않는다(string database)
+        public void IndividualFileEntries_AreNotUsed(string database)
         {
             // 손으로 관리하면 반드시 드리프트한다 — 글롭만 쓴다.
             string projectFile = Path.Combine(DisplayStringPlacementTests.RepositoryRoot(),
@@ -62,7 +62,7 @@ namespace PlayGround.Tests.Unit.Domain
         }
 
         [Fact]
-        public void 스키마_폴더와_데이터_폴더를_구분해_넣는다()
+        public void SchemaFolders_AndDataFolders_AreSeparated()
         {
             // Seeds(데이터)·Queries(제너레이터용 SELECT)·Migrations(적용 이력)는 CREATE 구문이 아니라
             // 빌드에 넣으면 모델이 깨진다. Build/None을 뒤바꾸지 않았는지 본다.

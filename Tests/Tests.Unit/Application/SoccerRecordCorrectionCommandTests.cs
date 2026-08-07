@@ -37,7 +37,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 생성 — 인가·입력 가드
 
         [Fact]
-        public async Task ExecuteAsync_빈_사용자는_Unauthorized다()
+        public async Task ExecuteAsync_EmptyUser_IsUnauthorized()
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
 
@@ -48,7 +48,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_빈_경기는_InvalidInput이다()
+        public async Task ExecuteAsync_EmptyMatch_IsInvalidInput()
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
             CreateRecordCorrectionRequest request = Request();
@@ -63,7 +63,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("0")]        // 숫자 문자열이 enum으로 파싱되는 것을 막는다
         [InlineData("Unknown")]
         [InlineData("")]
-        public async Task ExecuteAsync_알_수_없는_항목은_InvalidInput이다(string fieldType)
+        public async Task ExecuteAsync_UnknownField_IsInvalidInput(string fieldType)
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
 
@@ -75,7 +75,7 @@ namespace PlayGround.Tests.Unit.Application
         [Theory]
         [InlineData("")]
         [InlineData("   ")]
-        public async Task ExecuteAsync_요청값이_비면_InvalidInput이다(string requested)
+        public async Task ExecuteAsync_EmptyRequestedValue_IsInvalidInput(string requested)
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
 
@@ -85,7 +85,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_요청값이_상한을_넘으면_InvalidInput이다()
+        public async Task ExecuteAsync_RequestedValueOverLimit_IsInvalidInput()
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
 
@@ -97,7 +97,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 생성 — 정규화
 
         [Fact]
-        public async Task ExecuteAsync_저장_전에_값을_정규화한다()
+        public async Task ExecuteAsync_NormalizesValuesBeforeSaving()
         {
             Mock<ISoccerTeamRepository> repo = RepoCreating(Guid.NewGuid());
             var command = new SoccerRecordCorrectionCommand(repo.Object);
@@ -113,7 +113,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_설명은_상한_길이로_자른다()
+        public async Task ExecuteAsync_TruncatesDescriptionToLimit()
         {
             Mock<ISoccerTeamRepository> repo = RepoCreating(Guid.NewGuid());
             var command = new SoccerRecordCorrectionCommand(repo.Object);
@@ -127,7 +127,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 생성 — 저장소 결과 해석
 
         [Fact]
-        public async Task ExecuteAsync_성공하면_신청_식별자를_돌려준다()
+        public async Task ExecuteAsync_ReturnsRequestId_OnSuccess()
         {
             var created = Guid.NewGuid();
             var command = new SoccerRecordCorrectionCommand(RepoCreating(created).Object);
@@ -139,7 +139,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_남의_경기_친선_중복은_사유를_구분하지_않고_Forbidden이다()
+        public async Task ExecuteAsync_ForeignFriendlyDuplicate_AreForbidden_WithoutReason()
         {
             // 어느 쪽인지 알려주면 남의 경기 존재 여부가 새어 나간다
             var command = new SoccerRecordCorrectionCommand(RepoCreating(null).Object);
@@ -150,7 +150,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_저장소_오류는_DatabaseError로_바꾼다()
+        public async Task ExecuteAsync_MapsRepositoryFailureToDatabaseError()
         {
             var repo = new Mock<ISoccerTeamRepository>();
             repo.Setup(r => r.CreateRecordCorrectionAsync(It.IsAny<Guid>(), It.IsAny<CreateRecordCorrectionRequest>(), It.IsAny<CancellationToken>()))
@@ -165,7 +165,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 보호자 경로 — 팀 경로와 같은 규칙 + 자녀 지정 필수
 
         [Fact]
-        public async Task ExecuteByGuardianAsync_대상_자녀가_없으면_InvalidInput이다()
+        public async Task ExecuteByGuardianAsync_InvalidInput_WhenChildMissing()
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
 
@@ -175,7 +175,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteByGuardianAsync_내_자녀가_아니면_Forbidden이다()
+        public async Task ExecuteByGuardianAsync_Forbidden_WhenNotOwnChild()
         {
             var repo = new Mock<ISoccerTeamRepository>();
             repo.Setup(r => r.CreateGuardianCorrectionAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CreateRecordCorrectionRequest>(), It.IsAny<CancellationToken>()))
@@ -190,7 +190,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 취소 — 접수 상태의 내 신청만
 
         [Fact]
-        public async Task CancelAsync_저장소가_거부하면_Forbidden이다()
+        public async Task CancelAsync_Forbidden_WhenRepositoryRejects()
         {
             // 이미 심사가 시작된 건·남의 신청 — 프로시저가 false를 준다
             var repo = new Mock<ISoccerTeamRepository>();
@@ -204,7 +204,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task CancelAsync_접수_상태면_취소된다()
+        public async Task CancelAsync_CancelsWhilePending()
         {
             var repo = new Mock<ISoccerTeamRepository>();
             repo.Setup(r => r.CancelRecordCorrectionAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -217,7 +217,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task CancelAsync_빈_식별자는_InvalidInput이다()
+        public async Task CancelAsync_EmptyId_IsInvalidInput()
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
 
@@ -229,7 +229,7 @@ namespace PlayGround.Tests.Unit.Application
         //.// 설계 결정 보호
 
         [Fact]
-        public void 승인_반려_메서드는_이_유즈케이스에_없다()
+        public void ApproveAndRejectMethods_DoNotExistInThisUseCase()
         {
             // 심사는 주최측(대회 운영 서비스)의 몫 — 여기에 생기면 설계 결정 7이 무너진다
             string[] methods = typeof(SoccerRecordCorrectionCommand)

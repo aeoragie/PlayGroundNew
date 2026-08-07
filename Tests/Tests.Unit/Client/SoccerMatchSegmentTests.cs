@@ -16,13 +16,13 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData("Unknown", false)]   // 알 수 없으면 공식 — 다수가 공식이라 안전한 기본값
         [InlineData(null, false)]
         [InlineData("", false)]
-        public void IsFriendly_저장_문자열을_해석한다(string? value, bool expected)
+        public void IsFriendly_ParsesStoredString(string? value, bool expected)
         {
             SoccerMatchTypeExtensions.IsFriendly(value).Should().Be(expected);
         }
 
         [Fact]
-        public void Parse_알_수_없으면_Official이다()
+        public void Parse_FallsBackToOfficial_WhenUnknown()
         {
             SoccerMatchTypeExtensions.Parse("이상한값").Should().Be(SoccerMatchType.Official);
             SoccerMatchTypeExtensions.Parse(null).Should().Be(SoccerMatchType.Official);
@@ -40,13 +40,13 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData(SoccerMatchSegment.Friendly, "Friendly", true)]
         [InlineData(SoccerMatchSegment.Friendly, "Official", false)]
         [InlineData(SoccerMatchSegment.Friendly, null, false)]
-        public void Matches_세그먼트가_경기를_통과시키는지(SoccerMatchSegment segment, string? matchType, bool expected)
+        public void Matches_SegmentAcceptsMatch(SoccerMatchSegment segment, string? matchType, bool expected)
         {
             segment.Matches(matchType).Should().Be(expected);
         }
 
         [Fact]
-        public void Matches_공식과_친선은_전체를_빠짐없이_나눈다()
+        public void Matches_OfficialAndFriendly_PartitionAllMatches()
         {
             // 어느 경기도 두 세그먼트에서 동시에 보이거나 둘 다에서 사라지면 안 된다
             foreach (string? matchType in new[] { "Official", "Friendly", "Unknown", null })
@@ -62,7 +62,7 @@ namespace PlayGround.Tests.Unit.Client
         //.// URL 왕복 — 필터가 공유·새로고침에서 살아남아야 한다
 
         [Fact]
-        public void ToQuery_전체는_기본값이라_쿼리에서_생략한다()
+        public void ToQuery_OmitsAll_BecauseItIsDefault()
         {
             SoccerMatchSegment.All.ToQuery().Should().BeNull();
             SoccerMatchSegment.Official.ToQuery().Should().Be("official");
@@ -73,7 +73,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData(SoccerMatchSegment.All)]
         [InlineData(SoccerMatchSegment.Official)]
         [InlineData(SoccerMatchSegment.Friendly)]
-        public void 세그먼트는_URL을_왕복해도_같은_값이다(SoccerMatchSegment segment)
+        public void Segment_SurvivesUrlRoundTrip(SoccerMatchSegment segment)
         {
             SoccerMatchTypeExtensions.ParseSegment(segment.ToQuery()).Should().Be(segment);
         }
@@ -84,7 +84,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData("이상한값", SoccerMatchSegment.All)]
         [InlineData(null, SoccerMatchSegment.All)]
         [InlineData("", SoccerMatchSegment.All)]
-        public void ParseSegment_모르는_값은_전체로_떨어진다(string? query, SoccerMatchSegment expected)
+        public void ParseSegment_FallsBackToAll_WhenUnknown(string? query, SoccerMatchSegment expected)
         {
             SoccerMatchTypeExtensions.ParseSegment(query).Should().Be(expected);
         }

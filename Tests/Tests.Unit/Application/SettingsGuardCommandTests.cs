@@ -32,7 +32,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("Recruit")]
         [InlineData("Review")]
         [InlineData("VisitSummary")]
-        public async Task SetAsync_허용_항목은_저장된다(string itemName)
+        public async Task SetAsync_SavesAllowedKeys(string itemName)
         {
             Result<bool> result = await PreferenceCommand().SetAsync(User,
                 new SetNotificationPreferenceRequest { ItemName = itemName, IsEnabled = false });
@@ -49,7 +49,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("2")]
         [InlineData("")]
         [InlineData("Unknown")]
-        public async Task SetAsync_승인형과_미지의_항목은_InvalidInput이다(string itemName)
+        public async Task SetAsync_ApprovalAndUnknownKeys_AreInvalidInput(string itemName)
         {
             Result<bool> result = await PreferenceCommand().SetAsync(User,
                 new SetNotificationPreferenceRequest { ItemName = itemName, IsEnabled = false });
@@ -58,7 +58,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task SetAsync_빈_사용자는_InvalidInput이다()
+        public async Task SetAsync_EmptyUser_IsInvalidInput()
         {
             Result<bool> result = await PreferenceCommand().SetAsync(Guid.Empty,
                 new SetNotificationPreferenceRequest { ItemName = "PushChannel" });
@@ -67,7 +67,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task SetAsync_저장_행이_없으면_NotFound다()
+        public async Task SetAsync_NotFound_WhenNoRowStored()
         {
             Result<bool> result = await PreferenceCommand(saved: false).SetAsync(User,
                 new SetNotificationPreferenceRequest { ItemName = "PushChannel" });
@@ -93,7 +93,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("School")]
         [InlineData("GuardianPhone")]
         [InlineData("StrengthTags")]
-        public async Task ExecuteAsync_허용_항목은_저장된다(string fieldName)
+        public async Task ExecuteAsync_SavesAllowedFields(string fieldName)
         {
             Result<bool> result = await VisibilityCommand().ExecuteAsync(User, fieldName, isPublic: false);
 
@@ -107,7 +107,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("")]
         [InlineData("   ")]
         [InlineData(null)]
-        public async Task ExecuteAsync_숫자문자열과_미지의_항목은_InvalidInput이다(string? fieldName)
+        public async Task ExecuteAsync_NumericAndUnknownFields_AreInvalidInput(string? fieldName)
         {
             Result<bool> result = await VisibilityCommand().ExecuteAsync(User, fieldName!, isPublic: true);
 
@@ -115,7 +115,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_빈_사용자는_Unauthorized다()
+        public async Task ExecuteAsync_EmptyUser_IsUnauthorized()
         {
             Result<bool> result = await VisibilityCommand().ExecuteAsync(Guid.Empty, "Height", isPublic: true);
 
@@ -123,7 +123,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_소유_선수가_없으면_NotFound다()
+        public async Task ExecuteAsync_NotFound_WhenPlayerNotOwned()
         {
             // 타인 프로필 시도 — 존재 여부를 노출하지 않는다
             Result<bool> result = await VisibilityCommand(applied: false).ExecuteAsync(User, "Height", isPublic: true);
@@ -132,7 +132,7 @@ namespace PlayGround.Tests.Unit.Application
         }
 
         [Fact]
-        public async Task ExecuteAsync_항목_이름은_enum_형태로_정규화해_저장한다()
+        public async Task ExecuteAsync_NormalizesFieldNameToEnumForm()
         {
             var repo = new Mock<IPlayerRepository>();
             string? captured = null;
