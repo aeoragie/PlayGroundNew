@@ -1,0 +1,17 @@
+# 줄바꿈은 저장소와 작업본 모두 LF 하나로 고정한다.
+#
+# 그냥 두면 각 PC의 core.autocrlf 값에 따라 작업본 줄바꿈이 달라진다. 그러면
+# ① 커밋할 때마다 "LF will be replaced by CRLF" 경고가 파일 수만큼 쏟아지고
+# ② 윈도우에서 편집한 .sh를 서버로 복사하면 CRLF가 그대로 따라가 리눅스에서 죽는다
+#    (bash: $'\r': command not found). 파일 네이밍 규칙에서 겪은 대소문자 문제와 같은 부류다.
+#
+# eol=lf는 core.autocrlf보다 우선하므로, 개인 설정과 무관하게 모두 같은 결과가 된다.
+* text=auto eol=lf
+
+# 변환 금지 — 바이너리
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.dacpac binary
