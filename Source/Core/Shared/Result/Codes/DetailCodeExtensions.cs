@@ -5,21 +5,6 @@ namespace PlayGround.Shared.Result;
 /// </summary>
 public static class DetailCodeExtensions
 {
-    public static string GetMessage(this DetailCode errorCode)
-    {
-        return errorCode.DefaultMessage ?? "Unknown status";
-    }
-
-    public static T? As<T>(this DetailCode detailCode) where T : DetailCode
-    {
-        return detailCode as T;
-    }
-
-    public static bool TryAs<T>(this DetailCode detailCode, out T? result) where T : DetailCode
-    {
-        result = detailCode as T;
-        return result != null;
-    }
 
     /// <summary>
     /// 에러 코드가 특정 범위에 속하는지 확인
@@ -81,24 +66,6 @@ public static class DetailCodeExtensions
     }
 
     /// <summary>
-    /// 로그 레벨 결정
-    /// </summary>
-    public static string GetLogLevel(this DetailCode code)
-    {
-        return code switch
-        {
-            ErrorCode when ((ErrorCode)code).IsCritical => "Fatal",
-            ErrorCode when code.IsSystemError() => "Error",
-            ErrorCode when code.IsBusinessError() => "Warning",
-            ErrorCode when code.IsUserError() => "Information",
-            WarningCode => "Warning",
-            InformationCode => "Information",
-            SuccessCode => "Information",
-            _ => "Information"
-        };
-    }
-
-    /// <summary>
     /// 재시도 가능한지 확인
     /// </summary>
     public static bool IsRetryable(this DetailCode code)
@@ -127,56 +94,6 @@ public static class DetailCodeExtensions
     }
 
     /// <summary>
-    /// 메트릭 카테고리 가져오기
-    /// </summary>
-    public static string GetMetricCategory(this DetailCode code)
-    {
-        return code switch
-        {
-            ErrorCode when code.IsUserError() => "client_error",
-            ErrorCode when code.IsBusinessError() => "business_error",
-            ErrorCode when code.IsSystemError() => "system_error",
-            WarningCode => "warning",
-            InformationCode => "information",
-            SuccessCode => "success",
-            _ => "unknown"
-        };
-    }
-
-    /// <summary>
-    /// 알림 필요 여부 확인
-    /// </summary>
-    public static bool RequiresNotification(this DetailCode code)
-    {
-        return code switch
-        {
-            ErrorCode when ((ErrorCode)code).IsCritical => true,
-            ErrorCode when code == ErrorCode.DatabaseError => true,
-            ErrorCode when code == ErrorCode.ExternalServiceUnavailable => true,
-            WarningCode when code.IsInRange(5600, 5699) => true, // System warnings
-            _ => false
-        };
-    }
-
-    /// <summary>
-    /// 코드 우선순위 가져오기 (높을수록 중요)
-    /// </summary>
-    public static int GetPriority(this DetailCode code)
-    {
-        return code switch
-        {
-            ErrorCode when ((ErrorCode)code).IsCritical => 5,
-            ErrorCode when code.IsSystemError() => 4,
-            ErrorCode when code.IsBusinessError() => 3,
-            ErrorCode when code.IsUserError() => 2,
-            WarningCode => 2,
-            InformationCode => 1,
-            SuccessCode => 1,
-            _ => 0
-        };
-    }
-
-    /// <summary>
     /// 사용자 친화적 메시지 생성
     /// </summary>
     public static string GetUserFriendlyMessage(this DetailCode code, string? customMessage = null)
@@ -197,22 +114,4 @@ public static class DetailCodeExtensions
         };
     }
 
-    /// <summary>
-    /// 오류 해결 방법 제안
-    /// </summary>
-    public static string? GetResolutionSuggestion(this DetailCode code)
-    {
-        return code switch
-        {
-            ErrorCode when code == ErrorCode.InvalidInput => "Please check your input and enter it in the correct format.",
-            ErrorCode when code == ErrorCode.MissingRequired => "Please fill in all required fields.",
-            ErrorCode when code == ErrorCode.Unauthorized => "Please log in and try again.",
-            ErrorCode when code == ErrorCode.Forbidden => "You don't have permission for this operation. Please contact the administrator.",
-            ErrorCode when code == ErrorCode.NotFound => "The requested information could not be found. Please check the URL.",
-            ErrorCode when code == ErrorCode.TooManyRequests => "Too many requests occurred. Please try again later.",
-            ErrorCode when code == ErrorCode.NetworkTimeout => "Please check your network connection and try again.",
-            ErrorCode when code == ErrorCode.ServiceUnavailable => "Please wait a moment for service recovery.",
-            _ => null
-        };
-    }
 }

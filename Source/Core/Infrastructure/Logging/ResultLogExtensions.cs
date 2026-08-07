@@ -1,12 +1,11 @@
 using NLog;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 
 namespace PlayGround.Infrastructure.Logging
 {
     /// <summary>
-    /// Result 수신 지점 로깅 헬퍼. DetailCode가 스스로 레벨을 결정한다
-    /// (시스템 오류 → Error/Fatal, 비즈니스 오류 → Warn, 사용자 입력 오류·성공 → Info).
-    /// 실패 Result를 받은 로직은 반드시 LogWith(또는 명시적 로깅)를 호출한다.
+    /// Result 수신 지점 로깅 헬퍼 — 레벨 분류는 <c>ToLogLevel</c> 한 곳에 있고 여기서는 NLog 레벨로만 옮긴다.
     /// </summary>
     public static class ResultLogExtensions
     {
@@ -47,11 +46,11 @@ namespace PlayGround.Infrastructure.Logging
 
         private static LogLevel ToNLogLevel(DetailCode code)
         {
-            return code.GetLogLevel() switch
+            return code.ToLogLevel() switch
             {
-                "Fatal" => LogLevel.Fatal,
-                "Error" => LogLevel.Error,
-                "Warning" => LogLevel.Warn,
+                Microsoft.Extensions.Logging.LogLevel.Critical => LogLevel.Fatal,
+                Microsoft.Extensions.Logging.LogLevel.Error => LogLevel.Error,
+                Microsoft.Extensions.Logging.LogLevel.Warning => LogLevel.Warn,
                 _ => LogLevel.Info
             };
         }

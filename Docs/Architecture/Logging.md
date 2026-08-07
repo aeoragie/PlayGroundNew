@@ -41,7 +41,18 @@ Repository는 `managerUserId`는 알아도 그게 권한 판정을 통과한 값
 | Fatal | 프로세스 지속 불가 | 기동 실패, 설정 누락 |
 
 `NotFound`처럼 **정상적인 빈 결과는 Warn이 아니다.** 사용자가 없는 팀을 조회한 것은 이상이 아니다.
-`result.LogWith(Logger, "작업명")`을 쓰면 `DetailCode`가 레벨을 알아서 고른다.
+
+`result.LogWith(Logger, "작업명")`을 쓰면 **코드 종류가 곧 레벨이 된다.**
+
+| 코드 | 레벨 |
+|---|---|
+| `ErrorCode` | Error (`IsCritical`이면 Fatal) |
+| `WarningCode` | Warn |
+| `InformationCode` · `SuccessCode` | Info |
+
+레벨을 따로 정하는 표는 두지 않는다. 예전에는 `GetLogLevel()`이 같은 `ErrorCode`를 다시 갈라
+입력 오류를 Info로 낮췄는데, 분류가 두 벌이 되는 데다 문자열로 돌려주고 다시 enum으로 바꾸고 있었다.
+**입력 오류도 실패는 실패다** — Error로 남는다.
 
 ## 4. 반복해서 틀렸던 것들
 

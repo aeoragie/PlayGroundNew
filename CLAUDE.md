@@ -412,8 +412,9 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 - **메시지 포맷: `문장. { Key:Value, Key:Value }`** — 헬퍼가 자동 생성 + 구조화 속성 동시 기록.
 - `Logger.InfoWith("Team created", ("TeamId", id))` — Trace/Debug/Info/Warn/Error/Fatal 각 `~With` 제공.
   식별자는 반드시 이 필드로 넘긴다. **문자열 보간(`$"Team {id}"`) 금지** — 검색·집계가 안 된다.
-- **실패 Result를 받은 로직은 반드시 `result.LogWith(Logger, "작업명")` 호출** — DetailCode가 레벨을
-  자동 결정. 라이브러리가 Error를 남기지 않으므로 이걸 빼먹으면 오류가 로그에 남지 않는다.
+- **실패 Result를 받은 로직은 반드시 `result.LogWith(Logger, "작업명")` 호출** — 코드 종류가 곧 레벨이다
+  (`ErrorCode`→Error, 그중 `IsCritical`만 Fatal · `WarningCode`→Warn · 나머지→Info).
+  라이브러리가 Error를 남기지 않으므로 이걸 빼먹으면 오류가 로그에 남지 않는다.
 - **한 요청 = 한 줄, 한 실패 = 한 줄.** requested/received 짝으로 남기지 않고 결과 시점에 한 줄.
   아래층이 로깅하고 위층이 또 하면 같은 실패가 3줄이 된다.
 - **catch에서 Result로 바꿀 때는 예외 객체째로** — `ErrorWith(ex, …)`. `ex`를 빼면 스택이 사라진다.

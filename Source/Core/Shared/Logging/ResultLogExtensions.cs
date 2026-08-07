@@ -5,8 +5,7 @@ using Results = PlayGround.Shared.Result;
 namespace PlayGround.Shared.Logging
 {
     /// <summary>
-    /// Result 수신 지점 로깅 — <c>DetailCode</c>가 레벨을 정한다.
-    /// 아래층이 Error를 남기지 않으므로 유즈케이스가 이걸 빼먹으면 오류가 로그에 안 남는다.
+    /// Result 수신 지점 로깅. 아래층이 Error를 남기지 않으므로 유즈케이스가 이걸 빼먹으면 오류가 로그에 안 남는다.
     /// </summary>
     public static class ResultLogExtensions
     {
@@ -44,11 +43,11 @@ namespace PlayGround.Shared.Logging
             }
         }
 
-        private static LogLevel ToLogLevel(Results.DetailCode code) => code.GetLogLevel() switch
+        /// <summary>코드 종류가 곧 레벨이다. 프로세스를 못 버티는 오류만 Critical로 올린다.</summary>
+        public static LogLevel ToLogLevel(this Results.DetailCode code) => code switch
         {
-            "Fatal" => LogLevel.Critical,
-            "Error" => LogLevel.Error,
-            "Warning" => LogLevel.Warning,
+            Results.ErrorCode error => error.IsCritical ? LogLevel.Critical : LogLevel.Error,
+            Results.WarningCode => LogLevel.Warning,
             _ => LogLevel.Information,
         };
     }

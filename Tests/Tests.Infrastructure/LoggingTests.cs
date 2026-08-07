@@ -78,13 +78,13 @@ namespace PlayGround.Tests.Infrastructure
         }
 
         [Fact]
-        public void LogWith_UserError_LogsAtInfoLevel()
+        public void LogWith_UserError_LogsAtErrorLevel()
         {
             var (logger, target) = CreateLogger();
 
             Result<int>.Error(ErrorCode.NotFound).LogWith(logger, "GetPlayer");
 
-            Assert.StartsWith("Info|Operation failed. { Operation:GetPlayer, Code:NotFound", target.Logs[0]);
+            Assert.StartsWith("Error|Operation failed. { Operation:GetPlayer, Code:NotFound", target.Logs[0]);
         }
 
         [Fact]

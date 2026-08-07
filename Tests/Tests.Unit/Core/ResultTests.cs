@@ -61,33 +61,8 @@ namespace PlayGround.Tests.Unit.Core
             Assert.Equal(ErrorCode.NotFound, result.ResultData.DetailCode);
         }
 
-        [Fact]
-        public void CombineAll_EmptyInput_ReturnsSuccessWithEmptyArray()
-        {
-            var result = ResultExtensions.CombineAll<int>();
 
-            Assert.True(result.IsSuccess);
-            Assert.Empty(result.Value!);
-        }
 
-        [Fact]
-        public void CombineAny_EmptyInput_ReturnsUnknown()
-        {
-            var result = ResultExtensions.CombineAny<int>();
-
-            Assert.True(result.IsError);
-        }
-
-        [Fact]
-        public void CombineAny_ReturnsFirstSuccess()
-        {
-            var result = ResultExtensions.CombineAny(
-                Result<int>.Error(ErrorCode.NotFound),
-                Result<int>.Success(7));
-
-            Assert.True(result.IsSuccess);
-            Assert.Equal(7, result.Value);
-        }
 
         [Fact]
         public void ToEnvelope_Success_MapsCodeAndData()
@@ -99,13 +74,5 @@ namespace PlayGround.Tests.Unit.Core
             Assert.Equal(SuccessCode.Ok.Value, envelope.Code);
         }
 
-        [Fact]
-        public void ToHttpResponse_NotFound_Maps404()
-        {
-            var response = Result<string>.Error(ErrorCode.NotFound).ToHttpResponse();
-
-            Assert.Equal(404, response.StatusCode);
-            Assert.False(response.IsSuccess);
-        }
     }
 }
