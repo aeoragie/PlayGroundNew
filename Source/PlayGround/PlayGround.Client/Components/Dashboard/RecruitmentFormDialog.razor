@@ -103,7 +103,8 @@
             mDescription = Editing.Description;
             mConditions = string.Join(", ", Editing.Conditions);
             // 마감일은 한국 달력 날짜(DateOnly) — 캘린더 픽커 바인딩(DateTime?)으로 되돌린다
-            mDeadline = Editing.DeadlineDate?.ToDateTime(TimeOnly.MinValue);
+            // 마감 순간(UTC)을 내 시간대의 날짜로 되돌려 픽커에 채운다
+            mDeadline = Editing.DeadlineAt?.ToWallClock().Date;
         }
     }
 
@@ -141,7 +142,11 @@
             Title = mTitle.Trim(),
             Description = mDescription.Trim(),
             Conditions = ParseConditions(mConditions),
-            DeadlineDate = mDeadline is null ? null : DateOnly.FromDateTime(mDeadline.Value),
+            // 고른 날짜의 **끝**(23:59:59.999)을 내 시간대 기준으로 UTC 순간으로 바꿔 보낸다.
+            // 그 순간은 모두에게 같다 — 보는 사람에 따라 날짜 라벨만 달라질 수 있다.
+            DeadlineAt = mDeadline is null
+                ? null
+                : DisplayTime.FromWallClock(mDeadline.Value.Date.AddDays(1)).AddTicks(-1),
         };
 
         mSaving = true;

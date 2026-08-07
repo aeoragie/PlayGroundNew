@@ -164,7 +164,7 @@
             return AppText.Player.ErrorStartFormat;
         }
 
-        if (parsed.Value.Year < EarliestYear || parsed.Value.Year > BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved) + 1)
+        if (parsed.Value.Year < EarliestYear || parsed.Value.Year > SystemTime.Now.ToWallClock().Year + 1)
         {
             return AppText.Player.ErrorEarliestYear(EarliestYear);
         }

@@ -10,7 +10,6 @@ using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Settings;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
-using PlayGround.Domain.Time;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 
@@ -250,7 +249,7 @@ namespace PlayGround.Application.Export.Commands
                     csv.AppendLine("선수,연령,소속팀,출전,득점,도움");
                     var childData = new List<object>();
 
-                    int season = BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved);
+                    int season = SystemTime.Now.Year;
                     foreach (ManagedPlayerDto child in childList)
                     {
                         object? info = null;

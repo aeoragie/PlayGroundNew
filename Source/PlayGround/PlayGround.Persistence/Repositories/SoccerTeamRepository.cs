@@ -7,7 +7,6 @@ using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Team;
-using PlayGround.Domain.Time;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Models;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -813,11 +812,11 @@ namespace PlayGround.Persistence.Repositories
         {
             Logger.InfoWith("Team explore list requested");
 
-            // "올해 전적"의 올해는 그 팀이 속한 지역의 달력 기준이다 — 그 해의 UTC 범위를 계산해 넘긴다
+            // "올해 전적"의 올해는 UTC 달력 기준이다 — 시간대별로 하루 걸치는 경기가 있지만
+            // 요약 지표라 그 정도 오차는 받아들인다(정확한 시즌 경계는 대회 데이터가 정한다).
             // (SQL이 시간대 산술을 하지 않게 하고, 범위 비교라 인덱스도 탄다).
-            TimeZoneInfo zone = BusinessCalendar.Unresolved;
             (SystemTime seasonStartUtc, SystemTime seasonEndUtc) =
-                BusinessCalendar.YearRangeUtc(BusinessCalendar.CurrentYear(zone), zone);
+                (new SystemTime(SystemTime.Now.Year, 1, 1), new SystemTime(SystemTime.Now.Year + 1, 1, 1));
 
             var procedure = new UspGetSoccerTeamExplore(this)
             {
@@ -1000,11 +999,9 @@ namespace PlayGround.Persistence.Repositories
                 Title = request.Title,
                 Description = request.Description,
                 ConditionsJson = request.Conditions.Count > 0 ? JsonSerializer.Serialize(request.Conditions) : null,
-                // 사용자가 고른 "8/10 마감"은 8/10 23:59:59.999 KST까지다 — 그 순간을 UTC로 저장하면
-                // 프로시저가 [DeadlineAt] > GETUTCDATE() 하나로 판정한다(SQL에 9시간 상수가 안 들어간다).
-                DeadlineAt = request.DeadlineDate is DateOnly deadline
-                    ? BusinessCalendar.EndOfDayToUtc(deadline, BusinessCalendar.Unresolved)
-                    : null,
+                // 마감 순간은 클라이언트가 "그 날의 끝"으로 이미 변환해 보낸다 — 서버는 그대로 저장하고
+                // 프로시저가 [DeadlineAt] > GETUTCDATE() 하나로 판정한다(SQL에 시간대가 안 들어간다).
+                DeadlineAt = request.DeadlineAt,
                 AgeGroup = request.AgeGroup,
                 PositionsJson = request.Positions.Count > 0 ? JsonSerializer.Serialize(request.Positions) : null,
                 Capacity = request.Capacity
@@ -1613,7 +1610,7 @@ namespace PlayGround.Persistence.Repositories
 
             if (row.CreatedAt > SystemTime.MinValue)
             {
-                int years = Math.Max(1, BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved) - BusinessCalendar.YearOf(row.CreatedAt, BusinessCalendar.Unresolved) + 1);
+                int years = Math.Max(1, SystemTime.Now.Year - row.CreatedAt.Year + 1);
                 metaParts.Add($"재원 {years}년차");
             }
 
@@ -1654,11 +1651,8 @@ namespace PlayGround.Persistence.Repositories
                 Title = row.Title,
                 Description = row.Description,
                 Conditions = ParseAchievements(row.ConditionsJson),
-                // 저장은 UTC 순간, 표시는 한국 달력 날짜 — 마감일은 "8/10 마감"이라는 한국 달력 개념이라
-                // 보는 사람의 시간대로 흔들리면 안 된다(일정·경기 시각과 다른 점).
-                DeadlineDate = row.DeadlineAt is SystemTime deadlineAt
-                    ? BusinessCalendar.LocalDateOf(deadlineAt, BusinessCalendar.Unresolved)
-                    : null,
+                // 순간 그대로 내려보낸다 — 표시할 날짜는 보는 사람의 시간대로 클라이언트가 만든다
+                DeadlineAt = row.DeadlineAt,
                 Status = row.Status,
                 IsOpen = row.Status == "Open"
                          && (row.DeadlineAt is null || row.DeadlineAt > SystemTime.Now),

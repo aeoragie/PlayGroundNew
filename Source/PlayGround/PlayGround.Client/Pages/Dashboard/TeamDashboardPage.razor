@@ -620,7 +620,7 @@
     {
         mMatchesRequested = true;
         mMatchesFailed = false;
-        mMatches = await Teams.GetTeamMatchesAsync(BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
+        mMatches = await Teams.GetTeamMatchesAsync(SystemTime.Now.ToWallClock().Year);
         mMatchesFailed = mMatches is null;
     }
 

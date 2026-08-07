@@ -135,7 +135,9 @@ namespace PlayGround.Contracts.Team
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<string> Conditions { get; set; } = new();
-        public DateOnly? DeadlineDate { get; set; }
+        /// <summary>마감 순간(UTC). 등록자의 브라우저가 "그 날의 끝"으로 변환해 보낸 값이다 —
+        /// 표시는 보는 사람의 시간대로 되돌린다.</summary>
+        public SystemTime? DeadlineAt { get; set; }
         public string Status { get; set; } = string.Empty;
         public bool IsOpen { get; set; }
 
@@ -159,7 +161,9 @@ namespace PlayGround.Contracts.Team
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<string> Conditions { get; set; } = new();
-        public DateOnly? DeadlineDate { get; set; }
+        /// <summary>마감 순간(UTC). 클라이언트가 픽커 날짜를 "그 날의 끝"으로 변환해 보낸다 —
+        /// 서버는 시간대를 모르고 `[DeadlineAt] > GETUTCDATE()`로만 판정한다.</summary>
+        public SystemTime? DeadlineAt { get; set; }
 
         /// <summary>모집 연령대 'U12'|'U15'|'U18' (선택).</summary>
         public string? AgeGroup { get; set; }

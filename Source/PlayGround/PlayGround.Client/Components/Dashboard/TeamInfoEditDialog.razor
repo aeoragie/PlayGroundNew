@@ -228,7 +228,7 @@
             return AppText.Dashboard.ErrorYearDigits;
         }
 
-        return year < 1900 || year > BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved) ? AppText.Dashboard.ErrorFoundedYearRange(BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved)) : null;
+        return year < 1900 || year > SystemTime.Now.ToWallClock().Year ? AppText.Dashboard.ErrorFoundedYearRange(SystemTime.Now.ToWallClock().Year) : null;
     }
 
     private void AddValue() => mValues.Add(new TeamValueInput());

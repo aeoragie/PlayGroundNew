@@ -177,16 +177,23 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 
 | 층 | 규칙 |
 |---|---|
-| C# | `SystemTime.Now`(**UTC 반환**) · 한국 달력 값만 `KoreanTime`. `DateTime.Now/UtcNow/Today` 직접 호출 금지 |
+| C# | `SystemTime`(**UTC 전용 값 타입**)만. `DateTime` 타입 자체를 쓰지 않는다 |
 | SQL | `GETUTCDATE()`만. `GETDATE()`·`SYSDATETIME()` 금지. **시간대 산술을 SQL에 두지 않는다** |
-| Client | 순간은 `ToLocalTime()`으로 표시, 입력은 `ToUniversalTime()`으로 저장 |
+| Client | **`DisplayTime`만 시간대를 안다** — 표시 `ToWallClock()`, 입력 `FromWallClock()` |
 
 - **`SystemTime`**(Core.Shared) — `Now`가 UTC다. 호출부가 `Now`/`UtcNow`를 고르게 두면
-  반드시 섞이므로 **선택지를 없앴다**.
-- **`KoreanTime`**(Domain) — **+9를 아는 유일한 곳**. 마감일(`EndOfDayToUtc`)과
-  시즌 연도·범위(`CurrentYear`·`YearRangeUtc`)에만 쓴다.
-- **데이터 전환** — `StartsAt`·`MatchedAt` −9h, `DeadlineDate`(DATE) → `DeadlineAt`(DATETIME2,
-  한국 하루의 끝을 UTC로). 마이그레이션 `2026-08-03_Utc.TimeBaseline.sql`은 **멱등하지 않아**
+  반드시 섞이므로 **선택지를 없앴다**. DB(Dapper)·JSON 경계는 자동 변환이라 로직이 `DateTime`을 모른다.
+- **`DisplayTime`**(Client) — **시간대를 아는 유일한 곳**. 기본은 브라우저 시간대이고,
+  계정 설정이 생기면 `Override`만 채우면 된다.
+- **서버·DB는 시간대를 모른다** (2026-08-07 확정). 전 세계 대상이라 "업무 달력"을 지역별로
+  판정하는 클래스(`BusinessCalendar`)까지 만들었다가 **되돌렸다** — 저장이 UTC 순간이면
+  경기가 어디서 열렸든 일어난 순간은 하나뿐이고, 지역은 표시 라벨에만 필요한데 그건 보는 사람
+  기준으로 충분하다. 팀 시간대 컬럼도 같은 이유로 넣지 않는다.
+- **마감일도 브라우저가 변환한다** — 등록자가 고른 날짜의 **끝**을 자기 시간대 기준으로
+  UTC 순간(`DeadlineAt`)으로 바꿔 보낸다. 닫히는 순간은 모두에게 같고, 보는 사람에 따라
+  달라지는 것은 날짜 라벨뿐이다. 서버는 `[DeadlineAt] > GETUTCDATE()` 하나로만 판정한다.
+- **데이터 전환** — `StartsAt`·`MatchedAt` −9h, `DeadlineDate`(DATE) → `DeadlineAt`(DATETIME2).
+  마이그레이션 `2026-08-03_Utc.TimeBaseline.sql`은 **멱등하지 않아**
   마커 테이블(`SoccerSchemaMigrations`)로 1회만 돌게 막았다.
 - **`DATE`를 전부 바꾸지는 않았다** — 생년월일·커리어 기간·대회 일정은 `DATE`로 남겼다.
   기준은 **"now와 비교해 상태가 갈리는 날짜만"**. 생년월일을 순간으로 만들면

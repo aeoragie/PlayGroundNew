@@ -5,7 +5,7 @@
 --   ① 공개 팀 목록 → ② 핵심가치(제목·순서 — 카드 칩 최대 2는 매핑에서)
 --   → ③ 로스터 소속(TeamId만 — 선수단 수 집계는 C#) → ④ 올해 종료·공식 경기(전적 집계는 C#)
 -- 필터·정렬·페이징은 클라이언트 담당 (URL 동기화·즉시 적용 — Design.SearchFilter).
--- 올해(한국 달력)의 시작·끝을 UTC 순간으로 받는다. 앱(KoreanTime)이 계산한다 —
+-- 올해의 시작·끝을 UTC 순간으로 받는다. 앱이 계산한다 —
 -- SQL은 시간대 산술을 하지 않고, 범위 비교라 인덱스도 탄다.
 CREATE PROCEDURE [dbo].[UspGetSoccerTeamExplore]
     @SeasonStartUtc DATETIME2,

@@ -2,7 +2,6 @@ using System.Diagnostics;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
-using PlayGround.Domain.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Team.Commands
@@ -76,7 +75,8 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 마감일은 과거일 수 없다 (수정으로 이미 지난 마감일을 유지하는 것도 막는다 — 마감 처리로 해결)
-            if (request.DeadlineDate is not null && request.DeadlineDate.Value < BusinessCalendar.Today(BusinessCalendar.Unresolved))
+            // 마감 순간은 클라이언트가 이미 UTC로 변환해 보낸다 — 지난 순간이면 거부한다
+            if (request.DeadlineAt is SystemTime deadline && deadline < SystemTime.Now)
             {
                 return Result<TeamRecruitmentDto>.Error(ErrorCode.InvalidInput, "deadline is in the past");
             }

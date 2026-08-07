@@ -159,7 +159,8 @@ dotnet test Tests/Tests.Infrastructure/Tests.Infrastructure.csproj
 
 | 잡는 것 | 왜 |
 |---|---|
-| C# `DateTime.Now`·`UtcNow`·`Today`, `DateTimeOffset.Now`·`UtcNow` | `SystemTime.Now`(UTC)를 쓴다. 한국 달력 값만 `KoreanTime` |
+| C# `DateTime.Now`·`UtcNow`·`Today`, `DateTimeOffset.Now`·`UtcNow` | `SystemTime.Now`(UTC)를 쓴다 |
+| `ToLocalTime()`·`TimeZoneInfo.Local` | 표시 변환은 Client의 `DisplayTime`만 안다 |
 | SQL `GETDATE()`·`SYSDATETIME()`·`CURRENT_TIMESTAMP` | 서버 시간대에 묶인다. `GETUTCDATE()`만 쓴다 |
 
 **이 가드가 없으면 새 코드가 반드시 다시 샌다.** 개발 PC(KST)에서는 `DateTime.Now`가 멀쩡히

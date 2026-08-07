@@ -280,7 +280,7 @@ else if (mHome is not null)
     private async Task LoadRecordAsync()
     {
         mRecordFailed = false;
-        mRecord = await Teams.GetTeamSeasonRecordAsync(Slug, BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
+        mRecord = await Teams.GetTeamSeasonRecordAsync(Slug, SystemTime.Now.ToWallClock().Year);
         mRecordFailed = mRecord is null;
 
         // 다가오는 일정도 같은 시점에 로드(공개 일정만) — 실패해도 시즌성적 표시를 막지 않는다(섹션만 미노출)

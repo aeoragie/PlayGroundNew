@@ -3,7 +3,6 @@ using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
-using PlayGround.Domain.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Team.Commands
@@ -73,7 +72,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "unknown outcome type");
             }
 
-            if (request.OutcomeYear < MinYear || request.OutcomeYear > BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved) + 1)
+            if (request.OutcomeYear < MinYear || request.OutcomeYear > SystemTime.Now.Year + 1)
             {
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "outcome year out of range");
             }

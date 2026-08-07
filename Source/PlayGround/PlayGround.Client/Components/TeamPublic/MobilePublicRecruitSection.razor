@@ -17,14 +17,14 @@
                     <span class="@Css.Badge.Pending">@AppText.Team.Recruiting</span>
                 </div>
                 <p class="m-0 text-[12.5px] text-text-body leading-[1.65] break-keep">@item.Description</p>
-                @if (item.Conditions.Count > 0 || item.DeadlineDate is not null)
+                @if (item.Conditions.Count > 0 || item.DeadlineAt is not null)
                 {
                     <div class="flex gap-[7px] flex-wrap">
                         @foreach (string condition in item.Conditions)
                         {
                             <span class="text-[11px] font-bold text-text-strong bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">@condition</span>
                         }
-                        @if (item.DeadlineDate is not null)
+                        @if (item.DeadlineAt is not null)
                         {
                             <span class="text-[11px] font-bold text-text-strong bg-surface-icon rounded-full px-2.5 py-[3px] whitespace-nowrap">@AppText.Team.Deadline(PublicRecruitSection.DeadlineText(item))</span>
                         }

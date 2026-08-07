@@ -32,7 +32,7 @@
                     <RadioCards TValue="SoccerCareerOutcomeType" Label="@AppText.Dashboard.TypeLabel" @bind-Value="mType"
                                 Options="@TypeOptions" />
 
-                    <TextField Label="@AppText.Dashboard.YearLabel" @bind-Value="mYear" Placeholder="@BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved).ToString()"
+                    <TextField Label="@AppText.Dashboard.YearLabel" @bind-Value="mYear" Placeholder="@SystemTime.Now.ToWallClock().Year.ToString()"
                                Validator="ValidateYear" MaxLength="4" />
 
                     <TextField Label="@AppText.Dashboard.TitleLabel" @bind-Value="mTitle" Placeholder="@AppText.Dashboard.CareerTitlePlaceholder"
@@ -113,7 +113,7 @@
         }
         else if (Editing is null && mLoadedFor == Guid.Empty && mYear.Length == 0)
         {
-            mYear = BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved).ToString();
+            mYear = SystemTime.Now.ToWallClock().Year.ToString();
         }
     }
 
@@ -127,7 +127,7 @@
             return AppText.Dashboard.ErrorYearEmpty;
         }
 
-        return year < 1990 || year > BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved) + 1 ? AppText.Dashboard.ErrorYearRange : null;
+        return year < 1990 || year > SystemTime.Now.ToWallClock().Year + 1 ? AppText.Dashboard.ErrorYearRange : null;
     }
 
     private static string? ValidatePlayerCount(string? value)

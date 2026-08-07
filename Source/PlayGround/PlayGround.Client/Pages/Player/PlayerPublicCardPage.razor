@@ -166,7 +166,7 @@ else if (mData is not null)
     {
         // 게스트 허용 화면 — 로그인 상태면 인증 선확정 (권한 카드 판정에 토큰이 실려야 한다)
         await AuthProvider.GetAuthenticationStateAsync();
-        mData = await Players.GetPublicProfileAsync(Slug, BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
+        mData = await Players.GetPublicProfileAsync(Slug, SystemTime.Now.ToWallClock().Year);
         mLoaded = true;
     }
 
@@ -197,7 +197,7 @@ else if (mData is not null)
     {
         get
         {
-            string season = AppText.Player.CardSeason(BusinessCalendar.CurrentYear(BusinessCalendar.Unresolved));
+            string season = AppText.Player.CardSeason(SystemTime.Now.ToWallClock().Year);
             return mData!.Profile.AgeGroup is null ? season : $"{season} · {mData.Profile.AgeGroup}";
         }
     }

@@ -14,8 +14,7 @@ namespace PlayGround.Shared.Time;
 /// `new SystemTime(dbValue)`처럼 만들면 실수할 자리가 없다.
 ///
 /// 직렬화는 ISO-8601 `Z`다. 이 `Z` 덕분에 브라우저가 사용자 시간대로 되돌릴 수 있다.
-/// 화면 표시는 Client의 `DisplayTime`, 지역 달력 값(마감일·시즌)은
-/// `PlayGround.Domain`의 `BusinessCalendar`가 맡는다 — 이 타입은 표시를 모른다.
+/// 화면 표시는 Client의 `DisplayTime`이 전담한다 — 이 타입은 시간대를 모른다.
 /// </summary>
 [JsonConverter(typeof(SystemTimeJsonConverter))]
 public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTime>, IComparable
@@ -49,9 +48,8 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
     public static SystemTime Now => new(DateTime.UtcNow);
 
     // `Today`는 일부러 두지 않는다. 이름은 "오늘"인데 값은 **UTC 달력의 오늘**이라,
-    // 지역에 따라 사용자가 보는 오늘과 하루 어긋난다. 쓸 자리가 없다.
-    // 업무 달력의 오늘은 `BusinessCalendar.Today(zone)`, 화면에 보이는 오늘은
-    // `SystemTime.Now.ToWallClock().Date`다.
+    // 보는 사람의 오늘과 하루 어긋날 수 있다. 화면에 보이는 오늘은
+    // `SystemTime.Now.ToWallClock().Date`(DisplayTime)다.
 
     public static SystemTime MinValue { get; } = new(DateTime.MinValue);
 

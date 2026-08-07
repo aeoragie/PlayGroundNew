@@ -93,7 +93,7 @@
     internal static string? MetaOf(TeamRecruitmentDto item)
     {
         // "지원 n"은 지원 스키마 도입 전이라 넣지 않는다 — 마감일만
-        return item.DeadlineDate is null ? null : AppText.Dashboard.DeadlineLabel(PublicRecruitSection.DeadlineText(item));
+        return item.DeadlineAt is null ? null : AppText.Dashboard.DeadlineLabel(PublicRecruitSection.DeadlineText(item));
     }
 
     private void OpenCreate()

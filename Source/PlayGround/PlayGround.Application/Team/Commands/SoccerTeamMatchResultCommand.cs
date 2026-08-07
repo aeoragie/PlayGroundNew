@@ -4,7 +4,6 @@ using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Account;
 using PlayGround.Domain.Soccer;
-using PlayGround.Domain.Time;
 using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Team.Commands
@@ -147,7 +146,8 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 아직 열리지 않은 경기의 결과는 있을 수 없다 (시간대 차이를 감안해 하루 여유)
-            if (BusinessCalendar.LocalDateOf(request.MatchedAt, BusinessCalendar.Unresolved) > BusinessCalendar.Today(BusinessCalendar.Unresolved).AddDays(1))
+            // 시간대 폭(UTC-12~+14)을 감안해 하루 여유를 준다 — 어느 지역에서 입력해도 "오늘 경기"는 통과한다
+            if (request.MatchedAt > SystemTime.Now.AddDays(1))
             {
                 return Result<CreateTeamMatchResultResponse>.Error(ErrorCode.InvalidInput, "matchedAt is in the future");
             }
