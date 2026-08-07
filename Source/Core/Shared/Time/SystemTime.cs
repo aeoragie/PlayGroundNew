@@ -5,29 +5,21 @@ using System.Text.Json.Serialization;
 namespace PlayGround.Shared.Time;
 
 /// <summary>
-/// **시각의 단일 타입.** 이 시스템에서 "순간"은 언제나 UTC 한 가지이고, 그걸 타입으로 강제한다.
-/// 코드는 `DateTime`을 몰라도 된다. 시계 읽기는 <see cref="Now"/>, DB·JSON 경계는
-/// 핸들러·컨버터가 자동으로 이 타입을 만든다(`TimeBaselineGuardTests`가 `DateTime` 사용을 막는다).
-///
-/// 어떤 경로로 들어오든 생성자가 UTC로 정규화한다. Kind가 `Unspecified`인 값(DB에서 읽은 값)은
-/// 저장 규칙상 UTC이므로 UTC로 표식하고, `Local`이면 UTC로 변환한다. 그래서
-/// `new SystemTime(dbValue)`처럼 만들면 실수할 자리가 없다.
-///
-/// 직렬화는 ISO-8601 `Z`다. 이 `Z` 덕분에 브라우저가 사용자 시간대로 되돌릴 수 있다.
-/// 화면 표시는 Client의 `DisplayTime`이 전담한다 — 이 타입은 시간대를 모른다.
+/// 시각의 단일 타입. "순간"은 언제나 UTC 하나이고 그걸 타입으로 강제한다 — 어떤 Kind로 들어와도
+/// 생성자가 UTC로 정규화하고, DB(Dapper 핸들러)·JSON(ISO-8601 Z) 경계는 자동 변환이라 로직은
+/// <c>DateTime</c>을 모른다. 시간대는 이 타입이 아니라 Client의 <c>DisplayTime</c>이 안다.
 /// </summary>
 [JsonConverter(typeof(SystemTimeJsonConverter))]
 public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTime>, IComparable
 {
     private readonly DateTime mValue;
 
-    /// <summary>지금 (UTC).</summary>
     public SystemTime()
     {
         mValue = DateTime.UtcNow;
     }
 
-    /// <summary>UTC로 정규화해 감싼다. DB에서 읽은 값(`Unspecified`)은 UTC로 표식한다.</summary>
+    /// <summary>DB에서 읽은 값(<c>Unspecified</c>)은 저장 규칙상 UTC이므로 그대로 UTC로 표식한다.</summary>
     public SystemTime(DateTime value)
     {
         mValue = value.Kind switch
@@ -38,30 +30,23 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
         };
     }
 
-    /// <summary>UTC 달력 성분으로 만든다 (테스트·고정 시점용).</summary>
     public SystemTime(int year, int month, int day, int hour = 0, int minute = 0, int second = 0)
         : this(new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc))
     {
     }
 
-    /// <summary>지금 (UTC).</summary>
     public static SystemTime Now => new(DateTime.UtcNow + DebugClock.Offset);
 
-    // `Today`는 일부러 두지 않는다. 이름은 "오늘"인데 값은 **UTC 달력의 오늘**이라,
-    // 보는 사람의 오늘과 하루 어긋날 수 있다. 화면에 보이는 오늘은
-    // `SystemTime.Now.ToWallClock().Date`(DisplayTime)다.
+    // Today는 일부러 두지 않는다 — UTC 달력의 오늘이라 보는 사람의 오늘과 하루 어긋난다.
 
     public static SystemTime MinValue { get; } = new(DateTime.MinValue);
 
     public static SystemTime MaxValue { get; } = new(DateTime.MaxValue);
 
-    /// <summary>지금 (오프셋 포함). JWT·OAuth·Redis TTL처럼 `DateTimeOffset`을 요구하는 외부 라이브러리 경계용.</summary>
+    /// <summary>JWT·OAuth·Redis TTL처럼 <c>DateTimeOffset</c>을 요구하는 외부 라이브러리 경계용.</summary>
     public static DateTimeOffset OffsetNow => DateTimeOffset.UtcNow;
 
-    /// <summary>
-    /// 원시 UTC `DateTime`. **경계(DB 파라미터·JWT·외부 라이브러리) 전용** — 로직에서 쓰지 않는다.
-    /// `default(SystemTime)`(Kind 미지정)도 UTC로 표식해 돌려준다.
-    /// </summary>
+    /// <summary>원시 UTC <c>DateTime</c>. 경계(DB 파라미터·외부 라이브러리) 전용 — 로직에서 쓰지 않는다.</summary>
     public DateTime UtcDateTime => DateTime.SpecifyKind(mValue, DateTimeKind.Utc);
 
     //.// 성분 (UTC 기준)
@@ -74,10 +59,8 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
     public int Second => mValue.Second;
     public long Ticks => mValue.Ticks;
 
-    /// <summary>UTC 달력 날짜의 자정.</summary>
     public SystemTime Date => new(mValue.Date);
 
-    /// <summary>UTC 달력 날짜.</summary>
     public DateOnly DateOnly => DateOnly.FromDateTime(UtcDateTime);
 
     //.// 산술
@@ -118,18 +101,16 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
 
     //.// 표시
 
-    /// <summary>ISO-8601 라운드트립 (`Z` 포함). 로그·디버그용.</summary>
+    /// <summary>ISO-8601 라운드트립(<c>Z</c> 포함).</summary>
     public override string ToString() => UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
 
-    /// <summary>UTC 기준 포맷. 저장 키(yyyyMM 등)·로그처럼 시간대 무관 문자열용.</summary>
+    /// <summary>UTC 기준 포맷 — 저장 키·로그처럼 시간대 무관 문자열용.</summary>
     public string ToString(string format) => UtcDateTime.ToString(format, CultureInfo.InvariantCulture);
 
-    /// <summary>UTC 기준 포맷 (문화권 지정). iCal처럼 포맷 규격이 명시적인 곳용.</summary>
     public string ToString(string format, IFormatProvider provider) => UtcDateTime.ToString(format, provider);
 
 }
 
-/// <summary>ISO-8601 문자열과 상호 변환 — 기존 `DateTime`(UTC) 직렬화와 와이어 포맷이 같다.</summary>
 public sealed class SystemTimeJsonConverter : JsonConverter<SystemTime>
 {
     public override SystemTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>

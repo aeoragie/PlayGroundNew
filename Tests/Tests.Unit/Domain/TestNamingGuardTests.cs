@@ -5,32 +5,20 @@ using Xunit;
 namespace PlayGround.Tests.Unit.Domain
 {
     /// <summary>
-    /// **테스트 식별자는 ASCII로 쓴다.**
-    ///
-    /// 한글 메서드 이름은 읽기엔 좋았지만 도구를 계속 깨뜨렸다.
-    /// - `dotnet test --filter`·CI 로그·TRX 리포트에서 인코딩이 깨져 어느 테스트가 실패했는지 못 읽는다
-    ///   (이 저장소의 테스트 로그는 UTF-16이라 실패 이름을 보려면 매번 iconv를 거쳐야 했다)
-    /// - `--filter-method`에 한글을 넘기면 셸·CI 설정마다 이스케이프가 달라진다
-    ///
-    /// 표현력은 이름이 아니라 **주석과 실패 메시지**로 낸다 — 거기는 한글이 자유롭고
-    /// 실패 시 실제로 보이는 곳이다.
-    ///
-    /// 규칙: 메서드·클래스 이름은 `Subject_Behavior` 형태의 ASCII.
-    /// (예: `Winner_UsesPenalties_WhenRegulationTied`)
+    /// 테스트 메서드·타입 이름은 ASCII(<c>Subject_Behavior</c>)로 쓴다 — 한글 식별자는
+    /// 테스트 로그·TRX·<c>--filter-method</c>에서 깨진다. 근거는 Testing.md §5-6.
     /// </summary>
     public class TestNamingGuardTests
     {
-        /// <summary>테스트 메서드 선언 — 이름만 뽑는다.</summary>
         private static readonly Regex TestMethod = new(
             @"\bpublic\s+(?:async\s+)?(?:Task|void|ValueTask)\s+(?<name>[^\s(]+)\s*\(",
             RegexOptions.Compiled);
 
-        /// <summary>타입 선언 — 클래스·레코드 이름.</summary>
         private static readonly Regex TypeDeclaration = new(
             @"\b(?:class|record|struct|enum)\s+(?<name>[^\s:<{(]+)",
             RegexOptions.Compiled);
 
-        /// <summary>ASCII 범위 밖. 이스케이프로 쓴다 — 제어문자를 그대로 넣으면 파일에 NUL이 박힌다.</summary>
+        // 이스케이프로 쓴다 — 제어문자를 그대로 넣으면 파일에 NUL이 박혀 git이 바이너리로 본다
         private static readonly Regex NonAscii = new(@"[^\x00-\x7F]", RegexOptions.Compiled);
 
         public static TheoryData<string> TestProjects =>

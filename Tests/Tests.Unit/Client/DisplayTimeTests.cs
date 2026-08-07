@@ -6,13 +6,8 @@ using Xunit;
 namespace PlayGround.Tests.Unit.Client
 {
     /// <summary>
-    /// **표시 시간대의 단일 결정권자** — `DisplayTime`만 "이 사람에게 몇 시로 보여줄까"를 안다.
-    ///
-    /// 여기가 어긋나면 화면의 모든 날짜·시각이 조용히 밀린다. 특히 **날짜 경계**가 위험하다.
-    /// 서울에서 UTC 15시 이후는 이미 다음 날이라, 변환을 빠뜨리면 "어제 일정"이 오늘로 보인다.
-    ///
-    /// 기본값은 브라우저 시간대라 머신마다 다르다 — 테스트는 <see cref="DisplayTime.Override"/>로
-    /// 시간대를 고정해 **어디서 돌려도 결과가 같게** 만든다.
+    /// 표시 시간대 변환. 여기가 어긋나면 화면의 모든 날짜가 조용히 밀린다.
+    /// 기본값이 브라우저 시간대라 <see cref="DisplayTime.Override"/>로 고정해 결과를 결정적으로 만든다.
     /// </summary>
     public class DisplayTimeTests : IDisposable
     {
