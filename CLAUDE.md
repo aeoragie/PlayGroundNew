@@ -66,7 +66,9 @@ E2E 저니 스펙 = `Handoff/TEST.INTEGRATIONSCENARIOS.md`(S1~S7, 현재 수동 
 정규화하고, DB(Dapper `SystemTimeTypeHandler`)·JSON(ISO-8601 `Z`) 경계는 자동 변환이라
 로직 코드가 `DateTime`을 아예 모른다. 원시 `DateTime` 허용 파일은
 `TimeBaselineGuardTests.AllowedTypeFiles`(SystemTime·KoreanTime·Dapper 핸들러) +
-**Client 표시층**(브라우저 로컬 벽시계가 표시의 본질)뿐이고, 위반은 같은 테스트가 자동으로 잡는다.
+**Client 표시층**(벽시계 `DateTime`을 다루는 것이 표시의 본질)뿐이고, 위반은 같은 테스트가 자동으로 잡는다.
+`DisplayTime.ToWallClock()`이 돌려주는 벽시계는 **`Kind`가 `Unspecified`다** — 값은 KST인데
+`Utc`로 표식하면 누가 `ToUniversalTime()`을 부르는 순간 9시간이 그대로 샌다.
 제너레이터도 datetime2→`SystemTime`, DATE→`DateOnly`로 생성한다.
 
 > **`DATE` 컬럼을 전부 바꾸지는 않았다** — 생년월일·커리어 기간·대회 일정은 `DATE`로 남는다.

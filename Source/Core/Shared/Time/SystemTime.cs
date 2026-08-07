@@ -48,8 +48,10 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
     /// <summary>지금 (UTC).</summary>
     public static SystemTime Now => new(DateTime.UtcNow);
 
-    /// <summary>오늘(UTC 달력) 자정.</summary>
-    public static SystemTime Today => new(DateTime.UtcNow.Date);
+    // `Today`는 일부러 두지 않는다. 이름은 "오늘"인데 값은 **UTC 달력의 오늘**이라,
+    // 한국 시각 00~09시에는 사용자가 보는 오늘과 하루 어긋난다. 쓸 자리가 없다:
+    // 한국 달력 오늘은 `KoreanTime.Today`(DateOnly), 화면에 보이는 오늘은
+    // `SystemTime.Now.ToWallClock().Date`다.
 
     public static SystemTime MinValue { get; } = new(DateTime.MinValue);
 

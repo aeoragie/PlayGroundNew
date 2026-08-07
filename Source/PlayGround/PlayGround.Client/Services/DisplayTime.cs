@@ -17,8 +17,16 @@ namespace PlayGround.Client.Services
     /// </summary>
     public static class DisplayTime
     {
-        /// <summary>UTC 순간 → 표시 벽시계(지금은 KST). 캘린더 그리드·월 그룹핑 같은 달력 산술용.</summary>
-        public static DateTime ToWallClock(this SystemTime utc) => utc.UtcDateTime + KoreanTime.Offset;
+        /// <summary>
+        /// UTC 순간 → 표시 벽시계(지금은 KST). 캘린더 그리드·월 그룹핑 같은 달력 산술용.
+        ///
+        /// **`Kind`는 `Unspecified`다.** 값은 KST인데 `Utc`로 표식하면, 누군가
+        /// `ToUniversalTime()`을 부르는 순간 아무 일도 안 일어나 9시간이 그대로 샌다.
+        /// `DateTime` 비교는 `Kind`를 무시하므로 그런 실수는 테스트로도 잘 안 드러난다.
+        /// "어느 시간대인지 모르는 벽시계"가 이 값의 정직한 표식이다.
+        /// </summary>
+        public static DateTime ToWallClock(this SystemTime utc) =>
+            DateTime.SpecifyKind(utc.UtcDateTime + KoreanTime.Offset, DateTimeKind.Unspecified);
 
         /// <summary>표시 문자열 — 화면에 보이는 시각은 이걸로 만든다.</summary>
         public static string Format(this SystemTime utc, string format) =>
