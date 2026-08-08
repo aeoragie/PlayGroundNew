@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Agent;
 using PlayGround.Domain.Soccer;
@@ -12,14 +14,20 @@ namespace PlayGround.Application.Agent.Commands
     public class SoccerAgentApprovalCommand
     {
         private readonly IAgentApprovalRepository mRepository;
+        private readonly ILogger<SoccerAgentApprovalCommand> mLogger;
 
-        public SoccerAgentApprovalCommand(IAgentApprovalRepository repository)
+        public SoccerAgentApprovalCommand(IAgentApprovalRepository repository, ILogger<SoccerAgentApprovalCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<AgentViewRequestResponse>> GetAsync(
+            Guid guardianUserId, Guid requestId, CancellationToken cancellation = default) =>
+            (await GetCoreAsync(guardianUserId, requestId, cancellation)).LogWith(mLogger, "Get");
+
+        private async Task<Result<AgentViewRequestResponse>> GetCoreAsync(
             Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
         {
             if (guardianUserId == Guid.Empty || requestId == Guid.Empty)
@@ -42,6 +50,10 @@ namespace PlayGround.Application.Agent.Commands
         }
 
         public async Task<Result<AgentViewRequestResponse>> ReviewAsync(
+            Guid guardianUserId, ReviewAgentViewRequestRequest request, CancellationToken cancellation = default) =>
+            (await ReviewCoreAsync(guardianUserId, request, cancellation)).LogWith(mLogger, "Review");
+
+        private async Task<Result<AgentViewRequestResponse>> ReviewCoreAsync(
             Guid guardianUserId, ReviewAgentViewRequestRequest request, CancellationToken cancellation = default)
         {
             if (guardianUserId == Guid.Empty || request is null || request.RequestId == Guid.Empty)
@@ -75,6 +87,10 @@ namespace PlayGround.Application.Agent.Commands
         /// <summary>요청 자격 판정 — 만료·거절 쿨다운·차단(PlayGround 단독). requesterUserId로 에이전트 본인 해석
         /// (남의 자격은 조회 불가). 에이전트 서비스가 요청 생성 전에 조회한다 — 생성 자체는 여기서 하지 않는다.</summary>
         public async Task<Result<AgentRequestEligibilityResponse>> GetEligibilityAsync(
+            Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default) =>
+            (await GetEligibilityCoreAsync(requesterUserId, playerId, guardianUserId, cancellation)).LogWith(mLogger, "GetEligibility");
+
+        private async Task<Result<AgentRequestEligibilityResponse>> GetEligibilityCoreAsync(
             Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default)
         {
             if (requesterUserId == Guid.Empty || playerId == Guid.Empty || guardianUserId == Guid.Empty)
@@ -85,7 +101,10 @@ namespace PlayGround.Application.Agent.Commands
             return await mRepository.GetEligibilityAsync(requesterUserId, playerId, guardianUserId, cancellation);
         }
 
-        public async Task<Result<bool>> BlockAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
+        public async Task<Result<bool>> BlockAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default) =>
+            (await BlockCoreAsync(guardianUserId, requestId, cancellation)).LogWith(mLogger, "Block");
+
+        private async Task<Result<bool>> BlockCoreAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
         {
             if (guardianUserId == Guid.Empty || requestId == Guid.Empty)
             {

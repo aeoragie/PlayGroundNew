@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
 using PlayGround.Application.Interfaces;
@@ -25,13 +27,19 @@ namespace PlayGround.Application.Player.Commands
 
         private readonly IPlayerRepository mRepository;
 
-        public SoccerPlayerProfileInfoUpdateCommand(IPlayerRepository repository)
+        private readonly ILogger<SoccerPlayerProfileInfoUpdateCommand> mLogger;
+
+        public SoccerPlayerProfileInfoUpdateCommand(IPlayerRepository repository, ILogger<SoccerPlayerProfileInfoUpdateCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<UpdatePlayerProfileInfoResponse>> ExecuteAsync(Guid userId, UpdatePlayerProfileInfoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<UpdatePlayerProfileInfoResponse>> ExecuteAsync(Guid userId, UpdatePlayerProfileInfoRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<UpdatePlayerProfileInfoResponse>> ExecuteCoreAsync(Guid userId, UpdatePlayerProfileInfoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

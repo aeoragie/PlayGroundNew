@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
 using PlayGround.Application.Auth.Models;
@@ -16,8 +18,9 @@ namespace PlayGround.Application.Player.Commands
         private readonly IPlayerRepository mRepository;
         private readonly IAccountRepository mAccountRepository;
         private readonly IJwtTokenService mTokenService;
+        private readonly ILogger<SoccerPlayerProfileCommand> mLogger;
 
-        public SoccerPlayerProfileCommand(IPlayerRepository repository, IAccountRepository accountRepository, IJwtTokenService tokenService)
+        public SoccerPlayerProfileCommand(IPlayerRepository repository, IAccountRepository accountRepository, IJwtTokenService tokenService, ILogger<SoccerPlayerProfileCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             Debug.Assert(accountRepository != null, "accountRepository is required");
@@ -25,9 +28,14 @@ namespace PlayGround.Application.Player.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mAccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
             mTokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<CreatePlayerProfileResponse>> ExecuteAsync(
+            Guid userId, CreatePlayerProfileRequest request, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<CreatePlayerProfileResponse>> ExecuteCoreAsync(
             Guid userId, CreatePlayerProfileRequest request, CancellationToken cancellation = default)
         {
             Debug.Assert(request != null, "request is required");

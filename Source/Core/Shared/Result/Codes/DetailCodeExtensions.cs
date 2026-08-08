@@ -77,41 +77,4 @@ public static class DetailCodeExtensions
         return false;
     }
 
-    /// <summary>
-    /// 사용자에게 표시 가능한지 확인
-    /// </summary>
-    public static bool IsUserFriendly(this DetailCode code)
-    {
-        return code switch
-        {
-            ErrorCode when code.IsUserError() => true,
-            ErrorCode when code.IsBusinessError() => true,
-            WarningCode => true,
-            InformationCode => true,
-            SuccessCode => true,
-            _ => false
-        };
-    }
-
-    /// <summary>
-    /// 사용자 친화적 메시지 생성
-    /// </summary>
-    public static string GetUserFriendlyMessage(this DetailCode code, string? customMessage = null)
-    {
-        if (!string.IsNullOrEmpty(customMessage) && code.IsUserFriendly())
-        {
-            return customMessage;
-        }
-
-        return code switch
-        {
-            ErrorCode when code.IsSystemError() => "We're sorry, but there's a temporary system issue. Please try again later.",
-            ErrorCode when code == ErrorCode.NetworkTimeout => "Network connection is unstable. Please try again.",
-            ErrorCode when code == ErrorCode.ServiceUnavailable => "Service is temporarily unavailable. Please try again later.",
-            ErrorCode when code.IsUserError() => code.DefaultMessage,
-            ErrorCode when code.IsBusinessError() => code.DefaultMessage,
-            _ => code.DefaultMessage
-        };
-    }
-
 }

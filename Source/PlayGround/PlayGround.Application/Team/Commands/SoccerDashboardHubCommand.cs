@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Contracts.Claim;
@@ -25,12 +27,14 @@ namespace PlayGround.Application.Team.Commands
         private readonly IPlayerRepository mPlayerRepository;
         private readonly IClaimRepository mClaimRepository;
         private readonly SoccerActionItemsCommand mActionItems;
+        private readonly ILogger<SoccerDashboardHubCommand> mLogger;
 
         public SoccerDashboardHubCommand(
             ISoccerTeamRepository teamRepository,
             IPlayerRepository playerRepository,
             IClaimRepository claimRepository,
-            SoccerActionItemsCommand actionItems)
+            SoccerActionItemsCommand actionItems,
+            ILogger<SoccerDashboardHubCommand> logger)
         {
             Debug.Assert(teamRepository != null, "teamRepository is required");
             Debug.Assert(playerRepository != null, "playerRepository is required");
@@ -41,9 +45,14 @@ namespace PlayGround.Application.Team.Commands
             mPlayerRepository = playerRepository ?? throw new ArgumentNullException(nameof(playerRepository));
             mClaimRepository = claimRepository ?? throw new ArgumentNullException(nameof(claimRepository));
             mActionItems = actionItems ?? throw new ArgumentNullException(nameof(actionItems));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<DashboardHubResponse>> ExecuteAsync(
+            Guid userId, string displayName, int seasonYear, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, displayName, seasonYear, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<DashboardHubResponse>> ExecuteCoreAsync(
             Guid userId, string displayName, int seasonYear, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)

@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Application.Interfaces;
@@ -19,13 +21,20 @@ namespace PlayGround.Application.Team.Commands
 
         private readonly ISoccerTeamRepository mRepository;
 
-        public SoccerTeamRosterWriteCommand(ISoccerTeamRepository repository)
+        private readonly ILogger<SoccerTeamRosterWriteCommand> mLogger;
+
+        public SoccerTeamRosterWriteCommand(ISoccerTeamRepository repository, ILogger<SoccerTeamRosterWriteCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<TeamRosterPlayerDto>> AddAsync(
+            Guid managerUserId, AddTeamPlayerRequest request, CancellationToken cancellation = default) =>
+            (await AddCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Add");
+
+        private async Task<Result<TeamRosterPlayerDto>> AddCoreAsync(
             Guid managerUserId, AddTeamPlayerRequest request, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || request is null)
@@ -79,6 +88,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> RemoveAsync(
+            Guid managerUserId, Guid teamPlayerId, bool restore, CancellationToken cancellation = default) =>
+            (await RemoveCoreAsync(managerUserId, teamPlayerId, restore, cancellation)).LogWith(mLogger, "Remove");
+
+        private async Task<Result<bool>> RemoveCoreAsync(
             Guid managerUserId, Guid teamPlayerId, bool restore, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || teamPlayerId == Guid.Empty)

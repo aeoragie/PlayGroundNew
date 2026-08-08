@@ -1,4 +1,5 @@
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Landing;
 using PlayGround.Application.Interfaces;
@@ -21,7 +22,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetContentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<LandingContentsResponse>.Success(response));
 
-            var query = new SoccerLandingContentsCommand(repo.Object);
+            var query = new SoccerLandingContentsCommand(repo.Object, NullLogger<SoccerLandingContentsCommand>.Instance);
             var result = await query.ExecuteAsync();
 
             Assert.True(result.IsSuccess);
@@ -36,7 +37,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetContentsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<LandingContentsResponse>.Error(ErrorCode.DatabaseError));
 
-            var query = new SoccerLandingContentsCommand(repo.Object);
+            var query = new SoccerLandingContentsCommand(repo.Object, NullLogger<SoccerLandingContentsCommand>.Instance);
             var result = await query.ExecuteAsync();
 
             Assert.True(result.IsError);

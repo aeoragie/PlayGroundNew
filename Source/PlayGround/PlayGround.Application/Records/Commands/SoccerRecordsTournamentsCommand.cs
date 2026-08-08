@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Records;
 using PlayGround.Application.Interfaces;
@@ -13,13 +15,19 @@ namespace PlayGround.Application.Records.Commands
 
         private readonly ISoccerRecordsRepository mRepository;
 
-        public SoccerRecordsTournamentsCommand(ISoccerRecordsRepository repository)
+        private readonly ILogger<SoccerRecordsTournamentsCommand> mLogger;
+
+        public SoccerRecordsTournamentsCommand(ISoccerRecordsRepository repository, ILogger<SoccerRecordsTournamentsCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<RecordsTournamentsResponse>> ExecuteAsync(int seasonYear, CancellationToken cancellation = default)
+        public async Task<Result<RecordsTournamentsResponse>> ExecuteAsync(int seasonYear, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(seasonYear, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<RecordsTournamentsResponse>> ExecuteCoreAsync(int seasonYear, CancellationToken cancellation = default)
         {
             if (seasonYear is < MinSeasonYear or > MaxSeasonYear)
             {

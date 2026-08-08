@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
 using PlayGround.Application.Interfaces;
@@ -9,14 +11,19 @@ namespace PlayGround.Application.Player.Commands
     public class SoccerPlayerCareerCommand
     {
         private readonly IPlayerRepository mRepository;
+        private readonly ILogger<SoccerPlayerCareerCommand> mLogger;
 
-        public SoccerPlayerCareerCommand(IPlayerRepository repository)
+        public SoccerPlayerCareerCommand(IPlayerRepository repository, ILogger<SoccerPlayerCareerCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<PlayerCareerResponse>> ExecuteAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<PlayerCareerResponse>> ExecuteAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, playerId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<PlayerCareerResponse>> ExecuteCoreAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 using PlayGround.Shared.Result;
@@ -51,7 +52,7 @@ namespace PlayGround.Tests.Unit.Application
             }
 
             public SoccerTeamMatchResultCommand Command =>
-                new(Team.Object, Notifications.Object, Accounts.Object);
+                new(Team.Object, Notifications.Object, Accounts.Object, NullLogger<SoccerTeamMatchResultCommand>.Instance);
         }
 
         private static NotificationRecipient Recipient(Guid userId) =>

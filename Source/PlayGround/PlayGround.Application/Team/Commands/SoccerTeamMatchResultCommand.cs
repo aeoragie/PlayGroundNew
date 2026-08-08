@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
@@ -22,19 +24,26 @@ namespace PlayGround.Application.Team.Commands
         private readonly ISoccerTeamRepository mRepository;
         private readonly INotificationRepository mNotificationRepository;
         private readonly IAccountRepository mAccountRepository;
+        private readonly ILogger<SoccerTeamMatchResultCommand> mLogger;
 
         public SoccerTeamMatchResultCommand(
             ISoccerTeamRepository repository,
             INotificationRepository notificationRepository,
-            IAccountRepository accountRepository)
+            IAccountRepository accountRepository,
+            ILogger<SoccerTeamMatchResultCommand> logger)
         {
             Debug.Assert(repository != null && notificationRepository != null && accountRepository != null);
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mNotificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             mAccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<CreateTeamMatchResultResponse>> ExecuteAsync(
+            Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<CreateTeamMatchResultResponse>> ExecuteCoreAsync(
             Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)
@@ -116,6 +125,10 @@ namespace PlayGround.Application.Team.Commands
         /// 주최측 입력 경로(대회 운영 서비스, Server 공유)가 쓸 자리라 남겨 둔다.
         /// </remarks>
         public async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsAsync(
+            Guid managerUserId, int seasonYear, CancellationToken cancellation = default) =>
+            (await GetTournamentOptionsCoreAsync(managerUserId, seasonYear, cancellation)).LogWith(mLogger, "GetTournamentOptions");
+
+        private async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsCoreAsync(
             Guid managerUserId, int seasonYear, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)

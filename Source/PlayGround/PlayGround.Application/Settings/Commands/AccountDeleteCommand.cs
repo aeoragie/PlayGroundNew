@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Application.Interfaces;
 
@@ -9,14 +11,19 @@ namespace PlayGround.Application.Settings.Commands
     public class AccountDeleteCommand
     {
         private readonly IAccountRepository mRepository;
+        private readonly ILogger<AccountDeleteCommand> mLogger;
 
-        public AccountDeleteCommand(IAccountRepository repository)
+        public AccountDeleteCommand(IAccountRepository repository, ILogger<AccountDeleteCommand> logger)
         {
             Debug.Assert(repository != null);
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<bool>> ExecuteAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<bool>> ExecuteAsync(Guid userId, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<bool>> ExecuteCoreAsync(Guid userId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

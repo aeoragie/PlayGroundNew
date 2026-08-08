@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Application.Interfaces;
 
@@ -14,13 +16,20 @@ namespace PlayGround.Application.Auth.Commands
 
         private readonly IAccountRepository mRepository;
 
-        public SocialLinkCommand(IAccountRepository repository)
+        private readonly ILogger<SocialLinkCommand> mLogger;
+
+        public SocialLinkCommand(IAccountRepository repository, ILogger<SocialLinkCommand> logger)
         {
             Debug.Assert(repository != null);
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<string>> LinkAsync(
+            Guid userId, string provider, string providerUserId, string? email, CancellationToken cancellation = default) =>
+            (await LinkCoreAsync(userId, provider, providerUserId, email, cancellation)).LogWith(mLogger, "Link");
+
+        private async Task<Result<string>> LinkCoreAsync(
             Guid userId, string provider, string providerUserId, string? email, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
@@ -36,7 +45,10 @@ namespace PlayGround.Application.Auth.Commands
             return await mRepository.LinkSocialAsync(userId, Normalize(provider), providerUserId, email, cancellation);
         }
 
-        public async Task<Result<string>> UnlinkAsync(Guid userId, string provider, CancellationToken cancellation = default)
+        public async Task<Result<string>> UnlinkAsync(Guid userId, string provider, CancellationToken cancellation = default) =>
+            (await UnlinkCoreAsync(userId, provider, cancellation)).LogWith(mLogger, "Unlink");
+
+        private async Task<Result<string>> UnlinkCoreAsync(Guid userId, string provider, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

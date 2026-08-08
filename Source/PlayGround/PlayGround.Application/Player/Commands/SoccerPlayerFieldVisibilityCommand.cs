@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Domain.Soccer;
 using PlayGround.Application.Interfaces;
@@ -10,14 +12,19 @@ namespace PlayGround.Application.Player.Commands
     public class SoccerPlayerFieldVisibilityCommand
     {
         private readonly IPlayerRepository mRepository;
+        private readonly ILogger<SoccerPlayerFieldVisibilityCommand> mLogger;
 
-        public SoccerPlayerFieldVisibilityCommand(IPlayerRepository repository)
+        public SoccerPlayerFieldVisibilityCommand(IPlayerRepository repository, ILogger<SoccerPlayerFieldVisibilityCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<bool>> ExecuteAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<bool>> ExecuteAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, fieldName, isPublic, playerId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<bool>> ExecuteCoreAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Application.Auth.Models;
@@ -17,8 +19,9 @@ namespace PlayGround.Application.Team.Commands
         private readonly ISoccerTeamRepository mRepository;
         private readonly IAccountRepository mAccountRepository;
         private readonly IJwtTokenService mTokenService;
+        private readonly ILogger<SoccerTeamCommand> mLogger;
 
-        public SoccerTeamCommand(ISoccerTeamRepository repository, IAccountRepository accountRepository, IJwtTokenService tokenService)
+        public SoccerTeamCommand(ISoccerTeamRepository repository, IAccountRepository accountRepository, IJwtTokenService tokenService, ILogger<SoccerTeamCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             Debug.Assert(accountRepository != null, "accountRepository is required");
@@ -26,9 +29,14 @@ namespace PlayGround.Application.Team.Commands
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mAccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
             mTokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<CreateTeamResponse>> ExecuteAsync(
+            Guid managerUserId, CreateTeamRequest request, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<CreateTeamResponse>> ExecuteCoreAsync(
             Guid managerUserId, CreateTeamRequest request, CancellationToken cancellation = default)
         {
             Debug.Assert(request != null, "request is required");

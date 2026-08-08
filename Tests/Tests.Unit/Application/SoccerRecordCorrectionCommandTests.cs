@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 using PlayGround.Shared.Result;
@@ -39,7 +40,7 @@ namespace PlayGround.Tests.Unit.Application
         [Fact]
         public async Task ExecuteAsync_EmptyUser_IsUnauthorized()
         {
-            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
+            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteAsync(Guid.Empty, Request());
 
@@ -50,7 +51,7 @@ namespace PlayGround.Tests.Unit.Application
         [Fact]
         public async Task ExecuteAsync_EmptyMatch_IsInvalidInput()
         {
-            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
+            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
             CreateRecordCorrectionRequest request = Request();
             request.MatchId = Guid.Empty;
 
@@ -65,7 +66,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("")]
         public async Task ExecuteAsync_UnknownField_IsInvalidInput(string fieldType)
         {
-            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
+            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteAsync(Manager, Request(field: fieldType));
 
@@ -77,7 +78,7 @@ namespace PlayGround.Tests.Unit.Application
         [InlineData("   ")]
         public async Task ExecuteAsync_EmptyRequestedValue_IsInvalidInput(string requested)
         {
-            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
+            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteAsync(Manager, Request(requested: requested));
 
@@ -87,7 +88,7 @@ namespace PlayGround.Tests.Unit.Application
         [Fact]
         public async Task ExecuteAsync_RequestedValueOverLimit_IsInvalidInput()
         {
-            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
+            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteAsync(Manager, Request(requested: new string('가', 101)));
 
@@ -100,7 +101,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task ExecuteAsync_NormalizesValuesBeforeSaving()
         {
             Mock<ISoccerTeamRepository> repo = RepoCreating(Guid.NewGuid());
-            var command = new SoccerRecordCorrectionCommand(repo.Object);
+            var command = new SoccerRecordCorrectionCommand(repo.Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
             CreateRecordCorrectionRequest request = Request(
                 field: "Score", requested: "  2 : 1  ", current: "  3 : 1  ", description: "   ");
 
@@ -116,7 +117,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task ExecuteAsync_TruncatesDescriptionToLimit()
         {
             Mock<ISoccerTeamRepository> repo = RepoCreating(Guid.NewGuid());
-            var command = new SoccerRecordCorrectionCommand(repo.Object);
+            var command = new SoccerRecordCorrectionCommand(repo.Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
             CreateRecordCorrectionRequest request = Request(description: new string('나', 600));
 
             await command.ExecuteAsync(Manager, request);
@@ -130,7 +131,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task ExecuteAsync_ReturnsRequestId_OnSuccess()
         {
             var created = Guid.NewGuid();
-            var command = new SoccerRecordCorrectionCommand(RepoCreating(created).Object);
+            var command = new SoccerRecordCorrectionCommand(RepoCreating(created).Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteAsync(Manager, Request());
 
@@ -142,7 +143,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task ExecuteAsync_ForeignFriendlyDuplicate_AreForbidden_WithoutReason()
         {
             // 어느 쪽인지 알려주면 남의 경기 존재 여부가 새어 나간다
-            var command = new SoccerRecordCorrectionCommand(RepoCreating(null).Object);
+            var command = new SoccerRecordCorrectionCommand(RepoCreating(null).Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteAsync(Manager, Request());
 
@@ -155,7 +156,7 @@ namespace PlayGround.Tests.Unit.Application
             var repo = new Mock<ISoccerTeamRepository>();
             repo.Setup(r => r.CreateRecordCorrectionAsync(It.IsAny<Guid>(), It.IsAny<CreateRecordCorrectionRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<Guid?>.Error(ErrorCode.DatabaseTimeout));
-            var command = new SoccerRecordCorrectionCommand(repo.Object);
+            var command = new SoccerRecordCorrectionCommand(repo.Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteAsync(Manager, Request());
 
@@ -167,7 +168,7 @@ namespace PlayGround.Tests.Unit.Application
         [Fact]
         public async Task ExecuteByGuardianAsync_InvalidInput_WhenChildMissing()
         {
-            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
+            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteByGuardianAsync(Manager, Guid.Empty, Request());
 
@@ -180,7 +181,7 @@ namespace PlayGround.Tests.Unit.Application
             var repo = new Mock<ISoccerTeamRepository>();
             repo.Setup(r => r.CreateGuardianCorrectionAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CreateRecordCorrectionRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<Guid?>.Success(null));
-            var command = new SoccerRecordCorrectionCommand(repo.Object);
+            var command = new SoccerRecordCorrectionCommand(repo.Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<Guid> result = await command.ExecuteByGuardianAsync(Manager, Guid.NewGuid(), Request());
 
@@ -196,7 +197,7 @@ namespace PlayGround.Tests.Unit.Application
             var repo = new Mock<ISoccerTeamRepository>();
             repo.Setup(r => r.CancelRecordCorrectionAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<bool>.Success(false));
-            var command = new SoccerRecordCorrectionCommand(repo.Object);
+            var command = new SoccerRecordCorrectionCommand(repo.Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<bool> result = await command.CancelAsync(Manager, Guid.NewGuid());
 
@@ -209,7 +210,7 @@ namespace PlayGround.Tests.Unit.Application
             var repo = new Mock<ISoccerTeamRepository>();
             repo.Setup(r => r.CancelRecordCorrectionAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<bool>.Success(true));
-            var command = new SoccerRecordCorrectionCommand(repo.Object);
+            var command = new SoccerRecordCorrectionCommand(repo.Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<bool> result = await command.CancelAsync(Manager, Guid.NewGuid());
 
@@ -219,7 +220,7 @@ namespace PlayGround.Tests.Unit.Application
         [Fact]
         public async Task CancelAsync_EmptyId_IsInvalidInput()
         {
-            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object);
+            var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
             Result<bool> result = await command.CancelAsync(Manager, Guid.Empty);
 

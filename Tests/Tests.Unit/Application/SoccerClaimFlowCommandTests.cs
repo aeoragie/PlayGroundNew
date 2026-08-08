@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 using PlayGround.Shared.Result;
@@ -17,7 +18,7 @@ namespace PlayGround.Tests.Unit.Application
         private sealed class Harness
         {
             public Mock<IClaimRepository> Repository { get; } = new();
-            public SoccerClaimFlowCommand Command => new(Repository.Object);
+            public SoccerClaimFlowCommand Command => new(Repository.Object, NullLogger<SoccerClaimFlowCommand>.Instance);
 
             /// <summary>프로시저에 실제로 전달된 정규화 코드·관계·이름.</summary>
             public string? Code { get; private set; }

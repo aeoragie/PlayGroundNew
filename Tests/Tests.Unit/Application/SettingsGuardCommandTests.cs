@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 using PlayGround.Shared.Result;
@@ -22,7 +23,7 @@ namespace PlayGround.Tests.Unit.Application
             var repo = new Mock<IAccountRepository>();
             repo.Setup(r => r.SetNotificationPreferenceAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<bool>.Success(saved));
-            return new NotificationPreferenceCommand(repo.Object);
+            return new NotificationPreferenceCommand(repo.Object, NullLogger<NotificationPreferenceCommand>.Instance);
         }
 
         [Theory]
@@ -82,7 +83,7 @@ namespace PlayGround.Tests.Unit.Application
             var repo = new Mock<IPlayerRepository>();
             repo.Setup(r => r.SetFieldVisibilityAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<bool>.Success(applied));
-            return new SoccerPlayerFieldVisibilityCommand(repo.Object);
+            return new SoccerPlayerFieldVisibilityCommand(repo.Object, NullLogger<SoccerPlayerFieldVisibilityCommand>.Instance);
         }
 
         [Theory]
@@ -140,7 +141,7 @@ namespace PlayGround.Tests.Unit.Application
                 .Callback<Guid, string, bool, Guid?, CancellationToken>((_, name, _, _, _) => captured = name)
                 .ReturnsAsync(Result<bool>.Success(true));
 
-            await new SoccerPlayerFieldVisibilityCommand(repo.Object).ExecuteAsync(User, "Height", isPublic: true);
+            await new SoccerPlayerFieldVisibilityCommand(repo.Object, NullLogger<SoccerPlayerFieldVisibilityCommand>.Instance).ExecuteAsync(User, "Height", isPublic: true);
 
             captured.Should().Be("Height");
         }

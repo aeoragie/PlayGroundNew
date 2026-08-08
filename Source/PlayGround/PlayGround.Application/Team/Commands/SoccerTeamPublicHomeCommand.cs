@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Application.Interfaces;
@@ -9,15 +11,20 @@ namespace PlayGround.Application.Team.Commands
     public class SoccerTeamPublicHomeCommand
     {
         private readonly ISoccerTeamRepository mRepository;
+        private readonly ILogger<SoccerTeamPublicHomeCommand> mLogger;
 
-        public SoccerTeamPublicHomeCommand(ISoccerTeamRepository repository)
+        public SoccerTeamPublicHomeCommand(ISoccerTeamRepository repository, ILogger<SoccerTeamPublicHomeCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <param name="viewerUserId">로그인 열람자 — 관리자 본인 판정(IsManager)에만 쓴다. 게스트는 null.</param>
-        public async Task<Result<TeamPublicHomeResponse>> ExecuteAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
+        public async Task<Result<TeamPublicHomeResponse>> ExecuteAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(slug, viewerUserId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<TeamPublicHomeResponse>> ExecuteCoreAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {

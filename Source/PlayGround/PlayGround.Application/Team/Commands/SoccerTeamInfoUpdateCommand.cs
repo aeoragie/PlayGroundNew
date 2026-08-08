@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
@@ -17,13 +19,20 @@ namespace PlayGround.Application.Team.Commands
 
         private readonly ISoccerTeamRepository mRepository;
 
-        public SoccerTeamInfoUpdateCommand(ISoccerTeamRepository repository)
+        private readonly ILogger<SoccerTeamInfoUpdateCommand> mLogger;
+
+        public SoccerTeamInfoUpdateCommand(ISoccerTeamRepository repository, ILogger<SoccerTeamInfoUpdateCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<UpdateTeamInfoResponse>> ExecuteAsync(
+            Guid managerUserId, UpdateTeamInfoRequest request, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<UpdateTeamInfoResponse>> ExecuteCoreAsync(
             Guid managerUserId, UpdateTeamInfoRequest request, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)

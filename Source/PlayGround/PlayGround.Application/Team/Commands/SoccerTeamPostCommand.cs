@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
@@ -19,16 +21,21 @@ namespace PlayGround.Application.Team.Commands
 
         private readonly ISoccerTeamRepository mRepository;
         private readonly INotificationRepository mNotificationRepository;
+        private readonly ILogger<SoccerTeamPostCommand> mLogger;
 
-        public SoccerTeamPostCommand(ISoccerTeamRepository repository, INotificationRepository notificationRepository)
+        public SoccerTeamPostCommand(ISoccerTeamRepository repository, INotificationRepository notificationRepository, ILogger<SoccerTeamPostCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             Debug.Assert(notificationRepository != null, "notificationRepository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mNotificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<TeamPostsResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default)
+        public async Task<Result<TeamPostsResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default) =>
+            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine");
+
+        private async Task<Result<TeamPostsResponse>> GetMineCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)
             {
@@ -38,7 +45,10 @@ namespace PlayGround.Application.Team.Commands
             return await mRepository.GetPostsByManagerAsync(managerUserId, cancellation);
         }
 
-        public async Task<Result<TeamNewsResponse>> GetNewsBySlugAsync(string slug, CancellationToken cancellation = default)
+        public async Task<Result<TeamNewsResponse>> GetNewsBySlugAsync(string slug, CancellationToken cancellation = default) =>
+            (await GetNewsBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetNewsBySlug");
+
+        private async Task<Result<TeamNewsResponse>> GetNewsBySlugCoreAsync(string slug, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -49,6 +59,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<GuardianTeamPostsResponse>> GetForGuardianAsync(
+            Guid userId, Guid playerId, CancellationToken cancellation = default) =>
+            (await GetForGuardianCoreAsync(userId, playerId, cancellation)).LogWith(mLogger, "GetForGuardian");
+
+        private async Task<Result<GuardianTeamPostsResponse>> GetForGuardianCoreAsync(
             Guid userId, Guid playerId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || playerId == Guid.Empty)
@@ -60,6 +74,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamPostDto>> SaveAsync(
+            Guid managerUserId, SaveTeamPostRequest request, string? authorName, CancellationToken cancellation = default) =>
+            (await SaveCoreAsync(managerUserId, request, authorName, cancellation)).LogWith(mLogger, "Save");
+
+        private async Task<Result<TeamPostDto>> SaveCoreAsync(
             Guid managerUserId, SaveTeamPostRequest request, string? authorName, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || request is null)
@@ -151,6 +169,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamPostDto>> SetPinnedAsync(
+            Guid managerUserId, Guid postId, bool isPinned, CancellationToken cancellation = default) =>
+            (await SetPinnedCoreAsync(managerUserId, postId, isPinned, cancellation)).LogWith(mLogger, "SetPinned");
+
+        private async Task<Result<TeamPostDto>> SetPinnedCoreAsync(
             Guid managerUserId, Guid postId, bool isPinned, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || postId == Guid.Empty)
@@ -174,6 +196,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamPostDto>> SetPublicAsync(
+            Guid managerUserId, Guid postId, bool isPublic, CancellationToken cancellation = default) =>
+            (await SetPublicCoreAsync(managerUserId, postId, isPublic, cancellation)).LogWith(mLogger, "SetPublic");
+
+        private async Task<Result<TeamPostDto>> SetPublicCoreAsync(
             Guid managerUserId, Guid postId, bool isPublic, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || postId == Guid.Empty)
@@ -196,6 +222,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> DeleteAsync(
+            Guid managerUserId, Guid postId, bool restore, CancellationToken cancellation = default) =>
+            (await DeleteCoreAsync(managerUserId, postId, restore, cancellation)).LogWith(mLogger, "Delete");
+
+        private async Task<Result<bool>> DeleteCoreAsync(
             Guid managerUserId, Guid postId, bool restore, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || postId == Guid.Empty)
@@ -217,7 +247,10 @@ namespace PlayGround.Application.Team.Commands
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> MarkReadAsync(Guid userId, Guid postId, CancellationToken cancellation = default)
+        public async Task<Result<bool>> MarkReadAsync(Guid userId, Guid postId, CancellationToken cancellation = default) =>
+            (await MarkReadCoreAsync(userId, postId, cancellation)).LogWith(mLogger, "MarkRead");
+
+        private async Task<Result<bool>> MarkReadCoreAsync(Guid userId, Guid postId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || postId == Guid.Empty)
             {

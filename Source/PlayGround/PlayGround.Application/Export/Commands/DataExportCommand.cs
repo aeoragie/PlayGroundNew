@@ -3,6 +3,8 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Contracts.Export;
@@ -30,6 +32,7 @@ namespace PlayGround.Application.Export.Commands
         private readonly IExportStorage mStorage;
         private readonly INotificationRepository mNotificationRepository;
         private readonly IEmailSender mEmailSender;
+        private readonly ILogger<DataExportCommand> mLogger;
 
         public DataExportCommand(
             ISoccerDataExportRepository exportRepository,
@@ -39,7 +42,8 @@ namespace PlayGround.Application.Export.Commands
             ISoccerTeamRepository teamRepository,
             IExportStorage storage,
             INotificationRepository notificationRepository,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ILogger<DataExportCommand> logger)
         {
             mExportRepository = exportRepository ?? throw new ArgumentNullException(nameof(exportRepository));
             mQueue = queue ?? throw new ArgumentNullException(nameof(queue));
@@ -49,11 +53,16 @@ namespace PlayGround.Application.Export.Commands
             mStorage = storage ?? throw new ArgumentNullException(nameof(storage));
             mNotificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             mEmailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         //.// 사용자 경로 — 접수(즉시 반환) · 상태 · 취소
 
         public async Task<Result<DataExportRequestResult>> RequestAsync(
+            Guid userId, CreateDataExportRequest request, CancellationToken cancellation = default) =>
+            (await RequestCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Request");
+
+        private async Task<Result<DataExportRequestResult>> RequestCoreAsync(
             Guid userId, CreateDataExportRequest request, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || request is null)
@@ -88,7 +97,10 @@ namespace PlayGround.Application.Export.Commands
             });
         }
 
-        public async Task<Result<DataExportStateDto?>> GetCurrentAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<DataExportStateDto?>> GetCurrentAsync(Guid userId, CancellationToken cancellation = default) =>
+            (await GetCurrentCoreAsync(userId, cancellation)).LogWith(mLogger, "GetCurrent");
+
+        private async Task<Result<DataExportStateDto?>> GetCurrentCoreAsync(Guid userId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -98,7 +110,10 @@ namespace PlayGround.Application.Export.Commands
             return await mExportRepository.GetByUserAsync(userId, cancellation);
         }
 
-        public async Task<Result<bool>> CancelAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
+        public async Task<Result<bool>> CancelAsync(Guid userId, Guid requestId, CancellationToken cancellation = default) =>
+            (await CancelCoreAsync(userId, requestId, cancellation)).LogWith(mLogger, "Cancel");
+
+        private async Task<Result<bool>> CancelCoreAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || requestId == Guid.Empty)
             {
@@ -118,7 +133,10 @@ namespace PlayGround.Application.Export.Commands
 
         //.// 다운로드 — 서명 URL 소비(Ready·미만료·횟수 검증은 SP) → 파일 스트림
 
-        public async Task<Result<Stream?>> ResolveDownloadAsync(string token, CancellationToken cancellation = default)
+        public async Task<Result<Stream?>> ResolveDownloadAsync(string token, CancellationToken cancellation = default) =>
+            (await ResolveDownloadCoreAsync(token, cancellation)).LogWith(mLogger, "ResolveDownload");
+
+        private async Task<Result<Stream?>> ResolveDownloadCoreAsync(string token, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(token))
             {

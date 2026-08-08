@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Claim;
 using PlayGround.Domain.Soccer;
@@ -11,14 +13,19 @@ namespace PlayGround.Application.Claim.Commands
     public class SoccerClaimFlowCommand
     {
         private readonly IClaimRepository mRepository;
+        private readonly ILogger<SoccerClaimFlowCommand> mLogger;
 
-        public SoccerClaimFlowCommand(IClaimRepository repository)
+        public SoccerClaimFlowCommand(IClaimRepository repository, ILogger<SoccerClaimFlowCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<ClaimInviteCardResponse>> LookupAsync(string code, CancellationToken cancellation = default)
+        public async Task<Result<ClaimInviteCardResponse>> LookupAsync(string code, CancellationToken cancellation = default) =>
+            (await LookupCoreAsync(code, cancellation)).LogWith(mLogger, "Lookup");
+
+        private async Task<Result<ClaimInviteCardResponse>> LookupCoreAsync(string code, CancellationToken cancellation = default)
         {
             string? normalized = NormalizeCode(code);
             if (normalized is null)
@@ -41,6 +48,10 @@ namespace PlayGround.Application.Claim.Commands
         }
 
         public async Task<Result<ClaimRequestSummaryResponse>> CreateAsync(
+            Guid userId, string requesterName, CreateClaimRequestRequest request, CancellationToken cancellation = default) =>
+            (await CreateCoreAsync(userId, requesterName, request, cancellation)).LogWith(mLogger, "Create");
+
+        private async Task<Result<ClaimRequestSummaryResponse>> CreateCoreAsync(
             Guid userId, string requesterName, CreateClaimRequestRequest request, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || request is null)
@@ -79,7 +90,10 @@ namespace PlayGround.Application.Claim.Commands
         }
 
         /// <summary>공개 선수 프로필 경유(코드 없음): 슬러그로 미연결 선수 카드 조회.</summary>
-        public async Task<Result<ClaimInviteCardResponse>> LookupBySlugAsync(string slug, CancellationToken cancellation = default)
+        public async Task<Result<ClaimInviteCardResponse>> LookupBySlugAsync(string slug, CancellationToken cancellation = default) =>
+            (await LookupBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "LookupBySlug");
+
+        private async Task<Result<ClaimInviteCardResponse>> LookupBySlugCoreAsync(string slug, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -103,6 +117,10 @@ namespace PlayGround.Application.Claim.Commands
 
         /// <summary>공개 선수 프로필 경유(코드 없음): PlayerId + 관계로 연결 요청 생성.</summary>
         public async Task<Result<ClaimRequestSummaryResponse>> CreateByPlayerAsync(
+            Guid userId, string requesterName, Guid playerId, string relationText, CancellationToken cancellation = default) =>
+            (await CreateByPlayerCoreAsync(userId, requesterName, playerId, relationText, cancellation)).LogWith(mLogger, "CreateByPlayer");
+
+        private async Task<Result<ClaimRequestSummaryResponse>> CreateByPlayerCoreAsync(
             Guid userId, string requesterName, Guid playerId, string relationText, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || playerId == Guid.Empty)
@@ -134,7 +152,10 @@ namespace PlayGround.Application.Claim.Commands
         }
 
         /// <summary>연결 요청 취소 — 본인의 Pending 요청만. 대기 화면에서 철회(Design.ClaimFlow P1).</summary>
-        public async Task<Result<bool>> CancelAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
+        public async Task<Result<bool>> CancelAsync(Guid userId, Guid requestId, CancellationToken cancellation = default) =>
+            (await CancelCoreAsync(userId, requestId, cancellation)).LogWith(mLogger, "Cancel");
+
+        private async Task<Result<bool>> CancelCoreAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || requestId == Guid.Empty)
             {
@@ -156,7 +177,10 @@ namespace PlayGround.Application.Claim.Commands
         }
 
         /// <summary>재방문 복원 — 요청이 없으면 NotFound (클라이언트는 스텝 ①부터).</summary>
-        public async Task<Result<ClaimRequestSummaryResponse>> GetMineAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<ClaimRequestSummaryResponse>> GetMineAsync(Guid userId, CancellationToken cancellation = default) =>
+            (await GetMineCoreAsync(userId, cancellation)).LogWith(mLogger, "GetMine");
+
+        private async Task<Result<ClaimRequestSummaryResponse>> GetMineCoreAsync(Guid userId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

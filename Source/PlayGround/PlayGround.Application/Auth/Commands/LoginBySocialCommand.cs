@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Auth;
 using PlayGround.Application.Auth.Models;
@@ -12,16 +14,23 @@ namespace PlayGround.Application.Auth.Commands
     {
         private readonly IAccountRepository mRepository;
         private readonly IJwtTokenService mTokenService;
+        private readonly ILogger<LoginBySocialCommand> mLogger;
 
-        public LoginBySocialCommand(IAccountRepository repository, IJwtTokenService tokenService)
+        public LoginBySocialCommand(IAccountRepository repository, IJwtTokenService tokenService, ILogger<LoginBySocialCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             Debug.Assert(tokenService != null, "tokenService is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mTokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<AuthResult>> ExecuteAsync(
+            string provider, string providerUserId, string? email, string? displayName, string? profileImageUrl,
+            CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(provider, providerUserId, email, displayName, profileImageUrl, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<AuthResult>> ExecuteCoreAsync(
             string provider, string providerUserId, string? email, string? displayName, string? profileImageUrl,
             CancellationToken cancellation = default)
         {

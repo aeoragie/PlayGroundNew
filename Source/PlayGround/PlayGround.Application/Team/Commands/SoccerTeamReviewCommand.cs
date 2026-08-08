@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Application.Interfaces;
@@ -13,14 +15,20 @@ namespace PlayGround.Application.Team.Commands
 
         private readonly ISoccerTeamRepository mRepository;
 
-        public SoccerTeamReviewCommand(ISoccerTeamRepository repository)
+        private readonly ILogger<SoccerTeamReviewCommand> mLogger;
+
+        public SoccerTeamReviewCommand(ISoccerTeamRepository repository, ILogger<SoccerTeamReviewCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <param name="viewerUserId">로그인 열람자 — 리뷰 쓰기 자격·내 리뷰 판정에만 쓴다. 게스트는 null.</param>
-        public async Task<Result<TeamReviewsResponse>> GetBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
+        public async Task<Result<TeamReviewsResponse>> GetBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default) =>
+            (await GetBySlugCoreAsync(slug, viewerUserId, cancellation)).LogWith(mLogger, "GetBySlug");
+
+        private async Task<Result<TeamReviewsResponse>> GetBySlugCoreAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -30,7 +38,10 @@ namespace PlayGround.Application.Team.Commands
             return await mRepository.GetReviewsBySlugAsync(slug.Trim(), viewerUserId, cancellation);
         }
 
-        public async Task<Result<bool>> SaveAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> SaveAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default) =>
+            (await SaveCoreAsync(authorUserId, request, cancellation)).LogWith(mLogger, "Save");
+
+        private async Task<Result<bool>> SaveCoreAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default)
         {
             if (authorUserId == Guid.Empty || request is null)
             {
@@ -71,7 +82,10 @@ namespace PlayGround.Application.Team.Commands
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> DeleteAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default)
+        public async Task<Result<bool>> DeleteAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default) =>
+            (await DeleteCoreAsync(authorUserId, reviewId, restore, cancellation)).LogWith(mLogger, "Delete");
+
+        private async Task<Result<bool>> DeleteCoreAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default)
         {
             if (authorUserId == Guid.Empty || reviewId == Guid.Empty)
             {

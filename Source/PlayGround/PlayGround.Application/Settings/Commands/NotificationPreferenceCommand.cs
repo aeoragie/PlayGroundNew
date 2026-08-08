@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Settings;
 using PlayGround.Domain.Account;
@@ -12,14 +14,19 @@ namespace PlayGround.Application.Settings.Commands
     public class NotificationPreferenceCommand
     {
         private readonly IAccountRepository mRepository;
+        private readonly ILogger<NotificationPreferenceCommand> mLogger;
 
-        public NotificationPreferenceCommand(IAccountRepository repository)
+        public NotificationPreferenceCommand(IAccountRepository repository, ILogger<NotificationPreferenceCommand> logger)
         {
             Debug.Assert(repository != null);
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<NotificationPreferencesResponse>> GetAsync(Guid userId, CancellationToken cancellation = default)
+        public async Task<Result<NotificationPreferencesResponse>> GetAsync(Guid userId, CancellationToken cancellation = default) =>
+            (await GetCoreAsync(userId, cancellation)).LogWith(mLogger, "Get");
+
+        private async Task<Result<NotificationPreferencesResponse>> GetCoreAsync(Guid userId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -29,7 +36,10 @@ namespace PlayGround.Application.Settings.Commands
             return await mRepository.GetNotificationPreferencesAsync(userId, cancellation);
         }
 
-        public async Task<Result<bool>> SetAsync(Guid userId, SetNotificationPreferenceRequest request, CancellationToken cancellation = default)
+        public async Task<Result<bool>> SetAsync(Guid userId, SetNotificationPreferenceRequest request, CancellationToken cancellation = default) =>
+            (await SetCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Set");
+
+        private async Task<Result<bool>> SetCoreAsync(Guid userId, SetNotificationPreferenceRequest request, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || request is null)
             {

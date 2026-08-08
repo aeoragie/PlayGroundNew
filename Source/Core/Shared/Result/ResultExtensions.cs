@@ -14,7 +14,7 @@ public static class ResultExtensions
             Data = result.IsSuccess ? result.Value : default,
             Code = result.ResultData.DetailCode.Value,
             CodeName = result.ResultData.DetailCode.Name,
-            Message = result.ResultData.DetailCode.GetUserFriendlyMessage(result.Message)
+            Message = result.Message
         };
     }
 
@@ -26,7 +26,7 @@ public static class ResultExtensions
             Data = null,
             Code = result.ResultData.DetailCode.Value,
             CodeName = result.ResultData.DetailCode.Name,
-            Message = result.ResultData.DetailCode.GetUserFriendlyMessage(result.Message)
+            Message = result.Message
         };
     }
 }

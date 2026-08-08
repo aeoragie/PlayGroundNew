@@ -1,4 +1,5 @@
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 using PlayGround.Shared.Result;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Auth.Models;
@@ -34,7 +35,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetBySocialAsync("Google", "g-1", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<AccountUser?>.Success(SampleUser(userId)));
 
-            var command = new LoginBySocialCommand(repo.Object, TokenMock().Object);
+            var command = new LoginBySocialCommand(repo.Object, TokenMock().Object, NullLogger<LoginBySocialCommand>.Instance);
             var result = await command.ExecuteAsync("Google", "g-1", "user@google.social", "구글유저", null);
 
             Assert.True(result.IsSuccess);
@@ -53,7 +54,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.CreateWithSocialAsync(It.IsAny<string>(), It.IsAny<string>(), "Google", "g-2", It.IsAny<string?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<AccountUser>.Success(SampleUser(newId)));
 
-            var command = new LoginBySocialCommand(repo.Object, TokenMock().Object);
+            var command = new LoginBySocialCommand(repo.Object, TokenMock().Object, NullLogger<LoginBySocialCommand>.Instance);
             var result = await command.ExecuteAsync("Google", "g-2", "user@google.social", "구글유저", null);
 
             Assert.True(result.IsSuccess);
@@ -64,7 +65,7 @@ namespace PlayGround.Tests.Unit.Application
         [Fact]
         public async Task MissingProviderId_ReturnsError()
         {
-            var command = new LoginBySocialCommand(new Mock<IAccountRepository>().Object, TokenMock().Object);
+            var command = new LoginBySocialCommand(new Mock<IAccountRepository>().Object, TokenMock().Object, NullLogger<LoginBySocialCommand>.Instance);
 
             var result = await command.ExecuteAsync("Google", "", null, null, null);
 
@@ -79,7 +80,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.GetBySocialAsync("Kakao", "k-1", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<AccountUser?>.Error(ErrorCode.DatabaseError));
 
-            var command = new LoginBySocialCommand(repo.Object, TokenMock().Object);
+            var command = new LoginBySocialCommand(repo.Object, TokenMock().Object, NullLogger<LoginBySocialCommand>.Instance);
             var result = await command.ExecuteAsync("Kakao", "k-1", null, null, null);
 
             Assert.True(result.IsError);

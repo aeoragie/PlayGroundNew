@@ -26,8 +26,9 @@ Repository는 `managerUserId`는 알아도 그게 권한 판정을 통과한 값
 **어떤 구성으로 떴는지**(Provider·Endpoint·Bucket 등)를 함께 남긴다. 자격 증명은 제외한다.
 장애 대응은 "이 프로세스가 무슨 설정으로 떠 있나"에서 시작한다.
 
-**조회는 기본 Debug.** 단 "누가 무엇을 봤는가" 자체가 의미 있는 조회는 Info다 —
-공개 프로필 열람, 에이전트 열람, 데이터 export.
+**유즈케이스 경계는 성공하면 Info 한 줄이 남는다.** 조회도 마찬가지다 — 한 요청에 한 줄이고,
+그게 곧 접근 기록이 된다. 대신 상태를 바꾼 일은 그 한 줄로 끝내지 않고 **식별자를 담은
+`InfoWith`를 따로** 남긴다(누가 어떤 팀을 만들었는지는 "Operation completed"로는 알 수 없다).
 
 ## 3. 레벨
 
@@ -96,24 +97,24 @@ Logger.Info($"Team {teamId} created");                  // X — 문자열에 �
 
 ## 5. 쓰는 법
 
+**유즈케이스의 public 메서드는 얇은 래퍼다.** 실제 로직은 `~CoreAsync`에 있고, 래퍼가 결과를
+`LogWith`로 한 번 남긴다. 이렇게 두면 **어느 경로로 실패해도 반드시 한 줄이 남는다** —
+반환 지점마다 로깅을 챙기는 규율에 기대지 않는다(반환 지점은 246곳이다).
+
 ```csharp
-public class SoccerTeamCommand
+public async Task<Result<TeamResponse>> ExecuteAsync(Guid managerUserId, CreateTeamRequest request, CancellationToken cancellation = default) =>
+    (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+
+private async Task<Result<TeamResponse>> ExecuteCoreAsync(Guid managerUserId, CreateTeamRequest request, CancellationToken cancellation = default)
 {
-    private readonly ILogger<SoccerTeamCommand> mLogger;
-
-    public async Task<Result<TeamResponse>> ExecuteAsync(Guid managerUserId, ...)
-    {
-        Result<TeamResponse> result = await mRepository.CreateAsync(...);
-        if (result.IsError)
-        {
-            return result.LogWith(mLogger, "CreateTeam");
-        }
-
-        mLogger.InfoWith("Team created", ("ManagerUserId", managerUserId), ("TeamId", result.Value.Id));
-        return result;
-    }
+    ...
+    mLogger.InfoWith("Team created", ("ManagerUserId", managerUserId), ("TeamId", saved.Value));
+    return Result<TeamResponse>.Success(response);
 }
 ```
+
+작업 이름은 메서드 이름에서 `Async`를 뗀 것이다. 어느 유즈케이스인지는 로거 이름
+(`ILogger<SoccerTeamCommand>`)이 이미 들고 있으므로 `"Execute"`로 충분하다.
 
 메시지는 **영어**다. 완료는 과거형(`Team created`), 실패는 `Failed to …`.
 

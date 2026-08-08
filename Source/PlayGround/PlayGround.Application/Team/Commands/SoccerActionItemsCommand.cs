@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
@@ -25,13 +27,20 @@ namespace PlayGround.Application.Team.Commands
 
         private readonly ISoccerTeamRepository mRepository;
 
-        public SoccerActionItemsCommand(ISoccerTeamRepository repository)
+        private readonly ILogger<SoccerActionItemsCommand> mLogger;
+
+        public SoccerActionItemsCommand(ISoccerTeamRepository repository, ILogger<SoccerActionItemsCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<ActionItemsResponse>> ExecuteAsync(
+            Guid userId, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<ActionItemsResponse>> ExecuteCoreAsync(
             Guid userId, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)

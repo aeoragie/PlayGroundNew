@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
@@ -21,13 +23,20 @@ namespace PlayGround.Application.Team.Commands
 
         private readonly ISoccerTeamRepository mRepository;
 
-        public SoccerRecordCorrectionCommand(ISoccerTeamRepository repository)
+        private readonly ILogger<SoccerRecordCorrectionCommand> mLogger;
+
+        public SoccerRecordCorrectionCommand(ISoccerTeamRepository repository, ILogger<SoccerRecordCorrectionCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<Guid>> ExecuteAsync(
+            Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<Guid>> ExecuteCoreAsync(
             Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)
@@ -80,6 +89,10 @@ namespace PlayGround.Application.Team.Commands
 
         /// <summary>보호자 신청 — 내 자녀(TargetPlayerId) 관련 공식 경기만. 검증은 팀 경로와 같은 규칙.</summary>
         public async Task<Result<Guid>> ExecuteByGuardianAsync(
+            Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default) =>
+            (await ExecuteByGuardianCoreAsync(userId, targetPlayerId, request, cancellation)).LogWith(mLogger, "ExecuteByGuardian");
+
+        private async Task<Result<Guid>> ExecuteByGuardianCoreAsync(
             Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
@@ -126,6 +139,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<RecordCorrectionsResponse>> GetAsync(
+            Guid managerUserId, CancellationToken cancellation = default) =>
+            (await GetCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "Get");
+
+        private async Task<Result<RecordCorrectionsResponse>> GetCoreAsync(
             Guid managerUserId, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)
@@ -138,6 +155,10 @@ namespace PlayGround.Application.Team.Commands
 
         /// <summary>신청 취소 — 접수(Pending) 상태의 내 신청만. 심사가 끝난 건은 손대지 않는다.</summary>
         public async Task<Result<bool>> CancelAsync(
+            Guid managerUserId, Guid correctionId, CancellationToken cancellation = default) =>
+            (await CancelCoreAsync(managerUserId, correctionId, cancellation)).LogWith(mLogger, "Cancel");
+
+        private async Task<Result<bool>> CancelCoreAsync(
             Guid managerUserId, Guid correctionId, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)

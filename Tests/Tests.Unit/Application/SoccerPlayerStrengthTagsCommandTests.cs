@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging.Abstractions;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -23,7 +24,7 @@ namespace PlayGround.Tests.Unit.Application
             repo.Setup(r => r.SaveStrengthTagsAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
                 .Callback<Guid, string?, Guid?, CancellationToken>((_, json, _, _) => captured = json)
                 .ReturnsAsync(Result<bool>.Success(applied));
-            return (new SoccerPlayerStrengthTagsCommand(repo.Object), () => captured);
+            return (new SoccerPlayerStrengthTagsCommand(repo.Object, NullLogger<SoccerPlayerStrengthTagsCommand>.Instance), () => captured);
         }
 
         private static List<string> Saved(Func<string?> json) =>

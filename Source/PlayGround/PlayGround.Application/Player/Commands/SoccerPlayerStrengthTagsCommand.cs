@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
 using PlayGround.Application.Interfaces;
@@ -23,13 +25,19 @@ namespace PlayGround.Application.Player.Commands
 
         private readonly IPlayerRepository mRepository;
 
-        public SoccerPlayerStrengthTagsCommand(IPlayerRepository repository)
+        private readonly ILogger<SoccerPlayerStrengthTagsCommand> mLogger;
+
+        public SoccerPlayerStrengthTagsCommand(IPlayerRepository repository, ILogger<SoccerPlayerStrengthTagsCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<StrengthTagPresetsResponse>> GetPresetsAsync(CancellationToken cancellation = default)
+        public async Task<Result<StrengthTagPresetsResponse>> GetPresetsAsync(CancellationToken cancellation = default) =>
+            (await GetPresetsCoreAsync(cancellation)).LogWith(mLogger, "GetPresets");
+
+        private async Task<Result<StrengthTagPresetsResponse>> GetPresetsCoreAsync(CancellationToken cancellation = default)
         {
             Result<List<StrengthTagPresetDto>> result = await mRepository.GetStrengthTagPresetsAsync(cancellation);
             if (result.IsError)
@@ -40,7 +48,10 @@ namespace PlayGround.Application.Player.Commands
             return Result<StrengthTagPresetsResponse>.Success(new StrengthTagPresetsResponse { Presets = result.Value });
         }
 
-        public async Task<Result<bool>> SaveAsync(Guid userId, SaveStrengthTagsRequest request, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<bool>> SaveAsync(Guid userId, SaveStrengthTagsRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
+            (await SaveCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Save");
+
+        private async Task<Result<bool>> SaveCoreAsync(Guid userId, SaveStrengthTagsRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Contracts.Team;
@@ -17,13 +19,19 @@ namespace PlayGround.Application.Team.Commands
 
         private readonly ISoccerTeamRepository mRepository;
 
-        public SoccerScheduleCommand(ISoccerTeamRepository repository)
+        private readonly ILogger<SoccerScheduleCommand> mLogger;
+
+        public SoccerScheduleCommand(ISoccerTeamRepository repository, ILogger<SoccerScheduleCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<SchedulesResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default)
+        public async Task<Result<SchedulesResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default) =>
+            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine");
+
+        private async Task<Result<SchedulesResponse>> GetMineCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty)
             {
@@ -33,7 +41,10 @@ namespace PlayGround.Application.Team.Commands
             return await mRepository.GetSchedulesByManagerAsync(managerUserId, cancellation);
         }
 
-        public async Task<Result<SchedulesResponse>> GetBySlugAsync(string slug, CancellationToken cancellation = default)
+        public async Task<Result<SchedulesResponse>> GetBySlugAsync(string slug, CancellationToken cancellation = default) =>
+            (await GetBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetBySlug");
+
+        private async Task<Result<SchedulesResponse>> GetBySlugCoreAsync(string slug, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -44,6 +55,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<ScheduleDto>> SaveAsync(
+            Guid managerUserId, SaveScheduleRequest request, CancellationToken cancellation = default) =>
+            (await SaveCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Save");
+
+        private async Task<Result<ScheduleDto>> SaveCoreAsync(
             Guid managerUserId, SaveScheduleRequest request, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || request is null)
@@ -114,6 +129,10 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> DeleteAsync(
+            Guid managerUserId, Guid scheduleId, bool restore, CancellationToken cancellation = default) =>
+            (await DeleteCoreAsync(managerUserId, scheduleId, restore, cancellation)).LogWith(mLogger, "Delete");
+
+        private async Task<Result<bool>> DeleteCoreAsync(
             Guid managerUserId, Guid scheduleId, bool restore, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || scheduleId == Guid.Empty)

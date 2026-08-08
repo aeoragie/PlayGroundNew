@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Auth;
 using PlayGround.Application.Auth.Models;
@@ -14,15 +16,20 @@ namespace PlayGround.Application.Settings.Commands
     {
         private readonly IAccountRepository mRepository;
         private readonly IJwtTokenService mTokenService;
+        private readonly ILogger<DisplayNameChangeCommand> mLogger;
 
-        public DisplayNameChangeCommand(IAccountRepository repository, IJwtTokenService tokenService)
+        public DisplayNameChangeCommand(IAccountRepository repository, IJwtTokenService tokenService, ILogger<DisplayNameChangeCommand> logger)
         {
             Debug.Assert(repository != null && tokenService != null);
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mTokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<AuthResult>> ExecuteAsync(Guid userId, string displayName, CancellationToken cancellation = default)
+        public async Task<Result<AuthResult>> ExecuteAsync(Guid userId, string displayName, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, displayName, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<AuthResult>> ExecuteCoreAsync(Guid userId, string displayName, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {

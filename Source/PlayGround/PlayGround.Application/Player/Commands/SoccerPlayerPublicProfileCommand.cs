@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
 using PlayGround.Application.Interfaces;
@@ -10,15 +12,20 @@ namespace PlayGround.Application.Player.Commands
     public class SoccerPlayerPublicProfileCommand
     {
         private readonly IPlayerRepository mRepository;
+        private readonly ILogger<SoccerPlayerPublicProfileCommand> mLogger;
 
-        public SoccerPlayerPublicProfileCommand(IPlayerRepository repository)
+        public SoccerPlayerPublicProfileCommand(IPlayerRepository repository, ILogger<SoccerPlayerPublicProfileCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <param name="viewerUserId">로그인 열람자 — 승인된 에이전트면 권한 뷰. 게스트는 null.</param>
-        public async Task<Result<PlayerPublicProfileResponse>> ExecuteAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default)
+        public async Task<Result<PlayerPublicProfileResponse>> ExecuteAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(slug, seasonYear, viewerUserId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<PlayerPublicProfileResponse>> ExecuteCoreAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {

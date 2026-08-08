@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Auth;
 using PlayGround.Application.Auth.Models;
@@ -15,16 +17,21 @@ namespace PlayGround.Application.Auth.Commands
         private readonly IAccountRepository mRepository;
         private readonly IJwtTokenService mTokenService;
         private readonly IPasswordHasher mPasswordHasher;
+        private readonly ILogger<LoginByEmailCommand> mLogger;
 
-        public LoginByEmailCommand(IAccountRepository repository, IJwtTokenService tokenService, IPasswordHasher passwordHasher)
+        public LoginByEmailCommand(IAccountRepository repository, IJwtTokenService tokenService, IPasswordHasher passwordHasher, ILogger<LoginByEmailCommand> logger)
         {
             Debug.Assert(repository != null && tokenService != null && passwordHasher != null);
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             mTokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             mPasswordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<AuthResult>> ExecuteAsync(string email, string password, CancellationToken cancellation = default)
+        public async Task<Result<AuthResult>> ExecuteAsync(string email, string password, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(email, password, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<AuthResult>> ExecuteCoreAsync(string email, string password, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {

@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Contracts.Player;
 using PlayGround.Domain.Soccer;
@@ -16,13 +18,19 @@ namespace PlayGround.Application.Player.Commands
 
         private readonly IPlayerRepository mRepository;
 
-        public SoccerPlayerPortfolioSaveCommand(IPlayerRepository repository)
+        private readonly ILogger<SoccerPlayerPortfolioSaveCommand> mLogger;
+
+        public SoccerPlayerPortfolioSaveCommand(IPlayerRepository repository, ILogger<SoccerPlayerPortfolioSaveCommand> logger)
         {
             Debug.Assert(repository != null, "repository is required");
             mRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<bool>> ExecuteAsync(Guid userId, SavePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<bool>> ExecuteAsync(Guid userId, SavePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
+            (await ExecuteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Execute");
+
+        private async Task<Result<bool>> ExecuteCoreAsync(Guid userId, SavePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
@@ -70,7 +78,10 @@ namespace PlayGround.Application.Player.Commands
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> DeleteAsync(Guid userId, DeletePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<bool>> DeleteAsync(Guid userId, DeletePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
+            (await DeleteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Delete");
+
+        private async Task<Result<bool>> DeleteCoreAsync(Guid userId, DeletePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
