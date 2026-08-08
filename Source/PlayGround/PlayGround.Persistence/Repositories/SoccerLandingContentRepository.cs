@@ -3,7 +3,6 @@ using PlayGround.Shared.Result;
 using PlayGround.Contracts.Landing;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
 using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
@@ -21,13 +20,10 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<LandingContentsResponse>> GetContentsAsync(CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Landing contents requested");
-
             var procedure = new UspGetLandingContents(this);
             var queryResult = await procedure.QueryAsync<SoccerLandingContentRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Landing contents query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<LandingContentsResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -37,9 +33,6 @@ namespace PlayGround.Persistence.Repositories
                 Features = MapSection(rows, "Feature"),
                 Steps = MapSection(rows, "HowStep")
             };
-
-            Logger.InfoWith("Landing contents received",
-                ("Features", response.Features.Count), ("Steps", response.Steps.Count));
 
             return Result<LandingContentsResponse>.Success(response);
         }

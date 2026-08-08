@@ -2,7 +2,6 @@ using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Application.Og;
 using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;

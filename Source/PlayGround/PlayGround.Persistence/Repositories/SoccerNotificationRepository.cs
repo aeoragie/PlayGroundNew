@@ -2,7 +2,6 @@ using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Notification;
 using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -21,13 +20,10 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<NotificationsResponse>> GetByUserAsync(Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Notifications requested", ("UserId", userId));
-
             var procedure = new UspGetSoccerNotificationsByUser(this) { UserId = userId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Notifications query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<NotificationsResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -41,15 +37,12 @@ namespace PlayGround.Persistence.Repositories
                 Items = rows.Select(MapNotification).ToList()
             };
 
-            Logger.InfoWith("Notifications received", ("UserId", userId), ("Unread", unread), ("Items", response.Items.Count));
             return Result<NotificationsResponse>.Success(response);
         }
 
         public async Task<Result<NotificationPageResponse>> GetPageByUserAsync(
             Guid userId, string filter, int offset, int limit, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Notification page requested", ("UserId", userId), ("Filter", filter), ("Offset", offset));
-
             var procedure = new UspGetSoccerNotificationsPageByUser(this)
             {
                 UserId = userId,
@@ -77,8 +70,6 @@ namespace PlayGround.Persistence.Repositories
                 Items = rows.Select(MapNotification).ToList()
             };
 
-            Logger.InfoWith("Notification page received",
-                ("UserId", userId), ("Total", total), ("Items", response.Items.Count));
             return Result<NotificationPageResponse>.Success(response);
         }
 
@@ -106,8 +97,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<bool>> MarkReadAsync(Guid userId, Guid notificationId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Notification read requested", ("UserId", userId), ("NotificationId", notificationId));
-
             var procedure = new UspMarkSoccerNotificationRead(this) { UserId = userId, NotificationId = notificationId };
             var queryResult = await procedure.QueryAsync<SoccerNotificationReadRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -145,8 +134,6 @@ namespace PlayGround.Persistence.Repositories
             string? actorName, string? playerName, string? teamName, string? metaText, string? subText,
             CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Notification creation requested", ("RecipientUserId", recipientUserId), ("Type", type));
-
             var procedure = new UspCreateSoccerNotification(this)
             {
                 RecipientUserId = recipientUserId,

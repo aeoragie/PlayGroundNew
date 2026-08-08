@@ -2,7 +2,6 @@ using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Claim;
 using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -21,8 +20,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<ClaimInviteCardResponse?>> GetInviteCardAsync(string code, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Claim invite card requested");
-
             var procedure = new UspGetSoccerPlayerInviteForClaim(this) { Code = code };
             var queryResult = await procedure.QueryAsync<SoccerClaimInviteCardRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -50,8 +47,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<ClaimInviteCardResponse?>> GetClaimCardBySlugAsync(string slug, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Claim card by slug requested");
-
             var procedure = new UspGetSoccerClaimCardBySlug(this) { Slug = slug };
             var queryResult = await procedure.QueryAsync<SoccerClaimInviteCardRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -80,8 +75,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<ClaimRequestSummaryResponse?>> CreateRequestByPlayerAsync(
             Guid userId, string requesterName, Guid playerId, string relation, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Claim request by player requested", ("UserId", userId), ("PlayerId", playerId), ("Relation", relation));
-
             var procedure = new UspCreateSoccerPlayerClaimRequestByPlayer(this)
             {
                 UserId = userId,
@@ -102,8 +95,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<ClaimRequestSummaryResponse?>> CreateRequestAsync(
             Guid userId, string requesterName, string code, string relation, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Claim request creation requested", ("UserId", userId), ("Relation", relation));
-
             var procedure = new UspCreateSoccerPlayerClaimRequest(this)
             {
                 UserId = userId,
@@ -118,18 +109,11 @@ namespace PlayGround.Persistence.Repositories
             }
 
             SoccerClaimRequestOwnRecord? row = queryResult.Values1.FirstOrDefault();
-            if (row is not null)
-            {
-                Logger.InfoWith("Claim request ready", ("RequestId", row.RequestId), ("Status", row.Status));
-            }
-
             return Result<ClaimRequestSummaryResponse?>.Success(row is null ? null : Map(row));
         }
 
         public async Task<Result<ClaimRequestSummaryResponse?>> GetOwnRequestAsync(Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Own claim request requested", ("UserId", userId));
-
             var procedure = new UspGetSoccerPlayerClaimRequestByUser(this) { UserId = userId };
             var queryResult = await procedure.QueryAsync<SoccerClaimRequestOwnRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -143,8 +127,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<bool>> CancelRequestAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Claim request cancel requested", ("UserId", userId), ("RequestId", requestId));
-
             var procedure = new UspCancelSoccerPlayerClaimRequest(this) { UserId = userId, RequestId = requestId };
             var queryResult = await procedure.QueryAsync<SoccerClaimCancelRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -158,8 +140,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<List<PendingChildClaimDto>>> GetPendingChildClaimsAsync(
             Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Pending child claims requested", ("UserId", userId));
-
             var procedure = new UspGetSoccerPendingChildClaimsByUser(this) { UserId = userId };
             var queryResult = await procedure.QueryAsync<SoccerPendingChildClaimRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -184,9 +164,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<ReviewClaimResponse?>> ReviewAsync(
             Guid managerUserId, Guid requestId, bool approve, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Claim request review requested",
-                ("ManagerUserId", managerUserId), ("RequestId", requestId), ("Approve", approve));
-
             var procedure = new UspReviewSoccerPlayerClaimRequest(this)
             {
                 ManagerUserId = managerUserId,
@@ -202,11 +179,9 @@ namespace PlayGround.Persistence.Repositories
             SoccerClaimReviewRecord? row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                Logger.InfoWith("Claim request review denied or not found", ("RequestId", requestId));
                 return Result<ReviewClaimResponse?>.Success(null);
             }
 
-            Logger.InfoWith("Claim request reviewed", ("RequestId", row.RequestId), ("Status", row.Status));
             return Result<ReviewClaimResponse?>.Success(new ReviewClaimResponse
             {
                 RequestId = row.RequestId,

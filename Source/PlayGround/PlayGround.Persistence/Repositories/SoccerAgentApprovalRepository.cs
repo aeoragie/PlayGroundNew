@@ -3,7 +3,6 @@ using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Agent;
 using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -23,13 +22,10 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<AgentViewRequestResponse?>> GetRequestAsync(
             Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Agent view request requested", ("GuardianUserId", guardianUserId), ("RequestId", requestId));
-
             var procedure = new UspGetSoccerAgentViewRequest(this) { GuardianUserId = guardianUserId, RequestId = requestId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Agent view request query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<AgentViewRequestResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -37,7 +33,6 @@ namespace PlayGround.Persistence.Repositories
             SoccerAgentViewRequestRecord? request = await reader.ReadSingleOrDefaultAsync<SoccerAgentViewRequestRecord>();
             if (request is null)
             {
-                Logger.InfoWith("Agent view request not found", ("RequestId", requestId));
                 return Result<AgentViewRequestResponse?>.Success(null);
             }
 
@@ -50,9 +45,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<AgentViewRequestResponse?>> ReviewAsync(
             Guid guardianUserId, Guid requestId, string action, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Agent view request review requested",
-                ("GuardianUserId", guardianUserId), ("RequestId", requestId), ("Action", action));
-
             var procedure = new UspReviewSoccerAgentViewRequest(this)
             {
                 GuardianUserId = guardianUserId,
@@ -68,18 +60,14 @@ namespace PlayGround.Persistence.Repositories
             SoccerAgentViewRequestRecord? row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                Logger.InfoWith("Agent view request review denied or not transitionable", ("RequestId", requestId));
                 return Result<AgentViewRequestResponse?>.Success(null);
             }
 
-            Logger.InfoWith("Agent view request reviewed", ("RequestId", row.RequestId), ("Status", row.Status));
             return Result<AgentViewRequestResponse?>.Success(Map(row, agent: null, logs: new List<SoccerAgentViewLogsEntity>()));
         }
 
         public async Task<Result<bool>> BlockAgentAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Agent block requested", ("GuardianUserId", guardianUserId), ("RequestId", requestId));
-
             var procedure = new UspBlockSoccerAgent(this) { GuardianUserId = guardianUserId, RequestId = requestId };
             var queryResult = await procedure.QueryAsync<SoccerAgentBlockRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -93,9 +81,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<AgentRequestEligibilityResponse>> GetEligibilityAsync(
             Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Agent request eligibility requested",
-                ("RequesterUserId", requesterUserId), ("PlayerId", playerId), ("GuardianUserId", guardianUserId));
-
             var procedure = new UspGetSoccerAgentRequestEligibility(this)
             {
                 RequesterUserId = requesterUserId,

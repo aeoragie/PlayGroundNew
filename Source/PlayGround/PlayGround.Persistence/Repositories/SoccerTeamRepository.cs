@@ -5,7 +5,6 @@ using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Team;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Models;
@@ -25,9 +24,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<string>> CreateWithRosterAsync(CreateTeamInput input, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team creation requested",
-                ("ManagerUserId", input.ManagerUserId), ("RosterCount", input.Roster.Count));
-
             string rosterJson = JsonSerializer.Serialize(input.Roster);
 
             var procedure = new UspCreateSoccerTeamWithRoster(this)
@@ -42,37 +38,30 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerCreateTeamRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Team creation failed", ("ResultCode", queryResult.ResultCode));
                 return Result<string>.Error(ErrorCode.DatabaseError);
             }
 
             var row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                Logger.ErrorWith("Team creation returned no row");
                 return Result<string>.Error(ErrorCode.OperationFailed, "no row returned");
             }
 
             // 슬러그는 팀 생성의 반환값이자 공개 홈 주소 — 없으면 후속 이동이 불가능하니 실패로 본다
             if (string.IsNullOrEmpty(row.Slug))
             {
-                Logger.ErrorWith("Team created without slug", ("TeamId", row.TeamId));
                 return Result<string>.Error(ErrorCode.OperationFailed, "slug is empty");
             }
 
-            Logger.InfoWith("Team created", ("TeamId", row.TeamId), ("Slug", row.Slug));
             return Result<string>.Success(row.Slug);
         }
 
         public async Task<Result<TeamInfoResponse?>> GetTeamInfoByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team info requested", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerTeamInfoByManager(this) { ManagerUserId = managerUserId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Team info query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<TeamInfoResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -80,7 +69,6 @@ namespace PlayGround.Persistence.Repositories
             SoccerTeamsEntity? team = await reader.ReadSingleOrDefaultAsync<SoccerTeamsEntity>();
             if (team is null)
             {
-                Logger.InfoWith("Team info not found", ("ManagerUserId", managerUserId));
                 return Result<TeamInfoResponse?>.Success(null);
             }
 
@@ -140,21 +128,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Team info received", ("TeamId", team.TeamId),
-                ("Values", response.Values.Count), ("Coaches", response.Coaches.Count), ("Channels", response.Channels.Count));
-
             return Result<TeamInfoResponse?>.Success(response);
         }
 
         public async Task<Result<TeamRosterResponse>> GetTeamRosterByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team roster requested", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerTeamRosterByManager(this) { ManagerUserId = managerUserId };
             var queryResult = await procedure.QueryAsync<SoccerTeamRosterRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Team roster query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<TeamRosterResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -181,15 +163,12 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Team roster received", ("ManagerUserId", managerUserId), ("Players", response.Players.Count));
             return Result<TeamRosterResponse>.Success(response);
         }
 
         public async Task<Result<TeamRosterPlayerDto?>> AddTeamPlayerByManagerAsync(
             Guid managerUserId, AddTeamPlayerRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team roster add requested", ("ManagerUserId", managerUserId));
-
             var procedure = new UspAddSoccerTeamPlayer(this)
             {
                 ManagerUserId = managerUserId,
@@ -202,7 +181,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerTeamRosterRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Team roster add failed", ("ResultCode", queryResult.ResultCode));
                 return Result<TeamRosterPlayerDto?>.Error(ErrorCode.DatabaseError, "AddTeamPlayer");
             }
 
@@ -228,16 +206,12 @@ namespace PlayGround.Persistence.Repositories
                 InviteCode = row.UserId is null ? NullIfEmpty(row.Code) : null
             };
 
-            Logger.InfoWith("Team roster add applied", ("ManagerUserId", managerUserId), ("TeamPlayerId", dto.TeamPlayerId));
             return Result<TeamRosterPlayerDto?>.Success(dto);
         }
 
         public async Task<Result<bool>> RemoveTeamPlayerByManagerAsync(
             Guid managerUserId, Guid teamPlayerId, bool restore, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team roster remove requested",
-                ("ManagerUserId", managerUserId), ("TeamPlayerId", teamPlayerId), ("Restore", restore));
-
             var procedure = new UspRemoveSoccerTeamPlayer(this)
             {
                 ManagerUserId = managerUserId,
@@ -247,7 +221,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerTeamPlayersEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Team roster remove failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError, "RemoveTeamPlayer");
             }
 
@@ -257,13 +230,10 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamPublicHomeResponse?>> GetTeamHomeBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team public home requested", ("Slug", slug));
-
             var procedure = new UspGetSoccerTeamHomeBySlug(this) { Slug = slug };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Team public home query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<TeamPublicHomeResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -271,7 +241,6 @@ namespace PlayGround.Persistence.Repositories
             SoccerTeamsEntity? team = await reader.ReadSingleOrDefaultAsync<SoccerTeamsEntity>();
             if (team is null)
             {
-                Logger.InfoWith("Team public home not found", ("Slug", slug));
                 return Result<TeamPublicHomeResponse?>.Success(null);
             }
 
@@ -351,22 +320,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Team public home received", ("Slug", slug), ("TeamId", team.TeamId),
-                ("Values", response.Values.Count), ("Coaches", response.Coaches.Count),
-                ("Channels", response.Channels.Count), ("Roster", response.Roster.Count));
-
             return Result<TeamPublicHomeResponse?>.Success(response);
         }
 
         public async Task<Result<TeamMatchesResponse>> GetTeamMatchesByManagerAsync(Guid managerUserId, int seasonYear, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team matches requested", ("ManagerUserId", managerUserId), ("SeasonYear", seasonYear));
-
             var procedure = new UspGetSoccerTeamMatchesByManager(this) { ManagerUserId = managerUserId, SeasonYear = seasonYear };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Team matches query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<TeamMatchesResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -383,21 +345,15 @@ namespace PlayGround.Persistence.Repositories
                 Matches = matches.Select(m => MapMatch(m, teamId, events)).ToList()
             };
 
-            Logger.InfoWith("Team matches received", ("ManagerUserId", managerUserId),
-                ("Matches", response.Matches.Count), ("LeagueRank", leagueRank));
-
             return Result<TeamMatchesResponse>.Success(response);
         }
 
         public async Task<Result<TeamSeasonRecordResponse>> GetTeamSeasonRecordBySlugAsync(string slug, int seasonYear, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team season record requested", ("Slug", slug), ("SeasonYear", seasonYear));
-
             var procedure = new UspGetSoccerTeamSeasonRecordBySlug(this) { Slug = slug, SeasonYear = seasonYear };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Team season record query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<TeamSeasonRecordResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -417,9 +373,6 @@ namespace PlayGround.Persistence.Repositories
                 Matches = matches.Select(m => MapMatch(m, teamId, noEvents)).ToList(),
                 Videos = videos.Select(MapVideo).ToList()
             };
-
-            Logger.InfoWith("Team season record received", ("Slug", slug),
-                ("Matches", response.Matches.Count), ("Videos", response.Videos.Count));
 
             return Result<TeamSeasonRecordResponse>.Success(response);
         }
@@ -481,13 +434,10 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamVideosResponse>> GetTeamVideosByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team videos requested", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerTeamVideosByManager(this) { ManagerUserId = managerUserId };
             var queryResult = await procedure.QueryAsync<SoccerMatchVideosEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Team videos query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<TeamVideosResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -496,7 +446,6 @@ namespace PlayGround.Persistence.Repositories
                 Videos = queryResult.Values1.Select(MapVideo).ToList()
             };
 
-            Logger.InfoWith("Team videos received", ("ManagerUserId", managerUserId), ("Videos", response.Videos.Count));
             return Result<TeamVideosResponse>.Success(response);
         }
 
@@ -514,9 +463,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<string?>> UpdateTeamInfoByManagerAsync(
             Guid managerUserId, UpdateTeamInfoRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team info update requested",
-                ("ManagerUserId", managerUserId), ("ValueCount", request.Values.Count), ("CoachCount", request.Coaches.Count));
-
             // 실적 칩은 DB에 JSON 배열 문자열로 들어간다 — 조회 쪽 ParseAchievements와 짝이다
             var coaches = request.Coaches.Select(c => new
             {
@@ -547,26 +493,21 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerUpdatedTeamRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Team info update failed", ("ResultCode", queryResult.ResultCode));
                 return Result<string?>.Error(ErrorCode.DatabaseError);
             }
 
             var row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                Logger.WarnWith("Team info update rejected — no team for manager", ("ManagerUserId", managerUserId));
                 return Result<string?>.Success(null);
             }
 
-            Logger.InfoWith("Team info updated", ("TeamId", row.TeamId));
             return Result<string?>.Success(NullIfEmpty(row.Slug) ?? string.Empty);
         }
 
         public async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsByManagerAsync(
             Guid managerUserId, int seasonYear, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Tournament options requested", ("ManagerUserId", managerUserId), ("SeasonYear", seasonYear));
-
             var procedure = new UspGetSoccerTournamentOptionsByManager(this)
             {
                 ManagerUserId = managerUserId,
@@ -576,7 +517,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerTournamentOptionRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Tournament options query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<TeamTournamentOptionsResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -597,9 +537,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<Guid?>> CreateMatchResultByManagerAsync(
             Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Friendly match result save requested",
-                ("ManagerUserId", managerUserId), ("IsHome", request.IsHome));
-
             // 득점자는 JSON으로 넘겨 프로시저가 한 트랜잭션에 삽입한다 (경기 1행 + 이벤트 N행)
             string? scorers = request.Scorers.Count > 0 ? JsonSerializer.Serialize(request.Scorers) : null;
 
@@ -618,7 +555,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerCreatedMatchRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Match result save failed", ("ResultCode", queryResult.ResultCode));
                 return Result<Guid?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -626,12 +562,10 @@ namespace PlayGround.Persistence.Repositories
             if (row is null)
             {
                 // 팀 없음·없는 대회 — 프로시저가 빈 결과셋으로 알린다
-                Logger.WarnWith("Match result rejected — no team or unknown tournament", ("ManagerUserId", managerUserId));
                 return Result<Guid?>.Success(null);
             }
 
             // 친선으로 저장된다 — 순위표(Official만 집계)에는 영향이 없다
-            Logger.InfoWith("Friendly match result saved", ("MatchId", row.MatchId));
             return Result<Guid?>.Success(row.MatchId);
         }
 
@@ -640,9 +574,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<Guid?>> CreateRecordCorrectionAsync(
             Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Record correction requested",
-                ("ManagerUserId", managerUserId), ("MatchId", request.MatchId), ("FieldType", request.FieldType));
-
             var procedure = new UspCreateSoccerRecordCorrection(this)
             {
                 ManagerUserId = managerUserId,
@@ -656,7 +587,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerCorrectionCreatedRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Record correction create failed", ("ResultCode", queryResult.ResultCode));
                 return Result<Guid?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -664,20 +594,15 @@ namespace PlayGround.Persistence.Repositories
             if (row is null)
             {
                 // 남의 경기 / 친선 / 중복 신청 — 프로시저가 사유를 구분하지 않는다
-                Logger.WarnWith("Record correction rejected", ("ManagerUserId", managerUserId), ("MatchId", request.MatchId));
                 return Result<Guid?>.Success(null);
             }
 
-            Logger.InfoWith("Record correction created", ("CorrectionId", row.CorrectionId));
             return Result<Guid?>.Success(row.CorrectionId);
         }
 
         public async Task<Result<Guid?>> CreateGuardianCorrectionAsync(
             Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Guardian record correction requested",
-                ("UserId", userId), ("TargetPlayerId", targetPlayerId), ("MatchId", request.MatchId), ("FieldType", request.FieldType));
-
             var procedure = new UspCreateSoccerRecordCorrectionByGuardian(this)
             {
                 UserId = userId,
@@ -692,7 +617,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerCorrectionCreatedRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Guardian record correction create failed", ("ResultCode", queryResult.ResultCode));
                 return Result<Guid?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -700,24 +624,19 @@ namespace PlayGround.Persistence.Repositories
             if (row is null)
             {
                 // 내 자녀 아님 / 출전 기록 없음 / 친선 / 중복 — 프로시저가 사유를 구분하지 않는다
-                Logger.WarnWith("Guardian record correction rejected", ("UserId", userId), ("MatchId", request.MatchId));
                 return Result<Guid?>.Success(null);
             }
 
-            Logger.InfoWith("Guardian record correction created", ("CorrectionId", row.CorrectionId));
             return Result<Guid?>.Success(row.CorrectionId);
         }
 
         public async Task<Result<PendingInvitesResponse>> GetPendingInvitesByManagerAsync(
             Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Pending invites requested", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerPendingInvitesByManager(this) { ManagerUserId = managerUserId };
             var queryResult = await procedure.QueryAsync<SoccerPendingInviteRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Pending invites query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<PendingInvitesResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -736,22 +655,16 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Pending invites received",
-                ("ManagerUserId", managerUserId), ("Invites", response.Invites.Count));
-
             return Result<PendingInvitesResponse>.Success(response);
         }
 
         public async Task<Result<RecordCorrectionsResponse>> GetRecordCorrectionsByManagerAsync(
             Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Record corrections requested", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerRecordCorrectionsByManager(this) { ManagerUserId = managerUserId };
             var queryResult = await procedure.QueryAsync<SoccerCorrectionRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Record corrections query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<RecordCorrectionsResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -778,18 +691,12 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Record corrections received",
-                ("ManagerUserId", managerUserId), ("Corrections", response.Corrections.Count));
-
             return Result<RecordCorrectionsResponse>.Success(response);
         }
 
         public async Task<Result<bool>> CancelRecordCorrectionAsync(
             Guid managerUserId, Guid correctionId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Record correction cancel requested",
-                ("ManagerUserId", managerUserId), ("CorrectionId", correctionId));
-
             var procedure = new UspCancelSoccerRecordCorrection(this)
             {
                 ManagerUserId = managerUserId,
@@ -799,19 +706,15 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerCorrectionCancelRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Record correction cancel failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Record correction cancel completed", ("CorrectionId", correctionId), ("Applied", applied));
             return Result<bool>.Success(applied);
         }
 
         public async Task<Result<TeamExploreResponse>> GetExploreTeamsAsync(CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team explore list requested");
-
             // "올해 전적"의 올해는 UTC 달력 기준이다 — 시간대별로 하루 걸치는 경기가 있지만
             // 요약 지표라 그 정도 오차는 받아들인다(정확한 시즌 경계는 대회 데이터가 정한다).
             // (SQL이 시간대 산술을 하지 않게 하고, 범위 비교라 인덱스도 탄다).
@@ -826,7 +729,6 @@ namespace PlayGround.Persistence.Repositories
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Team explore query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<TeamExploreResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -885,7 +787,6 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Team explore list received", ("Teams", response.Teams.Count));
             return Result<TeamExploreResponse>.Success(response);
         }
 
@@ -940,8 +841,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamRecruitmentsResponse>> GetRecruitmentsBySlugAsync(string slug, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team recruitments requested", ("Slug", slug));
-
             var procedure = new UspGetSoccerTeamRecruitmentsBySlug(this) { Slug = slug };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
@@ -955,8 +854,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamRecruitmentsResponse>> GetRecruitmentsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team recruitments requested by manager", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerTeamRecruitmentsByManager(this) { ManagerUserId = managerUserId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
@@ -989,9 +886,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<TeamRecruitmentDto?>> SaveRecruitmentByManagerAsync(
             Guid managerUserId, SaveTeamRecruitmentRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team recruitment save requested",
-                ("ManagerUserId", managerUserId), ("RecruitmentId", request.RecruitmentId));
-
             var procedure = new UspSaveSoccerTeamRecruitment(this)
             {
                 ManagerUserId = managerUserId,
@@ -1019,9 +913,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<TeamRecruitmentDto?>> CloseRecruitmentByManagerAsync(
             Guid managerUserId, Guid recruitmentId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team recruitment close requested",
-                ("ManagerUserId", managerUserId), ("RecruitmentId", recruitmentId));
-
             var procedure = new UspCloseSoccerTeamRecruitment(this)
             {
                 ManagerUserId = managerUserId,
@@ -1040,9 +931,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<bool>> DeleteRecruitmentByManagerAsync(
             Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team recruitment delete requested",
-                ("ManagerUserId", managerUserId), ("RecruitmentId", recruitmentId), ("Restore", restore));
-
             var procedure = new UspDeleteSoccerTeamRecruitment(this)
             {
                 ManagerUserId = managerUserId,
@@ -1062,8 +950,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamPostsResponse>> GetPostsByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team posts requested by manager", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerTeamPostsByManager(this) { ManagerUserId = managerUserId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
@@ -1090,8 +976,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamNewsResponse>> GetNewsBySlugAsync(string slug, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team news requested", ("Slug", slug));
-
             var procedure = new UspGetSoccerTeamPostsBySlug(this) { Slug = slug };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
@@ -1128,8 +1012,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<GuardianTeamPostsResponse>> GetPostsByGuardianAsync(
             Guid userId, Guid playerId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Guardian team posts requested", ("UserId", userId), ("PlayerId", playerId));
-
             var procedure = new UspGetSoccerTeamPostsByGuardian(this) { UserId = userId, PlayerId = playerId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
@@ -1159,9 +1041,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<TeamPostDto?>> SavePostByManagerAsync(
             Guid managerUserId, SaveTeamPostRequest request, string? authorName, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team post save requested",
-                ("ManagerUserId", managerUserId), ("PostId", request.PostId), ("Type", request.Type));
-
             string? filesJson = request.Files.Count > 0
                 ? JsonSerializer.Serialize(request.Files.Select((f, i) => new { url = f.Url, name = f.Name, sizeBytes = f.SizeBytes, ord = i }))
                 : null;
@@ -1199,8 +1078,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<TeamPostDto?>> SetPostPinnedByManagerAsync(
             Guid managerUserId, Guid postId, bool isPinned, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team post pin requested", ("ManagerUserId", managerUserId), ("PostId", postId), ("IsPinned", isPinned));
-
             var procedure = new UspSetSoccerTeamPostPinned(this)
             {
                 ManagerUserId = managerUserId,
@@ -1220,8 +1097,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<TeamPostDto?>> SetPostPublicByManagerAsync(
             Guid managerUserId, Guid postId, bool isPublic, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team post public requested", ("ManagerUserId", managerUserId), ("PostId", postId), ("IsPublic", isPublic));
-
             var procedure = new UspSetSoccerTeamPostPublic(this)
             {
                 ManagerUserId = managerUserId,
@@ -1241,9 +1116,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<bool>> DeletePostByManagerAsync(
             Guid managerUserId, Guid postId, bool restore, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team post delete requested",
-                ("ManagerUserId", managerUserId), ("PostId", postId), ("Restore", restore));
-
             var procedure = new UspDeleteSoccerTeamPost(this)
             {
                 ManagerUserId = managerUserId,
@@ -1261,8 +1133,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<bool>> MarkPostReadAsync(Guid userId, Guid postId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team post read requested", ("UserId", userId), ("PostId", postId));
-
             var procedure = new UspMarkSoccerTeamPostRead(this) { UserId = userId, PostId = postId };
             var queryResult = await procedure.QueryAsync<Guid>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -1353,8 +1223,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<SchedulesResponse>> GetSchedulesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team schedules requested by manager", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerSchedulesByManager(this) { ManagerUserId = managerUserId };
             var queryResult = await procedure.QueryAsync<SoccerSchedulesEntity>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -1370,8 +1238,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<SchedulesResponse>> GetSchedulesBySlugAsync(string slug, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team schedules requested", ("Slug", slug));
-
             var procedure = new UspGetSoccerSchedulesBySlug(this) { Slug = slug };
             var queryResult = await procedure.QueryAsync<SoccerSchedulesEntity>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -1388,9 +1254,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<ScheduleDto?>> SaveScheduleByManagerAsync(
             Guid managerUserId, SaveScheduleRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team schedule save requested",
-                ("ManagerUserId", managerUserId), ("ScheduleId", request.ScheduleId));
-
             var procedure = new UspSaveSoccerSchedule(this)
             {
                 ManagerUserId = managerUserId,
@@ -1415,9 +1278,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<bool>> DeleteScheduleByManagerAsync(
             Guid managerUserId, Guid scheduleId, bool restore, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team schedule delete requested",
-                ("ManagerUserId", managerUserId), ("ScheduleId", scheduleId), ("Restore", restore));
-
             var procedure = new UspDeleteSoccerSchedule(this)
             {
                 ManagerUserId = managerUserId,
@@ -1453,8 +1313,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesBySlugAsync(string slug, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team career outcomes requested", ("Slug", slug));
-
             var procedure = new UspGetSoccerTeamCareerOutcomesBySlug(this) { Slug = slug };
             var queryResult = await procedure.QueryAsync<SoccerTeamCareerOutcomesEntity>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -1470,8 +1328,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamCareerOutcomesResponse>> GetCareerOutcomesByManagerAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team career outcomes requested by manager", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerTeamCareerOutcomesByManager(this) { ManagerUserId = managerUserId };
             var queryResult = await procedure.QueryAsync<SoccerTeamCareerOutcomesEntity>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -1488,9 +1344,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<TeamCareerOutcomeDto?>> SaveCareerOutcomeByManagerAsync(
             Guid managerUserId, SaveTeamCareerOutcomeRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team career outcome save requested",
-                ("ManagerUserId", managerUserId), ("OutcomeId", request.OutcomeId));
-
             var procedure = new UspSaveSoccerTeamCareerOutcome(this)
             {
                 ManagerUserId = managerUserId,
@@ -1514,9 +1367,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<bool>> DeleteCareerOutcomeByManagerAsync(
             Guid managerUserId, Guid outcomeId, bool restore, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team career outcome delete requested",
-                ("ManagerUserId", managerUserId), ("OutcomeId", outcomeId), ("Restore", restore));
-
             var procedure = new UspDeleteSoccerTeamCareerOutcome(this)
             {
                 ManagerUserId = managerUserId,
@@ -1534,8 +1384,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<TeamReviewsResponse>> GetReviewsBySlugAsync(string slug, Guid? viewerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team reviews requested", ("Slug", slug));
-
             var procedure = new UspGetSoccerTeamReviewsBySlug(this) { Slug = slug, ViewerUserId = viewerUserId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
@@ -1554,14 +1402,11 @@ namespace PlayGround.Persistence.Repositories
                 MyReviewId = viewer.MyReviewId
             };
 
-            Logger.InfoWith("Team reviews received", ("Slug", slug), ("Reviews", response.Items.Count));
             return Result<TeamReviewsResponse>.Success(response);
         }
 
         public async Task<Result<bool>> SaveReviewAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team review save requested", ("AuthorUserId", authorUserId), ("ReviewId", request.ReviewId));
-
             var procedure = new UspSaveSoccerTeamReview(this)
             {
                 AuthorUserId = authorUserId,
@@ -1581,9 +1426,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<bool>> DeleteReviewAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Team review delete requested",
-                ("AuthorUserId", authorUserId), ("ReviewId", reviewId), ("Restore", restore));
-
             var procedure = new UspDeleteSoccerTeamReview(this)
             {
                 AuthorUserId = authorUserId,
@@ -1668,9 +1510,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<(string Status, Guid? ApplicationId)>> CreateApplicationAsync(
             Guid guardianUserId, CreateApplicationRequest request, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Application create requested",
-                ("GuardianUserId", guardianUserId), ("RecruitmentId", request.RecruitmentId), ("PlayerId", request.PlayerId));
-
             var procedure = new UspCreateSoccerApplication(this)
             {
                 GuardianUserId = guardianUserId,
@@ -1683,32 +1522,26 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Application create failed", ("ResultCode", queryResult.ResultCode));
                 return Result<(string, Guid?)>.Error(ErrorCode.DatabaseError, "CreateApplication");
             }
 
             SoccerApplicationCreateRecord? row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                Logger.ErrorWith("Application create returned no status row");
                 return Result<(string, Guid?)>.Error(ErrorCode.OperationFailed, "no status row");
             }
 
             Guid? id = row.Status == "Ok" && row.ApplicationId != Guid.Empty ? row.ApplicationId : null;
-            Logger.InfoWith("Application create completed", ("Status", row.Status), ("ApplicationId", id));
             return Result<(string, Guid?)>.Success((row.Status, id));
         }
 
         public async Task<Result<TeamApplicationsResponse>> GetApplicationsByManagerAsync(
             Guid managerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Applications requested by manager", ("ManagerUserId", managerUserId));
-
             var procedure = new UspGetSoccerApplicationsByManager(this) { ManagerUserId = managerUserId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Applications query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<TeamApplicationsResponse>.Error(ErrorCode.DatabaseError, "GetApplicationsByManager");
             }
 
@@ -1744,20 +1577,16 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Applications received", ("ManagerUserId", managerUserId), ("Applications", response.Applications.Count));
             return Result<TeamApplicationsResponse>.Success(response);
         }
 
         public async Task<Result<MyApplicationsResponse>> GetApplicationsByGuardianAsync(
             Guid guardianUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Applications requested by guardian", ("GuardianUserId", guardianUserId));
-
             var procedure = new UspGetSoccerApplicationsByGuardian(this) { GuardianUserId = guardianUserId };
             var queryResult = await procedure.QueryAsync<SoccerApplicationGuardianRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Guardian applications query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<MyApplicationsResponse>.Error(ErrorCode.DatabaseError, "GetApplicationsByGuardian");
             }
 
@@ -1781,16 +1610,12 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Guardian applications received", ("GuardianUserId", guardianUserId), ("Applications", response.Applications.Count));
             return Result<MyApplicationsResponse>.Success(response);
         }
 
         public async Task<Result<bool>> UpdateApplicationStatusAsync(
             Guid managerUserId, Guid applicationId, string newStatus, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Application status update requested",
-                ("ManagerUserId", managerUserId), ("ApplicationId", applicationId), ("NewStatus", newStatus));
-
             var procedure = new UspUpdateSoccerApplicationStatus(this)
             {
                 ManagerUserId = managerUserId,
@@ -1800,7 +1625,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Application status update failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError, "UpdateApplicationStatus");
             }
 
@@ -1811,9 +1635,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<bool>> CancelApplicationAsync(
             Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Application cancel requested",
-                ("GuardianUserId", guardianUserId), ("ApplicationId", applicationId));
-
             var procedure = new UspCancelSoccerApplication(this)
             {
                 GuardianUserId = guardianUserId,
@@ -1822,7 +1643,6 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Application cancel failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError, "CancelApplication");
             }
 
@@ -1833,9 +1653,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<bool>> ConfirmApplicationInviteAsync(
             Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Application invite confirm requested",
-                ("GuardianUserId", guardianUserId), ("ApplicationId", applicationId));
-
             var procedure = new UspConfirmSoccerApplicationInvite(this)
             {
                 GuardianUserId = guardianUserId,
@@ -1844,13 +1661,11 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerApplicationCreateRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Application invite confirm failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError, "ConfirmApplicationInvite");
             }
 
             // 빈 결과 = 내 수락(Accepted) 지원이 아님 — Command가 Forbidden으로 변환
             bool confirmed = queryResult.Values1.Any();
-            Logger.InfoWith("Application invite confirm completed", ("ApplicationId", applicationId), ("Confirmed", confirmed));
             return Result<bool>.Success(confirmed);
         }
     }

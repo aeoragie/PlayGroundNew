@@ -2,7 +2,6 @@ using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Records;
 using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -21,13 +20,10 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<RecordsTournamentsResponse>> GetTournamentsBySeasonAsync(int seasonYear, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Records tournaments requested", ("SeasonYear", seasonYear));
-
             var procedure = new UspGetSoccerTournamentsBySeason(this) { SeasonYear = seasonYear };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Records tournaments query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<RecordsTournamentsResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -56,21 +52,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Records tournaments received",
-                ("SeasonYear", seasonYear), ("Tournaments", response.Tournaments.Count), ("Years", seasonYears.Count));
-
             return Result<RecordsTournamentsResponse>.Success(response);
         }
 
         public async Task<Result<RecordsTournamentDetailResponse?>> GetTournamentDetailAsync(Guid tournamentId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Records tournament detail requested", ("TournamentId", tournamentId));
-
             var procedure = new UspGetSoccerTournamentDetail(this) { TournamentId = tournamentId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Records tournament detail query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<RecordsTournamentDetailResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -78,7 +68,6 @@ namespace PlayGround.Persistence.Repositories
             SoccerTournamentsEntity? tournament = await reader.ReadSingleOrDefaultAsync<SoccerTournamentsEntity>();
             if (tournament is null)
             {
-                Logger.InfoWith("Records tournament not found", ("TournamentId", tournamentId));
                 return Result<RecordsTournamentDetailResponse?>.Success(null);
             }
 
@@ -213,22 +202,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Records tournament detail received", ("TournamentId", tournamentId),
-                ("Standings", response.Standings.Count), ("Matches", response.Matches.Count),
-                ("Videos", response.Videos.Count), ("News", response.News.Count));
-
             return Result<RecordsTournamentDetailResponse?>.Success(response);
         }
 
         public async Task<Result<RecordsMatchDetailResponse?>> GetMatchDetailAsync(Guid matchId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Records match detail requested", ("MatchId", matchId));
-
             var procedure = new UspGetSoccerMatchDetail(this) { MatchId = matchId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Records match detail query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<RecordsMatchDetailResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -236,7 +218,6 @@ namespace PlayGround.Persistence.Repositories
             SoccerMatchesEntity? match = await reader.ReadSingleOrDefaultAsync<SoccerMatchesEntity>();
             if (match is null)
             {
-                Logger.InfoWith("Records match not found", ("MatchId", matchId));
                 return Result<RecordsMatchDetailResponse?>.Success(null);
             }
 
@@ -325,9 +306,6 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Records match detail received", ("MatchId", matchId),
-                ("Events", response.Events.Count), ("HomeLineup", response.HomeLineup.Count), ("AwayLineup", response.AwayLineup.Count));
-
             return Result<RecordsMatchDetailResponse?>.Success(response);
         }
 
@@ -335,6 +313,5 @@ namespace PlayGround.Persistence.Repositories
         {
             return string.IsNullOrEmpty(value) ? null : value;
         }
-
     }
 }

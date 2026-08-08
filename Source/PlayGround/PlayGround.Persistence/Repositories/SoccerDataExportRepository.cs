@@ -3,7 +3,6 @@ using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Export;
 using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -23,8 +22,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<(string Status, Guid? RequestId)>> CreateAsync(
             Guid userId, bool includeProfile, bool includeRecords, bool includeRequests, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Data export request creation requested", ("UserId", userId));
-
             var procedure = new UspCreateSoccerDataExportRequest(this)
             {
                 UserId = userId,
@@ -98,8 +95,6 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<bool>> UpdateStatusAsync(Guid requestId, string status, string? downloadToken, string? storageKey,
             long? sizeBytes, SystemTime? expiresAt, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Data export status update requested", ("RequestId", requestId), ("Status", status));
-
             var procedure = new UspUpdateSoccerDataExportStatus(this)
             {
                 RequestId = requestId,

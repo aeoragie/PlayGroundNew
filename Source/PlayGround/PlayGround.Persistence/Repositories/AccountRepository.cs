@@ -3,7 +3,6 @@ using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Settings;
 using PlayGround.Domain.Account;
 using PlayGround.Application.Auth.Models;
@@ -24,15 +23,12 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<AccountUser?>> GetByEmailAsync(string email, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("User lookup by email requested");
             var procedure = new UspGetUserByEmail(this) { Email = email };
             return await SingleOrNullAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "GetUserByEmail");
         }
 
         public async Task<Result<AccountUser?>> GetByIdAsync(Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("User lookup by id requested", ("UserId", userId));
-
             // UspGetUserSettings의 첫 결과셋(사용자 행)만 쓴다 — 원본 이메일 포함(내보내기 이메일용)
             var procedure = new UspGetUserSettings(this) { UserId = userId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
@@ -64,14 +60,12 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<AccountUser?>> GetBySocialAsync(string provider, string providerUserId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("User lookup by social requested", ("Provider", provider));
             var procedure = new UspGetUserBySocial(this) { Provider = provider, ProviderUserId = providerUserId };
             return await SingleOrNullAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "GetUserBySocial");
         }
 
         public async Task<Result<AccountUser>> CreateByEmailAsync(string email, string passwordHash, string displayName, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("User creation by email requested");
             var procedure = new UspCreateUserByEmail(this)
             {
                 Email = email,
@@ -83,7 +77,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<AccountUser>> CreateWithSocialAsync(string email, string displayName, string provider, string providerUserId, string? profileImageUrl, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("User creation by social requested", ("Provider", provider));
             var procedure = new UspCreateUserWithSocial(this)
             {
                 Email = email,
@@ -97,16 +90,12 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<AccountUser>> UpdateRoleAsync(Guid userId, string role, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("User role update requested", ("UserId", userId), ("Role", role));
-
             var procedure = new UspUpdateUserRole(this) { UserId = userId, Role = role };
             return await CreatedAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "UpdateUserRole");
         }
 
         public async Task<Result<AccountUser?>> UpdateDisplayNameAsync(Guid userId, string newName, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Display name change requested", ("UserId", userId));
-
             var procedure = new UspUpdateUserDisplayName(this) { UserId = userId, NewName = newName };
             // 빈 결과 = 제한 초과·미변경·미존재 (프로시저가 원자 판정) → Success(null)
             return await SingleOrNullAsync(procedure.QueryAsync<UserRecord>(cancellation: cancellation), "UpdateDisplayName");
@@ -114,8 +103,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<string>> LinkSocialAsync(Guid userId, string provider, string providerUserId, string? email, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Social link requested", ("UserId", userId), ("Provider", provider));
-
             var procedure = new UspLinkSocialAccount(this)
             {
                 UserId = userId,
@@ -134,8 +121,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<string>> UnlinkSocialAsync(Guid userId, string provider, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Social unlink requested", ("UserId", userId), ("Provider", provider));
-
             var procedure = new UspUnlinkSocialAccount(this) { UserId = userId, Provider = provider };
             var queryResult = await procedure.QueryAsync<string>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -148,13 +133,10 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<AccountSettingsResponse?>> GetSettingsAsync(Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Account settings requested", ("UserId", userId));
-
             var procedure = new UspGetUserSettings(this) { UserId = userId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Account settings query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<AccountSettingsResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -162,7 +144,6 @@ namespace PlayGround.Persistence.Repositories
             UsersEntity? user = await reader.ReadSingleOrDefaultAsync<UsersEntity>();
             if (user is null)
             {
-                Logger.InfoWith("Account settings user not found", ("UserId", userId));
                 return Result<AccountSettingsResponse?>.Success(null);
             }
 
@@ -199,8 +180,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<NotificationPreferencesResponse>> GetNotificationPreferencesAsync(Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Notification preferences requested", ("UserId", userId));
-
             var procedure = new UspGetNotificationPreferences(this) { UserId = userId };
             var queryResult = await procedure.QueryAsync<NotificationPreferencesEntity>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -225,8 +204,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<bool>> SetNotificationPreferenceAsync(Guid userId, string itemName, bool isEnabled, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Notification preference update requested", ("UserId", userId), ("ItemName", itemName), ("IsEnabled", isEnabled));
-
             var procedure = new UspSetNotificationPreference(this)
             {
                 UserId = userId,
@@ -244,8 +221,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<bool>> SoftDeleteAsync(Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Account soft delete requested", ("UserId", userId));
-
             var procedure = new UspDeleteUser(this) { UserId = userId };
             var queryResult = await procedure.QueryAsync<UserRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -253,13 +228,7 @@ namespace PlayGround.Persistence.Repositories
                 return Result<bool>.Error(ErrorCode.DatabaseError, "DeleteUser");
             }
 
-            bool deleted = queryResult.Values1.Count > 0;
-            if (deleted)
-            {
-                Logger.InfoWith("Account soft deleted", ("UserId", userId));
-            }
-
-            return Result<bool>.Success(deleted);
+            return Result<bool>.Success(queryResult.Values1.Count > 0);
         }
 
         public async Task<Result<Dictionary<Guid, bool>>> GetNotificationStatesAsync(

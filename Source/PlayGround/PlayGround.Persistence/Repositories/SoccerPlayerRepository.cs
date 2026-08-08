@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
 using PlayGround.Contracts.Player;
 using PlayGround.Domain.Soccer;
 using PlayGround.Application.Interfaces;
@@ -27,8 +26,6 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<Guid>> CreateAsync(CreatePlayerInput input, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player profile creation requested", ("UserId", input.UserId));
-
             var procedure = new UspCreatePlayer(this)
             {
                 UserId = input.UserId,
@@ -41,30 +38,24 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerCreatePlayerRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player profile creation failed", ("ResultCode", queryResult.ResultCode));
                 return Result<Guid>.Error(ErrorCode.DatabaseError);
             }
 
             var row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                Logger.ErrorWith("Player profile creation returned no row");
                 return Result<Guid>.Error(ErrorCode.OperationFailed, "no row returned");
             }
 
-            Logger.InfoWith("Player profile created", ("PlayerId", row.PlayerId));
             return Result<Guid>.Success(row.PlayerId);
         }
 
         public async Task<Result<ManagedPlayersResponse>> GetManagedPlayersAsync(Guid userId, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Managed players requested", ("UserId", userId));
-
             var procedure = new UspGetSoccerPlayersByUser(this) { UserId = userId };
             var queryResult = await procedure.QueryAsync<SoccerManagedPlayerRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Managed players query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<ManagedPlayersResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -86,19 +77,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Managed players received", ("UserId", userId), ("Players", response.Players.Count));
             return Result<ManagedPlayersResponse>.Success(response);
         }
 
         public async Task<Result<PlayerInfoResponse?>> GetInfoByUserAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player info requested", ("UserId", userId));
-
             var procedure = new UspGetSoccerPlayerInfoByUser(this) { UserId = userId, TargetPlayerId = playerId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Player info query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<PlayerInfoResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -106,7 +93,6 @@ namespace PlayGround.Persistence.Repositories
             SoccerPlayerInfoRecord? player = await reader.ReadSingleOrDefaultAsync<SoccerPlayerInfoRecord>();
             if (player is null)
             {
-                Logger.InfoWith("Player info not found", ("UserId", userId));
                 return Result<PlayerInfoResponse?>.Success(null);
             }
 
@@ -159,17 +145,11 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Player info received", ("PlayerId", player.PlayerId),
-                ("Visibilities", visibilities.Count), ("Family", response.Family.Count));
-
             return Result<PlayerInfoResponse?>.Success(response);
         }
 
         public async Task<Result<bool>> SetFieldVisibilityAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player field visibility change requested",
-                ("UserId", userId), ("FieldName", fieldName), ("IsPublic", isPublic));
-
             var procedure = new UspSetSoccerPlayerFieldVisibility(this)
             {
                 UserId = userId,
@@ -181,19 +161,15 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayerVisibilitySetRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player field visibility change failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Player field visibility change completed", ("UserId", userId), ("Applied", applied));
             return Result<bool>.Success(applied);
         }
 
         public async Task<Result<string?>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, string? preferredFoot, string? schoolName, string? slug, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player profile info update requested", ("UserId", userId), ("PlayerId", playerId));
-
             var procedure = new UspUpdateSoccerPlayerProfileByUser(this)
             {
                 UserId = userId,
@@ -208,21 +184,16 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayerProfileUpdatedRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player profile info update failed", ("ResultCode", queryResult.ResultCode));
                 return Result<string?>.Error(ErrorCode.DatabaseError);
             }
 
             // 반환 슬러그(소유 선수 없으면 행 없음 → null = Forbidden). 요청 슬러그와 다르면 Command가 SlugTaken 판정.
             string? resultSlug = queryResult.Values1.FirstOrDefault()?.Slug;
-            Logger.InfoWith("Player profile info update completed", ("UserId", userId), ("Found", resultSlug is not null));
             return Result<string?>.Success(resultSlug);
         }
 
         public async Task<Result<bool>> SetPhotoAsync(Guid userId, Guid playerId, string? photoUrl, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player photo change requested",
-                ("UserId", userId), ("PlayerId", playerId), ("IsRemoval", photoUrl is null));
-
             // 권한 판정(보호자·팀 관리자)은 프로시저 안에 있다 — 거부되면 빈 결과가 돌아온다
             var procedure = new UspSetSoccerPlayerPhoto(this)
             {
@@ -234,13 +205,10 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayerPhotoRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player photo change failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Player photo change completed",
-                ("UserId", userId), ("PlayerId", playerId), ("Applied", applied));
 
             return Result<bool>.Success(applied);
         }
@@ -248,24 +216,20 @@ namespace PlayGround.Persistence.Repositories
         public async Task<Result<ClaimPlayerInviteResponse?>> ClaimInviteAsync(Guid userId, string code, CancellationToken cancellation = default)
         {
             // 코드 값은 추측 공격 로그가 될 수 있어 남기지 않는다
-            Logger.InfoWith("Player invite claim requested", ("UserId", userId));
 
             var procedure = new UspClaimSoccerPlayerInvite(this) { UserId = userId, Code = code };
             var queryResult = await procedure.QueryAsync<SoccerClaimInviteRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player invite claim failed", ("ResultCode", queryResult.ResultCode));
                 return Result<ClaimPlayerInviteResponse?>.Error(ErrorCode.DatabaseError);
             }
 
             var row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                Logger.InfoWith("Player invite claim rejected — invalid or used code", ("UserId", userId));
                 return Result<ClaimPlayerInviteResponse?>.Success(null);
             }
 
-            Logger.InfoWith("Player invite claimed", ("UserId", userId), ("PlayerId", row.PlayerId));
             return Result<ClaimPlayerInviteResponse?>.Success(new ClaimPlayerInviteResponse
             {
                 PlayerName = row.Name,
@@ -275,13 +239,10 @@ namespace PlayGround.Persistence.Repositories
 
         public async Task<Result<PlayerCareerResponse>> GetCareersByUserAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player careers requested", ("UserId", userId));
-
             var procedure = new UspGetSoccerPlayerCareersByUser(this) { UserId = userId, TargetPlayerId = playerId };
             var queryResult = await procedure.QueryAsync<SoccerPlayerCareersEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player careers query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<PlayerCareerResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -303,19 +264,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Player careers received", ("UserId", userId), ("Entries", response.Entries.Count));
             return Result<PlayerCareerResponse>.Success(response);
         }
 
         public async Task<Result<PlayerPortfolioResponse>> GetPortfolioByUserAsync(Guid userId, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player portfolio requested", ("UserId", userId));
-
             var procedure = new UspGetSoccerPlayerPortfolioByUser(this) { UserId = userId, TargetPlayerId = playerId };
             var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioVideosEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player portfolio query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<PlayerPortfolioResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -336,15 +293,11 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Player portfolio received", ("UserId", userId), ("Videos", response.Videos.Count));
             return Result<PlayerPortfolioResponse>.Success(response);
         }
 
         public async Task<Result<bool>> SaveCareerAsync(Guid userId, SavePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player career save requested",
-                ("UserId", userId), ("CareerId", request.CareerId), ("IsNew", request.CareerId == Guid.Empty));
-
             var procedure = new UspSaveSoccerPlayerCareer(this)
             {
                 UserId = userId,
@@ -361,20 +314,15 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayerCareerSaveRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player career save failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Player career save completed", ("UserId", userId), ("Applied", applied));
             return Result<bool>.Success(applied);
         }
 
         public async Task<Result<bool>> DeleteCareerAsync(Guid userId, Guid careerId, bool restore, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player career delete requested",
-                ("UserId", userId), ("CareerId", careerId), ("Restore", restore));
-
             var procedure = new UspDeleteSoccerPlayerCareer(this)
             {
                 UserId = userId,
@@ -386,20 +334,15 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayerCareerDeleteRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player career delete failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Player career delete completed", ("UserId", userId), ("Applied", applied));
             return Result<bool>.Success(applied);
         }
 
         public async Task<Result<bool>> SavePortfolioVideoAsync(Guid userId, SavePlayerPortfolioVideoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player portfolio video save requested",
-                ("UserId", userId), ("VideoId", request.VideoId), ("IsNew", request.VideoId == Guid.Empty));
-
             var procedure = new UspSaveSoccerPlayerPortfolioVideo(this)
             {
                 UserId = userId,
@@ -416,20 +359,15 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioSaveRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player portfolio video save failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Player portfolio video save completed", ("UserId", userId), ("Applied", applied));
             return Result<bool>.Success(applied);
         }
 
         public async Task<Result<bool>> DeletePortfolioVideoAsync(Guid userId, Guid videoId, bool restore, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player portfolio video delete requested",
-                ("UserId", userId), ("VideoId", videoId), ("Restore", restore));
-
             var procedure = new UspDeleteSoccerPlayerPortfolioVideo(this)
             {
                 UserId = userId,
@@ -441,24 +379,19 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayerPortfolioDeleteRecord>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player portfolio video delete failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Player portfolio video delete completed", ("UserId", userId), ("Applied", applied));
             return Result<bool>.Success(applied);
         }
 
         public async Task<Result<PlayerSeasonStatsResponse>> GetSeasonStatsByUserAsync(Guid userId, int seasonYear, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player season stats requested", ("UserId", userId), ("SeasonYear", seasonYear));
-
             var procedure = new UspGetSoccerPlayerSeasonStatsByUser(this) { UserId = userId, SeasonYear = seasonYear, TargetPlayerId = playerId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Player season stats query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<PlayerSeasonStatsResponse>.Error(ErrorCode.DatabaseError);
             }
 
@@ -494,21 +427,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Player season stats received", ("UserId", userId),
-                ("Matches", response.Matches.Count), ("Years", seasonYears.Count));
-
             return Result<PlayerSeasonStatsResponse>.Success(response);
         }
 
         public async Task<Result<PlayerPublicProfileResponse?>> GetPublicProfileBySlugAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player public profile requested", ("Slug", slug), ("SeasonYear", seasonYear));
-
             var procedure = new UspGetSoccerPlayerPublicProfileBySlug(this) { Slug = slug, SeasonYear = seasonYear, ViewerUserId = viewerUserId };
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                Logger.ErrorWith("Player public profile query failed", ("DetailCode", opened.ResultData.DetailCode));
                 return Result<PlayerPublicProfileResponse?>.Error(ErrorCode.DatabaseError);
             }
 
@@ -524,7 +451,6 @@ namespace PlayGround.Persistence.Repositories
             // 미존재·프로필 비공개는 프로시저가 빈 결과 — 사유를 구분하지 않는다
             if (header is null)
             {
-                Logger.InfoWith("Player public profile not found", ("Slug", slug));
                 return Result<PlayerPublicProfileResponse?>.Success(null);
             }
 
@@ -641,21 +567,15 @@ namespace PlayGround.Persistence.Repositories
                     .ToList()
             };
 
-            Logger.InfoWith("Player public profile received",
-                ("Slug", slug), ("Matches", appearances.Count), ("Careers", careers.Count), ("Granted", isGranted));
-
             return Result<PlayerPublicProfileResponse?>.Success(response);
         }
 
         public async Task<Result<List<StrengthTagPresetDto>>> GetStrengthTagPresetsAsync(CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Strength tag presets requested");
-
             var procedure = new UspGetSoccerStrengthTagPresets(this);
             var queryResult = await procedure.QueryAsync<SoccerStrengthTagPresetsEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Strength tag presets query failed", ("ResultCode", queryResult.ResultCode));
                 return Result<List<StrengthTagPresetDto>>.Error(ErrorCode.DatabaseError);
             }
 
@@ -663,14 +583,11 @@ namespace PlayGround.Persistence.Repositories
                 .Select(p => new StrengthTagPresetDto { Position = p.Position, Tag = p.Tag })
                 .ToList();
 
-            Logger.InfoWith("Strength tag presets received", ("Presets", presets.Count));
             return Result<List<StrengthTagPresetDto>>.Success(presets);
         }
 
         public async Task<Result<bool>> SaveStrengthTagsAsync(Guid userId, string? tagsJson, Guid? playerId = null, CancellationToken cancellation = default)
         {
-            Logger.InfoWith("Player strength tags save requested", ("UserId", userId), ("PlayerId", playerId));
-
             var procedure = new UspSaveSoccerPlayerStrengthTags(this)
             {
                 UserId = userId,
@@ -681,13 +598,11 @@ namespace PlayGround.Persistence.Repositories
             var queryResult = await procedure.QueryAsync<SoccerPlayersEntity>(cancellation: cancellation);
             if (queryResult.IsError)
             {
-                Logger.ErrorWith("Player strength tags save failed", ("ResultCode", queryResult.ResultCode));
                 return Result<bool>.Error(ErrorCode.DatabaseError);
             }
 
             // 빈 결과 = 관리 주체 소유 선수 없음 (거부) — Command가 Forbidden으로 변환
             bool applied = queryResult.Values1.Any();
-            Logger.InfoWith("Player strength tags save completed", ("UserId", userId), ("Applied", applied));
             return Result<bool>.Success(applied);
         }
 
