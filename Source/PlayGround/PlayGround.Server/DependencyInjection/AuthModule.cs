@@ -45,18 +45,11 @@ namespace PlayGround.Server.DependencyInjection
             services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
 
             //.// JWT 발급 + Bearer 검증
-            string? signingKey = configuration["Jwt:Key"];
-            if (string.IsNullOrWhiteSpace(signingKey))
-            {
-                // 이 상태로 뜨면 서명 키가 소스에 적힌 값이라 누구나 토큰을 위조할 수 있다.
-                Logger.FatalWith("Jwt:Key is missing — falling back to the public placeholder key",
-                    ("Issuer", configuration["Jwt:Issuer"]));
-            }
+            string signingKey = RequireSigningKey(configuration);
 
             Logger.InfoWith("JWT configured",
                 ("Issuer", configuration["Jwt:Issuer"]),
-                ("Audience", configuration["Jwt:Audience"]),
-                ("SigningKey", string.IsNullOrWhiteSpace(signingKey) ? "Placeholder" : "Configured"));
+                ("Audience", configuration["Jwt:Audience"]));
 
             services.AddSingleton<IJwtTokenService, JwtTokenService>();
             services.AddAuthentication(options =>
@@ -74,8 +67,7 @@ namespace PlayGround.Server.DependencyInjection
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(signingKey ?? "dev-only-insecure-placeholder-key-change-me"))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
                 };
 
                 options.Events = new JwtBearerEvents
@@ -86,6 +78,27 @@ namespace PlayGround.Server.DependencyInjection
             services.AddAuthorization();
 
             return services;
+        }
+
+        private static string RequireSigningKey(IConfiguration configuration)
+        {
+            const int MinimumKeyBytes = 32;
+            string? key = configuration["Jwt:Key"];
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new InvalidOperationException(
+                    "Jwt:Key is not configured. Set it in appsettings.Local.json (development) or the environment (production).");
+            }
+
+            int bytes = Encoding.UTF8.GetByteCount(key);
+            if (bytes < MinimumKeyBytes)
+            {
+                throw new InvalidOperationException(
+                    $"Jwt:Key is too short ({bytes} bytes). HMAC-SHA256 requires at least {MinimumKeyBytes} bytes.");
+            }
+
+            return key;
         }
     }
 }

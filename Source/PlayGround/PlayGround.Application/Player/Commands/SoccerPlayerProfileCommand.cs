@@ -97,6 +97,11 @@ namespace PlayGround.Application.Player.Commands
                 AccountUser user = promoted.Value;
                 accessToken = mTokenService.GenerateAccessToken(
                     user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
+                mLogger.InfoWith("User role promoted", ("UserId", userId), ("Role", "Player"));
+            }
+            else
+            {
+                promoted.LogWith(mLogger, "PromoteToPlayer", ("UserId", userId));
             }
 
             return Result<CreatePlayerProfileResponse>.Success(new CreatePlayerProfileResponse

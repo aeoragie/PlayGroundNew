@@ -98,6 +98,11 @@ namespace PlayGround.Application.Team.Commands
                 AccountUser user = promoted.Value;
                 accessToken = mTokenService.GenerateAccessToken(
                     user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
+                mLogger.InfoWith("User role promoted", ("UserId", managerUserId), ("Role", "TeamAdmin"));
+            }
+            else
+            {
+                promoted.LogWith(mLogger, "PromoteToTeamAdmin", ("UserId", managerUserId));
             }
 
             return Result<CreateTeamResponse>.Success(new CreateTeamResponse

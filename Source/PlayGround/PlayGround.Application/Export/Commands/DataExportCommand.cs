@@ -194,11 +194,13 @@ namespace PlayGround.Application.Export.Commands
                     return;
                 }
 
+                mLogger.InfoWith("Data export ready", ("RequestId", requestId), ("Bytes", zipBytes.LongLength));
+
                 await NotifyReadyAsync(job.UserId, requestId, cancellation);
             }
-            catch
+            catch (Exception ex)
             {
-                // 실패로 기록하고 예외를 다시 던진다 — 워커(Server)가 로깅한다(Application은 NLog 미참조)
+                mLogger.ErrorWith(ex, "Data export generation failed", ("RequestId", requestId));
                 await mExportRepository.UpdateStatusAsync(requestId, "Failed", null, null, null, null, cancellation);
                 throw;
             }
