@@ -85,6 +85,8 @@ namespace PlayGround.Application.Player.Commands
                 return Result<CreatePlayerProfileResponse>.Failure(created.ResultData);
             }
 
+            mLogger.InfoWith("Player profile created", ("UserId", userId));
+
             // 온보딩 완료 → 역할 승격 + 승격된 역할로 JWT 재발급 (재로그인 없이 /dashboard 분기가 맞도록).
             // 실패해도 프로필은 생성됐으므로 비치명적 — 토큰 없이 반환하면 기존 토큰이 유지된다.
             Result<AccountUser> promoted = await mAccountRepository.UpdateRoleAsync(userId, "Player", cancellation);

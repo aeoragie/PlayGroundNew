@@ -66,6 +66,8 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
+            mLogger.InfoWith("Career saved", ("UserId", userId));
+
             // 소유가 아니거나 대상이 없음 — 구분해서 알려주지 않는다
             if (!applied.Value)
             {
@@ -97,6 +99,8 @@ namespace PlayGround.Application.Player.Commands
             {
                 return applied;
             }
+
+            mLogger.InfoWith("Career deleted", ("UserId", userId));
 
             if (!applied.Value)
             {

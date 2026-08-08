@@ -51,6 +51,8 @@ namespace PlayGround.Application.Player.Commands
                 return Result<ClaimPlayerInviteResponse>.Failure(claimed.ResultData);
             }
 
+            mLogger.InfoWith("Invite claimed", ("UserId", userId));
+
             if (claimed.Value is null)
             {
                 // 무효·만료·사용된 코드, 이미 연결된 선수 — 사유는 서버 로그로만 구분

@@ -84,6 +84,8 @@ namespace PlayGround.Application.Notification.Commands
                 return marked;
             }
 
+            mLogger.InfoWith("Notification marked as read", ("UserId", userId));
+
             if (!marked.Value)
             {
                 return Result<bool>.Error(ErrorCode.NotFound, "notification not found");

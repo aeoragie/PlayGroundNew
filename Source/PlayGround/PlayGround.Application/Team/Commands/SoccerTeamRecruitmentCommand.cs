@@ -102,6 +102,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamRecruitmentDto>.Failure(saved.ResultData);
             }
 
+            mLogger.InfoWith("Recruitment saved", ("ManagerUserId", managerUserId));
+
             if (saved.Value is null)
             {
                 return Result<TeamRecruitmentDto>.Error(ErrorCode.Forbidden, "recruitment not editable");
@@ -153,6 +155,8 @@ namespace PlayGround.Application.Team.Commands
             {
                 return applied;
             }
+
+            mLogger.InfoWith("Recruitment deleted", ("ManagerUserId", managerUserId));
 
             if (!applied.Value)
             {

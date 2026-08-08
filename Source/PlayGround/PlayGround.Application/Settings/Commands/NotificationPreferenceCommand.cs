@@ -59,6 +59,8 @@ namespace PlayGround.Application.Settings.Commands
                 return saved;
             }
 
+            mLogger.InfoWith("Notification preference updated", ("UserId", userId));
+
             if (!saved.Value)
             {
                 return Result<bool>.Error(ErrorCode.NotFound, "user not found");

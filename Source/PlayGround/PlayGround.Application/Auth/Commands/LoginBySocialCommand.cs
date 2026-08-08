@@ -56,10 +56,13 @@ namespace PlayGround.Application.Auth.Commands
                 {
                     return Result<AuthResult>.Failure(created.ResultData);
                 }
+
+                mLogger.InfoWith("Account created with social", ("UserId", created.Value.UserId), ("Provider", provider));
                 user = created.Value;
             }
 
-            return Result<AuthResult>.Success(BuildResult(user!));
+            mLogger.InfoWith("User signed in with social", ("UserId", user!.UserId), ("Provider", provider));
+            return Result<AuthResult>.Success(BuildResult(user));
         }
 
         private AuthResult BuildResult(AccountUser user)

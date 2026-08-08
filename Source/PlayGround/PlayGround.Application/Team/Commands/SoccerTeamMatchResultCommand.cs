@@ -70,6 +70,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<CreateTeamMatchResultResponse>.Failure(saved.ResultData);
             }
 
+            mLogger.InfoWith("Match result created", ("ManagerUserId", managerUserId));
+
             if (saved.Value is null)
             {
                 return Result<CreateTeamMatchResultResponse>.Error(ErrorCode.NotFound, "team or tournament not found");

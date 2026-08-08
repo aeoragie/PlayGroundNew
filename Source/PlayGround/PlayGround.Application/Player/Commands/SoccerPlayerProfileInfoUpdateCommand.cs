@@ -101,6 +101,8 @@ namespace PlayGround.Application.Player.Commands
                 return Result<UpdatePlayerProfileInfoResponse>.Failure(result.ResultData);
             }
 
+            mLogger.InfoWith("Profile info updated", ("UserId", userId));
+
             // 반환 슬러그 null = 소유 선수 없음 → 타인 프로필 시도(존재 여부 미노출).
             if (result.Value is null)
             {

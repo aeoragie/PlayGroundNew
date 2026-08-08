@@ -82,6 +82,8 @@ namespace PlayGround.Application.Export.Commands
                 return Result<DataExportRequestResult>.Failure(created.ResultData);
             }
 
+            mLogger.InfoWith("Data export requested", ("UserId", userId));
+
             // 접수됐으면 백그라운드 잡 큐에 넣고 즉시 반환(동기 생성 금지)
             if (created.Value.Status == "Ok" && created.Value.RequestId is { } id)
             {
@@ -124,6 +126,8 @@ namespace PlayGround.Application.Export.Commands
             {
                 return cancelled;
             }
+
+            mLogger.InfoWith("Data export cancelled", ("UserId", userId));
 
             return cancelled.Value
                 ? Result<bool>.Success(true)

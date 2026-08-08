@@ -70,6 +70,8 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
+            mLogger.InfoWith("Portfolio video saved", ("UserId", userId));
+
             if (!applied.Value)
             {
                 return Result<bool>.Error(ErrorCode.Forbidden, "portfolio save not permitted for user");
@@ -100,6 +102,8 @@ namespace PlayGround.Application.Player.Commands
             {
                 return applied;
             }
+
+            mLogger.InfoWith("Portfolio video deleted", ("UserId", userId));
 
             if (!applied.Value)
             {

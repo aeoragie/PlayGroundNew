@@ -166,6 +166,8 @@ namespace PlayGround.Application.Claim.Commands
                 return canceled;
             }
 
+            mLogger.InfoWith("Claim request cancelled", ("UserId", userId));
+
             if (!canceled.Value)
             {
                 return Result<bool>.Error(ErrorCode.Forbidden, "claim request cancel not permitted");

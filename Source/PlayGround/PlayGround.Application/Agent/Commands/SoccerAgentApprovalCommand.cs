@@ -116,6 +116,8 @@ namespace PlayGround.Application.Agent.Commands
                 return blocked;
             }
 
+            mLogger.InfoWith("Agent blocked", ("GuardianUserId", guardianUserId));
+
             if (!blocked.Value)
             {
                 return Result<bool>.Error(ErrorCode.Forbidden, "request not blockable");

@@ -125,6 +125,8 @@ namespace PlayGround.Application.Team.Commands
                 return applied;
             }
 
+            mLogger.InfoWith("Application status updated", ("ManagerUserId", managerUserId));
+
             if (!applied.Value)
             {
                 return Result<bool>.Error(ErrorCode.Forbidden, "status transition not allowed");
@@ -148,6 +150,8 @@ namespace PlayGround.Application.Team.Commands
             {
                 return applied;
             }
+
+            mLogger.InfoWith("Application cancelled", ("GuardianUserId", guardianUserId));
 
             if (!applied.Value)
             {

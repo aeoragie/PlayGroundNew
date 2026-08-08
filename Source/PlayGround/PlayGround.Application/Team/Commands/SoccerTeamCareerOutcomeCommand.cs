@@ -102,6 +102,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamCareerOutcomeDto>.Failure(saved.ResultData);
             }
 
+            mLogger.InfoWith("Career outcome saved", ("ManagerUserId", managerUserId));
+
             if (saved.Value is null)
             {
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.Forbidden, "outcome not editable");
@@ -127,6 +129,8 @@ namespace PlayGround.Application.Team.Commands
             {
                 return Result<bool>.Failure(deleted.ResultData);
             }
+
+            mLogger.InfoWith("Career outcome deleted", ("ManagerUserId", managerUserId));
 
             if (!deleted.Value)
             {

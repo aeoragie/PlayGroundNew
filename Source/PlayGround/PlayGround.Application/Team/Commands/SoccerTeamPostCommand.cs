@@ -129,6 +129,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamPostDto>.Failure(saved.ResultData);
             }
 
+            mLogger.InfoWith("Post saved", ("ManagerUserId", managerUserId));
+
             if (saved.Value is null)
             {
                 return Result<TeamPostDto>.Error(ErrorCode.Forbidden, "post not editable");
@@ -186,6 +188,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamPostDto>.Failure(updated.ResultData);
             }
 
+            mLogger.InfoWith("Post pinned updated", ("ManagerUserId", managerUserId));
+
             if (updated.Value is null)
             {
                 // 소유 아님·삭제·고정 초과가 모두 빈 결과 — 고정 시도였다면 개수 초과가 가장 흔한 원인
@@ -213,6 +217,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamPostDto>.Failure(updated.ResultData);
             }
 
+            mLogger.InfoWith("Post public updated", ("ManagerUserId", managerUserId));
+
             if (updated.Value is null)
             {
                 return Result<TeamPostDto>.Error(ErrorCode.Forbidden, "post not editable");
@@ -238,6 +244,8 @@ namespace PlayGround.Application.Team.Commands
             {
                 return applied;
             }
+
+            mLogger.InfoWith("Post deleted", ("ManagerUserId", managerUserId));
 
             if (!applied.Value)
             {

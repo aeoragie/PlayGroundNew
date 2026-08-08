@@ -77,6 +77,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<Guid>.Error(ErrorCode.DatabaseError);
             }
 
+            mLogger.InfoWith("Record correction created", ("ManagerUserId", managerUserId));
+
             // 남의 경기 · 친선경기 · 중복 신청 — 어느 쪽인지 알려주지 않는다
             if (created.Value is null)
             {
@@ -128,6 +130,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<Guid>.Error(ErrorCode.DatabaseError);
             }
 
+            mLogger.InfoWith("Guardian correction created", ("UserId", userId));
+
             // 내 자녀 아님 · 출전 기록 없음 · 친선 · 중복 — 어느 쪽인지 알려주지 않는다
             if (created.Value is null)
             {
@@ -175,6 +179,8 @@ namespace PlayGround.Application.Team.Commands
             {
                 return canceled;
             }
+
+            mLogger.InfoWith("Record correction cancelled", ("ManagerUserId", managerUserId));
 
             if (!canceled.Value)
             {

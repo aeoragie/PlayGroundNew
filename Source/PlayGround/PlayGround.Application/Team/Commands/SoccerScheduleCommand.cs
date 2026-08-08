@@ -120,6 +120,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<ScheduleDto>.Failure(saved.ResultData);
             }
 
+            mLogger.InfoWith("Schedule saved", ("ManagerUserId", managerUserId));
+
             if (saved.Value is null)
             {
                 return Result<ScheduleDto>.Error(ErrorCode.Forbidden, "schedule not editable");
@@ -145,6 +147,8 @@ namespace PlayGround.Application.Team.Commands
             {
                 return applied;
             }
+
+            mLogger.InfoWith("Schedule deleted", ("ManagerUserId", managerUserId));
 
             if (!applied.Value)
             {

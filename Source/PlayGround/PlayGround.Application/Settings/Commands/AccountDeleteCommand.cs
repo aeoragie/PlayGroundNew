@@ -36,6 +36,8 @@ namespace PlayGround.Application.Settings.Commands
                 return deleted;
             }
 
+            mLogger.InfoWith("Account deleted", ("UserId", userId));
+
             if (!deleted.Value)
             {
                 return Result<bool>.Error(ErrorCode.NotFound, "user not found or already deleted");

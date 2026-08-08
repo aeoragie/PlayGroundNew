@@ -48,6 +48,7 @@ Tests/Tests.Unit/
 | `SqlProjectCoverageTests` | **모든 `.sql`이 sqlproj 검증 대상에 포함**됨 · 개별 파일 나열 금지 · Build/None 구분 (아래 §5) |
 | `TimeBaselineGuardTests` | **시각 기준이 UTC 하나**임 — C# `DateTime` 타입 금지 · SQL 내장 시각 함수 금지 (아래 §5-4) |
 | `TestNamingGuardTests` | **테스트 이름이 ASCII**임 — 도구가 깨지지 않게 (아래 §5-6) |
+| `LoggingGuardTests` | **로그가 규칙대로**임 — 계층·영어 메시지·개인정보·보간 (아래 §5-7) |
 
 ### Application
 
@@ -231,6 +232,22 @@ public void Winner_UsesPenalties_WhenRegulationTied()
 ```
 
 주석과 문자열 리터럴은 걷어낸 뒤 검사하므로, 설명에 쓴 한글 이름은 위반이 아니다.
+
+## 5-7. 로깅 가드
+
+`LoggingGuardTests`가 `Source/` 전체를 훑는다. **로그는 빌드로도 일반 테스트로도 안 잡히고,
+운영에서 필요할 때 비어 있는 걸로만 드러난다.**
+
+| 잡는 것 | 왜 |
+|---|---|
+| Persistence·Domain·Contracts의 로그 호출 | 맥락을 아는 층에서 남긴다. 실패는 `Result`가 스택까지 실어 올린다 |
+| 유즈케이스 public 메서드에 `LogWith` 누락 | 반환 지점이 246곳이다. 경계에서 한 번 잡지 않으면 반드시 샌다 |
+| 로그 메시지의 한글 | 수집·검색 도구가 인코딩을 가리지 않게 |
+| 로그 필드의 개인정보 (`Email`·`Phone`·`Token` 등) | 로그는 평문으로 오래 남고 백업까지 따라간다 |
+| 로그 호출의 문자열 보간 | 식별자가 문자열에 묻히면 검색·집계가 안 된다 |
+
+개인정보 가드는 **실제로 샌 것을 잡아 만들었다.** 래퍼에 행위자를 자동으로 싣는 작업에서
+`LoginByEmailCommand`의 첫 파라미터가 `email`이라 그대로 로그에 들어갔다. 지금은 `UserId`를 쓴다.
 
 ## 6. 작업 규칙
 

@@ -44,6 +44,8 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
+            mLogger.InfoWith("Field visibility updated", ("UserId", userId));
+
             if (!applied.Value)
             {
                 return Result<bool>.Error(ErrorCode.NotFound, "player not found for user");

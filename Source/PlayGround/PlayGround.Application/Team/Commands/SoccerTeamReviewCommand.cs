@@ -73,6 +73,8 @@ namespace PlayGround.Application.Team.Commands
                 return Result<bool>.Failure(saved.ResultData);
             }
 
+            mLogger.InfoWith("Review saved", ("AuthorUserId", authorUserId));
+
             if (!saved.Value)
             {
                 // 재원 자격 없음·중복 신규·남의 리뷰 — 사유를 구분하지 않는다
@@ -97,6 +99,8 @@ namespace PlayGround.Application.Team.Commands
             {
                 return Result<bool>.Failure(deleted.ResultData);
             }
+
+            mLogger.InfoWith("Review deleted", ("AuthorUserId", authorUserId));
 
             if (!deleted.Value)
             {

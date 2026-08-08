@@ -52,6 +52,8 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
+            mLogger.InfoWith("Photo updated", ("UserId", userId));
+
             // 권한 없음·선수 없음을 구분하지 않는다 — 존재 여부를 알려주지 않기 위해
             if (!applied.Value)
             {
