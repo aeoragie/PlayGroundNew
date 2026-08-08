@@ -75,7 +75,6 @@
     [Parameter, EditorRequired]
     public string Target { get; set; } = string.Empty;
 
-    /// <summary>이동·수정 등 일반 액션.</summary>
     [Parameter]
     public List<MenuItem> Items { get; set; } = new();
 
@@ -88,7 +87,6 @@
     [Parameter]
     public List<string> DisabledItems { get; set; } = new();
 
-    // 동시에 하나만 열린다 — 다른 인스턴스가 열리면 자기를 닫는다
     private static event Action? OnAnyOpened;
 
     private bool mIsOpen;

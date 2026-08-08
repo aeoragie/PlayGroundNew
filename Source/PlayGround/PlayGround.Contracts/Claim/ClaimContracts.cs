@@ -50,14 +50,12 @@ namespace PlayGround.Contracts.Claim
         public SystemTime RequestedAt { get; set; }
     }
 
-    /// <summary>팀 관리자 승인/거절 요청.</summary>
     public class ReviewClaimRequestRequest
     {
         public Guid RequestId { get; set; }
         public bool Approve { get; set; }
     }
 
-    /// <summary>승인/거절 처리 결과.</summary>
     public class ReviewClaimResponse
     {
         public Guid RequestId { get; set; }

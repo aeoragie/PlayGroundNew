@@ -49,7 +49,6 @@ namespace Generator.Database.Services
         {
             var content = File.ReadAllText(filePath);
 
-            // CREATE TABLE [schema].[tableName] 패턴 매칭
             var tablePattern = @"CREATE\s+TABLE\s+\[?(\w+)\]?\.\[?(\w+)\]?\s*\(";
             var tableMatch = Regex.Match(content, tablePattern, RegexOptions.IgnoreCase);
 
@@ -61,7 +60,6 @@ namespace Generator.Database.Services
             var schema = tableMatch.Groups[1].Value;
             var tableName = tableMatch.Groups[2].Value;
 
-            // dbo가 아닌 스키마는 생성 제외
             if (!string.Equals(schema, "dbo", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine($"Skipped (nested schema [{schema}]): {Path.GetFileName(filePath)}");
@@ -82,7 +80,6 @@ namespace Generator.Database.Services
         {
             var columns = new List<ColumnSchema>();
 
-            // CREATE TABLE 문 시작 위치 찾기
             var tablePattern = @"CREATE\s+TABLE\s+\[?\w+\]?\.\[?\w+\]?\s*\(";
             var tableMatch = Regex.Match(content, tablePattern, RegexOptions.IgnoreCase);
 
@@ -91,7 +88,6 @@ namespace Generator.Database.Services
                 return columns;
             }
 
-            // 첫 번째 '(' 이후부터 매칭되는 ')' 까지 추출 (괄호 중첩 처리)
             var startIndex = tableMatch.Index + tableMatch.Length;
             var body = ExtractTableBody(content, startIndex);
 
@@ -100,7 +96,6 @@ namespace Generator.Database.Services
                 return columns;
             }
 
-            // 각 라인별로 컬럼 정의 파싱
             var lines = body.Split('\n');
             foreach (var line in lines)
             {
@@ -176,16 +171,13 @@ namespace Generator.Database.Services
             var lengthPart = match.Groups[3].Value;
             var options = match.Groups[4].Value.ToUpper();
 
-            // IDENTITY, DEFAULT 등 키워드는 컬럼이 아님
             if (dataType == "IDENTITY" || dataType == "DEFAULT" || dataType == "CONSTRAINT")
             {
                 return null;
             }
 
-            // NULL 여부 확인
             var isNullable = !options.Contains("NOT NULL");
 
-            // 길이 파싱
             int? maxLength = null;
             int? precision = null;
             int? scale = null;
@@ -198,7 +190,6 @@ namespace Generator.Database.Services
                 }
                 else if (lengthPart.Contains(","))
                 {
-                    // DECIMAL(18,2) 형태
                     var parts = lengthPart.Split(',');
                     if (int.TryParse(parts[0].Trim(), out var p))
                     {

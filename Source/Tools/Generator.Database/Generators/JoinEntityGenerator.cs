@@ -31,7 +31,6 @@ public class {CLASS_NAME}
         {
             var generatedFiles = new List<GeneratedFile>();
 
-            // 테이블명 → TableSchema 빠른 조회용 딕셔너리
             var tableMap = tables.ToDictionary(t => t.TableName, t => t, StringComparer.OrdinalIgnoreCase);
 
             foreach (var procedure in procedures)
@@ -69,7 +68,6 @@ public class {CLASS_NAME}
                     continue;
                 }
 
-                // 컬럼명 → ColumnSchema 딕셔너리
                 var columnMap = tableSchema.Columns.ToDictionary(c => c.ColumnName, c => c, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var columnName in joinSource.Columns)

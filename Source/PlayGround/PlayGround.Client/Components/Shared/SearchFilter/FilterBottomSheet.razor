@@ -34,11 +34,9 @@
     [Parameter]
     public EventCallback OnApply { get; set; }
 
-    /// <summary>닫기(오버레이 클릭) — draft 폐기는 호출부 책임.</summary>
     [Parameter]
     public EventCallback OnClose { get; set; }
 
-    /// <summary>시트 내 초기화 — draft만 초기화(지연 적용 유지).</summary>
     [Parameter]
     public EventCallback OnReset { get; set; }
 }

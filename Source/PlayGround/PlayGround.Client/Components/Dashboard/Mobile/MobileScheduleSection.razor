@@ -85,7 +85,6 @@
 
     private static string MonthLabel => AppText.Dashboard.MonthLabelShort(SystemTime.Now.ToWallClock().Month);
 
-    // 공개 iCal 피드 절대 URL 복사(토큰 없는 공개 URL)
     private async Task CopyFeedAsync()
     {
         string url = Nav.ToAbsoluteUri($"api/soccer/team/{Uri.EscapeDataString(TeamSlug!)}/schedule.ics").ToString();

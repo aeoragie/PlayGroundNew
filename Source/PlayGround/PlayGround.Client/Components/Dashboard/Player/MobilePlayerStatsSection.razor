@@ -115,7 +115,6 @@
             ? new List<string> { AppText.Player.CorrectionInProgress }
             : new List<string>();
 
-    // 집계는 공식만 — PC 섹션과 같은 규칙
     private List<PlayerMatchStatDto> OfficialMatches => PlayerStatsSection.OfficialOf(Stats.Matches);
 
     private int TotalGoals => OfficialMatches.Sum(m => m.Goals);

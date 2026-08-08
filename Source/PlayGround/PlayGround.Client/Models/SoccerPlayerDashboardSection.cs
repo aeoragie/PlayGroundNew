@@ -13,7 +13,6 @@ namespace PlayGround.Client.Models
 
     public static class SoccerPlayerDashboardSectionExtensions
     {
-        /// <summary>라우트 슬러그로 변환 (예: Stats → "stats").</summary>
         public static string ToSlug(this SoccerPlayerDashboardSection section)
         {
             return section.ToString().ToLowerInvariant();
@@ -31,7 +30,6 @@ namespace PlayGround.Client.Models
             };
         }
 
-        /// <summary>라우트 슬러그를 섹션으로 해석. 미지정·미지원 슬러그는 Profile.</summary>
         public static SoccerPlayerDashboardSection ParseSlug(string? slug)
         {
             // Enum.TryParse는 숫자 문자열("3")도 통과시키므로 이름 형태만 허용한다.

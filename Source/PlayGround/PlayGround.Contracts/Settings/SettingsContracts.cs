@@ -24,7 +24,6 @@ namespace PlayGround.Contracts.Settings
         public int LoginMeansCount { get; set; }
     }
 
-    /// <summary>연결된 소셜 로그인 한 개.</summary>
     public class LinkedLoginDto
     {
         public string Provider { get; set; } = string.Empty; // 'Google' | 'Kakao'
@@ -53,7 +52,6 @@ namespace PlayGround.Contracts.Settings
         public bool IsEnabled { get; set; }
     }
 
-    /// <summary>알림 설정 변경 요청 — 승인형 항목은 서버가 거부한다.</summary>
     public class SetNotificationPreferenceRequest
     {
         public string ItemName { get; set; } = string.Empty;

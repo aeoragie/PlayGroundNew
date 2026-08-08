@@ -148,7 +148,6 @@
     {
         mSelected = post;
 
-        // 처음 열 때만 읽음 처리 — 서버에 적재하고 화면의 점을 지운다
         if (!post.IsRead)
         {
             if (await Teams.MarkPostReadAsync(post.PostId))

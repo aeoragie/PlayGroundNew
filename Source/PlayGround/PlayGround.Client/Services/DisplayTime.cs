@@ -35,7 +35,6 @@ namespace PlayGround.Client.Services
             TimeZoneInfo zone = Zone;
             DateTime unspecified = DateTime.SpecifyKind(wallClock, DateTimeKind.Unspecified);
 
-            // 전환 폭은 지역마다 다르다(보통 1시간, Lord Howe는 30분)
             while (zone.IsInvalidTime(unspecified))
             {
                 unspecified = unspecified.AddMinutes(15);

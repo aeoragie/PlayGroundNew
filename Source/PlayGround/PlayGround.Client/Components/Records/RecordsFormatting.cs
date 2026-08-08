@@ -11,7 +11,6 @@ namespace PlayGround.Client.Components.Records
     {
         private static string WeekdayLetters => AppText.Records.WeekdayLetters;
 
-        /// <summary>"6/7 (일) 10:00" — 일시 미정이면 "일정 미정".</summary>
         public static string WhenLabel(SystemTime? matchedAt)
         {
             if (matchedAt is null)
@@ -66,7 +65,6 @@ namespace PlayGround.Client.Components.Records
             return match.AwayPkScore is null ? match.AwayScore.ToString()! : $"({match.AwayPkScore}) {match.AwayScore}";
         }
 
-        /// <summary>토너먼트 승자 판정 — 정규시간 우선, 동점이면 PK.</summary>
         public static bool IsHomeWinner(RecordsMatchDto match)
         {
             if (match.HomeScore is null || match.AwayScore is null)
@@ -94,7 +92,6 @@ namespace PlayGround.Client.Components.Records
 
         //.// 공식 경기 상세 — 이벤트·스테이지 라벨
 
-        /// <summary>이벤트 종류 라벨 — 득점/자책골/경고/퇴장.</summary>
         public static string EventKindLabel(string eventType)
         {
             return eventType switch
@@ -107,7 +104,6 @@ namespace PlayGround.Client.Components.Records
             };
         }
 
-        /// <summary>득점형 이벤트(공 아이콘) 여부 — 카드형과 구분.</summary>
         public static bool IsGoalEvent(string eventType)
         {
             return eventType is "Goal" or "PenaltyGoal" or "OwnGoal";
@@ -120,7 +116,6 @@ namespace PlayGround.Client.Components.Records
             return string.IsNullOrEmpty(e.PlayerName) ? kind : $"{kind} {e.PlayerName}";
         }
 
-        /// <summary>타임라인 상세 — "득점 · 9번" (등번호 있으면).</summary>
         public static string EventDetailText(RecordsMatchEventDto e)
         {
             string kind = EventKindLabel(e.EventType);

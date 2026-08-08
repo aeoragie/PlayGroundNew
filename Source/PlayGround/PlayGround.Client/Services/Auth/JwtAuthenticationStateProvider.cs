@@ -62,7 +62,6 @@ namespace PlayGround.Client.Services.Auth
             return new AuthenticationState(BuildPrincipal(claims));
         }
 
-        /// <summary>로그인 성공 — 토큰을 저장하고 인증 상태를 갱신한다.</summary>
         public async Task MarkUserAuthenticatedAsync(string accessToken)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);

@@ -34,11 +34,9 @@ namespace PlayGround.Server.Services
             }
             catch (OperationCanceledException)
             {
-                // 정상 종료
             }
         }
 
-        // 기동 시 미완료(Pending) 요청을 다시 큐에 넣어 이어서 처리
         private async Task ResumePendingAsync(CancellationToken cancellation)
         {
             try

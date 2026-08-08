@@ -21,18 +21,15 @@
     [Parameter, EditorRequired]
     public string Label { get; set; } = AppText.Shared.Save;
 
-    /// <summary>로딩 중 레이블 — 동작을 유지해 무엇이 진행 중인지 알린다.</summary>
     [Parameter]
     public string BusyLabel { get; set; } = AppText.Shared.SavingBusy;
 
-    /// <summary>제출 진행 중 — 이 동안만 비활성(이중 제출 잠금).</summary>
     [Parameter]
     public bool IsBusy { get; set; }
 
     [Parameter]
     public EventCallback OnClick { get; set; }
 
-    /// <summary>배치용 추가 클래스 (폭·정렬 등).</summary>
     [Parameter]
     public string? Class { get; set; }
 

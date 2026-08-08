@@ -31,7 +31,6 @@ namespace PlayGround.Client.Styles
             public const string FramePlaceholder =
                 "w-full h-full rounded-[14px] bg-surface-icon flex items-center justify-center select-none";
 
-            /// <summary>우하단 카메라 뱃지 30px.</summary>
             public const string CameraBadge =
                 "absolute -right-0.5 -bottom-0.5 w-[30px] h-[30px] rounded-full bg-white border-1.5 border-border " +
                 "flex items-center justify-center cursor-pointer shadow-badge text-text-strong " +
@@ -47,7 +46,6 @@ namespace PlayGround.Client.Styles
 
             //.// 커버 (3:1)
 
-            /// <summary>빈 상태 드롭존 — PC 전용(모바일은 버튼으로 대체).</summary>
             public static string DropZone(bool isDragOver)
             {
                 string tone = isDragOver
@@ -69,20 +67,17 @@ namespace PlayGround.Client.Styles
                 "md:hidden w-full h-[46px] rounded-xl border-1.5 border-border bg-white " +
                 "text-sm font-bold text-text-strong whitespace-nowrap cursor-pointer";
 
-            /// <summary>업로드된 커버 — 3:1 고정.</summary>
             public const string CoverFrame =
                 "relative w-full aspect-[3/1] rounded-[13px] overflow-hidden bg-surface-icon";
 
             public const string CoverImage = "w-full h-full object-cover select-none";
 
-            /// <summary>우하단 반투명 캡슐.</summary>
             public const string CoverControls = "absolute right-2.5 bottom-2.5 flex gap-1.5";
 
             public const string CoverButton =
                 "h-[30px] px-3 rounded-lg bg-navy-deep/65 hover:bg-navy-deep/80 text-[11px] font-bold text-white " +
                 "whitespace-nowrap border-0 cursor-pointer transition-colors";
 
-            /// <summary>위치 조정 중 — 세로 드래그만.</summary>
             public const string CoverAdjustHint =
                 "absolute inset-x-0 top-2.5 text-center text-[11px] font-bold text-white " +
                 "drop-shadow-[0_1px_3px_rgba(28,43,74,.8)] pointer-events-none";
@@ -128,7 +123,6 @@ namespace PlayGround.Client.Styles
 
             public const string CropTitle = "text-[15px] font-extrabold text-navy-deep";
 
-            /// <summary>크롭 무대 — 원형 마스크를 씌운 정사각 영역.</summary>
             public const string CropStage =
                 "relative w-full aspect-square rounded-[12px] overflow-hidden bg-navy-deep touch-none cursor-move select-none";
 
@@ -136,7 +130,6 @@ namespace PlayGround.Client.Styles
             public const string CropStagePortrait =
                 "relative w-[270px] mx-auto aspect-[3/4] rounded-[12px] overflow-hidden bg-navy-deep touch-none cursor-move select-none";
 
-            /// <summary>원형 마스크 — 바깥을 어둡게 덮는다.</summary>
             public const string CropMask =
                 "absolute inset-0 pointer-events-none " +
                 "[background:radial-gradient(circle_at_center,transparent_calc(50%_-_1px),rgba(28,43,74,.6)_50%)]";
@@ -164,7 +157,6 @@ namespace PlayGround.Client.Styles
                 "flex-1 h-11 rounded-[11px] bg-navy hover:bg-navy-deep text-[13px] font-bold text-white " +
                 "whitespace-nowrap border-0 cursor-pointer transition-colors disabled:bg-navy-muted";
 
-            /// <summary>파일 input은 숨기고 버튼으로 연다.</summary>
             public const string HiddenInput = "hidden";
         }
     }

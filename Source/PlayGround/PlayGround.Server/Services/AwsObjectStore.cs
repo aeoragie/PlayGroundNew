@@ -25,7 +25,6 @@ namespace PlayGround.Server.Services
         {
         }
 
-        /// <summary>테스트가 클라이언트를 주입하기 위한 생성자.</summary>
         public AwsObjectStore(IAmazonS3 client, UploadStorageConfiguration settings)
         {
             Debug.Assert(client != null, "client is required");

@@ -53,7 +53,6 @@ namespace Generator.Database.Services
             var parameters = new List<QueryParameterSchema>();
             var sqlStartIndex = 0;
 
-            // 파일 상단의 -- @param: 주석에서 파라미터 파싱
             for (var i = 0; i < lines.Length; i++)
             {
                 var trimmed = lines[i].Trim();
@@ -63,7 +62,6 @@ namespace Generator.Database.Services
                     continue;
                 }
 
-                // -- @param: ParamName TYPE [NULL]
                 var paramMatch = Regex.Match(trimmed, @"^--\s*@param:\s*(\w+)\s+(\w+(?:\(\S+?\))?)\s*(NULL)?", RegexOptions.IgnoreCase);
                 if (paramMatch.Success)
                 {
@@ -77,13 +75,11 @@ namespace Generator.Database.Services
                     continue;
                 }
 
-                // @param이 아닌 주석은 스킵 (description 등)
                 if (trimmed.StartsWith("--"))
                 {
                     continue;
                 }
 
-                // SQL 본문 시작
                 sqlStartIndex = i;
                 break;
             }

@@ -35,13 +35,11 @@ namespace Generator.Database.Analyzers
             var normalizedType = mssqlType.ToLower().Trim();
             return normalizedType switch
             {
-                // Integer Types
                 "bigint" => ("long", ValueType.Default),
                 "int" => ("int", ValueType.Default),
                 "smallint" => ("short", ValueType.Default),
                 "tinyint" => ("byte", ValueType.Default),
 
-                // Double, Real, Float Types
                 "float" => ("double", ValueType.Float),
                 "real" => ("float", ValueType.Float),
 
@@ -51,7 +49,6 @@ namespace Generator.Database.Analyzers
                 "money" => ("decimal", ValueType.Default),
                 "smallmoney" => ("decimal", ValueType.Default),
 
-                // Boolean Types
                 "bit" => ("bool", ValueType.Boolean),
 
                 // Date, DateTime, SmallDateTime, Time, DateTimeOffset Types
@@ -63,30 +60,24 @@ namespace Generator.Database.Analyzers
                 "time" => ("TimeSpan", ValueType.Default),
                 "datetimeoffset" => ("DateTimeOffset", ValueType.Default),
 
-                // String Types (varchar)
                 "char" => ("string", ValueType.String),
                 "text" => ("string", ValueType.String),
 
-                // String Types (nvarchar)
                 "nchar" => ("string", ValueType.String),
                 "nvarchar" => ("string", ValueType.String),
                 "ntext" => ("string", ValueType.String),
 
-                // Binary Types
                 "binary" => ("byte[]", ValueType.Vector),
                 "image" => ("byte[]", ValueType.Vector),
                 "timestamp" => ("byte[]", ValueType.Vector),
                 "rowversion" => ("byte[]", ValueType.Vector),
 
-                // Guid Types
                 "uniqueidentifier" => ("Guid", ValueType.Guid),
 
-                // TableValueParameter Types
                 "table type" => !string.IsNullOrEmpty(defineType)
                     ? ("SqlMapper.ICustomQueryParameter", ValueType.TableType)
                     : throw new NotImplementedException("Table type requires a defined user type"),
 
-                // Other Types
                 _ when normalizedType.StartsWith("varchar") => ("string", ValueType.String),
                 _ when normalizedType.StartsWith("nvarchar") => ("string", ValueType.String),
                 _ when normalizedType.StartsWith("nchar") => ("string", ValueType.String),
@@ -94,7 +85,6 @@ namespace Generator.Database.Analyzers
                 _ when normalizedType.StartsWith("datetime2") => ("SystemTime", ValueType.DateTime),
                 _ when normalizedType.StartsWith("char(") => ("string", ValueType.String),
 
-                // Exception for unsupported types
                 _ => throw new NotImplementedException($"SQL Server type '{mssqlType}' is not supported for C# conversion")
             };
         }

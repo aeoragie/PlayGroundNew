@@ -46,11 +46,9 @@
 </div>
 
 @code {
-    /// <summary>스텝 레이블 (2~5개 — 6개 이상은 플로우를 쪼갤 신호).</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<string> Steps { get; set; } = Array.Empty<string>();
 
-    /// <summary>현재 스텝 (0부터).</summary>
     [Parameter]
     public int Current { get; set; }
 

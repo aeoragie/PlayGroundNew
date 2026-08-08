@@ -17,7 +17,6 @@ namespace PlayGround.Application.Team.Commands
     /// </summary>
     public class SoccerRecordCorrectionCommand
     {
-        /// <summary>요청값·설명 길이 상한 — 컬럼 크기(한글 기준)와 맞춘다.</summary>
         private const int MaxValueLength = 100;
         private const int MaxDescriptionLength = 500;
 

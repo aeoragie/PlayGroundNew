@@ -46,7 +46,6 @@ namespace PlayGround.Client.Localization
             }
         }
 
-        /// <summary>기본 문화권을 폴백으로 확보하고, 활성 문화권을 로드/교체한다.</summary>
         public async Task LoadAsync(string culture)
         {
             if (mBase.Count == 0)
@@ -79,7 +78,6 @@ namespace PlayGround.Client.Localization
                 }
                 catch
                 {
-                    // 해당 문화권의 도메인 파일 없음 → 기본 문화권 폴백에 맡긴다
                 }
             }
 

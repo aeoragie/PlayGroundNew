@@ -4,7 +4,6 @@ using PlayGround.Contracts.Records;
 
 namespace PlayGround.Client.Services
 {
-    /// <summary>공개 경기기록(Records) API 호출 — 비로그인 접근 가능.</summary>
     public class RecordsClient
     {
         private readonly HttpClient mHttp;

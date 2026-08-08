@@ -25,11 +25,9 @@
 </span>
 
 @code {
-    /// <summary>팝오버 제목 (예: "에이전트 열람이란?").</summary>
     [Parameter, EditorRequired]
     public string Title { get; set; } = string.Empty;
 
-    /// <summary>본문 2~3문장.</summary>
     [Parameter, EditorRequired]
     public RenderFragment? ChildContent { get; set; }
 

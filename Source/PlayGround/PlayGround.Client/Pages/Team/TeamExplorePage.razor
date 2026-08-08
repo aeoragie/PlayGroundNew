@@ -250,7 +250,6 @@
     private bool HasAnyFilter =>
         CurrentAge is not null || CurrentRegion is not null || CurrentType is not null || CurrentVerified || CurrentRecruiting;
 
-    // 시트 관할 필터(지역·유형·정렬) 적용 개수 — 필터 버튼 뱃지
     private int SheetFilterCount =>
         (CurrentRegion is null ? 0 : 1) + (CurrentType is null ? 0 : 1) + (CurrentSort is null ? 0 : 1);
 
@@ -291,13 +290,11 @@
             result = result.Where(t => t.IsRecruiting);
         }
 
-        // 추천순(기본) = 인증팀 → 선수단 규모 → 팀명 / 선수단순 = 규모
         return sort == "players"
             ? result.OrderByDescending(t => t.PlayerCount).ThenBy(t => t.TeamName).ToList()
             : result.OrderByDescending(t => t.IsVerified).ThenByDescending(t => t.PlayerCount).ThenBy(t => t.TeamName).ToList();
     }
 
-    // "서울 강동구" → "서울" (시·도 단위 칩)
     private static string? RegionCityOf(string? region)
     {
         if (string.IsNullOrWhiteSpace(region))

@@ -38,7 +38,6 @@ namespace PlayGround.Contracts.Export
         /// <summary>'Ok'(접수됨) | 'InProgress'(진행 중 1건 존재) | 'Cooldown'(24h 이내 재요청).</summary>
         public string Status { get; set; } = string.Empty;
 
-        /// <summary>현재 상태 — 접수됐거나, 이미 진행 중이면 그 진행 행.</summary>
         public DataExportStateDto? Export { get; set; }
     }
 }

@@ -10,7 +10,6 @@ namespace PlayGround.Client.Models
         Friendly,
     }
 
-    /// <summary>결과 목록 세그먼트 축 (전체 / 공식 / 친선경기).</summary>
     public enum SoccerMatchSegment
     {
         All,
@@ -28,7 +27,6 @@ namespace PlayGround.Client.Models
 
         public static bool IsFriendly(string? value) => Parse(value) == SoccerMatchType.Friendly;
 
-        /// <summary>세그먼트 URL 값 — 전체는 기본값이라 쿼리에서 생략한다.</summary>
         public static string? ToQuery(this SoccerMatchSegment segment) => segment switch
         {
             SoccerMatchSegment.Official => "official",
@@ -50,7 +48,6 @@ namespace PlayGround.Client.Models
             _ => AppText.Enums.MatchSegmentAll,
         };
 
-        /// <summary>세그먼트가 이 경기를 통과시키는지.</summary>
         public static bool Matches(this SoccerMatchSegment segment, string? matchType) => segment switch
         {
             SoccerMatchSegment.Official => !IsFriendly(matchType),

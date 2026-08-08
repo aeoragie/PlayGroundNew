@@ -94,14 +94,12 @@
     [Parameter]
     public EventCallback<bool> IsOpenChanged { get; set; }
 
-    /// <summary>지원 대상 공고 — 제목·희망 포지션 선택지의 원천.</summary>
     [Parameter]
     public TeamRecruitmentDto? Recruitment { get; set; }
 
     [Parameter]
     public string TeamName { get; set; } = string.Empty;
 
-    /// <summary>지원 성공 후 상위가 현황을 다시 읽어 카드를 "지원 완료"로 바꾼다.</summary>
     [Parameter]
     public EventCallback OnApplied { get; set; }
 

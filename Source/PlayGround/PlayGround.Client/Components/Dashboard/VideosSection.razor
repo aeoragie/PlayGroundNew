@@ -98,13 +98,11 @@
         return Enum.TryParse(video.VideoType, out SoccerVideoType parsed) ? parsed : SoccerVideoType.Highlight;
     }
 
-    // 4710초 → "78:30"
     internal static string FormatDuration(int seconds)
     {
         return $"{seconds / 60}:{seconds % 60:00}";
     }
 
-    // "7/5 · 경기 결과와 연결됨" — 있는 항목만
     internal static string MetaLine(TeamVideoDto video)
     {
         List<string> parts = new();

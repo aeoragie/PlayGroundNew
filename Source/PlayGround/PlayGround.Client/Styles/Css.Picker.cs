@@ -32,12 +32,10 @@ namespace PlayGround.Client.Styles
 
             //.// 캘린더 (PC 팝오버 / 모바일 바텀시트)
 
-            /// <summary>PC 팝오버 — 트리거 아래 떠 있는 300px 카드.</summary>
             public const string Popover =
                 "absolute z-50 top-[52px] left-0 w-[300px] bg-white border-1.5 border-border rounded-[14px] " +
                 "p-4 shadow-picker";
 
-            /// <summary>모바일 바텀시트 — 오버레이 + 하단 시트.</summary>
             public const string SheetOverlay =
                 "fixed inset-0 z-[120] bg-navy-deep/45 flex items-end md:hidden";
 
@@ -63,7 +61,6 @@ namespace PlayGround.Client.Styles
 
             public const string WeekdayRow = "grid grid-cols-7 gap-0.5 mb-1";
 
-            /// <summary>요일 라벨 — 일요일 레드톤 / 토요일 네이비톤 / 평일 회색.</summary>
             public static string Weekday(int dayOfWeek)
             {
                 string color = dayOfWeek switch
@@ -104,7 +101,6 @@ namespace PlayGround.Client.Styles
                 return $"{CellBase} {color}{today} hover:bg-surface-alt cursor-pointer";
             }
 
-            /// <summary>경기 있는 날 — 셀 하단 teal 도트 4px.</summary>
             public const string MatchDot =
                 "absolute bottom-[3px] left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-teal";
 
@@ -116,14 +112,12 @@ namespace PlayGround.Client.Styles
                 "h-[30px] px-3 rounded-lg border-1.5 border-border hover:border-navy bg-white " +
                 "text-[11.5px] font-bold text-text-strong whitespace-nowrap cursor-pointer transition-colors";
 
-            /// <summary>모바일 확정 버튼 — 선택 날짜를 라벨에 담는다(지연 적용).</summary>
             public const string SheetConfirm =
                 "h-[46px] mt-3.5 rounded-xl bg-navy hover:bg-navy-deep text-[13.5px] font-bold text-white " +
                 "whitespace-nowrap border-0 cursor-pointer transition-colors disabled:bg-navy-muted disabled:cursor-not-allowed";
 
             //.// 시간 리스트
 
-            /// <summary>15분 단위 리스트 — PC 팝오버 / 모바일 시트 안 스크롤 영역.</summary>
             public const string TimeList =
                 "absolute z-50 top-[52px] left-0 w-[160px] max-h-[220px] overflow-y-auto " +
                 "bg-white border-1.5 border-border rounded-[11px] p-1.5 flex flex-col gap-px shadow-picker";
@@ -135,7 +129,6 @@ namespace PlayGround.Client.Styles
                     : "px-[11px] py-2 rounded-lg hover:bg-surface-alt text-[12.5px] font-bold text-text-body text-left border-0 bg-transparent cursor-pointer whitespace-nowrap";
             }
 
-            /// <summary>직접 입력 — 리스트 상단 고정.</summary>
             public const string TimeInput =
                 "w-full h-9 px-[11px] mb-1 rounded-lg border-1.5 border-border focus:border-navy outline-none " +
                 "text-[12.5px] font-bold text-navy-deep tabular-nums";

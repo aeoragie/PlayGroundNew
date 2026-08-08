@@ -24,17 +24,14 @@ namespace PlayGround.Client.Styles
                 "text-[11.5px] font-bold text-text-strong bg-surface-icon " +
                 "rounded-full px-2.5 py-[3px] whitespace-nowrap";
 
-            // 화면당 1개 주 액션 (오렌지)
             public const string PrimaryButton =
                 "h-[42px] px-5 rounded-[10px] bg-orange hover:bg-orange-hover text-[13.5px] font-bold text-white " +
                 "shadow-cta-orange-sm transition-colors whitespace-nowrap";
 
-            // 모바일 주 액션 (높이 40px)
             public const string MobilePrimaryButton =
                 "h-10 px-4 rounded-[10px] bg-orange hover:bg-orange-hover text-[13px] font-bold text-white " +
                 "shadow-cta-orange-sm transition-colors whitespace-nowrap";
 
-            // 모바일 보조 액션 (아웃라인) — 팀 정보 수정 등
             public const string MobileSecondaryButton =
                 "h-10 px-4 rounded-[10px] bg-white border-1.5 border-border hover:border-navy " +
                 "text-[13px] font-bold text-text-strong transition-colors whitespace-nowrap cursor-pointer";
@@ -48,12 +45,10 @@ namespace PlayGround.Client.Styles
                 "h-[38px] px-[18px] rounded-full text-[13.5px] font-bold border-1.5 whitespace-nowrap " +
                 "border-border bg-white text-text-body";
 
-            // 화면당 1개인 보조 버튼 (정보 수정 등)
             public const string SecondaryButton =
                 "h-[42px] px-5 border-1.5 border-border rounded-[10px] bg-white text-[13.5px] font-bold " +
                 "text-text-strong hover:bg-surface-alt transition-colors";
 
-            // 점선 추가 버튼 (＋ 코치 초대 · ＋ 채널 추가)
             public const string DashedButton =
                 "h-[38px] px-4 border-1.5 border-dashed border-border rounded-[10px] bg-transparent text-[13px] font-bold " +
                 "text-text-muted hover:border-navy hover:text-navy whitespace-nowrap transition-colors";

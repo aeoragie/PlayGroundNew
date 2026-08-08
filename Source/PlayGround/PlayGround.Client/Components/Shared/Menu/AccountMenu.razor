@@ -59,7 +59,6 @@
 </div>
 
 @code {
-    /// <summary>표시 이름 — 헤더와 아바타 이니셜에 쓴다.</summary>
     [Parameter]
     public string DisplayName { get; set; } = string.Empty;
 
@@ -67,7 +66,6 @@
     [Parameter]
     public string? RoleCaption { get; set; }
 
-    /// <summary>트리거 아바타 지름(px).</summary>
     [Parameter]
     public int Size { get; set; } = 32;
 
@@ -125,7 +123,6 @@
         }
     }
 
-    // 로그아웃 → 랜딩 (Design.Navigation 인증 플로우 4)
     private async Task LogoutAsync()
     {
         Close();

@@ -12,7 +12,6 @@ namespace PlayGround.Contracts.Player
         public string? Region { get; set; }
     }
 
-    /// <summary>생성된 선수 프로필 요약.</summary>
     public class CreatePlayerProfileResponse
     {
         public Guid PlayerId { get; set; }
@@ -99,7 +98,6 @@ namespace PlayGround.Contracts.Player
         public bool HasAccount { get; set; }
     }
 
-    /// <summary>항목 공개 설정 변경 요청 (보호자 = 관리 주체 계정만).</summary>
     public class SetPlayerFieldVisibilityRequest
     {
         public string FieldName { get; set; } = string.Empty;
@@ -141,7 +139,6 @@ namespace PlayGround.Contracts.Player
         public string Code { get; set; } = string.Empty;
     }
 
-    /// <summary>Claim 결과 — 연결된 선수·팀 요약.</summary>
     public class ClaimPlayerInviteResponse
     {
         public string PlayerName { get; set; } = string.Empty;
@@ -156,7 +153,6 @@ namespace PlayGround.Contracts.Player
     {
         public int SeasonYear { get; set; }
 
-        /// <summary>출전 기록이 있는 연도 목록 (내림차순) — 시즌 pill.</summary>
         public List<int> SeasonYears { get; set; } = new();
 
         public List<PlayerMatchStatDto> Matches { get; set; } = new();
@@ -182,7 +178,6 @@ namespace PlayGround.Contracts.Player
         public int? MinutesPlayed { get; set; }
     }
 
-    /// <summary>커리어(소속 이력) 목록 (선수 대시보드 커리어 섹션).</summary>
     public class PlayerCareerResponse
     {
         public List<PlayerCareerEntryDto> Entries { get; set; } = new();
@@ -249,7 +244,6 @@ namespace PlayGround.Contracts.Player
         public List<PlayerPortfolioVideoDto> Videos { get; set; } = new();
     }
 
-    /// <summary>포트폴리오 영상 한 건. 길이 표시("1:42")는 클라이언트 포맷.</summary>
     public class PlayerPortfolioVideoDto
     {
         public Guid VideoId { get; set; }
@@ -276,7 +270,6 @@ namespace PlayGround.Contracts.Player
         /// <summary>대표 영상 — 없으면 null (섹션 미노출).</summary>
         public PlayerPortfolioVideoDto? PrimaryVideo { get; set; }
 
-        /// <summary>전체 영상 수 ("영상 N개 더 보기" 카운트용).</summary>
         public int VideoCount { get; set; }
 
         public List<PlayerCareerEntryDto> Careers { get; set; } = new();
@@ -288,7 +281,6 @@ namespace PlayGround.Contracts.Player
         public List<PlayerMatchStatDto>? Matches { get; set; }
     }
 
-    /// <summary>열람 승인 정보 — 상단 배너("승인일 · 30일 후 만료") 표시용.</summary>
     public class PlayerPublicGrantDto
     {
         public SystemTime ApprovedAt { get; set; }

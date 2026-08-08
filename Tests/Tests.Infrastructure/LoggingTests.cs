@@ -66,7 +66,7 @@ namespace PlayGround.Tests.Infrastructure
             Result<int>.Success(1).LogWith(logger, "Execute", ("ManagerUserId", userId));
 
             Assert.StartsWith(
-                $"Info|Operation completed. {{ Operation:Execute, ManagerUserId:{userId}, Code:", target.Logs[0]);
+                $"Debug|Operation completed. {{ Operation:Execute, ManagerUserId:{userId}, Code:", target.Logs[0]);
         }
 
         [Fact]
@@ -100,13 +100,13 @@ namespace PlayGround.Tests.Infrastructure
         }
 
         [Fact]
-        public void LogWith_Success_LogsAtInfoLevel()
+        public void LogWith_Success_LogsAtDebugLevel()
         {
             var (logger, target) = CreateLogger();
 
             Result<int>.Success(1).LogWith(logger, "GetPlayer");
 
-            Assert.StartsWith("Info|Operation completed. { Operation:GetPlayer, Code:Ok", target.Logs[0]);
+            Assert.StartsWith("Debug|Operation completed. { Operation:GetPlayer, Code:Ok", target.Logs[0]);
         }
 
         [Fact]

@@ -26,7 +26,6 @@ namespace PlayGround.Client.Styles
             public const string TeamLink =
                 "flex items-center gap-1.5 md:gap-2 text-xs md:text-[13.5px] font-bold text-navy whitespace-nowrap w-fit";
 
-            // 공개 항목 칩 (키·몸무게·주발) — 공개 설정이 켜진 것만 렌더
             public const string FieldChip =
                 "text-xs md:text-[12.5px] font-bold text-text-strong bg-surface-icon rounded-full " +
                 "px-3 py-1 md:px-3.5 md:py-[5px] whitespace-nowrap";
@@ -39,7 +38,6 @@ namespace PlayGround.Client.Styles
             public const string CardStrengthChip =
                 "text-[11px] font-bold text-teal bg-white/[.08] rounded-full px-[11px] py-1 whitespace-nowrap";
 
-            // 강점 태그 "+N" (카드 뷰 다크) — 노출 밖 개수 표기
             public const string CardStrengthMore =
                 "text-[11px] font-bold text-white/55 bg-white/[.08] rounded-full px-[11px] py-1 whitespace-nowrap";
 
@@ -85,7 +83,6 @@ namespace PlayGround.Client.Styles
 
             //.// 권한 뷰 (승인된 에이전트 — Design.PlayerPublicProfile 디테일 권한)
 
-            // 상단 승인 배너 — GNB 바로 아래 풀폭 teal 틴트
             public const string GrantBanner = "bg-teal/10 border-b border-teal/30";
 
             public const string GrantBannerInner =
@@ -100,7 +97,6 @@ namespace PlayGround.Client.Styles
                 "text-xs md:text-[12.5px] font-bold text-teal-ink bg-teal/[.12] border border-teal/[.35] rounded-full " +
                 "px-3 py-1 md:px-3.5 md:py-[5px] whitespace-nowrap";
 
-            // 경기별 상세 기록 카드 — teal 보더로 승인 영역을 시각 구분
             public const string RecordCard =
                 "bg-white border-1.5 border-teal/40 rounded-[15px] md:rounded-2xl overflow-hidden";
 

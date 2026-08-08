@@ -86,7 +86,6 @@
     [Parameter, EditorRequired]
     public string Slug { get; set; } = string.Empty;
 
-    /// <summary>저장·삭제·복구 후 — 페이지가 목록을 다시 불러온다.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
@@ -100,7 +99,6 @@
     private static string Stars(int rating) =>
         new string('★', Math.Clamp(rating, 0, 5)) + new string('☆', 5 - Math.Clamp(rating, 0, 5));
 
-    // "이○○ 학부모" → 아바타 이니셜 "이"
     private static string Initial(TeamReviewDto review) =>
         review.AuthorDisplayName.Length > 0 ? review.AuthorDisplayName[..1] : "?";
 

@@ -55,7 +55,6 @@
     [Parameter]
     public EventCallback<TValue?> ValueChanged { get; set; }
 
-    /// <summary>선택지 — 4개 이하 권장(5개 이상은 SelectField).</summary>
     [Parameter, EditorRequired]
     public List<SelectOption<TValue>> Options { get; set; } = new();
 
@@ -102,7 +101,6 @@
     {
         await ValueChanged.InvokeAsync(option.Value);
 
-        // 클릭이 곧 확정 — 즉시 검증(오류 중이었다면 해제)
         mTouched = true;
         mErrorMessage = Validator?.Invoke(option.Value);
     }

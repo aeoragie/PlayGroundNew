@@ -75,11 +75,9 @@
     [Parameter]
     public string? TeamSlug { get; set; }
 
-    /// <summary>＋ 일정 추가 — 페이지가 다이얼로그를 연다.</summary>
     [Parameter]
     public EventCallback OnAdd { get; set; }
 
-    /// <summary>⋯ 수정 — 페이지가 다이얼로그를 프리필로 연다.</summary>
     [Parameter]
     public EventCallback<ScheduleDto> OnEdit { get; set; }
 
@@ -102,7 +100,6 @@
     // 서버가 주는 StartsAt은 UTC 순간이다 — 화면에 쓰는 날짜·요일·시각은 반드시 현지로 되돌린다
     private static DateTime When(ScheduleDto s) => s.StartsAt.ToWallClock();
 
-    // 미래(오늘 포함) 오름차순 → 종료분은 아래에 최근순
     private IEnumerable<ScheduleDto> Sorted =>
         Schedules
             .Where(s => !IsEnded(s))
@@ -125,11 +122,9 @@
     private static string WeekdayLabel(DateTime dt) =>
         new[] { AppText.Dashboard.DowSun, AppText.Dashboard.DowMon, AppText.Dashboard.DowTue, AppText.Dashboard.DowWed, AppText.Dashboard.DowThu, AppText.Dashboard.DowFri, AppText.Dashboard.DowSat }[(int)dt.DayOfWeek];
 
-    // dc 규칙: 일요일만 레드톤, 나머지는 muted
     private static string WeekdayClass(DateTime dt) =>
         dt.DayOfWeek == DayOfWeek.Sunday ? "text-weekend-sun" : "text-text-muted";
 
-    // 메타 = 장소 → (종료면 상태) → (비공개면 "비공개")
     private static string MetaOf(ScheduleDto s, bool ended)
     {
         var parts = new List<string> { s.Venue };

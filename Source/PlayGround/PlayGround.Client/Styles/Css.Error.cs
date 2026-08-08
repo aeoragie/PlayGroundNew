@@ -14,7 +14,6 @@ namespace PlayGround.Client.Styles
             public const string Body =
                 "flex flex-col items-center text-center max-w-[320px] md:max-w-[460px]";
 
-            /// <summary>일러스트 120px (모바일 96px).</summary>
             public const string Illustration = "w-24 h-24 md:w-[120px] md:h-[120px]";
 
             /// <summary>상태 코드 숫자 — 403은 쓰지 않는다.</summary>
@@ -31,7 +30,6 @@ namespace PlayGround.Client.Styles
             public const string Description =
                 "text-[13px] md:text-[13.5px] text-text-body leading-[1.65] break-keep mt-[7px] md:mt-2";
 
-            /// <summary>버튼 영역 — 모바일 세로 풀폭, PC 가로.</summary>
             public const string Actions =
                 "flex flex-col md:flex-row gap-2.5 md:gap-2.5 mt-6 md:mt-[26px] w-full md:w-auto";
 
@@ -39,15 +37,12 @@ namespace PlayGround.Client.Styles
                 "h-[46px] md:h-11 px-[22px] rounded-xl md:rounded-[11px] text-sm md:text-[13.5px] " +
                 "font-bold whitespace-nowrap flex items-center justify-center transition-colors";
 
-            /// <summary>주 버튼 — 네이비 채움.</summary>
             public const string PrimaryButton =
                 ButtonBase + " bg-navy hover:bg-navy-deep text-white hover:text-white border-0 cursor-pointer";
 
-            /// <summary>보조 버튼 — 흰 아웃라인.</summary>
             public const string SecondaryButton =
                 ButtonBase + " bg-white border-1.5 border-border hover:border-navy text-text-strong cursor-pointer";
 
-            /// <summary>하단 안내(문의·오류 코드).</summary>
             public const string Footnote = "text-[11px] md:text-[11.5px] text-text-faint break-keep mt-3.5 md:mt-4";
 
             public const string ErrorCode = "font-bold";

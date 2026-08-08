@@ -101,13 +101,11 @@
     // 지원 현황 전체가 있는 자리 = 선수 대시보드 기본(프로필) 섹션 상단 "내 지원 현황"(현재 자녀 유지)
     private string ApplicationHref => $"{Routes.PlayerDashboard}?playerId={Child.PlayerId}";
 
-    // 팀 소식 전체 = 보호자 뷰 팀 소식 화면(자녀별)
     private string TeamNewsHref => Routes.TeamNews(Child.PlayerId);
 
     // Pending은 아직 기록이 없다 — 스탯은 "–"
     private string StatOf(int value) => IsPending ? AppText.Hub.StatPlaceholder : value.ToString();
 
-    // "강동 리틀 FC 관리자의 승인을 기다리고 있어요 (7/14 요청)"
     private string PendingNote
     {
         get
@@ -120,7 +118,6 @@
         }
     }
 
-    // 값이 있는 조각만 잇는다 — "U15 · FW · #9 · 팀명"
     private string? Meta
     {
         get

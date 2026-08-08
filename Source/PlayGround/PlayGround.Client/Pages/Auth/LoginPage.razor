@@ -67,7 +67,6 @@
     private string mPassword = string.Empty;
     private bool mSaving;
 
-    /// <summary>딥링크에서 넘어온 원래 경로 — 인증 완료 지점에서 소비한다.</summary>
     [SupplyParameterFromQuery(Name = "returnUrl")]
     public string? ReturnUrl { get; set; }
 

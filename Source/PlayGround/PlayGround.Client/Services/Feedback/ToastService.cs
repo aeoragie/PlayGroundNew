@@ -7,7 +7,6 @@ namespace PlayGround.Client.Services.Feedback
     /// <summary>토스트 종류 — 상태 원 색이 달라진다 (Design.FeedbackPatterns A).</summary>
     public enum ToastKind
     {
-        /// <summary>완료 통지 (teal ✓) — 저장·전송·복사.</summary>
         Success,
         /// <summary>실패 (danger !) — 자동 소멸하지 않는다.</summary>
         Error,
@@ -45,7 +44,6 @@ namespace PlayGround.Client.Services.Feedback
 
         public event Action? OnChanged;
 
-        /// <summary>완료 통지 — 3.5초(액션 있으면 5초) 후 자동 소멸.</summary>
         public void ShowSuccess(string message, string? actionLabel = null, Func<Task>? onAction = null)
         {
             Show(new ToastMessage
@@ -87,7 +85,6 @@ namespace PlayGround.Client.Services.Feedback
             Current = toast;
             OnChanged?.Invoke();
 
-            // 오류는 자동 소멸 없음
             if (toast.Kind == ToastKind.Error)
             {
                 return;

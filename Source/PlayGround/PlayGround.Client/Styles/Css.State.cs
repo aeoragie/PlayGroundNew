@@ -14,22 +14,16 @@ namespace PlayGround.Client.Styles
             /// <summary>시머 공통 — 좌→우 1.6s. 폭·높이·radius는 프리미티브가 붙인다.</summary>
             private const string Shimmer = "bg-shimmer bg-[length:200%_100%] animate-shimmer";
 
-            /// <summary>썸네일·커버 — 한 톤 진한 시머.</summary>
             private const string ShimmerDeep = "bg-shimmer-deep bg-[length:200%_100%] animate-shimmer";
 
-            /// <summary>텍스트 바 — radius 6, 높이는 호출부 지정(8~15px).</summary>
             public const string SkeletonBar = Shimmer + " rounded-md";
 
-            /// <summary>아바타·엠블럼 원.</summary>
             public const string SkeletonCircle = Shimmer + " rounded-full shrink-0";
 
-            /// <summary>썸네일·커버 — radius 10~14.</summary>
             public const string SkeletonThumb = ShimmerDeep + " rounded-[12px]";
 
-            /// <summary>칩 — radius 99.</summary>
             public const string SkeletonChip = Shimmer + " rounded-full shrink-0";
 
-            /// <summary>3초 초과 시 스켈레톤 하단 문구.</summary>
             public const string SlowNotice = "text-xs text-text-muted text-center mt-3.5 break-keep";
 
             /// <summary>로딩 실패 — 스켈레톤 자리를 그대로 대체(Design.Navigation 축약형).</summary>
@@ -62,7 +56,6 @@ namespace PlayGround.Client.Styles
                 "h-10 px-5 rounded-[10px] bg-navy hover:bg-navy-deep text-[12.5px] font-bold text-white " +
                 "flex items-center whitespace-nowrap border-0 cursor-pointer transition-colors mt-[18px]";
 
-            /// <summary>보조 탐색 — 흰 아웃라인.</summary>
             public const string EmptyCtaGhost =
                 "h-10 px-5 rounded-[10px] bg-white border-1.5 border-border hover:border-navy " +
                 "text-[12.5px] font-bold text-navy-deep flex items-center whitespace-nowrap " +
@@ -73,7 +66,6 @@ namespace PlayGround.Client.Styles
             public const string EmptySlot =
                 "bg-white border-1.5 border-border rounded-[16px] px-5 py-[22px] flex items-center gap-[13px]";
 
-            /// <summary>아이콘 박스 40px.</summary>
             public const string EmptySlotIcon =
                 "w-10 h-10 rounded-[11px] bg-surface-soft flex items-center justify-center shrink-0 text-navy";
 

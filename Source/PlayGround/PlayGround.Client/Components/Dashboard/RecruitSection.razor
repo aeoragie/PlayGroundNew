@@ -62,7 +62,6 @@
     [Parameter, EditorRequired]
     public TeamRecruitmentsResponse Data { get; set; } = new();
 
-    /// <summary>저장·마감·삭제 후 — 부모가 목록을 다시 불러온다.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
@@ -70,7 +69,6 @@
     [Parameter]
     public List<ApplicationDto> Applicants { get; set; } = new();
 
-    /// <summary>지원 상태 전환 후 — 부모가 지원자 목록을 다시 불러온다.</summary>
     [Parameter]
     public EventCallback OnApplicantsChanged { get; set; }
 

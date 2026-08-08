@@ -15,7 +15,6 @@ namespace PlayGround.Client.Services
             mHttp = http ?? throw new ArgumentNullException(nameof(http));
         }
 
-        /// <summary>스텝 ①→②: 코드로 선수 카드 조회.</summary>
         public async Task<ClaimLookupResult> LookupAsync(string code)
         {
             try
@@ -33,7 +32,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>스텝 ②→③: 연결 요청 생성.</summary>
         public async Task<ClaimCreateResult> CreateRequestAsync(string code, string relation)
         {
             try
@@ -52,7 +50,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>공개 선수 프로필 경유(코드 없음): 슬러그로 미연결 선수 카드 조회.</summary>
         public async Task<ClaimLookupResult> LookupBySlugAsync(string slug)
         {
             try
@@ -104,7 +101,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>연결 요청 취소 — 본인의 Pending 요청만. 성공 여부.</summary>
         public async Task<bool> CancelRequestAsync(Guid requestId)
         {
             try

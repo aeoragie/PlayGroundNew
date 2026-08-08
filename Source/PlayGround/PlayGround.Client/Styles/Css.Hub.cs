@@ -23,7 +23,6 @@ namespace PlayGround.Client.Styles
             public const string ActionTitle = "m-0 text-[12.5px] font-extrabold text-navy-deep leading-snug break-keep";
             public const string ActionDesc = "m-0 mt-0.5 text-[11.5px] text-text-muted leading-snug break-keep";
 
-            /// <summary>유형 칩 — 연결=오렌지톤 / 열람=violet / 결과=네이비톤.</summary>
             public static string ActionChip(string kind)
             {
                 const string Base = "w-8 h-8 md:w-9 md:h-9 rounded-full shrink-0 flex items-center justify-center text-[10.5px] font-extrabold ";

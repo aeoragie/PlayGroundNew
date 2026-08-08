@@ -101,7 +101,6 @@
     [Parameter]
     public EventCallback<PlayerPortfolioVideoDto> OnEdit { get; set; }
 
-    /// <summary>삭제 확인 모달·실행취소 토스트는 페이지가 맡는다.</summary>
     [Parameter]
     public EventCallback<PlayerPortfolioVideoDto> OnDelete { get; set; }
 
@@ -119,13 +118,11 @@
 
     internal List<PlayerPortfolioVideoDto> Others => Videos.Where(v => !v.IsPrimary).ToList();
 
-    // 92초 → "1:32"
     internal static string FormatDuration(int seconds)
     {
         return $"{seconds / 60}:{seconds % 60:00}";
     }
 
-    // 7월 5일 → "7/5"
     internal static string FormatDate(DateOnly date)
     {
         return $"{date.Month}/{date.Day}";

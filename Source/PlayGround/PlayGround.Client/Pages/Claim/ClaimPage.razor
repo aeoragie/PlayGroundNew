@@ -316,7 +316,6 @@
             return;
         }
 
-        // 그사이 코드가 소진·만료됨 — 스텝 ①에서 인라인으로 알린다
         mStep = 0;
         mCodeError = AppText.Claim.CodeError;
     }
@@ -353,7 +352,6 @@
             return;
         }
 
-        // 철회 → 스텝 ①로 초기화 (코드 입력부터 다시)
         mRequest = null;
         mCard = null;
         mIsCodeless = false;

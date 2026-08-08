@@ -146,7 +146,6 @@
 </div>
 
 @code {
-    // 현재 서브탭 — 라우트 슬러그(results/videos)가 곧 상태
     [Parameter]
     public SoccerTeamDashboardSection ActiveSection { get; set; } = SoccerTeamDashboardSection.Results;
 
@@ -156,7 +155,6 @@
     [Parameter, EditorRequired]
     public TeamVideosResponse Videos { get; set; } = new();
 
-    /// <summary>경기 카드의 아군 팀명 (페이지가 팀 프로필에서 전달).</summary>
     [Parameter, EditorRequired]
     public string TeamName { get; set; } = string.Empty;
 
@@ -164,7 +162,6 @@
     [Parameter]
     public EventCallback OnAddResult { get; set; }
 
-    /// <summary>목록 세그먼트 — 값은 URL에 있고 페이지가 내려 준다.</summary>
     [Parameter]
     public SoccerMatchSegment Segment { get; set; } = SoccerMatchSegment.All;
 
@@ -200,7 +197,6 @@
     private IEnumerable<TeamMatchDto> FilteredMatches =>
         Matches.Matches.Where(match => Segment.Matches(match.MatchType));
 
-    // 요약은 공식만 — PC 섹션과 같은 규칙을 쓴다
     private List<TeamMatchDto> OfficialMatches => MatchResultsSection.OfficialOf(Matches.Matches);
 
     private int FriendlyCount => MatchResultsSection.FriendlyCountOf(Matches.Matches);

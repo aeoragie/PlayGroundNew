@@ -81,7 +81,6 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "detail is too long");
             }
 
-            // 유형은 enum 화이트리스트 — 미지의 문자열은 저장 자체를 거부한다
             if (!Enum.TryParse(request.OutcomeType, out SoccerCareerOutcomeType _))
             {
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "unknown outcome type");

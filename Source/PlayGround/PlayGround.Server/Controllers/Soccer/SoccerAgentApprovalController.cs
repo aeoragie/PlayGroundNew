@@ -26,7 +26,6 @@ namespace PlayGround.Server.Controllers.Soccer
         private Guid CurrentUserId =>
             Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : Guid.Empty;
 
-        /// <summary>심사 화면 묶음 — 심사 주체 본인 것만.</summary>
         [HttpGet("me/{requestId:guid}")]
         public async Task<Envelope<AgentViewRequestResponse>> GetAsync(Guid requestId, CancellationToken cancellation)
         {

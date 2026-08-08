@@ -96,7 +96,6 @@
     [Parameter]
     public string? Position { get; set; }
 
-    /// <summary>서버 상수 프리셋 전체 — 이 컴포넌트가 포지션으로 거른다.</summary>
     [Parameter]
     public List<StrengthTagPresetDto> Presets { get; set; } = new();
 
@@ -208,7 +207,6 @@
         await ValueChanged.InvokeAsync(next);
     }
 
-    // 앞 3개가 카드에 노출되므로 대표 태그를 맨 앞으로 올린다
     private async Task MoveToFrontAsync(int index)
     {
         if (index <= 0)

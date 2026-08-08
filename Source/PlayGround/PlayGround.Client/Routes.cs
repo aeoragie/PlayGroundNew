@@ -40,7 +40,6 @@ namespace PlayGround.Client
         public const string RecordsMatchTemplate = "/records/match/{MatchId:guid}";
         public const string NotFound = "/not-found";
 
-        /// <summary>권한 없음 — 로그인 상태 전용(게스트는 로그인으로 리다이렉트).</summary>
         public const string Forbidden = "/forbidden";
 
         /// <summary>서버 오류 — 전역 예외 경계가 여기로 보낸다.</summary>
@@ -83,7 +82,6 @@ namespace PlayGround.Client
             return $"/approvals/agent/{requestId}";
         }
 
-        /// <summary>보호자 뷰 팀 소식 (허브 자녀 카드 → 팀 소식). 자녀별.</summary>
         public static string TeamNews(Guid playerId)
         {
             return $"/team-news/{playerId}";

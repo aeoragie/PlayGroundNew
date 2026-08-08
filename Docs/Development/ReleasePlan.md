@@ -178,7 +178,7 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 | 층 | 규칙 |
 |---|---|
 | C# | `SystemTime`(**UTC 전용 값 타입**)만. `DateTime` 타입 자체를 쓰지 않는다 |
-| SQL | `GETUTCDATE()`만. `GETDATE()`·`SYSDATETIME()` 금지. **시간대 산술을 SQL에 두지 않는다** |
+| SQL | 내장 시각 함수 금지. `dbo.UfnSystemDate()`를 ``로 받아 쓴다. **시간대 산술을 SQL에 두지 않는다** |
 | Client | **`DisplayTime`만 시간대를 안다** — 표시 `ToWallClock()`, 입력 `FromWallClock()` |
 
 - **`SystemTime`**(Core.Shared) — `Now`가 UTC다. 호출부가 `Now`/`UtcNow`를 고르게 두면
@@ -191,7 +191,7 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
   기준으로 충분하다. 팀 시간대 컬럼도 같은 이유로 넣지 않는다.
 - **마감일도 브라우저가 변환한다** — 등록자가 고른 날짜의 **끝**을 자기 시간대 기준으로
   UTC 순간(`DeadlineAt`)으로 바꿔 보낸다. 닫히는 순간은 모두에게 같고, 보는 사람에 따라
-  달라지는 것은 날짜 라벨뿐이다. 서버는 `[DeadlineAt] > GETUTCDATE()` 하나로만 판정한다.
+  달라지는 것은 날짜 라벨뿐이다. 서버는 `[DeadlineAt] > dbo.UfnSystemDate()` 하나로만 판정한다.
 - **데이터 전환** — `StartsAt`·`MatchedAt` −9h, `DeadlineDate`(DATE) → `DeadlineAt`(DATETIME2).
   마이그레이션 `2026-08-03_Utc.TimeBaseline.sql`은 **멱등하지 않아**
   마커 테이블(`SoccerSchemaMigrations`)로 1회만 돌게 막았다.

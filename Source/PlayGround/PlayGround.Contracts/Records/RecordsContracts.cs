@@ -4,18 +4,15 @@ using System.Collections.Generic;
 
 namespace PlayGround.Contracts.Records
 {
-    /// <summary>시즌 대회/리그 목록 (Records 목록·아카이브 공용, 공개).</summary>
     public class RecordsTournamentsResponse
     {
         public int SeasonYear { get; set; }
 
-        /// <summary>기록이 있는 연도 목록 (내림차순) — 아카이브 연도 칩.</summary>
         public List<int> SeasonYears { get; set; } = new();
 
         public List<RecordsTournamentDto> Tournaments { get; set; } = new();
     }
 
-    /// <summary>대회/리그 한 건 (목록 행). 정렬·그룹핑·표시 라벨은 클라이언트.</summary>
     public class RecordsTournamentDto
     {
         public Guid TournamentId { get; set; }
@@ -41,7 +38,6 @@ namespace PlayGround.Contracts.Records
         public List<RecordsNewsDto> News { get; set; } = new();
     }
 
-    /// <summary>대회 상세 기본 정보 (히어로 + 개요 카드).</summary>
     public class RecordsTournamentDetailDto
     {
         public Guid TournamentId { get; set; }
@@ -107,7 +103,6 @@ namespace PlayGround.Contracts.Records
         public bool HasDetail { get; set; }                     // 이벤트/출전 보유 → 행 확장 셰브론 노출
     }
 
-    /// <summary>수상 한 건.</summary>
     public class RecordsAwardDto
     {
         public string AwardType { get; set; } = string.Empty;   // 'Champion','RunnerUp','FairPlay'
@@ -139,7 +134,6 @@ namespace PlayGround.Contracts.Records
         public string? VenueName { get; set; }
     }
 
-    /// <summary>대회 뉴스 한 건.</summary>
     public class RecordsNewsDto
     {
         public string Title { get; set; } = string.Empty;

@@ -28,7 +28,6 @@ namespace PlayGround.Contracts.Agent
         public List<AgentViewLogDto> Logs { get; set; } = new();
     }
 
-    /// <summary>에이전트 신원 카드 — 데이터는 에이전트 서비스가 채운다(읽기 전용).</summary>
     public class AgentProfileDto
     {
         public string Name { get; set; } = string.Empty;
@@ -40,7 +39,6 @@ namespace PlayGround.Contracts.Agent
         public string? ActiveRegions { get; set; }
     }
 
-    /// <summary>열람 기록 한 건 — 문구는 클라이언트가 EventType으로 조립.</summary>
     public class AgentViewLogDto
     {
         public string EventType { get; set; } = string.Empty; // 'Approved','ProfileView','RecordView'
@@ -64,7 +62,6 @@ namespace PlayGround.Contracts.Agent
         /// <summary>Cooldown일 때만 값 — 이 시각 이후 재요청 가능(최근 거절 + 30일).</summary>
         public SystemTime? CooldownUntil { get; set; }
 
-        /// <summary>요청 생성 가능 여부 — Status == 'Allowed'.</summary>
         public bool CanRequest => Status == "Allowed";
     }
 }

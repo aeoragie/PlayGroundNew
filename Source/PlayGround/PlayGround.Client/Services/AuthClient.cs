@@ -101,7 +101,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>계정 삭제(소프트) — 성공 시 호출부가 로그아웃 → 랜딩으로 보낸다.</summary>
         public async Task<bool> DeleteAccountAsync()
         {
             try

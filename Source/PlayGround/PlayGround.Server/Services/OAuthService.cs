@@ -99,7 +99,6 @@ namespace PlayGround.Server.Services
                 return false;
             }
 
-            // 서명 검증 (상수 시간 비교)
             if (!CryptographicOperations.FixedTimeEquals(FromBase64Url(parts[1]), SignPayload(payload)))
             {
                 return false;

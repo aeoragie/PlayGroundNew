@@ -5,7 +5,6 @@ using Microsoft.JSInterop;
 
 namespace PlayGround.Client.Services.Auth
 {
-    /// <summary>액세스 토큰을 브라우저 localStorage에 보관·조회·삭제한다.</summary>
     public sealed class TokenStore
     {
         private const string TokenKey = "pg.accessToken";

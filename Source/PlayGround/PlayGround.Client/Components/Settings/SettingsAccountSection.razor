@@ -134,7 +134,6 @@
     [Parameter]
     public EventCallback OnDelete { get; set; }
 
-    /// <summary>이름·소셜 변경 후 — 부모가 설정을 다시 불러온다.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
@@ -193,7 +192,6 @@
         }
         catch (OperationCanceledException)
         {
-            // 정상 취소
         }
     }
 

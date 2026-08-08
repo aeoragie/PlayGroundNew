@@ -150,11 +150,9 @@
     [Parameter]
     public List<TeamRosterPlayerDto> Players { get; set; } = new();
 
-    /// <summary>"＋ 선수 추가" — 페이지가 다이얼로그를 연다.</summary>
     [Parameter]
     public EventCallback OnAdd { get; set; }
 
-    /// <summary>선수 내보내기 — 페이지가 확인 모달 + 실행취소 토스트를 맡는다.</summary>
     [Parameter]
     public EventCallback<TeamRosterPlayerDto> OnRemove { get; set; }
 

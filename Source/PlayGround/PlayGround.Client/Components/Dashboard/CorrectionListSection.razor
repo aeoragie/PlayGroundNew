@@ -53,7 +53,6 @@
     [Parameter, EditorRequired]
     public List<RecordCorrectionDto> Corrections { get; set; } = new();
 
-    /// <summary>신청 취소 — 확인 모달·재조회는 페이지가 맡는다.</summary>
     [Parameter]
     public EventCallback<RecordCorrectionDto> OnCancel { get; set; }
 
@@ -69,7 +68,6 @@
         return $"{head} {FieldLabel(field)} {change}";
     }
 
-    // "3/15 신청" + 심사 끝났으면 "· 3/17 반영됨"
     private static string MetaOf(RecordCorrectionDto correction)
     {
         string requested = AppText.Correction.Requested(correction.RequestedAt.Month, correction.RequestedAt.Day);

@@ -2,7 +2,6 @@ using PlayGround.Client.Localization;
 
 namespace PlayGround.Client.Models
 {
-    /// <summary>경기영상 유형 (필터·pill).</summary>
     public enum SoccerVideoType
     {
         Highlight,

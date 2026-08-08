@@ -66,7 +66,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>읽음 처리 — 이동형 클릭 시.</summary>
         public async Task<bool> MarkReadAsync(Guid notificationId)
         {
             try

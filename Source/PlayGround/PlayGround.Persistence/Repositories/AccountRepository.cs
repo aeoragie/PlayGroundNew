@@ -172,7 +172,6 @@ namespace PlayGround.Persistence.Repositories
                 NameChangeAvailableAt = remaining == 0 && earliestNameChange is SystemTime d
                     ? d.AddDays(30)
                     : null,
-                // 로그인 수단 = 소셜 수 + (비밀번호 있으면 1)
                 LoginMeansCount = socials.Count + (hasPassword ? 1 : 0)
             };
             return Result<AccountSettingsResponse?>.Success(response);

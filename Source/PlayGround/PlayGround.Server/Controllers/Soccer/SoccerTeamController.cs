@@ -9,7 +9,6 @@ using PlayGround.Server.Feeds;
 
 namespace PlayGround.Server.Controllers.Soccer
 {
-    /// <summary>축구 팀(본인 운영). 온보딩 팀 생성 등.</summary>
     [ApiController]
     [Route("api/soccer/team")]
     [Authorize]
@@ -84,7 +83,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        // 공개 팀 홈 모집 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
         [AllowAnonymous]
         [HttpGet("{slug}/recruitments")]
         public async Task<Envelope<TeamRecruitmentsResponse>> GetTeamRecruitmentsAsync(string slug, CancellationToken cancellation)
@@ -191,7 +189,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>게시판 글 고정 전환 (최대 2개). 초과 시 InvalidInput.</summary>
         [HttpPost("me/posts/{postId:guid}/pin")]
         public async Task<Envelope<TeamPostDto>> SetMyPostPinnedAsync(
             Guid postId, [FromQuery] bool pinned, CancellationToken cancellation)
@@ -207,7 +204,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>게시판 글 공개 전환 — 공개면 소개 탭 "팀 소식"에 즉시 반영.</summary>
         [HttpPost("me/posts/{postId:guid}/public")]
         public async Task<Envelope<TeamPostDto>> SetMyPostPublicAsync(
             Guid postId, [FromQuery] bool visible, CancellationToken cancellation)
@@ -223,7 +219,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>게시판 글 소프트 삭제·복구(restore=true — 실행취소).</summary>
         [HttpPost("me/posts/{postId:guid}/delete")]
         public async Task<Envelope<bool>> DeleteMyPostAsync(
             Guid postId, [FromQuery] bool restore, CancellationToken cancellation)
@@ -280,7 +275,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        // 공개 팀 홈 일정 탭 — 비로그인 읽기전용. 탭 진입 시 지연 로드.
         [AllowAnonymous]
         [HttpGet("{slug}/schedules")]
         public async Task<Envelope<SchedulesResponse>> GetTeamSchedulesAsync(string slug, CancellationToken cancellation)
@@ -320,7 +314,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>일정 소프트 삭제·복구(restore=true — 실행취소 경로).</summary>
         [HttpPost("me/schedules/{scheduleId:guid}/delete")]
         public async Task<Envelope<bool>> DeleteMyScheduleAsync(
             Guid scheduleId, [FromQuery] bool restore, CancellationToken cancellation)
@@ -528,7 +521,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>결과 입력 폼의 대회/리그 선택지.</summary>
         [HttpGet("me/tournament-options")]
         public async Task<Envelope<TeamTournamentOptionsResponse>> GetMyTournamentOptionsAsync(
             [FromQuery] int season, CancellationToken cancellation)
@@ -596,7 +588,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>내가 올린 기록 수정 신청 목록.</summary>
         [HttpGet("me/corrections")]
         public async Task<Envelope<RecordCorrectionsResponse>> GetMyRecordCorrectionsAsync(CancellationToken cancellation)
         {
@@ -646,7 +637,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>내가 관리하는 팀 공고의 지원자 목록 (관리자).</summary>
         [HttpGet("me/applications")]
         public async Task<Envelope<TeamApplicationsResponse>> GetMyTeamApplicationsAsync(CancellationToken cancellation)
         {
@@ -661,7 +651,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>내가(보호자) 올린 지원 현황.</summary>
         [HttpGet("me/application-status")]
         public async Task<Envelope<MyApplicationsResponse>> GetMyApplicationStatusAsync(CancellationToken cancellation)
         {
@@ -692,7 +681,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>지원 취소 (보호자) — 대기(Pending) 상태의 내 지원만.</summary>
         [HttpPost("applications/{applicationId:guid}/cancel")]
         public async Task<Envelope<bool>> CancelApplicationAsync(Guid applicationId, CancellationToken cancellation)
         {

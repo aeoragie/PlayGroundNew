@@ -16,7 +16,6 @@ namespace PlayGround.Server.Controllers.Soccer
     [Authorize]
     public class SoccerFileController : ControllerBase
     {
-        /// <summary>10MB — 게시판 첨부 상한(README).</summary>
         private const long MaxBytes = 10 * 1024 * 1024;
 
         private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)

@@ -9,22 +9,17 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
-    /// <summary>팀 정보 묶음 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamInfoMessage(Guid ManagerUserId);
 
-    /// <summary>선수단(로스터) 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamRosterMessage(Guid ManagerUserId);
 
     /// <summary>공개 팀 홈페이지 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
     public sealed record GetSoccerTeamHomeMessage(string Slug, Guid? ViewerUserId = null);
 
-    /// <summary>팀 탐색 공개 목록 조회 메시지 (비로그인 — RoundRobin).</summary>
     public sealed record GetSoccerTeamExploreMessage;
 
-    /// <summary>시즌 경기 결과 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamMatchesMessage(Guid ManagerUserId, int SeasonYear);
 
-    /// <summary>경기영상 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamVideosMessage(Guid ManagerUserId);
 
     /// <summary>공개 팀 홈 시즌성적 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
@@ -36,13 +31,11 @@ namespace PlayGround.Server.Actors
     /// <summary>팀 대시보드 모집 공고 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamRecruitmentsByManagerMessage(Guid ManagerUserId);
 
-    /// <summary>모집 공고 저장 메시지 (쓰기 — ManagerUserId 해시).</summary>
     public sealed record SaveSoccerTeamRecruitmentMessage(Guid ManagerUserId, SaveTeamRecruitmentRequest Data) : IConsistentHashable
     {
         public object ConsistentHashKey => ManagerUserId;
     }
 
-    /// <summary>모집 공고 마감 메시지 (쓰기 — ManagerUserId 해시).</summary>
     public sealed record CloseSoccerTeamRecruitmentMessage(Guid ManagerUserId, Guid RecruitmentId) : IConsistentHashable
     {
         public object ConsistentHashKey => ManagerUserId;
@@ -56,7 +49,6 @@ namespace PlayGround.Server.Actors
 
     //.// 팀 게시판 (Team Board)
 
-    /// <summary>팀 대시보드 게시판 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerTeamPostsByManagerMessage(Guid ManagerUserId);
 
     /// <summary>공개 팀 홈 "팀 소식" 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
@@ -89,25 +81,21 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
-    /// <summary>게시판 글 읽음 처리 메시지 (보호자 쓰기 — UserId 해시).</summary>
     public sealed record MarkSoccerTeamPostReadMessage(Guid UserId, Guid PostId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>팀 대시보드 일정 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerSchedulesByManagerMessage(Guid UserId);
 
     /// <summary>공개 팀 홈 일정 탭 조회 메시지 (비로그인, Slug 기준 — RoundRobin).</summary>
     public sealed record GetSoccerSchedulesBySlugMessage(string Slug);
 
-    /// <summary>일정 저장 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record SaveSoccerScheduleMessage(Guid UserId, SaveScheduleRequest Data) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>일정 삭제·복구 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record DeleteSoccerScheduleMessage(Guid UserId, Guid ScheduleId, bool Restore) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
@@ -140,7 +128,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => AuthorUserId;
     }
 
-    /// <summary>리뷰 삭제·복구 메시지 (쓰기 — 작성자 해시).</summary>
     public sealed record DeleteSoccerTeamReviewMessage(Guid AuthorUserId, Guid ReviewId, bool Restore) : IConsistentHashable
     {
         public object ConsistentHashKey => AuthorUserId;
@@ -177,10 +164,8 @@ namespace PlayGround.Server.Actors
     /// <summary>"처리가 필요해요" 항목 조회 메시지 (읽기 — RoundRobin). 현재 상태에서 파생한다.</summary>
     public sealed record GetSoccerActionItemsMessage(Guid UserId);
 
-    /// <summary>내 기록 수정 신청 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerRecordCorrectionsMessage(Guid ManagerUserId);
 
-    /// <summary>로스터에 선수 추가 (쓰기 — ManagerUserId 해시).</summary>
     public sealed record AddSoccerTeamPlayerMessage(Guid ManagerUserId, AddTeamPlayerRequest Data) : IConsistentHashable
     {
         public object ConsistentHashKey => ManagerUserId;
@@ -200,10 +185,8 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => GuardianUserId;
     }
 
-    /// <summary>팀 관리자 지원자 목록 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerApplicationsByManagerMessage(Guid ManagerUserId);
 
-    /// <summary>보호자 지원 현황 조회 메시지 (읽기 — RoundRobin).</summary>
     public sealed record GetSoccerApplicationsByGuardianMessage(Guid GuardianUserId);
 
     /// <summary>지원 상태 전환 메시지 (관리자 쓰기 — ManagerUserId 해시).</summary>
@@ -212,7 +195,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => ManagerUserId;
     }
 
-    /// <summary>지원 취소 메시지 (보호자 쓰기 — GuardianUserId 해시).</summary>
     public sealed record CancelSoccerApplicationMessage(Guid GuardianUserId, Guid ApplicationId) : IConsistentHashable
     {
         public object ConsistentHashKey => GuardianUserId;

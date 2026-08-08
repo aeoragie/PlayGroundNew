@@ -9,7 +9,6 @@ using PlayGround.Server.Actors;
 
 namespace PlayGround.Server.Controllers.Soccer
 {
-    /// <summary>축구 선수(본인 데이터). 온보딩 프로필 생성 등.</summary>
     [ApiController]
     [Route("api/soccer/player")]
     [Authorize]
@@ -147,7 +146,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>포트폴리오 영상 삭제·복구(실행취소).</summary>
         [HttpPost("me/portfolio/delete")]
         public async Task<Envelope<bool>> DeleteMyPortfolioVideoAsync(
             [FromBody] DeletePlayerPortfolioVideoRequest request, [FromQuery] Guid? playerId, CancellationToken cancellation)
@@ -290,7 +288,6 @@ namespace PlayGround.Server.Controllers.Soccer
 
         //.// 보호자 기록 수정 신청 — 내 자녀 관련 공식 경기만. 심사·반영은 주최측(설계 결정 7).
 
-        /// <summary>보호자 기록 수정 신청 생성. playerId = 어느 자녀인지.</summary>
         [HttpPost("me/corrections")]
         public async Task<Envelope<Guid>> CreateMyGuardianCorrectionAsync(
             [FromBody] CreateRecordCorrectionRequest request, CancellationToken cancellation)

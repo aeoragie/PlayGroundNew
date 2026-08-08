@@ -383,7 +383,6 @@ public abstract class RepositoryBase
 
     #region Helper Methods
 
-    // SQL Server transient error codes
     private static readonly FrozenSet<int> TransientErrorNumbers = new[]
     {
         -2,     // Timeout

@@ -52,7 +52,6 @@
         _ => "i",
     };
 
-    // 액션 실행 후 토스트를 닫는다 (실행 취소 등 — 액션은 1회성)
     private async Task InvokeActionAsync(ToastMessage toast)
     {
         Toasts.Dismiss();

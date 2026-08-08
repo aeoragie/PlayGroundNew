@@ -43,7 +43,6 @@
         mAuthenticated = true;
     }
 
-    // 다른 계정으로 로그인 = 현재 세션을 비우고 로그인 화면으로
     private async Task SwitchAccountAsync()
     {
         await AuthProvider.MarkUserLoggedOutAsync();

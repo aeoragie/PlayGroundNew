@@ -15,13 +15,11 @@ namespace PlayGround.Client.Models
 
     public static class SoccerTeamPublicTabExtensions
     {
-        /// <summary>라우트 슬러그로 변환 (예: Record → "record").</summary>
         public static string ToSlug(this SoccerTeamPublicTab tab)
         {
             return tab.ToString().ToLowerInvariant();
         }
 
-        /// <summary>탭 라벨 (SPEC.TEAMPUBLICHOME.md 카피 고정).</summary>
         public static string ToLabel(this SoccerTeamPublicTab tab)
         {
             return tab switch
@@ -35,7 +33,6 @@ namespace PlayGround.Client.Models
             };
         }
 
-        /// <summary>라우트 슬러그를 탭으로 해석. 미지정·미지원 슬러그는 About.</summary>
         public static SoccerTeamPublicTab ParseSlug(string? slug)
         {
             // Enum.TryParse는 숫자 문자열("3")도 통과시키므로 이름 형태만 허용한다.

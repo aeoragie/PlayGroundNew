@@ -38,11 +38,9 @@ else
     private const int SkeletonDelayMs = 200;
     private const int SlowNoticeMs = 3000;
 
-    /// <summary>true면 스켈레톤(지연 후), false면 ChildContent.</summary>
     [Parameter, EditorRequired]
     public bool IsLoading { get; set; }
 
-    /// <summary>true면 스켈레톤 자리를 에러 안내로 교체한다.</summary>
     [Parameter]
     public bool HasFailed { get; set; }
 

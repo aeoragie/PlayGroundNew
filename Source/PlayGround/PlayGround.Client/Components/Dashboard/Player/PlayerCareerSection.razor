@@ -69,7 +69,6 @@
     [Parameter]
     public EventCallback<PlayerCareerEntryDto> OnDelete { get; set; }
 
-    // 수정·삭제 둘 다 ⋯ 안에 둔다 (카탈로그 오버플로 예시와 같은 구성)
     private List<OverflowMenu.MenuItem> BuildMenuItems(PlayerCareerEntryDto entry) => new()
     {
         new OverflowMenu.MenuItem(AppText.Player.EditCareer, () => OnEdit.InvokeAsync(entry)),

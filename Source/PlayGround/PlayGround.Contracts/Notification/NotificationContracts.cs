@@ -17,10 +17,8 @@ namespace PlayGround.Contracts.Notification
     {
         public List<NotificationDto> Items { get; set; } = new();
 
-        /// <summary>전체 세그먼트 수.</summary>
         public int TotalCount { get; set; }
 
-        /// <summary>처리 필요(미해소 액션형) 세그먼트 수.</summary>
         public int ActionRequiredCount { get; set; }
 
         /// <summary>읽지 않음 세그먼트 수 (벨 카운트와 동일 기준).</summary>
@@ -38,7 +36,6 @@ namespace PlayGround.Contracts.Notification
     {
         public Guid NotificationId { get; set; }
 
-        /// <summary>SoccerNotificationType 멤버 이름 문자열.</summary>
         public string Type { get; set; } = string.Empty;
 
         public Guid RefId { get; set; }

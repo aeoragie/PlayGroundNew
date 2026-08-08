@@ -8,10 +8,8 @@ namespace PlayGround.Domain.Soccer
     /// </summary>
     public enum SoccerActionKind
     {
-        /// <summary>연결 — 초대코드 미처리. 오렌지 톤.</summary>
         Invite,
 
-        /// <summary>결과 — 기록 수정 신청의 심사 결과. 네이비 톤.</summary>
         Correction,
     }
 

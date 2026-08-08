@@ -4,9 +4,7 @@ namespace PlayGround.Domain.Soccer
     /// 2종만 — 공지(Notice)·자료(Material). **공지만 로스터 보호자 알림**(자료는 알림 없음 — 알림 피로 방지).</summary>
     public enum SoccerTeamPostType
     {
-        /// <summary>공지 — 발행 시 로스터 보호자 전원 알림. 목록 뱃지 네이비 채움.</summary>
         Notice,
-        /// <summary>자료 — 알림 없음. 목록 뱃지 회색.</summary>
         Material,
     }
 }

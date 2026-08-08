@@ -237,7 +237,6 @@ else
     private string DisplayName =>
         !string.IsNullOrWhiteSpace(mHub?.DisplayName) ? mHub!.DisplayName : mClaimName;
 
-    // 동적 조립 — 값이 0인 조각은 빼고, 전부 0이면 대체 문구.
     // "이번 주말 경기"는 일정이 아직 목데이터라 넣지 않는다(빈 데이터 노출 금지).
     private string SummarySentence
     {

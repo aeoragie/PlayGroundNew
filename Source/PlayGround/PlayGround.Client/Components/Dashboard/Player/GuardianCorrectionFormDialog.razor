@@ -117,11 +117,9 @@
     [Parameter]
     public PlayerMatchStatDto? Match { get; set; }
 
-    /// <summary>어느 자녀의 기록인지 — 서버가 소유·출전을 판정한다.</summary>
     [Parameter]
     public Guid PlayerId { get; set; }
 
-    /// <summary>신청 성공 후 상위가 목록을 다시 읽는다.</summary>
     [Parameter]
     public EventCallback OnSubmitted { get; set; }
 

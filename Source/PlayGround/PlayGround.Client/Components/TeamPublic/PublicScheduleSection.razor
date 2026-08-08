@@ -93,7 +93,6 @@
     private static string WeekdayLabel(DateTime dt) =>
         new[] { AppText.Team.DowSun, AppText.Team.DowMon, AppText.Team.DowTue, AppText.Team.DowWed, AppText.Team.DowThu, AppText.Team.DowFri, AppText.Team.DowSat }[(int)dt.DayOfWeek];
 
-    // dc 규칙: 일요일만 레드톤, 나머지는 muted
     private static string WeekdayClass(DateTime dt) =>
         dt.DayOfWeek == DayOfWeek.Sunday ? "text-weekend-sun" : "text-text-muted";
 

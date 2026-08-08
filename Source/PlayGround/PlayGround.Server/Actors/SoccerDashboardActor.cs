@@ -7,7 +7,6 @@ using PlayGround.Application.Team.Commands;
 
 namespace PlayGround.Server.Actors
 {
-    /// <summary>대시보드 허브 읽기 액터. 팀·자녀·액션을 한 번에 모아 돌려준다.</summary>
     public sealed class SoccerDashboardActor : ReceiveActorBase
     {
         public SoccerDashboardActor(IServiceProvider serviceProvider) : base(serviceProvider)
@@ -26,6 +25,5 @@ namespace PlayGround.Server.Actors
         }
     }
 
-    /// <summary>허브 묶음 조회.</summary>
     public sealed record GetSoccerDashboardHubMessage(Guid UserId, string DisplayName, int SeasonYear);
 }

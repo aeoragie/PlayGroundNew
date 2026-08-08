@@ -51,7 +51,6 @@
         "text-[10.5px] font-bold rounded-md px-[9px] py-[3px] whitespace-nowrap shrink-0 " +
         (Tournament.Scope == "National" ? "text-orange-ink bg-surface-orange" : "text-navy bg-surface-icon");
 
-    // "전국" / "전국/부산" / "지방/서울" — 범위 + 지역
     internal static string ScopeLabel(RecordsTournamentDto tournament)
     {
         string baseLabel = tournament.Scope == "National" ? AppText.Records.ScopeNational : AppText.Records.ScopeRegional;

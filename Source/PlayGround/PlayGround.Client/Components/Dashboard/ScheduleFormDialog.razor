@@ -108,11 +108,9 @@
     [Parameter]
     public TimeOnly? RecentTime { get; set; }
 
-    /// <summary>이미 등록된 일정의 일시 — 같은 일시 중복 경고(비차단)용.</summary>
     [Parameter]
     public IReadOnlyCollection<DateTime> ExistingStarts { get; set; } = new List<DateTime>();
 
-    /// <summary>저장 성공 후 — 부모가 목록을 다시 불러온다.</summary>
     [Parameter]
     public EventCallback OnSaved { get; set; }
 
@@ -234,7 +232,6 @@
     {
         mShowErrors = true;
 
-        // 날짜·시간은 폼 컨텍스트 밖(별도 컴포넌트)이라 함께 판정한다
         bool fieldsValid = await mForm.ValidateAllAsync();
         if (!fieldsValid || mDate is null || mTime is null)
         {

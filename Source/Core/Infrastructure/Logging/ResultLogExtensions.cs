@@ -26,7 +26,7 @@ namespace PlayGround.Infrastructure.Logging
         private static void Write(ILogger logger, ResultInfo resultData, bool isSuccess, string operation,
             (string Key, object? Value)[] extra)
         {
-            var level = ToNLogLevel(resultData.DetailCode);
+            var level = isSuccess ? LogLevel.Debug : ToNLogLevel(resultData.DetailCode);
             if (!logger.IsEnabled(level))
             {
                 return;

@@ -14,7 +14,6 @@ namespace PlayGround.Application.Team.Commands
         private const int MaxValues = 6;
         private const int MaxCoaches = 12;
 
-        /// <summary>창단연도 하한 — 오타(19년·202년)를 걸러낸다.</summary>
         private const int MinFoundedYear = 1900;
 
         private readonly ISoccerTeamRepository mRepository;

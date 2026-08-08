@@ -19,22 +19,18 @@
     [Parameter, EditorRequired]
     public int Count { get; set; }
 
-    /// <summary>카운트 단위 (예: "팀").</summary>
     [Parameter, EditorRequired]
     public string Unit { get; set; } = string.Empty;
 
-    /// <summary>적용 조건 요약 또는 기본 안내 문구.</summary>
     [Parameter]
     public string? Description { get; set; }
 
-    /// <summary>필터 1개 이상 적용 시에만 true — 초기화 버튼 노출 조건.</summary>
     [Parameter]
     public bool ShowReset { get; set; }
 
     [Parameter]
     public EventCallback OnReset { get; set; }
 
-    /// <summary>우측 슬롯 (정렬 등).</summary>
     [Parameter]
     public RenderFragment? Right { get; set; }
 }

@@ -13,7 +13,6 @@ namespace PlayGround.Client.Models
 
     public static class SoccerTournamentFormatExtensions
     {
-        /// <summary>목록 행 형식 뱃지 라벨.</summary>
         public static string ToLabel(this SoccerTournamentFormat format)
         {
             return format switch

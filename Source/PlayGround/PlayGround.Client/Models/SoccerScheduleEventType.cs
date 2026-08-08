@@ -2,7 +2,6 @@ using PlayGround.Client.Localization;
 
 namespace PlayGround.Client.Models
 {
-    /// <summary>일정 이벤트 유형 (경기·대회·훈련).</summary>
     public enum SoccerScheduleEventType
     {
         Match,

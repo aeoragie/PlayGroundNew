@@ -120,15 +120,12 @@
     [Parameter, EditorRequired]
     public PlayerInfoResponse Info { get; set; } = new();
 
-    /// <summary>어느 자녀의 프로필인지.</summary>
     [Parameter]
     public Guid? PlayerId { get; set; }
 
-    /// <summary>초대코드 Claim 성공 시 상위(페이지)로 전달 — 프로필 재로드.</summary>
     [Parameter]
     public EventCallback OnClaimed { get; set; }
 
-    /// <summary>"프로필 수정" 클릭 — 상위(페이지)가 수치 편집 다이얼로그를 연다.</summary>
     [Parameter]
     public EventCallback OnEditProfile { get; set; }
 
@@ -139,7 +136,6 @@
 
     private Task<bool> ConfirmPhotoDeleteAsync() => PlayerProfileSection.ConfirmPhotoDeleteAsync(Confirm, Info.Profile.Name);
 
-    // "FW · 등번호 9 · 2012 · 중2" — 있는 항목만 조합
     private string? SummaryLine
     {
         get

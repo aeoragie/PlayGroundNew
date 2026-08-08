@@ -31,7 +31,6 @@ namespace PlayGround.Application.Player.Commands
                 return Result<bool>.Error(ErrorCode.Unauthorized, "userId is empty");
             }
 
-            // 허용 항목만 통과 (enum 이름 형태 — 숫자 문자열 거부)
             if (string.IsNullOrWhiteSpace(fieldName)
                 || char.IsAsciiDigit(fieldName[0])
                 || !Enum.TryParse(fieldName, out SoccerPlayerProfileField field))

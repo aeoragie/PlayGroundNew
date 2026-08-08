@@ -13,7 +13,6 @@ namespace PlayGround.Client.Components.Shared.Forms
     {
         private readonly List<IFormFieldRegistration> mFields = new();
 
-        /// <summary>제출 진행 중 — 이중 제출 잠금(SubmitButton이 구독).</summary>
         public bool IsSubmitting { get; private set; }
 
         /// <summary>필드 등록 (컴포넌트 초기화 시 1회). 등록 순서가 곧 화면 순서 = 첫 오류 판정 순서.</summary>
@@ -90,11 +89,9 @@ namespace PlayGround.Client.Components.Shared.Forms
             }
         }
 
-        /// <summary>등록된 필드 중 오류 표시 중인 개수 (데모·디버깅용).</summary>
         public int ErrorCount => mFields.Count(f => f.HasVisibleError);
     }
 
-    /// <summary>컨텍스트가 필드를 다루기 위한 최소 계약. 각 폼 컴포넌트가 구현한다.</summary>
     public interface IFormFieldRegistration
     {
         /// <summary>제출 시 검증 — 유효하면 true, 아니면 오류를 표시하고 false.</summary>

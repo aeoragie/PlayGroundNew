@@ -97,7 +97,6 @@
     [Parameter]
     public Func<TValue?, string?>? Validator { get; set; }
 
-    /// <summary>미선택 시 표시 문구 — 예시 전용(레이블 대체 아님).</summary>
     [Parameter]
     public string Placeholder { get; set; } = AppText.Shared.SelectPlease;
 
@@ -146,7 +145,6 @@
     private void Close()
     {
         mIsOpen = false;
-        // 시트를 닫는 것도 blur에 해당 — 첫 검증 시점
         mTouched = true;
         mErrorMessage = Validator?.Invoke(Value);
     }
@@ -156,7 +154,6 @@
         mIsOpen = false;
         await ValueChanged.InvokeAsync(option.Value);
 
-        // 선택은 곧 확정이므로 즉시 검증(오류 중이었다면 그 자리에서 해제)
         mTouched = true;
         mErrorMessage = Validator?.Invoke(option.Value);
     }

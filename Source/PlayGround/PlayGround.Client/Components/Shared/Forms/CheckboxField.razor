@@ -65,7 +65,6 @@
     [Parameter]
     public bool Disabled { get; set; }
 
-    /// <summary>레이블 뒤에 붙일 링크 등 (예: "약관 보기").</summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
@@ -89,7 +88,6 @@
         bool next = !Value;
         await ValueChanged.InvokeAsync(next);
 
-        // 토글이 곧 확정 — 즉시 검증(체크하는 순간 오류 해제)
         mTouched = true;
         mErrorMessage = Validator?.Invoke(next);
     }

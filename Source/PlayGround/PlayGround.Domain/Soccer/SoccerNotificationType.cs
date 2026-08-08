@@ -8,9 +8,7 @@ namespace PlayGround.Domain.Soccer
         ClaimRequest,
         /// <summary>보호자 수신 — 연결 승인 (RefId = RequestId, TargetPlayerId로 딥링크).</summary>
         ClaimApproved,
-        /// <summary>보호자 수신 — 연결 거절 (RefId = RequestId).</summary>
         ClaimRejected,
-        /// <summary>보호자 수신 — 친선경기 결과 반영 (RefId = MatchId).</summary>
         MatchResult,
         /// <summary>신청자 수신 — 기록 수정 신청 심사 결과 (RefId = CorrectionId, 조회 시점 지연 생성).</summary>
         CorrectionReviewed,

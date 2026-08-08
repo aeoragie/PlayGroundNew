@@ -69,7 +69,6 @@
     [Parameter, EditorRequired]
     public TeamPostsResponse Data { get; set; } = new();
 
-    /// <summary>저장·고정·공개·삭제 후 — 부모가 목록을 다시 불러온다.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
 

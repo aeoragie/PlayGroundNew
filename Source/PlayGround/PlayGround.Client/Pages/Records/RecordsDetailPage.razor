@@ -366,7 +366,6 @@
     private string mMonth = AppText.Records.All;
     private bool mIsNewsTab;
 
-    // 경기 행 확장 (한 번에 1개) + 지연 로드한 주요 로그
     private Guid mOpenMatchId;
     private List<RecordsMatchEventDto>? mOpenLogs;
 
@@ -381,7 +380,6 @@
             return;
         }
 
-        // 경기 상세에서 돌아온 경우 — 직전 탭·조·필터·확장 행·스크롤 복원
         if (NavState.TryConsume(TournamentId))
         {
             mTab = NavState.Tab;
@@ -420,12 +418,10 @@
             }
             catch (JSDisconnectedException)
             {
-                // 페이지 이탈 중 — 무시
             }
         }
     }
 
-    // 행 탭 확장/축소 — 열 때 경기 상세를 지연 로드해 주요 로그 표시
     private async Task ToggleMatch(RecordsMatchDto match)
     {
         if (mOpenMatchId == match.MatchId)
@@ -472,7 +468,6 @@
             }
             catch (JSDisconnectedException)
             {
-                // 이미 연결 종료 — 무시
             }
         }
     }
@@ -498,7 +493,6 @@
         InitTabState();
     }
 
-    // 탭 진입 시 조·라운드 선택 초기화 (첫 값)
     private void InitTabState()
     {
         if (mTab is "stage1" or "stage2")
@@ -648,7 +642,6 @@
         }
     }
 
-    // 조별 스테이지 zone 카피 (레퍼런스 원문 — 대회별 커스텀은 후속)
     private string? StageZoneNote => Format == SoccerTournamentFormat.Split
         ? (mTab == "stage1" ? AppText.Records.ZoneNoteSplit1 : null)
         : AppText.Records.ZoneNoteCup;

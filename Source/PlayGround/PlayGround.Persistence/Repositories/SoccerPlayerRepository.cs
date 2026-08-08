@@ -126,7 +126,6 @@ namespace PlayGround.Persistence.Repositories
                     // me/info는 소유자 편집 뷰라 공개 설정과 무관하게 전부 내려준다 (게이팅 없음)
                     StrengthTags = ParseTags(player.StrengthTags)
                 },
-                // 저장값이 없는 항목은 기본값으로 채워 5개 항목 전부 내려준다
                 Visibilities = Enum.GetValues<SoccerPlayerProfileField>()
                     .Select(field => new PlayerFieldVisibilityDto
                     {
@@ -464,7 +463,6 @@ namespace PlayGround.Persistence.Repositories
             bool isGranted = grant is not null;
 
             // 시즌 요약 — 항상 공식만 (권한 뷰는 ②에 친선이 섞여 오므로 여기서 거른다).
-            // 평균은 분 기록이 있는 경기 기준 (대시보드와 같은 규칙)
             var officialAppearances = appearances.Where(a => a.MatchType == "Official").ToList();
             PlayerPublicSeasonDto? season = null;
             if (officialAppearances.Count > 0)
@@ -501,7 +499,6 @@ namespace PlayGround.Persistence.Repositories
                     TeamName = NullIfEmpty(header.TeamName),
                     TeamSlug = NullIfEmpty(header.Slug),
                     TeamIsVerified = header.IsVerified,
-                    // 미연결(소유자 없음) = 보호자가 코드 없이 연결 요청할 수 있다
                     IsClaimable = header.UserId is null,
                     HeightCm = IsPublic(SoccerPlayerProfileField.Height) ? header.HeightCm : null,
                     WeightKg = IsPublic(SoccerPlayerProfileField.Weight) ? header.WeightKg : null,
@@ -665,7 +662,6 @@ namespace PlayGround.Persistence.Repositories
                 return $"{parts[0]}-{new string('*', parts[1].Length)}-{parts[2]}";
             }
 
-            // 하이픈 없는 값은 앞 3자리만 남기고 감춤
             return phone.Length > 3 ? phone[..3] + new string('*', phone.Length - 3) : phone;
         }
     }

@@ -7,7 +7,6 @@ namespace PlayGround.Client.Styles
         /// <summary>시스템·운영 배너 (Design.BannerStepper §1) — 3톤, 콘텐츠 최상단 풀폭, 동시 1개.</summary>
         public static class Banner
         {
-            /// <summary>바깥 래퍼 — 풀폭. 안쪽 카드가 콘텐츠 폭에 맞춰 정렬된다.</summary>
             public const string Layer = "w-full px-4 md:px-8 pt-3 md:pt-4";
 
             /// <summary>톤별 배경·보더. 정보는 기존 토큰 재사용, 주의·오류만 신설 토큰.</summary>
@@ -22,7 +21,6 @@ namespace PlayGround.Client.Styles
                 };
             }
 
-            /// <summary>상태 원 20px — 톤별 색.</summary>
             public static string Dot(BannerSeverity severity)
             {
                 const string Base = "w-5 h-5 shrink-0 mt-px rounded-full flex items-center justify-center text-[12px] font-extrabold text-white ";
@@ -37,7 +35,6 @@ namespace PlayGround.Client.Styles
             public const string Body = "flex-1 min-w-0 text-[12.5px] leading-relaxed text-text-strong break-keep";
             public const string Prefix = "font-extrabold";
 
-            /// <summary>해결/자세히 링크 — 톤별 강조색(본문에 이어 붙는 단일 링크).</summary>
             public static string Link(BannerSeverity severity)
             {
                 const string Base = "ml-1 font-bold whitespace-nowrap underline-offset-2 hover:underline ";

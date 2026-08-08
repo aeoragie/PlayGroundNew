@@ -111,7 +111,6 @@
 
     private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
 
-    // 탭 3개가 데이터 소스를 하나씩 가진다 — 탭 렌더 골격은 공유
     private RenderFragment SectionBody => CurrentSection switch
     {
         SettingsSection.Roles => @<LoadingGate IsLoading="@(mHub is null && !mHubFailed)" HasFailed="@mHubFailed" OnRetry="LoadHubAsync">
@@ -191,7 +190,6 @@
             Toasts.ShowError(AppText.Settings.LinkFailedToast);
         }
 
-        // 쿼리 제거 후 설정 재조회 (연결된 로그인 행 갱신)
         Nav.NavigateTo(Routes.SettingsSection(SettingsSection.Account), replace: true);
         await LoadSettingsAsync();
     }
@@ -255,7 +253,6 @@
         Nav.NavigateTo(Routes.Landing);
     }
 
-    // 로그아웃 → 랜딩 (Design.Navigation 인증 플로우 4)
     private async Task LogoutAsync()
     {
         await AuthProvider.MarkUserLoggedOutAsync();

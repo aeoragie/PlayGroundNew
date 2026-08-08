@@ -51,7 +51,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>준비 중 요청 취소 (소유자·Pending만).</summary>
         [Authorize]
         [HttpPost("me/{requestId:guid}/cancel")]
         public async Task<Envelope<bool>> CancelAsync(Guid requestId, CancellationToken cancellation)

@@ -243,12 +243,10 @@
     private bool mVideosRequested;
     private bool mRecruitmentsRequested;
 
-    // 일정 — 섹션 진입 시 지연 로드
     private SchedulesResponse? mSchedules;
     private bool mSchedulesRequested;
     private bool mSchedulesFailed;
 
-    // 게시판 — 섹션 진입 시 지연 로드
     private TeamPostsResponse? mPosts;
     private bool mPostsRequested;
     private bool mPostsFailed;
@@ -298,7 +296,6 @@
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
-            // 딥링크 진입 — 로그인 후 이 자리로 돌아온다
             Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
             return;
         }
@@ -332,7 +329,6 @@
         }
         else if (CurrentSection is SoccerTeamDashboardSection.Results or SoccerTeamDashboardSection.Videos)
         {
-            // 모바일은 결과·영상이 한 화면(서브탭)이라 함께 로드한다
             if (!mMatchesRequested)
             {
                 await LoadMatchesAsync();
@@ -366,7 +362,6 @@
         }
         else if (CurrentSection == SoccerTeamDashboardSection.Info && !mCareerOutcomesRequested)
         {
-            // 진학·진로 관리 카드 — 팀 정보 섹션 진입 시 지연 로드 (한 번만)
             mCareerOutcomesRequested = true;
             await LoadCareerOutcomesAsync();
         }
@@ -448,7 +443,6 @@
         }
     }
 
-    /// <summary>이미 등록된 일정의 일시 — 같은 일시 중복 경고(비차단)용.</summary>
     private IReadOnlyCollection<DateTime> ExistingScheduleStarts =>
         mSchedules?.Schedules
             .Where(s => mEditingSchedule is null || s.ScheduleId != mEditingSchedule.ScheduleId)
@@ -547,7 +541,6 @@
         mResultFormOpen = true;
     }
 
-    // 팀 정보 저장 후 — 사이드바·상단바까지 새 값으로 갱신된다
     private async Task ReloadInfoAsync()
     {
         mInfo = await Teams.GetTeamInfoAsync();

@@ -111,7 +111,6 @@
             return "생년월일을 입력해 주세요";
         }
 
-        // 자동 포맷 결과가 "2011. 03. 14" 형태(숫자 8자리)인지
         int digits = value.Count(char.IsAsciiDigit);
         return digits == 8 ? null : "생년월일 8자리를 입력해 주세요 (예: 20110314)";
     }
@@ -149,7 +148,6 @@
         await mForm.SubmitAsync(
             onValid: async () =>
             {
-                // 저장 지연을 흉내내 로딩 상태(스피너·이중 제출 잠금)를 확인한다
                 await Task.Delay(900);
                 mSavedMessage = "저장됐어요 (데모 — 실제 저장은 하지 않아요)";
             },

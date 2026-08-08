@@ -18,7 +18,6 @@ namespace PlayGround.Application.Team.Commands
     /// </summary>
     public class SoccerTeamMatchResultCommand
     {
-        /// <summary>한 경기에 기록할 수 있는 득점 수 상한 — 오타·자동입력 폭주 방어.</summary>
         private const int MaxScore = 99;
 
         private readonly ISoccerTeamRepository mRepository;

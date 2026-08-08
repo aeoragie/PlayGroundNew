@@ -31,7 +31,6 @@ namespace PlayGround.Client.Services.Auth
             await mJs.InvokeVoidAsync("sessionStorage.setItem", StorageKey, returnUrl);
         }
 
-        /// <summary>인증 완료 지점에서 1회 소비 — 읽는 즉시 지운다.</summary>
         public async Task<string?> ConsumeAsync()
         {
             string? saved = await mJs.InvokeAsync<string?>("sessionStorage.getItem", StorageKey);

@@ -4,13 +4,9 @@ namespace PlayGround.Domain.Soccer
     /// DB 저장 문자열과 멤버 이름이 같다.</summary>
     public enum SoccerCorrectionField
     {
-        /// <summary>스코어 — 숫자 2칸.</summary>
         Score,
-        /// <summary>득점·도움 — 선수 선택.</summary>
         GoalAssist,
-        /// <summary>출전 선수 — 선수 선택.</summary>
         Appearance,
-        /// <summary>그 외 — 설명으로 전달.</summary>
         Other,
     }
 
@@ -18,11 +14,8 @@ namespace PlayGround.Domain.Soccer
     /// PlayGround는 생성·조회·취소만 한다(설계 결정 6·7).</summary>
     public enum SoccerCorrectionStatus
     {
-        /// <summary>접수 — 심사 대기. 이 상태에서만 신청자가 취소할 수 있다.</summary>
         Pending,
-        /// <summary>반영 — 주최측이 기록을 고쳤다.</summary>
         Accepted,
-        /// <summary>반려 — 사유가 함께 온다.</summary>
         Rejected,
     }
 

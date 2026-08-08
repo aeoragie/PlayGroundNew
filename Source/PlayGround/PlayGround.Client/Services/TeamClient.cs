@@ -65,7 +65,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>팀 정보 저장. 성공 시 공개홈 슬러그를 돌려준다(즉시 반영 확인용).</summary>
         public async Task<TeamInfoSaveResult> UpdateTeamInfoAsync(UpdateTeamInfoRequest request)
         {
             try
@@ -193,7 +192,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>모집 공고 저장 (신규·수정 겸용).</summary>
         public async Task<RecruitmentSaveResult> SaveRecruitmentAsync(SaveTeamRecruitmentRequest request)
         {
             try
@@ -231,7 +229,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>모집 공고 삭제·복구(restore = 실행취소).</summary>
         public async Task<bool> DeleteRecruitmentAsync(Guid recruitmentId, bool restore = false)
         {
             try
@@ -332,7 +329,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>글 공개 전환 — 성공 여부만.</summary>
         public async Task<bool> SetPostPublicAsync(Guid postId, bool visible)
         {
             try
@@ -348,7 +344,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>글 삭제·복구(restore = 실행취소).</summary>
         public async Task<bool> DeletePostAsync(Guid postId, bool restore = false)
         {
             try
@@ -364,7 +359,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>보호자 글 읽음 처리 — 성공 여부만.</summary>
         public async Task<bool> MarkPostReadAsync(Guid postId)
         {
             try
@@ -608,7 +602,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>진학·진로 사례 저장 (신규·수정 겸용).</summary>
         public async Task<RecruitmentSaveResult> SaveCareerOutcomeAsync(SaveTeamCareerOutcomeRequest request)
         {
             try
@@ -629,7 +622,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>진학·진로 사례 삭제·복구(restore = 실행취소).</summary>
         public async Task<bool> DeleteCareerOutcomeAsync(Guid outcomeId, bool restore = false)
         {
             try
@@ -661,7 +653,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>리뷰 작성·수정 (재원 확인 보호자만 — 판정은 서버).</summary>
         public async Task<RecruitmentSaveResult> SaveReviewAsync(SaveTeamReviewRequest request)
         {
             try
@@ -682,7 +673,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>리뷰 삭제·복구(restore = 실행취소) — 작성자 본인만.</summary>
         public async Task<bool> DeleteReviewAsync(Guid reviewId, bool restore = false)
         {
             try
@@ -749,7 +739,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>기록 수정 신청 취소 — 접수 상태만 가능.</summary>
         public async Task<CorrectionSaveResult> CancelRecordCorrectionAsync(Guid correctionId)
         {
             try
@@ -867,7 +856,6 @@ namespace PlayGround.Client.Services
     /// <summary>기록 수정 신청 결과. 거부 사유(남의 경기·친선·중복)는 서버가 구분해 주지 않는다.</summary>
     public record CorrectionSaveResult(bool Success, string? Error, bool IsNetworkError = false);
 
-    /// <summary>Slug는 저장 후 "공개홈 보기"로 바로 이동하기 위한 값.</summary>
     public record TeamInfoSaveResult(bool Success, string? Slug, string? Error, bool IsNetworkError = false);
 
     /// <summary>모집 공고 저장 결과 — 입력 거부(인라인)와 요청 실패(토스트)를 IsNetworkError로 가른다.</summary>

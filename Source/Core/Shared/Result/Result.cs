@@ -46,7 +46,6 @@ public readonly struct Result<T>
     private Result(ResultInfo info)
     {
         // 실패 경로 — 값이 없다. T가 널 비허용이어도 여기서는 담을 값이 없으므로 억제한다
-        // (호출부는 IsError를 확인하고 읽는 것이 계약이다).
         Value = default!;
         ResultData = info;
     }
@@ -213,7 +212,6 @@ public readonly struct Result<T>
         return this;
     }
 
-    // ErrorCode 카테고리별 처리
     public Result<T> OnClientError(Action<ResultInfo> action)
     {
         if (IsError && ResultData.DetailCode is ErrorCode errorCode && errorCode.IsClientError)

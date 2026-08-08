@@ -91,7 +91,6 @@
     [Parameter]
     public int ExistingVideoCount { get; set; }
 
-    /// <summary>어느 자녀의 영상인지 — 보호자가 자녀를 여러 명 관리할 수 있다.</summary>
     [Parameter]
     public Guid? PlayerId { get; set; }
 
@@ -110,7 +109,6 @@
 
     private bool IsEdit => Entry is not null;
 
-    /// <summary>대표 선택지는 다른 영상이 있을 때만 의미가 있다.</summary>
     private bool CanChoosePrimary => IsEdit ? ExistingVideoCount > 1 : ExistingVideoCount > 0;
 
     /// <summary>입력 중인 링크에서 파생 — 서버도 같은 규칙으로 저장한다.</summary>
@@ -167,7 +165,6 @@
     private static string? ValidateTitle(string? value) =>
         string.IsNullOrWhiteSpace(value) ? AppText.Player.ErrorTitleEmpty : null;
 
-    // 선택 항목 — 비어 있으면 통과, 값이 있으면 형태를 본다
     private static string? ValidateRecorded(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))

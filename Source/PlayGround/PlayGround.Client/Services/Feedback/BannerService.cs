@@ -12,11 +12,9 @@ namespace PlayGround.Client.Services.Feedback
         Info,
         /// <summary>주의(오렌지 !) — Claim 장기 대기 등. 닫기 없음 — 원인이 해소돼야 사라진다.</summary>
         Warning,
-        /// <summary>오류(연레드 !) — 결제 만료 등. 닫기 없음 + 해결 링크.</summary>
         Error,
     }
 
-    /// <summary>화면 최상단에 떠 있는 배너 1개.</summary>
     public sealed class BannerNotice
     {
         /// <summary>닫음 상태를 로컬에 저장하는 키 — 정보 배너를 다시 띄우지 않으려면 안정적이어야 한다.</summary>
@@ -27,7 +25,6 @@ namespace PlayGround.Client.Services.Feedback
         /// <summary>굵은 접두어 — "정보"·"주의"·"오류" 대신 맥락 단어를 줄 수 있다.</summary>
         public required string Prefix { get; init; }
 
-        /// <summary>본문 문장. 접두어 뒤에 이어 붙는다.</summary>
         public required string Message { get; init; }
 
         public string? LinkLabel { get; init; }
@@ -49,7 +46,6 @@ namespace PlayGround.Client.Services.Feedback
 
         public event Action? OnChanged;
 
-        /// <summary>표시 후보를 등록한다. 같은 Id가 있으면 교체한다(중복 누적 방지).</summary>
         public void Publish(BannerNotice notice)
         {
             ArgumentNullException.ThrowIfNull(notice);

@@ -113,10 +113,8 @@ else if (mError is not null)
         Portrait,
     }
 
-    /// <summary>업로드 결과 이미지의 한 변 — 원형이라 정사각으로 자른다.</summary>
     private const int OutputSize = 512;
 
-    /// <summary>3:4 결과 크기 — 프로필 슬롯이 최대 120px이라 여유 있게.</summary>
     private const int PortraitOutputWidth = 600;
     private const int PortraitOutputHeight = 800;
 
@@ -133,14 +131,12 @@ else if (mError is not null)
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
-    /// <summary>이미지가 없을 때 보여줄 이니셜(팀명 첫 글자 등).</summary>
     [Parameter]
     public string Placeholder { get; set; } = "?";
 
     [Parameter]
     public string Label { get; set; } = AppText.Shared.Emblem;
 
-    /// <summary>업로드 폴더 — 서버 허용 목록과 일치해야 한다.</summary>
     [Parameter]
     public string Category { get; set; } = "team-logo";
 
@@ -151,7 +147,6 @@ else if (mError is not null)
     [Parameter]
     public string? FrameClass { get; set; }
 
-    /// <summary>사각 프레임 빈 상태의 이니셜 아바타 지름(px).</summary>
     [Parameter]
     public int InitialSize { get; set; } = 44;
 
@@ -190,7 +185,6 @@ else if (mError is not null)
     private string? mFileName;
     private bool mBusy;
 
-    // 이미지를 무대에 꽉 채운 뒤(cover) 확대·이동을 얹는다
     private double BaseScale => Math.Max(StageWidth / mNaturalWidth, StageHeight / mNaturalHeight);
 
     private double DisplayWidth => mNaturalWidth * BaseScale * mZoom;
@@ -285,7 +279,6 @@ else if (mError is not null)
             return;
         }
 
-        // 무대 중심을 기준으로 확대해야 보고 있던 곳이 유지된다
         double centerX = (StageWidth / 2) - mOffsetX;
         double centerY = (StageHeight / 2) - mOffsetY;
         double ratio = zoom / mZoom;
@@ -310,7 +303,6 @@ else if (mError is not null)
 
         mBusy = true;
 
-        // 화면 좌표 → 원본 픽셀 좌표 (무대가 원본에서 차지하는 크기)
         double scale = BaseScale * mZoom;
         double sourceWidth = StageWidth / scale;
         double sourceHeight = StageHeight / scale;

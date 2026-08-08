@@ -60,7 +60,6 @@
     [Parameter]
     public string? SectionLabel { get; set; }
 
-    // 게스트가 로그인하러 갈 때 현재 위치를 보존한다
     private string LoginHref => Routes.LoginWithReturn(CurrentPath);
 
     private string CurrentPath

@@ -48,16 +48,12 @@
 </div>
 
 @code {
-    /// <summary>선택 가능 범위.</summary>
     public enum DateRange
     {
-        /// <summary>제한 없음.</summary>
         Any,
 
-        /// <summary>오늘 이후만 (일정 추가) — 과거는 비활성.</summary>
         FutureOnly,
 
-        /// <summary>오늘까지만 (경기 결과 입력) — 미래는 비활성.</summary>
         PastOnly,
     }
 
@@ -78,7 +74,6 @@
     [Parameter]
     public bool HasError { get; set; }
 
-    /// <summary>경기 있는 날 — 셀 하단 teal 도트.</summary>
     [Parameter]
     public IReadOnlyCollection<DateTime>? MatchDays { get; set; }
 

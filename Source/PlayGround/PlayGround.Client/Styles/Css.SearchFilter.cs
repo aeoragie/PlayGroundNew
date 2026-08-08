@@ -16,10 +16,8 @@ namespace PlayGround.Client.Styles
 
             public const string SearchBoxIdle = "border-border";
 
-            // 포커스 시 네이비 보더 + 글로우
             public const string SearchBoxActive = "border-navy shadow-[0_0_0_3px_rgba(35,64,142,.12)]";
 
-            // 모바일 16px(iOS 줌 방지) / PC 14px
             public const string SearchInput =
                 "flex-1 min-w-0 border-0 bg-transparent outline-none text-[16px] md:text-sm text-navy-deep " +
                 "placeholder:text-text-muted";
@@ -83,7 +81,6 @@ namespace PlayGround.Client.Styles
                 "h-12 rounded-xl bg-navy hover:bg-navy-deep text-sm font-bold text-white border-0 cursor-pointer " +
                 "whitespace-nowrap mt-[18px] transition-colors";
 
-            // 칩 가로 스크롤 행 (스크롤바 숨김)
             public const string ChipScrollRow =
                 "flex gap-1.5 overflow-x-auto -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
         }

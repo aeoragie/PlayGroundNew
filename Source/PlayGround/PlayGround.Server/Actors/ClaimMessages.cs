@@ -28,7 +28,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>연결 요청 취소 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record CancelClaimRequestMessage(Guid UserId, Guid RequestId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
@@ -52,7 +51,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>알림 읽음 처리 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record MarkNotificationReadMessage(Guid UserId, Guid NotificationId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
@@ -76,13 +74,11 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>에이전트 열람 요청 심사 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record ReviewAgentViewRequestMessage(Guid UserId, ReviewAgentViewRequestRequest Data) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>에이전트 차단 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record BlockAgentMessage(Guid UserId, Guid RequestId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;

@@ -132,15 +132,12 @@
     [Parameter, EditorRequired]
     public PlayerInfoResponse Info { get; set; } = new();
 
-    /// <summary>어느 자녀의 프로필인지 — 공개 설정 저장이 이 자녀에게 가야 한다.</summary>
     [Parameter]
     public Guid? PlayerId { get; set; }
 
-    /// <summary>초대코드 Claim 성공 시 상위(페이지)로 전달 — 프로필 재로드.</summary>
     [Parameter]
     public EventCallback OnClaimed { get; set; }
 
-    /// <summary>"프로필 수정" 클릭 — 상위(페이지)가 수치 편집 다이얼로그를 연다.</summary>
     [Parameter]
     public EventCallback OnEditProfile { get; set; }
 

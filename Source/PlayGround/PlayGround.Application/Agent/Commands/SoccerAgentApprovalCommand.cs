@@ -61,7 +61,6 @@ namespace PlayGround.Application.Agent.Commands
                 return Result<AgentViewRequestResponse>.Error(ErrorCode.InvalidInput, "guardianUserId/requestId required");
             }
 
-            // 액션은 enum 화이트리스트 (이름 형태만 — 숫자 문자열 거부)
             if (string.IsNullOrWhiteSpace(request.Action)
                 || char.IsAsciiDigit(request.Action[0])
                 || !Enum.TryParse(request.Action, out SoccerAgentReviewAction action))

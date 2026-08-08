@@ -52,15 +52,12 @@
     [Parameter]
     public List<MyApplicationDto> Applications { get; set; } = new();
 
-    /// <summary>수락 미확인 → 로스터 편입(초대 확인).</summary>
     [Parameter]
     public EventCallback<MyApplicationDto> OnConfirm { get; set; }
 
-    /// <summary>대기 상태 지원 취소.</summary>
     [Parameter]
     public EventCallback<MyApplicationDto> OnCancel { get; set; }
 
-    /// <summary>처리 중 이중 클릭 잠금.</summary>
     [Parameter]
     public bool Busy { get; set; }
 

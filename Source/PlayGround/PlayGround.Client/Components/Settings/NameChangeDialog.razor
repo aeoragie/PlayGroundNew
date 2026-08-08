@@ -55,11 +55,9 @@
     [Parameter]
     public EventCallback<bool> IsOpenChanged { get; set; }
 
-    /// <summary>현재 이름 — 열릴 때 프리필.</summary>
     [Parameter]
     public string CurrentName { get; set; } = string.Empty;
 
-    /// <summary>변경 성공 후 — 부모가 설정을 다시 불러온다(남은 횟수 갱신).</summary>
     [Parameter]
     public EventCallback OnSaved { get; set; }
 

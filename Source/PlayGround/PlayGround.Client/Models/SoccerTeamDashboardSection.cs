@@ -14,13 +14,11 @@ namespace PlayGround.Client.Models
 
     public static class SoccerTeamDashboardSectionExtensions
     {
-        /// <summary>라우트 슬러그로 변환 (예: Results → "results").</summary>
         public static string ToSlug(this SoccerTeamDashboardSection section)
         {
             return section.ToString().ToLowerInvariant();
         }
 
-        /// <summary>라우트 슬러그를 섹션으로 해석. 미지정·미지원 슬러그는 Info.</summary>
         public static SoccerTeamDashboardSection ParseSlug(string? slug)
         {
             // Enum.TryParse는 숫자 문자열("3")도 통과시키므로 이름 형태만 허용한다.

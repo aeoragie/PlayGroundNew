@@ -6,7 +6,6 @@ using PlayGround.Server.Actors;
 
 namespace PlayGround.Server.Controllers.Soccer
 {
-    /// <summary>축구 랜딩(공개) 콘텐츠. 인증 불필요.</summary>
     [ApiController]
     [Route("api/soccer/landing")]
     public class SoccerLandingController : ControllerBase

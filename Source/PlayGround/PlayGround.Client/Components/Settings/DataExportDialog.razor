@@ -69,7 +69,6 @@
     [Parameter]
     public EventCallback<bool> IsOpenChanged { get; set; }
 
-    /// <summary>요청 접수 후 — 부모가 상태 행을 다시 불러온다(폴링 시작).</summary>
     [Parameter]
     public EventCallback OnRequested { get; set; }
 
@@ -86,7 +85,6 @@
             return;
         }
 
-        // 닫힐 때 초기화 (다음 열림 대비)
         mIncludeProfile = true;
         mIncludeRecords = true;
         mIncludeRequests = true;

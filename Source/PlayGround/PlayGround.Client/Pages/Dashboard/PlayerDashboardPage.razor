@@ -167,7 +167,6 @@
 
     private ManagedPlayersResponse? mChildren;
 
-    /// <summary>전환 컨트롤은 자녀가 2명 이상일 때만 의미가 있다.</summary>
     private List<ManagedPlayerDto> ChildList => mChildren?.Players ?? new List<ManagedPlayerDto>();
 
     /// <summary>화면이 보고 있는 자녀. 잘못된 playerId가 오면 첫 자녀로 떨어진다.</summary>
@@ -206,7 +205,6 @@
     /// <summary>현재 섹션까지 포함한 경로 — 로그인 왕복 후 같은 자리로 돌아오기 위해.</summary>
     private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
 
-    // "U15 · FW · #9 · 팀명" — 있는 항목만 조합
     private string SidebarSummary => BuildSummary(includeTeam: true);
     private string MobileSummary => BuildSummary(includeTeam: false);
 
@@ -226,7 +224,6 @@
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
-            // 딥링크 진입 — 로그인 후 이 자리로 돌아온다
             Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
             return;
         }
@@ -438,7 +435,6 @@
 
     private async Task DeletePortfolioAsync(PlayerPortfolioVideoDto clip)
     {
-        // 대표 영상을 지우면 다른 영상이 대표로 올라온다 — 미리 알려 준다
         string description = clip.IsPrimary
             ? AppText.Player.PrimaryVideoGone
             : AppText.Player.GonePublicProfile;

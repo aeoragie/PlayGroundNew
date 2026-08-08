@@ -115,14 +115,12 @@
     [Parameter]
     public EventCallback<bool> IsOpenChanged { get; set; }
 
-    /// <summary>신청 대상 경기 — 현재 기록을 여기서 읽어 자동 표시한다.</summary>
     [Parameter]
     public TeamMatchDto? Match { get; set; }
 
     [Parameter]
     public string TeamName { get; set; } = AppText.Dashboard.TeamNameFallback;
 
-    /// <summary>신청 성공 후 상위가 목록을 다시 읽는다.</summary>
     [Parameter]
     public EventCallback OnSubmitted { get; set; }
 
@@ -137,7 +135,6 @@
     private bool mShowErrors;
     private bool mLoaded;
 
-    // 열 때 한 번만 현재 스코어로 채운다 (고칠 자리를 미리 보여 준다)
     protected override void OnParametersSet()
     {
         if (!IsOpen)
@@ -169,7 +166,6 @@
         }
     }
 
-    /// <summary>항목에 따라 "현재 기록"에 보여줄 값이 달라진다.</summary>
     private string CurrentValueText => mField switch
     {
         SoccerCorrectionField.Score => $"{Match?.TeamScore} : {Match?.OpponentScore}",
@@ -204,7 +200,6 @@
         ? AppText.Dashboard.ErrorScoreRequired2
         : AppText.Dashboard.ErrorRecordRequired;
 
-    /// <summary>서버로 보낼 최종 값 — 스코어는 두 칸을 합쳐 "3:2" 형태로.</summary>
     private string RequestedValue => mField == SoccerCorrectionField.Score
         ? (mTeamScore.Length > 0 && mOpponentScore.Length > 0 ? $"{mTeamScore}:{mOpponentScore}" : string.Empty)
         : mRequestedValue.Trim();

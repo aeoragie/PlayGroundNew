@@ -160,7 +160,6 @@
 
         mData = await Records.GetTournamentsAsync(mSeasonYear);
 
-        // 내 연령은 자동 펼침, 비로그인·연령 없음은 첫 연령 펼침
         string? openFirst = mMyAge ?? VisibleAges.FirstOrDefault();
         if (openFirst is not null)
         {
@@ -168,7 +167,6 @@
         }
     }
 
-    // 세그먼트: 대회 = Cup+Split, 리그 = League
     private List<RecordsTournamentDto> SegmentItems =>
         (mData?.Tournaments ?? new List<RecordsTournamentDto>())
         .Where(t => mIsLeagueSegment == (t.Format == nameof(SoccerTournamentFormat.League)))
@@ -199,7 +197,6 @@
             .ToList();
     }
 
-    // 리그 세그먼트는 지역 그룹 헤더로 묶는다 (대회 세그먼트는 헤더 없음)
     private List<(string? Label, List<RecordsTournamentDto> Items)> SectionsOf(List<RecordsTournamentDto> items)
     {
         if (!mIsLeagueSegment)

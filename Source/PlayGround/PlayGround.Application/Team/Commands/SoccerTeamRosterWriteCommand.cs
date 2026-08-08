@@ -61,7 +61,6 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "field too long");
             }
 
-            // 등번호는 숫자만 — 화면도 numeric inputmode로 받는다
             if (request.JerseyNumber is not null && !request.JerseyNumber.All(char.IsAsciiDigit))
             {
                 return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "jersey must be numeric");

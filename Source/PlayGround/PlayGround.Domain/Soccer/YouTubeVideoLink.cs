@@ -9,7 +9,6 @@ namespace PlayGround.Domain.Soccer
     /// </summary>
     public static class YouTubeVideoLink
     {
-        /// <summary>유튜브 영상 ID 길이 — 11자 고정.</summary>
         private const int VideoIdLength = 11;
 
         private static readonly string[] AllowedHosts =
@@ -27,7 +26,6 @@ namespace PlayGround.Domain.Soccer
 
             string trimmed = url.Trim();
 
-            // 스킴 없이 붙여넣는 경우가 많다 (youtu.be/xxxx)
             if (!trimmed.Contains("://", StringComparison.Ordinal))
             {
                 trimmed = "https://" + trimmed;
@@ -51,13 +49,11 @@ namespace PlayGround.Domain.Soccer
             string[] segments = uri.AbsolutePath
                 .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-            // youtu.be/{id}
             if (uri.Host.EndsWith("youtu.be", StringComparison.OrdinalIgnoreCase))
             {
                 return segments.Length > 0 ? Validate(segments[0]) : null;
             }
 
-            // youtube.com/watch?v={id}
             if (segments.Length > 0 && segments[0].Equals("watch", StringComparison.OrdinalIgnoreCase))
             {
                 return Validate(ReadQueryValue(uri.Query, "v"));
@@ -75,7 +71,6 @@ namespace PlayGround.Domain.Soccer
             return null;
         }
 
-        /// <summary>링크가 유튜브 영상으로 해석되는지.</summary>
         public static bool IsValid(string? url) => ParseVideoId(url) is not null;
 
         /// <summary>저장용 표준 링크 — 입력 형태가 무엇이든 watch 형식 하나로 모은다.</summary>

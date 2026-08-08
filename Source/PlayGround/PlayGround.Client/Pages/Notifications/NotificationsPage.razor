@@ -131,7 +131,6 @@
 
     private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
 
-    // 세그먼트 라벨 — 이름 + 카운트(있을 때만). 하나의 식으로 조립한다
     // (한글 뒤에 @를 바로 붙이면 Razor가 이메일 리터럴로 오인해 그대로 출력한다 — 실제로 겪음).
     private static string SegmentLabel(string name, int count) => count > 0 ? $"{name} {count}" : name;
 
@@ -140,7 +139,6 @@
         AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
         if (state.User.Identity is not { IsAuthenticated: true })
         {
-            // 비로그인 딥링크 → 로그인 후 이 자리로 (returnUrl 보존)
             Nav.NavigateTo(Routes.LoginWithReturn(Routes.Notifications), replace: true);
             return;
         }

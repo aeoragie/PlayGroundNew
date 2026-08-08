@@ -49,7 +49,6 @@ namespace Generator.Database.Services
         {
             var content = File.ReadAllText(filePath);
 
-            // CREATE PROCEDURE [schema].[name] 패턴 매칭
             var procPattern = @"CREATE\s+PROCEDURE\s+\[?(\w+)\]?\.\[?(\w+)\]?";
             var procMatch = Regex.Match(content, procPattern, RegexOptions.IgnoreCase);
 
@@ -61,7 +60,6 @@ namespace Generator.Database.Services
             var schema = procMatch.Groups[1].Value;
             var procedureName = procMatch.Groups[2].Value;
 
-            // dbo가 아닌 스키마는 생성 제외
             if (!string.Equals(schema, "dbo", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine($"Skipped (nested schema [{schema}]): {Path.GetFileName(filePath)}");
@@ -154,7 +152,6 @@ namespace Generator.Database.Services
 
         private ParameterSchema? ParseParameterDefinition(string line)
         {
-            // @ParamName TYPE(length) [= DEFAULT][,]
             var paramPattern = @"^@(\w+)\s+(\w+)(?:\(([^\)]+)\))?\s*(?:=\s*(.+?))?\s*,?\s*$";
             var match = Regex.Match(line, paramPattern, RegexOptions.IgnoreCase);
 
@@ -171,7 +168,6 @@ namespace Generator.Database.Services
             var hasDefault = !string.IsNullOrEmpty(defaultPart);
             var isNullable = hasDefault && defaultPart.Equals("NULL", StringComparison.OrdinalIgnoreCase);
 
-            // 길이 파싱
             int? maxLength = null;
             int? precision = null;
             int? scale = null;

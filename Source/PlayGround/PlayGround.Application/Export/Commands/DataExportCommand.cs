@@ -70,7 +70,6 @@ namespace PlayGround.Application.Export.Commands
                 return Result<DataExportRequestResult>.Error(ErrorCode.Unauthorized, "userId/request required");
             }
 
-            // 최소 1개 항목은 포함해야 한다
             if (!request.IncludeProfile && !request.IncludeRecords && !request.IncludeRequests)
             {
                 return Result<DataExportRequestResult>.Error(ErrorCode.InvalidInput, "select at least one item");
@@ -257,7 +256,6 @@ namespace PlayGround.Application.Export.Commands
                     await WriteObjectAsync(zip, "account/profile.json", account, cancellation);
                 }
 
-                // 연결된 자녀분만 (GetManagedPlayers 스코프)
                 Result<ManagedPlayersResponse> children = await mPlayerRepository.GetManagedPlayersAsync(job.UserId, cancellation);
                 var childList = children.IsError ? new List<ManagedPlayerDto>() : children.Value.Players;
 

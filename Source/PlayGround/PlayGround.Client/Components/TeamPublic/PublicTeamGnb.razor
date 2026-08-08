@@ -41,7 +41,6 @@
     [Parameter]
     public string? LogoUrl { get; set; }
 
-    /// <summary>열람자 = 이 팀의 관리자 본인 — "관리" 텍스트 링크 노출.</summary>
     [Parameter]
     public bool IsManager { get; set; }
 
@@ -49,7 +48,6 @@
         "text-[12.5px] md:text-[13.5px] font-bold text-white hover:text-white bg-navy hover:bg-navy-deep " +
         "px-3.5 py-2 md:px-[18px] md:py-[9px] rounded-lg md:rounded-[9px] whitespace-nowrap transition-colors";
 
-    // 팀 홈에서 로그인하러 가면 이 팀 페이지로 돌아온다
     private string LoginHref => Routes.LoginWithReturn("/" + Nav.ToBaseRelativePath(Nav.Uri));
 
     private IJSObjectReference? mModule;

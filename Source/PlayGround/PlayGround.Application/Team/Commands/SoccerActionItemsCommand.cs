@@ -22,7 +22,6 @@ namespace PlayGround.Application.Team.Commands
     /// </summary>
     public class SoccerActionItemsCommand
     {
-        /// <summary>허브는 상위 3건만 보여준다 — 나머지는 각 화면에서 본다.</summary>
         private const int MaxItems = 3;
 
         private readonly ISoccerTeamRepository mRepository;

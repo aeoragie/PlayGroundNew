@@ -23,7 +23,6 @@ namespace PlayGround.Client.Styles
 
             public const string Title = "m-0 text-[15.5px] md:text-base font-extrabold text-navy-deep";
 
-            /// <summary>부제 — 공식 기록은 주최측 몫이라는 원칙 안내(설계 결정 7).</summary>
             public const string Subtitle = "text-[12px] text-text-body leading-[1.6] break-keep";
 
             public const string CloseButton =
@@ -33,7 +32,6 @@ namespace PlayGround.Client.Styles
             public const string Body =
                 "flex-1 overflow-y-auto px-5 md:px-6 py-4 flex flex-col gap-[18px]";
 
-            /// <summary>스코어 2칸 — 가운데 콜론.</summary>
             public const string ScoreRow = "flex items-start gap-2.5";
 
             public const string ScoreColon = "text-lg font-extrabold text-text-muted pt-[34px]";
@@ -56,7 +54,6 @@ namespace PlayGround.Client.Styles
                       "flex items-center gap-1.5 transition-colors";
             }
 
-            /// <summary>같은 선수를 여러 번 누르면 득점 수가 올라간다.</summary>
             public const string ScorerCount =
                 "min-w-[18px] h-[18px] px-1 rounded-full bg-white/25 text-[11px] font-extrabold " +
                 "flex items-center justify-center";

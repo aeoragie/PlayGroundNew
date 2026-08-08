@@ -60,7 +60,6 @@ namespace PlayGround.Infrastructure.Store
                     continue;
                 }
 
-                // 커넥션 문자열이 비어 있는 항목은 "설정 자리만 있고 미구성"이다 —
                 // 파싱 예외로 시끄럽게 실패시키지 않고 건너뛴다 (로컬 개발 기본값).
                 if (string.IsNullOrWhiteSpace(connConfig.ConnectionString))
                 {
@@ -75,7 +74,6 @@ namespace PlayGround.Infrastructure.Store
                     // 기동 시점에 Redis가 죽어 있어도 멀티플렉서를 만들고 **뒤에서 계속 재연결**한다.
                     // 기본값(AbortOnConnectFail=true)이면 여기서 예외가 나고 연결이 등록되지 않아,
                     // Redis가 살아나도 앱을 재시작하기 전까지 영영 붙지 않는다(배포 중 블립 한 번이면 그렇게 된다).
-                    // 연결 문자열에 명시했다면 그 뜻을 존중한다.
                     if (!connConfig.ConnectionString.Contains("abortConnect", StringComparison.OrdinalIgnoreCase))
                     {
                         options.AbortOnConnectFail = false;

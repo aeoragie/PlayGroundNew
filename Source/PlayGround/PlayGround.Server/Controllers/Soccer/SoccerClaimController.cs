@@ -25,7 +25,6 @@ namespace PlayGround.Server.Controllers.Soccer
         private Guid CurrentUserId =>
             Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : Guid.Empty;
 
-        /// <summary>스텝 ①→②: 코드로 선수 카드 조회 (소진 없음).</summary>
         [HttpGet("invite/{code}")]
         public async Task<Envelope<ClaimInviteCardResponse>> LookupAsync(string code, CancellationToken cancellation)
         {
@@ -40,7 +39,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>스텝 ②→③: 연결 요청 생성 (팀 관리자에게 액션형 알림 발송).</summary>
         [HttpPost("me/requests")]
         public async Task<Envelope<ClaimRequestSummaryResponse>> CreateAsync(
             [FromBody] CreateClaimRequestRequest request, CancellationToken cancellation)
@@ -90,7 +88,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>연결 요청 취소 — 본인의 Pending 요청만 (대기 화면 P1).</summary>
         [HttpDelete("me/requests/{requestId:guid}")]
         public async Task<Envelope<bool>> CancelAsync(Guid requestId, CancellationToken cancellation)
         {

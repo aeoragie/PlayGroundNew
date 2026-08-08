@@ -13,7 +13,6 @@ namespace PlayGround.Application.Player.Commands
     /// UserId로 소유 선수를 해석하므로 타인 프로필은 변경할 수 없다. 개수·길이·금지 패턴 검증이 이 계층의 몫이다.</summary>
     public class SoccerPlayerStrengthTagsCommand
     {
-        /// <summary>최대 태그 수 — SPEC.StrengthTags(5개).</summary>
         private const int MaxTags = 5;
 
         /// <summary>태그 한 개 길이 범위 (한글은 1자로 센다 = string.Length).</summary>

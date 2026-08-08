@@ -84,7 +84,6 @@ namespace PlayGround.Persistence.Repositories
                 .ToDictionary(t => t.TeamId, t => t.Slug!);
             string? SlugOf(Guid? teamId) => teamId is not null && slugs.TryGetValue(teamId.Value, out string? slug) ? slug : null;
 
-            // ⑨ 상세 보유 경기 (이벤트/출전 존재) — 행 확장 셰브론 노출 대상
             HashSet<Guid> detailMatchIds = (await reader.ReadAsync<Guid>()).ToHashSet();
 
             var response = new RecordsTournamentDetailResponse

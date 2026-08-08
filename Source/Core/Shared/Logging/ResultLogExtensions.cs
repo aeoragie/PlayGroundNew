@@ -26,7 +26,8 @@ namespace PlayGround.Shared.Logging
         private static void Write(ILogger logger, Results.ResultInfo resultData, bool isSuccess, string operation,
             (string Key, object? Value)[] extra)
         {
-            LogLevel level = ToLogLevel(resultData.DetailCode);
+            // 성공까지 Info로 남기면 조회 한 번에 한 줄씩 쌓인다. 의미 있는 성공은 유즈케이스가 직접 남긴다.
+            LogLevel level = isSuccess ? LogLevel.Debug : ToLogLevel(resultData.DetailCode);
             if (logger is null || !logger.IsEnabled(level))
             {
                 return;
@@ -47,6 +48,7 @@ namespace PlayGround.Shared.Logging
                 case LogLevel.Critical: logger.FatalWith(message, [.. fields]); break;
                 case LogLevel.Error: logger.ErrorWith(message, [.. fields]); break;
                 case LogLevel.Warning: logger.WarnWith(message, [.. fields]); break;
+                case LogLevel.Debug: logger.DebugWith(message, [.. fields]); break;
                 default: logger.InfoWith(message, [.. fields]); break;
             }
         }

@@ -332,7 +332,6 @@ else if (mData is not null)
     // /claim으로 슬러그를 넘겨 스텝 ②(프로필 확인)로 직행 (Design.ClaimFlow — Records 경유 연결)
     private string ClaimHref => $"{Routes.Claim}?slug={Uri.EscapeDataString(Slug)}";
 
-    // 팀 실드 아이콘 (히어로 소속팀 줄)
     private static readonly RenderFragment TeamShieldIcon = builder =>
     {
         builder.AddMarkupContent(0,
@@ -349,7 +348,6 @@ else if (mData is not null)
         mLoaded = true;
     }
 
-    // "FW · 등번호 9 · 2012년생 · U15" — 있는 항목만 조합
     private string? MetaLine
     {
         get
@@ -381,7 +379,6 @@ else if (mData is not null)
 
     //.// 권한 뷰 헬퍼
 
-    // 만료까지 남은 일수 (올림 — 승인 직후 30일). 최소 0
     private static int RemainingDays(PlayerPublicGrantDto grant)
     {
         double days = (grant.ExpiresAt - SystemTime.Now).TotalDays;
@@ -403,7 +400,6 @@ else if (mData is not null)
         _ => "text-teal-ink bg-teal/[.12]",
     };
 
-    // "vs 강동 SC (3:1 승)" — 시즌 통계 섹션과 같은 조립 규칙
     private static string MatchTitle(PlayerMatchStatDto match)
     {
         string outcome = match.TeamScore > match.OpponentScore ? AppText.Player.Win
@@ -411,7 +407,6 @@ else if (mData is not null)
         return $"vs {match.OpponentName} ({match.TeamScore}:{match.OpponentScore} {outcome})";
     }
 
-    // "2골 1도움" / "기록 없음"
     private static string StatLabel(PlayerMatchStatDto match)
     {
         List<string> parts = new();

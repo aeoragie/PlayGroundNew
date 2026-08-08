@@ -7,7 +7,6 @@ using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Records.Commands
 {
-    /// <summary>대회 상세 묶음 조회 유즈케이스 (Records 상세, 공개).</summary>
     public class SoccerRecordsTournamentDetailCommand
     {
         private readonly ISoccerRecordsRepository mRepository;

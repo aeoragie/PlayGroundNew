@@ -12,13 +12,11 @@ namespace PlayGround.Client.Models
 
     public static class SettingsSectionExtensions
     {
-        /// <summary>라우트 슬러그로 변환 (예: Roles → "roles").</summary>
         public static string ToSlug(this SettingsSection section)
         {
             return section.ToString().ToLowerInvariant();
         }
 
-        /// <summary>메뉴·탭 라벨 (Design.Settings 카피 고정).</summary>
         public static string ToLabel(this SettingsSection section)
         {
             return section switch
@@ -29,7 +27,6 @@ namespace PlayGround.Client.Models
             };
         }
 
-        /// <summary>라우트 슬러그를 섹션으로 해석. 미지정·미지원 슬러그는 Account.</summary>
         public static SettingsSection ParseSlug(string? slug)
         {
             // Enum.TryParse는 숫자 문자열("1")도 통과시키므로 이름 형태만 허용한다.

@@ -8,7 +8,6 @@ namespace PlayGround.Client.Models
     /// Domain 쪽에는 파싱·판정 같은 규칙만 남긴다. 근거는 Docs/Architecture/Localization.md §7.</summary>
     public static class SoccerDomainEnumLabels
     {
-        /// <summary>기록 수정 신청 항목 라벨 (B6 폼 4항목).</summary>
         public static string ToLabel(this SoccerCorrectionField field) => field switch
         {
             SoccerCorrectionField.Score => AppText.Enums.CorrectionFieldScore,
@@ -24,7 +23,6 @@ namespace PlayGround.Client.Models
             return field.ToLabel();
         }
 
-        /// <summary>진학·진로 타임라인 유형 태그 라벨.</summary>
         public static string ToTagLabel(this SoccerCareerOutcomeType type) => type switch
         {
             SoccerCareerOutcomeType.ProTransfer => AppText.Enums.CareerOutcomeTagProTransfer,
@@ -32,7 +30,6 @@ namespace PlayGround.Client.Models
             _ => AppText.Enums.CareerOutcomeTagPromotion,
         };
 
-        /// <summary>진학·진로 요약 카드 라벨 (모바일 축약은 화면 분기).</summary>
         public static string ToSummaryLabel(this SoccerCareerOutcomeType type) => type switch
         {
             SoccerCareerOutcomeType.ProTransfer => AppText.Enums.CareerOutcomeSummaryProTransfer,

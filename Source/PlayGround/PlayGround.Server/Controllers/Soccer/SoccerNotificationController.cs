@@ -8,7 +8,6 @@ using PlayGround.Server.Actors;
 
 namespace PlayGround.Server.Controllers.Soccer
 {
-    /// <summary>알림 센터 — 벨 카운트·목록(GET 하나로 공유)·읽음 처리.</summary>
     [ApiController]
     [Route("api/soccer/notifications")]
     [Authorize]
@@ -55,7 +54,6 @@ namespace PlayGround.Server.Controllers.Soccer
             return result.ToEnvelope();
         }
 
-        /// <summary>여러 건 읽음 처리 — 페이지 진입 시 화면에 보인 알림을 한 번에.</summary>
         [HttpPut("me/read")]
         public async Task<Envelope<int>> MarkReadBulkAsync([FromBody] MarkNotificationsReadRequest request, CancellationToken cancellation)
         {

@@ -60,7 +60,6 @@ try
 }
 catch (JSException)
 {
-    // JS 불가 환경 — 기본 문화권 유지
 }
 
 await localizer.LoadAsync(startupCulture);

@@ -12,7 +12,6 @@ namespace PlayGround.Client.Styles
         {
             //.// 결과 행
 
-            /// <summary>친선 행 = 점선 보더 + 옅은 배경. 공식 행은 기존 실선 그대로다.</summary>
             public static string Row(bool isFriendly, string baseClass)
             {
                 return isFriendly

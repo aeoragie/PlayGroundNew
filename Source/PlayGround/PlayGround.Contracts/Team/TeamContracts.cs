@@ -12,7 +12,6 @@ namespace PlayGround.Contracts.Team
         public List<RosterEntryDto> Roster { get; set; } = new();
     }
 
-    /// <summary>로스터 한 명 (팀 소속 속성).</summary>
     public class RosterEntryDto
     {
         public string Name { get; set; } = string.Empty;
@@ -20,7 +19,6 @@ namespace PlayGround.Contracts.Team
         public string? Number { get; set; }
     }
 
-    /// <summary>생성된 팀 요약. 완료 화면의 공개 URL·카운트 표시용.</summary>
     public class CreateTeamResponse
     {
         public string Slug { get; set; } = string.Empty;
@@ -39,7 +37,6 @@ namespace PlayGround.Contracts.Team
         public List<TeamChannelDto> Channels { get; set; } = new();
     }
 
-    /// <summary>팀 기본 정보 (기본 카드 + 사이드바 요약).</summary>
     public class TeamProfileDto
     {
         public Guid TeamId { get; set; }
@@ -48,10 +45,8 @@ namespace PlayGround.Contracts.Team
         public string? Region { get; set; }
         public string? LogoUrl { get; set; }
 
-        /// <summary>공개홈 히어로 커버 — 수정 폼 프리필에 쓰인다.</summary>
         public string? CoverImageUrl { get; set; }
 
-        /// <summary>팀 소개 — 공개홈 소개 탭과 같은 값.</summary>
         public string? Description { get; set; }
         public string? Slug { get; set; }
         public bool IsVerified { get; set; }
@@ -61,7 +56,6 @@ namespace PlayGround.Contracts.Team
         public string? TrainingDays { get; set; } // '화목금토'
     }
 
-    /// <summary>핵심가치 한 항목.</summary>
     public class TeamValueDto
     {
         public Guid TeamValueId { get; set; }
@@ -69,7 +63,6 @@ namespace PlayGround.Contracts.Team
         public string Description { get; set; } = string.Empty;
     }
 
-    /// <summary>코칭스태프 한 명.</summary>
     public class TeamCoachDto
     {
         public Guid CoachId { get; set; }
@@ -83,7 +76,6 @@ namespace PlayGround.Contracts.Team
         public string? YoutubeUrl { get; set; }
     }
 
-    /// <summary>선수단(로스터) 묶음 (대시보드 선수단 섹션).</summary>
     public class TeamRosterResponse
     {
         public List<TeamRosterPlayerDto> Players { get; set; } = new();
@@ -100,7 +92,6 @@ namespace PlayGround.Contracts.Team
         public string? AgeGroup { get; set; }    // 'U12' | 'U15' | 'U18'
     }
 
-    /// <summary>로스터 한 명 (팀 소속 속성 + 선수 프로필 요약).</summary>
     public class TeamRosterPlayerDto
     {
         public Guid TeamPlayerId { get; set; }
@@ -122,7 +113,6 @@ namespace PlayGround.Contracts.Team
         public List<string> StrengthTags { get; set; } = new();
     }
 
-    /// <summary>모집 공고 목록 — 공개 홈 모집 탭·팀 대시보드 모집 섹션 공용.</summary>
     public class TeamRecruitmentsResponse
     {
         public List<TeamRecruitmentDto> Items { get; set; } = new();
@@ -162,10 +152,9 @@ namespace PlayGround.Contracts.Team
         public string Description { get; set; } = string.Empty;
         public List<string> Conditions { get; set; } = new();
         /// <summary>마감 순간(UTC). 클라이언트가 픽커 날짜를 "그 날의 끝"으로 변환해 보낸다 —
-        /// 서버는 시간대를 모르고 `[DeadlineAt] > GETUTCDATE()`로만 판정한다.</summary>
+        /// 서버는 시간대를 모르고 `[DeadlineAt] > dbo.UfnSystemDate()`로만 판정한다.</summary>
         public SystemTime? DeadlineAt { get; set; }
 
-        /// <summary>모집 연령대 'U12'|'U15'|'U18' (선택).</summary>
         public string? AgeGroup { get; set; }
 
         /// <summary>모집 포지션 목록 (선택) — 리포지토리가 JSON 배열로 직렬화해 저장한다.</summary>
@@ -178,7 +167,6 @@ namespace PlayGround.Contracts.Team
     //.// 선수 지원(Application) — 모집 공고 지원·검토 (Design.Application, E5)
     // PlayGround는 생성·조회·상태 전환·취소만 한다. 수락(Accepted)→로스터 편입·알림은 별도 단계.
 
-    /// <summary>팀 대시보드 지원자 한 건 (관리자 뷰).</summary>
     public class ApplicationDto
     {
         public Guid ApplicationId { get; set; }
@@ -192,7 +180,6 @@ namespace PlayGround.Contracts.Team
         public string? PlayerPosition { get; set; }
         public string? PlayerPhotoUrl { get; set; }
 
-        /// <summary>희망 포지션 — 지원 시 선택.</summary>
         public string? DesiredPosition { get; set; }
         public string? Introduction { get; set; }
 
@@ -207,13 +194,11 @@ namespace PlayGround.Contracts.Team
         public SystemTime CreatedAt { get; set; }
     }
 
-    /// <summary>팀 대시보드 지원자 목록 (관리자 소유 팀 공고의 지원 전부).</summary>
     public class TeamApplicationsResponse
     {
         public List<ApplicationDto> Applications { get; set; } = new();
     }
 
-    /// <summary>보호자 지원 현황 한 건 (내가 올린 지원).</summary>
     public class MyApplicationDto
     {
         public Guid ApplicationId { get; set; }
@@ -238,7 +223,6 @@ namespace PlayGround.Contracts.Team
         public SystemTime CreatedAt { get; set; }
     }
 
-    /// <summary>보호자 지원 현황 묶음.</summary>
     public class MyApplicationsResponse
     {
         public List<MyApplicationDto> Applications { get; set; } = new();
@@ -262,7 +246,6 @@ namespace PlayGround.Contracts.Team
     //.// 팀 게시판 (Team Board, Design.TeamBoard)
     // 관리자·코치가 공지·자료를 올리고 로스터 보호자가 열람, 글 단위로 공개홈(소개 탭 "팀 소식") 노출을 선택.
 
-    /// <summary>팀 대시보드 게시판 목록 (관리자 뷰).</summary>
     public class TeamPostsResponse
     {
         public List<TeamPostDto> Posts { get; set; } = new();
@@ -287,10 +270,8 @@ namespace PlayGround.Contracts.Team
         public bool IsPinned { get; set; }
         public bool IsPublic { get; set; }
 
-        /// <summary>작성자 표시명 스냅샷 — 발행 시점 이름.</summary>
         public string? AuthorName { get; set; }
 
-        /// <summary>수정 시각 — 값이 있으면 "수정됨" 표기.</summary>
         public SystemTime? EditedAt { get; set; }
         public SystemTime CreatedAt { get; set; }
 
@@ -343,7 +324,6 @@ namespace PlayGround.Contracts.Team
         public List<TeamNewsDto> Items { get; set; } = new();
     }
 
-    /// <summary>공개 소식 한 건 — 관리 정보(유형·작성자 등) 미노출.</summary>
     public class TeamNewsDto
     {
         public Guid PostId { get; set; }
@@ -365,7 +345,6 @@ namespace PlayGround.Contracts.Team
 
     //.// 팀 일정 (Schedule)
 
-    /// <summary>일정 목록 — 공개 홈 일정 탭·팀 대시보드 일정 섹션 공용.</summary>
     public class SchedulesResponse
     {
         public List<ScheduleDto> Schedules { get; set; } = new();
@@ -414,7 +393,6 @@ namespace PlayGround.Contracts.Team
         public List<TeamCareerOutcomeDto> Items { get; set; } = new();
     }
 
-    /// <summary>진학·진로 사례 한 건.</summary>
     public class TeamCareerOutcomeDto
     {
         public Guid OutcomeId { get; set; }
@@ -450,7 +428,6 @@ namespace PlayGround.Contracts.Team
     {
         public List<TeamReviewDto> Items { get; set; } = new();
 
-        /// <summary>뷰어가 이 팀 재원 자녀의 보호자인가 — 리뷰 쓰기 버튼 노출 판정.</summary>
         public bool IsResidentGuardian { get; set; }
 
         /// <summary>뷰어가 이미 쓴 리뷰 — 있으면 쓰기 대신 수정·삭제(⋯)로 진입.</summary>
@@ -478,13 +455,11 @@ namespace PlayGround.Contracts.Team
         public string Body { get; set; } = string.Empty;
     }
 
-    /// <summary>팀 탐색 공개 목록 (비로그인). 필터·정렬·페이징은 클라이언트 담당.</summary>
     public class TeamExploreResponse
     {
         public List<TeamExploreItemDto> Teams { get; set; } = new();
     }
 
-    /// <summary>팀 탐색 카드 한 장 — 공개 정보만.</summary>
     public class TeamExploreItemDto
     {
         public string TeamName { get; set; } = string.Empty;
@@ -497,7 +472,6 @@ namespace PlayGround.Contracts.Team
         public bool IsVerified { get; set; }
         public bool IsRecruiting { get; set; }
 
-        /// <summary>핵심가치 제목 — 카드 teal 칩용 상위 2개.</summary>
         public List<string> Values { get; set; } = new();
         public int PlayerCount { get; set; }
 
@@ -598,13 +572,11 @@ namespace PlayGround.Contracts.Team
         public string? AssistPlayerName { get; set; }
     }
 
-    /// <summary>팀 경기영상 목록 (팀 대시보드 경기영상 섹션).</summary>
     public class TeamVideosResponse
     {
         public List<TeamVideoDto> Videos { get; set; } = new();
     }
 
-    /// <summary>경기영상 한 건. 길이 표시("4:12")는 클라이언트 포맷.</summary>
     public class TeamVideoDto
     {
         public Guid VideoId { get; set; }
@@ -627,7 +599,6 @@ namespace PlayGround.Contracts.Team
         /// <summary>해당 시즌 리그 순위 (League 스테이지의 우리 팀 행). 리그 미참여면 null — 카드 숨김.</summary>
         public int? LeagueRank { get; set; }
 
-        /// <summary>최근 종료 경기 (최신순, 최대 8) — 팀 관점 변환 완료.</summary>
         public List<TeamMatchDto> Matches { get; set; } = new();
         public List<TeamVideoDto> Videos { get; set; } = new();
     }
@@ -642,13 +613,11 @@ namespace PlayGround.Contracts.Team
     {
         public string OpponentName { get; set; } = string.Empty;
 
-        /// <summary>true = 우리 팀이 홈.</summary>
         public bool IsHome { get; set; } = true;
 
         public int OurScore { get; set; }
         public int OpponentScore { get; set; }
 
-        /// <summary>경기 일시 (날짜 + 시각).</summary>
         public SystemTime MatchedAt { get; set; }
 
         public string? VenueName { get; set; }
@@ -704,19 +673,16 @@ namespace PlayGround.Contracts.Team
         public string? Certification { get; set; }
         public string? Quote { get; set; }
 
-        /// <summary>실적 칩 — DB에는 JSON 배열 문자열로 저장된다.</summary>
         public List<string> Achievements { get; set; } = new();
         public string? InstagramUrl { get; set; }
         public string? YoutubeUrl { get; set; }
     }
 
-    /// <summary>저장 후 공개홈으로 바로 이동할 수 있도록 슬러그를 돌려준다.</summary>
     public class UpdateTeamInfoResponse
     {
         public string? Slug { get; set; }
     }
 
-    /// <summary>결과 입력 폼의 대회/리그 선택지.</summary>
     public class TeamTournamentOptionDto
     {
         public Guid TournamentId { get; set; }
@@ -753,11 +719,9 @@ namespace PlayGround.Contracts.Team
 
         public ActionItemsResponse Actions { get; set; } = new();
 
-        /// <summary>팀 + 자녀. 이 수로 허브를 보여줄지 건너뛸지 정한다.</summary>
         public int ManagedCount => Teams.Count + Children.Count;
     }
 
-    /// <summary>허브의 팀 카드.</summary>
     public class HubTeamDto
     {
         public Guid TeamId { get; set; }
@@ -819,14 +783,11 @@ namespace PlayGround.Contracts.Team
     /// **알림 테이블이 아니라 현재 상태에서 파생한다** — 읽음 상태가 없고, 처리하면 사라진다.</summary>
     public class ActionItemsResponse
     {
-        /// <summary>잘라내기 전 전체 건수 — 벨 카운트가 "상위 3건"이 되면 안 된다.</summary>
         public int TotalCount { get; set; }
 
-        /// <summary>허브에 보여줄 상위 항목(최대 3건).</summary>
         public List<ActionItemDto> Items { get; set; } = new();
     }
 
-    /// <summary>액션 항목 한 건. 항목 전체가 딥링크라 이동 대상 Id를 함께 준다.</summary>
     public class ActionItemDto
     {
         /// <summary>SoccerActionKind 멤버 이름 ('Invite' | 'Correction') — 유형 칩 색을 정한다.</summary>
@@ -839,7 +800,6 @@ namespace PlayGround.Contracts.Team
         public Guid? TeamId { get; set; }
         public Guid? MatchId { get; set; }
 
-        /// <summary>정렬 기준 (초대 발급일 / 심사일).</summary>
         public SystemTime OccurredAt { get; set; }
     }
 
@@ -858,7 +818,6 @@ namespace PlayGround.Contracts.Team
         public string TeamName { get; set; } = string.Empty;
         public Guid? PlayerId { get; set; }
 
-        /// <summary>초대 대상 선수 이름 — 로스터에서 만든 미연결 프로필.</summary>
         public string? PlayerName { get; set; }
         public SystemTime CreatedAt { get; set; }
     }
@@ -874,7 +833,6 @@ namespace PlayGround.Contracts.Team
         /// <summary>SoccerCorrectionField 멤버 이름 ('Score' | 'GoalAssist' | 'Appearance' | 'Other').</summary>
         public string FieldType { get; set; } = string.Empty;
 
-        /// <summary>신청 시점의 기록 — 심사 시 대조용. 화면이 자동으로 채운다.</summary>
         public string? CurrentValue { get; set; }
 
         public string RequestedValue { get; set; } = string.Empty;
@@ -908,7 +866,6 @@ namespace PlayGround.Contracts.Team
         public SystemTime RequestedAt { get; set; }
         public SystemTime? ReviewedAt { get; set; }
 
-        /// <summary>경기 맥락 — "리그 12R · vs 강북 드래곤즈" 조립용.</summary>
         public string? TournamentName { get; set; }
         public string OpponentName { get; set; } = string.Empty;
         public SystemTime? MatchedAt { get; set; }

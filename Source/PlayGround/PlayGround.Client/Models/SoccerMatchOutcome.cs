@@ -2,7 +2,6 @@ using PlayGround.Client.Localization;
 
 namespace PlayGround.Client.Models
 {
-    /// <summary>경기 결과 (승·무·패).</summary>
     public enum SoccerMatchOutcome
     {
         Win,

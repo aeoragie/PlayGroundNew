@@ -127,7 +127,6 @@ namespace PlayGround.Server.Services
                 return;
             }
 
-            // 이니셜 실드 (엠블럼 없음)
             using var fill = new SKPaint { Color = new SKColor(0x2E, 0x44, 0x7E), IsAntialias = true };
             canvas.DrawRoundRect(new SKRoundRect(box, 26, 26), fill);
             string initial = string.IsNullOrEmpty(teamName) ? "P" : teamName[..1];

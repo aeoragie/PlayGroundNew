@@ -201,7 +201,6 @@ namespace PlayGround.Persistence.Repositories
                 Grade = NullIfEmpty(row.Grade),
                 AgeGroup = NullIfEmpty(row.AgeGroup),
                 PhotoUrl = NullIfEmpty(row.PhotoUrl),
-                // 새 선수는 항상 Unclaimed + Pending 초대코드
                 ClaimStatus = row.UserId is null ? "Unclaimed" : "Claimed",
                 InviteCode = row.UserId is null ? NullIfEmpty(row.Code) : null
             };
@@ -265,7 +264,6 @@ namespace PlayGround.Persistence.Repositories
                     Slug = NullIfEmpty(team.Slug),
                     IsVerified = team.IsVerified,
                     FoundedYear = team.FoundedYear,
-                    // 공개/비공개 규칙 — 회비는 공개 설정일 때만 노출
                     MonthlyFee = team.IsMonthlyFeePublic ? team.MonthlyFee : null,
                     TrainingDays = NullIfEmpty(team.TrainingDays)
                 },
@@ -389,7 +387,6 @@ namespace PlayGround.Persistence.Repositories
             return sample.HomeTeamId == teamId ? sample.HomeTeamName : sample.AwayTeamName;
         }
 
-        // 경기 한 건을 우리 팀 관점으로 변환 (이벤트 목록이 비면 칩 없음)
         private static TeamMatchDto MapMatch(SoccerTeamMatchRecord match, Guid? teamId, List<SoccerMatchEventsEntity> events)
         {
             bool isHome = match.HomeTeamId == teamId;
@@ -561,7 +558,6 @@ namespace PlayGround.Persistence.Repositories
             var row = queryResult.Values1.FirstOrDefault();
             if (row is null)
             {
-                // 팀 없음·없는 대회 — 프로시저가 빈 결과셋으로 알린다
                 return Result<Guid?>.Success(null);
             }
 
@@ -684,7 +680,6 @@ namespace PlayGround.Persistence.Repositories
                         RequestedAt = c.CreatedAt,
                         ReviewedAt = c.ReviewedAt,
                         TournamentName = NullIfEmpty(c.Name),
-                        // 신청자 관점의 상대 — 우리가 홈이면 원정팀이 상대다
                         OpponentName = c.HomeTeamId == c.TeamId ? c.AwayTeamName : c.HomeTeamName,
                         MatchedAt = c.MatchedAt
                     })
@@ -894,7 +889,7 @@ namespace PlayGround.Persistence.Repositories
                 Description = request.Description,
                 ConditionsJson = request.Conditions.Count > 0 ? JsonSerializer.Serialize(request.Conditions) : null,
                 // 마감 순간은 클라이언트가 "그 날의 끝"으로 이미 변환해 보낸다 — 서버는 그대로 저장하고
-                // 프로시저가 [DeadlineAt] > GETUTCDATE() 하나로 판정한다(SQL에 시간대가 안 들어간다).
+                // 프로시저가 [DeadlineAt] > dbo.UfnSystemDate() 하나로 판정한다(SQL에 시간대가 안 들어간다).
                 DeadlineAt = request.DeadlineAt,
                 AgeGroup = request.AgeGroup,
                 PositionsJson = request.Positions.Count > 0 ? JsonSerializer.Serialize(request.Positions) : null,

@@ -61,7 +61,6 @@ namespace PlayGround.Client.Localization
                 return last is '0' or '1' or '3' or '6' or '7' or '8';
             }
 
-            // 영문 — 알파벳 이름 발음: L(엘)·M(엠)·N(엔)·R(알)만 받침
             char upper = char.ToUpperInvariant(last);
             if (upper is >= 'A' and <= 'Z')
             {
@@ -71,7 +70,6 @@ namespace PlayGround.Client.Localization
             return false; // 기호·기타 — 받침 없음으로 처리
         }
 
-        /// <summary>ㄹ 받침을 제외한 종성 유무 — '으로/로' 판정 전용.</summary>
         private static bool HasFinalConsonantExceptRieul(string value)
         {
             if (!HasFinalConsonant(value))

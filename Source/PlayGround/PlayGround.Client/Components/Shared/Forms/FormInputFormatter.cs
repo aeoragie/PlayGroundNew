@@ -17,7 +17,6 @@ namespace PlayGround.Client.Components.Shared.Forms
 
     public static class FormInputFormatter
     {
-        /// <summary>입력값을 형식에 맞게 정리. None이면 원본 그대로.</summary>
         public static string Apply(string? value, FormInputFormat format)
         {
             if (string.IsNullOrEmpty(value) || format == FormInputFormat.None)
@@ -35,7 +34,6 @@ namespace PlayGround.Client.Components.Shared.Forms
             };
         }
 
-        /// <summary>HTML inputmode 속성값 — 모바일 숫자 키패드 유도.</summary>
         public static string? InputModeOf(FormInputFormat format) => format switch
         {
             FormInputFormat.BirthDate => "numeric",
@@ -44,7 +42,6 @@ namespace PlayGround.Client.Components.Shared.Forms
             _ => null,
         };
 
-        // 2024. 03 — 6자리까지만 (연 4 + 월 2)
         private static string FormatYearMonth(string digits)
         {
             if (digits.Length > 6)
@@ -55,7 +52,6 @@ namespace PlayGround.Client.Components.Shared.Forms
             return digits.Length <= 4 ? digits : $"{digits[..4]}. {digits[4..]}";
         }
 
-        // 2011. 03. 14 — 자리수만큼만 채운다(입력 중 잘림 없음)
         private static string FormatBirthDate(string digits)
         {
             if (digits.Length > 8)
@@ -92,7 +88,6 @@ namespace PlayGround.Client.Components.Shared.Forms
                 return digits;
             }
 
-            // 중간 블록은 전체 길이에 따라 3자리 또는 4자리
             int middle = digits.Length >= (isSeoul ? 10 : 11) ? 4 : 3;
             if (digits.Length <= head + middle)
             {

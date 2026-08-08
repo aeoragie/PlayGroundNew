@@ -35,7 +35,6 @@ namespace PlayGround.Client.Localization
             }
             catch (JSException)
             {
-                // localStorage 불가 환경 — 무시(메모리 상태만 유지)
             }
 
             Changed?.Invoke();

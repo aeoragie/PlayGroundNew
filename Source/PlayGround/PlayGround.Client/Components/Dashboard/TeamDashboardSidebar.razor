@@ -55,7 +55,6 @@
     [Parameter]
     public TeamProfileDto? Team { get; set; }
 
-    // "클럽 · 서울" — 있는 값만 이어 붙인다
     private string SummaryMeta =>
         string.Join(" · ", new[] { Team?.TeamType, Team?.Region }.Where(v => v is not null));
 

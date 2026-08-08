@@ -7,7 +7,6 @@ using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Application.Notification.Commands
 {
-    /// <summary>알림 센터 유즈케이스 — 목록(미읽음 카운트 포함)·읽음 처리.</summary>
     public class SoccerNotificationCommand
     {
         private readonly INotificationRepository mRepository;

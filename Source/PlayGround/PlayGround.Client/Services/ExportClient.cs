@@ -46,7 +46,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>준비 중 요청 취소 — 성공 여부만.</summary>
         public async Task<bool> CancelAsync(Guid requestId)
         {
             try

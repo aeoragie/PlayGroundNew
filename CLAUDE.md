@@ -83,7 +83,7 @@ UPDATE dbo.SystemClockOffset SET OffsetSeconds = 0;            -- 원복
 **변환은 브라우저에서 한 번씩만 일어난다.** 입력은 `FromWallClock`으로 UTC로 바꿔 보내고
 (일정·경기 시각·**모집 마감**), 표시는 `ToWallClock`으로 되돌린다. 마감일도 등록자의 브라우저가
 "그 날의 끝"을 UTC 순간으로 만들어 보내므로 **닫히는 순간은 모두에게 같고**, 보는 사람에 따라
-달라지는 것은 날짜 라벨뿐이다. 서버는 `[DeadlineAt] > GETUTCDATE()` 하나로만 판정한다.
+달라지는 것은 날짜 라벨뿐이다. 서버는 `[DeadlineAt] > dbo.UfnSystemDate()` 하나로만 판정한다.
 
 `SystemTime`은 타입 수준 강제다(2026-08-06 확장). 어떤 `DateTime`을 넣어도 생성자가 UTC로
 정규화하고, DB(Dapper `SystemTimeTypeHandler`)·JSON(ISO-8601 `Z`) 경계는 자동 변환이라

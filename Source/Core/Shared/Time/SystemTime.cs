@@ -101,10 +101,8 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
 
     //.// 표시
 
-    /// <summary>ISO-8601 라운드트립(<c>Z</c> 포함).</summary>
     public override string ToString() => UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
 
-    /// <summary>UTC 기준 포맷 — 저장 키·로그처럼 시간대 무관 문자열용.</summary>
     public string ToString(string format) => UtcDateTime.ToString(format, CultureInfo.InvariantCulture);
 
     public string ToString(string format, IFormatProvider provider) => UtcDateTime.ToString(format, provider);

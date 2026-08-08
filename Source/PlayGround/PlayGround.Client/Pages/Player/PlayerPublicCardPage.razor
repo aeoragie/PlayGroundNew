@@ -188,7 +188,6 @@ else if (mData is not null)
         return mModule;
     }
 
-    /// <summary>QR·공유 링크 = 디테일 공개 프로필 절대 URL.</summary>
     private string ProfileUrl => Nav.ToAbsoluteUri(Routes.PlayerPublicProfile(Slug)).ToString();
 
     private string UrlLabel => $"playground.kr{Routes.PlayerPublicProfile(Slug)}";
@@ -202,7 +201,6 @@ else if (mData is not null)
         }
     }
 
-    // "FW · 왼발 · 2012" — 있는 항목만
     private string? CardMeta
     {
         get
@@ -251,7 +249,6 @@ else if (mData is not null)
     private string? CurrentBadgeLabel =>
         mData!.Careers.FirstOrDefault(c => c.IsCurrent)?.BadgeLabel;
 
-    // "강동중학교 2학년 · 보호자 김OO" — 있는 조각만
     private string? GrantedSchoolLine
     {
         get
@@ -340,7 +337,6 @@ else if (mData is not null)
             }
             catch (JSDisconnectedException)
             {
-                // 페이지 이탈로 회로가 이미 끊긴 경우 — 무시
             }
         }
     }

@@ -19,7 +19,6 @@ namespace PlayGround.Client.Styles
             public const string RemoveButton =
                 "text-[11.5px] font-bold text-danger hover:opacity-80 border-0 bg-transparent cursor-pointer whitespace-nowrap";
 
-            /// <summary>모바일 16px — iOS 확대 방지(전역 규칙).</summary>
             public const string Input =
                 "w-full h-[46px] md:h-10 px-3 rounded-[10px] border-1.5 border-border bg-white " +
                 "text-base md:text-[13px] text-navy-deep placeholder:text-text-faint " +

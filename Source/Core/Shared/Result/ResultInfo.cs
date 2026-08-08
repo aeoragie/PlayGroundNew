@@ -13,13 +13,11 @@ public readonly struct ResultInfo
         Details = details;
     }
 
-    // Success
     public static ResultInfo Success(string? details = null)
     {
         return new(SuccessCode.Ok, null, details);
     }
 
-    // Error
     public static ResultInfo Unknown(string? details = null)
     {
         return new(ErrorCode.UnknownError, null, details);
@@ -30,19 +28,16 @@ public readonly struct ResultInfo
         return new(code, message, details);
     }
 
-    // Warning
     public static ResultInfo Warning(WarningCode code, string? message = null, string? details = null)
     {
         return new(code, message, details);
     }
 
-    // Information
     public static ResultInfo Information(InformationCode code, string? message = null, string? details = null)
     {
         return new(code, message, details);
     }
 
-    // Exception
     public static ResultInfo Exception(Exception ex, ErrorCode? code = null)
     {
         var errorCode = code ?? ErrorCode.UnknownError;

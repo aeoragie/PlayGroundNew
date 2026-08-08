@@ -16,7 +16,6 @@ namespace PlayGround.Server.Controllers.Soccer
     [Authorize]
     public class SoccerImageController : ControllerBase
     {
-        /// <summary>10MB — 클라이언트 리사이즈를 거치면 보통 1MB 안쪽이다.</summary>
         private const long MaxBytes = 10 * 1024 * 1024;
 
         private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)

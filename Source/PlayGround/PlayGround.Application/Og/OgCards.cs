@@ -14,7 +14,6 @@ namespace PlayGround.Application.Og
         public string? LogoUrl { get; set; }
     }
 
-    /// <summary>대회 OG 카드 원자료 (DECISION.OGMETA).</summary>
     public class TournamentOgCard
     {
         public string Name { get; set; } = string.Empty;

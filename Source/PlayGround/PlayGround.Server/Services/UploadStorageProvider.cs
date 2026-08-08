@@ -12,7 +12,6 @@ namespace PlayGround.Server.Services
         /// <summary>wwwroot/uploads 디스크 + 정적 서빙. 자격 증명이 없는 PC·오프라인 개발용.</summary>
         Local,
 
-        /// <summary>AWS S3. 현재 운영·개발이 쓰는 값.</summary>
         Aws,
 
         /// <summary>Google Cloud Storage. **아직 구현하지 않았다**(껍질만).</summary>

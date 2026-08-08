@@ -65,7 +65,6 @@ namespace PlayGround.Application.Claim.Commands
                 return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.InvalidInput, "invalid code format");
             }
 
-            // 관계는 enum 화이트리스트 (이름 형태만 — 숫자 문자열 거부)
             if (string.IsNullOrWhiteSpace(request.Relation)
                 || char.IsAsciiDigit(request.Relation[0])
                 || !Enum.TryParse(request.Relation, out SoccerClaimRelation relation))
@@ -89,7 +88,6 @@ namespace PlayGround.Application.Claim.Commands
             return Result<ClaimRequestSummaryResponse>.Success(created.Value);
         }
 
-        /// <summary>공개 선수 프로필 경유(코드 없음): 슬러그로 미연결 선수 카드 조회.</summary>
         public async Task<Result<ClaimInviteCardResponse>> LookupBySlugAsync(string slug, CancellationToken cancellation = default) =>
             (await LookupBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "LookupBySlug", ("Slug", slug));
 

@@ -19,7 +19,6 @@ namespace PlayGround.Client.Styles
 
             //.// PC 팝오버
 
-            /// <summary>바깥 클릭 감지용 투명 배경 — JS 없이 닫기를 처리한다.</summary>
             public const string Backdrop = "fixed inset-0 z-[115] cursor-default";
 
             public const string Popover =
@@ -28,7 +27,6 @@ namespace PlayGround.Client.Styles
 
             public const string Group = "p-1.5 flex flex-col";
 
-            /// <summary>파괴 그룹 — 항상 맨 아래 + 구분선.</summary>
             public const string GroupDestructive = "p-1.5 flex flex-col border-t border-surface-icon";
 
             public const string Item =
@@ -58,7 +56,6 @@ namespace PlayGround.Client.Styles
             /// <summary>대상 이름 헤더 — 어떤 행의 메뉴인지 시트에서는 안 보이므로 명시한다.</summary>
             public const string SheetTitle = "text-xs font-extrabold text-text-muted mt-3 px-1 whitespace-nowrap truncate";
 
-            /// <summary>행 48px — 터치 타겟.</summary>
             public const string SheetItem =
                 "flex items-center min-h-12 px-1 text-sm font-bold text-navy-deep bg-transparent border-0 " +
                 "border-b border-surface-soft w-full text-left cursor-pointer whitespace-nowrap";

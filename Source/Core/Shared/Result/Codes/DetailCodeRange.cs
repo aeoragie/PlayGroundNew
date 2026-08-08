@@ -314,17 +314,14 @@ public static class DetailCodeRange
     public static bool IsAuthError(int value) => IsInRange(value, Error.Auth.Min, Error.Auth.Max);
     public static bool IsResourceError(int value) => IsInRange(value, Error.Resource.Min, Error.Resource.Max);
 
-    // 비즈니스 에러 (2000-2199)
     public static bool IsBusinessError(int value) => IsInRange(value, Error.Business.Min, Error.Business.Max);
     public static bool IsSportsError(int value) => IsInRange(value, Error.Sports.Min, Error.Sports.Max);
 
-    // 시스템/인프라 에러 (3000-3999)
     public static bool IsSystemError(int value) => IsInRange(value, Error.Database.Min, Error.Internal.Max);
     public static bool IsDatabaseError(int value) => IsInRange(value, Error.Database.Min, Error.Database.Max);
     public static bool IsNetworkError(int value) => IsInRange(value, Error.Network.Min, Error.Network.Max);
     public static bool IsExternalServiceError(int value) => IsInRange(value, Error.ExternalService.Min, Error.ExternalService.Max);
 
-    // 상위 카테고리 (여러 하위 카테고리 포함)
     public static bool IsUserError(int value) => IsInRange(value, Error.Client.Min, Error.Resource.Max);
     public static bool IsBusinessLogicError(int value) => IsInRange(value, Error.Business.Min, Error.Sports.Max);
 

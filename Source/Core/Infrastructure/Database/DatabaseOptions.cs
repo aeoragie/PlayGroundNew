@@ -34,7 +34,6 @@ public class DatabaseOptions
             connStr = AddParameter(connStr, "Command Timeout", CommandTimeout);
             if (EnableRetryOnFailure && MaxRetryCount > 0)
             {
-                // ConnectRetryInterval 유효 범위는 1~60초
                 var retryInterval = Math.Clamp(MaxRetryDelay / MaxRetryCount, 1, 60);
                 connStr = AddParameter(connStr, "ConnectRetryCount", MaxRetryCount);
                 connStr = AddParameter(connStr, "ConnectRetryInterval", retryInterval);

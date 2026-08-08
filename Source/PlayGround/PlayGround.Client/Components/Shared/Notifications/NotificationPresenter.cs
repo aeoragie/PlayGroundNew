@@ -17,7 +17,6 @@ namespace PlayGround.Client.Components.Shared.Notifications
             item.Type == nameof(SoccerNotificationType.ViewRequest)
             || item.Type == nameof(SoccerNotificationType.AgentGrantExpiring);
 
-        /// <summary>액션형(인라인 처리 대상) — 처리 필요 세그먼트·행 우측 버튼 판정.</summary>
         public static bool IsActionType(NotificationDto item) =>
             item.Type == nameof(SoccerNotificationType.ClaimRequest)
             || item.Type == nameof(SoccerNotificationType.RosterInvite);
@@ -38,7 +37,6 @@ namespace PlayGround.Client.Components.Shared.Notifications
             return false;
         }
 
-        // 유형 → 칩 그룹 (존재하는 것만 노출)
         public static string GroupOf(NotificationDto item) => item.Type switch
         {
             nameof(SoccerNotificationType.ClaimRequest) or
@@ -102,7 +100,6 @@ namespace PlayGround.Client.Components.Shared.Notifications
             _ => AppText.Notification.RelationMother,
         };
 
-        // 기록 수정 신청 항목 라벨 — 폼(B6)과 같은 리소스를 쓴다
         public static string FieldTypeLabel(string? fieldType) =>
             SoccerDomainEnumLabels.ToCorrectionFieldLabel(fieldType);
 

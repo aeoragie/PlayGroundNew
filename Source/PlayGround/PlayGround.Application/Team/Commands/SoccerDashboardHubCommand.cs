@@ -186,7 +186,6 @@ namespace PlayGround.Application.Team.Commands
                     card.Assists = official.Sum(m => m.Assists);
 
                     // 이 자녀 경기 중 미처리 신청 수 — 보호자 대시보드 목록과 같은 MatchId 기준
-                    // (같은 경기에 미처리 1건 규칙이라 경기 수 = 신청 수).
                     card.CorrectionPendingCount = stats.Value.Matches
                         .Count(m => pendingCorrectionMatchIds.Contains(m.MatchId));
                 }

@@ -115,7 +115,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>항목 공개 설정 변경. 성공 여부 반환.</summary>
         public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic, Guid? playerId = null)
         {
             try
@@ -190,20 +189,16 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>커리어 이력 저장(신규·수정). CareerId 빈 값 = 신규.</summary>
         public Task<PlayerEntrySaveResult> SaveCareerAsync(SavePlayerCareerRequest request, Guid? playerId = null) =>
             PutAsync($"api/soccer/player/me/career{Q(playerId)}", request);
 
-        /// <summary>커리어 이력 삭제·복구(실행취소).</summary>
         public Task<PlayerEntrySaveResult> DeleteCareerAsync(Guid careerId, bool restore = false, Guid? playerId = null) =>
             PostAsync($"api/soccer/player/me/career/delete{Q(playerId)}",
                 new DeletePlayerCareerRequest { CareerId = careerId, Restore = restore });
 
-        /// <summary>포트폴리오 영상 저장(신규·수정). VideoId 빈 값 = 신규.</summary>
         public Task<PlayerEntrySaveResult> SavePortfolioVideoAsync(SavePlayerPortfolioVideoRequest request, Guid? playerId = null) =>
             PutAsync($"api/soccer/player/me/portfolio{Q(playerId)}", request);
 
-        /// <summary>포트폴리오 영상 삭제·복구(실행취소).</summary>
         public Task<PlayerEntrySaveResult> DeletePortfolioVideoAsync(Guid videoId, bool restore = false, Guid? playerId = null) =>
             PostAsync($"api/soccer/player/me/portfolio/delete{Q(playerId)}",
                 new DeletePlayerPortfolioVideoRequest { VideoId = videoId, Restore = restore });
@@ -348,7 +343,6 @@ namespace PlayGround.Client.Services
             }
         }
 
-        /// <summary>기록 수정 신청 취소(보호자) — 접수 상태만. 성공 여부만.</summary>
         public async Task<CorrectionSaveResult> CancelGuardianCorrectionAsync(Guid correctionId)
         {
             try
@@ -371,7 +365,6 @@ namespace PlayGround.Client.Services
     /// <summary>AccessToken은 Player로 승격된 새 토큰 — null이면 기존 토큰 유지.</summary>
     public record PlayerSaveResult(bool Success, string? AccessToken, string? Error);
 
-    /// <summary>커리어·포트폴리오 항목 저장·삭제 결과.</summary>
     /// <remarks>
     /// IsNetworkError로 "입력이 잘못됨"(→ 인라인)과 "요청 실패"(→ 토스트+재시도)를 구분한다.
     /// </remarks>

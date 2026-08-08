@@ -38,7 +38,6 @@
     [Parameter]
     public TeamRosterPlayerDto? Player { get; set; }
 
-    /// <summary>저장·삭제가 끝나면 상위가 로스터를 다시 읽는다.</summary>
     [Parameter]
     public EventCallback OnSaved { get; set; }
 
@@ -47,7 +46,6 @@
 
     protected override void OnParametersSet()
     {
-        // 다른 선수로 열렸으면 편집 값을 새로 받는다
         if (Player is not null && mBoundPlayerId != Player.PlayerId)
         {
             mBoundPlayerId = Player.PlayerId;

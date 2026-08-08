@@ -78,8 +78,6 @@ namespace PlayGround.Server.DependencyInjection
                         Encoding.UTF8.GetBytes(signingKey ?? "dev-only-insecure-placeholder-key-change-me"))
                 };
 
-                // 서명·만료가 멀쩡해도 로그아웃·탈퇴한 토큰이면 여기서 떨군다.
-                // 서명 검증을 통과한 뒤라 조회 비용은 정상 요청에만 든다.
                 options.Events = new JwtBearerEvents
                 {
                     OnTokenValidated = TokenRevocationCheck.OnTokenValidatedAsync,

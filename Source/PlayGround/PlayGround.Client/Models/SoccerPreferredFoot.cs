@@ -12,7 +12,6 @@ namespace PlayGround.Client.Models
 
     public static class SoccerPreferredFootExtensions
     {
-        /// <summary>화면 표기 라벨.</summary>
         public static string ToLabel(this SoccerPreferredFoot foot)
         {
             return foot switch

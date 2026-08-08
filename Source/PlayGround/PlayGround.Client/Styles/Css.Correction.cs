@@ -26,7 +26,6 @@ namespace PlayGround.Client.Styles
 
             public const string CompareRow = "flex gap-2 items-stretch";
 
-            /// <summary>현재 기록 — 읽기 전용. 회색으로 눌러 둬야 입력칸이 눈에 들어온다.</summary>
             public const string CurrentBox =
                 "flex-1 bg-surface-soft rounded-[10px] px-3 py-2.5 flex flex-col gap-0.5 min-w-0";
 
@@ -37,14 +36,12 @@ namespace PlayGround.Client.Styles
 
             public const string CompareArrow = "self-center shrink-0 text-text-muted";
 
-            /// <summary>올바른 기록 — 입력. 네이비 링으로 여기가 할 일임을 알린다.</summary>
             public const string TargetBox =
                 "flex-1 border-1.5 border-navy rounded-[10px] px-3 py-2 flex flex-col gap-0.5 min-w-0 " +
                 "shadow-[0_0_0_3px_rgba(35,64,142,.12)]";
 
             public const string TargetLabel = "text-[10px] font-bold text-navy whitespace-nowrap";
 
-            /// <summary>스코어 2칸 — 가운데 콜론.</summary>
             public const string ScoreInputs = "flex items-center gap-1.5";
 
             public const string ScoreInput =
@@ -53,7 +50,6 @@ namespace PlayGround.Client.Styles
 
             public const string ScoreColon = "text-sm font-extrabold text-text-muted";
 
-            /// <summary>스코어 외 항목 — 자유 입력 한 줄.</summary>
             public const string TargetInput =
                 "w-full min-w-0 h-8 rounded-lg border border-border px-2 text-[13px] font-bold text-navy-deep " +
                 "outline-none focus:border-navy";
@@ -65,7 +61,6 @@ namespace PlayGround.Client.Styles
             public const string Row =
                 "flex items-center gap-3 border border-border-soft rounded-xl px-3.5 py-3";
 
-            /// <summary>반려 행은 사유 박스를 품어야 해서 세로 배치.</summary>
             public const string RowRejected =
                 "flex flex-col gap-2 border border-border-soft rounded-xl px-3.5 py-3";
 

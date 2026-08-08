@@ -58,7 +58,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>커리어 이력 삭제·복구 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record DeleteSoccerPlayerCareerMessage(Guid UserId, DeletePlayerCareerRequest Data, Guid? PlayerId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
@@ -70,7 +69,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>포트폴리오 영상 삭제·복구 메시지 (쓰기 — UserId 해시).</summary>
     public sealed record DeleteSoccerPlayerPortfolioVideoMessage(Guid UserId, DeletePlayerPortfolioVideoRequest Data, Guid? PlayerId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
@@ -95,7 +93,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => Slug;
     }
 
-    /// <summary>보호자 기록 수정 신청 생성 (쓰기 — UserId 해시).</summary>
     public sealed record CreateSoccerGuardianCorrectionMessage(Guid UserId, Guid TargetPlayerId, CreateRecordCorrectionRequest Data) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
@@ -107,7 +104,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>보호자 기록 수정 신청 취소 (쓰기 — UserId 해시).</summary>
     public sealed record CancelSoccerGuardianCorrectionMessage(Guid UserId, Guid CorrectionId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;
@@ -119,7 +115,6 @@ namespace PlayGround.Server.Actors
         public object ConsistentHashKey => UserId;
     }
 
-    /// <summary>강점 태그 저장 메시지 (쓰기 — UserId 해시로 사용자별 순차).</summary>
     public sealed record SaveSoccerStrengthTagsMessage(Guid UserId, SaveStrengthTagsRequest Data, Guid? PlayerId) : IConsistentHashable
     {
         public object ConsistentHashKey => UserId;

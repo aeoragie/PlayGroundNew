@@ -5,12 +5,9 @@ using PlayGround.Client.Localization;
 
 namespace PlayGround.Client.Services.Feedback
 {
-    /// <summary>확인 모달 단계 (Design.FeedbackPatterns B).</summary>
     public enum ConfirmKind
     {
-        /// <summary>일반 — 네이비 주 버튼. 공개 전환·승인 등.</summary>
         Normal,
-        /// <summary>파괴적 — 레드 주 버튼, 기본 포커스=취소. 제목에 대상 이름 명시.</summary>
         Destructive,
         /// <summary>고위험 — 문구 입력 일치 전 버튼 비활성. 계정·팀 삭제 전용.</summary>
         HighRisk,
@@ -62,7 +59,6 @@ namespace PlayGround.Client.Services.Feedback
             return mCompletion.Task;
         }
 
-        /// <summary>호스트가 사용자 선택을 알린다.</summary>
         public void Complete(bool confirmed)
         {
             if (Current is null)

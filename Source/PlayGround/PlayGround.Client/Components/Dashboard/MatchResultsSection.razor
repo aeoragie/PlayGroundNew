@@ -119,14 +119,12 @@
     [Parameter, EditorRequired]
     public TeamMatchesResponse Data { get; set; } = new();
 
-    /// <summary>목록 세그먼트 — 값은 URL에 있고 페이지가 내려 준다.</summary>
     [Parameter]
     public SoccerMatchSegment Segment { get; set; } = SoccerMatchSegment.All;
 
     [Parameter]
     public EventCallback<SoccerMatchSegment> OnSegmentChanged { get; set; }
 
-    /// <summary>경기 카드의 아군 팀명 (페이지가 팀 프로필에서 전달).</summary>
     [Parameter, EditorRequired]
     public string TeamName { get; set; } = string.Empty;
 
@@ -182,7 +180,6 @@
     private int GoalsFor => OfficialMatches.Sum(m => m.TeamScore);
     private int GoalsAgainst => OfficialMatches.Sum(m => m.OpponentScore);
 
-    /// <summary>집계 대상 = 공식 경기. 모바일·공개홈 요약도 같은 규칙을 쓴다.</summary>
     internal static List<TeamMatchDto> OfficialOf(IEnumerable<TeamMatchDto> matches) =>
         matches.Where(m => !SoccerMatchTypeExtensions.IsFriendly(m.MatchType)).ToList();
 

@@ -16,7 +16,6 @@ namespace PlayGround.Server.Feeds
         {
             var sb = new StringBuilder();
 
-            // RFC 5545: 줄 구분은 CRLF.
             sb.Append("BEGIN:VCALENDAR\r\n");
             sb.Append("VERSION:2.0\r\n");
             sb.Append("PRODID:-//PlayGround Soccer//Schedule//KO\r\n");
@@ -71,7 +70,6 @@ namespace PlayGround.Server.Feeds
             };
         }
 
-        // RFC 5545 텍스트 이스케이프: 백슬래시·세미콜론·쉼표·개행.
         private static string Escape(string value)
         {
             return value

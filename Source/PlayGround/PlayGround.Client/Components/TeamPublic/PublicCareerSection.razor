@@ -69,7 +69,6 @@
             .Where(pair => pair.Count > 0)
             .ToList();
 
-    // 모바일 요약 라벨 축약 (dc: "상급팀 승격")
     private static string MobileSummaryLabel(SoccerCareerOutcomeType type) =>
         type == SoccerCareerOutcomeType.Promotion ? AppText.Team.Promotion : type.ToSummaryLabel();
 
