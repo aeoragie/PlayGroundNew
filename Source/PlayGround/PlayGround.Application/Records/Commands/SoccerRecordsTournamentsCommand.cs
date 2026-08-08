@@ -25,7 +25,7 @@ namespace PlayGround.Application.Records.Commands
         }
 
         public async Task<Result<RecordsTournamentsResponse>> ExecuteAsync(int seasonYear, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(seasonYear, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(seasonYear, cancellation)).LogWith(mLogger, "Execute", ("SeasonYear", seasonYear));
 
         private async Task<Result<RecordsTournamentsResponse>> ExecuteCoreAsync(int seasonYear, CancellationToken cancellation = default)
         {

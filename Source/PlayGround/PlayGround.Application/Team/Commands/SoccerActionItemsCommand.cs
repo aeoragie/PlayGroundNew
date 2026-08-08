@@ -38,7 +38,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<ActionItemsResponse>> ExecuteAsync(
             Guid userId, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<ActionItemsResponse>> ExecuteCoreAsync(
             Guid userId, CancellationToken cancellation = default)

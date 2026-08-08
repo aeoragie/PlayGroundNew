@@ -25,7 +25,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamSeasonRecordResponse>> ExecuteAsync(string slug, int seasonYear, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(slug, seasonYear, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(slug, seasonYear, cancellation)).LogWith(mLogger, "Execute", ("Slug", slug));
 
         private async Task<Result<TeamSeasonRecordResponse>> ExecuteCoreAsync(string slug, int seasonYear, CancellationToken cancellation = default)
         {

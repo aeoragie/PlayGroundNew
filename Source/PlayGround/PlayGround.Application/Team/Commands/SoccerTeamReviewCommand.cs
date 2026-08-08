@@ -26,7 +26,7 @@ namespace PlayGround.Application.Team.Commands
 
         /// <param name="viewerUserId">로그인 열람자 — 리뷰 쓰기 자격·내 리뷰 판정에만 쓴다. 게스트는 null.</param>
         public async Task<Result<TeamReviewsResponse>> GetBySlugAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default) =>
-            (await GetBySlugCoreAsync(slug, viewerUserId, cancellation)).LogWith(mLogger, "GetBySlug");
+            (await GetBySlugCoreAsync(slug, viewerUserId, cancellation)).LogWith(mLogger, "GetBySlug", ("Slug", slug));
 
         private async Task<Result<TeamReviewsResponse>> GetBySlugCoreAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {
@@ -39,7 +39,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> SaveAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default) =>
-            (await SaveCoreAsync(authorUserId, request, cancellation)).LogWith(mLogger, "Save");
+            (await SaveCoreAsync(authorUserId, request, cancellation)).LogWith(mLogger, "Save", ("AuthorUserId", authorUserId));
 
         private async Task<Result<bool>> SaveCoreAsync(Guid authorUserId, SaveTeamReviewRequest request, CancellationToken cancellation = default)
         {
@@ -83,7 +83,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> DeleteAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default) =>
-            (await DeleteCoreAsync(authorUserId, reviewId, restore, cancellation)).LogWith(mLogger, "Delete");
+            (await DeleteCoreAsync(authorUserId, reviewId, restore, cancellation)).LogWith(mLogger, "Delete", ("AuthorUserId", authorUserId));
 
         private async Task<Result<bool>> DeleteCoreAsync(Guid authorUserId, Guid reviewId, bool restore, CancellationToken cancellation = default)
         {

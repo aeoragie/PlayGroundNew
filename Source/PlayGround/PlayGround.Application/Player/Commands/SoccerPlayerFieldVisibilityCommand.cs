@@ -22,7 +22,7 @@ namespace PlayGround.Application.Player.Commands
         }
 
         public async Task<Result<bool>> ExecuteAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, fieldName, isPublic, playerId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, fieldName, isPublic, playerId, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<bool>> ExecuteCoreAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
         {

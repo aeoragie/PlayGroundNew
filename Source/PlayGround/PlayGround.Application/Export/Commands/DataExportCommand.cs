@@ -60,7 +60,7 @@ namespace PlayGround.Application.Export.Commands
 
         public async Task<Result<DataExportRequestResult>> RequestAsync(
             Guid userId, CreateDataExportRequest request, CancellationToken cancellation = default) =>
-            (await RequestCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Request");
+            (await RequestCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Request", ("UserId", userId));
 
         private async Task<Result<DataExportRequestResult>> RequestCoreAsync(
             Guid userId, CreateDataExportRequest request, CancellationToken cancellation = default)
@@ -98,7 +98,7 @@ namespace PlayGround.Application.Export.Commands
         }
 
         public async Task<Result<DataExportStateDto?>> GetCurrentAsync(Guid userId, CancellationToken cancellation = default) =>
-            (await GetCurrentCoreAsync(userId, cancellation)).LogWith(mLogger, "GetCurrent");
+            (await GetCurrentCoreAsync(userId, cancellation)).LogWith(mLogger, "GetCurrent", ("UserId", userId));
 
         private async Task<Result<DataExportStateDto?>> GetCurrentCoreAsync(Guid userId, CancellationToken cancellation = default)
         {
@@ -111,7 +111,7 @@ namespace PlayGround.Application.Export.Commands
         }
 
         public async Task<Result<bool>> CancelAsync(Guid userId, Guid requestId, CancellationToken cancellation = default) =>
-            (await CancelCoreAsync(userId, requestId, cancellation)).LogWith(mLogger, "Cancel");
+            (await CancelCoreAsync(userId, requestId, cancellation)).LogWith(mLogger, "Cancel", ("UserId", userId));
 
         private async Task<Result<bool>> CancelCoreAsync(Guid userId, Guid requestId, CancellationToken cancellation = default)
         {

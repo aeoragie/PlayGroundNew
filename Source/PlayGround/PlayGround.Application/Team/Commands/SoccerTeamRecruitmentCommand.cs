@@ -29,7 +29,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamRecruitmentsResponse>> GetBySlugAsync(string slug, CancellationToken cancellation = default) =>
-            (await GetBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetBySlug");
+            (await GetBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetBySlug", ("Slug", slug));
 
         private async Task<Result<TeamRecruitmentsResponse>> GetBySlugCoreAsync(string slug, CancellationToken cancellation = default)
         {
@@ -42,7 +42,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamRecruitmentsResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default) =>
-            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine");
+            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamRecruitmentsResponse>> GetMineCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
@@ -56,7 +56,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<TeamRecruitmentDto>> SaveAsync(
             Guid managerUserId, SaveTeamRecruitmentRequest request, CancellationToken cancellation = default) =>
-            (await SaveCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Save");
+            (await SaveCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Save", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamRecruitmentDto>> SaveCoreAsync(
             Guid managerUserId, SaveTeamRecruitmentRequest request, CancellationToken cancellation = default)
@@ -112,7 +112,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<TeamRecruitmentDto>> CloseAsync(
             Guid managerUserId, Guid recruitmentId, CancellationToken cancellation = default) =>
-            (await CloseCoreAsync(managerUserId, recruitmentId, cancellation)).LogWith(mLogger, "Close");
+            (await CloseCoreAsync(managerUserId, recruitmentId, cancellation)).LogWith(mLogger, "Close", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamRecruitmentDto>> CloseCoreAsync(
             Guid managerUserId, Guid recruitmentId, CancellationToken cancellation = default)
@@ -138,7 +138,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<bool>> DeleteAsync(
             Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default) =>
-            (await DeleteCoreAsync(managerUserId, recruitmentId, restore, cancellation)).LogWith(mLogger, "Delete");
+            (await DeleteCoreAsync(managerUserId, recruitmentId, restore, cancellation)).LogWith(mLogger, "Delete", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> DeleteCoreAsync(
             Guid managerUserId, Guid recruitmentId, bool restore, CancellationToken cancellation = default)

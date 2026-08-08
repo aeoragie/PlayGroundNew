@@ -9,19 +9,22 @@ namespace PlayGround.Infrastructure.Logging
     /// </summary>
     public static class ResultLogExtensions
     {
-        public static Result<T> LogWith<T>(this Result<T> result, ILogger logger, string operation)
+        public static Result<T> LogWith<T>(this Result<T> result, ILogger logger, string operation,
+            params (string Key, object? Value)[] fields)
         {
-            Write(logger, result.ResultData, result.IsSuccess, operation);
+            Write(logger, result.ResultData, result.IsSuccess, operation, fields);
             return result;
         }
 
-        public static Result LogWith(this Result result, ILogger logger, string operation)
+        public static Result LogWith(this Result result, ILogger logger, string operation,
+            params (string Key, object? Value)[] fields)
         {
-            Write(logger, result.ResultData, result.IsSuccess, operation);
+            Write(logger, result.ResultData, result.IsSuccess, operation, fields);
             return result;
         }
 
-        private static void Write(ILogger logger, ResultInfo resultData, bool isSuccess, string operation)
+        private static void Write(ILogger logger, ResultInfo resultData, bool isSuccess, string operation,
+            (string Key, object? Value)[] extra)
         {
             var level = ToNLogLevel(resultData.DetailCode);
             if (!logger.IsEnabled(level))
@@ -29,10 +32,16 @@ namespace PlayGround.Infrastructure.Logging
                 return;
             }
 
-            var fields = string.IsNullOrEmpty(resultData.Details)
-                ? new (string, object?)[] { ("Operation", operation), ("Code", resultData.DetailCode.Name), ("Message", resultData.Message) }
-                : new (string, object?)[] { ("Operation", operation), ("Code", resultData.DetailCode.Name), ("Message", resultData.Message), ("Details", resultData.Details) };
+            var list = new List<(string Key, object? Value)>(4 + extra.Length) { ("Operation", operation) };
+            list.AddRange(extra);
+            list.Add(("Code", resultData.DetailCode.Name));
+            list.Add(("Message", resultData.Message));
+            if (!string.IsNullOrEmpty(resultData.Details))
+            {
+                list.Add(("Details", resultData.Details));
+            }
 
+            (string, object?)[] fields = [.. list];
             var status = isSuccess ? "Operation completed" : "Operation failed";
             var logEvent = new LogEventInfo(level, logger.Name, KeyValueLogExtensions.BuildMessage(status, fields));
 

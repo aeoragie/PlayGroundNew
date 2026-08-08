@@ -27,7 +27,7 @@ namespace PlayGround.Application.Settings.Commands
         }
 
         public async Task<Result<AuthResult>> ExecuteAsync(Guid userId, string displayName, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, displayName, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, displayName, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<AuthResult>> ExecuteCoreAsync(Guid userId, string displayName, CancellationToken cancellation = default)
         {

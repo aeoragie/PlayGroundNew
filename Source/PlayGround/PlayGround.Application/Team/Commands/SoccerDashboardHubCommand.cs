@@ -50,7 +50,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<DashboardHubResponse>> ExecuteAsync(
             Guid userId, string displayName, int seasonYear, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, displayName, seasonYear, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, displayName, seasonYear, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<DashboardHubResponse>> ExecuteCoreAsync(
             Guid userId, string displayName, int seasonYear, CancellationToken cancellation = default)

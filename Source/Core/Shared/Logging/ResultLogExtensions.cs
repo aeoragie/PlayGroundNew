@@ -9,19 +9,22 @@ namespace PlayGround.Shared.Logging
     /// </summary>
     public static class ResultLogExtensions
     {
-        public static Results.Result<T> LogWith<T>(this Results.Result<T> result, ILogger logger, string operation)
+        public static Results.Result<T> LogWith<T>(this Results.Result<T> result, ILogger logger, string operation,
+            params (string Key, object? Value)[] fields)
         {
-            Write(logger, result.ResultData, result.IsSuccess, operation);
+            Write(logger, result.ResultData, result.IsSuccess, operation, fields);
             return result;
         }
 
-        public static Results.Result LogWith(this Results.Result result, ILogger logger, string operation)
+        public static Results.Result LogWith(this Results.Result result, ILogger logger, string operation,
+            params (string Key, object? Value)[] fields)
         {
-            Write(logger, result.ResultData, result.IsSuccess, operation);
+            Write(logger, result.ResultData, result.IsSuccess, operation, fields);
             return result;
         }
 
-        private static void Write(ILogger logger, Results.ResultInfo resultData, bool isSuccess, string operation)
+        private static void Write(ILogger logger, Results.ResultInfo resultData, bool isSuccess, string operation,
+            (string Key, object? Value)[] extra)
         {
             LogLevel level = ToLogLevel(resultData.DetailCode);
             if (logger is null || !logger.IsEnabled(level))
@@ -29,17 +32,22 @@ namespace PlayGround.Shared.Logging
                 return;
             }
 
-            (string, object?)[] fields = string.IsNullOrEmpty(resultData.Details)
-                ? [("Operation", operation), ("Code", resultData.DetailCode.Name), ("Message", resultData.Message)]
-                : [("Operation", operation), ("Code", resultData.DetailCode.Name), ("Message", resultData.Message), ("Details", resultData.Details)];
+            var fields = new List<(string Key, object? Value)>(4 + extra.Length) { ("Operation", operation) };
+            fields.AddRange(extra);
+            fields.Add(("Code", resultData.DetailCode.Name));
+            fields.Add(("Message", resultData.Message));
+            if (!string.IsNullOrEmpty(resultData.Details))
+            {
+                fields.Add(("Details", resultData.Details));
+            }
 
             string message = isSuccess ? "Operation completed" : "Operation failed";
             switch (level)
             {
-                case LogLevel.Critical: logger.FatalWith(message, fields); break;
-                case LogLevel.Error: logger.ErrorWith(message, fields); break;
-                case LogLevel.Warning: logger.WarnWith(message, fields); break;
-                default: logger.InfoWith(message, fields); break;
+                case LogLevel.Critical: logger.FatalWith(message, [.. fields]); break;
+                case LogLevel.Error: logger.ErrorWith(message, [.. fields]); break;
+                case LogLevel.Warning: logger.WarnWith(message, [.. fields]); break;
+                default: logger.InfoWith(message, [.. fields]); break;
             }
         }
 

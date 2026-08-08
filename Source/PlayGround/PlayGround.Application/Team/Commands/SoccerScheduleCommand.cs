@@ -29,7 +29,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<SchedulesResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default) =>
-            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine");
+            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine", ("ManagerUserId", managerUserId));
 
         private async Task<Result<SchedulesResponse>> GetMineCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
@@ -42,7 +42,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<SchedulesResponse>> GetBySlugAsync(string slug, CancellationToken cancellation = default) =>
-            (await GetBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetBySlug");
+            (await GetBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetBySlug", ("Slug", slug));
 
         private async Task<Result<SchedulesResponse>> GetBySlugCoreAsync(string slug, CancellationToken cancellation = default)
         {
@@ -56,7 +56,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<ScheduleDto>> SaveAsync(
             Guid managerUserId, SaveScheduleRequest request, CancellationToken cancellation = default) =>
-            (await SaveCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Save");
+            (await SaveCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Save", ("ManagerUserId", managerUserId));
 
         private async Task<Result<ScheduleDto>> SaveCoreAsync(
             Guid managerUserId, SaveScheduleRequest request, CancellationToken cancellation = default)
@@ -130,7 +130,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<bool>> DeleteAsync(
             Guid managerUserId, Guid scheduleId, bool restore, CancellationToken cancellation = default) =>
-            (await DeleteCoreAsync(managerUserId, scheduleId, restore, cancellation)).LogWith(mLogger, "Delete");
+            (await DeleteCoreAsync(managerUserId, scheduleId, restore, cancellation)).LogWith(mLogger, "Delete", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> DeleteCoreAsync(
             Guid managerUserId, Guid scheduleId, bool restore, CancellationToken cancellation = default)

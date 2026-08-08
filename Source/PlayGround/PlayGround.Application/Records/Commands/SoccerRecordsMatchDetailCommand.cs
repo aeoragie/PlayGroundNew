@@ -21,7 +21,7 @@ namespace PlayGround.Application.Records.Commands
         }
 
         public async Task<Result<RecordsMatchDetailResponse>> ExecuteAsync(Guid matchId, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(matchId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(matchId, cancellation)).LogWith(mLogger, "Execute", ("MatchId", matchId));
 
         private async Task<Result<RecordsMatchDetailResponse>> ExecuteCoreAsync(Guid matchId, CancellationToken cancellation = default)
         {

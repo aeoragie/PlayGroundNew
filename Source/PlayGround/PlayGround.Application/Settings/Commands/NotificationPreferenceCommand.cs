@@ -24,7 +24,7 @@ namespace PlayGround.Application.Settings.Commands
         }
 
         public async Task<Result<NotificationPreferencesResponse>> GetAsync(Guid userId, CancellationToken cancellation = default) =>
-            (await GetCoreAsync(userId, cancellation)).LogWith(mLogger, "Get");
+            (await GetCoreAsync(userId, cancellation)).LogWith(mLogger, "Get", ("UserId", userId));
 
         private async Task<Result<NotificationPreferencesResponse>> GetCoreAsync(Guid userId, CancellationToken cancellation = default)
         {
@@ -37,7 +37,7 @@ namespace PlayGround.Application.Settings.Commands
         }
 
         public async Task<Result<bool>> SetAsync(Guid userId, SetNotificationPreferenceRequest request, CancellationToken cancellation = default) =>
-            (await SetCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Set");
+            (await SetCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Set", ("UserId", userId));
 
         private async Task<Result<bool>> SetCoreAsync(Guid userId, SetNotificationPreferenceRequest request, CancellationToken cancellation = default)
         {

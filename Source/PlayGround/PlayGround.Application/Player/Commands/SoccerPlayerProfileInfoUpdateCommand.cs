@@ -37,7 +37,7 @@ namespace PlayGround.Application.Player.Commands
         }
 
         public async Task<Result<UpdatePlayerProfileInfoResponse>> ExecuteAsync(Guid userId, UpdatePlayerProfileInfoRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<UpdatePlayerProfileInfoResponse>> ExecuteCoreAsync(Guid userId, UpdatePlayerProfileInfoRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {

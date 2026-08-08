@@ -30,7 +30,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamCareerOutcomesResponse>> GetBySlugAsync(string slug, CancellationToken cancellation = default) =>
-            (await GetBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetBySlug");
+            (await GetBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetBySlug", ("Slug", slug));
 
         private async Task<Result<TeamCareerOutcomesResponse>> GetBySlugCoreAsync(string slug, CancellationToken cancellation = default)
         {
@@ -43,7 +43,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamCareerOutcomesResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default) =>
-            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine");
+            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamCareerOutcomesResponse>> GetMineCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
@@ -57,7 +57,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<TeamCareerOutcomeDto>> SaveAsync(
             Guid managerUserId, SaveTeamCareerOutcomeRequest request, CancellationToken cancellation = default) =>
-            (await SaveCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Save");
+            (await SaveCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Save", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamCareerOutcomeDto>> SaveCoreAsync(
             Guid managerUserId, SaveTeamCareerOutcomeRequest request, CancellationToken cancellation = default)
@@ -113,7 +113,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<bool>> DeleteAsync(
             Guid managerUserId, Guid outcomeId, bool restore, CancellationToken cancellation = default) =>
-            (await DeleteCoreAsync(managerUserId, outcomeId, restore, cancellation)).LogWith(mLogger, "Delete");
+            (await DeleteCoreAsync(managerUserId, outcomeId, restore, cancellation)).LogWith(mLogger, "Delete", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> DeleteCoreAsync(
             Guid managerUserId, Guid outcomeId, bool restore, CancellationToken cancellation = default)

@@ -29,7 +29,7 @@ namespace PlayGround.Application.Player.Commands
 
         public async Task<Result<ClaimPlayerInviteResponse>> ExecuteAsync(
             Guid userId, string code, string? currentRole, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, code, currentRole, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, code, currentRole, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<ClaimPlayerInviteResponse>> ExecuteCoreAsync(
             Guid userId, string code, string? currentRole, CancellationToken cancellation = default)

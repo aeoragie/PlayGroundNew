@@ -23,7 +23,7 @@ namespace PlayGround.Application.Claim.Commands
 
         public async Task<Result<ReviewClaimResponse>> ExecuteAsync(
             Guid managerUserId, ReviewClaimRequestRequest request, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute", ("ManagerUserId", managerUserId));
 
         private async Task<Result<ReviewClaimResponse>> ExecuteCoreAsync(
             Guid managerUserId, ReviewClaimRequestRequest request, CancellationToken cancellation = default)

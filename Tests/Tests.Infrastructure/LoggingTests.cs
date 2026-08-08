@@ -58,6 +58,18 @@ namespace PlayGround.Tests.Infrastructure
         }
 
         [Fact]
+        public void LogWith_PlacesExtraFields_RightAfterOperation()
+        {
+            var (logger, target) = CreateLogger();
+            var userId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+
+            Result<int>.Success(1).LogWith(logger, "Execute", ("ManagerUserId", userId));
+
+            Assert.StartsWith(
+                $"Info|Operation completed. {{ Operation:Execute, ManagerUserId:{userId}, Code:", target.Logs[0]);
+        }
+
+        [Fact]
         public void LogWith_SystemError_LogsAtErrorLevel()
         {
             var (logger, target) = CreateLogger();

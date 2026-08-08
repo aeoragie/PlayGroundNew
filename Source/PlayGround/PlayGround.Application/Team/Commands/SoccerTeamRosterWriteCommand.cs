@@ -32,7 +32,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<TeamRosterPlayerDto>> AddAsync(
             Guid managerUserId, AddTeamPlayerRequest request, CancellationToken cancellation = default) =>
-            (await AddCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Add");
+            (await AddCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Add", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamRosterPlayerDto>> AddCoreAsync(
             Guid managerUserId, AddTeamPlayerRequest request, CancellationToken cancellation = default)
@@ -89,7 +89,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<bool>> RemoveAsync(
             Guid managerUserId, Guid teamPlayerId, bool restore, CancellationToken cancellation = default) =>
-            (await RemoveCoreAsync(managerUserId, teamPlayerId, restore, cancellation)).LogWith(mLogger, "Remove");
+            (await RemoveCoreAsync(managerUserId, teamPlayerId, restore, cancellation)).LogWith(mLogger, "Remove", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> RemoveCoreAsync(
             Guid managerUserId, Guid teamPlayerId, bool restore, CancellationToken cancellation = default)

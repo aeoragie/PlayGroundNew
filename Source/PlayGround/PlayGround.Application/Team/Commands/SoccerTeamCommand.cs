@@ -34,7 +34,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<CreateTeamResponse>> ExecuteAsync(
             Guid managerUserId, CreateTeamRequest request, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute", ("ManagerUserId", managerUserId));
 
         private async Task<Result<CreateTeamResponse>> ExecuteCoreAsync(
             Guid managerUserId, CreateTeamRequest request, CancellationToken cancellation = default)

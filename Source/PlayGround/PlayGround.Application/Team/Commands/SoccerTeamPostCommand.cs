@@ -33,7 +33,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamPostsResponse>> GetMineAsync(Guid managerUserId, CancellationToken cancellation = default) =>
-            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine");
+            (await GetMineCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetMine", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamPostsResponse>> GetMineCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
@@ -46,7 +46,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamNewsResponse>> GetNewsBySlugAsync(string slug, CancellationToken cancellation = default) =>
-            (await GetNewsBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetNewsBySlug");
+            (await GetNewsBySlugCoreAsync(slug, cancellation)).LogWith(mLogger, "GetNewsBySlug", ("Slug", slug));
 
         private async Task<Result<TeamNewsResponse>> GetNewsBySlugCoreAsync(string slug, CancellationToken cancellation = default)
         {
@@ -60,7 +60,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<GuardianTeamPostsResponse>> GetForGuardianAsync(
             Guid userId, Guid playerId, CancellationToken cancellation = default) =>
-            (await GetForGuardianCoreAsync(userId, playerId, cancellation)).LogWith(mLogger, "GetForGuardian");
+            (await GetForGuardianCoreAsync(userId, playerId, cancellation)).LogWith(mLogger, "GetForGuardian", ("UserId", userId));
 
         private async Task<Result<GuardianTeamPostsResponse>> GetForGuardianCoreAsync(
             Guid userId, Guid playerId, CancellationToken cancellation = default)
@@ -75,7 +75,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<TeamPostDto>> SaveAsync(
             Guid managerUserId, SaveTeamPostRequest request, string? authorName, CancellationToken cancellation = default) =>
-            (await SaveCoreAsync(managerUserId, request, authorName, cancellation)).LogWith(mLogger, "Save");
+            (await SaveCoreAsync(managerUserId, request, authorName, cancellation)).LogWith(mLogger, "Save", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamPostDto>> SaveCoreAsync(
             Guid managerUserId, SaveTeamPostRequest request, string? authorName, CancellationToken cancellation = default)
@@ -170,7 +170,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<TeamPostDto>> SetPinnedAsync(
             Guid managerUserId, Guid postId, bool isPinned, CancellationToken cancellation = default) =>
-            (await SetPinnedCoreAsync(managerUserId, postId, isPinned, cancellation)).LogWith(mLogger, "SetPinned");
+            (await SetPinnedCoreAsync(managerUserId, postId, isPinned, cancellation)).LogWith(mLogger, "SetPinned", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamPostDto>> SetPinnedCoreAsync(
             Guid managerUserId, Guid postId, bool isPinned, CancellationToken cancellation = default)
@@ -197,7 +197,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<TeamPostDto>> SetPublicAsync(
             Guid managerUserId, Guid postId, bool isPublic, CancellationToken cancellation = default) =>
-            (await SetPublicCoreAsync(managerUserId, postId, isPublic, cancellation)).LogWith(mLogger, "SetPublic");
+            (await SetPublicCoreAsync(managerUserId, postId, isPublic, cancellation)).LogWith(mLogger, "SetPublic", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamPostDto>> SetPublicCoreAsync(
             Guid managerUserId, Guid postId, bool isPublic, CancellationToken cancellation = default)
@@ -223,7 +223,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<bool>> DeleteAsync(
             Guid managerUserId, Guid postId, bool restore, CancellationToken cancellation = default) =>
-            (await DeleteCoreAsync(managerUserId, postId, restore, cancellation)).LogWith(mLogger, "Delete");
+            (await DeleteCoreAsync(managerUserId, postId, restore, cancellation)).LogWith(mLogger, "Delete", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> DeleteCoreAsync(
             Guid managerUserId, Guid postId, bool restore, CancellationToken cancellation = default)
@@ -248,7 +248,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> MarkReadAsync(Guid userId, Guid postId, CancellationToken cancellation = default) =>
-            (await MarkReadCoreAsync(userId, postId, cancellation)).LogWith(mLogger, "MarkRead");
+            (await MarkReadCoreAsync(userId, postId, cancellation)).LogWith(mLogger, "MarkRead", ("UserId", userId));
 
         private async Task<Result<bool>> MarkReadCoreAsync(Guid userId, Guid postId, CancellationToken cancellation = default)
         {

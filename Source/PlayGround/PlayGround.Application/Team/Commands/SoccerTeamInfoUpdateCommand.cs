@@ -30,7 +30,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<UpdateTeamInfoResponse>> ExecuteAsync(
             Guid managerUserId, UpdateTeamInfoRequest request, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute", ("ManagerUserId", managerUserId));
 
         private async Task<Result<UpdateTeamInfoResponse>> ExecuteCoreAsync(
             Guid managerUserId, UpdateTeamInfoRequest request, CancellationToken cancellation = default)

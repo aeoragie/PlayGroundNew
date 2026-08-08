@@ -27,7 +27,7 @@ namespace PlayGround.Application.Auth.Commands
 
         public async Task<Result<string>> LinkAsync(
             Guid userId, string provider, string providerUserId, string? email, CancellationToken cancellation = default) =>
-            (await LinkCoreAsync(userId, provider, providerUserId, email, cancellation)).LogWith(mLogger, "Link");
+            (await LinkCoreAsync(userId, provider, providerUserId, email, cancellation)).LogWith(mLogger, "Link", ("UserId", userId));
 
         private async Task<Result<string>> LinkCoreAsync(
             Guid userId, string provider, string providerUserId, string? email, CancellationToken cancellation = default)
@@ -46,7 +46,7 @@ namespace PlayGround.Application.Auth.Commands
         }
 
         public async Task<Result<string>> UnlinkAsync(Guid userId, string provider, CancellationToken cancellation = default) =>
-            (await UnlinkCoreAsync(userId, provider, cancellation)).LogWith(mLogger, "Unlink");
+            (await UnlinkCoreAsync(userId, provider, cancellation)).LogWith(mLogger, "Unlink", ("UserId", userId));
 
         private async Task<Result<string>> UnlinkCoreAsync(Guid userId, string provider, CancellationToken cancellation = default)
         {

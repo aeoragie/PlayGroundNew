@@ -27,7 +27,7 @@ namespace PlayGround.Application.Player.Commands
         }
 
         public async Task<Result<bool>> ExecuteAsync(Guid userId, SavePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<bool>> ExecuteCoreAsync(Guid userId, SavePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {
@@ -76,7 +76,7 @@ namespace PlayGround.Application.Player.Commands
         }
 
         public async Task<Result<bool>> DeleteAsync(Guid userId, DeletePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
-            (await DeleteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Delete");
+            (await DeleteCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Delete", ("UserId", userId));
 
         private async Task<Result<bool>> DeleteCoreAsync(Guid userId, DeletePlayerCareerRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {

@@ -41,7 +41,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<CreateTeamMatchResultResponse>> ExecuteAsync(
             Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute", ("ManagerUserId", managerUserId));
 
         private async Task<Result<CreateTeamMatchResultResponse>> ExecuteCoreAsync(
             Guid managerUserId, CreateTeamMatchResultRequest request, CancellationToken cancellation = default)
@@ -126,7 +126,7 @@ namespace PlayGround.Application.Team.Commands
         /// </remarks>
         public async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsAsync(
             Guid managerUserId, int seasonYear, CancellationToken cancellation = default) =>
-            (await GetTournamentOptionsCoreAsync(managerUserId, seasonYear, cancellation)).LogWith(mLogger, "GetTournamentOptions");
+            (await GetTournamentOptionsCoreAsync(managerUserId, seasonYear, cancellation)).LogWith(mLogger, "GetTournamentOptions", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamTournamentOptionsResponse>> GetTournamentOptionsCoreAsync(
             Guid managerUserId, int seasonYear, CancellationToken cancellation = default)

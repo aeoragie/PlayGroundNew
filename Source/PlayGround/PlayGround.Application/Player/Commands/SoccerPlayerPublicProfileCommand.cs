@@ -23,7 +23,7 @@ namespace PlayGround.Application.Player.Commands
 
         /// <param name="viewerUserId">로그인 열람자 — 승인된 에이전트면 권한 뷰. 게스트는 null.</param>
         public async Task<Result<PlayerPublicProfileResponse>> ExecuteAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(slug, seasonYear, viewerUserId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(slug, seasonYear, viewerUserId, cancellation)).LogWith(mLogger, "Execute", ("Slug", slug));
 
         private async Task<Result<PlayerPublicProfileResponse>> ExecuteCoreAsync(string slug, int seasonYear, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {

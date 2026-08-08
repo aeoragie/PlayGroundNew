@@ -29,7 +29,7 @@ namespace PlayGround.Application.Auth.Commands
         }
 
         public async Task<Result<AuthResult>> ExecuteAsync(string email, string password, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(email, password, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(email, password, cancellation)).LogWith(mLogger, "Execute", ("Email", email));
 
         private async Task<Result<AuthResult>> ExecuteCoreAsync(string email, string password, CancellationToken cancellation = default)
         {

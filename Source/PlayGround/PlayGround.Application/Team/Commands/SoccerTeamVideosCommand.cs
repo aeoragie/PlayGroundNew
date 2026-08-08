@@ -21,7 +21,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamVideosResponse>> ExecuteAsync(Guid managerUserId, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "Execute", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamVideosResponse>> ExecuteCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {

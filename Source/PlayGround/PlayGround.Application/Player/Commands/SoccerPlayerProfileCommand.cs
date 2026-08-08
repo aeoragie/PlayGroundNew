@@ -33,7 +33,7 @@ namespace PlayGround.Application.Player.Commands
 
         public async Task<Result<CreatePlayerProfileResponse>> ExecuteAsync(
             Guid userId, CreatePlayerProfileRequest request, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, request, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<CreatePlayerProfileResponse>> ExecuteCoreAsync(
             Guid userId, CreatePlayerProfileRequest request, CancellationToken cancellation = default)

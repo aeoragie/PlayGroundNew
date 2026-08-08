@@ -34,7 +34,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<Guid>> ExecuteAsync(
             Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(managerUserId, request, cancellation)).LogWith(mLogger, "Execute", ("ManagerUserId", managerUserId));
 
         private async Task<Result<Guid>> ExecuteCoreAsync(
             Guid managerUserId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
@@ -90,7 +90,7 @@ namespace PlayGround.Application.Team.Commands
         /// <summary>보호자 신청 — 내 자녀(TargetPlayerId) 관련 공식 경기만. 검증은 팀 경로와 같은 규칙.</summary>
         public async Task<Result<Guid>> ExecuteByGuardianAsync(
             Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default) =>
-            (await ExecuteByGuardianCoreAsync(userId, targetPlayerId, request, cancellation)).LogWith(mLogger, "ExecuteByGuardian");
+            (await ExecuteByGuardianCoreAsync(userId, targetPlayerId, request, cancellation)).LogWith(mLogger, "ExecuteByGuardian", ("UserId", userId));
 
         private async Task<Result<Guid>> ExecuteByGuardianCoreAsync(
             Guid userId, Guid targetPlayerId, CreateRecordCorrectionRequest request, CancellationToken cancellation = default)
@@ -140,7 +140,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<RecordCorrectionsResponse>> GetAsync(
             Guid managerUserId, CancellationToken cancellation = default) =>
-            (await GetCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "Get");
+            (await GetCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "Get", ("ManagerUserId", managerUserId));
 
         private async Task<Result<RecordCorrectionsResponse>> GetCoreAsync(
             Guid managerUserId, CancellationToken cancellation = default)
@@ -156,7 +156,7 @@ namespace PlayGround.Application.Team.Commands
         /// <summary>신청 취소 — 접수(Pending) 상태의 내 신청만. 심사가 끝난 건은 손대지 않는다.</summary>
         public async Task<Result<bool>> CancelAsync(
             Guid managerUserId, Guid correctionId, CancellationToken cancellation = default) =>
-            (await CancelCoreAsync(managerUserId, correctionId, cancellation)).LogWith(mLogger, "Cancel");
+            (await CancelCoreAsync(managerUserId, correctionId, cancellation)).LogWith(mLogger, "Cancel", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> CancelCoreAsync(
             Guid managerUserId, Guid correctionId, CancellationToken cancellation = default)

@@ -22,7 +22,7 @@ namespace PlayGround.Application.Team.Commands
 
         /// <param name="viewerUserId">로그인 열람자 — 관리자 본인 판정(IsManager)에만 쓴다. 게스트는 null.</param>
         public async Task<Result<TeamPublicHomeResponse>> ExecuteAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(slug, viewerUserId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(slug, viewerUserId, cancellation)).LogWith(mLogger, "Execute", ("Slug", slug));
 
         private async Task<Result<TeamPublicHomeResponse>> ExecuteCoreAsync(string slug, Guid? viewerUserId = null, CancellationToken cancellation = default)
         {

@@ -21,7 +21,7 @@ namespace PlayGround.Application.Settings.Commands
         }
 
         public async Task<Result<AccountSettingsResponse>> ExecuteAsync(Guid userId, CancellationToken cancellation = default) =>
-            (await ExecuteCoreAsync(userId, cancellation)).LogWith(mLogger, "Execute");
+            (await ExecuteCoreAsync(userId, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
         private async Task<Result<AccountSettingsResponse>> ExecuteCoreAsync(Guid userId, CancellationToken cancellation = default)
         {

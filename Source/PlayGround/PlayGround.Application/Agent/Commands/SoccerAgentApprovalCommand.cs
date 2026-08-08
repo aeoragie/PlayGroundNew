@@ -25,7 +25,7 @@ namespace PlayGround.Application.Agent.Commands
 
         public async Task<Result<AgentViewRequestResponse>> GetAsync(
             Guid guardianUserId, Guid requestId, CancellationToken cancellation = default) =>
-            (await GetCoreAsync(guardianUserId, requestId, cancellation)).LogWith(mLogger, "Get");
+            (await GetCoreAsync(guardianUserId, requestId, cancellation)).LogWith(mLogger, "Get", ("GuardianUserId", guardianUserId));
 
         private async Task<Result<AgentViewRequestResponse>> GetCoreAsync(
             Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
@@ -51,7 +51,7 @@ namespace PlayGround.Application.Agent.Commands
 
         public async Task<Result<AgentViewRequestResponse>> ReviewAsync(
             Guid guardianUserId, ReviewAgentViewRequestRequest request, CancellationToken cancellation = default) =>
-            (await ReviewCoreAsync(guardianUserId, request, cancellation)).LogWith(mLogger, "Review");
+            (await ReviewCoreAsync(guardianUserId, request, cancellation)).LogWith(mLogger, "Review", ("GuardianUserId", guardianUserId));
 
         private async Task<Result<AgentViewRequestResponse>> ReviewCoreAsync(
             Guid guardianUserId, ReviewAgentViewRequestRequest request, CancellationToken cancellation = default)
@@ -88,7 +88,7 @@ namespace PlayGround.Application.Agent.Commands
         /// (남의 자격은 조회 불가). 에이전트 서비스가 요청 생성 전에 조회한다 — 생성 자체는 여기서 하지 않는다.</summary>
         public async Task<Result<AgentRequestEligibilityResponse>> GetEligibilityAsync(
             Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default) =>
-            (await GetEligibilityCoreAsync(requesterUserId, playerId, guardianUserId, cancellation)).LogWith(mLogger, "GetEligibility");
+            (await GetEligibilityCoreAsync(requesterUserId, playerId, guardianUserId, cancellation)).LogWith(mLogger, "GetEligibility", ("RequesterUserId", requesterUserId));
 
         private async Task<Result<AgentRequestEligibilityResponse>> GetEligibilityCoreAsync(
             Guid requesterUserId, Guid playerId, Guid guardianUserId, CancellationToken cancellation = default)
@@ -102,7 +102,7 @@ namespace PlayGround.Application.Agent.Commands
         }
 
         public async Task<Result<bool>> BlockAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default) =>
-            (await BlockCoreAsync(guardianUserId, requestId, cancellation)).LogWith(mLogger, "Block");
+            (await BlockCoreAsync(guardianUserId, requestId, cancellation)).LogWith(mLogger, "Block", ("GuardianUserId", guardianUserId));
 
         private async Task<Result<bool>> BlockCoreAsync(Guid guardianUserId, Guid requestId, CancellationToken cancellation = default)
         {

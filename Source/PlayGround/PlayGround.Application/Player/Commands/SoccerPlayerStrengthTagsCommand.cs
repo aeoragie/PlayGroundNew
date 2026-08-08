@@ -49,7 +49,7 @@ namespace PlayGround.Application.Player.Commands
         }
 
         public async Task<Result<bool>> SaveAsync(Guid userId, SaveStrengthTagsRequest request, Guid? playerId = null, CancellationToken cancellation = default) =>
-            (await SaveCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Save");
+            (await SaveCoreAsync(userId, request, playerId, cancellation)).LogWith(mLogger, "Save", ("UserId", userId));
 
         private async Task<Result<bool>> SaveCoreAsync(Guid userId, SaveStrengthTagsRequest request, Guid? playerId = null, CancellationToken cancellation = default)
         {

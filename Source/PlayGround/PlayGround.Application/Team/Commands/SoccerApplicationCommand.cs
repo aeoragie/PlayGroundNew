@@ -32,7 +32,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<Guid>> ApplyAsync(
             Guid guardianUserId, CreateApplicationRequest request, CancellationToken cancellation = default) =>
-            (await ApplyCoreAsync(guardianUserId, request, cancellation)).LogWith(mLogger, "Apply");
+            (await ApplyCoreAsync(guardianUserId, request, cancellation)).LogWith(mLogger, "Apply", ("GuardianUserId", guardianUserId));
 
         private async Task<Result<Guid>> ApplyCoreAsync(
             Guid guardianUserId, CreateApplicationRequest request, CancellationToken cancellation = default)
@@ -76,7 +76,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<TeamApplicationsResponse>> GetForManagerAsync(Guid managerUserId, CancellationToken cancellation = default) =>
-            (await GetForManagerCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetForManager");
+            (await GetForManagerCoreAsync(managerUserId, cancellation)).LogWith(mLogger, "GetForManager", ("ManagerUserId", managerUserId));
 
         private async Task<Result<TeamApplicationsResponse>> GetForManagerCoreAsync(Guid managerUserId, CancellationToken cancellation = default)
         {
@@ -89,7 +89,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<MyApplicationsResponse>> GetForGuardianAsync(Guid guardianUserId, CancellationToken cancellation = default) =>
-            (await GetForGuardianCoreAsync(guardianUserId, cancellation)).LogWith(mLogger, "GetForGuardian");
+            (await GetForGuardianCoreAsync(guardianUserId, cancellation)).LogWith(mLogger, "GetForGuardian", ("GuardianUserId", guardianUserId));
 
         private async Task<Result<MyApplicationsResponse>> GetForGuardianCoreAsync(Guid guardianUserId, CancellationToken cancellation = default)
         {
@@ -103,7 +103,7 @@ namespace PlayGround.Application.Team.Commands
 
         public async Task<Result<bool>> UpdateStatusAsync(
             Guid managerUserId, Guid applicationId, string newStatus, CancellationToken cancellation = default) =>
-            (await UpdateStatusCoreAsync(managerUserId, applicationId, newStatus, cancellation)).LogWith(mLogger, "UpdateStatus");
+            (await UpdateStatusCoreAsync(managerUserId, applicationId, newStatus, cancellation)).LogWith(mLogger, "UpdateStatus", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> UpdateStatusCoreAsync(
             Guid managerUserId, Guid applicationId, string newStatus, CancellationToken cancellation = default)
@@ -134,7 +134,7 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> CancelAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default) =>
-            (await CancelCoreAsync(guardianUserId, applicationId, cancellation)).LogWith(mLogger, "Cancel");
+            (await CancelCoreAsync(guardianUserId, applicationId, cancellation)).LogWith(mLogger, "Cancel", ("GuardianUserId", guardianUserId));
 
         private async Task<Result<bool>> CancelCoreAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default)
         {
@@ -160,7 +160,7 @@ namespace PlayGround.Application.Team.Commands
         /// <summary>선수단 초대 확인(보호자) → 로스터 편입. 수락(Accepted) 상태의 내 지원일 때만.
         /// 소유·상태 검증은 프로시저가 빈 결과로 거부하고, 여기서 Forbidden으로 변환한다.</summary>
         public async Task<Result<bool>> ConfirmInviteAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default) =>
-            (await ConfirmInviteCoreAsync(guardianUserId, applicationId, cancellation)).LogWith(mLogger, "ConfirmInvite");
+            (await ConfirmInviteCoreAsync(guardianUserId, applicationId, cancellation)).LogWith(mLogger, "ConfirmInvite", ("GuardianUserId", guardianUserId));
 
         private async Task<Result<bool>> ConfirmInviteCoreAsync(Guid guardianUserId, Guid applicationId, CancellationToken cancellation = default)
         {
