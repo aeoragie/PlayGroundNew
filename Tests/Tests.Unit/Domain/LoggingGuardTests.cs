@@ -68,10 +68,13 @@ namespace PlayGround.Tests.Unit.Domain
         public void LowerLayers_DoNotLog()
         {
             // 저장소는 누가 왜 호출했는지 모른다. 실패는 Result가 메시지와 스택까지 실어 올린다.
+            // Core.Shared는 어디서 얼마나 불릴지 모르므로 로그를 아예 남기지 않는다(로깅 헬퍼 자체는 예외).
             var offenders = SourceLines(
+                    "Source/Core/Shared",
                     "Source/PlayGround/PlayGround.Persistence",
                     "Source/PlayGround/PlayGround.Domain",
                     "Source/PlayGround/PlayGround.Contracts")
+                .Where(l => !l.File.Contains($"{Path.DirectorySeparatorChar}Logging{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
                 .Where(l => !l.Text.TrimStart().StartsWith("//", StringComparison.Ordinal))
                 .Where(l => LogCall.IsMatch(l.Text))
                 .Select(l => Where(l.File, l.Line))

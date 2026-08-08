@@ -119,7 +119,7 @@ public readonly struct Result<T>
         };
     }
 
-    public TResult Match<TResult>(Func<T, TResult> onSuccess, Func<T, ResultInfo, TResult>? onWarning = null, Func<T, ResultInfo, TResult>? onInformation = null, Func<ResultInfo, TResult>? onError = null)
+    public TResult Match<TResult>(Func<T, TResult> onSuccess, Func<ResultInfo, TResult> onError, Func<T, ResultInfo, TResult>? onWarning = null, Func<T, ResultInfo, TResult>? onInformation = null)
     {
         switch (ResultData.DetailCode.Category)
         {
@@ -141,14 +141,11 @@ public readonly struct Result<T>
                 return onSuccess(Value!);
 
             case ResultCodes.Error:
-                if (onError != null)
-                {
-                    return onError(ResultData);
-                }
-                throw new InvalidOperationException("Error handler not provided");
+                return onError(ResultData);
 
             default:
-                throw new InvalidOperationException($"Unknown result code: {ResultData.DetailCode.Category}");
+                Debug.Assert(false, $"Unknown result code: {ResultData.DetailCode.Category}");
+                return onError(ResultData);
         }
     }
 
@@ -279,12 +276,8 @@ public readonly struct Result
 
     public static Result Failure(ResultInfo info)
     {
-        if (info.IsSuccess)
-        {
-            throw new ArgumentException("Cannot create a failure result from a success ResultInfo.", nameof(info));
-        }
-
-        return new(info);
+        Debug.Assert(!info.IsSuccess, "Failure expects a non-success ResultInfo");
+        return new(info.IsSuccess ? ResultInfo.Unknown(info.Message) : info);
     }
 
     public static Result FromDetailCode(DetailCode detailCode)

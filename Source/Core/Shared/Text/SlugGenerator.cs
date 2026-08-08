@@ -1,15 +1,18 @@
 using System;
+using System.Diagnostics;
 using System.Text;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Shared.Text
 {
     /// <summary>
     /// 이름 → URL 슬러그 변환. 한글은 국어의 로마자 표기법(음절 단위) 기반으로 로마자화하고,
     /// 영문·숫자는 소문자로, 그 외 문자는 구분자로 처리해 하이픈으로 연결한다.
-    /// 중복 방지 접미사(-2 등)는 저장 계층에서 부여한다.
     /// </summary>
     public static class SlugGenerator
     {
+        private const int MaxSuffix = 10000;
+
         private const int HangulBase = 0xAC00;
         private const int HangulEnd = 0xD7A3;
         private const int MedialCount = 21;
@@ -74,29 +77,31 @@ namespace PlayGround.Shared.Text
         /// <paramref name="isUnavailable"/>는 예약어 집합 + 저장소 존재 여부를 합쳐 판단하는 조건이다.
         /// 빈 기준 슬러그는 <paramref name="fallback"/>을 사용한다.
         /// </summary>
-        public static string MakeUnique(string? baseSlug, Func<string, bool> isUnavailable, string fallback = "item")
+        public static Result<string> MakeUnique(string? baseSlug, Func<string, bool> isUnavailable, string fallback = "item")
         {
             if (isUnavailable is null)
             {
-                throw new ArgumentNullException(nameof(isUnavailable));
+                Debug.Assert(false, "isUnavailable is required");
+                return Result<string>.Error(ErrorCode.MissingRequired, "isUnavailable is required.");
             }
 
             string candidate = string.IsNullOrWhiteSpace(baseSlug) ? fallback : baseSlug;
             if (!isUnavailable(candidate))
             {
-                return candidate;
+                return Result<string>.Success(candidate);
             }
 
-            for (int suffix = 2; suffix <= 10000; suffix++)
+            for (int suffix = 2; suffix <= MaxSuffix; suffix++)
             {
                 string next = $"{candidate}-{suffix}";
                 if (!isUnavailable(next))
                 {
-                    return next;
+                    return Result<string>.Success(next);
                 }
             }
 
-            throw new InvalidOperationException($"Could not resolve a unique slug for '{candidate}'");
+            return Result<string>.Error(
+                ErrorCode.ResourceExhausted, $"Could not resolve a unique slug for '{candidate}'.");
         }
     }
 }

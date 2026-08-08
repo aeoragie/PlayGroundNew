@@ -500,7 +500,12 @@ Windows에서 멀쩡하던 참조가 서버에서만 깨진다.**
 
 - **모든 public 메서드**: 매개변수 유효성 검증 + `Debug.Assert`
 - **예상 못한 상황**: `Debug.Assert(false, "설명")` 후 안전한 반환
-- **null 체크 필수**: `ArgumentNullException` + `Debug.Assert` 조합
+- **기반 라이브러리(`Core.*`)는 예외를 던지지 않는다** — 어디서 어떻게 불릴지 모르는 코드가
+  던지면 호출자가 예상 못한 곳에서 터진다. `Debug.Assert` + `Result<T>` 반환이 기본이고,
+  핫패스는 `bool TryXxx(out T)`. 예외가 남는 자리는 **반환 통로가 없는 곳뿐**이다 —
+  생성자·정적 등록(기동 시 실패), 이름이 계약인 것(`GetValueOrThrow`), BCL 계약(`IComparable`).
+- **`Result<T>`를 반환하는 메서드 안에서 다른 `Result`를 받으면 그대로 흘려보낸다** —
+  `Result<T>.Success(inner)`로 다시 감싸지 않는다(실패가 성공으로 둔갑한다).
 
 ## 주석 & 로그
 

@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Globalization;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Shared.Extensions;
 
@@ -25,14 +27,17 @@ public static class StringExtensions
         return Enum.TryParse<TEnum>(input, true, out result);
     }
 
-    public static TEnum ParseEnum<TEnum>(this string input) where TEnum : struct, Enum
+    public static Result<TEnum> ParseEnum<TEnum>(this string input) where TEnum : struct, Enum
     {
-        if (!TryParseEnum<TEnum>(input, out var result))
+        if (!TryParseEnum<TEnum>(input, out TEnum parsed))
         {
-            throw new ArgumentException($"Input string '{input}' cannot be converted to the enum type '{typeof(TEnum).Name}'.", nameof(input));
+            Debug.Assert(false, $"Cannot convert '{input}' to {typeof(TEnum).Name}");
+            return Result<TEnum>.Error(
+                ErrorCode.InvalidFormat,
+                $"Input string '{input}' cannot be converted to the enum type '{typeof(TEnum).Name}'.");
         }
 
-        return result;
+        return Result<TEnum>.Success(parsed);
     }
 
     public static string NullToEmpty(this string? value) => value ?? string.Empty;
