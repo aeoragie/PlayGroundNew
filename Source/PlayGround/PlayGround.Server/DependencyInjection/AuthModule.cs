@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PlayGround.Infrastructure.Store;
+using PlayGround.Infrastructure.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Settings.Commands;
@@ -15,6 +16,8 @@ namespace PlayGround.Server.DependencyInjection
     /// <summary>인증(공유 — 종목 무관): 소셜·이메일 로그인, 비밀번호 해시, JWT 발급·검증.</summary>
     public static class AuthModule
     {
+        private static readonly NLog.ILogger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static IServiceCollection AddAuthServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAccountPersistence();
@@ -42,6 +45,19 @@ namespace PlayGround.Server.DependencyInjection
             services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
 
             //.// JWT 발급 + Bearer 검증
+            string? signingKey = configuration["Jwt:Key"];
+            if (string.IsNullOrWhiteSpace(signingKey))
+            {
+                // 이 상태로 뜨면 서명 키가 소스에 적힌 값이라 누구나 토큰을 위조할 수 있다.
+                Logger.FatalWith("Jwt:Key is missing — falling back to the public placeholder key",
+                    ("Issuer", configuration["Jwt:Issuer"]));
+            }
+
+            Logger.InfoWith("JWT configured",
+                ("Issuer", configuration["Jwt:Issuer"]),
+                ("Audience", configuration["Jwt:Audience"]),
+                ("SigningKey", string.IsNullOrWhiteSpace(signingKey) ? "Placeholder" : "Configured"));
+
             services.AddSingleton<IJwtTokenService, JwtTokenService>();
             services.AddAuthentication(options =>
             {
@@ -59,7 +75,7 @@ namespace PlayGround.Server.DependencyInjection
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? "dev-only-insecure-placeholder-key-change-me"))
+                        Encoding.UTF8.GetBytes(signingKey ?? "dev-only-insecure-placeholder-key-change-me"))
                 };
 
                 // 서명·만료가 멀쩡해도 로그아웃·탈퇴한 토큰이면 여기서 떨군다.

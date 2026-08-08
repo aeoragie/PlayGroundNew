@@ -16,7 +16,17 @@ try
     builder.Host.ConfigurePlayGroundLogger(builder.Configuration);
     builder.Services.AddPlayGroundLogger();
 
+    logger.InfoWith("Server starting", ("Environment", builder.Environment.EnvironmentName));
+
     builder.Services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection(DatabaseConfiguration.Section));
+
+    // 커넥션 문자열은 자격 증명을 품고 있다 — 이름과 provider만 남긴다
+    DatabaseConfiguration databaseConfiguration =
+        builder.Configuration.GetSection(DatabaseConfiguration.Section).Get<DatabaseConfiguration>() ?? new DatabaseConfiguration();
+    foreach (var (database, options) in databaseConfiguration.Databases)
+    {
+        logger.InfoWith("Database configured", ("Database", database), ("Provider", options.Provider));
+    }
 
     //.// 모듈별 DI — 인프라(Akka) · 인증(공유) · 종목(축구)
 
@@ -61,8 +71,6 @@ try
     app.UseAuthorization();
     app.MapControllers();
     app.MapFallbackToFile("index.html");
-
-    logger.InfoWith("Server starting", ("Environment", app.Environment.EnvironmentName));
 
     app.Run();
 }

@@ -9,6 +9,7 @@ using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Records.Commands;
 using PlayGround.Application.Team.Commands;
 using PlayGround.Application.Export.Commands;
+using PlayGround.Infrastructure.Logging;
 using PlayGround.Persistence;
 using PlayGround.Server.Services;
 
@@ -17,6 +18,8 @@ namespace PlayGround.Server.DependencyInjection
     /// <summary>축구 도메인: 저장소 + 유즈케이스(랜딩·선수·팀). 종목별로 이런 모듈을 하나씩 둔다.</summary>
     public static class SoccerModule
     {
+        private static readonly NLog.ILogger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static IServiceCollection AddSoccerServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSoccerPersistence();
@@ -66,6 +69,11 @@ namespace PlayGround.Server.DependencyInjection
             UploadStorageConfiguration uploadConfig =
                 configuration.GetSection(UploadStorageConfiguration.Section).Get<UploadStorageConfiguration>()
                 ?? new UploadStorageConfiguration();
+            Logger.InfoWith("Upload storage configured",
+                ("Provider", uploadConfig.Provider),
+                ("Bucket", uploadConfig.UsesLocalDisk ? null : uploadConfig.BucketName),
+                ("Region", uploadConfig.UsesLocalDisk ? null : uploadConfig.Region));
+
             if (uploadConfig.UsesLocalDisk)
             {
                 // **운영에서 안 쓰더라도 로컬 디스크 어댑터는 남겨 둔다** — 클라우드 자격 증명이 없는 PC나
@@ -101,6 +109,13 @@ namespace PlayGround.Server.DependencyInjection
             services.AddSingleton<IExportStorage, LocalExportStorage>();   // 비공개 경로(정적 서빙 밖)
             services.AddSingleton<IDataExportQueue, DataExportQueue>();    // 인메모리 큐(워커와 공유)
             services.AddHostedService<DataExportWorker>();                 // 백그라운드 생성 워커
+
+            // 셋 다 아직 대체물이다. 기동 로그에 남지 않으면 "메일이 안 온다"를 코드를 열어야 안다.
+            Logger.InfoWith("Data export configured",
+                ("EmailSender", nameof(LogOnlyEmailSender)),
+                ("EmailDelivery", "None"),
+                ("Storage", nameof(LocalExportStorage)),
+                ("Queue", "InMemory"));
             services.AddScoped<SoccerTeamVideosCommand>();
             services.AddScoped<SoccerRecordsTournamentsCommand>();
             services.AddScoped<SoccerRecordsTournamentDetailCommand>();
