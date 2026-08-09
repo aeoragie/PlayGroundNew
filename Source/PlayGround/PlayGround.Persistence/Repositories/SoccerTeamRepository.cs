@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Options;
+using PlayGround.Contracts.Soccer;
+using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Models;
 using PlayGround.Contracts.Team;
@@ -148,9 +150,9 @@ namespace PlayGround.Persistence.Repositories
                         PlayerId = r.PlayerId,
                         Name = r.Name,
                         JerseyNumber = NullIfEmpty(r.JerseyNumber),
-                        Position = NullIfEmpty(r.Position),
-                        Grade = NullIfEmpty(r.Grade),
-                        AgeGroup = NullIfEmpty(r.AgeGroup),
+                        Position = EnumColumn.Read<SoccerPosition>(r.Position),
+                        Grade = EnumColumn.Read<SoccerGrade>(r.Grade),
+                        AgeGroup = EnumColumn.Read<SoccerAgeGroup>(r.AgeGroup),
                         PhotoUrl = NullIfEmpty(r.PhotoUrl),
                         // Claim 상태는 저장 컬럼이 아니라 파생값 — UserId 연결 = Claimed (Pending은 Claim 플로우 도입 때)
                         ClaimStatus = r.UserId is null ? "Unclaimed" : "Claimed",
@@ -173,9 +175,9 @@ namespace PlayGround.Persistence.Repositories
                 ManagerUserId = managerUserId,
                 Name = request.Name,
                 JerseyNumber = request.JerseyNumber,
-                Position = request.Position,
-                Grade = request.Grade,
-                AgeGroup = request.AgeGroup
+                Position = EnumColumn.Write(request.Position),
+                Grade = EnumColumn.Write(request.Grade),
+                AgeGroup = EnumColumn.Write(request.AgeGroup)
             };
             var queryResult = await procedure.QueryAsync<SoccerTeamRosterRecord>(cancellation: cancellation);
             if (queryResult.IsError)
@@ -196,9 +198,9 @@ namespace PlayGround.Persistence.Repositories
                 PlayerId = row.PlayerId,
                 Name = row.Name,
                 JerseyNumber = NullIfEmpty(row.JerseyNumber),
-                Position = NullIfEmpty(row.Position),
-                Grade = NullIfEmpty(row.Grade),
-                AgeGroup = NullIfEmpty(row.AgeGroup),
+                Position = EnumColumn.Read<SoccerPosition>(row.Position),
+                Grade = EnumColumn.Read<SoccerGrade>(row.Grade),
+                AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup),
                 PhotoUrl = NullIfEmpty(row.PhotoUrl),
                 ClaimStatus = row.UserId is null ? "Unclaimed" : "Claimed",
                 InviteCode = row.UserId is null ? NullIfEmpty(row.Code) : null
@@ -256,7 +258,7 @@ namespace PlayGround.Persistence.Repositories
                     TeamName = team.TeamName,
                     TeamType = NullIfEmpty(team.TeamType),
                     Region = NullIfEmpty(team.Region),
-                    AgeGroup = NullIfEmpty(team.AgeGroup),
+                    AgeGroup = EnumColumn.Read<SoccerAgeGroup>(team.AgeGroup),
                     LogoUrl = NullIfEmpty(team.LogoUrl),
                     CoverImageUrl = NullIfEmpty(team.CoverImageUrl),
                     Description = NullIfEmpty(team.Description),
@@ -304,9 +306,9 @@ namespace PlayGround.Persistence.Repositories
                         PlayerId = r.PlayerId,
                         Name = r.Name,
                         JerseyNumber = NullIfEmpty(r.JerseyNumber),
-                        Position = NullIfEmpty(r.Position),
-                        Grade = NullIfEmpty(r.Grade),
-                        AgeGroup = NullIfEmpty(r.AgeGroup),
+                        Position = EnumColumn.Read<SoccerPosition>(r.Position),
+                        Grade = EnumColumn.Read<SoccerGrade>(r.Grade),
+                        AgeGroup = EnumColumn.Read<SoccerAgeGroup>(r.AgeGroup),
                         PhotoUrl = NullIfEmpty(r.PhotoUrl),
                         // 공개 규칙: UserId 자체는 내리지 않고 공개 프로필 연결 여부만
                         HasPublicProfile = r.UserId is not null,
@@ -523,7 +525,7 @@ namespace PlayGround.Persistence.Repositories
                     TournamentId = row.TournamentId,
                     Name = row.Name,
                     Format = row.Format,
-                    AgeGroup = NullIfEmpty(row.AgeGroup)
+                    AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup)
                 }).ToList()
             };
 
@@ -766,7 +768,7 @@ namespace PlayGround.Persistence.Repositories
                             Slug = t.Slug!,
                             TeamType = NullIfEmpty(t.TeamType),
                             Region = NullIfEmpty(t.Region),
-                            AgeGroup = NullIfEmpty(t.AgeGroup),
+                            AgeGroup = EnumColumn.Read<SoccerAgeGroup>(t.AgeGroup),
                             LogoUrl = NullIfEmpty(t.LogoUrl),
                             CoverImageUrl = NullIfEmpty(t.CoverImageUrl),
                             IsVerified = t.IsVerified,
@@ -890,7 +892,7 @@ namespace PlayGround.Persistence.Repositories
                 // 마감 순간은 클라이언트가 "그 날의 끝"으로 이미 변환해 보낸다 — 서버는 그대로 저장하고
                 // 프로시저가 [DeadlineAt] > dbo.UfnSystemDate() 하나로 판정한다(SQL에 시간대가 안 들어간다).
                 DeadlineAt = request.DeadlineAt,
-                AgeGroup = request.AgeGroup,
+                AgeGroup = EnumColumn.Write(request.AgeGroup),
                 PositionsJson = request.Positions.Count > 0 ? JsonSerializer.Serialize(request.Positions) : null,
                 Capacity = request.Capacity
             };
@@ -1492,8 +1494,8 @@ namespace PlayGround.Persistence.Repositories
                 Status = row.Status,
                 IsOpen = row.Status == "Open"
                          && (row.DeadlineAt is null || row.DeadlineAt > SystemTime.Now),
-                AgeGroup = NullIfEmpty(row.AgeGroup),
-                Positions = ParseAchievements(row.PositionsJson),
+                AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup),
+                Positions = ParseAchievements(row.PositionsJson).Select(EnumColumn.ReadRequired<SoccerPosition>).ToList(),
                 Capacity = row.Capacity,
                 AcceptedCount = acceptedCount
             };
@@ -1509,7 +1511,7 @@ namespace PlayGround.Persistence.Repositories
                 GuardianUserId = guardianUserId,
                 RecruitmentId = request.RecruitmentId,
                 PlayerId = request.PlayerId,
-                DesiredPosition = request.DesiredPosition,
+                DesiredPosition = EnumColumn.Write(request.DesiredPosition),
                 Introduction = request.Introduction
             };
 
@@ -1558,10 +1560,10 @@ namespace PlayGround.Persistence.Repositories
                         RecruitmentTitle = r.Title,
                         PlayerId = r.PlayerId,
                         PlayerName = r.Name,
-                        PlayerAgeGroup = NullIfEmpty(r.AgeGroup),
-                        PlayerPosition = NullIfEmpty(r.Position),
+                        PlayerAgeGroup = EnumColumn.Read<SoccerAgeGroup>(r.AgeGroup),
+                        PlayerPosition = EnumColumn.Read<SoccerPosition>(r.Position),
                         PlayerPhotoUrl = NullIfEmpty(r.PhotoUrl),
-                        DesiredPosition = NullIfEmpty(r.DesiredPosition),
+                        DesiredPosition = EnumColumn.Read<SoccerPosition>(r.DesiredPosition),
                         Introduction = NullIfEmpty(r.Introduction),
                         Status = r.Status,
                         Route = r.Route,
@@ -1596,7 +1598,7 @@ namespace PlayGround.Persistence.Repositories
                         TeamSlug = NullIfEmpty(r.Slug),
                         PlayerId = r.PlayerId,
                         PlayerName = r.Name,
-                        DesiredPosition = NullIfEmpty(r.DesiredPosition),
+                        DesiredPosition = EnumColumn.Read<SoccerPosition>(r.DesiredPosition),
                         Status = r.Status,
                         Confirmed = r.ConfirmedAt != null,
                         CreatedAt = r.CreatedAt

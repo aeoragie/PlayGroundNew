@@ -181,7 +181,7 @@
             List<string> parts = new();
             if (mCard.Position is not null)
             {
-                parts.Add(mCard.Position);
+                parts.Add(mCard.Position.ToString()!);
             }
 
             if (mCard.JerseyNumber is not null)
@@ -196,7 +196,7 @@
 
             if (mCard.AgeGroup is not null)
             {
-                parts.Add(mCard.AgeGroup);
+                parts.Add(mCard.AgeGroup.ToString()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;

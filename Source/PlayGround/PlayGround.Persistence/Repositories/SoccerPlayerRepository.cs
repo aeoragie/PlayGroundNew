@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Options;
+using PlayGround.Contracts.Soccer;
+using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Models;
 using PlayGround.Contracts.Player;
@@ -31,7 +33,7 @@ namespace PlayGround.Persistence.Repositories
                 UserId = input.UserId,
                 Name = input.Name,
                 BirthDate = input.BirthDate,
-                AgeGroup = input.AgeGroup!,
+                AgeGroup = EnumColumn.Write(input.AgeGroup),
                 Region = input.Region!
             };
 
@@ -67,11 +69,11 @@ namespace PlayGround.Persistence.Repositories
                         PlayerId = p.PlayerId,
                         Name = p.Name,
                         Slug = NullIfEmpty(p.Slug),
-                        AgeGroup = NullIfEmpty(p.AgeGroup),
+                        AgeGroup = EnumColumn.Read<SoccerAgeGroup>(p.AgeGroup),
                         PhotoUrl = NullIfEmpty(p.PhotoUrl),
                         TeamName = NullIfEmpty(p.TeamName),
                         JerseyNumber = NullIfEmpty(p.JerseyNumber),
-                        Position = NullIfEmpty(p.Position),
+                        Position = EnumColumn.Read<SoccerPosition>(p.Position),
                         IsGuardianManaged = p.IsGuardianManaged
                     })
                     .ToList()
@@ -107,15 +109,15 @@ namespace PlayGround.Persistence.Repositories
                     Name = player.Name,
                     Slug = NullIfEmpty(player.Slug),
                     PhotoUrl = NullIfEmpty(player.PhotoUrl),
-                    AgeGroup = NullIfEmpty(player.AgeGroup),
+                    AgeGroup = EnumColumn.Read<SoccerAgeGroup>(player.AgeGroup),
                     BirthYear = player.BirthDate?.Year,
-                    Grade = NullIfEmpty(player.Grade),
-                    Position = NullIfEmpty(player.Position),
+                    Grade = EnumColumn.Read<SoccerGrade>(player.Grade),
+                    Position = EnumColumn.Read<SoccerPosition>(player.Position),
                     JerseyNumber = NullIfEmpty(player.JerseyNumber),
                     TeamName = NullIfEmpty(player.TeamName),
                     HeightCm = player.HeightCm,
                     WeightKg = player.WeightKg,
-                    PreferredFoot = NullIfEmpty(player.PreferredFoot),
+                    PreferredFoot = EnumColumn.Read<SoccerPreferredFoot>(player.PreferredFoot),
                     SchoolName = NullIfEmpty(player.SchoolName),
                     GuardianPhoneMasked = MaskPhone(NullIfEmpty(player.GuardianPhone)),
                     IsGuardianManaged = player.IsGuardianManaged,
@@ -167,14 +169,14 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
-        public async Task<Result<string?>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, string? preferredFoot, string? schoolName, string? slug, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<string?>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, SoccerPreferredFoot? preferredFoot, string? schoolName, string? slug, Guid? playerId = null, CancellationToken cancellation = default)
         {
             var procedure = new UspUpdateSoccerPlayerProfileByUser(this)
             {
                 UserId = userId,
                 HeightCm = heightCm,
                 WeightKg = weightKg,
-                PreferredFoot = preferredFoot,
+                PreferredFoot = EnumColumn.Write(preferredFoot),
                 SchoolName = schoolName,
                 Slug = slug,
                 TargetPlayerId = playerId
@@ -492,20 +494,20 @@ namespace PlayGround.Persistence.Repositories
                     Name = header.Name,
                     PhotoUrl = NullIfEmpty(header.PhotoUrl),
                     IsGuardianManaged = header.IsGuardianManaged,
-                    Position = NullIfEmpty(header.Position),
+                    Position = EnumColumn.Read<SoccerPosition>(header.Position),
                     JerseyNumber = NullIfEmpty(header.JerseyNumber),
                     BirthYear = header.BirthDate?.Year,
-                    AgeGroup = NullIfEmpty(header.AgeGroup),
+                    AgeGroup = EnumColumn.Read<SoccerAgeGroup>(header.AgeGroup),
                     TeamName = NullIfEmpty(header.TeamName),
                     TeamSlug = NullIfEmpty(header.Slug),
                     TeamIsVerified = header.IsVerified,
                     IsClaimable = header.UserId is null,
                     HeightCm = IsPublic(SoccerPlayerProfileField.Height) ? header.HeightCm : null,
                     WeightKg = IsPublic(SoccerPlayerProfileField.Weight) ? header.WeightKg : null,
-                    PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? NullIfEmpty(header.PreferredFoot) : null,
+                    PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? EnumColumn.Read<SoccerPreferredFoot>(header.PreferredFoot) : null,
                     // 학교·학년·보호자명은 권한 뷰(승인된 에이전트)에만 — 공개 뷰는 가시성과 무관하게 항상 null
                     SchoolName = isGranted ? NullIfEmpty(header.SchoolName) : null,
-                    Grade = isGranted ? NullIfEmpty(header.Grade) : null,
+                    Grade = isGranted ? EnumColumn.Read<SoccerGrade>(header.Grade) : null,
                     GuardianDisplayName = isGranted ? MaskName(NullIfEmpty(header.MemberName)) : null,
                     // 강점 태그는 공개 설정이 켜진 경우에만 (게이팅은 C# — 프로시저는 원본을 내려준다)
                     StrengthTags = IsPublic(SoccerPlayerProfileField.StrengthTags) ? ParseTags(header.StrengthTags) : new List<string>()
@@ -577,7 +579,7 @@ namespace PlayGround.Persistence.Repositories
             }
 
             var presets = queryResult.Values1
-                .Select(p => new StrengthTagPresetDto { Position = p.Position, Tag = p.Tag })
+                .Select(p => new StrengthTagPresetDto { Position = EnumColumn.ReadRequired<SoccerPosition>(p.Position), Tag = p.Tag })
                 .ToList();
 
             return Result<List<StrengthTagPresetDto>>.Success(presets);

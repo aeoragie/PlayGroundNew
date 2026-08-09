@@ -87,5 +87,5 @@
     };
 
     private static string PlayerMeta(MyApplicationDto a) =>
-        string.IsNullOrWhiteSpace(a.DesiredPosition) ? a.PlayerName : $"{a.PlayerName} · {a.DesiredPosition}";
+        a.DesiredPosition is null ? a.PlayerName : $"{a.PlayerName} · {a.DesiredPosition}";
 }

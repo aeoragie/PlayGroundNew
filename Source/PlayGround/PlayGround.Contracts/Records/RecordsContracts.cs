@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Contracts.Records
 {
@@ -17,7 +18,7 @@ namespace PlayGround.Contracts.Records
         public string Name { get; set; } = string.Empty;
         public string Format { get; set; } = string.Empty;      // SoccerTournamentFormat 멤버 이름 ('Cup','Split','League')
         public string Scope { get; set; } = string.Empty;       // SoccerTournamentScope 멤버 이름 ('National','Regional')
-        public string AgeGroup { get; set; } = string.Empty;    // 'U12','U15','U18'
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? RegionGroup { get; set; }                // 리그 지역 그룹·개최지 ('서울')
         public string Status { get; set; } = string.Empty;      // SoccerTournamentStatus 멤버 이름 ('Scheduled','InProgress','Completed')
         public int? TeamCount { get; set; }
@@ -43,7 +44,7 @@ namespace PlayGround.Contracts.Records
         public string Name { get; set; } = string.Empty;
         public string Format { get; set; } = string.Empty;
         public string Scope { get; set; } = string.Empty;
-        public string AgeGroup { get; set; } = string.Empty;
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? RegionGroup { get; set; }
         public string Status { get; set; } = string.Empty;
         public DateOnly? StartDate { get; set; }
@@ -149,7 +150,7 @@ namespace PlayGround.Contracts.Records
         public Guid? TournamentId { get; set; }
         public string? TournamentName { get; set; }             // 브레드크럼 (친선은 null)
         public string? Format { get; set; }                     // 'Cup','Split','League'
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public int? SeasonYear { get; set; }
         public string? StageType { get; set; }                  // 'Group','Split1','Split2','Knockout','League'
         public string? GroupName { get; set; }
@@ -203,7 +204,7 @@ namespace PlayGround.Contracts.Records
         public Guid? PlayerId { get; set; }
         public string? PlayerSlug { get; set; }                 // Claim된 선수만
         public int? JerseyNumber { get; set; }
-        public string? Position { get; set; }                   // 'GK','DF','MF','FW'
+        public SoccerPosition? Position { get; set; }
         public bool IsCaptain { get; set; }
         public bool IsStarter { get; set; }
         public List<int> GoalMinutes { get; set; } = new();     // 이 선수의 득점 분 (득점 마크 "⚽N′")

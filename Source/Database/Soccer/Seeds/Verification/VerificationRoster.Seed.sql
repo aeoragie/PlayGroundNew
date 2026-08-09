@@ -36,17 +36,17 @@ DECLARE @roster TABLE (
     [IsClaimed] BIT);
 
 INSERT INTO @roster ([Name], [AgeGroup], [PhotoUrl], [Position], [Grade], [Number], [IsClaimed]) VALUES
-('김민준', 'U15', 'https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=600', 'FW', '중2', '9', 1),
-('이서준', 'U15', 'https://images.pexels.com/photos/37044687/pexels-photo-37044687.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', '중3', '8', 1),
-('박도윤', 'U15', 'https://images.pexels.com/photos/3886093/pexels-photo-3886093.jpeg?auto=compress&cs=tinysrgb&w=600', 'DF', '중2', '4', 0),
-('김정현', 'U15', 'https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=600', 'GK', '중3', '1', 1),
-('정하준', 'U15', NULL, 'FW', '중2', '11', 0),
-('강지호', 'U15', NULL, 'MF', '중3', '6', 1),
-('신준우', 'U12', 'https://images.pexels.com/photos/35481332/pexels-photo-35481332.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', '초5', '7', 1),
-('한이든', 'U12', NULL, 'FW', '초6', '10', 0),
-('서준우', 'U12', NULL, 'DF', '초5', '3', 0),
-('윤태양', 'U18', 'https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', '고2', '10', 1),
-('임건우', 'U18', NULL, 'DF', '고1', '5', 1);
+('김민준', 'U15', 'https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=600', 'FW', 'U14', '9', 1),
+('이서준', 'U15', 'https://images.pexels.com/photos/37044687/pexels-photo-37044687.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', 'U15', '8', 1),
+('박도윤', 'U15', 'https://images.pexels.com/photos/3886093/pexels-photo-3886093.jpeg?auto=compress&cs=tinysrgb&w=600', 'DF', 'U14', '4', 0),
+('김정현', 'U15', 'https://images.pexels.com/photos/33257251/pexels-photo-33257251.jpeg?auto=compress&cs=tinysrgb&w=600', 'GK', 'U15', '1', 1),
+('정하준', 'U15', NULL, 'FW', 'U14', '11', 0),
+('강지호', 'U15', NULL, 'MF', 'U15', '6', 1),
+('신준우', 'U12', 'https://images.pexels.com/photos/35481332/pexels-photo-35481332.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', 'U11', '7', 1),
+('한이든', 'U12', NULL, 'FW', 'U12', '10', 0),
+('서준우', 'U12', NULL, 'DF', 'U11', '3', 0),
+('윤태양', 'U18', 'https://images.pexels.com/photos/31855946/pexels-photo-31855946.jpeg?auto=compress&cs=tinysrgb&w=600', 'MF', 'U17', '10', 1),
+('임건우', 'U18', NULL, 'DF', 'U16', '5', 1);
 
 --.// 3개 테이블 삽입
 

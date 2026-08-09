@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Options;
+using PlayGround.Contracts.Soccer;
+using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Og;
 using PlayGround.Infrastructure.Database;

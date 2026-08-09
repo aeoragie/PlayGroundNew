@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Contracts.Claim
 {
@@ -7,10 +8,10 @@ namespace PlayGround.Contracts.Claim
     {
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string? Position { get; set; }
+        public SoccerPosition? Position { get; set; }
         public string? JerseyNumber { get; set; }
         public int? BirthYear { get; set; }
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string TeamName { get; set; } = string.Empty;
     }
 
@@ -33,7 +34,7 @@ namespace PlayGround.Contracts.Claim
     {
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string TeamName { get; set; } = string.Empty;
         public SystemTime RequestedAt { get; set; }
     }

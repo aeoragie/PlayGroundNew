@@ -40,7 +40,7 @@
                     <div class="flex gap-2">
                         @foreach (var age in AgeOptions)
                         {
-                            <ChoiceChip Label="@age" Selected="@(mAge == age)" OnClick="@(() => mAge = age)" />
+                            <ChoiceChip Label="@age.ToString()" Selected="@(mAge == age)" OnClick="@(() => mAge = age)" />
                         }
                     </div>
                 </div>
@@ -87,12 +87,12 @@
 </div>
 
 @code {
-    private static readonly string[] AgeOptions = ["U12", "U15", "U18"];
+    private static readonly SoccerAgeGroup[] AgeOptions = [SoccerAgeGroup.U12, SoccerAgeGroup.U15, SoccerAgeGroup.U18];
     private static readonly Dictionary<int, string> Titles = new() { [1] = AppText.Auth.PlayerStep1Title, [2] = AppText.Auth.PlayerStep2Title, [3] = AppText.Auth.PlayerStep3Title };
     private static readonly string[] StepLabels = [AppText.Auth.PlayerStepLabel1, AppText.Auth.PlayerStepLabel2, AppText.Auth.PlayerStepLabel3];
 
     private int mStep = 1;
-    private string mAge = "U15";
+    private SoccerAgeGroup mAge = SoccerAgeGroup.U15;
     private string mName = string.Empty;
     private string mBirth = string.Empty;
     private string mRegion = string.Empty;

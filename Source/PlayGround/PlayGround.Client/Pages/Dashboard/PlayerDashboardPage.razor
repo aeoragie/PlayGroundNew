@@ -590,12 +590,12 @@
         List<string> parts = new();
         if (mInfo.Profile.AgeGroup is not null)
         {
-            parts.Add(mInfo.Profile.AgeGroup);
+            parts.Add(mInfo.Profile.AgeGroup.ToString()!);
         }
 
         if (mInfo.Profile.Position is not null)
         {
-            parts.Add(mInfo.Profile.Position);
+            parts.Add(mInfo.Profile.Position.ToString()!);
         }
 
         if (mInfo.Profile.JerseyNumber is not null)

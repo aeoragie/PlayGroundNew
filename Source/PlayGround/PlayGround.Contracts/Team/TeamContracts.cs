@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Contracts.Team
 {
@@ -14,7 +15,7 @@ namespace PlayGround.Contracts.Team
     public class RosterEntryDto
     {
         public string Name { get; set; } = string.Empty;
-        public string? Position { get; set; }
+        public SoccerPosition? Position { get; set; }
         public string? Number { get; set; }
     }
 
@@ -85,9 +86,9 @@ namespace PlayGround.Contracts.Team
     {
         public string Name { get; set; } = string.Empty;
         public string? JerseyNumber { get; set; }
-        public string? Position { get; set; }   // FW | MF | DF | GK
-        public string? Grade { get; set; }       // '초4'~'고3'
-        public string? AgeGroup { get; set; }    // 'U12' | 'U15' | 'U18'
+        public SoccerPosition? Position { get; set; }
+        public SoccerGrade? Grade { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
     }
 
     public class TeamRosterPlayerDto
@@ -96,9 +97,9 @@ namespace PlayGround.Contracts.Team
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? JerseyNumber { get; set; }
-        public string? Position { get; set; }   // FW | MF | DF | GK
-        public string? Grade { get; set; }      // '초4'~'고3'
-        public string? AgeGroup { get; set; }   // 'U12' | 'U15' | 'U18' — 온보딩 로스터는 null
+        public SoccerPosition? Position { get; set; }
+        public SoccerGrade? Grade { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? PhotoUrl { get; set; }
 
         /// <summary>SoccerClaimStatus enum 멤버 이름 문자열. 'Claimed' | 'Unclaimed' (Pending은 Claim 플로우 도입 때).</summary>
@@ -130,10 +131,10 @@ namespace PlayGround.Contracts.Team
         public bool IsOpen { get; set; }
 
         /// <summary>모집 연령대 'U12'|'U15'|'U18' — 지원 통합(E5) 카드 메타. 미지정이면 null.</summary>
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
 
         /// <summary>모집 포지션 목록 — 지원 폼의 희망 포지션 선택지 (PositionsJson 파싱).</summary>
-        public List<string> Positions { get; set; } = new();
+        public List<SoccerPosition> Positions { get; set; } = new();
 
         /// <summary>정원 — null이면 무제한. "정원 N/M" 표기·지원 차단 판정에 쓴다.</summary>
         public int? Capacity { get; set; }
@@ -153,10 +154,10 @@ namespace PlayGround.Contracts.Team
         /// 서버는 시간대를 모르고 `[DeadlineAt] > dbo.UfnSystemDate()`로만 판정한다.</summary>
         public SystemTime? DeadlineAt { get; set; }
 
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
 
         /// <summary>모집 포지션 목록 (선택) — 리포지토리가 JSON 배열로 직렬화해 저장한다.</summary>
-        public List<string> Positions { get; set; } = new();
+        public List<SoccerPosition> Positions { get; set; } = new();
 
         /// <summary>정원 (선택) — null이면 무제한.</summary>
         public int? Capacity { get; set; }
@@ -172,13 +173,13 @@ namespace PlayGround.Contracts.Team
         public string RecruitmentTitle { get; set; } = string.Empty;
         public Guid PlayerId { get; set; }
         public string PlayerName { get; set; } = string.Empty;
-        public string? PlayerAgeGroup { get; set; }
+        public SoccerAgeGroup? PlayerAgeGroup { get; set; }
 
         /// <summary>지원 선수의 소속 로스터 포지션 (있으면) — 지원의 DesiredPosition과 별개.</summary>
-        public string? PlayerPosition { get; set; }
+        public SoccerPosition? PlayerPosition { get; set; }
         public string? PlayerPhotoUrl { get; set; }
 
-        public string? DesiredPosition { get; set; }
+        public SoccerPosition? DesiredPosition { get; set; }
         public string? Introduction { get; set; }
 
         /// <summary>SoccerApplicationStatus 멤버 이름 ('Pending'|'Reviewing'|'Accepted'|'Rejected').</summary>
@@ -210,7 +211,7 @@ namespace PlayGround.Contracts.Team
         /// <summary>지원한 자녀 — 허브 자녀 카드 매칭·현황 그룹핑에 쓴다(내 자녀라 노출 안전).</summary>
         public Guid PlayerId { get; set; }
         public string PlayerName { get; set; } = string.Empty;
-        public string? DesiredPosition { get; set; }
+        public SoccerPosition? DesiredPosition { get; set; }
 
         /// <summary>SoccerApplicationStatus 멤버 이름 ('Pending'|'Reviewing'|'Accepted'|'Rejected').</summary>
         public string Status { get; set; } = string.Empty;
@@ -231,7 +232,7 @@ namespace PlayGround.Contracts.Team
     {
         public Guid RecruitmentId { get; set; }
         public Guid PlayerId { get; set; }
-        public string? DesiredPosition { get; set; }
+        public SoccerPosition? DesiredPosition { get; set; }
         public string? Introduction { get; set; }
     }
 
@@ -464,7 +465,7 @@ namespace PlayGround.Contracts.Team
         public string Slug { get; set; } = string.Empty;
         public string? TeamType { get; set; }      // 클럽 | 학교 | 학원
         public string? Region { get; set; }
-        public string? AgeGroup { get; set; }      // 'U12' | 'U15' | 'U18'
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? LogoUrl { get; set; }
         public string? CoverImageUrl { get; set; }
         public bool IsVerified { get; set; }
@@ -498,7 +499,7 @@ namespace PlayGround.Contracts.Team
         public string TeamName { get; set; } = string.Empty;
         public string? TeamType { get; set; }      // 클럽 | 학교 | 학원
         public string? Region { get; set; }
-        public string? AgeGroup { get; set; }      // 팀 자체 연령 그룹 (로스터 비어 있을 때 메타 폴백)
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? LogoUrl { get; set; }
         public string? CoverImageUrl { get; set; }
         public string? Description { get; set; }
@@ -515,9 +516,9 @@ namespace PlayGround.Contracts.Team
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? JerseyNumber { get; set; }
-        public string? Position { get; set; }
-        public string? Grade { get; set; }
-        public string? AgeGroup { get; set; }
+        public SoccerPosition? Position { get; set; }
+        public SoccerGrade? Grade { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? PhotoUrl { get; set; }
 
         /// <summary>공개 프로필 연결 여부 (Claimed) — "공개 프로필 →" 링크 노출용. Claim 상태 자체는 비노출.</summary>
@@ -686,7 +687,7 @@ namespace PlayGround.Contracts.Team
         public Guid TournamentId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Format { get; set; } = string.Empty;   // SoccerTournamentFormat 멤버 이름
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
     }
 
     public class TeamTournamentOptionsResponse
@@ -746,9 +747,9 @@ namespace PlayGround.Contracts.Team
 
         /// <summary>공개 선수 프로필 슬러그 — Claimed일 때 "공개 프로필" 링크. Pending은 null.</summary>
         public string? Slug { get; set; }
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? TeamName { get; set; }
-        public string? Position { get; set; }
+        public SoccerPosition? Position { get; set; }
         public string? JerseyNumber { get; set; }
 
         public int Appearances { get; set; }

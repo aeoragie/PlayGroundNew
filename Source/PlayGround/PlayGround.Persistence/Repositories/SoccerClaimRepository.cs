@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Options;
+using PlayGround.Contracts.Soccer;
+using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Claim;
 using PlayGround.Infrastructure.Database;
@@ -37,10 +39,10 @@ namespace PlayGround.Persistence.Repositories
             {
                 PlayerId = row.PlayerId,
                 Name = row.Name,
-                Position = NullIfEmpty(row.Position),
+                Position = EnumColumn.Read<SoccerPosition>(row.Position),
                 JerseyNumber = NullIfEmpty(row.JerseyNumber),
                 BirthYear = row.BirthDate?.Year,
-                AgeGroup = NullIfEmpty(row.AgeGroup),
+                AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup),
                 TeamName = row.TeamName
             });
         }
@@ -64,10 +66,10 @@ namespace PlayGround.Persistence.Repositories
             {
                 PlayerId = row.PlayerId,
                 Name = row.Name,
-                Position = NullIfEmpty(row.Position),
+                Position = EnumColumn.Read<SoccerPosition>(row.Position),
                 JerseyNumber = NullIfEmpty(row.JerseyNumber),
                 BirthYear = row.BirthDate?.Year,
-                AgeGroup = NullIfEmpty(row.AgeGroup),
+                AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup),
                 TeamName = row.TeamName
             });
         }
@@ -152,7 +154,7 @@ namespace PlayGround.Persistence.Repositories
                 {
                     PlayerId = r.PlayerId,
                     Name = r.Name,
-                    AgeGroup = string.IsNullOrEmpty(r.AgeGroup) ? null : r.AgeGroup,
+                    AgeGroup = EnumColumn.Read<SoccerAgeGroup>(r.AgeGroup),
                     TeamName = r.TeamName,
                     RequestedAt = r.CreatedAt
                 })

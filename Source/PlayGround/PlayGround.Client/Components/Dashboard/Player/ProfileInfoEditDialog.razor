@@ -32,7 +32,7 @@
                                    Validator="ValidateWeight" Placeholder="58" MaxLength="3" />
                     </div>
 
-                    <SelectField TValue="string" Label="@AppText.Player.FieldFoot" @bind-Value="mFoot" IsOptional="true"
+                    <SelectField TValue="SoccerPreferredFoot?" Label="@AppText.Player.FieldFoot" @bind-Value="mFoot" IsOptional="true"
                                  Options="@FootOptions" Placeholder="@AppText.Player.FootSelectPlaceholder" />
 
                     <TextField Label="@AppText.Player.SchoolLabel" @bind-Value="mSchool" IsOptional="true"
@@ -76,11 +76,11 @@
     [Parameter]
     public EventCallback OnSaved { get; set; }
 
-    private static readonly List<SelectOption<string>> FootOptions = new()
+    private static readonly List<SelectOption<SoccerPreferredFoot?>> FootOptions = new()
     {
-        new SelectOption<string>("Left", AppText.Player.FootLeft),
-        new SelectOption<string>("Right", AppText.Player.FootRight),
-        new SelectOption<string>("Both", AppText.Player.FootBoth),
+        new SelectOption<SoccerPreferredFoot?>(SoccerPreferredFoot.Left, AppText.Player.FootLeft),
+        new SelectOption<SoccerPreferredFoot?>(SoccerPreferredFoot.Right, AppText.Player.FootRight),
+        new SelectOption<SoccerPreferredFoot?>(SoccerPreferredFoot.Both, AppText.Player.FootBoth),
     };
 
     // 소문자 영숫자, 하이픈 허용(양끝·연속 하이픈 금지) — 서버 규칙과 같다.
@@ -97,7 +97,7 @@
 
     private string? mHeightText;
     private string? mWeightText;
-    private string? mFoot;
+    private SoccerPreferredFoot? mFoot;
     private string? mSchool;
     private string? mSlug;
     private string? mTakenSlug; // 서버가 "이미 사용 중"이라고 돌려준 값 — 인라인 오류 표시용
@@ -203,7 +203,7 @@
         {
             HeightCm = ParseIntOrNull(mHeightText),
             WeightKg = ParseIntOrNull(mWeightText),
-            PreferredFoot = string.IsNullOrWhiteSpace(mFoot) ? null : mFoot,
+            PreferredFoot = mFoot,
             SchoolName = string.IsNullOrWhiteSpace(mSchool) ? null : mSchool.Trim(),
             Slug = string.IsNullOrWhiteSpace(mSlug) ? null : mSlug.Trim().ToLowerInvariant(),
         };

@@ -58,7 +58,7 @@
                     <span class="flex flex-col gap-px flex-1 min-w-0">
                         @* 선수 상세 화면이 없어 링크가 아니다 (# 링크는 랜딩 오이동) *@
                         <span class="text-sm font-bold text-navy-deep whitespace-nowrap">@player.Name</span>
-                        <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
+                        <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position?.ToString() ?? "-") · @(player.Grade?.ToString() ?? "-")</span>
                     </span>
                     <ClaimBadge Status="@ClaimOf(player)" />
                     <OverflowMenu Target="@player.Name" DestructiveItems="RemoveItems(player)" />
@@ -95,7 +95,7 @@
                     </div>
                     <span class="flex flex-col gap-0.5">
                         <span class="text-sm font-extrabold text-navy-deep whitespace-nowrap">@player.Name</span>
-                        <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
+                        <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position?.ToString() ?? "-") · @(player.Grade?.ToString() ?? "-")</span>
                     </span>
                     <div class="flex items-center gap-1">
                         <ClaimBadge Status="@ClaimOf(player)" />
@@ -187,7 +187,7 @@
     }
 
     private static SoccerAgeGroup? AgeOf(TeamRosterPlayerDto player) =>
-        SoccerAgeGroupExtensions.ParseAgeGroupOrNull(player.AgeGroup);
+        player.AgeGroup;
 
     private static SoccerClaimStatus ClaimOf(TeamRosterPlayerDto player) =>
         SoccerClaimStatusExtensions.ParseClaimStatus(player.ClaimStatus);

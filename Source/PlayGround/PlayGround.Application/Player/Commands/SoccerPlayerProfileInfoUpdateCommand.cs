@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -9,11 +10,9 @@ using System.Text.RegularExpressions;
 namespace PlayGround.Application.Player.Commands
 {
     /// <summary>선수 프로필 수치(키·몸무게·주발·학교)·주소(슬러그) 편집 유즈케이스. 관리 주체(보호자)만 —
-    /// UserId로 소유 선수를 해석하므로 타인 프로필은 변경할 수 없다.
-    /// SoccerPreferredFoot enum은 Client 전용이라 여기선 화이트리스트를 직접 검사한다(로스터 AgeGroup 전례).</summary>
+    /// UserId로 소유 선수를 해석하므로 타인 프로필은 변경할 수 없다.</summary>
     public class SoccerPlayerProfileInfoUpdateCommand
     {
-        private static readonly string[] AllowedFeet = { "Left", "Right", "Both" };
 
         // 소문자 영숫자, 하이픈 허용(양끝·연속 하이픈 금지), 3~30자.
         private static readonly Regex SlugPattern = new(@"^[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.Compiled);
@@ -62,8 +61,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<UpdatePlayerProfileInfoResponse>.Error(ErrorCode.OutOfRange, "weightKg must be 20-150");
             }
 
-            string? foot = string.IsNullOrWhiteSpace(request.PreferredFoot) ? null : request.PreferredFoot.Trim();
-            if (foot is not null && Array.IndexOf(AllowedFeet, foot) < 0)
+            if (request.PreferredFoot == SoccerPreferredFoot.Unknown)
             {
                 return Result<UpdatePlayerProfileInfoResponse>.Error(ErrorCode.InvalidInput, "unknown preferred foot");
             }
@@ -95,7 +93,7 @@ namespace PlayGround.Application.Player.Commands
             }
 
             Result<string?> result = await mRepository.UpdateProfileInfoAsync(
-                userId, request.HeightCm, request.WeightKg, foot, school, slug, playerId, cancellation);
+                userId, request.HeightCm, request.WeightKg, request.PreferredFoot, school, slug, playerId, cancellation);
             if (result.IsError)
             {
                 return Result<UpdatePlayerProfileInfoResponse>.Failure(result.ResultData);

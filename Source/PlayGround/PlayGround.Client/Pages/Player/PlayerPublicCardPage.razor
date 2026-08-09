@@ -197,7 +197,7 @@ else if (mData is not null)
         get
         {
             string season = AppText.Player.CardSeason(SystemTime.Now.ToWallClock().Year);
-            return mData!.Profile.AgeGroup is null ? season : $"{season} · {mData.Profile.AgeGroup}";
+            return mData.Profile.AgeGroup is not null ? season : $"{season} · {mData.Profile.AgeGroup}";
         }
     }
 
@@ -208,10 +208,10 @@ else if (mData is not null)
             List<string> parts = new();
             if (mData!.Profile.Position is not null)
             {
-                parts.Add(mData.Profile.Position);
+                parts.Add(mData.Profile.Position.ToString()!);
             }
 
-            if (SoccerPreferredFootExtensions.ParseLabelOrNull(mData.Profile.PreferredFoot) is string foot)
+            if (mData.Profile.PreferredFoot.ToLabel() is string foot)
             {
                 parts.Add(foot);
             }
@@ -254,7 +254,7 @@ else if (mData is not null)
         get
         {
             List<string> parts = new();
-            string school = string.Join(" ", new[] { mData!.Profile.SchoolName, mData.Profile.Grade }.Where(v => v is not null));
+            string school = string.Join(" ", new[] { mData!.Profile.SchoolName, mData.Profile.Grade?.ToString() }.Where(v => v is not null));
             if (school.Length > 0)
             {
                 parts.Add(school);

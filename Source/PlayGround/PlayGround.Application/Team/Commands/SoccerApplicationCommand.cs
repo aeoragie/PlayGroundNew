@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
@@ -47,7 +48,11 @@ namespace PlayGround.Application.Team.Commands
                 return Result<Guid>.Error(ErrorCode.InvalidInput, "recruitmentId/playerId required");
             }
 
-            request.DesiredPosition = string.IsNullOrWhiteSpace(request.DesiredPosition) ? null : request.DesiredPosition.Trim();
+            if (request.DesiredPosition == SoccerPosition.Unknown)
+            {
+                return Result<Guid>.Error(ErrorCode.InvalidInput, "invalid position");
+            }
+
             request.Introduction = string.IsNullOrWhiteSpace(request.Introduction) ? null : request.Introduction.Trim();
 
             if (request.Introduction is not null && request.Introduction.Length > MaxIntroductionLength)

@@ -81,7 +81,7 @@
             }
             else if (Profile.AgeGroup is not null)
             {
-                parts.Add(Profile.AgeGroup);
+                parts.Add(Profile.AgeGroup.ToString()!);
             }
 
             return string.Join(" · ", parts);

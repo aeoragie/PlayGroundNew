@@ -59,7 +59,7 @@
 
     // "김민준(U15) · 김서연(U12)" — 연령 그룹이 없으면 이름만
     private string ChildrenSummary => string.Join(" · ", Hub.Children
-        .Select(c => string.IsNullOrEmpty(c.AgeGroup) ? c.Name : $"{c.Name}({c.AgeGroup})"));
+        .Select(c => c.AgeGroup is null ? c.Name : $"{c.Name}({c.AgeGroup})"));
 
     private string TeamsSummary => string.Join(" · ", Hub.Teams.Select(t => t.TeamName));
 }

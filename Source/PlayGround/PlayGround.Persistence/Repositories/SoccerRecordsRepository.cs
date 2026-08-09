@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Options;
+using PlayGround.Contracts.Soccer;
+using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Records;
 using PlayGround.Infrastructure.Database;
@@ -43,7 +45,7 @@ namespace PlayGround.Persistence.Repositories
                         Name = t.Name,
                         Format = t.Format,
                         Scope = t.Scope,
-                        AgeGroup = t.AgeGroup,
+                        AgeGroup = EnumColumn.ReadRequired<SoccerAgeGroup>(t.AgeGroup),
                         RegionGroup = NullIfEmpty(t.RegionGroup),
                         Status = t.Status,
                         TeamCount = t.TeamCount,
@@ -95,7 +97,7 @@ namespace PlayGround.Persistence.Repositories
                     Name = tournament.Name,
                     Format = tournament.Format,
                     Scope = tournament.Scope,
-                    AgeGroup = tournament.AgeGroup,
+                    AgeGroup = EnumColumn.ReadRequired<SoccerAgeGroup>(tournament.AgeGroup),
                     RegionGroup = NullIfEmpty(tournament.RegionGroup),
                     Status = tournament.Status,
                     StartDate = tournament.StartDate,
@@ -246,7 +248,7 @@ namespace PlayGround.Persistence.Repositories
                 PlayerId = ap.PlayerId,
                 PlayerSlug = PlayerSlugOf(ap.PlayerId),
                 JerseyNumber = ap.JerseyNumber,
-                Position = NullIfEmpty(ap.Position),
+                Position = EnumColumn.Read<SoccerPosition>(ap.Position),
                 IsCaptain = ap.IsCaptain,
                 IsStarter = ap.IsStarter,
                 GoalMinutes = GoalMinutesOf(ap)
@@ -259,7 +261,7 @@ namespace PlayGround.Persistence.Repositories
                 TournamentId = match.TournamentId,
                 TournamentName = tournament?.Name,
                 Format = tournament?.Format,
-                AgeGroup = tournament?.AgeGroup,
+                AgeGroup = tournament is null ? null : EnumColumn.Read<SoccerAgeGroup>(tournament.AgeGroup),
                 SeasonYear = tournament?.SeasonYear,
                 StageType = NullIfEmpty(match.StageType),
                 GroupName = NullIfEmpty(match.GroupName),

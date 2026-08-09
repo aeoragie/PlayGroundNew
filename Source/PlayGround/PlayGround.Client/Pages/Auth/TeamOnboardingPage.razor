@@ -56,7 +56,13 @@ else
             <div class="flex flex-col gap-3.5">
                 <div class="flex gap-2">
                     <input type="text" @bind="mName" @bind:event="oninput" placeholder="@AppText.Auth.RosterNamePlaceholder" class="[flex:1.4] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
-                    <input type="text" @bind="mPos" @bind:event="oninput" placeholder="@AppText.Auth.RosterPositionPlaceholder" class="flex-1 h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
+                    <select @bind="mPos" class="flex-1 h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium min-w-0 bg-white focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy">
+                        <option value="">@AppText.Auth.RosterPositionPlaceholder</option>
+                        @foreach (SoccerPosition position in PositionOptions)
+                        {
+                            <option value="@position">@position.ToString()</option>
+                        }
+                    </select>
                     <input type="text" @bind="mNum" @bind:event="oninput" placeholder="@AppText.Auth.RosterNumberPlaceholder" class="w-[72px] h-[46px] border-1.5 border-border rounded-[11px] px-[13px] text-sm font-medium placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy" />
                     <button type="button" @onclick="AddRoster" class="h-[46px] px-[18px] rounded-[11px] bg-navy hover:bg-navy-deep text-white text-sm font-bold whitespace-nowrap transition-colors">@AppText.Auth.RosterAdd</button>
                 </div>
@@ -68,7 +74,7 @@ else
                         <div class="flex items-center gap-3 border border-border rounded-[11px] px-3.5 py-[11px]">
                             <span class="w-[34px] h-[34px] rounded-full bg-surface-icon flex items-center justify-center text-sm font-extrabold text-navy flex-none">@entry.Number</span>
                             <span class="text-[14.5px] font-bold flex-1 text-navy-deep">@entry.Name</span>
-                            <span class="text-[13px] text-text-body">@entry.Position</span>
+                            <span class="text-[13px] text-text-body">@(entry.Position?.ToString() ?? "-")</span>
                             <span class="@Css.Badge.Neutral">Unclaimed</span>
                             <button type="button" @onclick="@(() => State.Roster.Remove(captured))" class="border-0 bg-transparent text-text-faint hover:text-[#e0532f] text-[15px] cursor-pointer p-0.5 transition-colors">✕</button>
                         </div>
@@ -132,6 +138,9 @@ else
 
     private string mTeamName = string.Empty;
     private string mRegion = string.Empty;
+    private static readonly SoccerPosition[] PositionOptions =
+        [SoccerPosition.FW, SoccerPosition.MF, SoccerPosition.DF, SoccerPosition.GK];
+
     private string mName = string.Empty;
     private string mPos = string.Empty;
     private string mNum = string.Empty;
@@ -152,7 +161,7 @@ else
         State.Roster.Add(new RosterEntry
         {
             Name = mName.Trim(),
-            Position = string.IsNullOrWhiteSpace(mPos) ? "-" : mPos.Trim(),
+            Position = Enum.TryParse(mPos, out SoccerPosition parsed) ? parsed : null,
             Number = string.IsNullOrWhiteSpace(mNum) ? "-" : mNum.Trim()
         });
         mName = mPos = mNum = string.Empty;

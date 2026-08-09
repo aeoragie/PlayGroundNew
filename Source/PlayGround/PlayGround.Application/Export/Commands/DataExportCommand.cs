@@ -295,13 +295,13 @@ namespace PlayGround.Application.Export.Commands
                                 goals = statsResult.Value.Matches.Sum(m => m.Goals);
                                 assists = statsResult.Value.Matches.Sum(m => m.Assists);
                                 childData.Add(new { child.PlayerId, child.Name, info, careers, seasonStats = statsResult.Value });
-                                csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup)},{Csv(child.TeamName)},{apps},{goals},{assists}");
+                                csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup?.ToString())},{Csv(child.TeamName)},{apps},{goals},{assists}");
                                 continue;
                             }
                         }
 
                         childData.Add(new { child.PlayerId, child.Name, info, careers });
-                        csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup)},{Csv(child.TeamName)},{apps},{goals},{assists}");
+                        csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup?.ToString())},{Csv(child.TeamName)},{apps},{goals},{assists}");
                     }
 
                     await WriteObjectAsync(zip, "children/children.json", childData, cancellation);

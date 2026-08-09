@@ -123,8 +123,8 @@
         get
         {
             var parts = new List<string>();
-            if (!string.IsNullOrWhiteSpace(Child.AgeGroup)) { parts.Add(Child.AgeGroup); }
-            if (!string.IsNullOrWhiteSpace(Child.Position)) { parts.Add(Child.Position); }
+            if (Child.AgeGroup is not null) { parts.Add(Child.AgeGroup.ToString()!); }
+            if (Child.Position is not null) { parts.Add(Child.Position.ToString()!); }
             if (!string.IsNullOrWhiteSpace(Child.JerseyNumber)) { parts.Add($"#{Child.JerseyNumber}"); }
             // Pending은 메타에 팀명을 넣지 않는다 — 대기 안내 문구에서 팀을 말한다(중복 방지)
             if (!IsPending && !string.IsNullOrWhiteSpace(Child.TeamName)) { parts.Add(Child.TeamName); }

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
@@ -14,10 +15,6 @@ namespace PlayGround.Application.Team.Commands
     {
         private const int MaxNameLength = 50;
         private const int MaxJerseyLength = 10;
-        private const int MaxPositionLength = 20;
-        private const int MaxGradeLength = 20;
-
-        private static readonly HashSet<string> AllowedAgeGroups = new(StringComparer.Ordinal) { "U12", "U15", "U18" };
 
         private readonly ISoccerTeamRepository mRepository;
 
@@ -45,18 +42,13 @@ namespace PlayGround.Application.Team.Commands
             // 클라이언트 인라인 검증과 같은 규칙 — 우회 요청도 같은 기준으로 막는다
             request.Name = request.Name?.Trim() ?? string.Empty;
             request.JerseyNumber = Trimmed(request.JerseyNumber);
-            request.Position = Trimmed(request.Position);
-            request.Grade = Trimmed(request.Grade);
-            request.AgeGroup = Trimmed(request.AgeGroup);
 
             if (request.Name.Length is 0 or > MaxNameLength)
             {
                 return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "name is required");
             }
 
-            if (request.JerseyNumber is { Length: > MaxJerseyLength }
-                || request.Position is { Length: > MaxPositionLength }
-                || request.Grade is { Length: > MaxGradeLength })
+            if (request.JerseyNumber is { Length: > MaxJerseyLength })
             {
                 return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "field too long");
             }
@@ -66,10 +58,12 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "jersey must be numeric");
             }
 
-            // 연령대는 화이트리스트 — 저장 화이트리스트라 클라이언트가 우회해도 서버가 막는다
-            if (request.AgeGroup is not null && !AllowedAgeGroups.Contains(request.AgeGroup))
+            // Unknown = 미지 값 폴백 — 저장 값이 아니다
+            if (request.Position == SoccerPosition.Unknown
+                || request.Grade == SoccerGrade.Unknown
+                || request.AgeGroup == SoccerAgeGroup.Unknown)
             {
-                return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "invalid age group");
+                return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "invalid enum value");
             }
 
             Result<TeamRosterPlayerDto?> added = await mRepository.AddTeamPlayerByManagerAsync(managerUserId, request, cancellation);

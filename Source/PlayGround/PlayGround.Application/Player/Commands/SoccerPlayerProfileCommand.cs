@@ -3,6 +3,7 @@ using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Models;
 using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -13,8 +14,6 @@ namespace PlayGround.Application.Player.Commands
     /// <summary>선수 온보딩 프로필 생성 유즈케이스. 입력 검증·정규화 후 포트로 저장.</summary>
     public class SoccerPlayerProfileCommand
     {
-        private static readonly string[] AllowedAgeGroups = ["U12", "U15", "U18"];
-
         private readonly IPlayerRepository mRepository;
         private readonly IAccountRepository mAccountRepository;
         private readonly IJwtTokenService mTokenService;
@@ -64,10 +63,9 @@ namespace PlayGround.Application.Player.Commands
                 birthDate = parsed;
             }
 
-            string? ageGroup = NormalizeAgeGroup(request.AgeGroup);
-            if (request.AgeGroup is not null && ageGroup is null)
+            if (request.AgeGroup == SoccerAgeGroup.Unknown)
             {
-                return Result<CreatePlayerProfileResponse>.Error(ErrorCode.OutOfRange, "AgeGroup must be U12/U15/U18");
+                return Result<CreatePlayerProfileResponse>.Error(ErrorCode.OutOfRange, "invalid age group");
             }
 
             var input = new CreatePlayerInput
@@ -75,7 +73,7 @@ namespace PlayGround.Application.Player.Commands
                 UserId = userId,
                 Name = request.Name.Trim(),
                 BirthDate = birthDate,
-                AgeGroup = ageGroup,
+                AgeGroup = request.AgeGroup,
                 Region = string.IsNullOrWhiteSpace(request.Region) ? null : request.Region.Trim()
             };
 
@@ -111,15 +109,5 @@ namespace PlayGround.Application.Player.Commands
             });
         }
 
-        private static string? NormalizeAgeGroup(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return null;
-            }
-
-            string upper = value.Trim().ToUpperInvariant();
-            return Array.Exists(AllowedAgeGroups, a => a == upper) ? upper : null;
-        }
     }
 }

@@ -31,14 +31,14 @@
                     <div class="@Css.MatchForm.DateTimeRow">
                         <TextField Label="@AppText.Dashboard.JerseyLabel" @bind-Value="mJersey" IsOptional="true" Validator="ValidateJersey"
                                    Placeholder="9" MaxLength="3" />
-                        <SelectField TValue="string" Label="@AppText.Dashboard.PositionLabel" @bind-Value="mPosition" IsOptional="true"
+                        <SelectField TValue="SoccerPosition?" Label="@AppText.Dashboard.PositionLabel" @bind-Value="mPosition" IsOptional="true"
                                      Options="@PositionOptions" Placeholder="@AppText.Dashboard.SelectPlaceholder" />
                     </div>
 
                     <div class="@Css.MatchForm.DateTimeRow">
-                        <TextField Label="@AppText.Dashboard.GradeLabel" @bind-Value="mGrade" IsOptional="true"
-                                   Placeholder="@AppText.Dashboard.GradePlaceholder" MaxLength="20" />
-                        <SelectField TValue="string" Label="@AppText.Dashboard.AgeGroupLabel" @bind-Value="mAgeGroup" IsOptional="true"
+                        <SelectField TValue="SoccerGrade?" Label="@AppText.Dashboard.GradeLabel" @bind-Value="mGrade" IsOptional="true"
+                                     Options="@GradeOptions" Placeholder="@AppText.Dashboard.SelectPlaceholder" />
+                        <SelectField TValue="SoccerAgeGroup?" Label="@AppText.Dashboard.AgeGroupLabel" @bind-Value="mAgeGroup" IsOptional="true"
                                      Options="@AgeOptions" Placeholder="@AppText.Dashboard.SelectPlaceholder" />
                     </div>
 
@@ -67,28 +67,34 @@
     [Parameter]
     public EventCallback OnSaved { get; set; }
 
-    private static readonly List<SelectOption<string>> PositionOptions = new()
+    private static readonly List<SelectOption<SoccerPosition?>> PositionOptions = new()
     {
-        new SelectOption<string>("FW", AppText.Dashboard.PosFw),
-        new SelectOption<string>("MF", AppText.Dashboard.PosMf),
-        new SelectOption<string>("DF", AppText.Dashboard.PosDf),
-        new SelectOption<string>("GK", AppText.Dashboard.PosGkOption),
+        new SelectOption<SoccerPosition?>(SoccerPosition.FW, AppText.Dashboard.PosFw),
+        new SelectOption<SoccerPosition?>(SoccerPosition.MF, AppText.Dashboard.PosMf),
+        new SelectOption<SoccerPosition?>(SoccerPosition.DF, AppText.Dashboard.PosDf),
+        new SelectOption<SoccerPosition?>(SoccerPosition.GK, AppText.Dashboard.PosGkOption),
     };
 
-    private static readonly List<SelectOption<string>> AgeOptions = new()
+    private static readonly List<SelectOption<SoccerGrade?>> GradeOptions =
+        Enum.GetValues<SoccerGrade>()
+            .Where(g => g != SoccerGrade.Unknown)
+            .Select(g => new SelectOption<SoccerGrade?>(g, g.ToString()))
+            .ToList();
+
+    private static readonly List<SelectOption<SoccerAgeGroup?>> AgeOptions = new()
     {
-        new SelectOption<string>("U12", "U12"),
-        new SelectOption<string>("U15", "U15"),
-        new SelectOption<string>("U18", "U18"),
+        new SelectOption<SoccerAgeGroup?>(SoccerAgeGroup.U12, "U12"),
+        new SelectOption<SoccerAgeGroup?>(SoccerAgeGroup.U15, "U15"),
+        new SelectOption<SoccerAgeGroup?>(SoccerAgeGroup.U18, "U18"),
     };
 
     private readonly FormFieldContext mForm = new();
 
     private string? mName;
     private string? mJersey;
-    private string? mPosition;
-    private string? mGrade;
-    private string? mAgeGroup;
+    private SoccerPosition? mPosition;
+    private SoccerGrade? mGrade;
+    private SoccerAgeGroup? mAgeGroup;
     private bool mSaving;
     private bool mLoaded;
 
@@ -107,7 +113,10 @@
         }
 
         mLoaded = true;
-        mName = mJersey = mPosition = mGrade = mAgeGroup = null;
+        mName = mJersey = null;
+        mPosition = null;
+        mGrade = null;
+        mAgeGroup = null;
     }
 
     private static string? ValidateName(string? value) =>
@@ -134,9 +143,9 @@
         {
             Name = mName!.Trim(),
             JerseyNumber = Trimmed(mJersey),
-            Position = Trimmed(mPosition),
-            Grade = Trimmed(mGrade),
-            AgeGroup = Trimmed(mAgeGroup),
+            Position = mPosition,
+            Grade = mGrade,
+            AgeGroup = mAgeGroup,
         };
 
         mSaving = true;

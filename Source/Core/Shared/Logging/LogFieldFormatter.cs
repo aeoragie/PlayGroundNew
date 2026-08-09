@@ -23,7 +23,8 @@ namespace PlayGround.Shared.Logging
                 builder.Append('.');
             }
 
-            builder.Append(" { ");
+            // MEL 템플릿에서 장식용 중괄호는 {{ }}로 이스케이프해야 한다 — 안 하면 렌더 시 FormatException
+            builder.Append(template ? " {{ " : " { ");
             for (int i = 0; i < fields.Length; i++)
             {
                 if (i > 0)
@@ -42,7 +43,7 @@ namespace PlayGround.Shared.Logging
                 }
             }
 
-            builder.Append(" }");
+            builder.Append(template ? " }}" : " }");
             return builder.ToString();
         }
     }

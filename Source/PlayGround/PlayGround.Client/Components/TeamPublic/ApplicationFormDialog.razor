@@ -54,10 +54,10 @@
 
                         @if (HasPositions)
                         {
-                            <RadioCards Label="@AppText.Team.DesiredPosition" TValue="string" @bind-Value="mDesiredPosition"
+                            <RadioCards Label="@AppText.Team.DesiredPosition" TValue="SoccerPosition?" @bind-Value="mDesiredPosition"
                                         Options="@PositionOptions"
                                         Helper="@AppText.Team.DesiredPositionHelper"
-                                        Validator="@(v => string.IsNullOrEmpty(v) ? AppText.Team.DesiredPositionError : null)" />
+                                        Validator="@(v => v is null ? AppText.Team.DesiredPositionError : null)" />
                         }
 
                         <TextField Label="@AppText.Team.Introduction" @bind-Value="mIntroduction" IsOptional="true" Multiline="true" Rows="3"
@@ -107,7 +107,7 @@
 
     private List<ManagedPlayerDto>? mChildren;
     private Guid mPlayerId;
-    private string mDesiredPosition = string.Empty;
+    private SoccerPosition? mDesiredPosition;
     private string? mIntroduction;
     private bool mSaving;
     private bool mLoaded;
@@ -118,8 +118,8 @@
     private List<SelectOption<Guid>> ChildOptions =>
         (mChildren ?? new()).Select(c => new SelectOption<Guid>(c.PlayerId, c.Name, ChildMeta(c))).ToList();
 
-    private List<SelectOption<string>> PositionOptions =>
-        (Recruitment?.Positions ?? new()).Select(p => new SelectOption<string>(p, p)).ToList();
+    private List<SelectOption<SoccerPosition?>> PositionOptions =>
+        (Recruitment?.Positions ?? new()).Select(p => new SelectOption<SoccerPosition?>(p, p.ToString())).ToList();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -136,7 +136,7 @@
 
         mLoaded = true;
         mPlayerId = Guid.Empty;
-        mDesiredPosition = string.Empty;
+        mDesiredPosition = null;
         mIntroduction = null;
         mSaving = false;
         mInlineError = null;
@@ -149,14 +149,14 @@
     private static string? ChildMeta(ManagedPlayerDto child)
     {
         List<string> parts = new();
-        if (!string.IsNullOrWhiteSpace(child.AgeGroup))
+        if (child.AgeGroup is not null)
         {
-            parts.Add(child.AgeGroup!);
+            parts.Add(child.AgeGroup.ToString()!);
         }
 
-        if (!string.IsNullOrWhiteSpace(child.Position))
+        if (child.Position is not null)
         {
-            parts.Add(child.Position!);
+            parts.Add(child.Position.ToString()!);
         }
 
         return parts.Count > 0 ? string.Join(" · ", parts) : null;

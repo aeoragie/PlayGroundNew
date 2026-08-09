@@ -48,7 +48,7 @@
             <div class="flex-1"></div>
             @if (mMyAge is not null)
             {
-                <button type="button" class="@MyAgeToggleClass" @onclick="() => mMyAgeOnly = !mMyAgeOnly">@AppText.Records.MyAgeToggle(mMyAge)</button>
+                <button type="button" class="@MyAgeToggleClass" @onclick="() => mMyAgeOnly = !mMyAgeOnly">@AppText.Records.MyAgeToggle(mMyAge.Value.ToString())</button>
             }
         </div>
 
@@ -64,7 +64,7 @@
             </EmptyState>
         }
         <div class="flex flex-col gap-2.5">
-            @foreach (string age in VisibleAges)
+            @foreach (SoccerAgeGroup age in VisibleAges)
             {
                 bool isMine = age == mMyAge;
                 bool isOpen = mOpenAges.GetValueOrDefault(age);
@@ -118,15 +118,15 @@
 </div>
 
 @code {
-    private static readonly string[] AgeOrder = ["U18", "U15", "U12"];
+    private static readonly SoccerAgeGroup[] AgeOrder = [SoccerAgeGroup.U18, SoccerAgeGroup.U15, SoccerAgeGroup.U12];
 
     private int mSeasonYear = SystemTime.Now.ToWallClock().Year;
     private RecordsTournamentsResponse? mData;
     private bool mIsLeagueSegment;
     private string mSearch = string.Empty;
     private bool mMyAgeOnly;
-    private string? mMyAge;
-    private readonly Dictionary<string, bool> mOpenAges = new();
+    private SoccerAgeGroup? mMyAge;
+    private readonly Dictionary<SoccerAgeGroup, bool> mOpenAges = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -160,10 +160,10 @@
 
         mData = await Records.GetTournamentsAsync(mSeasonYear);
 
-        string? openFirst = mMyAge ?? VisibleAges.FirstOrDefault();
+        SoccerAgeGroup? openFirst = mMyAge ?? VisibleAges.Cast<SoccerAgeGroup?>().FirstOrDefault();
         if (openFirst is not null)
         {
-            mOpenAges[openFirst] = true;
+            mOpenAges[openFirst.Value] = true;
         }
     }
 
@@ -174,21 +174,21 @@
         .ToList();
 
     // 내 연령 최상단, 나머지는 연령 내림차순(U18 → U12)
-    private List<string> VisibleAges
+    private List<SoccerAgeGroup> VisibleAges
     {
         get
         {
-            List<string> ages = SegmentItems
+            List<SoccerAgeGroup> ages = SegmentItems
                 .Select(t => t.AgeGroup)
                 .Distinct()
                 .OrderBy(a => a == mMyAge ? 0 : 1)
-                .ThenByDescending(a => Array.IndexOf(AgeOrder, a) < 0 ? a : AgeOrder[Array.IndexOf(AgeOrder, a)], StringComparer.Ordinal)
+                .ThenByDescending(a => a.ToString(), StringComparer.Ordinal)
                 .ToList();
             return mMyAgeOnly && mMyAge is not null ? ages.Where(a => a == mMyAge).ToList() : ages;
         }
     }
 
-    private List<RecordsTournamentDto> ItemsOf(string age)
+    private List<RecordsTournamentDto> ItemsOf(SoccerAgeGroup age)
     {
         return SegmentItems
             .Where(t => t.AgeGroup == age)
@@ -210,14 +210,14 @@
             .ToList();
     }
 
-    private static string AgeDescription(string age) => age switch
+    private static string AgeDescription(SoccerAgeGroup age) => age switch
     {
-        "U18" => AppText.Records.AgeU18,
-        "U15" => AppText.Records.AgeU15,
+        SoccerAgeGroup.U18 => AppText.Records.AgeU18,
+        SoccerAgeGroup.U15 => AppText.Records.AgeU15,
         _ => AppText.Records.AgeU12,
     };
 
-    private void ToggleAge(string age)
+    private void ToggleAge(SoccerAgeGroup age)
     {
         mOpenAges[age] = !mOpenAges.GetValueOrDefault(age);
     }
@@ -226,8 +226,7 @@
     private void SwitchSegment(bool isLeague)
     {
         mIsLeagueSegment = isLeague;
-        string? first = VisibleAges.FirstOrDefault();
-        if (first is not null && !mOpenAges.GetValueOrDefault(first))
+        if (VisibleAges is [SoccerAgeGroup first, ..] && !mOpenAges.GetValueOrDefault(first))
         {
             mOpenAges[first] = true;
         }

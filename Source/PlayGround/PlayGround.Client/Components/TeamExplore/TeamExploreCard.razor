@@ -85,7 +85,7 @@
     {
         get
         {
-            string?[] parts = [Team.Region, Team.TeamType, Team.AgeGroup];
+            string?[] parts = [Team.Region, Team.TeamType, Team.AgeGroup?.ToString()];
             return string.Join(" · ", parts.Where(p => p is not null));
         }
     }

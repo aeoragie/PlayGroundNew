@@ -188,7 +188,7 @@ else if (mHome is not null)
         {
             // 히어로 메타용 연령 그룹 — 로스터에서 파생 (enum 순서 유지)
             mAgeGroups = Enum.GetValues<SoccerAgeGroup>()
-                .Where(age => mHome.Roster.Any(p => SoccerAgeGroupExtensions.ParseAgeGroupOrNull(p.AgeGroup) == age))
+                .Where(age => mHome.Roster.Any(p => p.AgeGroup == age))
                 .Select(age => age.ToString())
                 .ToList();
         }

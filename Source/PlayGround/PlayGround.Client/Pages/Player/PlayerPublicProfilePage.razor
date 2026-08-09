@@ -355,7 +355,7 @@ else if (mData is not null)
             List<string> parts = new();
             if (mData!.Profile.Position is not null)
             {
-                parts.Add(mData.Profile.Position);
+                parts.Add(mData.Profile.Position.ToString()!);
             }
 
             if (mData.Profile.JerseyNumber is not null)
@@ -370,7 +370,7 @@ else if (mData is not null)
 
             if (mData.Profile.AgeGroup is not null)
             {
-                parts.Add(mData.Profile.AgeGroup);
+                parts.Add(mData.Profile.AgeGroup.ToString()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;
@@ -442,7 +442,7 @@ else if (mData is not null)
                 chips.Add(AppText.Player.CardWeight(weight));
             }
 
-            if (SoccerPreferredFootExtensions.ParseLabelOrNull(mData.Profile.PreferredFoot) is string foot)
+            if (mData.Profile.PreferredFoot.ToLabel() is string foot)
             {
                 chips.Add(AppText.Player.ChipFoot(foot));
             }

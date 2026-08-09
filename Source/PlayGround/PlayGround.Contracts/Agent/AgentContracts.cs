@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Contracts.Agent
 {
@@ -19,8 +20,8 @@ namespace PlayGround.Contracts.Agent
 
         public Guid PlayerId { get; set; }
         public string PlayerName { get; set; } = string.Empty;
-        public string? PlayerAgeGroup { get; set; }
-        public string? PlayerPosition { get; set; }
+        public SoccerAgeGroup? PlayerAgeGroup { get; set; }
+        public SoccerPosition? PlayerPosition { get; set; }
 
         public AgentProfileDto Agent { get; set; } = new();
         public List<AgentViewLogDto> Logs { get; set; } = new();

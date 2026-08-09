@@ -1,3 +1,5 @@
+using PlayGround.Contracts.Soccer;
+
 using PlayGround.Client.Models;
 
 namespace PlayGround.Client.Services
@@ -21,7 +23,7 @@ namespace PlayGround.Client.Services
     public class RosterEntry
     {
         public string Name { get; set; } = string.Empty;
-        public string Position { get; set; } = "-";
+        public SoccerPosition? Position { get; set; }
         public string Number { get; set; } = "-";
     }
 }

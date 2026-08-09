@@ -145,10 +145,10 @@
 
     private bool HasLinkedFamily => Info.Family.Any(m => m.HasAccount);
 
-    private string? PositionText => Compose(Info.Profile.Position,
+    private string? PositionText => Compose(Info.Profile.Position?.ToString(),
         Info.Profile.JerseyNumber is not null ? AppText.Player.JerseyNumber(Info.Profile.JerseyNumber) : null);
 
-    private string? BirthText => Compose(Info.Profile.BirthYear?.ToString(), Info.Profile.Grade);
+    private string? BirthText => Compose(Info.Profile.BirthYear?.ToString(), Info.Profile.Grade?.ToString());
 
     private List<FieldRow> FieldRows => BuildFieldRows(Info);
 
@@ -170,7 +170,7 @@
             {
                 "Height" => (AppText.Player.FieldHeight, info.Profile.HeightCm is not null ? $"{info.Profile.HeightCm}cm" : null),
                 "Weight" => (AppText.Player.FieldWeight, info.Profile.WeightKg is not null ? $"{info.Profile.WeightKg}kg" : null),
-                "PreferredFoot" => (AppText.Player.FieldFoot, SoccerPreferredFootExtensions.ParseLabelOrNull(info.Profile.PreferredFoot)),
+                "PreferredFoot" => (AppText.Player.FieldFoot, info.Profile.PreferredFoot.ToLabel()),
                 "School" => (AppText.Player.FieldSchool, info.Profile.SchoolName),
                 "GuardianPhone" => (AppText.Player.FieldGuardianPhone, info.Profile.GuardianPhoneMasked),
                 // 강점 태그 스위치는 항상 노출(공개 범위 설정 절) — 값 자리에는 끔 효과 설명을 넣는다

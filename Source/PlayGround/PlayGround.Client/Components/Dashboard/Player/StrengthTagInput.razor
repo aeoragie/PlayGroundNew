@@ -94,7 +94,7 @@
 
     /// <summary>선수 포지션(GK/DF/MF/FW) — 프리셋 필터 기준. 없으면 프리셋을 숨긴다.</summary>
     [Parameter]
-    public string? Position { get; set; }
+    public SoccerPosition? Position { get; set; }
 
     [Parameter]
     public List<StrengthTagPresetDto> Presets { get; set; } = new();
@@ -112,7 +112,7 @@
         Position is null
             ? new List<string>()
             : Presets
-                .Where(p => string.Equals(p.Position, Position, StringComparison.OrdinalIgnoreCase))
+                .Where(p => p.Position == Position)
                 .Select(p => p.Tag)
                 .ToList();
 

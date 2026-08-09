@@ -172,14 +172,14 @@
     private static string? NameMetaOf(ApplicationDto app)
     {
         List<string> parts = new();
-        if (!string.IsNullOrWhiteSpace(app.PlayerAgeGroup))
+        if (app.PlayerAgeGroup is not null)
         {
-            parts.Add(app.PlayerAgeGroup);
+            parts.Add(app.PlayerAgeGroup.ToString()!);
         }
 
-        if (!string.IsNullOrWhiteSpace(app.DesiredPosition))
+        if (app.DesiredPosition is not null)
         {
-            parts.Add(AppText.Dashboard.DesiredPositionSuffix(app.DesiredPosition));
+            parts.Add(AppText.Dashboard.DesiredPositionSuffix(app.DesiredPosition.ToString()!));
         }
 
         return parts.Count == 0 ? null : string.Join(" · ", parts);

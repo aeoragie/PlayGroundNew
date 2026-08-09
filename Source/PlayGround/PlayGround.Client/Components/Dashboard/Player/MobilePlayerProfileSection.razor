@@ -143,7 +143,7 @@
             List<string> parts = new();
             if (Info.Profile.Position is not null)
             {
-                parts.Add(Info.Profile.Position);
+                parts.Add(Info.Profile.Position.ToString()!);
             }
 
             if (Info.Profile.JerseyNumber is not null)
@@ -158,7 +158,7 @@
 
             if (Info.Profile.Grade is not null)
             {
-                parts.Add(Info.Profile.Grade);
+                parts.Add(Info.Profile.Grade.ToString()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;

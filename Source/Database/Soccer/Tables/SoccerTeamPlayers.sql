@@ -5,8 +5,8 @@ CREATE TABLE [dbo].[SoccerTeamPlayers]
     [TeamId]        UNIQUEIDENTIFIER NOT NULL,          -- SoccerTeams.TeamId (앱 계층 참조)
     [PlayerId]      UNIQUEIDENTIFIER NOT NULL,          -- SoccerPlayers.PlayerId (앱 계층 참조)
     [JerseyNumber]  VARCHAR(10)      NULL,              -- 등번호 (미입력 시 '-')
-    [Position]      VARCHAR(60)      NULL,              -- 포지션 (FW/MF/DF/GK 등)
-    [Grade]         VARCHAR(60)      NULL,              -- 학년 (대시보드에서 사용)
+    [Position]      VARCHAR(60)      NULL,              -- 'GK','DF','MF','FW'
+    [Grade]         VARCHAR(60)      NULL,              -- 'U7'~'U18' (나이 기준 U표기 — 국가 학제 대신)
     [Status]        VARCHAR(20)      NOT NULL DEFAULT 'Active', -- 'Active','Inactive'
 
     [CreatedAt]     DATETIME2        NOT NULL DEFAULT GETUTCDATE(),

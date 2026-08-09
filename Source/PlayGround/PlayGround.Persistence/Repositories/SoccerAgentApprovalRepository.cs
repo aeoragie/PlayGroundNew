@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Options;
+using PlayGround.Contracts.Soccer;
+using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Agent;
 using PlayGround.Infrastructure.Database;
@@ -119,8 +121,8 @@ namespace PlayGround.Persistence.Repositories
                             && request.ExpiresAt.Value <= SystemTime.Now,
                 PlayerId = request.PlayerId,
                 PlayerName = request.Name,
-                PlayerAgeGroup = NullIfEmpty(request.AgeGroup),
-                PlayerPosition = NullIfEmpty(request.Position),
+                PlayerAgeGroup = EnumColumn.Read<SoccerAgeGroup>(request.AgeGroup),
+                PlayerPosition = EnumColumn.Read<SoccerPosition>(request.Position),
                 Agent = agent is null ? new AgentProfileDto() : new AgentProfileDto
                 {
                     Name = agent.Name,

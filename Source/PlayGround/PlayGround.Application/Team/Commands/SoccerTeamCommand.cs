@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Models;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
@@ -64,7 +65,7 @@ namespace PlayGround.Application.Team.Commands
                 .Select(r => new RosterEntryDto
                 {
                     Name = r.Name.Trim(),
-                    Position = string.IsNullOrWhiteSpace(r.Position) ? null : r.Position.Trim(),
+                    Position = r.Position == SoccerPosition.Unknown ? null : r.Position,
                     Number = string.IsNullOrWhiteSpace(r.Number) ? null : r.Number.Trim()
                 })
                 .ToList();

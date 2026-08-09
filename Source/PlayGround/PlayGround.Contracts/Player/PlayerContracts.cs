@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Contracts.Player
 {
@@ -7,7 +8,7 @@ namespace PlayGround.Contracts.Player
     {
         public string Name { get; set; } = string.Empty;
         public string? BirthDate { get; set; }   // "YYYY.MM.DD" — 서버에서 파싱
-        public string? AgeGroup { get; set; }     // 'U12' | 'U15' | 'U18'
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? Region { get; set; }
     }
 
@@ -33,11 +34,11 @@ namespace PlayGround.Contracts.Player
 
         /// <summary>공개 선수 프로필 슬러그(/player/{slug}) — 허브 자녀 카드의 "공개 프로필" 링크에 쓴다.</summary>
         public string? Slug { get; set; }
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? PhotoUrl { get; set; }
         public string? TeamName { get; set; }
         public string? JerseyNumber { get; set; }
-        public string? Position { get; set; }
+        public SoccerPosition? Position { get; set; }
         public bool IsGuardianManaged { get; set; }
     }
 
@@ -59,15 +60,15 @@ namespace PlayGround.Contracts.Player
         /// <summary>공개 선수 프로필(/player/{slug}) 슬러그 — "공개 프로필 보기" 링크에 쓴다.</summary>
         public string? Slug { get; set; }
         public string? PhotoUrl { get; set; }
-        public string? AgeGroup { get; set; }      // 'U12' | 'U15' | 'U18'
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public int? BirthYear { get; set; }
-        public string? Grade { get; set; }         // '초4'~'고3'
-        public string? Position { get; set; }      // FW | MF | DF | GK
+        public SoccerGrade? Grade { get; set; }
+        public SoccerPosition? Position { get; set; }
         public string? JerseyNumber { get; set; }
         public string? TeamName { get; set; }      // 소속 없으면 null
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
-        public string? PreferredFoot { get; set; } // SoccerPreferredFoot enum 멤버 이름 ('Left' | 'Right' | 'Both')
+        public SoccerPreferredFoot? PreferredFoot { get; set; }
         public string? SchoolName { get; set; }
         public string? GuardianPhoneMasked { get; set; }
         public bool IsGuardianManaged { get; set; }
@@ -108,7 +109,7 @@ namespace PlayGround.Contracts.Player
     {
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
-        public string? PreferredFoot { get; set; } // SoccerPreferredFoot enum 멤버 이름 ('Left'|'Right'|'Both')
+        public SoccerPreferredFoot? PreferredFoot { get; set; }
         public string? SchoolName { get; set; }
 
         /// <summary>공개 프로필 주소(슬러그). null·빈 값 = 변경 안 함. 소문자 영숫자·하이픈만.</summary>
@@ -290,10 +291,10 @@ namespace PlayGround.Contracts.Player
         public string Name { get; set; } = string.Empty;
         public string? PhotoUrl { get; set; }
         public bool IsGuardianManaged { get; set; }
-        public string? Position { get; set; }
+        public SoccerPosition? Position { get; set; }
         public string? JerseyNumber { get; set; }
         public int? BirthYear { get; set; }
-        public string? AgeGroup { get; set; }
+        public SoccerAgeGroup? AgeGroup { get; set; }
         public string? TeamName { get; set; }
         /// <summary>팀 공개홈 링크 — 팀 홈이 비공개면 null (링크를 걸지 않는다).</summary>
         public string? TeamSlug { get; set; }
@@ -303,13 +304,13 @@ namespace PlayGround.Contracts.Player
         public bool IsClaimable { get; set; }
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
-        public string? PreferredFoot { get; set; }
+        public SoccerPreferredFoot? PreferredFoot { get; set; }
 
         /// <summary>학교 — 권한 뷰(승인된 에이전트)에만 값이 실린다. 공개 뷰는 항상 null.</summary>
         public string? SchoolName { get; set; }
 
         /// <summary>학년 ('초4'~'고3') — 권한 카드 "승인 열람 정보" 블록용. 공개 뷰는 항상 null.</summary>
-        public string? Grade { get; set; }
+        public SoccerGrade? Grade { get; set; }
 
         /// <summary>보호자 표시 이름 (마스킹 — "김OO") — 권한 카드 전용. 공개 뷰는 항상 null.</summary>
         public string? GuardianDisplayName { get; set; }
@@ -339,7 +340,7 @@ namespace PlayGround.Contracts.Player
     /// <summary>추천 강점 태그 한 건. Position은 'GK' | 'DF' | 'MF' | 'FW'.</summary>
     public class StrengthTagPresetDto
     {
-        public string Position { get; set; } = string.Empty;
+        public SoccerPosition Position { get; set; }
         public string Tag { get; set; } = string.Empty;
     }
 

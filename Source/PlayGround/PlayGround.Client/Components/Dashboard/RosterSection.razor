@@ -67,8 +67,8 @@
                     <span class="w-8 h-8 rounded-full bg-surface-icon flex items-center justify-center text-[13px] font-extrabold text-navy">@(player.JerseyNumber ?? "-")</span>
                     @* 선수 상세 화면이 없어 링크가 아니다 (# 링크는 랜딩 오이동) *@
                     <span class="text-[14.5px] font-bold text-navy-deep">@player.Name</span>
-                    <span class="text-[13.5px] text-text-body">@(player.Position ?? "-")</span>
-                    <span class="text-[13.5px] text-text-body">@(player.Grade ?? "-")</span>
+                    <span class="text-[13.5px] text-text-body">@(player.Position?.ToString() ?? "-")</span>
+                    <span class="text-[13.5px] text-text-body">@(player.Grade?.ToString() ?? "-")</span>
                     <ClaimBadge Status="@ClaimOf(player)" />
                     <span class="flex items-center justify-end gap-1">
                         @ActionArea(player)
@@ -108,7 +108,7 @@
                     </div>
                     <span class="flex flex-col gap-[3px]">
                         <span class="text-[15.5px] font-extrabold text-navy-deep">@player.Name</span>
-                        <span class="text-[12.5px] text-text-body whitespace-nowrap">@(player.Position ?? "-") · @(player.Grade ?? "-")</span>
+                        <span class="text-[12.5px] text-text-body whitespace-nowrap">@(player.Position?.ToString() ?? "-") · @(player.Grade?.ToString() ?? "-")</span>
                     </span>
                     @* 강점 태그 — 카드 뷰만: 첫 1개 + "+N"(리스트 뷰는 미노출). 없으면 생략 *@
                     @if (player.StrengthTags.Count > 0)
@@ -208,7 +208,7 @@
     }
 
     private static SoccerAgeGroup? AgeOf(TeamRosterPlayerDto player) =>
-        SoccerAgeGroupExtensions.ParseAgeGroupOrNull(player.AgeGroup);
+        player.AgeGroup;
 
     private static SoccerClaimStatus ClaimOf(TeamRosterPlayerDto player) =>
         SoccerClaimStatusExtensions.ParseClaimStatus(player.ClaimStatus);
