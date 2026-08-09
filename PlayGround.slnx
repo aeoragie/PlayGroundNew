@@ -16,16 +16,22 @@
     <File Path="Docs/Architecture/ActorVsDirectCall.md" />
     <File Path="Docs/Architecture/DeploymentAndConfiguration.md" />
     <File Path="Docs/Architecture/Localization.md" />
+    <File Path="Docs/Architecture/Logging.md" />
     <File Path="Docs/Architecture/MatchSchemaDesign.md" />
     <File Path="Docs/Architecture/NamingConventions.md" />
   </Folder>
   <Folder Name="/Docs/Development/">
+    <File Path="Docs/Development/FeatureBacklog.md" />
     <File Path="Docs/Development/LocalVerification.md" />
     <File Path="Docs/Development/ReleasePlan.md" />
     <File Path="Docs/Development/Testing.md" />
   </Folder>
   <Folder Name="/Docs/Learning/">
+    <File Path="Docs/Learning/AwsCli.md" />
     <File Path="Docs/Learning/AwsNetwork.md" />
+    <File Path="Docs/Learning/BuildPublishDeploy.md" />
+    <File Path="Docs/Learning/LinuxBasics.md" />
+    <File Path="Docs/Learning/ServerLayoutAndLogs.md" />
   </Folder>
   <Folder Name="/Docs/History/">
     <File Path="Docs/History/DevelopmentJournal.md" />
@@ -48,6 +54,7 @@
     <Project Path="Source/Core/Shared/Core.Shared.csproj" />
   </Folder>
   <Folder Name="/Source/Database/">
+    <File Path="Source/Database/README.md" />
     <Project Path="Source/Database/Account/Database.Account.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="1e4d87e5-a81e-4744-814e-9f1c720c2bb9" />
     <Project Path="Source/Database/Soccer/Database.Soccer.sqlproj" Type="42ea0dbd-9cf1-443e-919e-be9c484e4577" Id="4ed4252c-8739-4a90-be03-995394509017" />
   </Folder>
