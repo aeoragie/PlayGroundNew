@@ -1,3 +1,4 @@
+using PlayGround.Shared.Primitives;
 using Akka.Actor;
 using Akka.Configuration;
 using Akka.DependencyInjection;
@@ -12,9 +13,6 @@ using System.Diagnostics;
 
 namespace PlayGround.Infrastructure.Actor
 {
-    /// <summary>
-    /// Akka 설정 (appsettings.json)
-    /// </summary>
     public class AkkaConfig
     {
         public static readonly string Section = "AkkaConfig";
@@ -23,10 +21,6 @@ namespace PlayGround.Infrastructure.Actor
         public string? ConfFileName { get; set; }
     }
 
-    /// <summary>
-    /// Akka ActorSystem 생명주기 관리 및 액터 생성.
-    /// 액터 생성은 DI 리졸버를 경유하므로 액터 생성자에 등록된 서비스가 주입된다.
-    /// </summary>
     public class AkkaService : IHostedService
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -85,36 +79,24 @@ namespace PlayGround.Infrastructure.Actor
 
         #region Actor Creation
 
-        /// <summary>
-        /// 단일 액터 생성
-        /// </summary>
         public ActorRef? CreateActor<TActor>(string actorName, params object[] args)
             where TActor : ActorBase
         {
             return CreateActorCore<TActor>(actorName, props => props, args);
         }
 
-        /// <summary>
-        /// RoundRobin 라우터 액터 생성
-        /// </summary>
         public ActorRef? CreateRouter<TActor>(string routerName, int poolSize, params object[] args)
             where TActor : ActorBase
         {
             return CreateActorCore<TActor>(routerName, props => props.WithRouter(new RoundRobinPool(poolSize)), args);
         }
 
-        /// <summary>
-        /// ConsistentHash 라우터 액터 생성
-        /// </summary>
         public ActorRef? CreateHashRouter<TActor>(string routerName, int poolSize, params object[] args)
             where TActor : ActorBase
         {
             return CreateActorCore<TActor>(routerName, props => props.WithRouter(new ConsistentHashingPool(poolSize)), args);
         }
 
-        /// <summary>
-        /// 이름으로 액터 조회
-        /// </summary>
         public ActorRef? GetActor(string actorName)
         {
             if (Actors.TryGetValue(actorName, out var actor))
@@ -128,10 +110,9 @@ namespace PlayGround.Infrastructure.Actor
         private ActorRef? CreateActorCore<TActor>(string actorName, Func<Props, Props> configureProps, object[] args)
             where TActor : ActorBase
         {
-            Debug.Assert(ActorSystem != null, "ActorSystem is not initialized");
-            if (ActorSystem == null)
+            if (ActorSystem is null)
             {
-                return null;
+                Panic.Fail("ActorSystem is not started.");
             }
 
             // 중복 이름을 먼저 걸러 고아 액터 생성을 방지

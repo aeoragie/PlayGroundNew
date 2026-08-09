@@ -2,9 +2,6 @@ using PlayGround.Shared.Result;
 
 namespace PlayGround.Infrastructure.Store
 {
-    /// <summary>
-    /// Redis 작업 결과 (성공/실패/빈값)
-    /// </summary>
     public class RedisResult<T>
     {
         private readonly Result<T> mInnerResult;
@@ -12,7 +9,7 @@ namespace PlayGround.Infrastructure.Store
         public bool IsSuccess => mInnerResult.IsSuccess;
         public bool IsError => mInnerResult.IsError;
         public bool HasValue { get; }
-        public T? Value => mInnerResult.Value;
+        public T? Value => HasValue ? mInnerResult.Value : default;
         public ResultInfo ResultData => mInnerResult.ResultData;
         public string Message => mInnerResult.Message;
 
@@ -22,17 +19,11 @@ namespace PlayGround.Infrastructure.Store
             HasValue = hasValue;
         }
 
-        /// <summary>
-        /// 키 조회 성공 (값 없을 경우 HasValue = false)
-        /// </summary>
         public static RedisResult<T> Ok(T? value)
         {
             return new RedisResult<T>(Result<T>.Success(value!), value is not null);
         }
 
-        /// <summary>
-        /// 키 미존재 (정상 조회, 빈 결과)
-        /// </summary>
         public static RedisResult<T> Empty()
         {
             return new RedisResult<T>(Result<T>.Success(default!), false);

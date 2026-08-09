@@ -65,14 +65,15 @@ namespace PlayGround.Tests.Infrastructure
         }
 
         [Fact]
-        public void GetDatabaseOptions_Unconfigured_Throws()
+        public void GetDatabaseOptions_Unconfigured_Panics()
         {
             var config = Bind(new Dictionary<string, string?>
             {
                 ["DatabaseConfiguration:Databases:Account:ConnectionString"] = "Server=a;Database=Acc;"
             });
 
-            Assert.Throws<InvalidOperationException>(() => config.GetDatabaseOptions(DatabaseTypes.Soccer));
+            // Panic은 DEBUG에서 Assert로 죽는다 — xunit v3가 TraceAssertException으로 가로채므로 유형은 열어 둔다
+            Assert.ThrowsAny<Exception>(() => config.GetDatabaseOptions(DatabaseTypes.Soccer));
         }
     }
 }

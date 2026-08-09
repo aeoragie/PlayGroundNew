@@ -10,14 +10,8 @@ using PlayGround.Infrastructure.Logging.Render;
 
 namespace PlayGround.Infrastructure.Logging
 {
-    /// <summary>
-    /// NLog 설정 및 DI 등록 확장 메서드
-    /// </summary>
     public static class LoggingExtensions
     {
-        /// <summary>
-        /// IHostBuilder에 NLog 로깅 구성
-        /// </summary>
         public static IHostBuilder ConfigurePlayGroundLogger(this IHostBuilder hostBuilder, IConfiguration configuration)
         {
             hostBuilder.ConfigureLogging((context, logging) =>
@@ -32,9 +26,6 @@ namespace PlayGround.Infrastructure.Logging
             return hostBuilder;
         }
 
-        /// <summary>
-        /// NLog ILogger를 DI 컨테이너에 등록
-        /// </summary>
         public static IServiceCollection AddPlayGroundLogger(this IServiceCollection services)
         {
             services.AddSingleton<NLog.ILogger>(LogManager.GetCurrentClassLogger());
@@ -52,10 +43,6 @@ namespace PlayGround.Infrastructure.Logging
             });
         }
 
-        /// <summary>
-        /// 환경별 NLog 설정 파일 경로 결정
-        /// nlog.{environment}.config 우선, 없으면 nlog.config
-        /// </summary>
         private static string GetLogConfigPath()
         {
             var baseDirectory = AppContext.BaseDirectory;
@@ -84,9 +71,6 @@ namespace PlayGround.Infrastructure.Logging
             LogManager.ReconfigExistingLoggers();
         }
 
-        /// <summary>
-        /// appsettings.json의 LoggingConfig 섹션으로 NLog 런타임 설정 적용
-        /// </summary>
         private static void ApplySettings(IConfiguration configuration)
         {
             var options = configuration.GetSection(LoggingConfig.Section).Get<LoggingConfig>();

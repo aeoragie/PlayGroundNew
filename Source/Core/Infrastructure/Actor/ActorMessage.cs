@@ -2,9 +2,6 @@ using Akka.Routing;
 
 namespace PlayGround.Infrastructure.Actor
 {
-    /// <summary>
-    /// 액터 메시지 결과 코드
-    /// </summary>
     public enum ActorResultCode
     {
         Success = 0,
@@ -13,9 +10,6 @@ namespace PlayGround.Infrastructure.Actor
         ResultDataNull,
     }
 
-    /// <summary>
-    /// 데이터 없는 액터 메시지 (알림, fire-and-forget)
-    /// </summary>
     public class ActorMessage : IConsistentHashable
     {
         public ActorResultCode ResultCode { get; set; } = ActorResultCode.Success;
@@ -38,9 +32,6 @@ namespace PlayGround.Infrastructure.Actor
         }
     }
 
-    /// <summary>
-    /// 요청 데이터만 있는 액터 메시지
-    /// </summary>
     public class ActorMessage<TRequest> : ActorMessage
     {
         public TRequest? RequestData { get; set; }
@@ -52,9 +43,6 @@ namespace PlayGround.Infrastructure.Actor
         }
     }
 
-    /// <summary>
-    /// 요청 + 응답 데이터가 있는 액터 메시지
-    /// </summary>
     public class ActorMessage<TRequest, TResult> : ActorMessage<TRequest>
     {
         public TResult? ResultData { get; set; }

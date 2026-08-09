@@ -1,3 +1,4 @@
+using PlayGround.Shared.Primitives;
 using Dapper;
 using System.Data.Common;
 
@@ -16,8 +17,13 @@ public sealed class MultiQueryReader : IDisposable, IAsyncDisposable
 
     internal MultiQueryReader(DbConnection connection, SqlMapper.GridReader reader)
     {
-        mConnection = connection ?? throw new ArgumentNullException(nameof(connection));
-        Reader = reader ?? throw new ArgumentNullException(nameof(reader));
+        if (connection is null || reader is null)
+        {
+            Panic.Fail("MultiQueryReader requires a connection and a reader.");
+        }
+
+        mConnection = connection;
+        Reader = reader;
     }
 
     public Task<IEnumerable<T>> ReadAsync<T>()

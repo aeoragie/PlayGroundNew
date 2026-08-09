@@ -2,9 +2,6 @@ using StackExchange.Redis;
 
 namespace PlayGround.Infrastructure.Store
 {
-    /// <summary>
-    /// Redis 세션 인터페이스
-    /// </summary>
     public interface IRedisSession : IAsyncDisposable
     {
         IDatabase Database { get; }
@@ -37,9 +34,6 @@ namespace PlayGround.Infrastructure.Store
 
         #endregion
 
-        /// <summary>
-        /// 연결 상태 확인 (헬스체크)
-        /// </summary>
         Task<bool> PingAsync();
     }
 }

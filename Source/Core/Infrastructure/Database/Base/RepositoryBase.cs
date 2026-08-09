@@ -1,3 +1,4 @@
+using PlayGround.Shared.Primitives;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
@@ -46,9 +47,7 @@ public abstract class RepositoryBase
         return pair.Provider switch
         {
             DatabaseProvider.SqlServer => new SqlConnection(pair.Connection),
-            DatabaseProvider.MySql => throw new NotImplementedException("MySQL provider is not implemented yet."),
-            DatabaseProvider.PostgreSql => throw new NotImplementedException("PostgreSQL provider is not implemented yet."),
-            _ => throw new NotSupportedException($"Database provider {pair.Provider} is not supported.")
+            _ => Panic.Fail<DbConnection>($"Database provider {pair.Provider} is not implemented.")
         };
     }
 

@@ -1,3 +1,4 @@
+using PlayGround.Shared.Primitives;
 using NLog;
 using PlayGround.Infrastructure.Logging;
 using StackExchange.Redis;
@@ -6,9 +7,6 @@ using System.Text.Json;
 
 namespace PlayGround.Infrastructure.Store
 {
-    /// <summary>
-    /// IRedisSession 구현 (IDatabase 래퍼, 도메인 세션으로 확장 가능)
-    /// </summary>
     public class RedisSession : IRedisSession
     {
         protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -20,8 +18,12 @@ namespace PlayGround.Infrastructure.Store
 
         public RedisSession(IConnectionMultiplexer multiplexer, int databaseId = 0)
         {
-            Debug.Assert(multiplexer != null, "ConnectionMultiplexer cannot be null");
-            mMultiplexer = multiplexer ?? throw new ArgumentNullException(nameof(multiplexer));
+            if (multiplexer is null)
+            {
+                Panic.Fail("RedisSession requires a multiplexer.");
+            }
+
+            mMultiplexer = multiplexer;
             Database = mMultiplexer.GetDatabase(databaseId);
         }
 

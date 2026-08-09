@@ -1,3 +1,5 @@
+using PlayGround.Shared.Primitives;
+using PlayGround.Shared.Result;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using NLog;
@@ -8,18 +10,12 @@ using System.Diagnostics;
 
 namespace PlayGround.Infrastructure.Store
 {
-    /// <summary>
-    /// Redis 설정 (appsettings.json)
-    /// </summary>
     public class RedisConfig
     {
         public static readonly string Section = "RedisConfig";
         public List<RedisConnectionConfig> Connections { get; set; } = new();
     }
 
-    /// <summary>
-    /// 개별 Redis 연결 설정
-    /// </summary>
     public class RedisConnectionConfig
     {
         public string Name { get; set; } = string.Empty;
@@ -27,9 +23,6 @@ namespace PlayGround.Infrastructure.Store
         public int DatabaseId { get; set; } = 0;
     }
 
-    /// <summary>
-    /// Redis 연결 생명주기 관리 및 세션 생성
-    /// </summary>
     public class RedisService : IHostedService, IAsyncDisposable
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -53,10 +46,9 @@ namespace PlayGround.Infrastructure.Store
 
             foreach (var connConfig in config.Connections)
             {
-                Debug.Assert(!string.IsNullOrEmpty(connConfig.Name), "Redis connection name is required");
                 if (string.IsNullOrEmpty(connConfig.Name))
                 {
-                    continue;
+                    Panic.Fail("Redis connection name is required.");
                 }
 
                 // 파싱 예외로 시끄럽게 실패시키지 않고 건너뛴다 (로컬 개발 기본값).
@@ -102,9 +94,6 @@ namespace PlayGround.Infrastructure.Store
             await DisposeAsync();
         }
 
-        /// <summary>
-        /// 이름으로 Redis 세션 생성
-        /// </summary>
         public IRedisSession? CreateSession(string connectionName)
         {
             if (!Connections.TryGetValue(connectionName, out var entry))
@@ -122,20 +111,17 @@ namespace PlayGround.Infrastructure.Store
             return new RedisSession(entry.Multiplexer, entry.DatabaseId);
         }
 
-        /// <summary>
-        /// 안전한 세션 사용 (acquire → use → dispose)
-        /// </summary>
-        public async Task<T> WithSessionAsync<T>(string connectionName, Func<IRedisSession, Task<T>> action)
+        public async Task<Result<T>> WithSessionAsync<T>(string connectionName, Func<IRedisSession, Task<T>> action)
         {
-            await using var session = CreateSession(connectionName)
-                ?? throw new InvalidOperationException($"Redis connection '{connectionName}' is not available");
+            await using var session = CreateSession(connectionName);
+            if (session is null)
+            {
+                return Result<T>.Error(ErrorCode.CacheUnavailable, $"Redis connection '{connectionName}' is not available.");
+            }
 
-            return await action(session);
+            return Result<T>.Success(await action(session));
         }
 
-        /// <summary>
-        /// 연결 상태 확인
-        /// </summary>
         public bool IsConnected(string connectionName)
         {
             return Connections.TryGetValue(connectionName, out var entry)

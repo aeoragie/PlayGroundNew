@@ -1,3 +1,4 @@
+using PlayGround.Shared.Primitives;
 using System.Collections.Concurrent;
 
 namespace PlayGround.Infrastructure.Database;
@@ -21,7 +22,7 @@ public class DatabaseConfiguration
             return options;
         }
 
-        throw new InvalidOperationException($"Database configuration for {database} not found.");
+        return Panic.Fail<DatabaseOptions>($"Database configuration for {database} not found.");
     }
 
     public ProviderConnection GetProviderConnection(DatabaseTypes database)

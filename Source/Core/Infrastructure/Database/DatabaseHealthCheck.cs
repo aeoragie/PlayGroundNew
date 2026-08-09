@@ -1,3 +1,4 @@
+using PlayGround.Shared.Primitives;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -32,7 +33,7 @@ public class DatabaseHealthCheck : IHealthCheck
                 await using DbConnection connection = pair.Provider switch
                 {
                     DatabaseProvider.SqlServer => new SqlConnection(pair.Connection),
-                    _ => throw new NotSupportedException($"Database provider {pair.Provider} is not supported.")
+                    _ => Panic.Fail<DbConnection>($"Database provider {pair.Provider} is not implemented.")
                 };
 
                 await connection.OpenAsync(cancellation);
