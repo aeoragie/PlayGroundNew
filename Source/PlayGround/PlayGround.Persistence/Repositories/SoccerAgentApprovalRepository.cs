@@ -12,7 +12,6 @@ using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>에이전트 열람 요청 심사 저장소 (Soccer DB). 다중 결과셋 — MultiQueryReader 소비.</summary>
     public class SoccerAgentApprovalRepository : RepositoryBase, IAgentApprovalRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;

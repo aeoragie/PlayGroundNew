@@ -58,14 +58,6 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "jersey must be numeric");
             }
 
-            // Unknown = 미지 값 폴백 — 저장 값이 아니다
-            if (request.Position == SoccerPosition.Unknown
-                || request.Grade == SoccerGrade.Unknown
-                || request.AgeGroup == SoccerAgeGroup.Unknown)
-            {
-                return Result<TeamRosterPlayerDto>.Error(ErrorCode.InvalidInput, "invalid enum value");
-            }
-
             Result<TeamRosterPlayerDto?> added = await mRepository.AddTeamPlayerByManagerAsync(managerUserId, request, cancellation);
             if (added.IsError)
             {

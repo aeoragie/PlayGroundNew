@@ -7,7 +7,6 @@ namespace PlayGround.Application.Interfaces
     /// </summary>
     public interface IFileStorage
     {
-        /// <summary>파일을 저장하고 공개 URL을 돌려준다.</summary>
         /// <param name="category">용도 폴더 (예: "team-board") — 임의 경로 생성을 막는 화이트리스트는 호출부가 검사.</param>
         /// <param name="content">파일 바이트.</param>
         /// <param name="originalFileName">원본 파일명 — 확장자를 여기서 딴다(저장 파일명은 GUID + 원본 확장자).</param>

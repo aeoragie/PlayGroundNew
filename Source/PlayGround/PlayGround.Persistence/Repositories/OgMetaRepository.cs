@@ -11,7 +11,7 @@ using PlayGround.Shared.Result;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>OG 카드 원자료 조회 (Soccer DB). 크롤러 경로라 최소 조회 — 비공개·미존재는 null.</summary>
+    /// <summary>크롤러 경로라 최소 조회 — 비공개·미존재는 null.</summary>
     public class OgMetaRepository : RepositoryBase, IOgMetaRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;

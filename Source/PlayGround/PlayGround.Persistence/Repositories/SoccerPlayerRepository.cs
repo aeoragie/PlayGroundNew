@@ -14,7 +14,6 @@ using System.Text.Json;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>선수 프로필 저장 (Soccer DB). 생성된 프로시저 객체 + SoccerCreatePlayerRecord 사용.</summary>
     public class SoccerPlayerRepository : RepositoryBase, IPlayerRepository
     {
         /// <summary>가족 계정 연결의 관리 역할 — SoccerPlayerFamilyLinks.Role 저장 문자열.</summary>

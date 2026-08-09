@@ -11,7 +11,6 @@ using PlayGround.Shared.Result;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>알림 센터 저장소 (Soccer DB). 다중 결과셋(카운트+목록) — MultiQueryReader 소비.</summary>
     public class SoccerNotificationRepository : RepositoryBase, INotificationRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;

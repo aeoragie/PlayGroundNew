@@ -2,11 +2,6 @@ using System.Diagnostics;
 
 namespace PlayGround.Domain.Soccer
 {
-    /// <summary>
-    /// 유튜브 링크 해석 — 포트폴리오 영상은 업로드가 아니라 링크 등록이다.
-    /// 클라이언트(붙여넣기 시 썸네일 미리보기)와 서버(저장 전 검증·정규화)가 같은 규칙을 써야
-    /// 미리보기와 저장 결과가 어긋나지 않으므로 Domain에 둔다.
-    /// </summary>
     public static class YouTubeVideoLink
     {
         private const int VideoIdLength = 11;
@@ -16,7 +11,6 @@ namespace PlayGround.Domain.Soccer
             "youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be", "www.youtu.be",
         };
 
-        /// <summary>링크에서 영상 ID를 뽑는다. 유튜브가 아니거나 형태가 다르면 null.</summary>
         public static string? ParseVideoId(string? url)
         {
             if (string.IsNullOrWhiteSpace(url))
@@ -73,14 +67,12 @@ namespace PlayGround.Domain.Soccer
 
         public static bool IsValid(string? url) => ParseVideoId(url) is not null;
 
-        /// <summary>저장용 표준 링크 — 입력 형태가 무엇이든 watch 형식 하나로 모은다.</summary>
         public static string? ToCanonicalUrl(string? url)
         {
             string? videoId = ParseVideoId(url);
             return videoId is null ? null : $"https://www.youtube.com/watch?v={videoId}";
         }
 
-        /// <summary>썸네일 주소 — 링크에서 파생한다(임의 이미지 주소를 저장하지 않기 위해).</summary>
         public static string? ToThumbnailUrl(string? url)
         {
             string? videoId = ParseVideoId(url);
@@ -108,7 +100,6 @@ namespace PlayGround.Domain.Soccer
             return null;
         }
 
-        // ID는 11자 + URL 안전 문자만 — 경로 조작이 섞여 들어오지 않게 한다
         private static string? Validate(string? videoId)
         {
             if (videoId is null || videoId.Length != VideoIdLength)

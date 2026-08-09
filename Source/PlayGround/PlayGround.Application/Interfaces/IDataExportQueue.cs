@@ -7,7 +7,6 @@ namespace PlayGround.Application.Interfaces
     /// </summary>
     public interface IDataExportQueue
     {
-        /// <summary>요청 Id를 큐에 넣는다(논블로킹).</summary>
         void Enqueue(Guid requestId);
 
         /// <summary>큐를 소비한다 — 워커 전용. 취소될 때까지 도착하는 요청 Id를 순차로 돌려준다.</summary>

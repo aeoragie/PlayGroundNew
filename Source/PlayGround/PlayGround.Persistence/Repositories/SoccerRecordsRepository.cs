@@ -11,7 +11,6 @@ using PlayGround.Shared.Result;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>공개 경기기록(Records) 조회 (Soccer DB). 다중 결과셋 — MultiQueryReader 소비.</summary>
     public class SoccerRecordsRepository : RepositoryBase, ISoccerRecordsRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;

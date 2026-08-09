@@ -61,11 +61,6 @@ namespace PlayGround.Application.Player.Commands
                 return Result<UpdatePlayerProfileInfoResponse>.Error(ErrorCode.OutOfRange, "weightKg must be 20-150");
             }
 
-            if (request.PreferredFoot == SoccerPreferredFoot.Unknown)
-            {
-                return Result<UpdatePlayerProfileInfoResponse>.Error(ErrorCode.InvalidInput, "unknown preferred foot");
-            }
-
             string? school = string.IsNullOrWhiteSpace(request.SchoolName) ? null : request.SchoolName.Trim();
             if (school is { Length: > 100 })
             {

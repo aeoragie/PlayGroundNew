@@ -48,11 +48,6 @@ namespace PlayGround.Application.Team.Commands
                 return Result<Guid>.Error(ErrorCode.InvalidInput, "recruitmentId/playerId required");
             }
 
-            if (request.DesiredPosition == SoccerPosition.Unknown)
-            {
-                return Result<Guid>.Error(ErrorCode.InvalidInput, "invalid position");
-            }
-
             request.Introduction = string.IsNullOrWhiteSpace(request.Introduction) ? null : request.Introduction.Trim();
 
             if (request.Introduction is not null && request.Introduction.Length > MaxIntroductionLength)

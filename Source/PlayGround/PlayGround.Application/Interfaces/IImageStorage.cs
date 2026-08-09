@@ -6,9 +6,6 @@ namespace PlayGround.Application.Interfaces
     /// </summary>
     public interface IImageStorage
     {
-        /// <summary>
-        /// 이미지를 저장하고 공개 URL을 돌려준다.
-        /// </summary>
         /// <param name="category">용도 폴더 (예: "team-logo", "team-cover").</param>
         /// <param name="content">이미지 바이트. 리사이즈·회전 보정은 클라이언트에서 이미 끝난 상태다.</param>
         /// <param name="contentType">"image/jpeg" 등 — 허용 형식 검증은 호출 전에 끝난다.</param>

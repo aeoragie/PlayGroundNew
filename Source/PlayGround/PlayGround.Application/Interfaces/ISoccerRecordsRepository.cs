@@ -3,7 +3,6 @@ using PlayGround.Shared.Result;
 
 namespace PlayGround.Application.Interfaces
 {
-    /// <summary>공개 경기기록(Records) 조회 포트 (Persistence에서 구현).</summary>
     public interface ISoccerRecordsRepository
     {
         /// <summary>시즌(연도) 기준 대회/리그 목록 + 우승팀 + 기록 연도 목록. 대회 없으면 빈 목록.</summary>

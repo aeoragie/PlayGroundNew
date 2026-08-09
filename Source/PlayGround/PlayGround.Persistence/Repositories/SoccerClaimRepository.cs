@@ -11,7 +11,6 @@ using PlayGround.Shared.Result;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>Claim 플로우(연결 요청) 저장소 (Soccer DB). 거부·무효는 빈 결과 → Success(null).</summary>
     public class SoccerClaimRepository : RepositoryBase, IClaimRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;

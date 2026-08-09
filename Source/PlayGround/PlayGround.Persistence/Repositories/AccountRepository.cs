@@ -13,7 +13,6 @@ using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>계정 조회·생성 (Account DB). 생성된 프로시저 객체 + UserRecord 사용.</summary>
     public class AccountRepository : RepositoryBase, IAccountRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Account;

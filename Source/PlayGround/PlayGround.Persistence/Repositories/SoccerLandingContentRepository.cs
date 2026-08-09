@@ -9,7 +9,6 @@ using PlayGround.Shared.Result;
 
 namespace PlayGround.Persistence.Repositories
 {
-    /// <summary>랜딩 콘텐츠 조회 (Soccer DB). 생성된 프로시저 호출 객체 + 엔티티 사용.</summary>
     public class SoccerLandingContentRepository : RepositoryBase, ILandingContentRepository
     {
         public override DatabaseTypes Database => DatabaseTypes.Soccer;
