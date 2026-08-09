@@ -1,6 +1,5 @@
 namespace PlayGround.Contracts.Auth
 {
-    /// <summary>이메일 로그인/가입 요청 (가입과 로그인이 한 번에 — 없으면 자동 생성).</summary>
     public class LoginByEmailRequest
     {
         public string Email { get; set; } = string.Empty;

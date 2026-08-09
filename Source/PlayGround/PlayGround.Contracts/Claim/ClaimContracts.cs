@@ -3,7 +3,6 @@ using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Contracts.Claim
 {
-    /// <summary>스텝 ① → ②: 초대코드로 조회한 선수 카드 (코드는 아직 소진되지 않는다).</summary>
     public class ClaimInviteCardResponse
     {
         public Guid PlayerId { get; set; }
@@ -15,21 +14,18 @@ namespace PlayGround.Contracts.Claim
         public string TeamName { get; set; } = string.Empty;
     }
 
-    /// <summary>스텝 ② → ③: 연결 요청 생성. Relation은 SoccerClaimRelation 멤버 이름 문자열.</summary>
     public class CreateClaimRequestRequest
     {
         public string Code { get; set; } = string.Empty;
         public string Relation { get; set; } = string.Empty;
     }
 
-    /// <summary>공개 선수 프로필 경유(코드 없음) 연결 요청 생성. 선수는 슬러그로 조회한 카드의 PlayerId.</summary>
     public class CreateClaimByPlayerRequest
     {
         public Guid PlayerId { get; set; }
         public string Relation { get; set; } = string.Empty;
     }
 
-    /// <summary>허브 "내 자녀"의 승인 대기 자녀 — 아직 연결되지 않은 내 Pending 요청 (Design.DashboardHub).</summary>
     public class PendingChildClaimDto
     {
         public Guid PlayerId { get; set; }
@@ -39,7 +35,6 @@ namespace PlayGround.Contracts.Claim
         public SystemTime RequestedAt { get; set; }
     }
 
-    /// <summary>내 연결 요청 요약 — 대기 화면·재방문 복원. Status: 'Pending','Approved','Rejected'.</summary>
     public class ClaimRequestSummaryResponse
     {
         public Guid RequestId { get; set; }
