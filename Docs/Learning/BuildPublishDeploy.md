@@ -62,3 +62,12 @@ tar -a -cf C:\Temp\playground-app.zip -C C:\Workspace\Publish\PlayGround .
 ```
 
 GitHub Actions 경로는 Linux `zip`으로 만들므로 이 함정이 없다 — 수동 배포에서만 밟는다.
+
+## 호스티드 배포와 지문(fingerprint) 자리표시자 (실측 2026-08-09)
+
+.NET 10 Blazor의 `#[.{fingerprint}]` 자리표시자(+ `OverrideHtmlAssetPlaceholders`)는
+**Client를 직접 publish하는 standalone 배포**에서만 치환된다. 우리처럼 **Server를 publish하는
+호스티드 배포**에서는 치환 경로가 없어(서버 정적 자산 매니페스트에 index.html 항목 자체가 없다)
+자리표시자가 브라우저까지 날것으로 나가 부팅이 Loading에서 멈춘다 — 개발 모드(dotnet run)에서는
+정상이라 배포 전엔 안 보이는 함정. `WasmFingerprintAssets=false` + 지문 없는 파일명 참조로 해결.
+대가: 프레임워크 자산 캐시 버스팅 없음(배포 후 브라우저 강력 새로고침이 필요할 수 있다).
