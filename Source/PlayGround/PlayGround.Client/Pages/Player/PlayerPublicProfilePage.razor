@@ -353,9 +353,9 @@ else if (mData is not null)
         get
         {
             List<string> parts = new();
-            if (mData!.Profile.Position is not null)
+            if (mData!.Profile.Position != SoccerPosition.Unknown)
             {
-                parts.Add(mData.Profile.Position.ToString()!);
+                parts.Add(mData.Profile.Position.ToText()!);
             }
 
             if (mData.Profile.JerseyNumber is not null)
@@ -368,9 +368,9 @@ else if (mData is not null)
                 parts.Add(AppText.Claim.BirthYear(mData.Profile.BirthYear));
             }
 
-            if (mData.Profile.AgeGroup is not null)
+            if (mData.Profile.AgeGroup != SoccerAgeGroup.Unknown)
             {
-                parts.Add(mData.Profile.AgeGroup.ToString()!);
+                parts.Add(mData.Profile.AgeGroup.ToText()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;
@@ -388,15 +388,15 @@ else if (mData is not null)
     // 대회 pill — 리그 네이비 / 컵 오렌지 톤 / 친선 teal 톤 (dc comp 함수 그대로)
     private static string CompLabel(PlayerMatchStatDto match) => match.CompetitionType switch
     {
-        "League" => AppText.Player.CompLeague,
-        "Cup" => AppText.Player.CompCup,
+        SoccerCompetitionType.League => AppText.Player.CompLeague,
+        SoccerCompetitionType.Cup => AppText.Player.CompCup,
         _ => AppText.Player.CompFriendly,
     };
 
     private static string CompPillClass(PlayerMatchStatDto match) => match.CompetitionType switch
     {
-        "League" => "text-navy bg-surface-icon",
-        "Cup" => "text-orange-ink bg-surface-orange-badge",
+        SoccerCompetitionType.League => "text-navy bg-surface-icon",
+        SoccerCompetitionType.Cup => "text-orange-ink bg-surface-orange-badge",
         _ => "text-teal-ink bg-teal/[.12]",
     };
 

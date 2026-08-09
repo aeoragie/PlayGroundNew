@@ -1,4 +1,5 @@
 using Akka.Routing;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 
 namespace PlayGround.Server.Actors
@@ -190,7 +191,7 @@ namespace PlayGround.Server.Actors
     public sealed record GetSoccerApplicationsByGuardianMessage(Guid GuardianUserId);
 
     /// <summary>지원 상태 전환 메시지 (관리자 쓰기 — ManagerUserId 해시).</summary>
-    public sealed record UpdateSoccerApplicationStatusMessage(Guid ManagerUserId, Guid ApplicationId, string NewStatus) : IConsistentHashable
+    public sealed record UpdateSoccerApplicationStatusMessage(Guid ManagerUserId, Guid ApplicationId, SoccerApplicationStatus NewStatus) : IConsistentHashable
     {
         public object ConsistentHashKey => ManagerUserId;
     }

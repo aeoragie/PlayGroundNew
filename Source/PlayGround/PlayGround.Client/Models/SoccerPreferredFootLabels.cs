@@ -5,7 +5,7 @@ namespace PlayGround.Client.Models
 {
     public static class SoccerPreferredFootLabels
     {
-        public static string? ToLabel(this SoccerPreferredFoot? foot)
+        public static string? ToLabel(this SoccerPreferredFoot foot)
         {
             return foot switch
             {

@@ -126,7 +126,7 @@
         mLoaded = true;
         mHeightText = Profile?.HeightCm?.ToString();
         mWeightText = Profile?.WeightKg?.ToString();
-        mFoot = Profile?.PreferredFoot;
+        mFoot = Profile?.PreferredFoot is { } f && f != SoccerPreferredFoot.Unknown ? f : null;
         mSchool = Profile?.SchoolName;
         mSlug = Profile?.Slug;
         mTakenSlug = null;
@@ -203,7 +203,7 @@
         {
             HeightCm = ParseIntOrNull(mHeightText),
             WeightKg = ParseIntOrNull(mWeightText),
-            PreferredFoot = mFoot,
+            PreferredFoot = mFoot ?? SoccerPreferredFoot.Unknown,
             SchoolName = string.IsNullOrWhiteSpace(mSchool) ? null : mSchool.Trim(),
             Slug = string.IsNullOrWhiteSpace(mSlug) ? null : mSlug.Trim().ToLowerInvariant(),
         };

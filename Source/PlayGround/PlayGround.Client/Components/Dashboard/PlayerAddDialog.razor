@@ -143,9 +143,9 @@
         {
             Name = mName!.Trim(),
             JerseyNumber = Trimmed(mJersey),
-            Position = mPosition,
-            Grade = mGrade,
-            AgeGroup = mAgeGroup,
+            Position = mPosition ?? SoccerPosition.Unknown,
+            Grade = mGrade ?? SoccerGrade.Unknown,
+            AgeGroup = mAgeGroup ?? SoccerAgeGroup.Unknown,
         };
 
         mSaving = true;

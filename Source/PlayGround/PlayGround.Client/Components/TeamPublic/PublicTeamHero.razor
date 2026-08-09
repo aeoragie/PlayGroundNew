@@ -79,9 +79,9 @@
             {
                 parts.Add(string.Join(" / ", AgeGroups));
             }
-            else if (Profile.AgeGroup is not null)
+            else if (Profile.AgeGroup != SoccerAgeGroup.Unknown)
             {
-                parts.Add(Profile.AgeGroup.ToString()!);
+                parts.Add(Profile.AgeGroup.ToText()!);
             }
 
             return string.Join(" · ", parts);

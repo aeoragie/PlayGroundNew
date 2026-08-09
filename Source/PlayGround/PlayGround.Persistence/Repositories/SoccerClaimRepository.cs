@@ -187,7 +187,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<ReviewClaimResponse?>.Success(new ReviewClaimResponse
             {
                 RequestId = row.RequestId,
-                Status = row.Status,
+                Status = EnumColumn.Read<SoccerClaimRequestStatus>(row.Status),
                 PlayerName = row.Name
             });
         }
@@ -197,8 +197,8 @@ namespace PlayGround.Persistence.Repositories
             return new ClaimRequestSummaryResponse
             {
                 RequestId = row.RequestId,
-                Status = row.Status,
-                Relation = row.Relation,
+                Status = EnumColumn.Read<SoccerClaimRequestStatus>(row.Status),
+                Relation = EnumColumn.Read<SoccerClaimRelation>(row.Relation),
                 PlayerName = row.Name,
                 TeamName = row.TeamName,
                 RequestedAt = row.CreatedAt

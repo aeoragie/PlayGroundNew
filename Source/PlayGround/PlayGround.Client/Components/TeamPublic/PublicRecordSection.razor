@@ -49,7 +49,7 @@
             </div>
             @foreach (TeamMatchDto match in Data.Matches)
             {
-                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                bool isFriendly = match.MatchType == SoccerMatchType.Friendly;
                 <div class="@($"flex items-center gap-4 px-6 py-[15px] border-b border-surface-icon {(isFriendly ? "bg-surface-friendly" : "")}")">
                     @if (isFriendly)
                     {

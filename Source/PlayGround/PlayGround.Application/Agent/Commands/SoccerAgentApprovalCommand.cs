@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Agent;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -61,15 +61,13 @@ namespace PlayGround.Application.Agent.Commands
                 return Result<AgentViewRequestResponse>.Error(ErrorCode.InvalidInput, "guardianUserId/requestId required");
             }
 
-            if (string.IsNullOrWhiteSpace(request.Action)
-                || char.IsAsciiDigit(request.Action[0])
-                || !Enum.TryParse(request.Action, out SoccerAgentReviewAction action))
+            if (request.Action == SoccerAgentReviewAction.Unknown)
             {
                 return Result<AgentViewRequestResponse>.Error(ErrorCode.InvalidInput, "unknown action");
             }
 
             Result<AgentViewRequestResponse?> reviewed =
-                await mRepository.ReviewAsync(guardianUserId, request.RequestId, action.ToString(), cancellation);
+                await mRepository.ReviewAsync(guardianUserId, request.RequestId, request.Action.ToString(), cancellation);
             if (reviewed.IsError)
             {
                 return Result<AgentViewRequestResponse>.Failure(reviewed.ResultData);

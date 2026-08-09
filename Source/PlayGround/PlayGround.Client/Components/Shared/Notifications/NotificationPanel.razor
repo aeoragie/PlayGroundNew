@@ -4,7 +4,7 @@
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Notification
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject NavigationManager Nav
 @inject NotificationClient Notifications
 @inject ClaimClient Claims
@@ -55,10 +55,10 @@
             }
             @foreach (NotificationDto item in Visible)
             {
-                @if (item.Type == nameof(SoccerNotificationType.ClaimRequest))
+                @if (item.Type == SoccerNotificationType.ClaimRequest)
                 {
                     @* ── 액션형: 프로필 연결 요청 ── *@
-                    <div class="@(item.RequestStatus == "Pending" ? Css.Notification.ActionCardPending : Css.Notification.ActionCard)">
+                    <div class="@(item.RequestStatus == SoccerClaimRequestStatus.Pending ? Css.Notification.ActionCardPending : Css.Notification.ActionCard)">
                         <div class="flex items-start gap-[11px]">
                             <span class="@Css.Notification.ActionIcon">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>
@@ -69,7 +69,7 @@
                                 <span class="@Css.Notification.ActionMeta">@AppText.Shared.InviteCodeUsed(item.SubText, TimeAgo(item.CreatedAt))</span>
                             </span>
                         </div>
-                        @if (item.RequestStatus == "Pending")
+                        @if (item.RequestStatus == SoccerClaimRequestStatus.Pending)
                         {
                             <div class="flex gap-2">
                                 <button type="button" class="@Css.Notification.ApproveButton" disabled="@mBusy"
@@ -79,7 +79,7 @@
                             </div>
                             <span class="@Css.Notification.ActionFoot">@AppText.Shared.ApproveFoot</span>
                         }
-                        else if (item.RequestStatus == "Approved")
+                        else if (item.RequestStatus == SoccerClaimRequestStatus.Approved)
                         {
                             <div class="@Css.Notification.DoneBox">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M4.5 12.5l5 5 10-11"></path></svg>
@@ -92,10 +92,10 @@
                         }
                     </div>
                 }
-                else if (item.Type == nameof(SoccerNotificationType.RosterInvite))
+                else if (item.Type == SoccerNotificationType.RosterInvite)
                 {
                     @* ── 액션형: 선수단 초대(지원 수락 후). RequestStatus = Pending(초대 확인 대기) / Confirmed(편입 완료) ── *@
-                    <div class="@(item.RequestStatus == "Pending" ? Css.Notification.ActionCardPending : Css.Notification.ActionCard)">
+                    <div class="@(item.RequestStatus == SoccerClaimRequestStatus.Pending ? Css.Notification.ActionCardPending : Css.Notification.ActionCard)">
                         <div class="flex items-start gap-[11px]">
                             <span class="@Css.Notification.ActionIcon">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>
@@ -106,7 +106,7 @@
                                 <span class="@Css.Notification.ActionMeta">@TimeAgo(item.CreatedAt)</span>
                             </span>
                         </div>
-                        @if (item.RequestStatus == "Confirmed")
+                        @if (item.RequestStatus == SoccerClaimRequestStatus.Confirmed)
                         {
                             <div class="@Css.Notification.DoneBox">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-none"><path d="M4.5 12.5l5 5 10-11"></path></svg>
@@ -248,28 +248,28 @@
 
     private string MoveIconClass(NotificationDto item) => item.Type switch
     {
-        nameof(SoccerNotificationType.ClaimApproved) => Css.Notification.MoveIconTeal,
-        nameof(SoccerNotificationType.ClaimRejected) => Css.Notification.MoveIconMuted,
-        nameof(SoccerNotificationType.ViewRequest) or
-        nameof(SoccerNotificationType.AgentGrantExpiring) => Css.Notification.MoveIconViolet,
+        SoccerNotificationType.ClaimApproved => Css.Notification.MoveIconTeal,
+        SoccerNotificationType.ClaimRejected => Css.Notification.MoveIconMuted,
+        SoccerNotificationType.ViewRequest or
+        SoccerNotificationType.AgentGrantExpiring => Css.Notification.MoveIconViolet,
         _ => Css.Notification.MoveIconNavy,
     };
 
     private static RenderFragment MoveIcon(NotificationDto item) => item.Type switch
     {
-        nameof(SoccerNotificationType.ClaimApproved) =>
+        SoccerNotificationType.ClaimApproved =>
             @<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"></path></svg>,
-        nameof(SoccerNotificationType.ClaimRejected) =>
+        SoccerNotificationType.ClaimRejected =>
             @<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>,
-        nameof(SoccerNotificationType.MatchResult) =>
+        SoccerNotificationType.MatchResult =>
             @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>,
-        nameof(SoccerNotificationType.ViewRequest) =>
+        SoccerNotificationType.ViewRequest =>
             @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M15.5 9.5l2 2 4-4.5"></path></svg>,
         _ =>
             @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>,
     };
 
-    private static string RelationLabel(string? relation) => NotificationPresenter.RelationLabel(relation);
+    private static string RelationLabel(SoccerClaimRelation relation) => NotificationPresenter.RelationLabel(relation);
 
     private static string TimeAgo(SystemTime createdAtUtc) => NotificationPresenter.TimeAgo(createdAtUtc);
 }

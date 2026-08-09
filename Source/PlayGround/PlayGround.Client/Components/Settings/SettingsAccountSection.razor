@@ -71,7 +71,7 @@
                 <button type="button" class="@Css.Settings.ManageButton" @onclick="() => mExportOpen = true">@AppText.Settings.Request</button>
             </div>
         }
-        else if (mExport.Status == "Pending")
+        else if (mExport.Status == DataExportStatus.Pending)
         {
             <div class="flex items-center gap-2.5 border border-border rounded-[11px] px-3 py-2.5">
                 <span class="w-[30px] h-[30px] rounded-[9px] bg-surface-icon flex items-center justify-center flex-none">
@@ -84,7 +84,7 @@
                 <button type="button" class="text-[11.5px] font-bold text-text-muted whitespace-nowrap flex-none bg-transparent border-0 cursor-pointer p-0" @onclick="CancelExportAsync">@AppText.Settings.ExportCancel</button>
             </div>
         }
-        else if (mExport.Status == "Ready")
+        else if (mExport.Status == DataExportStatus.Ready)
         {
             <div class="flex items-center gap-2.5 border-[1.5px] border-teal/40 bg-teal/5 rounded-[11px] px-3 py-2.5">
                 <span class="w-[30px] h-[30px] rounded-[9px] bg-teal/[.12] flex items-center justify-center flex-none">
@@ -159,7 +159,7 @@
     private void StartPollingIfPending()
     {
         mPollCts?.Cancel();
-        if (mExport?.Status != "Pending")
+        if (mExport?.Status != DataExportStatus.Pending)
         {
             return;
         }
@@ -184,7 +184,7 @@
 
                 mExport = latest;
                 await InvokeAsync(StateHasChanged);
-                if (latest?.Status != "Pending")
+                if (latest?.Status != DataExportStatus.Pending)
                 {
                     return;
                 }
@@ -245,10 +245,10 @@
     //.// 로그인 수단 — 연결(OAuth 이동)·해제(파괴 모달, 마지막 1개는 캡션)
 
     private bool IsLinked(string provider) =>
-        Settings.SocialLogins.Any(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+        Settings.SocialLogins.Any(s => string.Equals(s.Provider.ToString(), provider, StringComparison.OrdinalIgnoreCase));
 
     private LinkedLoginDto? LoginOf(string provider) =>
-        Settings.SocialLogins.FirstOrDefault(s => string.Equals(s.Provider, provider, StringComparison.OrdinalIgnoreCase));
+        Settings.SocialLogins.FirstOrDefault(s => string.Equals(s.Provider.ToString(), provider, StringComparison.OrdinalIgnoreCase));
 
     // "kim***@gmail.com · 2026.3.14 연결" (있는 조각만)
     private string? LinkedCaption(string provider)

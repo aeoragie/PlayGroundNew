@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -21,24 +21,22 @@ namespace PlayGround.Application.Player.Commands
             mLogger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<bool>> ExecuteAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default) =>
+        public async Task<Result<bool>> ExecuteAsync(Guid userId, SoccerPlayerProfileField fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default) =>
             (await ExecuteCoreAsync(userId, fieldName, isPublic, playerId, cancellation)).LogWith(mLogger, "Execute", ("UserId", userId));
 
-        private async Task<Result<bool>> ExecuteCoreAsync(Guid userId, string fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
+        private async Task<Result<bool>> ExecuteCoreAsync(Guid userId, SoccerPlayerProfileField fieldName, bool isPublic, Guid? playerId = null, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty)
             {
                 return Result<bool>.Error(ErrorCode.Unauthorized, "userId is empty");
             }
 
-            if (string.IsNullOrWhiteSpace(fieldName)
-                || char.IsAsciiDigit(fieldName[0])
-                || !Enum.TryParse(fieldName, out SoccerPlayerProfileField field))
+            if (fieldName == SoccerPlayerProfileField.Unknown)
             {
                 return Result<bool>.Error(ErrorCode.InvalidInput, "unknown field name");
             }
 
-            Result<bool> applied = await mRepository.SetFieldVisibilityAsync(userId, field.ToString(), isPublic, playerId, cancellation);
+            Result<bool> applied = await mRepository.SetFieldVisibilityAsync(userId, fieldName.ToString(), isPublic, playerId, cancellation);
             if (applied.IsError)
             {
                 return applied;

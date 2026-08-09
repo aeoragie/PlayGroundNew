@@ -15,9 +15,9 @@ namespace PlayGround.Application.Team.Commands
         private const int MaxIntroductionLength = 500;
 
         // 관리자가 전환할 수 있는 상태 화이트리스트 — 저장 게이트라 클라이언트가 우회해도 서버가 막는다.
-        private static readonly HashSet<string> AllowedTransitions = new(StringComparer.Ordinal)
+        private static readonly HashSet<SoccerApplicationStatus> AllowedTransitions = new()
         {
-            "Reviewing", "Accepted", "Rejected"
+            SoccerApplicationStatus.Reviewing, SoccerApplicationStatus.Accepted, SoccerApplicationStatus.Rejected
         };
 
         private readonly ISoccerTeamRepository mRepository;
@@ -107,24 +107,23 @@ namespace PlayGround.Application.Team.Commands
         }
 
         public async Task<Result<bool>> UpdateStatusAsync(
-            Guid managerUserId, Guid applicationId, string newStatus, CancellationToken cancellation = default) =>
+            Guid managerUserId, Guid applicationId, SoccerApplicationStatus newStatus, CancellationToken cancellation = default) =>
             (await UpdateStatusCoreAsync(managerUserId, applicationId, newStatus, cancellation)).LogWith(mLogger, "UpdateStatus", ("ManagerUserId", managerUserId));
 
         private async Task<Result<bool>> UpdateStatusCoreAsync(
-            Guid managerUserId, Guid applicationId, string newStatus, CancellationToken cancellation = default)
+            Guid managerUserId, Guid applicationId, SoccerApplicationStatus newStatus, CancellationToken cancellation = default)
         {
             if (managerUserId == Guid.Empty || applicationId == Guid.Empty)
             {
                 return Result<bool>.Error(ErrorCode.InvalidInput, "managerUserId/applicationId required");
             }
 
-            newStatus = newStatus?.Trim() ?? string.Empty;
             if (!AllowedTransitions.Contains(newStatus))
             {
                 return Result<bool>.Error(ErrorCode.InvalidInput, "invalid target status");
             }
 
-            Result<bool> applied = await mRepository.UpdateApplicationStatusAsync(managerUserId, applicationId, newStatus, cancellation);
+            Result<bool> applied = await mRepository.UpdateApplicationStatusAsync(managerUserId, applicationId, newStatus.ToString(), cancellation);
             if (applied.IsError)
             {
                 return applied;

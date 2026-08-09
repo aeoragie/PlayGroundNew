@@ -21,8 +21,8 @@
     {
         <div class="@Css.Segment.Track">
             <button type="button" class="@Css.Segment.Item(mFilter is null)" @onclick="() => mFilter = null">@AppText.Dashboard.SegAll @Data.Posts.Count</button>
-            <button type="button" class="@Css.Segment.Item(mFilter == "Notice")" @onclick="@(() => mFilter = "Notice")">@AppText.Dashboard.SegNotice @CountOf("Notice")</button>
-            <button type="button" class="@Css.Segment.Item(mFilter == "Material")" @onclick="@(() => mFilter = "Material")">@AppText.Dashboard.SegMaterial @CountOf("Material")</button>
+            <button type="button" class="@Css.Segment.Item(mFilter == SoccerTeamPostType.Notice)" @onclick="@(() => mFilter = SoccerTeamPostType.Notice)">@AppText.Dashboard.SegNotice @CountOf(SoccerTeamPostType.Notice)</button>
+            <button type="button" class="@Css.Segment.Item(mFilter == SoccerTeamPostType.Material)" @onclick="@(() => mFilter = SoccerTeamPostType.Material)">@AppText.Dashboard.SegMaterial @CountOf(SoccerTeamPostType.Material)</button>
         </div>
 
         @foreach (TeamPostDto post in Filtered)
@@ -60,24 +60,24 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
-    private string? mFilter;
+    private SoccerTeamPostType? mFilter;
     private bool mFormOpen;
     private TeamPostDto? mEditing;
 
     private List<TeamPostDto> Filtered =>
         (mFilter is null ? Data.Posts : Data.Posts.Where(p => p.Type == mFilter)).ToList();
 
-    private int CountOf(string type) => Data.Posts.Count(p => p.Type == type);
+    private int CountOf(SoccerTeamPostType type) => Data.Posts.Count(p => p.Type == type);
 
     private string RowClass(TeamPostDto post) =>
         "flex items-center gap-3 rounded-[12px] px-[13px] py-3 " + (post.IsPinned
             ? "border-[1.5px] border-navy/20 bg-navy/[.03]"
             : "border border-border");
 
-    private static string TypeLabel(TeamPostDto post) => post.Type == "Notice" ? AppText.Dashboard.SegNotice : AppText.Dashboard.SegMaterial;
+    private static string TypeLabel(TeamPostDto post) => post.Type == SoccerTeamPostType.Notice ? AppText.Dashboard.SegNotice : AppText.Dashboard.SegMaterial;
 
     private static string TypeBadgeClass(TeamPostDto post) =>
-        post.Type == "Notice"
+        post.Type == SoccerTeamPostType.Notice
             ? "text-[9.5px] font-extrabold text-white bg-navy rounded-[99px] px-2 py-[2px] whitespace-nowrap"
             : Css.Badge.Neutral;
 

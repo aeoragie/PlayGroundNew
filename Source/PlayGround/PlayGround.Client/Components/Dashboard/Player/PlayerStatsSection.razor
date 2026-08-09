@@ -71,7 +71,7 @@
             </div>
             @foreach (PlayerMatchStatDto match in Stats.Matches)
             {
-                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                bool isFriendly = match.MatchType == SoccerMatchType.Friendly;
                 <div class="@($"{RowGrid} items-center py-[13px] border-b border-surface-icon {(isFriendly ? "bg-surface-friendly" : "")}")">
                     <span class="text-[12.5px] text-text-muted whitespace-nowrap">@DateLabel(match)</span>
                     <span class="text-[13.5px] font-bold text-navy-deep break-keep">@TitleLabel(match)</span>
@@ -156,10 +156,10 @@
     private int FriendlyAssists => FriendlyOf(Stats.Matches).Sum(m => m.Assists);
 
     internal static List<PlayerMatchStatDto> OfficialOf(IEnumerable<PlayerMatchStatDto> matches) =>
-        matches.Where(m => !SoccerMatchTypeExtensions.IsFriendly(m.MatchType)).ToList();
+        matches.Where(m => m.MatchType != SoccerMatchType.Friendly).ToList();
 
     internal static List<PlayerMatchStatDto> FriendlyOf(IEnumerable<PlayerMatchStatDto> matches) =>
-        matches.Where(m => SoccerMatchTypeExtensions.IsFriendly(m.MatchType)).ToList();
+        matches.Where(m => m.MatchType == SoccerMatchType.Friendly).ToList();
 
     // 분이 기록된 경기 기준 평균 (전부 미상이면 카드 숨김) — 공식 경기만
     private int? AverageMinutes
@@ -175,7 +175,7 @@
 
     internal static SoccerCompetitionType CompetitionOf(PlayerMatchStatDto match)
     {
-        return Enum.TryParse(match.CompetitionType, out SoccerCompetitionType parsed) ? parsed : SoccerCompetitionType.Friendly;
+        return match.CompetitionType;
     }
 
     internal static string DateLabel(PlayerMatchStatDto match)

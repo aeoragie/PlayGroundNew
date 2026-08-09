@@ -5,7 +5,7 @@
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
 @using PlayGround.Contracts.Team
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject PlayerClient Players
@@ -213,7 +213,7 @@
     {
         get
         {
-            string? guardian = mInfo?.Family.FirstOrDefault(m => m.Role == "Guardian")?.MemberName;
+            string? guardian = mInfo?.Family.FirstOrDefault(m => m.Role == SoccerFamilyRole.Guardian)?.MemberName;
             return guardian ?? mInfo?.Profile.Name ?? AppText.Player.RoleGuardian;
         }
     }
@@ -526,7 +526,7 @@
 
     private HashSet<Guid> PendingCorrectionMatchIds =>
         ChildCorrections
-            .Where(c => c.Status == nameof(SoccerCorrectionStatus.Pending))
+            .Where(c => c.Status == SoccerCorrectionStatus.Pending)
             .Select(c => c.MatchId)
             .ToHashSet();
 
@@ -588,14 +588,14 @@
         }
 
         List<string> parts = new();
-        if (mInfo.Profile.AgeGroup is not null)
+        if (mInfo.Profile.AgeGroup != SoccerAgeGroup.Unknown)
         {
-            parts.Add(mInfo.Profile.AgeGroup.ToString()!);
+            parts.Add(mInfo.Profile.AgeGroup.ToText()!);
         }
 
-        if (mInfo.Profile.Position is not null)
+        if (mInfo.Profile.Position != SoccerPosition.Unknown)
         {
-            parts.Add(mInfo.Profile.Position.ToString()!);
+            parts.Add(mInfo.Profile.Position.ToText()!);
         }
 
         if (mInfo.Profile.JerseyNumber is not null)

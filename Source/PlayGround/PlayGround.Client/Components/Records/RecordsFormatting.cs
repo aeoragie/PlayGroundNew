@@ -2,6 +2,7 @@ using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
 using PlayGround.Client.Services;
 using PlayGround.Contracts.Records;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Time;
 
 namespace PlayGround.Client.Components.Records
@@ -25,12 +26,12 @@ namespace PlayGround.Client.Components.Records
 
         public static string MatchStatusLabel(RecordsMatchDto match) => MatchStatusLabel(match.Status);
 
-        public static string MatchStatusLabel(string status)
+        public static string MatchStatusLabel(SoccerMatchStatus status)
         {
             return status switch
             {
-                nameof(SoccerMatchStatus.Completed) => AppText.Records.StatusCompleted,
-                nameof(SoccerMatchStatus.Canceled) => AppText.Records.StatusCanceled,
+                SoccerMatchStatus.Completed => AppText.Records.StatusCompleted,
+                SoccerMatchStatus.Canceled => AppText.Records.StatusCanceled,
                 _ => AppText.Records.StatusScheduled,
             };
         }
@@ -38,7 +39,7 @@ namespace PlayGround.Client.Components.Records
         public static string MatchStatusBadgeClass(RecordsMatchDto match)
         {
             string baseClass = "text-[11px] font-bold rounded-full px-[11px] py-[3px] whitespace-nowrap shrink-0 ";
-            return baseClass + (match.Status == nameof(SoccerMatchStatus.Completed)
+            return baseClass + (match.Status == SoccerMatchStatus.Completed
                 ? "text-text-muted bg-surface-icon"
                 : "text-navy bg-surface-icon");
         }
@@ -92,21 +93,21 @@ namespace PlayGround.Client.Components.Records
 
         //.// 공식 경기 상세 — 이벤트·스테이지 라벨
 
-        public static string EventKindLabel(string eventType)
+        public static string EventKindLabel(SoccerMatchEventType eventType)
         {
             return eventType switch
             {
-                "Goal" or "PenaltyGoal" => AppText.Records.EventGoal,
-                "OwnGoal" => AppText.Records.EventOwnGoal,
-                "YellowCard" => AppText.Records.EventYellow,
-                "RedCard" => AppText.Records.EventRed,
+                SoccerMatchEventType.Goal or SoccerMatchEventType.PenaltyGoal => AppText.Records.EventGoal,
+                SoccerMatchEventType.OwnGoal => AppText.Records.EventOwnGoal,
+                SoccerMatchEventType.YellowCard => AppText.Records.EventYellow,
+                SoccerMatchEventType.RedCard => AppText.Records.EventRed,
                 _ => string.Empty,
             };
         }
 
-        public static bool IsGoalEvent(string eventType)
+        public static bool IsGoalEvent(SoccerMatchEventType eventType)
         {
-            return eventType is "Goal" or "PenaltyGoal" or "OwnGoal";
+            return eventType is SoccerMatchEventType.Goal or SoccerMatchEventType.PenaltyGoal or SoccerMatchEventType.OwnGoal;
         }
 
         /// <summary>주요 로그 문구 — "득점 김유한" (선수명 없으면 종류만).</summary>
@@ -151,16 +152,16 @@ namespace PlayGround.Client.Components.Records
         }
 
         /// <summary>스테이지+라운드 라벨 — "조별 1R", "PO", "리그" 등 (브레드크럼·스코어보드 뱃지).</summary>
-        public static string MatchStageLabel(string? stageType, string? roundName)
+        public static string MatchStageLabel(SoccerStageType stageType, string? roundName)
         {
             string round = RoundDisplay(roundName);
             return stageType switch
             {
-                "Group" => string.IsNullOrEmpty(round) ? AppText.Records.StageGroup : $"{AppText.Records.StageGroup} {round}",
-                "Split1" => string.IsNullOrEmpty(round) ? AppText.Records.StageSplit1 : $"{AppText.Records.StageSplit1} {round}",
-                "Split2" => string.IsNullOrEmpty(round) ? AppText.Records.StageSplit2 : $"{AppText.Records.StageSplit2} {round}",
-                "Knockout" => string.IsNullOrEmpty(round) ? AppText.Records.StageKnockout : round,
-                "League" => string.IsNullOrEmpty(round) ? AppText.Records.StageLeague : round,
+                SoccerStageType.Group => string.IsNullOrEmpty(round) ? AppText.Records.StageGroup : $"{AppText.Records.StageGroup} {round}",
+                SoccerStageType.Split1 => string.IsNullOrEmpty(round) ? AppText.Records.StageSplit1 : $"{AppText.Records.StageSplit1} {round}",
+                SoccerStageType.Split2 => string.IsNullOrEmpty(round) ? AppText.Records.StageSplit2 : $"{AppText.Records.StageSplit2} {round}",
+                SoccerStageType.Knockout => string.IsNullOrEmpty(round) ? AppText.Records.StageKnockout : round,
+                SoccerStageType.League => string.IsNullOrEmpty(round) ? AppText.Records.StageLeague : round,
                 _ => round,
             };
         }

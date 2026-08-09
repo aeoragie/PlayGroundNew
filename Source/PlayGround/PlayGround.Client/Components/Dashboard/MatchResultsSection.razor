@@ -56,7 +56,7 @@
         <div class="flex flex-col gap-3">
             @foreach (TeamMatchDto match in FilteredMatches)
             {
-                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                bool isFriendly = match.MatchType == SoccerMatchType.Friendly;
                 <div class="@Css.FriendlyMatch.Row(isFriendly, $"{(isFriendly ? "rounded-[14px]" : Css.Dashboard.Card + " rounded-[14px]")} px-[22px] py-[18px] flex flex-col gap-3")">
                     <div class="flex items-center gap-3.5">
                         @if (isFriendly)
@@ -172,7 +172,7 @@
 
     private List<TeamMatchDto> OfficialMatches => OfficialOf(Data.Matches);
 
-    private int FriendlyCount => Data.Matches.Count(m => SoccerMatchTypeExtensions.IsFriendly(m.MatchType));
+    private int FriendlyCount => Data.Matches.Count(m => m.MatchType == SoccerMatchType.Friendly);
 
     private int Wins => OfficialMatches.Count(m => m.TeamScore > m.OpponentScore);
     private int Draws => OfficialMatches.Count(m => m.TeamScore == m.OpponentScore);
@@ -181,16 +181,16 @@
     private int GoalsAgainst => OfficialMatches.Sum(m => m.OpponentScore);
 
     internal static List<TeamMatchDto> OfficialOf(IEnumerable<TeamMatchDto> matches) =>
-        matches.Where(m => !SoccerMatchTypeExtensions.IsFriendly(m.MatchType)).ToList();
+        matches.Where(m => m.MatchType != SoccerMatchType.Friendly).ToList();
 
     internal static int FriendlyCountOf(IEnumerable<TeamMatchDto> matches) =>
-        matches.Count(m => SoccerMatchTypeExtensions.IsFriendly(m.MatchType));
+        matches.Count(m => m.MatchType == SoccerMatchType.Friendly);
 
     //.// 표시 파생 — PC·모바일 공유
 
     internal static SoccerCompetitionType CompetitionOf(TeamMatchDto match)
     {
-        return Enum.TryParse(match.CompetitionType, out SoccerCompetitionType parsed) ? parsed : SoccerCompetitionType.Friendly;
+        return match.CompetitionType;
     }
 
     internal static SoccerMatchOutcome OutcomeOf(TeamMatchDto match)
@@ -215,7 +215,7 @@
     {
         List<string> chips = new();
         chips.AddRange(match.Events
-            .Where(e => e.EventType != "OwnGoal" && e.PlayerName is not null)
+            .Where(e => e.EventType != SoccerMatchEventType.OwnGoal && e.PlayerName is not null)
             .GroupBy(e => e.PlayerName!)
             .Select(g => g.Count() > 1 ? AppText.Dashboard.GoalByMulti(g.Key, g.Count()) : AppText.Dashboard.GoalBy(g.Key)));
         chips.AddRange(match.Events

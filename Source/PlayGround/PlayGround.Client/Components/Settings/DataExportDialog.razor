@@ -116,13 +116,13 @@
         }
 
         // 진행 중·쿨다운은 인라인 안내(모달 유지) — 요청 접수만 성공으로 닫는다
-        if (result.Status == "InProgress")
+        if (result.Status == DataExportRequestStatus.InProgress)
         {
             mError = AppText.Settings.ExportErrorInProgress;
             return;
         }
 
-        if (result.Status == "Cooldown")
+        if (result.Status == DataExportRequestStatus.Cooldown)
         {
             mError = AppText.Settings.ExportErrorCooldown;
             return;

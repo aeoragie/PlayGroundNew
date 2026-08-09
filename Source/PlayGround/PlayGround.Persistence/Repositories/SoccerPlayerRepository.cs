@@ -2,9 +2,10 @@ using Microsoft.Extensions.Options;
 using PlayGround.Contracts.Soccer;
 using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
+using PlayGround.Application.Player;
 using PlayGround.Application.Player.Models;
 using PlayGround.Contracts.Player;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
@@ -129,9 +130,10 @@ namespace PlayGround.Persistence.Repositories
                     StrengthTags = ParseTags(player.StrengthTags)
                 },
                 Visibilities = Enum.GetValues<SoccerPlayerProfileField>()
+                    .Where(field => field != SoccerPlayerProfileField.Unknown)
                     .Select(field => new PlayerFieldVisibilityDto
                     {
-                        FieldName = field.ToString(),
+                        FieldName = field,
                         IsPublic = visibilities.FirstOrDefault(v => v.FieldName == field.ToString())?.IsPublic
                                    ?? field.DefaultIsPublic()
                     })
@@ -140,7 +142,7 @@ namespace PlayGround.Persistence.Repositories
                     .Select(f => new PlayerFamilyMemberDto
                     {
                         MemberName = f.MemberName,
-                        Role = f.Role,
+                        Role = EnumColumn.Read<SoccerFamilyRole>(f.Role),
                         HasAccount = f.UserId is not null
                     })
                     .ToList()
@@ -169,7 +171,7 @@ namespace PlayGround.Persistence.Repositories
             return Result<bool>.Success(applied);
         }
 
-        public async Task<Result<string?>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, SoccerPreferredFoot? preferredFoot, string? schoolName, string? slug, Guid? playerId = null, CancellationToken cancellation = default)
+        public async Task<Result<string?>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, SoccerPreferredFoot preferredFoot, string? schoolName, string? slug, Guid? playerId = null, CancellationToken cancellation = default)
         {
             var procedure = new UspUpdateSoccerPlayerProfileByUser(this)
             {
@@ -415,8 +417,8 @@ namespace PlayGround.Persistence.Repositories
                         {
                             MatchId = a.MatchId,
                             MatchedAt = a.MatchedAt,
-                            CompetitionType = CompetitionTypeOf(a),
-                            MatchType = a.MatchType,
+                            CompetitionType = EnumColumn.Read<SoccerCompetitionType>(CompetitionTypeOf(a)),
+                            MatchType = EnumColumn.Read<SoccerMatchType>(a.MatchType),
                             OpponentName = isHome ? a.AwayTeamName : a.HomeTeamName,
                             TeamScore = (isHome ? a.HomeScore : a.AwayScore) ?? 0,
                             OpponentScore = (isHome ? a.AwayScore : a.HomeScore) ?? 0,
@@ -504,10 +506,10 @@ namespace PlayGround.Persistence.Repositories
                     IsClaimable = header.UserId is null,
                     HeightCm = IsPublic(SoccerPlayerProfileField.Height) ? header.HeightCm : null,
                     WeightKg = IsPublic(SoccerPlayerProfileField.Weight) ? header.WeightKg : null,
-                    PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? EnumColumn.Read<SoccerPreferredFoot>(header.PreferredFoot) : null,
+                    PreferredFoot = IsPublic(SoccerPlayerProfileField.PreferredFoot) ? EnumColumn.Read<SoccerPreferredFoot>(header.PreferredFoot) : SoccerPreferredFoot.Unknown,
                     // 학교·학년·보호자명은 권한 뷰(승인된 에이전트)에만 — 공개 뷰는 가시성과 무관하게 항상 null
                     SchoolName = isGranted ? NullIfEmpty(header.SchoolName) : null,
-                    Grade = isGranted ? EnumColumn.Read<SoccerGrade>(header.Grade) : null,
+                    Grade = isGranted ? EnumColumn.Read<SoccerGrade>(header.Grade) : SoccerGrade.Unknown,
                     GuardianDisplayName = isGranted ? MaskName(NullIfEmpty(header.MemberName)) : null,
                     // 강점 태그는 공개 설정이 켜진 경우에만 (게이팅은 C# — 프로시저는 원본을 내려준다)
                     StrengthTags = IsPublic(SoccerPlayerProfileField.StrengthTags) ? ParseTags(header.StrengthTags) : new List<string>()
@@ -527,8 +529,8 @@ namespace PlayGround.Persistence.Repositories
                         {
                             MatchId = a.MatchId,
                             MatchedAt = a.MatchedAt,
-                            CompetitionType = CompetitionTypeOf(a),
-                            MatchType = a.MatchType,
+                            CompetitionType = EnumColumn.Read<SoccerCompetitionType>(CompetitionTypeOf(a)),
+                            MatchType = EnumColumn.Read<SoccerMatchType>(a.MatchType),
                             OpponentName = isHome ? a.AwayTeamName : a.HomeTeamName,
                             TeamScore = (isHome ? a.HomeScore : a.AwayScore) ?? 0,
                             OpponentScore = (isHome ? a.AwayScore : a.HomeScore) ?? 0,
@@ -579,7 +581,7 @@ namespace PlayGround.Persistence.Repositories
             }
 
             var presets = queryResult.Values1
-                .Select(p => new StrengthTagPresetDto { Position = EnumColumn.ReadRequired<SoccerPosition>(p.Position), Tag = p.Tag })
+                .Select(p => new StrengthTagPresetDto { Position = EnumColumn.Read<SoccerPosition>(p.Position), Tag = p.Tag })
                 .ToList();
 
             return Result<List<StrengthTagPresetDto>>.Success(presets);

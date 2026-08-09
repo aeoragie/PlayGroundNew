@@ -7,7 +7,7 @@
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Notification
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject NotificationClient Notifications
@@ -268,16 +268,16 @@
     //.// 액션형 제목·본문 (연결 요청·선수단 초대)
 
     private static string ActionTitle(NotificationDto item) =>
-        item.Type == nameof(SoccerNotificationType.ClaimRequest) ? AppText.Notification.TitleClaimRequest : AppText.Notification.TitleTeamInvite;
+        item.Type == SoccerNotificationType.ClaimRequest ? AppText.Notification.TitleClaimRequest : AppText.Notification.TitleTeamInvite;
 
-    private static string ActionBody(NotificationDto item) => item.Type == nameof(SoccerNotificationType.ClaimRequest)
+    private static string ActionBody(NotificationDto item) => item.Type == SoccerNotificationType.ClaimRequest
         ? AppText.Notification.BodyClaimRequest(item.ActorName, NotificationPresenter.RelationLabel(item.Relation), item.PlayerName, item.MetaText is not null ? $"({item.MetaText})" : "")
         : AppText.Notification.BodyTeamInvite(item.TeamName, item.PlayerName);
 
     private RenderFragment RightAction(NotificationDto item) => builder =>
     {
         bool required = NotificationPresenter.IsActionRequired(item);
-        if (item.Type == nameof(SoccerNotificationType.ClaimRequest))
+        if (item.Type == SoccerNotificationType.ClaimRequest)
         {
             if (required)
             {
@@ -285,7 +285,7 @@
             }
             else
             {
-                builder.AddContent(1, StatusLabel(item.RequestStatus == "Approved" ? AppText.Notification.StatusApproved : AppText.Notification.StatusRejected));
+                builder.AddContent(1, StatusLabel(item.RequestStatus == SoccerClaimRequestStatus.Approved ? AppText.Notification.StatusApproved : AppText.Notification.StatusRejected));
             }
         }
         else
@@ -322,12 +322,12 @@
     {
         string tone = item.Type switch
         {
-            nameof(SoccerNotificationType.ClaimRequest) or
-            nameof(SoccerNotificationType.ClaimApproved) or
-            nameof(SoccerNotificationType.ClaimRejected) or
-            nameof(SoccerNotificationType.RosterInvite) => "bg-orange/10 text-orange-ink",
-            nameof(SoccerNotificationType.ViewRequest) or
-            nameof(SoccerNotificationType.AgentGrantExpiring) => "bg-agent/10 text-agent",
+            SoccerNotificationType.ClaimRequest or
+            SoccerNotificationType.ClaimApproved or
+            SoccerNotificationType.ClaimRejected or
+            SoccerNotificationType.RosterInvite => "bg-orange/10 text-orange-ink",
+            SoccerNotificationType.ViewRequest or
+            SoccerNotificationType.AgentGrantExpiring => "bg-agent/10 text-agent",
             _ => "bg-navy/[.08] text-navy",
         };
         return "w-9 h-9 rounded-[10px] flex items-center justify-center flex-none " + tone;
@@ -335,14 +335,14 @@
 
     private static RenderFragment Circle(NotificationDto item) => item.Type switch
     {
-        nameof(SoccerNotificationType.ClaimRequest) or
-        nameof(SoccerNotificationType.ClaimApproved) or
-        nameof(SoccerNotificationType.ClaimRejected) or
-        nameof(SoccerNotificationType.RosterInvite) =>
+        SoccerNotificationType.ClaimRequest or
+        SoccerNotificationType.ClaimApproved or
+        SoccerNotificationType.ClaimRejected or
+        SoccerNotificationType.RosterInvite =>
             @<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M16 8h5M18.5 5.5v5"></path></svg>,
-        nameof(SoccerNotificationType.ViewRequest) =>
+        SoccerNotificationType.ViewRequest =>
             @<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"></path><path d="M15.5 9.5l2 2 4-4.5"></path></svg>,
-        nameof(SoccerNotificationType.MatchResult) =>
+        SoccerNotificationType.MatchResult =>
             @<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>,
         _ =>
             @<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>,

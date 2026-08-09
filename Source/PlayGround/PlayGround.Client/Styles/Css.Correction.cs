@@ -75,12 +75,12 @@ namespace PlayGround.Client.Styles
 
             //.// 상태 뱃지 — 접수 오렌지 / 반영 teal / 반려 연레드
 
-            public static string StatusBadge(string status)
+            public static string StatusBadge(PlayGround.Contracts.Soccer.SoccerCorrectionStatus status)
             {
                 string tone = status switch
                 {
-                    "Accepted" => "text-teal-ink bg-teal/[.12]",
-                    "Rejected" => "text-danger bg-danger/[.08]",
+                    PlayGround.Contracts.Soccer.SoccerCorrectionStatus.Accepted => "text-teal-ink bg-teal/[.12]",
+                    PlayGround.Contracts.Soccer.SoccerCorrectionStatus.Rejected => "text-danger bg-danger/[.08]",
                     _ => "text-orange-ink bg-surface-orange-badge",
                 };
 

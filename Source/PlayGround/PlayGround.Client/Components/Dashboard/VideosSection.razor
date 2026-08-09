@@ -95,7 +95,7 @@
 
     internal static SoccerVideoType TypeOf(TeamVideoDto video)
     {
-        return Enum.TryParse(video.VideoType, out SoccerVideoType parsed) ? parsed : SoccerVideoType.Highlight;
+        return video.VideoType;
     }
 
     internal static string FormatDuration(int seconds)

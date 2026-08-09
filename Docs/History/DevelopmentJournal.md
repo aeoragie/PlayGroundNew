@@ -76,6 +76,32 @@
   `Models/` 분리 + `Soccer` 프리픽스, **페이지 라우트 문자열은 `Client/Routes.cs` 단일 관리**
   (@page 대신 `@attribute [Route(Routes.X)]`, 링크·NavigateTo는 상수/헬퍼만).
 
+### 정형 값 enum화 전면 적용 (2026-08-09)
+
+1단계(AgeGroup·Grade·Position·PreferredFoot, e71e05c)에 이어 상태·유형·역할 전 DTO 필드를
+enum으로 전환했다. 규칙 요약은 CLAUDE.md "enum은 정수가 아니라 문자열" 절.
+
+- **어휘의 거처** — `Contracts/Soccer/SoccerEnums.cs`(34종) + `Contracts/Common/CommonEnums.cs`(5종).
+  Domain의 열거형 9파일과 Client `Models/`의 평행 enum 11파일(SoccerMatchType·SoccerClaimStatus·
+  SoccerScheduleEventType·SoccerTournamentStageType·UserRole 등)을 삭제하고 Contracts로 단일화.
+  Client에 남은 것은 UI 전용(SoccerMatchSegment·ApplicantSegment·대시보드 섹션 enum)뿐이다.
+- **비널러블 정책** — DTO enum 필드는 `Unknown`(0) 기본값, 널러블 금지. 컨버터가 미지 이름·숫자
+  토큰·null 토큰을 전부 Unknown으로 받는다(`HandleNull => true`). 키 필드의 Unknown은 유즈케이스가
+  InvalidInput으로 거부 — 문자열 시절의 "숫자 문자열·대소문자 변형 화이트리스트" 가드는 컨버터
+  계층으로 이동했고 테스트도 따라 이동(LenientEnumJsonConverterTests가 어휘 경계를 소유).
+- **파생 상태의 어휘 포함** — `SoccerClaimRequestStatus.Confirmed`는 저장 값이 아니라
+  UspGetSoccerNotificationsByUser의 파생 값(RosterInvite)이라 enum에 명시하고 주석으로 남겼다.
+  `SoccerPlayerProfileField.StrengthTags`도 1단계에서 누락됐던 멤버.
+- **기본값 확장의 거처 이동** — `DefaultIsPublic`·`DefaultIsEnabled`는 Domain에서 Application으로
+  (Domain은 Contracts를 볼 수 없다). Client는 Application을 참조할 수 없어 알림 기본값만 표시층
+  사본을 둔다(`Models/NotificationPreferenceDefaults.cs` — 정책 변경 시 두 곳을 함께).
+- **표시 헬퍼** — `EnumDisplay.ToText()`(Unknown→null)로 "-"·생략 폴백을 잇고, 라벨은
+  `SoccerDomainEnumLabels.ToLabel()`로 통합(대회 형식·상태·영상·일정·경기 유형 라벨 이관).
+- **검증** — 전 테스트 800건 통과. 로컬 DB 저장 어휘 전수 대조(모든 컬럼 값이 enum 멤버와 일치),
+  서버 기동 후 로그인·팀 홈·로스터·대회/경기 상세·허브 E2E에서 enum 이름 직렬화 왕복 확인.
+- **함정 기록** — dotnet 빌드 오류 출력은 CP949라 perl UTF-8 파싱과 한글 매칭이 어긋난다.
+  로그 기반 자동 수정 스크립트는 에러 코드·따옴표 토큰 위치로 파싱할 것(한글 문구 매칭 금지).
+
 ### Phase C — 대시보드 허브 완료 (2026-07-21, Design.DashboardHub)
 
 > **착수하려다 멈추고 선행 작업부터 했다.** 허브의 표시 조건이 "역할 2개 이상 또는 자녀 2명 이상"인데

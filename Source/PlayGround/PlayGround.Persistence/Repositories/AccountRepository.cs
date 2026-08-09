@@ -1,10 +1,12 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
+using PlayGround.Application.Settings;
 using PlayGround.Contracts.Settings;
-using PlayGround.Domain.Account;
+using PlayGround.Contracts.Common;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Persistence.Database;
 using PlayGround.Persistence.Database.Generated.Account.Entities;
 using PlayGround.Persistence.Database.Generated.Account.Procedures;
 using PlayGround.Shared.Result;
@@ -50,10 +52,10 @@ namespace PlayGround.Persistence.Repositories
                 Email = user.Email,
                 EmailConfirmed = user.EmailConfirmed,
                 PasswordHash = string.IsNullOrEmpty(user.PasswordHash) ? null : user.PasswordHash,
-                AuthProvider = user.AuthProvider,
+                AuthProvider = EnumColumn.Read<AccountAuthProvider>(user.AuthProvider),
                 DisplayName = user.DisplayName,
                 ProfileImageUrl = string.IsNullOrEmpty(user.ProfileImageUrl) ? null : user.ProfileImageUrl,
-                UserRole = user.UserRole,
+                UserRole = EnumColumn.Read<AccountRole>(user.UserRole),
                 UserStatus = user.UserStatus
             });
         }
@@ -158,11 +160,11 @@ namespace PlayGround.Persistence.Repositories
             {
                 DisplayName = user.DisplayName,
                 MaskedEmail = MaskEmail(user.Email),
-                AuthProvider = user.AuthProvider,
+                AuthProvider = EnumColumn.Read<AccountAuthProvider>(user.AuthProvider),
                 SocialLogins = socials
                     .Select(s => new LinkedLoginDto
                     {
-                        Provider = s.Provider,
+                        Provider = EnumColumn.Read<AccountAuthProvider>(s.Provider),
                         LinkedAt = s.CreatedAt,
                         MaskedEmail = string.IsNullOrEmpty(s.Email) ? null : MaskEmail(s.Email)
                     })
@@ -191,9 +193,10 @@ namespace PlayGround.Persistence.Repositories
             var response = new NotificationPreferencesResponse
             {
                 Preferences = Enum.GetValues<NotificationPreferenceItem>()
+                    .Where(item => item != NotificationPreferenceItem.Unknown)
                     .Select(item => new NotificationPreferenceDto
                     {
-                        ItemName = item.ToString(),
+                        ItemName = item,
                         IsEnabled = saved.TryGetValue(item.ToString(), out bool enabled) ? enabled : item.DefaultIsEnabled()
                     })
                     .ToList()
@@ -306,10 +309,10 @@ namespace PlayGround.Persistence.Repositories
                 Email = r.Email,
                 EmailConfirmed = r.EmailConfirmed,
                 PasswordHash = string.IsNullOrEmpty(r.PasswordHash) ? null : r.PasswordHash,
-                AuthProvider = r.AuthProvider,
+                AuthProvider = EnumColumn.Read<AccountAuthProvider>(r.AuthProvider),
                 DisplayName = r.DisplayName,
                 ProfileImageUrl = string.IsNullOrEmpty(r.ProfileImageUrl) ? null : r.ProfileImageUrl,
-                UserRole = r.UserRole,
+                UserRole = EnumColumn.Read<AccountRole>(r.UserRole),
                 UserStatus = r.UserStatus
             };
         }

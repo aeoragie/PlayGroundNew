@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Common;
 
 namespace PlayGround.Contracts.Settings
 {
@@ -7,7 +8,7 @@ namespace PlayGround.Contracts.Settings
         public string DisplayName { get; set; } = string.Empty;
         public string MaskedEmail { get; set; } = string.Empty;
 
-        public string AuthProvider { get; set; } = string.Empty;
+        public AccountAuthProvider AuthProvider { get; set; }
         public List<LinkedLoginDto> SocialLogins { get; set; } = new();
 
         public int NameChangeRemaining { get; set; } = 2;
@@ -19,7 +20,7 @@ namespace PlayGround.Contracts.Settings
 
     public class LinkedLoginDto
     {
-        public string Provider { get; set; } = string.Empty;
+        public AccountAuthProvider Provider { get; set; }
         public SystemTime LinkedAt { get; set; }
 
         public string? MaskedEmail { get; set; }
@@ -37,13 +38,13 @@ namespace PlayGround.Contracts.Settings
 
     public class NotificationPreferenceDto
     {
-        public string ItemName { get; set; } = string.Empty;
+        public NotificationPreferenceItem ItemName { get; set; }
         public bool IsEnabled { get; set; }
     }
 
     public class SetNotificationPreferenceRequest
     {
-        public string ItemName { get; set; } = string.Empty;
+        public NotificationPreferenceItem ItemName { get; set; }
         public bool IsEnabled { get; set; }
     }
 }

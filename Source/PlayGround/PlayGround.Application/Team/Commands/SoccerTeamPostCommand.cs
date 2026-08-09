@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Team;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -93,12 +93,10 @@ namespace PlayGround.Application.Team.Commands
                 .Take(MaxFiles + 1)
                 .ToList();
 
-            if (!Enum.TryParse(request.Type, out SoccerTeamPostType type))
+            if (request.Type == SoccerTeamPostType.Unknown)
             {
                 return Result<TeamPostDto>.Error(ErrorCode.InvalidInput, "unknown post type");
             }
-
-            request.Type = type.ToString();
 
             if (request.Title.Length is < MinTitleLength or > MaxTitleLength)
             {
@@ -121,7 +119,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamPostDto>.Error(ErrorCode.InvalidInput, "attachment url not allowed");
             }
 
-            bool isNewNotice = request.PostId == Guid.Empty && type == SoccerTeamPostType.Notice;
+            bool isNewNotice = request.PostId == Guid.Empty && request.Type == SoccerTeamPostType.Notice;
 
             Result<TeamPostDto?> saved = await mRepository.SavePostByManagerAsync(managerUserId, request, authorName, cancellation);
             if (saved.IsError)

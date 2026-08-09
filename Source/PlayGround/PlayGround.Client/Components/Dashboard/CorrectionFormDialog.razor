@@ -4,7 +4,7 @@
    신청은 주최측에 전달될 뿐 여기서 기록이 바뀌지 않는다 — 문구로 분명히 한다. *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject TeamClient Teams
 @inject ToastService Toasts
 
@@ -180,7 +180,7 @@
         get
         {
             List<string> names = (Match?.Events ?? new List<TeamMatchEventDto>())
-                .Where(e => e.EventType != "OwnGoal" && e.PlayerName is not null)
+                .Where(e => e.EventType != SoccerMatchEventType.OwnGoal && e.PlayerName is not null)
                 .GroupBy(e => e.PlayerName!)
                 .Select(g => g.Count() > 1 ? $"{g.Key} ×{g.Count()}" : g.Key)
                 .ToList();
@@ -243,7 +243,7 @@
         var request = new CreateRecordCorrectionRequest
         {
             MatchId = Match!.MatchId,
-            FieldType = mField.ToString(),
+            FieldType = mField,
             CurrentValue = CurrentStoredValue,
             RequestedValue = RequestedValue,
             Description = string.IsNullOrWhiteSpace(mDescription) ? null : mDescription!.Trim(),

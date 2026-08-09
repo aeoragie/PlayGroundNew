@@ -65,7 +65,7 @@ namespace PlayGround.Application.Team.Commands
                 .Select(r => new RosterEntryDto
                 {
                     Name = r.Name.Trim(),
-                    Position = r.Position == SoccerPosition.Unknown ? null : r.Position,
+                    Position = r.Position,
                     Number = string.IsNullOrWhiteSpace(r.Number) ? null : r.Number.Trim()
                 })
                 .ToList();
@@ -96,7 +96,7 @@ namespace PlayGround.Application.Team.Commands
             {
                 AccountUser user = promoted.Value;
                 accessToken = mTokenService.GenerateAccessToken(
-                    user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
+                    user.UserId, user.Email, user.DisplayName, user.UserRole.ToString(), user.ProfileImageUrl);
                 mLogger.Info("User role promoted", ("UserId", managerUserId), ("Role", "TeamAdmin"));
             }
             else

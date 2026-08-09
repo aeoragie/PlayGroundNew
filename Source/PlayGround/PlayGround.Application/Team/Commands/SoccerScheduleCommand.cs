@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
@@ -14,8 +15,6 @@ namespace PlayGround.Application.Team.Commands
     {
         private const int MaxTitleLength = 100;
         private const int MaxVenueLength = 100;
-
-        private static readonly string[] AllowedTypes = { "Match", "Tournament", "Training" };
 
         private readonly ISoccerTeamRepository mRepository;
 
@@ -67,12 +66,11 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 클라이언트 인라인 검증과 같은 규칙 — 우회 요청도 같은 기준으로 막는다 (저장 화이트리스트)
-            request.Type = request.Type?.Trim() ?? string.Empty;
             request.Title = request.Title?.Trim();
             request.OpponentName = request.OpponentName?.Trim();
             request.Venue = request.Venue?.Trim() ?? string.Empty;
 
-            if (!AllowedTypes.Contains(request.Type))
+            if (request.Type == SoccerScheduleType.Unknown)
             {
                 return Result<ScheduleDto>.Error(ErrorCode.InvalidInput, "invalid schedule type");
             }
@@ -89,7 +87,7 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 경기·대회는 상대명 필수, 훈련은 상대가 없다 (null 처리)
-            if (request.Type is "Match" or "Tournament")
+            if (request.Type is SoccerScheduleType.Match or SoccerScheduleType.Tournament)
             {
                 if (string.IsNullOrEmpty(request.OpponentName))
                 {
@@ -102,7 +100,7 @@ namespace PlayGround.Application.Team.Commands
             }
 
             // 대회·훈련은 제목 필수, 경기는 상대명에서 파생하므로 제목을 두지 않는다
-            if (request.Type is "Tournament" or "Training")
+            if (request.Type is SoccerScheduleType.Tournament or SoccerScheduleType.Training)
             {
                 if (string.IsNullOrEmpty(request.Title) || request.Title.Length > MaxTitleLength)
                 {

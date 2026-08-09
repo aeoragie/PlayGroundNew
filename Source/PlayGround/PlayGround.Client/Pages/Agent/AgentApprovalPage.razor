@@ -7,7 +7,7 @@
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Agent
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject AgentClient Agents
@@ -109,12 +109,12 @@
 
     private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
 
-    private bool IsPending => mData?.Status == "Pending";
-    private bool IsApproved => mData?.Status == "Approved";
+    private bool IsPending => mData?.Status == SoccerAgentRequestStatus.Pending;
+    private bool IsApproved => mData?.Status == SoccerAgentRequestStatus.Approved;
 
     private string? PlayerMeta => mData is null
         ? null
-        : string.Join(" · ", new[] { mData.PlayerAgeGroup?.ToString(), mData.PlayerPosition?.ToString() }.Where(v => v is not null)) is { Length: > 0 } meta
+        : string.Join(" · ", new[] { mData.PlayerAgeGroup.ToText(), mData.PlayerPosition.ToText() }.Where(v => v is not null)) is { Length: > 0 } meta
             ? meta
             : null;
 
@@ -154,7 +154,7 @@
     private async Task ApproveAsync()
     {
         mBusy = true;
-        AgentViewRequestResponse? result = await Agents.ReviewAsync(RequestId, nameof(SoccerAgentReviewAction.Approve));
+        AgentViewRequestResponse? result = await Agents.ReviewAsync(RequestId, SoccerAgentReviewAction.Approve);
         mBusy = false;
 
         if (result is null)
@@ -169,7 +169,7 @@
     private async Task DenyAsync()
     {
         mBusy = true;
-        AgentViewRequestResponse? result = await Agents.ReviewAsync(RequestId, nameof(SoccerAgentReviewAction.Deny));
+        AgentViewRequestResponse? result = await Agents.ReviewAsync(RequestId, SoccerAgentReviewAction.Deny);
         mBusy = false;
 
         if (result is null)
@@ -198,7 +198,7 @@
         }
 
         mBusy = true;
-        AgentViewRequestResponse? result = await Agents.ReviewAsync(RequestId, nameof(SoccerAgentReviewAction.Revoke));
+        AgentViewRequestResponse? result = await Agents.ReviewAsync(RequestId, SoccerAgentReviewAction.Revoke);
         mBusy = false;
 
         if (result is null)
@@ -267,10 +267,10 @@
         return AppText.Agent.RequestedAt(local.Month, local.Day, local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm, ((local.Hour + 11) % 12) + 1, local.Minute.ToString("D2"));
     }
 
-    private static string LogLabel(string eventType) => eventType switch
+    private static string LogLabel(SoccerAgentViewEvent eventType) => eventType switch
     {
-        "RecordView" => AppText.Agent.LogRecordView,
-        "ProfileView" => AppText.Agent.LogProfileView,
+        SoccerAgentViewEvent.RecordView => AppText.Agent.LogRecordView,
+        SoccerAgentViewEvent.ProfileView => AppText.Agent.LogProfileView,
         _ => AppText.Agent.LogApproved,
     };
 

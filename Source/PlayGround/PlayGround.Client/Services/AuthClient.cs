@@ -1,5 +1,6 @@
 using PlayGround.Client.Localization;
 using PlayGround.Contracts.Auth;
+using PlayGround.Contracts.Common;
 using PlayGround.Contracts.Settings;
 using PlayGround.Shared.Http;
 using System.Net.Http.Json;
@@ -83,7 +84,7 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>알림 설정 변경 — Switch의 Save 콜백용. 성공 여부만 반환(실패 시 스위치가 롤백).</summary>
-        public async Task<bool> SetNotificationAsync(string itemName, bool isEnabled)
+        public async Task<bool> SetNotificationAsync(NotificationPreferenceItem itemName, bool isEnabled)
         {
             try
             {

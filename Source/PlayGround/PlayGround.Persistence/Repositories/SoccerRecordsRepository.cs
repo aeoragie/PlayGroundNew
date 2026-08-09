@@ -43,11 +43,11 @@ namespace PlayGround.Persistence.Repositories
                     {
                         TournamentId = t.TournamentId,
                         Name = t.Name,
-                        Format = t.Format,
-                        Scope = t.Scope,
-                        AgeGroup = EnumColumn.ReadRequired<SoccerAgeGroup>(t.AgeGroup),
+                        Format = EnumColumn.Read<SoccerTournamentFormat>(t.Format),
+                        Scope = EnumColumn.Read<SoccerTournamentScope>(t.Scope),
+                        AgeGroup = EnumColumn.Read<SoccerAgeGroup>(t.AgeGroup),
                         RegionGroup = NullIfEmpty(t.RegionGroup),
-                        Status = t.Status,
+                        Status = EnumColumn.Read<SoccerTournamentStatus>(t.Status),
                         TeamCount = t.TeamCount,
                         ChampionTeamName = champions.FirstOrDefault(c => c.TournamentId == t.TournamentId)?.TeamName
                     })
@@ -95,11 +95,11 @@ namespace PlayGround.Persistence.Repositories
                     TournamentId = tournament.TournamentId,
                     SeasonYear = tournament.SeasonYear,
                     Name = tournament.Name,
-                    Format = tournament.Format,
-                    Scope = tournament.Scope,
-                    AgeGroup = EnumColumn.ReadRequired<SoccerAgeGroup>(tournament.AgeGroup),
+                    Format = EnumColumn.Read<SoccerTournamentFormat>(tournament.Format),
+                    Scope = EnumColumn.Read<SoccerTournamentScope>(tournament.Scope),
+                    AgeGroup = EnumColumn.Read<SoccerAgeGroup>(tournament.AgeGroup),
                     RegionGroup = NullIfEmpty(tournament.RegionGroup),
-                    Status = tournament.Status,
+                    Status = EnumColumn.Read<SoccerTournamentStatus>(tournament.Status),
                     StartDate = tournament.StartDate,
                     EndDate = tournament.EndDate,
                     TeamCount = tournament.TeamCount,
@@ -114,7 +114,7 @@ namespace PlayGround.Persistence.Repositories
                 Standings = standings
                     .Select(s => new RecordsStandingDto
                     {
-                        StageType = s.StageType,
+                        StageType = EnumColumn.Read<SoccerStageType>(s.StageType),
                         GroupName = NullIfEmpty(s.GroupName),
                         TeamId = s.TeamId,
                         TeamName = s.TeamName,
@@ -134,7 +134,7 @@ namespace PlayGround.Persistence.Repositories
                     .Select(m => new RecordsMatchDto
                     {
                         MatchId = m.MatchId,
-                        StageType = NullIfEmpty(m.StageType),
+                        StageType = EnumColumn.Read<SoccerStageType>(NullIfEmpty(m.StageType)),
                         GroupName = NullIfEmpty(m.GroupName),
                         RoundName = NullIfEmpty(m.RoundName),
                         HomeTeamId = m.HomeTeamId,
@@ -147,7 +147,7 @@ namespace PlayGround.Persistence.Repositories
                         AwayScore = m.AwayScore,
                         HomePkScore = m.HomePkScore,
                         AwayPkScore = m.AwayPkScore,
-                        Status = m.Status,
+                        Status = EnumColumn.Read<SoccerMatchStatus>(m.Status),
                         MatchedAt = m.MatchedAt,
                         VenueName = NullIfEmpty(m.VenueName),
                         MatchSequence = m.MatchSequence,
@@ -157,7 +157,7 @@ namespace PlayGround.Persistence.Repositories
                 Awards = awards
                     .Select(a => new RecordsAwardDto
                     {
-                        AwardType = a.AwardType,
+                        AwardType = EnumColumn.Read<SoccerAwardType>(a.AwardType),
                         TeamId = a.TeamId,
                         TeamName = a.TeamName,
                         TeamSlug = SlugOf(a.TeamId)
@@ -183,7 +183,7 @@ namespace PlayGround.Persistence.Repositories
                             VideoId = v.VideoId,
                             Title = v.Title,
                             VideoUrl = v.VideoUrl,
-                            VideoType = v.VideoType,
+                            VideoType = EnumColumn.Read<SoccerVideoType>(v.VideoType),
                             DurationSeconds = v.DurationSeconds,
                             RecordedOn = v.RecordedOn,
                             HomeTeamName = match?.HomeTeamName,
@@ -257,17 +257,17 @@ namespace PlayGround.Persistence.Repositories
             var response = new RecordsMatchDetailResponse
             {
                 MatchId = match.MatchId,
-                MatchType = match.MatchType,
+                MatchType = EnumColumn.Read<SoccerMatchType>(match.MatchType),
                 TournamentId = match.TournamentId,
                 TournamentName = tournament?.Name,
-                Format = tournament?.Format,
-                AgeGroup = tournament is null ? null : EnumColumn.Read<SoccerAgeGroup>(tournament.AgeGroup),
+                Format = EnumColumn.Read<SoccerTournamentFormat>(tournament?.Format),
+                AgeGroup = EnumColumn.Read<SoccerAgeGroup>(tournament?.AgeGroup),
                 SeasonYear = tournament?.SeasonYear,
-                StageType = NullIfEmpty(match.StageType),
+                StageType = EnumColumn.Read<SoccerStageType>(NullIfEmpty(match.StageType)),
                 GroupName = NullIfEmpty(match.GroupName),
                 RoundName = NullIfEmpty(match.RoundName),
                 MatchSequence = match.MatchSequence,
-                Status = match.Status,
+                Status = EnumColumn.Read<SoccerMatchStatus>(match.Status),
                 HomeTeamId = match.HomeTeamId,
                 HomeTeamName = match.HomeTeamName,
                 AwayTeamId = match.AwayTeamId,
@@ -287,7 +287,7 @@ namespace PlayGround.Persistence.Repositories
                 Events = events
                     .Select(e => new RecordsMatchEventDto
                     {
-                        EventType = e.EventType,
+                        EventType = EnumColumn.Read<SoccerMatchEventType>(e.EventType),
                         MinuteOfPlay = e.MinuteOfPlay,
                         PlayerName = NullIfEmpty(e.PlayerName),
                         PlayerId = e.PlayerId,

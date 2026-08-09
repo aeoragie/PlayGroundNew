@@ -3,7 +3,7 @@
 @using PlayGround.Client.Styles
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject PlayerClient Players
 @inject ToastService Toasts
 @inject ConfirmService Confirm
@@ -141,9 +141,9 @@
         get
         {
             List<string> parts = new();
-            if (Info.Profile.Position is not null)
+            if (Info.Profile.Position != SoccerPosition.Unknown)
             {
-                parts.Add(Info.Profile.Position.ToString()!);
+                parts.Add(Info.Profile.Position.ToText()!);
             }
 
             if (Info.Profile.JerseyNumber is not null)
@@ -156,9 +156,9 @@
                 parts.Add(Info.Profile.BirthYear.ToString()!);
             }
 
-            if (Info.Profile.Grade is not null)
+            if (Info.Profile.Grade != SoccerGrade.Unknown)
             {
-                parts.Add(Info.Profile.Grade.ToString()!);
+                parts.Add(Info.Profile.Grade.ToText()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;
@@ -166,7 +166,7 @@
     }
 
     private PlayerFieldVisibilityDto? ProfileVisibility =>
-        Info.Visibilities.FirstOrDefault(v => v.FieldName == nameof(SoccerPlayerProfileField.Profile));
+        Info.Visibilities.FirstOrDefault(v => v.FieldName == SoccerPlayerProfileField.Profile);
 
     private bool ProfileIsPublic => ProfileVisibility?.IsPublic ?? true;
 
@@ -184,7 +184,7 @@
     {
         visibility.IsPublic = value;
 
-        if (visibility.FieldName == nameof(SoccerPlayerProfileField.Profile) && !value)
+        if (visibility.FieldName == SoccerPlayerProfileField.Profile && !value)
         {
             Toasts.ShowSuccess(AppText.Player.ProfileHiddenToast, AppText.Player.Undo, () => RestoreProfileAsync(visibility));
         }

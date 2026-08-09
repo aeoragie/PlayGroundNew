@@ -8,7 +8,7 @@ namespace PlayGround.Application.Player.Models
         public Guid UserId { get; set; }
         public string Name { get; set; } = string.Empty;
         public DateOnly? BirthDate { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? Region { get; set; }
     }
 }

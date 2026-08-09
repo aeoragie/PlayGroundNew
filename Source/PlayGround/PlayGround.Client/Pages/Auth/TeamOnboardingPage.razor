@@ -74,7 +74,7 @@ else
                         <div class="flex items-center gap-3 border border-border rounded-[11px] px-3.5 py-[11px]">
                             <span class="w-[34px] h-[34px] rounded-full bg-surface-icon flex items-center justify-center text-sm font-extrabold text-navy flex-none">@entry.Number</span>
                             <span class="text-[14.5px] font-bold flex-1 text-navy-deep">@entry.Name</span>
-                            <span class="text-[13px] text-text-body">@(entry.Position?.ToString() ?? "-")</span>
+                            <span class="text-[13px] text-text-body">@(entry.Position.ToText() ?? "-")</span>
                             <span class="@Css.Badge.Neutral">Unclaimed</span>
                             <button type="button" @onclick="@(() => State.Roster.Remove(captured))" class="border-0 bg-transparent text-text-faint hover:text-[#e0532f] text-[15px] cursor-pointer p-0.5 transition-colors">✕</button>
                         </div>
@@ -161,7 +161,7 @@ else
         State.Roster.Add(new RosterEntry
         {
             Name = mName.Trim(),
-            Position = Enum.TryParse(mPos, out SoccerPosition parsed) ? parsed : null,
+            Position = Enum.TryParse(mPos, out SoccerPosition parsedPos) ? parsedPos : SoccerPosition.Unknown,
             Number = string.IsNullOrWhiteSpace(mNum) ? "-" : mNum.Trim()
         });
         mName = mPos = mNum = string.Empty;

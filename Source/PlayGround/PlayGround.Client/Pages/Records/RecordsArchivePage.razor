@@ -100,16 +100,14 @@
 
     private static string MetaLine(RecordsTournamentDto tournament)
     {
-        string format = Enum.TryParse(tournament.Format, out SoccerTournamentFormat parsed)
-            ? parsed.ToLabel()
-            : tournament.Format;
-        string meta = $"{tournament.AgeGroup} · {format}";
+        string format = tournament.Format.ToLabel();
+        string meta = $"{tournament.AgeGroup.ToText()} · {format}";
         return tournament.TeamCount is null ? meta : meta + " · " + AppText.Records.TeamCountSuffix(tournament.TeamCount);
     }
 
     private static string ScopeBadgeClass(RecordsTournamentDto tournament) =>
         "text-[10.5px] font-bold rounded-md px-[9px] py-[3px] whitespace-nowrap shrink-0 " +
-        (tournament.Scope == "National" ? "text-orange-ink bg-surface-orange" : "text-navy bg-surface-icon");
+        (tournament.Scope == SoccerTournamentScope.National ? "text-orange-ink bg-surface-orange" : "text-navy bg-surface-icon");
 
     private string YearChipClass(int year) =>
         "h-9 px-[15px] rounded-full text-[12.5px] font-bold whitespace-nowrap border-1.5 transition-colors " +

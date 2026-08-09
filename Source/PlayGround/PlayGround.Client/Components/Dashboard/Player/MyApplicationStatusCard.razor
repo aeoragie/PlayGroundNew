@@ -29,14 +29,14 @@
                     <p class="@Css.Application.StatusPlayerMeta">@PlayerMeta(app)</p>
                 </div>
 
-                @if (app.Status == "Accepted" && !app.Confirmed)
+                @if (app.Status == SoccerApplicationStatus.Accepted && !app.Confirmed)
                 {
                     <div class="@Css.Application.StatusActions">
                         <button type="button" class="@Css.Application.StatusConfirmButton" disabled="@Busy"
                                 @onclick="() => OnConfirm.InvokeAsync(app)">@AppText.Player.ConfirmInvite</button>
                     </div>
                 }
-                else if (app.Status == "Pending")
+                else if (app.Status == SoccerApplicationStatus.Pending)
                 {
                     <div class="@Css.Application.StatusActions">
                         <button type="button" class="@Css.Application.StatusCancelButton" disabled="@Busy"
@@ -64,28 +64,28 @@
     // 대기 회색 / 검토중 오렌지톤 / 수락·합류 teal / 종료 회색 (레드 금지)
     private static StatusBadge.BadgeTone ToneOf(MyApplicationDto a) => a.Status switch
     {
-        "Reviewing" => StatusBadge.BadgeTone.Pending,
-        "Accepted" => StatusBadge.BadgeTone.Positive,
+        SoccerApplicationStatus.Reviewing => StatusBadge.BadgeTone.Pending,
+        SoccerApplicationStatus.Accepted => StatusBadge.BadgeTone.Positive,
         _ => StatusBadge.BadgeTone.Neutral,
     };
 
     private static string LabelOf(MyApplicationDto a) => a.Status switch
     {
-        "Reviewing" => AppText.Player.AppReviewing,
-        "Accepted" => a.Confirmed ? AppText.Player.AppJoined : AppText.Player.AppAccepted,
-        "Rejected" => AppText.Player.AppRejected,
+        SoccerApplicationStatus.Reviewing => AppText.Player.AppReviewing,
+        SoccerApplicationStatus.Accepted => a.Confirmed ? AppText.Player.AppJoined : AppText.Player.AppAccepted,
+        SoccerApplicationStatus.Rejected => AppText.Player.AppRejected,
         _ => AppText.Player.AppPending,
     };
 
     // 지원자 관점 완화 문구 — SPEC.APPLICATION 카피 고정 (한 글자도 바꾸지 않는다)
     private static string BodyOf(MyApplicationDto a) => a.Status switch
     {
-        "Reviewing" => AppText.Player.AppReviewingBody,
-        "Accepted" => a.Confirmed ? AppText.Player.AppJoinedBody : AppText.Player.AppAcceptedBody,
-        "Rejected" => AppText.Player.AppRejectedBody,
+        SoccerApplicationStatus.Reviewing => AppText.Player.AppReviewingBody,
+        SoccerApplicationStatus.Accepted => a.Confirmed ? AppText.Player.AppJoinedBody : AppText.Player.AppAcceptedBody,
+        SoccerApplicationStatus.Rejected => AppText.Player.AppRejectedBody,
         _ => AppText.Player.AppPendingBody,
     };
 
     private static string PlayerMeta(MyApplicationDto a) =>
-        a.DesiredPosition is null ? a.PlayerName : $"{a.PlayerName} · {a.DesiredPosition}";
+        a.DesiredPosition == SoccerPosition.Unknown ? a.PlayerName : $"{a.PlayerName} · {a.DesiredPosition}";
 }

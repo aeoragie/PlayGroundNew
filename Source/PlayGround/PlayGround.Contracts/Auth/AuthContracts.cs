@@ -1,3 +1,4 @@
+using PlayGround.Contracts.Common;
 namespace PlayGround.Contracts.Auth
 {
     public class LoginByEmailRequest
@@ -17,7 +18,7 @@ namespace PlayGround.Contracts.Auth
         public Guid UserId { get; set; }
         public string Email { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
+        public AccountRole Role { get; set; }
         public string? ProfileImageUrl { get; set; }
     }
 }

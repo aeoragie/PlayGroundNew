@@ -135,7 +135,7 @@
         if (state.User.Identity is { IsAuthenticated: true })
         {
             PlayerInfoResponse? info = await Players.GetMyInfoAsync();
-            if (info?.Profile.AgeGroup is not null)
+            if (info?.Profile.AgeGroup != SoccerAgeGroup.Unknown)
             {
                 // 사용자 표시는 GNB(PublicGnb)가 아바타로 담당 — 여기선 내 연령 개인화만
                 mMyAge = info.Profile.AgeGroup;
@@ -143,8 +143,8 @@
 
             // 역할 없는(General) 로그인 사용자 — 대시보드가 없어 여기로 온다. 역할 선택을 유도한다
             // (SPEC.AUTHONBOARDING의 "Records 진입 시 역할 유도 배너"). 정보톤이라 X로 닫을 수 있다.
-            UserRole role = UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
-            if (role == UserRole.General)
+            AccountRole role = AccountRoles.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
+            if (role == AccountRole.General)
             {
                 Banners.Publish(new BannerNotice
                 {
@@ -169,7 +169,7 @@
 
     private List<RecordsTournamentDto> SegmentItems =>
         (mData?.Tournaments ?? new List<RecordsTournamentDto>())
-        .Where(t => mIsLeagueSegment == (t.Format == nameof(SoccerTournamentFormat.League)))
+        .Where(t => mIsLeagueSegment == (t.Format == SoccerTournamentFormat.League))
         .Where(t => mSearch.Length == 0 || t.Name.Contains(mSearch, StringComparison.OrdinalIgnoreCase))
         .ToList();
 
@@ -192,7 +192,7 @@
     {
         return SegmentItems
             .Where(t => t.AgeGroup == age)
-            .OrderBy(t => Enum.TryParse(t.Status, out SoccerTournamentStatus status) ? status.SortOrder() : 2)
+            .OrderBy(t => (t.Status).SortOrder())
             .ThenBy(t => t.Name, StringComparer.Ordinal)
             .ToList();
     }

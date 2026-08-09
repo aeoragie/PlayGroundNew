@@ -7,7 +7,7 @@ namespace PlayGround.Contracts.Agent
     {
         public Guid RequestId { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public SoccerAgentRequestStatus Status { get; set; }
 
         public string Message { get; set; } = string.Empty;
         public SystemTime RequestedAt { get; set; }
@@ -17,8 +17,8 @@ namespace PlayGround.Contracts.Agent
 
         public Guid PlayerId { get; set; }
         public string PlayerName { get; set; } = string.Empty;
-        public SoccerAgeGroup? PlayerAgeGroup { get; set; }
-        public SoccerPosition? PlayerPosition { get; set; }
+        public SoccerAgeGroup PlayerAgeGroup { get; set; }
+        public SoccerPosition PlayerPosition { get; set; }
 
         public AgentProfileDto Agent { get; set; } = new();
         public List<AgentViewLogDto> Logs { get; set; } = new();
@@ -37,22 +37,22 @@ namespace PlayGround.Contracts.Agent
 
     public class AgentViewLogDto
     {
-        public string EventType { get; set; } = string.Empty;
+        public SoccerAgentViewEvent EventType { get; set; }
         public SystemTime CreatedAt { get; set; }
     }
 
     public class ReviewAgentViewRequestRequest
     {
         public Guid RequestId { get; set; }
-        public string Action { get; set; } = string.Empty;
+        public SoccerAgentReviewAction Action { get; set; }
     }
 
     public class AgentRequestEligibilityResponse
     {
-        public string Status { get; set; } = string.Empty;
+        public SoccerAgentEligibility Status { get; set; }
 
         public SystemTime? CooldownUntil { get; set; }
 
-        public bool CanRequest => Status == "Allowed";
+        public bool CanRequest => Status == SoccerAgentEligibility.Allowed;
     }
 }

@@ -48,7 +48,7 @@
 
             @foreach (TeamMatchDto match in FilteredMatches)
             {
-                bool isFriendly = SoccerMatchTypeExtensions.IsFriendly(match.MatchType);
+                bool isFriendly = match.MatchType == SoccerMatchType.Friendly;
                 <div class="@Css.FriendlyMatch.Row(isFriendly, $"{(isFriendly ? "rounded-[13px]" : Css.Dashboard.Card + " rounded-[13px]")} px-4 py-3.5 flex flex-col gap-2.5")">
                     <div class="flex items-center gap-[9px]">
                         @if (isFriendly)

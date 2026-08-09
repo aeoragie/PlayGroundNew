@@ -57,7 +57,7 @@ namespace PlayGround.Application.Settings.Commands
 
             AccountUser user = updated.Value;
             string accessToken = mTokenService.GenerateAccessToken(
-                user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
+                user.UserId, user.Email, user.DisplayName, user.UserRole.ToString(), user.ProfileImageUrl);
 
             return Result<AuthResult>.Success(new AuthResult
             {

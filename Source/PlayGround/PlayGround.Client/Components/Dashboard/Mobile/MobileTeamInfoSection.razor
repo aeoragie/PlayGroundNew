@@ -177,7 +177,7 @@
 
     private static BrandIcon.BrandIconType ChannelIcon(TeamChannelDto channel)
     {
-        return Enum.TryParse(channel.ChannelType, out SoccerChannelType parsed) && parsed == SoccerChannelType.Instagram
+        return channel.ChannelType == SoccerChannelType.Instagram
             ? BrandIcon.BrandIconType.Instagram
             : BrandIcon.BrandIconType.YouTube;
     }

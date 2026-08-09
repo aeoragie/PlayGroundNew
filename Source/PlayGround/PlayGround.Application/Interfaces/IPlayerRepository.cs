@@ -23,7 +23,7 @@ namespace PlayGround.Application.Interfaces
         /// <summary>선수 프로필 수치(키·몸무게·주발·학교)·주소(슬러그) 편집. 반환 = 반영 후 슬러그
         /// (null = 소유 선수 없음 = Forbidden). slug가 이미 쓰이면 수치만 반영되고 반환 슬러그는 기존 값이라,
         /// Command가 요청 슬러그와 비교해 SlugTaken을 판정한다. null 수치는 해당 항목을 지운다.</summary>
-        Task<Result<string?>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, SoccerPreferredFoot? preferredFoot, string? schoolName, string? slug, Guid? playerId = null, CancellationToken cancellation = default);
+        Task<Result<string?>> UpdateProfileInfoAsync(Guid userId, int? heightCm, int? weightKg, SoccerPreferredFoot preferredFoot, string? schoolName, string? slug, Guid? playerId = null, CancellationToken cancellation = default);
 
         /// <summary>선수 사진 설정·삭제(photoUrl null = 삭제). 권한(보호자·소속팀 관리자)은 프로시저가 판정하며
         /// 거부되거나 선수가 없으면 Success(false) — 존재 여부를 구분해 흘리지 않는다.</summary>

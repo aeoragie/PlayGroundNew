@@ -181,7 +181,7 @@ else
         // General도 조회한다 — Claim 승인 플로우는 관리자 쪽에서 승인되므로 보호자 토큰이
         // General인 채 자녀가 연결될 수 있다. "역할이 없으면 관리 대상도 없다"는 가정은 깨졌고,
         // 여기서도 역할이 아니라 데이터(관리 대상 수)로 판정한다.
-        UserRole role = UserRoleExtensions.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
+        AccountRole role = AccountRoles.Parse(state.User.FindFirst(ClaimTypes.Role)?.Value);
 
         DashboardHubResponse? hub = await Dashboards.GetHubAsync();
 
@@ -207,14 +207,14 @@ else
             if (hub.Children.Count == 1)
             {
                 // 유일한 자녀가 승인 대기면 선수 대시보드는 아직 빈 화면이다(연결 전) — 요청 상태(/claim)로 보낸다.
-                bool pending = hub.Children[0].ClaimStatus == "Pending";
+                bool pending = hub.Children[0].ClaimStatus == SoccerRosterClaimStatus.Pending;
                 Nav.NavigateTo(pending ? Routes.Claim : Routes.PlayerDashboard, replace: true);
                 return;
             }
 
             // 관리 대상 0 — General은 역할·데이터가 없어 대시보드가 없다. 둘러보기(경기기록)로 보낸다.
             // 역할 재선택은 Records의 역할 유도 배너로(설정 역할 탭은 실제 보유로 그려 순수 General엔 빈 화면).
-            if (role == UserRole.General)
+            if (role == AccountRole.General)
             {
                 Nav.NavigateTo(Routes.Records, replace: true);
                 return;
@@ -228,9 +228,9 @@ else
         mChecking = false;
     }
 
-    private void RedirectByRole(UserRole role)
+    private void RedirectByRole(AccountRole role)
     {
-        string target = role == UserRole.TeamAdmin ? Routes.TeamDashboard : Routes.PlayerDashboard;
+        string target = role == AccountRole.TeamAdmin ? Routes.TeamDashboard : Routes.PlayerDashboard;
         Nav.NavigateTo(target, replace: true);
     }
 

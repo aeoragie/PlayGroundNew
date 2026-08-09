@@ -1,10 +1,12 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Common;
 using PlayGround.Contracts.Export;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
 using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
+using PlayGround.Persistence.Database;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 
@@ -19,7 +21,7 @@ namespace PlayGround.Persistence.Repositories
         {
         }
 
-        public async Task<Result<(string Status, Guid? RequestId)>> CreateAsync(
+        public async Task<Result<(DataExportRequestStatus Status, Guid? RequestId)>> CreateAsync(
             Guid userId, bool includeProfile, bool includeRecords, bool includeRequests, CancellationToken cancellation = default)
         {
             var procedure = new UspCreateSoccerDataExportRequest(this)
@@ -32,14 +34,14 @@ namespace PlayGround.Persistence.Repositories
             Result<MultiQueryReader> opened = await ProcedureMultipleAsync(procedure, cancellation: cancellation);
             if (opened.IsError)
             {
-                return Result<(string, Guid?)>.Error(ErrorCode.DatabaseError, "CreateDataExport");
+                return Result<(DataExportRequestStatus, Guid?)>.Error(ErrorCode.DatabaseError, "CreateDataExport");
             }
 
             using MultiQueryReader reader = opened.Value;
-            string status = await reader.ReadSingleOrDefaultAsync<string>() ?? "Error";
+            DataExportRequestStatus status = EnumColumn.Read<DataExportRequestStatus>(await reader.ReadSingleOrDefaultAsync<string>());
             Guid? requestId = await reader.ReadSingleOrDefaultAsync<Guid?>();
 
-            return Result<(string, Guid?)>.Success((status, requestId is { } id && id != Guid.Empty ? id : null));
+            return Result<(DataExportRequestStatus, Guid?)>.Success((status, requestId is { } id && id != Guid.Empty ? id : null));
         }
 
         public async Task<Result<DataExportStateDto?>> GetByUserAsync(Guid userId, CancellationToken cancellation = default)
@@ -85,20 +87,20 @@ namespace PlayGround.Persistence.Repositories
             {
                 RequestId = row.RequestId,
                 UserId = row.UserId,
-                Status = row.Status,
+                Status = EnumColumn.Read<DataExportStatus>(row.Status),
                 IncludeProfile = row.IncludeProfile,
                 IncludeRecords = row.IncludeRecords,
                 IncludeRequests = row.IncludeRequests
             });
         }
 
-        public async Task<Result<bool>> UpdateStatusAsync(Guid requestId, string status, string? downloadToken, string? storageKey,
+        public async Task<Result<bool>> UpdateStatusAsync(Guid requestId, DataExportStatus status, string? downloadToken, string? storageKey,
             long? sizeBytes, SystemTime? expiresAt, CancellationToken cancellation = default)
         {
             var procedure = new UspUpdateSoccerDataExportStatus(this)
             {
                 RequestId = requestId,
-                Status = status,
+                Status = status.ToString(),
                 DownloadToken = downloadToken!,
                 StorageKey = storageKey!,
                 SizeBytes = sizeBytes,
@@ -155,7 +157,7 @@ namespace PlayGround.Persistence.Repositories
             return new DataExportStateDto
             {
                 RequestId = row.RequestId,
-                Status = row.Status,
+                Status = EnumColumn.Read<DataExportStatus>(row.Status),
                 SizeBytes = row.SizeBytes ?? 0,
                 CreatedAt = row.CreatedAt,
                 ExpiresAt = isReady ? row.ExpiresAt : null,

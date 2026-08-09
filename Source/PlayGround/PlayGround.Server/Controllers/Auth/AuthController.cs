@@ -4,6 +4,7 @@ using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Settings.Commands;
 using PlayGround.Contracts.Auth;
+using PlayGround.Contracts.Common;
 using PlayGround.Contracts.Settings;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Server.Services;
@@ -89,7 +90,7 @@ namespace PlayGround.Server.Controllers.Auth
                 UserId = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : Guid.Empty,
                 Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
                 DisplayName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? string.Empty,
-                Role = User.FindFirstValue(ClaimTypes.Role) ?? "General",
+                Role = Enum.TryParse(User.FindFirstValue(ClaimTypes.Role), out AccountRole role) ? role : AccountRole.General,
                 ProfileImageUrl = User.FindFirstValue("avatar")
             };
             return Result<AuthUserDto>.Success(user).ToEnvelope();

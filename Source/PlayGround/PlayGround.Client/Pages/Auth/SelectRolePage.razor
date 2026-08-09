@@ -3,6 +3,7 @@
 @using PlayGround.Client.Models
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Auth
+@using PlayGround.Contracts.Common
 @inject NavigationManager Nav
 @inject OnboardingState State
 @inject JwtAuthenticationStateProvider AuthProvider
@@ -80,7 +81,7 @@ else
         }
 
         AuthUserDto? me = await Auth.GetMeAsync();
-        if (me is not null && UserRoleExtensions.Parse(me.Role) != UserRole.General)
+        if (me is not null && me.Role != AccountRole.General)
         {
             Nav.NavigateTo(Routes.Dashboard, replace: true);
             return;

@@ -23,7 +23,7 @@ namespace PlayGround.Client.Services
     public class RosterEntry
     {
         public string Name { get; set; } = string.Empty;
-        public SoccerPosition? Position { get; set; }
+        public SoccerPosition Position { get; set; }
         public string Number { get; set; } = "-";
     }
 }

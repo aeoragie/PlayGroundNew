@@ -1,65 +1,16 @@
 using FluentAssertions;
-using PlayGround.Domain.Account;
-using PlayGround.Domain.Soccer;
+using PlayGround.Application.Player;
+using PlayGround.Application.Settings;
+using PlayGround.Contracts.Common;
+using PlayGround.Contracts.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Domain
 {
-    /// <summary>Domain 열거형의 **규칙**(파싱 가드·기본값)을 고정한다. 표시 라벨은 여기 없다 —
-    /// 표현 계층(Client의 SoccerDomainEnumLabels)이 리소스로 소유한다.</summary>
+    /// <summary>열거형의 **규칙**(어휘·기본값)을 고정한다. 문자열 파싱 가드는 경계가 소유한다 —
+    /// 와이어는 LenientEnumJsonConverterTests, DB는 EnumColumn. 표시 라벨은 Client의 SoccerDomainEnumLabels.</summary>
     public class SoccerEnumRulesTests
     {
-        //.// 수정 신청 항목 — 숫자 문자열 파싱 차단
-
-        [Theory]
-        [InlineData("Score", SoccerCorrectionField.Score)]
-        [InlineData("GoalAssist", SoccerCorrectionField.GoalAssist)]
-        [InlineData("Appearance", SoccerCorrectionField.Appearance)]
-        [InlineData("Other", SoccerCorrectionField.Other)]
-        public void CorrectionField_ParsesMemberNames(string value, SoccerCorrectionField expected)
-        {
-            SoccerCorrectionFieldExtensions.TryParse(value, out SoccerCorrectionField field).Should().BeTrue();
-            field.Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData("0")]   // Enum.TryParse는 숫자를 그대로 받아들인다 — 의도적으로 막는다
-        [InlineData("1")]
-        [InlineData("99")]
-        [InlineData("Unknown")]
-        [InlineData("")]
-        [InlineData(null)]
-        public void CorrectionField_RejectsNumericAndUnknown_FallsBackToOther(string? value)
-        {
-            SoccerCorrectionFieldExtensions.TryParse(value, out SoccerCorrectionField field).Should().BeFalse();
-            field.Should().Be(SoccerCorrectionField.Other);
-        }
-
-        //.// 수정 신청 상태 — 알 수 없으면 접수(Pending)
-
-        [Theory]
-        [InlineData("Pending", SoccerCorrectionStatus.Pending)]
-        [InlineData("Accepted", SoccerCorrectionStatus.Accepted)]
-        [InlineData("Rejected", SoccerCorrectionStatus.Rejected)]
-        [InlineData("Whatever", SoccerCorrectionStatus.Pending)]
-        [InlineData(null, SoccerCorrectionStatus.Pending)]
-        public void CorrectionStatus_FallsBackToPending_WhenParseFails(string? value, SoccerCorrectionStatus expected)
-        {
-            SoccerCorrectionStatusExtensions.Parse(value).Should().Be(expected);
-        }
-
-        //.// 처리 필요 항목 — 알 수 없으면 연결(Invite)
-
-        [Theory]
-        [InlineData("Invite", SoccerActionKind.Invite)]
-        [InlineData("Correction", SoccerActionKind.Correction)]
-        [InlineData("Access", SoccerActionKind.Invite)]  // 에이전트 축 도입 전 — 기본값으로 떨어진다
-        [InlineData(null, SoccerActionKind.Invite)]
-        public void ActionKind_FallsBackToInvite_WhenParseFails(string? value, SoccerActionKind expected)
-        {
-            SoccerActionKindExtensions.Parse(value).Should().Be(expected);
-        }
-
         //.// 프로필 공개 기본값 — SPEC.PLAYERDASHBOARD §1
 
         [Theory]
@@ -70,6 +21,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData(SoccerPlayerProfileField.StrengthTags, true)]
         [InlineData(SoccerPlayerProfileField.School, false)]         // 미성년자 보호 — 기본 비공개
         [InlineData(SoccerPlayerProfileField.GuardianPhone, false)]  // 연락처 — 기본 비공개
+        [InlineData(SoccerPlayerProfileField.Unknown, false)]
         public void ProfileField_DefaultVisibility_MatchesSpec(SoccerPlayerProfileField field, bool expected)
         {
             field.DefaultIsPublic().Should().Be(expected);
@@ -84,6 +36,7 @@ namespace PlayGround.Tests.Unit.Domain
         [InlineData(NotificationPreferenceItem.Review, true)]
         [InlineData(NotificationPreferenceItem.EmailChannel, false)]
         [InlineData(NotificationPreferenceItem.VisitSummary, false)]
+        [InlineData(NotificationPreferenceItem.Unknown, false)]
         public void NotificationPreference_Defaults_MatchSpec(NotificationPreferenceItem item, bool expected)
         {
             item.DefaultIsEnabled().Should().Be(expected);
@@ -97,7 +50,19 @@ namespace PlayGround.Tests.Unit.Domain
             string[] names = Enum.GetNames<NotificationPreferenceItem>();
             names.Should().NotContain("ClaimRequest");
             names.Should().NotContain("ViewRequest");
-            names.Should().HaveCount(6);
+            names.Should().HaveCount(7);   // Unknown + 항목 6종
+        }
+
+        [Fact]
+        public void WireEnums_HaveUnknownAsDefault()
+        {
+            // 비널러블 정책의 전제 — default(enum)이 곧 "미지정"이어야 한다.
+            default(SoccerCorrectionField).Should().Be(SoccerCorrectionField.Unknown);
+            default(SoccerCorrectionStatus).Should().Be(SoccerCorrectionStatus.Unknown);
+            default(SoccerActionKind).Should().Be(SoccerActionKind.Unknown);
+            default(SoccerPlayerProfileField).Should().Be(SoccerPlayerProfileField.Unknown);
+            default(NotificationPreferenceItem).Should().Be(NotificationPreferenceItem.Unknown);
+            default(AccountRole).Should().Be(AccountRole.Unknown);
         }
     }
 }

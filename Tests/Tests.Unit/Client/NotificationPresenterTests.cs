@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlayGround.Client.Components.Shared.Notifications;
 using PlayGround.Client.Services;
 using PlayGround.Contracts.Notification;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Time;
 using Xunit;
 
@@ -13,11 +13,11 @@ namespace PlayGround.Tests.Unit.Client
     [Collection(LocalizationCollection.Name)]
     public class NotificationPresenterTests
     {
-        private static NotificationDto Item(SoccerNotificationType type, string? requestStatus = null,
+        private static NotificationDto Item(SoccerNotificationType type, SoccerClaimRequestStatus requestStatus = SoccerClaimRequestStatus.Unknown,
             Guid? targetPlayerId = null, string? subText = null) =>
             new()
             {
-                Type = type.ToString(),
+                Type = type,
                 RequestStatus = requestStatus,
                 TargetPlayerId = targetPlayerId,
                 SubText = subText,
@@ -50,21 +50,21 @@ namespace PlayGround.Tests.Unit.Client
         }
 
         [Theory]
-        [InlineData("Pending", true)]
-        [InlineData("Approved", false)]
-        [InlineData("Rejected", false)]
-        [InlineData(null, false)]
-        public void IsActionRequired_ClaimRequest_OnlyWhilePending(string? status, bool expected)
+        [InlineData(SoccerClaimRequestStatus.Pending, true)]
+        [InlineData(SoccerClaimRequestStatus.Approved, false)]
+        [InlineData(SoccerClaimRequestStatus.Rejected, false)]
+        [InlineData(SoccerClaimRequestStatus.Unknown, false)]
+        public void IsActionRequired_ClaimRequest_OnlyWhilePending(SoccerClaimRequestStatus status, bool expected)
         {
             NotificationPresenter.IsActionRequired(Item(SoccerNotificationType.ClaimRequest, status))
                 .Should().Be(expected);
         }
 
         [Theory]
-        [InlineData("Confirmed", false)]
-        [InlineData("Pending", true)]
-        [InlineData(null, true)]        // 미확인 상태 — 초대 확인 버튼이 남는다
-        public void IsActionRequired_RosterInvite_UntilConfirmed(string? status, bool expected)
+        [InlineData(SoccerClaimRequestStatus.Confirmed, false)]
+        [InlineData(SoccerClaimRequestStatus.Pending, true)]
+        [InlineData(SoccerClaimRequestStatus.Unknown, true)]   // 미확인 상태 — 초대 확인 버튼이 남는다
+        public void IsActionRequired_RosterInvite_UntilConfirmed(SoccerClaimRequestStatus status, bool expected)
         {
             NotificationPresenter.IsActionRequired(Item(SoccerNotificationType.RosterInvite, status))
                 .Should().Be(expected);
@@ -73,7 +73,7 @@ namespace PlayGround.Tests.Unit.Client
         [Fact]
         public void IsActionRequired_NavigationTypes_AreAlwaysFalse()
         {
-            NotificationPresenter.IsActionRequired(Item(SoccerNotificationType.MatchResult, "Pending"))
+            NotificationPresenter.IsActionRequired(Item(SoccerNotificationType.MatchResult, SoccerClaimRequestStatus.Pending))
                 .Should().BeFalse();
         }
 

@@ -3,7 +3,7 @@
    스위치는 낙관적 반영 — 실패하면 Switch가 롤백+오류 토스트를 처리한다. *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Settings
-@using PlayGround.Domain.Account
+@using PlayGround.Contracts.Common
 @inject AuthClient Auth
 
 <div class="flex flex-col gap-3.5 md:gap-4">
@@ -64,7 +64,7 @@
     public NotificationPreferencesResponse Preferences { get; set; } = new();
 
     // 화면 상태 — 초기값은 서버 응답, 이후 스위치 확정값을 여기에 반영한다
-    private readonly Dictionary<string, bool> mValues = new();
+    private readonly Dictionary<NotificationPreferenceItem, bool> mValues = new();
     private bool mInitialized;
 
     protected override void OnParametersSet()
@@ -84,16 +84,16 @@
 
     private bool ValueOf(NotificationPreferenceItem item)
     {
-        return mValues.TryGetValue(item.ToString(), out bool enabled) ? enabled : item.DefaultIsEnabled();
+        return mValues.TryGetValue(item, out bool enabled) ? enabled : item.DefaultIsEnabled();
     }
 
     private void SetLocal(NotificationPreferenceItem item, bool value)
     {
-        mValues[item.ToString()] = value;
+        mValues[item] = value;
     }
 
     private async Task<bool> SaveAsync(NotificationPreferenceItem item, bool value)
     {
-        return await Auth.SetNotificationAsync(item.ToString(), value);
+        return await Auth.SetNotificationAsync(item, value);
     }
 }

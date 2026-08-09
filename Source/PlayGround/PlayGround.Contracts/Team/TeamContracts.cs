@@ -14,7 +14,7 @@ namespace PlayGround.Contracts.Team
     public class RosterEntryDto
     {
         public string Name { get; set; } = string.Empty;
-        public SoccerPosition? Position { get; set; }
+        public SoccerPosition Position { get; set; }
         public string? Number { get; set; }
     }
 
@@ -82,9 +82,9 @@ namespace PlayGround.Contracts.Team
     {
         public string Name { get; set; } = string.Empty;
         public string? JerseyNumber { get; set; }
-        public SoccerPosition? Position { get; set; }
-        public SoccerGrade? Grade { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerPosition Position { get; set; }
+        public SoccerGrade Grade { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
     }
 
     public class TeamRosterPlayerDto
@@ -93,12 +93,12 @@ namespace PlayGround.Contracts.Team
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? JerseyNumber { get; set; }
-        public SoccerPosition? Position { get; set; }
-        public SoccerGrade? Grade { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerPosition Position { get; set; }
+        public SoccerGrade Grade { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? PhotoUrl { get; set; }
 
-        public string ClaimStatus { get; set; } = string.Empty;
+        public SoccerRosterClaimStatus ClaimStatus { get; set; }
 
         public string? InviteCode { get; set; }
 
@@ -117,10 +117,10 @@ namespace PlayGround.Contracts.Team
         public string Description { get; set; } = string.Empty;
         public List<string> Conditions { get; set; } = new();
         public SystemTime? DeadlineAt { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public SoccerRecruitmentStatus Status { get; set; }
         public bool IsOpen { get; set; }
 
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
 
         public List<SoccerPosition> Positions { get; set; } = new();
 
@@ -137,7 +137,7 @@ namespace PlayGround.Contracts.Team
         public List<string> Conditions { get; set; } = new();
         public SystemTime? DeadlineAt { get; set; }
 
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
 
         public List<SoccerPosition> Positions { get; set; } = new();
 
@@ -151,17 +151,17 @@ namespace PlayGround.Contracts.Team
         public string RecruitmentTitle { get; set; } = string.Empty;
         public Guid PlayerId { get; set; }
         public string PlayerName { get; set; } = string.Empty;
-        public SoccerAgeGroup? PlayerAgeGroup { get; set; }
+        public SoccerAgeGroup PlayerAgeGroup { get; set; }
 
-        public SoccerPosition? PlayerPosition { get; set; }
+        public SoccerPosition PlayerPosition { get; set; }
         public string? PlayerPhotoUrl { get; set; }
 
-        public SoccerPosition? DesiredPosition { get; set; }
+        public SoccerPosition DesiredPosition { get; set; }
         public string? Introduction { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public SoccerApplicationStatus Status { get; set; }
 
-        public string Route { get; set; } = string.Empty;
+        public SoccerApplicationRoute Route { get; set; }
 
         public string? RefAgentName { get; set; }
         public SystemTime CreatedAt { get; set; }
@@ -183,9 +183,9 @@ namespace PlayGround.Contracts.Team
 
         public Guid PlayerId { get; set; }
         public string PlayerName { get; set; } = string.Empty;
-        public SoccerPosition? DesiredPosition { get; set; }
+        public SoccerPosition DesiredPosition { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public SoccerApplicationStatus Status { get; set; }
 
         public bool Confirmed { get; set; }
         public SystemTime CreatedAt { get; set; }
@@ -200,13 +200,13 @@ namespace PlayGround.Contracts.Team
     {
         public Guid RecruitmentId { get; set; }
         public Guid PlayerId { get; set; }
-        public SoccerPosition? DesiredPosition { get; set; }
+        public SoccerPosition DesiredPosition { get; set; }
         public string? Introduction { get; set; }
     }
 
     public class UpdateApplicationStatusRequest
     {
-        public string Status { get; set; } = string.Empty;
+        public SoccerApplicationStatus Status { get; set; }
     }
 
     public class TeamPostsResponse
@@ -224,7 +224,7 @@ namespace PlayGround.Contracts.Team
     {
         public Guid PostId { get; set; }
 
-        public string Type { get; set; } = string.Empty;
+        public SoccerTeamPostType Type { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
         public bool IsPinned { get; set; }
@@ -254,7 +254,7 @@ namespace PlayGround.Contracts.Team
     {
         public Guid PostId { get; set; }
 
-        public string Type { get; set; } = string.Empty;
+        public SoccerTeamPostType Type { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
@@ -300,7 +300,7 @@ namespace PlayGround.Contracts.Team
     {
         public Guid ScheduleId { get; set; }
 
-        public string Type { get; set; } = string.Empty;
+        public SoccerScheduleType Type { get; set; }
 
         public string? Title { get; set; }
 
@@ -317,7 +317,7 @@ namespace PlayGround.Contracts.Team
     {
         public Guid ScheduleId { get; set; }
 
-        public string Type { get; set; } = string.Empty;
+        public SoccerScheduleType Type { get; set; }
         public string? Title { get; set; }
         public string? OpponentName { get; set; }
         public SystemTime StartsAt { get; set; }
@@ -335,7 +335,7 @@ namespace PlayGround.Contracts.Team
         public Guid OutcomeId { get; set; }
         public int OutcomeYear { get; set; }
 
-        public string OutcomeType { get; set; } = string.Empty;
+        public SoccerCareerOutcomeType OutcomeType { get; set; }
         public string Title { get; set; } = string.Empty;
         public string? Detail { get; set; }
         public int PlayerCount { get; set; }
@@ -345,7 +345,7 @@ namespace PlayGround.Contracts.Team
     {
         public Guid OutcomeId { get; set; }
         public int OutcomeYear { get; set; }
-        public string OutcomeType { get; set; } = string.Empty;
+        public SoccerCareerOutcomeType OutcomeType { get; set; }
         public string Title { get; set; } = string.Empty;
         public string? Detail { get; set; }
         public int PlayerCount { get; set; } = 1;
@@ -395,7 +395,7 @@ namespace PlayGround.Contracts.Team
         public string Slug { get; set; } = string.Empty;
         public string? TeamType { get; set; }
         public string? Region { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? LogoUrl { get; set; }
         public string? CoverImageUrl { get; set; }
         public bool IsVerified { get; set; }
@@ -425,7 +425,7 @@ namespace PlayGround.Contracts.Team
         public string TeamName { get; set; } = string.Empty;
         public string? TeamType { get; set; }
         public string? Region { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? LogoUrl { get; set; }
         public string? CoverImageUrl { get; set; }
         public string? Description { get; set; }
@@ -441,9 +441,9 @@ namespace PlayGround.Contracts.Team
         public Guid PlayerId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? JerseyNumber { get; set; }
-        public SoccerPosition? Position { get; set; }
-        public SoccerGrade? Grade { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerPosition Position { get; set; }
+        public SoccerGrade Grade { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? PhotoUrl { get; set; }
 
         public bool HasPublicProfile { get; set; }
@@ -466,9 +466,9 @@ namespace PlayGround.Contracts.Team
     {
         public Guid MatchId { get; set; }
 
-        public string CompetitionType { get; set; } = string.Empty;
+        public SoccerCompetitionType CompetitionType { get; set; }
 
-        public string MatchType { get; set; } = string.Empty;
+        public SoccerMatchType MatchType { get; set; }
         public string? TournamentName { get; set; }
         public SystemTime? MatchedAt { get; set; }
         public string? VenueName { get; set; }
@@ -481,7 +481,7 @@ namespace PlayGround.Contracts.Team
 
     public class TeamMatchEventDto
     {
-        public string EventType { get; set; } = string.Empty;
+        public SoccerMatchEventType EventType { get; set; }
         public string? PlayerName { get; set; }
         public string? AssistPlayerName { get; set; }
     }
@@ -494,7 +494,7 @@ namespace PlayGround.Contracts.Team
     public class TeamVideoDto
     {
         public Guid VideoId { get; set; }
-        public string VideoType { get; set; } = string.Empty;
+        public SoccerVideoType VideoType { get; set; }
         public string Title { get; set; } = string.Empty;
         public string VideoUrl { get; set; } = string.Empty;
         public string? ThumbnailUrl { get; set; }
@@ -586,8 +586,8 @@ namespace PlayGround.Contracts.Team
     {
         public Guid TournamentId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Format { get; set; } = string.Empty;
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerTournamentFormat Format { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
     }
 
     public class TeamTournamentOptionsResponse
@@ -598,7 +598,7 @@ namespace PlayGround.Contracts.Team
     public class TeamChannelDto
     {
         public Guid ChannelId { get; set; }
-        public string ChannelType { get; set; } = string.Empty;
+        public SoccerChannelType ChannelType { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
         public string? Description { get; set; }
@@ -637,16 +637,16 @@ namespace PlayGround.Contracts.Team
         public string Name { get; set; } = string.Empty;
 
         public string? Slug { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? TeamName { get; set; }
-        public SoccerPosition? Position { get; set; }
+        public SoccerPosition Position { get; set; }
         public string? JerseyNumber { get; set; }
 
         public int Appearances { get; set; }
         public int Goals { get; set; }
         public int Assists { get; set; }
 
-        public string ClaimStatus { get; set; } = "Claimed";
+        public SoccerRosterClaimStatus ClaimStatus { get; set; } = SoccerRosterClaimStatus.Claimed;
 
         public int CorrectionPendingCount { get; set; }
 
@@ -699,7 +699,7 @@ namespace PlayGround.Contracts.Team
     {
         public Guid MatchId { get; set; }
 
-        public string FieldType { get; set; } = string.Empty;
+        public SoccerCorrectionField FieldType { get; set; }
 
         public string? CurrentValue { get; set; }
 
@@ -718,12 +718,12 @@ namespace PlayGround.Contracts.Team
     {
         public Guid CorrectionId { get; set; }
         public Guid MatchId { get; set; }
-        public string FieldType { get; set; } = string.Empty;
+        public SoccerCorrectionField FieldType { get; set; }
         public string? CurrentValue { get; set; }
         public string RequestedValue { get; set; } = string.Empty;
         public string? Description { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public SoccerCorrectionStatus Status { get; set; }
 
         public string? RejectReason { get; set; }
 

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using PlayGround.Client.Components.Records;
 using PlayGround.Contracts.Records;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Time;
 using Xunit;
 
@@ -94,13 +95,13 @@ namespace PlayGround.Tests.Unit.Client
         //.// 이벤트
 
         [Theory]
-        [InlineData("Goal", true)]
-        [InlineData("PenaltyGoal", true)]
-        [InlineData("OwnGoal", true)]
-        [InlineData("YellowCard", false)]
-        [InlineData("RedCard", false)]
-        [InlineData("Substitution", false)]
-        public void IsGoalEvent_BallIcon_OnlyForScoringTypes(string eventType, bool expected)
+        [InlineData(SoccerMatchEventType.Goal, true)]
+        [InlineData(SoccerMatchEventType.PenaltyGoal, true)]
+        [InlineData(SoccerMatchEventType.OwnGoal, true)]
+        [InlineData(SoccerMatchEventType.YellowCard, false)]
+        [InlineData(SoccerMatchEventType.RedCard, false)]
+        [InlineData(SoccerMatchEventType.Substitution, false)]
+        public void IsGoalEvent_BallIcon_OnlyForScoringTypes(SoccerMatchEventType eventType, bool expected)
         {
             RecordsFormatting.IsGoalEvent(eventType).Should().Be(expected);
         }
@@ -109,24 +110,24 @@ namespace PlayGround.Tests.Unit.Client
         public void EventKindLabel_IsEmpty_ForUnknownType()
         {
             // 타임라인에 정체불명의 문자열이 뜨지 않게 한다
-            RecordsFormatting.EventKindLabel("Substitution").Should().BeEmpty();
-            RecordsFormatting.EventKindLabel("").Should().BeEmpty();
+            RecordsFormatting.EventKindLabel(SoccerMatchEventType.Substitution).Should().BeEmpty();
+            RecordsFormatting.EventKindLabel(SoccerMatchEventType.Unknown).Should().BeEmpty();
         }
 
         [Fact]
         public void EventKindLabel_OwnGoal_DiffersFromGoal()
         {
-            RecordsFormatting.EventKindLabel("OwnGoal")
-                .Should().NotBe(RecordsFormatting.EventKindLabel("Goal"));
+            RecordsFormatting.EventKindLabel(SoccerMatchEventType.OwnGoal)
+                .Should().NotBe(RecordsFormatting.EventKindLabel(SoccerMatchEventType.Goal));
         }
 
         [Fact]
         public void EventLogText_ShowsKindOnly_WithoutPlayerName()
         {
-            var withoutName = new RecordsMatchEventDto { EventType = "Goal", PlayerName = null };
-            var withName = new RecordsMatchEventDto { EventType = "Goal", PlayerName = "김유한" };
+            var withoutName = new RecordsMatchEventDto { EventType = SoccerMatchEventType.Goal, PlayerName = null };
+            var withName = new RecordsMatchEventDto { EventType = SoccerMatchEventType.Goal, PlayerName = "김유한" };
 
-            RecordsFormatting.EventLogText(withoutName).Should().Be(RecordsFormatting.EventKindLabel("Goal"));
+            RecordsFormatting.EventLogText(withoutName).Should().Be(RecordsFormatting.EventKindLabel(SoccerMatchEventType.Goal));
             RecordsFormatting.EventLogText(withName).Should().Contain("김유한");
         }
 
@@ -173,8 +174,8 @@ namespace PlayGround.Tests.Unit.Client
         [Fact]
         public void MatchStageLabel_ShowsStageAndRoundTogether()
         {
-            string groupWithRound = RecordsFormatting.MatchStageLabel("Group", "R1");
-            string groupOnly = RecordsFormatting.MatchStageLabel("Group", null);
+            string groupWithRound = RecordsFormatting.MatchStageLabel(SoccerStageType.Group, "R1");
+            string groupOnly = RecordsFormatting.MatchStageLabel(SoccerStageType.Group, null);
 
             groupWithRound.Should().StartWith(groupOnly).And.NotBe(groupOnly);
         }
@@ -182,16 +183,16 @@ namespace PlayGround.Tests.Unit.Client
         [Fact]
         public void MatchStageLabel_KnockoutAndLeague_ShowRoundOnly()
         {
-            RecordsFormatting.MatchStageLabel("Knockout", "F")
+            RecordsFormatting.MatchStageLabel(SoccerStageType.Knockout, "F")
                 .Should().Be(RecordsFormatting.RoundDisplay("F"));
-            RecordsFormatting.MatchStageLabel("League", "R5")
+            RecordsFormatting.MatchStageLabel(SoccerStageType.League, "R5")
                 .Should().Be(RecordsFormatting.RoundDisplay("R5"));
         }
 
         [Fact]
         public void MatchStageLabel_FallsBackToRound_ForUnknownStage()
         {
-            RecordsFormatting.MatchStageLabel("Unknown", "R2")
+            RecordsFormatting.MatchStageLabel(SoccerStageType.Unknown, "R2")
                 .Should().Be(RecordsFormatting.RoundDisplay("R2"));
         }
 

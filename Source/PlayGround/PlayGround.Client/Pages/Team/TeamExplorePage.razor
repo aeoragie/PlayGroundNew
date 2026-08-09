@@ -267,7 +267,7 @@
 
         if (CurrentAge is not null)
         {
-            result = result.Where(t => t.AgeGroup?.ToString() == CurrentAge);
+            result = result.Where(t => t.AgeGroup.ToText() == CurrentAge);
         }
 
         if (region is not null)

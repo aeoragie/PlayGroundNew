@@ -1,15 +1,9 @@
 using PlayGround.Client.Localization;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Client.Models
 {
-    /// <summary>경기 성격 (Design.FriendlyMatch). DB 저장 문자열과 멤버 이름이 같다.
-    /// 집계(순위표·시즌 요약·공개 프로필)는 Official만 — 친선은 합산하지 않고 별도 표기한다.</summary>
-    public enum SoccerMatchType
-    {
-        Official,
-        Friendly,
-    }
-
+    /// <summary>경기 목록 필터 세그먼트 (UI 전용 — 전체·공식·친선). 저장 값이 아니라 쿼리 파라미터로만 오간다.</summary>
     public enum SoccerMatchSegment
     {
         All,
@@ -17,16 +11,8 @@ namespace PlayGround.Client.Models
         Friendly,
     }
 
-    public static class SoccerMatchTypeExtensions
+    public static class SoccerMatchSegmentExtensions
     {
-        /// <summary>저장 문자열 → enum. 알 수 없으면 Official (다수가 공식이라 안전한 기본값).</summary>
-        public static SoccerMatchType Parse(string? value)
-        {
-            return Enum.TryParse(value, out SoccerMatchType parsed) ? parsed : SoccerMatchType.Official;
-        }
-
-        public static bool IsFriendly(string? value) => Parse(value) == SoccerMatchType.Friendly;
-
         public static string? ToQuery(this SoccerMatchSegment segment) => segment switch
         {
             SoccerMatchSegment.Official => "official",
@@ -48,10 +34,10 @@ namespace PlayGround.Client.Models
             _ => AppText.Enums.MatchSegmentAll,
         };
 
-        public static bool Matches(this SoccerMatchSegment segment, string? matchType) => segment switch
+        public static bool Matches(this SoccerMatchSegment segment, SoccerMatchType matchType) => segment switch
         {
-            SoccerMatchSegment.Official => !IsFriendly(matchType),
-            SoccerMatchSegment.Friendly => IsFriendly(matchType),
+            SoccerMatchSegment.Official => matchType != SoccerMatchType.Friendly,
+            SoccerMatchSegment.Friendly => matchType == SoccerMatchType.Friendly,
             _ => true,
         };
     }

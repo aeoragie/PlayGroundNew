@@ -137,7 +137,7 @@
 
     private static SoccerChannelType ParseChannelType(TeamChannelDto channel)
     {
-        return Enum.TryParse(channel.ChannelType, out SoccerChannelType parsed) ? parsed : SoccerChannelType.YouTube;
+        return channel.ChannelType;
     }
 
     private static BrandIcon.BrandIconType ChannelIcon(TeamChannelDto channel)

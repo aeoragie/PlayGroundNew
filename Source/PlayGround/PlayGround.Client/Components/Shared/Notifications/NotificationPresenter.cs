@@ -2,7 +2,7 @@ using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
 using PlayGround.Client.Services;
 using PlayGround.Contracts.Notification;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Time;
 
 namespace PlayGround.Client.Components.Shared.Notifications
@@ -13,24 +13,24 @@ namespace PlayGround.Client.Components.Shared.Notifications
     {
         /// <summary>에이전트 축 알림 — feature flag(AgentApproval) OFF면 숨긴다(열람 요청·만료 임박).</summary>
         public static bool IsAgentType(NotificationDto item) =>
-            item.Type == nameof(SoccerNotificationType.ViewRequest)
-            || item.Type == nameof(SoccerNotificationType.AgentGrantExpiring);
+            item.Type == SoccerNotificationType.ViewRequest
+            || item.Type == SoccerNotificationType.AgentGrantExpiring;
 
         public static bool IsActionType(NotificationDto item) =>
-            item.Type == nameof(SoccerNotificationType.ClaimRequest)
-            || item.Type == nameof(SoccerNotificationType.RosterInvite);
+            item.Type == SoccerNotificationType.ClaimRequest
+            || item.Type == SoccerNotificationType.RosterInvite;
 
         /// <summary>미해소 액션형 — 처리 필요(승인/거절·초대 확인 버튼이 남아 있는 상태).</summary>
         public static bool IsActionRequired(NotificationDto item)
         {
-            if (item.Type == nameof(SoccerNotificationType.ClaimRequest))
+            if (item.Type == SoccerNotificationType.ClaimRequest)
             {
-                return item.RequestStatus == "Pending";
+                return item.RequestStatus == SoccerClaimRequestStatus.Pending;
             }
 
-            if (item.Type == nameof(SoccerNotificationType.RosterInvite))
+            if (item.Type == SoccerNotificationType.RosterInvite)
             {
-                return item.RequestStatus != "Confirmed";
+                return item.RequestStatus != SoccerClaimRequestStatus.Confirmed;
             }
 
             return false;
@@ -38,69 +38,69 @@ namespace PlayGround.Client.Components.Shared.Notifications
 
         public static string GroupOf(NotificationDto item) => item.Type switch
         {
-            nameof(SoccerNotificationType.ClaimRequest) or
-            nameof(SoccerNotificationType.ClaimApproved) or
-            nameof(SoccerNotificationType.ClaimRejected) => AppText.Notification.GroupClaim,
-            nameof(SoccerNotificationType.MatchResult) => AppText.Notification.GroupMatch,
-            nameof(SoccerNotificationType.ViewRequest) or
-            nameof(SoccerNotificationType.AgentGrantExpiring) => AppText.Notification.GroupViewRequest,
-            nameof(SoccerNotificationType.RosterInvite) => AppText.Notification.GroupRosterInvite,
-            nameof(SoccerNotificationType.TeamNotice) => AppText.Notification.GroupTeamNews,
-            nameof(SoccerNotificationType.ExportReady) => AppText.Notification.GroupAccount,
+            SoccerNotificationType.ClaimRequest or
+            SoccerNotificationType.ClaimApproved or
+            SoccerNotificationType.ClaimRejected => AppText.Notification.GroupClaim,
+            SoccerNotificationType.MatchResult => AppText.Notification.GroupMatch,
+            SoccerNotificationType.ViewRequest or
+            SoccerNotificationType.AgentGrantExpiring => AppText.Notification.GroupViewRequest,
+            SoccerNotificationType.RosterInvite => AppText.Notification.GroupRosterInvite,
+            SoccerNotificationType.TeamNotice => AppText.Notification.GroupTeamNews,
+            SoccerNotificationType.ExportReady => AppText.Notification.GroupAccount,
             _ => AppText.Notification.GroupRecords,
         };
 
         // 딥링크 — 이동형(내비게이션형) 알림의 착지점. 없으면 null.
         public static string? RouteOf(NotificationDto item) => item.Type switch
         {
-            nameof(SoccerNotificationType.ClaimApproved) when item.TargetPlayerId is not null =>
+            SoccerNotificationType.ClaimApproved when item.TargetPlayerId is not null =>
                 $"{Routes.PlayerDashboard}?playerId={item.TargetPlayerId}",
-            nameof(SoccerNotificationType.ClaimRejected) => Routes.Claim,
-            nameof(SoccerNotificationType.MatchResult) when item.TargetPlayerId is not null =>
+            SoccerNotificationType.ClaimRejected => Routes.Claim,
+            SoccerNotificationType.MatchResult when item.TargetPlayerId is not null =>
                 $"{Routes.PlayerDashboardSection(SoccerPlayerDashboardSection.Stats)}?playerId={item.TargetPlayerId}",
-            nameof(SoccerNotificationType.CorrectionReviewed) =>
+            SoccerNotificationType.CorrectionReviewed =>
                 Routes.TeamDashboardSection(SoccerTeamDashboardSection.Results),
-            nameof(SoccerNotificationType.ViewRequest) or
-            nameof(SoccerNotificationType.AgentGrantExpiring) => Routes.AgentApproval(item.RefId),
-            nameof(SoccerNotificationType.TeamNotice) when item.TargetPlayerId is not null =>
+            SoccerNotificationType.ViewRequest or
+            SoccerNotificationType.AgentGrantExpiring => Routes.AgentApproval(item.RefId),
+            SoccerNotificationType.TeamNotice when item.TargetPlayerId is not null =>
                 Routes.TeamNews(item.TargetPlayerId.Value),
-            nameof(SoccerNotificationType.ExportReady) => Routes.SettingsSection(SettingsSection.Account),
+            SoccerNotificationType.ExportReady => Routes.SettingsSection(SettingsSection.Account),
             _ => null,
         };
 
         public static string MoveTitle(NotificationDto item) => item.Type switch
         {
-            nameof(SoccerNotificationType.ClaimApproved) => AppText.Notification.TitleClaimApproved,
-            nameof(SoccerNotificationType.ClaimRejected) => AppText.Notification.TitleClaimRejected,
-            nameof(SoccerNotificationType.MatchResult) => AppText.Notification.TitleMatchResult,
-            nameof(SoccerNotificationType.ViewRequest) => AppText.Notification.TitleViewRequest,
-            nameof(SoccerNotificationType.AgentGrantExpiring) => AppText.Notification.TitleGrantExpiring,
-            nameof(SoccerNotificationType.TeamNotice) => AppText.Notification.TitleTeamNotice,
-            nameof(SoccerNotificationType.ExportReady) => AppText.Notification.TitleExportReady,
+            SoccerNotificationType.ClaimApproved => AppText.Notification.TitleClaimApproved,
+            SoccerNotificationType.ClaimRejected => AppText.Notification.TitleClaimRejected,
+            SoccerNotificationType.MatchResult => AppText.Notification.TitleMatchResult,
+            SoccerNotificationType.ViewRequest => AppText.Notification.TitleViewRequest,
+            SoccerNotificationType.AgentGrantExpiring => AppText.Notification.TitleGrantExpiring,
+            SoccerNotificationType.TeamNotice => AppText.Notification.TitleTeamNotice,
+            SoccerNotificationType.ExportReady => AppText.Notification.TitleExportReady,
             _ => item.SubText == "Accepted" ? AppText.Notification.TitleCorrectionAccepted : AppText.Notification.TitleCorrectionRejected,
         };
 
         public static string MoveBody(NotificationDto item) => item.Type switch
         {
-            nameof(SoccerNotificationType.ClaimApproved) => AppText.Notification.BodyClaimApproved(item.PlayerName, item.TeamName),
-            nameof(SoccerNotificationType.ClaimRejected) => AppText.Notification.BodyClaimRejected(item.PlayerName, item.TeamName),
-            nameof(SoccerNotificationType.MatchResult) => AppText.Notification.BodyMatchResult(item.TeamName, item.ActorName, item.MetaText),
-            nameof(SoccerNotificationType.ViewRequest) => AppText.Notification.BodyViewRequest(item.ActorName, item.PlayerName),
-            nameof(SoccerNotificationType.AgentGrantExpiring) => AppText.Notification.BodyGrantExpiring(item.ActorName, item.PlayerName),
-            nameof(SoccerNotificationType.TeamNotice) => AppText.Notification.BodyTeamNotice(item.TeamName, item.MetaText),
-            nameof(SoccerNotificationType.ExportReady) => AppText.Notification.BodyExportReady,
+            SoccerNotificationType.ClaimApproved => AppText.Notification.BodyClaimApproved(item.PlayerName, item.TeamName),
+            SoccerNotificationType.ClaimRejected => AppText.Notification.BodyClaimRejected(item.PlayerName, item.TeamName),
+            SoccerNotificationType.MatchResult => AppText.Notification.BodyMatchResult(item.TeamName, item.ActorName, item.MetaText),
+            SoccerNotificationType.ViewRequest => AppText.Notification.BodyViewRequest(item.ActorName, item.PlayerName),
+            SoccerNotificationType.AgentGrantExpiring => AppText.Notification.BodyGrantExpiring(item.ActorName, item.PlayerName),
+            SoccerNotificationType.TeamNotice => AppText.Notification.BodyTeamNotice(item.TeamName, item.MetaText),
+            SoccerNotificationType.ExportReady => AppText.Notification.BodyExportReady,
             _ => AppText.Notification.BodyCorrection(FieldTypeLabel(item.MetaText), item.TeamName),
         };
 
-        public static string RelationLabel(string? relation) => relation switch
+        public static string RelationLabel(SoccerClaimRelation relation) => relation switch
         {
-            "Father" => AppText.Notification.RelationFather,
-            "Guardian" => AppText.Notification.RelationGuardian,
+            SoccerClaimRelation.Father => AppText.Notification.RelationFather,
+            SoccerClaimRelation.Guardian => AppText.Notification.RelationGuardian,
             _ => AppText.Notification.RelationMother,
         };
 
         public static string FieldTypeLabel(string? fieldType) =>
-            SoccerDomainEnumLabels.ToCorrectionFieldLabel(fieldType);
+            (Enum.TryParse(fieldType, out SoccerCorrectionField field) ? field : SoccerCorrectionField.Unknown).ToLabel();
 
         public static string TimeAgo(SystemTime createdAtUtc)
         {

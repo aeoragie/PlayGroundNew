@@ -1,11 +1,11 @@
 using PlayGround.Client.Localization;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Client.Models
 {
-    /// <summary>Domain 열거형의 화면 표기 라벨. **표시는 Domain이 아니라 표현 계층의 몫**이라
-    /// (Domain은 Client를 참조할 수 없어 AppText에 닿지 못한다) 여기서 리소스로 라우팅한다.
-    /// Domain 쪽에는 파싱·판정 같은 규칙만 남긴다. 근거는 Docs/Architecture/Localization.md §7.</summary>
+    /// <summary>Contracts 열거형의 화면 표기 라벨. **표시는 표현 계층의 몫**이라
+    /// (Contracts는 Client를 참조할 수 없어 AppText에 닿지 못한다) 여기서 리소스로 라우팅한다.
+    /// 근거는 Docs/Architecture/Localization.md §7.</summary>
     public static class SoccerDomainEnumLabels
     {
         public static string ToLabel(this SoccerCorrectionField field) => field switch
@@ -15,13 +15,6 @@ namespace PlayGround.Client.Models
             SoccerCorrectionField.Appearance => AppText.Enums.CorrectionFieldAppearance,
             _ => AppText.Enums.CorrectionFieldOther,
         };
-
-        /// <summary>DB 저장 문자열 → 항목 라벨. 알 수 없으면 '기타'.</summary>
-        public static string ToCorrectionFieldLabel(string? fieldType)
-        {
-            SoccerCorrectionFieldExtensions.TryParse(fieldType, out SoccerCorrectionField field);
-            return field.ToLabel();
-        }
 
         public static string ToTagLabel(this SoccerCareerOutcomeType type) => type switch
         {
@@ -35,6 +28,52 @@ namespace PlayGround.Client.Models
             SoccerCareerOutcomeType.ProTransfer => AppText.Enums.CareerOutcomeSummaryProTransfer,
             SoccerCareerOutcomeType.SchoolTeam => AppText.Enums.CareerOutcomeSummarySchoolTeam,
             _ => AppText.Enums.CareerOutcomeSummaryPromotion,
+        };
+
+        public static string ToLabel(this SoccerCompetitionType type) => type switch
+        {
+            SoccerCompetitionType.League => AppText.Enums.CompetitionLeague,
+            SoccerCompetitionType.Cup => AppText.Enums.CompetitionCup,
+            _ => AppText.Enums.CompetitionFriendly,
+        };
+
+        public static string ToLabel(this SoccerTournamentFormat format) => format switch
+        {
+            SoccerTournamentFormat.Cup => AppText.Enums.TournamentFormatCup,
+            SoccerTournamentFormat.Split => AppText.Enums.TournamentFormatSplit,
+            _ => AppText.Enums.TournamentFormatLeague,
+        };
+
+        public static string ToLabel(this SoccerTournamentStatus status) => status switch
+        {
+            SoccerTournamentStatus.InProgress => AppText.Enums.TournamentInProgress,
+            SoccerTournamentStatus.Scheduled => AppText.Enums.TournamentScheduled,
+            _ => AppText.Enums.TournamentEnded,
+        };
+
+        /// <summary>대회 목록 자동 정렬 순서 (진행중 0 → 예정 1 → 종료 2).</summary>
+        public static int SortOrder(this SoccerTournamentStatus status)
+        {
+            return status switch
+            {
+                SoccerTournamentStatus.InProgress => 0,
+                SoccerTournamentStatus.Scheduled => 1,
+                _ => 2,
+            };
+        }
+
+        public static string ToLabel(this SoccerScheduleType type) => type switch
+        {
+            SoccerScheduleType.Match => AppText.Enums.ScheduleMatch,
+            SoccerScheduleType.Tournament => AppText.Enums.ScheduleTournament,
+            _ => AppText.Enums.ScheduleTraining,
+        };
+
+        public static string ToLabel(this SoccerVideoType type) => type switch
+        {
+            SoccerVideoType.Highlight => AppText.Enums.VideoHighlight,
+            SoccerVideoType.FullMatch => AppText.Enums.VideoFullMatch,
+            _ => AppText.Enums.VideoTraining,
         };
     }
 }

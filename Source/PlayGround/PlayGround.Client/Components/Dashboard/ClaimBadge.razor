@@ -6,12 +6,12 @@
 
 @code {
     [Parameter, EditorRequired]
-    public SoccerClaimStatus Status { get; set; }
+    public SoccerRosterClaimStatus Status { get; set; }
 
     private string BadgeClass => Status switch
     {
-        SoccerClaimStatus.Claimed => Css.Badge.Positive,
-        SoccerClaimStatus.Pending => Css.Badge.Pending,
+        SoccerRosterClaimStatus.Claimed => Css.Badge.Positive,
+        SoccerRosterClaimStatus.Pending => Css.Badge.Pending,
         _ => Css.Badge.Neutral,
     };
 }

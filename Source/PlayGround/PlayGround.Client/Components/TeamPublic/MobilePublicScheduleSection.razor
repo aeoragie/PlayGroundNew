@@ -73,11 +73,11 @@
         Toasts.ShowSuccess(AppText.Team.CopiedToast);
     }
 
-    private static SoccerScheduleEventType TypeOf(ScheduleDto s) =>
-        Enum.TryParse(s.Type, out SoccerScheduleEventType type) ? type : SoccerScheduleEventType.Match;
+    private static SoccerScheduleType TypeOf(ScheduleDto s) =>
+        s.Type;
 
     private static string TitleOf(ScheduleDto s) =>
-        TypeOf(s) == SoccerScheduleEventType.Match
+        TypeOf(s) == SoccerScheduleType.Match
             ? $"vs {s.OpponentName}"
             : (s.Title ?? string.Empty);
 
@@ -94,18 +94,18 @@
         var parts = new List<string> { s.Venue };
         if (ended)
         {
-            bool resultLinked = s.HasResult && TypeOf(s) is SoccerScheduleEventType.Match or SoccerScheduleEventType.Tournament;
+            bool resultLinked = s.HasResult && TypeOf(s) is SoccerScheduleType.Match or SoccerScheduleType.Tournament;
             parts.Add(resultLinked ? AppText.Team.FinishedWithResult : AppText.Team.Finished);
         }
 
         return string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
     }
 
-    private static string TypeClass(SoccerScheduleEventType type) =>
+    private static string TypeClass(SoccerScheduleType type) =>
         "text-[10.5px] font-bold rounded-full px-[9px] py-0.5 whitespace-nowrap shrink-0 " + type switch
         {
-            SoccerScheduleEventType.Match => "text-white bg-navy",
-            SoccerScheduleEventType.Tournament => "text-orange-ink bg-surface-orange-badge",
+            SoccerScheduleType.Match => "text-white bg-navy",
+            SoccerScheduleType.Tournament => "text-orange-ink bg-surface-orange-badge",
             _ => "text-teal-ink bg-teal/[.12]",
         };
 }

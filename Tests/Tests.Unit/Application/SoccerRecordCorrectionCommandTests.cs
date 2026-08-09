@@ -5,6 +5,7 @@ using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Commands;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Result;
+using PlayGround.Contracts.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
@@ -17,7 +18,7 @@ namespace PlayGround.Tests.Unit.Application
         private static readonly Guid Match = Guid.NewGuid();
 
         private static CreateRecordCorrectionRequest Request(
-            string field = "Score", string requested = "2 : 1", string? current = " 3 : 1 ", string? description = null) =>
+            SoccerCorrectionField field = SoccerCorrectionField.Score, string requested = "2 : 1", string? current = " 3 : 1 ", string? description = null) =>
             new()
             {
                 MatchId = Match,
@@ -60,15 +61,12 @@ namespace PlayGround.Tests.Unit.Application
             result.ResultData.DetailCode.Should().Be(ErrorCode.InvalidInput);
         }
 
-        [Theory]
-        [InlineData("0")]        // 숫자 문자열이 enum으로 파싱되는 것을 막는다
-        [InlineData("Unknown")]
-        [InlineData("")]
-        public async Task ExecuteAsync_UnknownField_IsInvalidInput(string fieldType)
+        [Fact]
+        public async Task ExecuteAsync_UnknownField_IsInvalidInput()
         {
             var command = new SoccerRecordCorrectionCommand(new Mock<ISoccerTeamRepository>().Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
 
-            Result<Guid> result = await command.ExecuteAsync(Manager, Request(field: fieldType));
+            Result<Guid> result = await command.ExecuteAsync(Manager, Request(field: SoccerCorrectionField.Unknown));
 
             result.ResultData.DetailCode.Should().Be(ErrorCode.InvalidInput);
         }
@@ -103,14 +101,14 @@ namespace PlayGround.Tests.Unit.Application
             Mock<ISoccerTeamRepository> repo = RepoCreating(Guid.NewGuid());
             var command = new SoccerRecordCorrectionCommand(repo.Object, NullLogger<SoccerRecordCorrectionCommand>.Instance);
             CreateRecordCorrectionRequest request = Request(
-                field: "Score", requested: "  2 : 1  ", current: "  3 : 1  ", description: "   ");
+                field: SoccerCorrectionField.Score, requested: "  2 : 1  ", current: "  3 : 1  ", description: "   ");
 
             await command.ExecuteAsync(Manager, request);
 
             request.RequestedValue.Should().Be("2 : 1");
             request.CurrentValue.Should().Be("3 : 1");
             request.Description.Should().BeNull();      // 공백만 남는 설명은 없는 것으로 저장한다
-            request.FieldType.Should().Be("Score");     // enum 이름으로 정규화
+            request.FieldType.Should().Be(SoccerCorrectionField.Score);
         }
 
         [Fact]

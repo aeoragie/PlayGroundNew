@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Team;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
@@ -81,7 +81,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "detail is too long");
             }
 
-            if (!Enum.TryParse(request.OutcomeType, out SoccerCareerOutcomeType _))
+            if (request.OutcomeType == SoccerCareerOutcomeType.Unknown)
             {
                 return Result<TeamCareerOutcomeDto>.Error(ErrorCode.InvalidInput, "unknown outcome type");
             }

@@ -1,5 +1,6 @@
 using PlayGround.Client.Localization;
 using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Http;
 using System.Net;
@@ -114,7 +115,7 @@ namespace PlayGround.Client.Services
             }
         }
 
-        public async Task<bool> SetFieldVisibilityAsync(string fieldName, bool isPublic, Guid? playerId = null)
+        public async Task<bool> SetFieldVisibilityAsync(SoccerPlayerProfileField fieldName, bool isPublic, Guid? playerId = null)
         {
             try
             {

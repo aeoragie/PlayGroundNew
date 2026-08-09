@@ -1,3 +1,4 @@
+using PlayGround.Contracts.Common;
 using PlayGround.Contracts.Export;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
@@ -9,7 +10,7 @@ namespace PlayGround.Application.Interfaces
     {
         public Guid RequestId { get; set; }
         public Guid UserId { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public DataExportStatus Status { get; set; }
         public bool IncludeProfile { get; set; }
         public bool IncludeRecords { get; set; }
         public bool IncludeRequests { get; set; }
@@ -18,9 +19,8 @@ namespace PlayGround.Application.Interfaces
     /// <summary>데이터 내려받기 요청 저장·조회 포트 (Soccer DB). 생성만 접수하고 파일 생성은 백그라운드 잡.</summary>
     public interface ISoccerDataExportRepository
     {
-        /// <summary>요청 생성 — 동시 1건·쿨다운 24h를 SP가 판정. Status ∈ 'Ok'|'InProgress'|'Cooldown'.
-        /// 'Ok'일 때만 RequestId가 채워진다.</summary>
-        Task<Result<(string Status, Guid? RequestId)>> CreateAsync(
+        /// <summary>요청 생성 — 동시 1건·쿨다운 24h를 SP가 판정. Ok일 때만 RequestId가 채워진다.</summary>
+        Task<Result<(DataExportRequestStatus Status, Guid? RequestId)>> CreateAsync(
             Guid userId, bool includeProfile, bool includeRecords, bool includeRequests, CancellationToken cancellation = default);
 
         /// <summary>현재 상태 행 (최신 비삭제). 만료된 Ready는 Success(null)로 걸러 "요청" 버튼으로 되돌린다.</summary>
@@ -30,7 +30,7 @@ namespace PlayGround.Application.Interfaces
         Task<Result<DataExportJob?>> GetByIdAsync(Guid requestId, CancellationToken cancellation = default);
 
         /// <summary>잡 완료 전환 — Ready(토큰·키·크기·만료) 또는 Failed. Pending일 때만 반영.</summary>
-        Task<Result<bool>> UpdateStatusAsync(Guid requestId, string status, string? downloadToken, string? storageKey,
+        Task<Result<bool>> UpdateStatusAsync(Guid requestId, DataExportStatus status, string? downloadToken, string? storageKey,
             long? sizeBytes, SystemTime? expiresAt, CancellationToken cancellation = default);
 
         /// <summary>요청 취소 — Pending + 소유자만 소프트 삭제.</summary>

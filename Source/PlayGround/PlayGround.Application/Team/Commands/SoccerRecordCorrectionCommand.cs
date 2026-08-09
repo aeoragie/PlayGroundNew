@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Team;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -50,12 +50,11 @@ namespace PlayGround.Application.Team.Commands
                 return Result<Guid>.Error(ErrorCode.InvalidInput, "matchId is empty");
             }
 
-            if (!SoccerCorrectionFieldExtensions.TryParse(request.FieldType, out SoccerCorrectionField field))
+            if (request.FieldType == SoccerCorrectionField.Unknown)
             {
                 return Result<Guid>.Error(ErrorCode.InvalidInput, "unknown field type");
             }
 
-            request.FieldType = field.ToString();
             request.RequestedValue = request.RequestedValue?.Trim() ?? string.Empty;
 
             if (request.RequestedValue.Length == 0)
@@ -108,12 +107,11 @@ namespace PlayGround.Application.Team.Commands
                 return Result<Guid>.Error(ErrorCode.InvalidInput, "matchId/targetPlayerId is empty");
             }
 
-            if (!SoccerCorrectionFieldExtensions.TryParse(request.FieldType, out SoccerCorrectionField field))
+            if (request.FieldType == SoccerCorrectionField.Unknown)
             {
                 return Result<Guid>.Error(ErrorCode.InvalidInput, "unknown field type");
             }
 
-            request.FieldType = field.ToString();
             request.RequestedValue = request.RequestedValue?.Trim() ?? string.Empty;
 
             if (request.RequestedValue.Length is 0 or > MaxValueLength)

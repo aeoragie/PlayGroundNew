@@ -1,3 +1,5 @@
+using PlayGround.Contracts.Common;
+
 namespace PlayGround.Application.Auth.Models
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace PlayGround.Application.Auth.Models
         public string Email { get; init; } = string.Empty;
         public bool EmailConfirmed { get; init; }
         public string? PasswordHash { get; init; }
-        public string AuthProvider { get; init; } = string.Empty;
+        public AccountAuthProvider AuthProvider { get; init; }
         public string DisplayName { get; init; } = string.Empty;
         public string? ProfileImageUrl { get; init; }
-        public string UserRole { get; init; } = string.Empty;
+        public AccountRole UserRole { get; init; }
         public string UserStatus { get; init; } = string.Empty;
     }
 }

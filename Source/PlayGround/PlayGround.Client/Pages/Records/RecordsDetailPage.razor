@@ -130,7 +130,7 @@
             @* ── 조별 스테이지 (예선/1차 풀리그/2차 스플릿리그 공용) ── *@
             @if (mTab is "stage1" or "stage2")
             {
-                string stageType = StageTypeOf(mTab);
+                SoccerStageType stageType = StageTypeOf(mTab);
                 List<string> groups = GroupsOf(stageType);
                 <div class="flex flex-col gap-3.5">
                     @if (groups.Count > 0)
@@ -230,8 +230,8 @@
             @* ── 리그 경기 (리그형) ── *@
             @if (mTab == "league")
             {
-                List<RecordsStandingDto> leagueStandings = StandingsOf(nameof(SoccerTournamentStageType.League), null);
-                List<RecordsMatchDto> leagueMatches = MatchesOf(nameof(SoccerTournamentStageType.League), null);
+                List<RecordsStandingDto> leagueStandings = StandingsOf(SoccerStageType.League, null);
+                List<RecordsMatchDto> leagueMatches = MatchesOf(SoccerStageType.League, null);
                 List<string> months = leagueMatches.Where(m => m.MatchedAt is not null).Select(m => AppText.Records.MonthSuffix(m.MatchedAt!.Value.ToWallClock().Month)).Distinct().ToList();
                 <div class="flex flex-col gap-3.5">
                     @if (leagueStandings.Count > 0)
@@ -473,10 +473,10 @@
     }
 
     private SoccerTournamentFormat Format =>
-        Enum.TryParse(mData?.Tournament.Format, out SoccerTournamentFormat parsed) ? parsed : SoccerTournamentFormat.Cup;
+        mData?.Tournament.Format ?? SoccerTournamentFormat.Cup;
 
     private SoccerTournamentStatus Status =>
-        Enum.TryParse(mData?.Tournament.Status, out SoccerTournamentStatus parsed) ? parsed : SoccerTournamentStatus.Completed;
+        mData?.Tournament.Status ?? SoccerTournamentStatus.Completed;
 
     //.// 탭 구성 (Format별 가변)
 
@@ -506,9 +506,9 @@
         }
     }
 
-    private string StageTypeOf(string tab) => Format == SoccerTournamentFormat.Split
-        ? (tab == "stage2" ? nameof(SoccerTournamentStageType.Split2) : nameof(SoccerTournamentStageType.Split1))
-        : nameof(SoccerTournamentStageType.Group);
+    private SoccerStageType StageTypeOf(string tab) => Format == SoccerTournamentFormat.Split
+        ? (tab == "stage2" ? SoccerStageType.Split2 : SoccerStageType.Split1)
+        : SoccerStageType.Group;
 
     private void SelectGroup(string group)
     {
@@ -518,7 +518,7 @@
 
     //.// 데이터 조회 (스테이지·조 스코프)
 
-    private List<string> GroupsOf(string stageType)
+    private List<string> GroupsOf(SoccerStageType stageType)
     {
         return (mData?.Standings.Where(s => s.StageType == stageType).Select(s => s.GroupName) ?? [])
             .Concat(mData?.Matches.Where(m => m.StageType == stageType).Select(m => m.GroupName) ?? [])
@@ -534,7 +534,7 @@
         return int.TryParse(digits, out int number) ? number : int.MaxValue;
     }
 
-    private List<RecordsStandingDto> StandingsOf(string stageType, string? group)
+    private List<RecordsStandingDto> StandingsOf(SoccerStageType stageType, string? group)
     {
         return (mData?.Standings ?? new List<RecordsStandingDto>())
             .Where(s => s.StageType == stageType && (group is null || s.GroupName == group))
@@ -542,7 +542,7 @@
             .ToList();
     }
 
-    private List<RecordsMatchDto> MatchesOf(string stageType, string? group)
+    private List<RecordsMatchDto> MatchesOf(SoccerStageType stageType, string? group)
     {
         return (mData?.Matches ?? new List<RecordsMatchDto>())
             .Where(m => m.StageType == stageType && (group is null || m.GroupName == group))
@@ -550,7 +550,7 @@
     }
 
     private List<string> KnockoutRounds =>
-        (mData?.Matches.Where(m => m.StageType == nameof(SoccerTournamentStageType.Knockout)).Select(m => m.RoundName) ?? [])
+        (mData?.Matches.Where(m => m.StageType == SoccerStageType.Knockout).Select(m => m.RoundName) ?? [])
         .OfType<string>()
         .Distinct()
         .OrderBy(r => Array.IndexOf(KnockoutRoundOrder, r))
@@ -559,7 +559,7 @@
     private List<RecordsMatchDto> KnockoutMatchesOf(string round)
     {
         return (mData?.Matches ?? new List<RecordsMatchDto>())
-            .Where(m => m.StageType == nameof(SoccerTournamentStageType.Knockout) && m.RoundName == round)
+            .Where(m => m.StageType == SoccerStageType.Knockout && m.RoundName == round)
             .ToList();
     }
 
@@ -585,7 +585,7 @@
     {
         get
         {
-            string baseLabel = mData?.Tournament.Scope == "National" ? AppText.Records.ScopeNational : AppText.Records.ScopeRegional;
+            string baseLabel = mData?.Tournament.Scope == SoccerTournamentScope.National ? AppText.Records.ScopeNational : AppText.Records.ScopeRegional;
             return mData?.Tournament.RegionGroup is null ? baseLabel : $"{baseLabel} · {mData.Tournament.RegionGroup}";
         }
     }
@@ -620,8 +620,8 @@
     }
 
     private int TotalMatches => mData?.Matches.Count ?? 0;
-    private int CompletedMatches => mData?.Matches.Count(m => m.Status == nameof(SoccerMatchStatus.Completed)) ?? 0;
-    private int TotalGoals => mData?.Matches.Where(m => m.Status == nameof(SoccerMatchStatus.Completed)).Sum(m => (m.HomeScore ?? 0) + (m.AwayScore ?? 0)) ?? 0;
+    private int CompletedMatches => mData?.Matches.Count(m => m.Status == SoccerMatchStatus.Completed) ?? 0;
+    private int TotalGoals => mData?.Matches.Where(m => m.Status == SoccerMatchStatus.Completed).Sum(m => (m.HomeScore ?? 0) + (m.AwayScore ?? 0)) ?? 0;
     private string GoalsPerGame => CompletedMatches == 0 ? "0" : ((double)TotalGoals / CompletedMatches).ToString("0.00");
 
     private List<(string Key, string Value)> InfoRows
@@ -652,18 +652,18 @@
 
     //.// 수상
 
-    private static string AwardLabel(string awardType) => awardType switch
+    private static string AwardLabel(SoccerAwardType awardType) => awardType switch
     {
-        "Champion" => AppText.Records.AwardChampion,
-        "RunnerUp" => AppText.Records.AwardRunnerUp,
+        SoccerAwardType.Champion => AppText.Records.AwardChampion,
+        SoccerAwardType.RunnerUp => AppText.Records.AwardRunnerUp,
         _ => AppText.Records.AwardFairPlay,
     };
 
-    private static string AwardBadgeClass(string awardType) =>
+    private static string AwardBadgeClass(SoccerAwardType awardType) =>
         "text-[11px] font-extrabold rounded-full px-2.5 py-0.5 whitespace-nowrap " + awardType switch
         {
-            "Champion" => "text-orange-ink bg-surface-orange",
-            "RunnerUp" => "text-text-strong bg-surface-icon",
+            SoccerAwardType.Champion => "text-orange-ink bg-surface-orange",
+            SoccerAwardType.RunnerUp => "text-text-strong bg-surface-icon",
             _ => "text-teal-ink bg-teal/[.12]",
         };
 
@@ -671,8 +671,8 @@
 
     private static string VideoKindLabel(RecordsVideoDto video) => video.VideoType switch
     {
-        nameof(SoccerVideoType.FullMatch) => AppText.Records.VideoFullMatch,
-        nameof(SoccerVideoType.Training) => AppText.Records.VideoTraining,
+        SoccerVideoType.FullMatch => AppText.Records.VideoFullMatch,
+        SoccerVideoType.Training => AppText.Records.VideoTraining,
         _ => AppText.Records.VideoHighlight,
     };
 

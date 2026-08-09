@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Claim;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Logging;
@@ -90,7 +91,7 @@ namespace PlayGround.Application.Team.Commands
                 if (!schedules.IsError)
                 {
                     ScheduleDto? next = schedules.Value.Schedules
-                        .Where(s => s.StartsAt > SystemTime.Now && (s.Type == "Match" || s.Type == "Tournament"))
+                        .Where(s => s.StartsAt > SystemTime.Now && (s.Type is SoccerScheduleType.Match or SoccerScheduleType.Tournament))
                         .OrderBy(s => s.StartsAt)
                         .FirstOrDefault();
 
@@ -140,7 +141,7 @@ namespace PlayGround.Application.Team.Commands
                 if (!corrections.IsError)
                 {
                     pendingCorrectionMatchIds = corrections.Value.Corrections
-                        .Where(c => c.Status == "Pending")
+                        .Where(c => c.Status == SoccerCorrectionStatus.Pending)
                         .Select(c => c.MatchId)
                         .ToHashSet();
                 }
@@ -151,7 +152,7 @@ namespace PlayGround.Application.Team.Commands
                 {
                     // 진행 중 = 종료(Rejected) 아님 + 편입 완료(Confirmed) 아님.
                     guardianApplications = applications.Value.Applications
-                        .Where(a => a.Status != "Rejected" && !a.Confirmed)
+                        .Where(a => a.Status != SoccerApplicationStatus.Rejected && !a.Confirmed)
                         .ToList();
                 }
             }
@@ -174,10 +175,8 @@ namespace PlayGround.Application.Team.Commands
 
                 if (!stats.IsError)
                 {
-                    // MatchType enum은 Client에만 있어(Application이 참조할 수 없다) 문자열로 비교한다.
-                    // DB 저장값 = enum 멤버 이름이라 'Friendly'가 곧 규칙이다.
                     List<PlayerMatchStatDto> official = stats.Value.Matches
-                        .Where(m => m.MatchType != "Friendly")
+                        .Where(m => m.MatchType != SoccerMatchType.Friendly)
                         .ToList();
 
                     card.Appearances = official.Count;
@@ -194,7 +193,7 @@ namespace PlayGround.Application.Team.Commands
                     .Where(a => a.PlayerId == child.PlayerId)
                     .ToList();
                 card.ApplicationPendingCount = childApplications.Count;
-                card.ApplicationActionNeeded = childApplications.Any(a => a.Status == "Accepted");
+                card.ApplicationActionNeeded = childApplications.Any(a => a.Status == SoccerApplicationStatus.Accepted);
 
                 card.TeamNewsUnreadCount = unreadPostsByChild.GetValueOrDefault(child.PlayerId);
 
@@ -221,7 +220,7 @@ namespace PlayGround.Application.Team.Commands
                         Name = claim.Name,
                         AgeGroup = claim.AgeGroup,
                         TeamName = claim.TeamName,
-                        ClaimStatus = "Pending",
+                        ClaimStatus = SoccerRosterClaimStatus.Pending,
                         RequestedAt = claim.RequestedAt,
                     });
                 }

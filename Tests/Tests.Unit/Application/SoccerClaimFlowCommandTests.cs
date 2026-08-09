@@ -5,6 +5,7 @@ using PlayGround.Application.Claim.Commands;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Claim;
 using PlayGround.Shared.Result;
+using PlayGround.Contracts.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
@@ -50,7 +51,7 @@ namespace PlayGround.Tests.Unit.Application
             }
         }
 
-        private static CreateClaimRequestRequest Request(string code = "ABCD12", string relation = "Mother") =>
+        private static CreateClaimRequestRequest Request(string code = "ABCD12", SoccerClaimRelation relation = SoccerClaimRelation.Mother) =>
             new() { Code = code, Relation = relation };
 
         //.// 코드 정규화
@@ -95,10 +96,10 @@ namespace PlayGround.Tests.Unit.Application
         //.// 요청 생성 — 관계 화이트리스트
 
         [Theory]
-        [InlineData("Mother")]
-        [InlineData("Father")]
-        [InlineData("Guardian")]
-        public async Task CreateAsync_AcceptsAllowedRelations(string relation)
+        [InlineData(SoccerClaimRelation.Mother)]
+        [InlineData(SoccerClaimRelation.Father)]
+        [InlineData(SoccerClaimRelation.Guardian)]
+        public async Task CreateAsync_AcceptsAllowedRelations(SoccerClaimRelation relation)
         {
             var harness = new Harness(created: new ClaimRequestSummaryResponse());
 
@@ -106,19 +107,15 @@ namespace PlayGround.Tests.Unit.Application
                 await harness.Command.CreateAsync(User, "김보호", Request(relation: relation));
 
             result.IsSuccess.Should().BeTrue();
-            harness.Relation.Should().Be(relation);
+            harness.Relation.Should().Be(relation.ToString());
         }
 
-        [Theory]
-        [InlineData("0")]        // 숫자 문자열이 enum으로 파싱되는 것을 막는다
-        [InlineData("2")]
-        [InlineData("Uncle")]
-        [InlineData("")]
-        [InlineData(null)]
-        public async Task CreateAsync_UnknownRelation_IsInvalidInput(string? relation)
+        [Fact]
+        public async Task CreateAsync_UnknownRelation_IsInvalidInput()
         {
+            // 숫자·미지 문자열은 컨버터가 Unknown으로 만든다 — 저장 직전 가드는 Unknown 거부 하나다
             Result<ClaimRequestSummaryResponse> result =
-                await new Harness().Command.CreateAsync(User, "김보호", Request(relation: relation!));
+                await new Harness().Command.CreateAsync(User, "김보호", Request(relation: SoccerClaimRelation.Unknown));
 
             result.ResultData.DetailCode.Should().Be(ErrorCode.InvalidInput);
         }
@@ -177,7 +174,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task CreateByPlayerAsync_EmptyPlayer_IsUnauthorized()
         {
             Result<ClaimRequestSummaryResponse> result =
-                await new Harness().Command.CreateByPlayerAsync(User, "김보호", Guid.Empty, "Mother");
+                await new Harness().Command.CreateByPlayerAsync(User, "김보호", Guid.Empty, SoccerClaimRelation.Mother);
 
             result.ResultData.DetailCode.Should().Be(ErrorCode.Unauthorized);
         }
@@ -186,7 +183,7 @@ namespace PlayGround.Tests.Unit.Application
         public async Task CreateByPlayerAsync_SharesRelationWhitelistWithCodePath()
         {
             Result<ClaimRequestSummaryResponse> result =
-                await new Harness().Command.CreateByPlayerAsync(User, "김보호", Guid.NewGuid(), "0");
+                await new Harness().Command.CreateByPlayerAsync(User, "김보호", Guid.NewGuid(), SoccerClaimRelation.Unknown);
 
             result.ResultData.DetailCode.Should().Be(ErrorCode.InvalidInput);
         }

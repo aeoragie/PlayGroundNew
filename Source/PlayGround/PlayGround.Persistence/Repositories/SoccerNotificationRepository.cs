@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Notification;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
+using PlayGround.Persistence.Database;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
 using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 using PlayGround.Shared.Result;
@@ -160,7 +162,7 @@ namespace PlayGround.Persistence.Repositories
             return new NotificationDto
             {
                 NotificationId = n.NotificationId,
-                Type = n.NotificationType,
+                Type = EnumColumn.Read<SoccerNotificationType>(n.NotificationType),
                 RefId = n.RefId,
                 TargetPlayerId = n.TargetPlayerId,
                 ActorName = NullIfEmpty(n.ActorName),
@@ -168,10 +170,10 @@ namespace PlayGround.Persistence.Repositories
                 TeamName = NullIfEmpty(n.TeamName),
                 MetaText = NullIfEmpty(n.MetaText),
                 SubText = NullIfEmpty(n.SubText),
-                Relation = NullIfEmpty(n.Relation),
+                Relation = EnumColumn.Read<SoccerClaimRelation>(NullIfEmpty(n.Relation)),
                 IsRead = n.IsRead,
                 CreatedAt = n.CreatedAt,
-                RequestStatus = NullIfEmpty(n.Status)
+                RequestStatus = EnumColumn.Read<SoccerClaimRequestStatus>(NullIfEmpty(n.Status))
             };
         }
 

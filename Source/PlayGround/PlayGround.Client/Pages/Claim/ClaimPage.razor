@@ -6,7 +6,7 @@
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Claim
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject ClaimClient Claims
@@ -86,7 +86,7 @@
                     <div class="flex flex-col gap-[9px]">
                         <span class="text-[12.5px] font-extrabold text-text-strong">@AppText.Claim.RelationLabel</span>
                         <div class="flex gap-2">
-                            @foreach (SoccerClaimRelation relation in Enum.GetValues<SoccerClaimRelation>())
+                            @foreach (SoccerClaimRelation relation in Enum.GetValues<SoccerClaimRelation>().Where(r => r != SoccerClaimRelation.Unknown))
                             {
                                 SoccerClaimRelation value = relation;
                                 <button type="button"
@@ -116,7 +116,7 @@
                     <div class="@Css.Claim.SummaryCard">
                         <Avatar Name="@mRequest.PlayerName" Size="44" Class="flex-none" />
                         <span class="flex flex-col gap-0.5 flex-1 min-w-0">
-                            <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Claim.PendingGuardianOf(mRequest.PlayerName, RelationLabel(ParseRelation(mRequest.Relation)))</span>
+                            <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Claim.PendingGuardianOf(mRequest.PlayerName, RelationLabel(mRequest.Relation))</span>
                             <span class="text-[11.5px] text-text-muted whitespace-nowrap">@AppText.Claim.RequestedAt(RequestedAtText)</span>
                         </span>
                         <span class="@Css.Claim.PendingBadge">@AppText.Claim.PendingBadge</span>
@@ -179,9 +179,9 @@
             }
 
             List<string> parts = new();
-            if (mCard.Position is not null)
+            if (mCard.Position != SoccerPosition.Unknown)
             {
-                parts.Add(mCard.Position.ToString()!);
+                parts.Add(mCard.Position.ToText()!);
             }
 
             if (mCard.JerseyNumber is not null)
@@ -194,9 +194,9 @@
                 parts.Add(AppText.Claim.BirthYear(mCard.BirthYear));
             }
 
-            if (mCard.AgeGroup is not null)
+            if (mCard.AgeGroup != SoccerAgeGroup.Unknown)
             {
-                parts.Add(mCard.AgeGroup.ToString()!);
+                parts.Add(mCard.AgeGroup.ToText()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;
@@ -219,14 +219,14 @@
 
         // 재방문 복원 — Pending은 대기, Approved는 완료에서 시작 (Rejected·없음은 스텝 ①)
         ClaimRequestSummaryResponse? existing = await Claims.GetMyRequestAsync();
-        if (existing is not null && existing.Status == "Pending")
+        if (existing is not null && existing.Status == SoccerClaimRequestStatus.Pending)
         {
             mRequest = existing;
             mStep = 2;
             return;
         }
 
-        if (existing is not null && existing.Status == "Approved")
+        if (existing is not null && existing.Status == SoccerClaimRequestStatus.Approved)
         {
             mRequest = existing;
             mStep = 3;
@@ -299,8 +299,8 @@
         mBusy = true;
         // 코드 없이(공개 프로필 경유) 진입했으면 PlayerId 경로로, 아니면 코드 경로로 생성한다
         ClaimCreateResult result = mIsCodeless && mCard is not null
-            ? await Claims.CreateRequestByPlayerAsync(mCard.PlayerId, mRelation.ToString())
-            : await Claims.CreateRequestAsync(mCode, mRelation.ToString());
+            ? await Claims.CreateRequestByPlayerAsync(mCard.PlayerId, mRelation)
+            : await Claims.CreateRequestAsync(mCode, mRelation);
         mBusy = false;
 
         if (result.Request is not null)
@@ -384,11 +384,4 @@
         };
     }
 
-    internal static SoccerClaimRelation ParseRelation(string? relation)
-    {
-        return !string.IsNullOrEmpty(relation) && !char.IsAsciiDigit(relation[0])
-               && Enum.TryParse(relation, out SoccerClaimRelation parsed)
-            ? parsed
-            : SoccerClaimRelation.Mother;
-    }
 }

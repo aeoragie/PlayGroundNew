@@ -1,3 +1,4 @@
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Time;
 using System.Globalization;
@@ -51,7 +52,7 @@ namespace PlayGround.Server.Feeds
         // 경기는 상대명에서 제목을 파생("vs {상대}"), 대회·훈련은 제목을 그대로 쓴다.
         private static string Summarize(ScheduleDto s)
         {
-            if (s.Type == "Match" && !string.IsNullOrWhiteSpace(s.OpponentName))
+            if (s.Type == SoccerScheduleType.Match && !string.IsNullOrWhiteSpace(s.OpponentName))
             {
                 return $"vs {s.OpponentName}";
             }
@@ -64,8 +65,8 @@ namespace PlayGround.Server.Feeds
             // 폴백 — 제목·상대가 없으면 유형 라벨(방어적).
             return s.Type switch
             {
-                "Match" => "경기",
-                "Tournament" => "대회",
+                SoccerScheduleType.Match => "경기",
+                SoccerScheduleType.Tournament => "대회",
                 _ => "훈련",
             };
         }

@@ -15,13 +15,13 @@ else
 {
     @* 심판 카드 — 도메인 색(토큰 없음): 경고 #e6b93d / 퇴장 #c0392b *@
     <span class="@($"flex items-center justify-center flex-none {BoxSize}")">
-        <span class="@($"w-2 h-[11px] rounded-sm block {(EventType == "RedCard" ? "bg-[#c0392b]" : "bg-[#e6b93d]")}")"></span>
+        <span class="@($"w-2 h-[11px] rounded-sm block {(EventType == SoccerMatchEventType.RedCard ? "bg-[#c0392b]" : "bg-[#e6b93d]")}")"></span>
     </span>
 }
 
 @code {
     [Parameter, EditorRequired]
-    public string EventType { get; set; } = string.Empty;
+    public SoccerMatchEventType EventType { get; set; }
 
     [Parameter]
     public bool Large { get; set; }

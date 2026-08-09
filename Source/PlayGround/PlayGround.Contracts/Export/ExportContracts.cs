@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Common;
 
 namespace PlayGround.Contracts.Export
 {
@@ -13,7 +14,7 @@ namespace PlayGround.Contracts.Export
     {
         public Guid RequestId { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public DataExportStatus Status { get; set; }
 
         public long SizeBytes { get; set; }
         public SystemTime CreatedAt { get; set; }
@@ -28,7 +29,7 @@ namespace PlayGround.Contracts.Export
 
     public class DataExportRequestResult
     {
-        public string Status { get; set; } = string.Empty;
+        public DataExportRequestStatus Status { get; set; }
 
         public DataExportStateDto? Export { get; set; }
     }

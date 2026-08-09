@@ -27,10 +27,10 @@
     public RecordsTournamentDto Tournament { get; set; } = new();
 
     private SoccerTournamentStatus Status =>
-        Enum.TryParse(Tournament.Status, out SoccerTournamentStatus parsed) ? parsed : SoccerTournamentStatus.Completed;
+        Tournament.Status;
 
     private string FormatLabel =>
-        Enum.TryParse(Tournament.Format, out SoccerTournamentFormat parsed) ? parsed.ToLabel() : Tournament.Format;
+        (Tournament.Format).ToLabel();
 
     private string BarClass => Status switch
     {
@@ -49,11 +49,11 @@
 
     private string ScopeBadgeClass =>
         "text-[10.5px] font-bold rounded-md px-[9px] py-[3px] whitespace-nowrap shrink-0 " +
-        (Tournament.Scope == "National" ? "text-orange-ink bg-surface-orange" : "text-navy bg-surface-icon");
+        (Tournament.Scope == SoccerTournamentScope.National ? "text-orange-ink bg-surface-orange" : "text-navy bg-surface-icon");
 
     internal static string ScopeLabel(RecordsTournamentDto tournament)
     {
-        string baseLabel = tournament.Scope == "National" ? AppText.Records.ScopeNational : AppText.Records.ScopeRegional;
+        string baseLabel = tournament.Scope == SoccerTournamentScope.National ? AppText.Records.ScopeNational : AppText.Records.ScopeRegional;
         return tournament.RegionGroup is null ? baseLabel : $"{baseLabel}/{tournament.RegionGroup}";
     }
 }

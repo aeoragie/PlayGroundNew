@@ -5,6 +5,8 @@ namespace PlayGround.Shared.Http
 {
     public sealed class LenientEnumJsonConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
     {
+        public override bool HandleNull => true;
+
         public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.String)

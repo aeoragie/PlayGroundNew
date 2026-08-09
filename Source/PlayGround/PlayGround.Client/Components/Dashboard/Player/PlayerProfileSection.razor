@@ -4,7 +4,7 @@
 @using PlayGround.Client.Styles
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Contracts.Player
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject PlayerClient Players
 @inject ToastService Toasts
 @inject ConfirmService Confirm
@@ -145,15 +145,15 @@
 
     private bool HasLinkedFamily => Info.Family.Any(m => m.HasAccount);
 
-    private string? PositionText => Compose(Info.Profile.Position?.ToString(),
+    private string? PositionText => Compose(Info.Profile.Position.ToText(),
         Info.Profile.JerseyNumber is not null ? AppText.Player.JerseyNumber(Info.Profile.JerseyNumber) : null);
 
-    private string? BirthText => Compose(Info.Profile.BirthYear?.ToString(), Info.Profile.Grade?.ToString());
+    private string? BirthText => Compose(Info.Profile.BirthYear.ToString(), Info.Profile.Grade.ToText());
 
     private List<FieldRow> FieldRows => BuildFieldRows(Info);
 
     private PlayerFieldVisibilityDto? ProfileVisibility =>
-        Info.Visibilities.FirstOrDefault(v => v.FieldName == nameof(SoccerPlayerProfileField.Profile));
+        Info.Visibilities.FirstOrDefault(v => v.FieldName == SoccerPlayerProfileField.Profile);
 
     private bool ProfileIsPublic => ProfileVisibility?.IsPublic ?? true;
 
@@ -168,14 +168,14 @@
         {
             (string Label, string? Value) field = visibility.FieldName switch
             {
-                "Height" => (AppText.Player.FieldHeight, info.Profile.HeightCm is not null ? $"{info.Profile.HeightCm}cm" : null),
-                "Weight" => (AppText.Player.FieldWeight, info.Profile.WeightKg is not null ? $"{info.Profile.WeightKg}kg" : null),
-                "PreferredFoot" => (AppText.Player.FieldFoot, info.Profile.PreferredFoot.ToLabel()),
-                "School" => (AppText.Player.FieldSchool, info.Profile.SchoolName),
-                "GuardianPhone" => (AppText.Player.FieldGuardianPhone, info.Profile.GuardianPhoneMasked),
+                SoccerPlayerProfileField.Height => (AppText.Player.FieldHeight, info.Profile.HeightCm is not null ? $"{info.Profile.HeightCm}cm" : null),
+                SoccerPlayerProfileField.Weight => (AppText.Player.FieldWeight, info.Profile.WeightKg is not null ? $"{info.Profile.WeightKg}kg" : null),
+                SoccerPlayerProfileField.PreferredFoot => (AppText.Player.FieldFoot, info.Profile.PreferredFoot.ToLabel()),
+                SoccerPlayerProfileField.School => (AppText.Player.FieldSchool, info.Profile.SchoolName),
+                SoccerPlayerProfileField.GuardianPhone => (AppText.Player.FieldGuardianPhone, info.Profile.GuardianPhoneMasked),
                 // 강점 태그 스위치는 항상 노출(공개 범위 설정 절) — 값 자리에는 끔 효과 설명을 넣는다
-                "StrengthTags" => (AppText.Player.FieldStrengthTags, AppText.Player.StrengthTagsHint),
-                _ => (visibility.FieldName, null),
+                SoccerPlayerProfileField.StrengthTags => (AppText.Player.FieldStrengthTags, AppText.Player.StrengthTagsHint),
+                _ => (visibility.FieldName.ToString(), null),
             };
 
             if (field.Value is not null)
@@ -199,7 +199,7 @@
         visibility.IsPublic = value;
 
         // 상위를 끄면 효과가 다른 화면(공개 홈 선수단)에 있어 여기서는 안 보인다 — 실행취소 토스트로 알린다
-        if (visibility.FieldName == nameof(SoccerPlayerProfileField.Profile) && !value)
+        if (visibility.FieldName == SoccerPlayerProfileField.Profile && !value)
         {
             Toasts.ShowSuccess(AppText.Player.ProfileHiddenToast, AppText.Player.Undo, () => RestoreProfileAsync(visibility));
         }
@@ -249,7 +249,7 @@
         });
     }
 
-    internal static bool IsGuardian(PlayerFamilyMemberDto member) => member.Role == "Guardian";
+    internal static bool IsGuardian(PlayerFamilyMemberDto member) => member.Role == SoccerFamilyRole.Guardian;
 
     internal static string RoleSuffix(PlayerFamilyMemberDto member) => IsGuardian(member) ? AppText.Player.RoleSuffixGuardian : AppText.Player.RoleSuffixSelf;
 

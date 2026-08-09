@@ -121,7 +121,7 @@ namespace PlayGround.Persistence.Repositories
                     .Select(ch => new TeamChannelDto
                     {
                         ChannelId = ch.ChannelId,
-                        ChannelType = ch.ChannelType,
+                        ChannelType = EnumColumn.Read<SoccerChannelType>(ch.ChannelType),
                         Name = ch.Name,
                         Url = ch.Url,
                         Description = NullIfEmpty(ch.Description)
@@ -155,7 +155,7 @@ namespace PlayGround.Persistence.Repositories
                         AgeGroup = EnumColumn.Read<SoccerAgeGroup>(r.AgeGroup),
                         PhotoUrl = NullIfEmpty(r.PhotoUrl),
                         // Claim 상태는 저장 컬럼이 아니라 파생값 — UserId 연결 = Claimed (Pending은 Claim 플로우 도입 때)
-                        ClaimStatus = r.UserId is null ? "Unclaimed" : "Claimed",
+                        ClaimStatus = EnumColumn.Read<SoccerRosterClaimStatus>(r.UserId is null ? "Unclaimed" : "Claimed"),
                         // 초대코드는 Unclaimed 선수에게만 의미 있다 (Claimed는 코드가 이미 소진된 상태)
                         InviteCode = r.UserId is null ? NullIfEmpty(r.Code) : null,
                         // 공개 설정 게이팅은 SQL에서 끝났다(비공개면 NULL) — 여기서는 파싱만
@@ -202,7 +202,7 @@ namespace PlayGround.Persistence.Repositories
                 Grade = EnumColumn.Read<SoccerGrade>(row.Grade),
                 AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup),
                 PhotoUrl = NullIfEmpty(row.PhotoUrl),
-                ClaimStatus = row.UserId is null ? "Unclaimed" : "Claimed",
+                ClaimStatus = EnumColumn.Read<SoccerRosterClaimStatus>(row.UserId is null ? "Unclaimed" : "Claimed"),
                 InviteCode = row.UserId is null ? NullIfEmpty(row.Code) : null
             };
 
@@ -294,7 +294,7 @@ namespace PlayGround.Persistence.Repositories
                     .Select(ch => new TeamChannelDto
                     {
                         ChannelId = ch.ChannelId,
-                        ChannelType = ch.ChannelType,
+                        ChannelType = EnumColumn.Read<SoccerChannelType>(ch.ChannelType),
                         Name = ch.Name,
                         Url = ch.Url,
                         Description = NullIfEmpty(ch.Description)
@@ -394,8 +394,8 @@ namespace PlayGround.Persistence.Repositories
             return new TeamMatchDto
             {
                 MatchId = match.MatchId,
-                CompetitionType = CompetitionTypeOf(match),
-                MatchType = match.MatchType,
+                CompetitionType = EnumColumn.Read<SoccerCompetitionType>(CompetitionTypeOf(match)),
+                MatchType = EnumColumn.Read<SoccerMatchType>(match.MatchType),
                 TournamentName = NullIfEmpty(match.Name),
                 MatchedAt = match.MatchedAt,
                 VenueName = NullIfEmpty(match.VenueName),
@@ -407,7 +407,7 @@ namespace PlayGround.Persistence.Repositories
                     .Where(e => e.MatchId == match.MatchId)
                     .Select(e => new TeamMatchEventDto
                     {
-                        EventType = e.EventType,
+                        EventType = EnumColumn.Read<SoccerMatchEventType>(e.EventType),
                         PlayerName = NullIfEmpty(e.PlayerName),
                         AssistPlayerName = NullIfEmpty(e.AssistPlayerName)
                     })
@@ -420,7 +420,7 @@ namespace PlayGround.Persistence.Repositories
             return new TeamVideoDto
             {
                 VideoId = video.VideoId,
-                VideoType = video.VideoType,
+                VideoType = EnumColumn.Read<SoccerVideoType>(video.VideoType),
                 Title = video.Title,
                 VideoUrl = video.VideoUrl,
                 ThumbnailUrl = NullIfEmpty(video.ThumbnailUrl),
@@ -524,7 +524,7 @@ namespace PlayGround.Persistence.Repositories
                 {
                     TournamentId = row.TournamentId,
                     Name = row.Name,
-                    Format = row.Format,
+                    Format = EnumColumn.Read<SoccerTournamentFormat>(row.Format),
                     AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup)
                 }).ToList()
             };
@@ -575,7 +575,7 @@ namespace PlayGround.Persistence.Repositories
             {
                 ManagerUserId = managerUserId,
                 MatchId = request.MatchId,
-                FieldType = request.FieldType,
+                FieldType = request.FieldType.ToString(),
                 CurrentValue = request.CurrentValue!,
                 RequestedValue = request.RequestedValue,
                 Description = request.Description!
@@ -605,7 +605,7 @@ namespace PlayGround.Persistence.Repositories
                 UserId = userId,
                 TargetPlayerId = targetPlayerId,
                 MatchId = request.MatchId,
-                FieldType = request.FieldType,
+                FieldType = request.FieldType.ToString(),
                 CurrentValue = request.CurrentValue!,
                 RequestedValue = request.RequestedValue,
                 Description = request.Description!
@@ -672,11 +672,11 @@ namespace PlayGround.Persistence.Repositories
                     {
                         CorrectionId = c.CorrectionId,
                         MatchId = c.MatchId,
-                        FieldType = c.FieldType,
+                        FieldType = EnumColumn.Read<SoccerCorrectionField>(c.FieldType),
                         CurrentValue = NullIfEmpty(c.CurrentValue),
                         RequestedValue = c.RequestedValue,
                         Description = NullIfEmpty(c.Description),
-                        Status = c.Status,
+                        Status = EnumColumn.Read<SoccerCorrectionStatus>(c.Status),
                         RejectReason = NullIfEmpty(c.RejectReason),
                         RequestedAt = c.CreatedAt,
                         ReviewedAt = c.ReviewedAt,
@@ -1045,7 +1045,7 @@ namespace PlayGround.Persistence.Repositories
             {
                 ManagerUserId = managerUserId,
                 PostId = request.PostId,
-                Type = request.Type,
+                Type = request.Type.ToString(),
                 Title = request.Title,
                 Body = request.Body,
                 IsPublic = request.IsPublic,
@@ -1201,7 +1201,7 @@ namespace PlayGround.Persistence.Repositories
             return new TeamPostDto
             {
                 PostId = row.PostId,
-                Type = row.Type,
+                Type = EnumColumn.Read<SoccerTeamPostType>(row.Type),
                 Title = row.Title,
                 Body = row.Body,
                 IsPinned = row.IsPinned,
@@ -1254,7 +1254,7 @@ namespace PlayGround.Persistence.Repositories
             {
                 ManagerUserId = managerUserId,
                 ScheduleId = request.ScheduleId,
-                Type = request.Type,
+                Type = request.Type.ToString(),
                 Title = request.Title!,
                 OpponentName = request.OpponentName!,
                 StartsAt = request.StartsAt,
@@ -1296,7 +1296,7 @@ namespace PlayGround.Persistence.Repositories
             return new ScheduleDto
             {
                 ScheduleId = row.ScheduleId,
-                Type = row.Type,
+                Type = EnumColumn.Read<SoccerScheduleType>(row.Type),
                 Title = NullIfEmpty(row.Title),
                 OpponentName = NullIfEmpty(row.OpponentName),
                 StartsAt = row.StartsAt,
@@ -1345,7 +1345,7 @@ namespace PlayGround.Persistence.Repositories
                 ManagerUserId = managerUserId,
                 OutcomeId = request.OutcomeId,
                 OutcomeYear = request.OutcomeYear,
-                OutcomeType = request.OutcomeType,
+                OutcomeType = request.OutcomeType.ToString(),
                 Title = request.Title,
                 Detail = request.Detail!,
                 PlayerCount = request.PlayerCount
@@ -1472,7 +1472,7 @@ namespace PlayGround.Persistence.Repositories
             {
                 OutcomeId = row.OutcomeId,
                 OutcomeYear = row.OutcomeYear,
-                OutcomeType = row.OutcomeType,
+                OutcomeType = EnumColumn.Read<SoccerCareerOutcomeType>(row.OutcomeType),
                 Title = row.Title,
                 Detail = NullIfEmpty(row.Detail),
                 PlayerCount = row.PlayerCount
@@ -1491,11 +1491,11 @@ namespace PlayGround.Persistence.Repositories
                 Conditions = ParseAchievements(row.ConditionsJson),
                 // 순간 그대로 내려보낸다 — 표시할 날짜는 보는 사람의 시간대로 클라이언트가 만든다
                 DeadlineAt = row.DeadlineAt,
-                Status = row.Status,
+                Status = EnumColumn.Read<SoccerRecruitmentStatus>(row.Status),
                 IsOpen = row.Status == "Open"
                          && (row.DeadlineAt is null || row.DeadlineAt > SystemTime.Now),
                 AgeGroup = EnumColumn.Read<SoccerAgeGroup>(row.AgeGroup),
-                Positions = ParseAchievements(row.PositionsJson).Select(EnumColumn.ReadRequired<SoccerPosition>).ToList(),
+                Positions = ParseAchievements(row.PositionsJson).Select(EnumColumn.Read<SoccerPosition>).ToList(),
                 Capacity = row.Capacity,
                 AcceptedCount = acceptedCount
             };
@@ -1565,8 +1565,8 @@ namespace PlayGround.Persistence.Repositories
                         PlayerPhotoUrl = NullIfEmpty(r.PhotoUrl),
                         DesiredPosition = EnumColumn.Read<SoccerPosition>(r.DesiredPosition),
                         Introduction = NullIfEmpty(r.Introduction),
-                        Status = r.Status,
-                        Route = r.Route,
+                        Status = EnumColumn.Read<SoccerApplicationStatus>(r.Status),
+                        Route = EnumColumn.Read<SoccerApplicationRoute>(r.Route),
                         RefAgentName = r.RefAgentId is not null ? agentNames.GetValueOrDefault(r.RefAgentId.Value) : null,
                         CreatedAt = r.CreatedAt
                     })
@@ -1599,7 +1599,7 @@ namespace PlayGround.Persistence.Repositories
                         PlayerId = r.PlayerId,
                         PlayerName = r.Name,
                         DesiredPosition = EnumColumn.Read<SoccerPosition>(r.DesiredPosition),
-                        Status = r.Status,
+                        Status = EnumColumn.Read<SoccerApplicationStatus>(r.Status),
                         Confirmed = r.ConfirmedAt != null,
                         CreatedAt = r.CreatedAt
                     })

@@ -548,13 +548,20 @@ Windows에서 멀쩡하던 참조가 서버에서만 깨진다.**
 - **enum은 정수(0,1)가 아니라 문자열로 저장한다** (2026-07-13 확정 규칙).
   컬럼은 `VARCHAR(20)` + enum 멤버 이름 그대로(`'General'`, `'Pending'`), 주석에 허용 값 명시.
   **enum 멤버 이름 = DB 저장 문자열**이므로 개명은 데이터 마이그레이션과 함께.
-- **정형 값은 와이어·로직 모두 enum이다** (2026-08-09 확장 — AgeGroup·Grade·Position·PreferredFoot).
-  와이어 enum은 `Contracts/Soccer/SoccerEnums.cs`에 두고(참조 방향상 Domain 불가), JSON은
-  `LenientEnumJsonConverter`가 이름 문자열로 오간다 — **미지 값은 예외 대신 `Unknown`(0) 폴백**이라
-  서버가 멤버를 추가해도 캐시된 옛 클라이언트가 죽지 않는다. `Unknown`은 저장·전송 값이 아니다 —
-  요청에 오면 InvalidInput, 저장하려 하면 Panic. DB 변환은 Persistence의 `EnumColumn` 한 곳이고
-  저장 값이 멤버 이름이 아니면 Panic(데이터 버그). 생성 엔티티(string)는 그대로 둔다.
-  **학년(Grade)은 국가 학제 대신 나이 기준 U표기**(U7~U18) — 표시도 당분간 그대로, 국가별 표기는 추후 결정.
+- **정형 값은 와이어·로직 모두 enum이다** (2026-08-09 전면 적용 — 상태·유형·역할 등 전 DTO 필드).
+  와이어 enum은 `Contracts/Soccer/SoccerEnums.cs`·`Contracts/Common/CommonEnums.cs`에 두고
+  (참조 방향상 Domain 불가), JSON은 `LenientEnumJsonConverter`가 이름 문자열로 오간다 —
+  **미지 값·null 토큰은 예외 대신 `Unknown`(0) 폴백**이라 서버가 멤버를 추가해도 캐시된 옛
+  클라이언트가 죽지 않는다.
+  - **DTO의 enum 필드는 비널러블 + `Unknown`(0) 기본값, 문자열은 `= string.Empty`.**
+    `Unknown`은 "미지정"의 표현이지 저장·전송 어휘가 아니다 — 요청 키 필드에 오면 InvalidInput.
+  - DB 변환은 Persistence의 `EnumColumn` 한 곳: `Read`는 NULL·빈 값→`Unknown`, 비정형 저장 값→Panic
+    (데이터 버그), `Write`는 `Unknown`→NULL. 생성 엔티티(string)는 그대로 둔다.
+  - Client 표시는 `ToText()`(Unknown→null → "-"·생략 폴백)와 `SoccerDomainEnumLabels`의 `ToLabel()`.
+    `Enum.GetValues`로 목록을 만들 때는 `Unknown`을 걸러낸다.
+  - **학년(Grade)은 국가 학제 대신 나이 기준 U표기**(U7~U18) — 표시도 당분간 그대로, 국가별 표기는 추후 결정.
+  - 자유 텍스트로 남긴 필드(enum화 보류): `TeamType`(클럽/학교/학원 — 한글 저장 값이라 값 마이그레이션
+    결정 필요), 코치 `Role`(감독 등), `ActiveRegions`, 커리어 `Role`, `Round`(R1/QF), `Region`.
 - **DB 문자열 인코딩은 UTF-8로 강제, 다른 인코딩 금지** (2026-07-13 확정 규칙).
   DB 생성 시 `COLLATE Latin1_General_100_CI_AS_SC_UTF8` (글로벌 목표 — 한국은 로케일 중 하나).
   컬럼·파라미터는 `VARCHAR`만 사용 — `NVARCHAR`·`N''` 리터럴 금지. `VARCHAR` 크기는

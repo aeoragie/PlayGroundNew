@@ -1,4 +1,5 @@
 using PlayGround.Contracts.Agent;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Http;
 using System.Net.Http.Json;
 
@@ -31,7 +32,7 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>심사 — Approve/Deny/Revoke. 성공 시 갱신된 요청, 실패 시 null.</summary>
-        public async Task<AgentViewRequestResponse?> ReviewAsync(Guid requestId, string action)
+        public async Task<AgentViewRequestResponse?> ReviewAsync(Guid requestId, SoccerAgentReviewAction action)
         {
             try
             {

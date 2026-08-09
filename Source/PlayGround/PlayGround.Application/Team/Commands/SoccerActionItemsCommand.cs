@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Team;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -95,10 +95,10 @@ namespace PlayGround.Application.Team.Commands
         private static IEnumerable<ActionItemDto> BuildCorrectionItems(List<RecordCorrectionDto> corrections)
         {
             return corrections
-                .Where(c => SoccerCorrectionStatusExtensions.Parse(c.Status) != SoccerCorrectionStatus.Pending)
+                .Where(c => c.Status != SoccerCorrectionStatus.Pending)
                 .Select(c =>
                 {
-                    bool rejected = SoccerCorrectionStatusExtensions.Parse(c.Status) == SoccerCorrectionStatus.Rejected;
+                    bool rejected = c.Status == SoccerCorrectionStatus.Rejected;
                     return new ActionItemDto
                     {
                         Kind = nameof(SoccerActionKind.Correction),

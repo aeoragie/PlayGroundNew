@@ -225,14 +225,14 @@
 
     private string BackTarget => mData?.TournamentId is Guid tid ? Routes.RecordsDetail(tid) : Routes.Records;
 
-    private string MatchLabel => RecordsFormatting.MatchStageLabel(mData?.StageType, mData?.RoundName);
+    private string MatchLabel => RecordsFormatting.MatchStageLabel(mData?.StageType ?? SoccerStageType.Unknown, mData?.RoundName);
 
     private string ScoreboardBadge
     {
         get
         {
             string stage = MatchLabel;
-            string status = RecordsFormatting.MatchStatusLabel(mData?.Status ?? string.Empty);
+            string status = RecordsFormatting.MatchStatusLabel(mData?.Status ?? SoccerMatchStatus.Unknown);
             return string.IsNullOrEmpty(stage) ? status : $"{stage} · {status}";
         }
     }
@@ -276,12 +276,12 @@
         }
     }
 
-    private int HomeYellow => CardCount(mData?.HomeTeamName, "YellowCard");
-    private int HomeRed => CardCount(mData?.HomeTeamName, "RedCard");
-    private int AwayYellow => CardCount(mData?.AwayTeamName, "YellowCard");
-    private int AwayRed => CardCount(mData?.AwayTeamName, "RedCard");
+    private int HomeYellow => CardCount(mData?.HomeTeamName, SoccerMatchEventType.YellowCard);
+    private int HomeRed => CardCount(mData?.HomeTeamName, SoccerMatchEventType.RedCard);
+    private int AwayYellow => CardCount(mData?.AwayTeamName, SoccerMatchEventType.YellowCard);
+    private int AwayRed => CardCount(mData?.AwayTeamName, SoccerMatchEventType.RedCard);
 
-    private int CardCount(string? teamName, string eventType) =>
+    private int CardCount(string? teamName, SoccerMatchEventType eventType) =>
         mData?.Events.Count(e => e.TeamName == teamName && e.EventType == eventType) ?? 0;
 
     private static string SegClass(bool active) =>

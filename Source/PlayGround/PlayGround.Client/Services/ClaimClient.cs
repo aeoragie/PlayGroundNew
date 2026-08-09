@@ -1,4 +1,5 @@
 using PlayGround.Contracts.Claim;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Http;
 using System.Net.Http.Json;
 
@@ -32,7 +33,7 @@ namespace PlayGround.Client.Services
             }
         }
 
-        public async Task<ClaimCreateResult> CreateRequestAsync(string code, string relation)
+        public async Task<ClaimCreateResult> CreateRequestAsync(string code, SoccerClaimRelation relation)
         {
             try
             {
@@ -68,7 +69,7 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>공개 선수 프로필 경유(코드 없음): PlayerId로 연결 요청 생성.</summary>
-        public async Task<ClaimCreateResult> CreateRequestByPlayerAsync(Guid playerId, string relation)
+        public async Task<ClaimCreateResult> CreateRequestByPlayerAsync(Guid playerId, SoccerClaimRelation relation)
         {
             try
             {

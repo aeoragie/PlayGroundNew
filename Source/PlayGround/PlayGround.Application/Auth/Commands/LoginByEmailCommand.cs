@@ -92,7 +92,7 @@ namespace PlayGround.Application.Auth.Commands
         private AuthResult BuildResult(AccountUser user)
         {
             string accessToken = mTokenService.GenerateAccessToken(
-                user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
+                user.UserId, user.Email, user.DisplayName, user.UserRole.ToString(), user.ProfileImageUrl);
 
             return new AuthResult
             {

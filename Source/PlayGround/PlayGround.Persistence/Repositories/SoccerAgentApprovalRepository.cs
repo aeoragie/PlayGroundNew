@@ -101,7 +101,7 @@ namespace PlayGround.Persistence.Repositories
 
             return Result<AgentRequestEligibilityResponse>.Success(new AgentRequestEligibilityResponse
             {
-                Status = status,
+                Status = EnumColumn.Read<SoccerAgentEligibility>(status),
                 CooldownUntil = cooldownUntil
             });
         }
@@ -112,7 +112,7 @@ namespace PlayGround.Persistence.Repositories
             return new AgentViewRequestResponse
             {
                 RequestId = request.RequestId,
-                Status = request.Status,
+                Status = EnumColumn.Read<SoccerAgentRequestStatus>(request.Status),
                 Message = request.Message,
                 RequestedAt = request.RequestedAt,
                 ExpiresAt = request.ExpiresAt,
@@ -134,7 +134,7 @@ namespace PlayGround.Persistence.Repositories
                     ActiveRegions = NullIfEmpty(agent.ActiveRegions)
                 },
                 Logs = logs
-                    .Select(l => new AgentViewLogDto { EventType = l.EventType, CreatedAt = l.CreatedAt })
+                    .Select(l => new AgentViewLogDto { EventType = EnumColumn.Read<SoccerAgentViewEvent>(l.EventType), CreatedAt = l.CreatedAt })
                     .ToList()
             };
         }

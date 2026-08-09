@@ -6,7 +6,7 @@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Common
 @using PlayGround.Contracts.Team
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject TeamClient Teams
 @inject ToastService Toasts
 
@@ -164,7 +164,7 @@
 
         if (Editing is not null)
         {
-            mType = Enum.TryParse(Editing.Type, out SoccerTeamPostType parsed) ? parsed : SoccerTeamPostType.Notice;
+            mType = Editing.Type;
             mTitle = Editing.Title;
             mBody = Editing.Body;
             mIsPublic = Editing.IsPublic;
@@ -256,7 +256,7 @@
         var request = new SaveTeamPostRequest
         {
             PostId = Editing?.PostId ?? Guid.Empty,
-            Type = mType.ToString(),
+            Type = mType,
             Title = mTitle.Trim(),
             Body = mBody.Trim(),
             IsPublic = mIsPublic,

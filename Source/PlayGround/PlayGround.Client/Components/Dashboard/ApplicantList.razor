@@ -46,7 +46,7 @@
             <div class="flex flex-col gap-2">
                 @foreach (ApplicationDto app in Filtered)
                 {
-                    bool isAgent = string.Equals(app.Route, "AgentRef", StringComparison.Ordinal);
+                    bool isAgent = app.Route == SoccerApplicationRoute.AgentRef;
                     <div class="flex flex-col gap-2">
                         <div class="@Css.Application.Row">
                             @* 경로 표시: 직접 = teal 아바타 / 에이전트 추천 = violet 아바타 (route는 아바타·캡션으로 강등 — 행당 뱃지 1개) *@
@@ -106,10 +106,10 @@
 
 @code {
     // 상태 문자열(SoccerApplicationStatus 멤버 이름) — 계약 그대로
-    private const string StatusPending = "Pending";
-    private const string StatusReviewing = "Reviewing";
-    private const string StatusAccepted = "Accepted";
-    private const string StatusRejected = "Rejected";
+    private const SoccerApplicationStatus StatusPending = SoccerApplicationStatus.Pending;
+    private const SoccerApplicationStatus StatusReviewing = SoccerApplicationStatus.Reviewing;
+    private const SoccerApplicationStatus StatusAccepted = SoccerApplicationStatus.Accepted;
+    private const SoccerApplicationStatus StatusRejected = SoccerApplicationStatus.Rejected;
 
     /// <summary>상태 축 세그먼트. 종료 = 수락(Accepted) + 종료(Rejected)를 묶는다(둘 다 완료된 처리).</summary>
     private enum ApplicantSegment
@@ -137,7 +137,7 @@
             .Where(a => SegmentOf(a.Status) == mSegment)
             .ToList();
 
-    private static ApplicantSegment SegmentOf(string status) => status switch
+    private static ApplicantSegment SegmentOf(SoccerApplicationStatus status) => status switch
     {
         StatusReviewing => ApplicantSegment.Reviewing,
         StatusAccepted or StatusRejected => ApplicantSegment.Closed,
@@ -154,14 +154,14 @@
     };
 
     // 상태 뱃지 톤 계승 — 대기 회색 / 검토중 오렌지 / 수락 teal / 종료(반려) 회색
-    private static StatusBadge.BadgeTone ToneOf(string status) => status switch
+    private static StatusBadge.BadgeTone ToneOf(SoccerApplicationStatus status) => status switch
     {
         StatusReviewing => StatusBadge.BadgeTone.Pending,
         StatusAccepted => StatusBadge.BadgeTone.Positive,
         _ => StatusBadge.BadgeTone.Neutral,
     };
 
-    private static string StatusLabelOf(string status) => status switch
+    private static string StatusLabelOf(SoccerApplicationStatus status) => status switch
     {
         StatusReviewing => AppText.Dashboard.StatusReviewing,
         StatusAccepted => AppText.Dashboard.StatusAccepted,
@@ -172,14 +172,14 @@
     private static string? NameMetaOf(ApplicationDto app)
     {
         List<string> parts = new();
-        if (app.PlayerAgeGroup is not null)
+        if (app.PlayerAgeGroup != SoccerAgeGroup.Unknown)
         {
-            parts.Add(app.PlayerAgeGroup.ToString()!);
+            parts.Add(app.PlayerAgeGroup.ToText()!);
         }
 
-        if (app.DesiredPosition is not null)
+        if (app.DesiredPosition != SoccerPosition.Unknown)
         {
-            parts.Add(AppText.Dashboard.DesiredPositionSuffix(app.DesiredPosition.ToString()!));
+            parts.Add(AppText.Dashboard.DesiredPositionSuffix(app.DesiredPosition.ToText()!));
         }
 
         return parts.Count == 0 ? null : string.Join(" · ", parts);
@@ -244,7 +244,7 @@
         await ChangeStatusAsync(app, StatusRejected);
     }
 
-    private async Task ChangeStatusAsync(ApplicationDto app, string status)
+    private async Task ChangeStatusAsync(ApplicationDto app, SoccerApplicationStatus status)
     {
         if (await Teams.UpdateApplicationStatusAsync(app.ApplicationId, status))
         {

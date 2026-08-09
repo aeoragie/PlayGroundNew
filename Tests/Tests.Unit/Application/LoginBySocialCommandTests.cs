@@ -4,6 +4,7 @@ using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Shared.Result;
+using PlayGround.Contracts.Common;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
@@ -15,8 +16,8 @@ namespace PlayGround.Tests.Unit.Application
             UserId = id,
             Email = "user@google.social",
             DisplayName = "구글유저",
-            UserRole = "General",
-            AuthProvider = "Google"
+            UserRole = AccountRole.General,
+            AuthProvider = AccountAuthProvider.Google
         };
 
         private static Mock<IJwtTokenService> TokenMock()

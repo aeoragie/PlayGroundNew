@@ -1,4 +1,5 @@
 using PlayGround.Shared.Time;
+using PlayGround.Contracts.Soccer;
 
 namespace PlayGround.Contracts.Notification
 {
@@ -28,7 +29,7 @@ namespace PlayGround.Contracts.Notification
     {
         public Guid NotificationId { get; set; }
 
-        public string Type { get; set; } = string.Empty;
+        public SoccerNotificationType Type { get; set; }
 
         public Guid RefId { get; set; }
         public Guid? TargetPlayerId { get; set; }
@@ -38,11 +39,11 @@ namespace PlayGround.Contracts.Notification
         public string? TeamName { get; set; }
         public string? MetaText { get; set; }
         public string? SubText { get; set; }
-        public string? Relation { get; set; }
+        public SoccerClaimRelation Relation { get; set; }
 
         public bool IsRead { get; set; }
         public SystemTime CreatedAt { get; set; }
 
-        public string? RequestStatus { get; set; }
+        public SoccerClaimRequestStatus RequestStatus { get; set; }
     }
 }

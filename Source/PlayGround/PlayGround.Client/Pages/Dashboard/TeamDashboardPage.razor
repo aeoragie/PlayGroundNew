@@ -6,7 +6,7 @@
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject NavigationManager Nav
 @inject JwtAuthenticationStateProvider AuthProvider
 @inject TeamClient Teams
@@ -272,13 +272,13 @@
     /// <summary>미처리(접수) 신청이 걸린 경기 — 그 행은 중복 신청을 막는다.</summary>
     private HashSet<Guid> PendingCorrectionMatchIds =>
         CorrectionList
-            .Where(c => c.Status == nameof(SoccerCorrectionStatus.Pending))
+            .Where(c => c.Status == SoccerCorrectionStatus.Pending)
             .Select(c => c.MatchId)
             .ToHashSet();
 
     private SoccerTeamDashboardSection CurrentSection => SoccerTeamDashboardSectionExtensions.ParseSlug(Section);
 
-    private SoccerMatchSegment CurrentSegment => SoccerMatchTypeExtensions.ParseSegment(MatchTypeQuery);
+    private SoccerMatchSegment CurrentSegment => SoccerMatchSegmentExtensions.ParseSegment(MatchTypeQuery);
 
     // 전체는 기본값이라 쿼리에서 지운다 — 주소가 불필요하게 길어지지 않게
     private void ApplySegment(SoccerMatchSegment segment)
@@ -504,7 +504,7 @@
 
     // 경기는 "vs {상대}" 파생, 대회·훈련은 제목 그대로 (삭제 모달 대상 표기). Type 값은 계약 문자열("Match" 등)
     private static string SoccerScheduleTitleOf(ScheduleDto s) =>
-        s.Type == "Match"
+        s.Type == SoccerScheduleType.Match
             ? $"vs {s.OpponentName}"
             : (s.Title ?? string.Empty);
 

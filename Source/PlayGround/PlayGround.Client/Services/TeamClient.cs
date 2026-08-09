@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using PlayGround.Client.Localization;
 using PlayGround.Contracts.Common;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Http;
 using System.Net;
@@ -452,7 +453,7 @@ namespace PlayGround.Client.Services
         }
 
         /// <summary>지원 상태 전환 (관리자) — Reviewing/Accepted/Rejected. 성공 여부만(실패는 호출부가 토스트).</summary>
-        public async Task<bool> UpdateApplicationStatusAsync(Guid applicationId, string status)
+        public async Task<bool> UpdateApplicationStatusAsync(Guid applicationId, SoccerApplicationStatus status)
         {
             try
             {

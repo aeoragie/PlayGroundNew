@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Settings;
-using PlayGround.Domain.Account;
+using PlayGround.Contracts.Common;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -46,14 +46,12 @@ namespace PlayGround.Application.Settings.Commands
                 return Result<bool>.Error(ErrorCode.InvalidInput, "userId/request required");
             }
 
-            // enum 멤버 이름과 정확히 일치할 때만 저장 — 승인형·미지의 이름은 여기서 끝난다
-            if (!Enum.TryParse(request.ItemName, ignoreCase: false, out NotificationPreferenceItem item)
-                || item.ToString() != request.ItemName)
+            if (request.ItemName == NotificationPreferenceItem.Unknown)
             {
-                return Result<bool>.Error(ErrorCode.InvalidInput, "unknown or locked notification item");
+                return Result<bool>.Error(ErrorCode.InvalidInput, "unknown notification item");
             }
 
-            Result<bool> saved = await mRepository.SetNotificationPreferenceAsync(userId, item.ToString(), request.IsEnabled, cancellation);
+            Result<bool> saved = await mRepository.SetNotificationPreferenceAsync(userId, request.ItemName.ToString(), request.IsEnabled, cancellation);
             if (saved.IsError)
             {
                 return saved;

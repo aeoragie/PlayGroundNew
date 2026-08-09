@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Claim;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;
@@ -65,16 +65,14 @@ namespace PlayGround.Application.Claim.Commands
                 return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.InvalidInput, "invalid code format");
             }
 
-            if (string.IsNullOrWhiteSpace(request.Relation)
-                || char.IsAsciiDigit(request.Relation[0])
-                || !Enum.TryParse(request.Relation, out SoccerClaimRelation relation))
+            if (request.Relation == SoccerClaimRelation.Unknown)
             {
                 return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.InvalidInput, "unknown relation");
             }
 
             string name = string.IsNullOrWhiteSpace(requesterName) ? "보호자" : requesterName.Trim();
             Result<ClaimRequestSummaryResponse?> created =
-                await mRepository.CreateRequestAsync(userId, name, normalized, relation.ToString(), cancellation);
+                await mRepository.CreateRequestAsync(userId, name, normalized, request.Relation.ToString(), cancellation);
             if (created.IsError)
             {
                 return Result<ClaimRequestSummaryResponse>.Failure(created.ResultData);
@@ -115,20 +113,18 @@ namespace PlayGround.Application.Claim.Commands
 
         /// <summary>공개 선수 프로필 경유(코드 없음): PlayerId + 관계로 연결 요청 생성.</summary>
         public async Task<Result<ClaimRequestSummaryResponse>> CreateByPlayerAsync(
-            Guid userId, string requesterName, Guid playerId, string relationText, CancellationToken cancellation = default) =>
-            (await CreateByPlayerCoreAsync(userId, requesterName, playerId, relationText, cancellation)).LogWith(mLogger, "CreateByPlayer", ("UserId", userId));
+            Guid userId, string requesterName, Guid playerId, SoccerClaimRelation relation, CancellationToken cancellation = default) =>
+            (await CreateByPlayerCoreAsync(userId, requesterName, playerId, relation, cancellation)).LogWith(mLogger, "CreateByPlayer", ("UserId", userId));
 
         private async Task<Result<ClaimRequestSummaryResponse>> CreateByPlayerCoreAsync(
-            Guid userId, string requesterName, Guid playerId, string relationText, CancellationToken cancellation = default)
+            Guid userId, string requesterName, Guid playerId, SoccerClaimRelation relation, CancellationToken cancellation = default)
         {
             if (userId == Guid.Empty || playerId == Guid.Empty)
             {
                 return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.Unauthorized, "userId/playerId required");
             }
 
-            if (string.IsNullOrWhiteSpace(relationText)
-                || char.IsAsciiDigit(relationText[0])
-                || !Enum.TryParse(relationText, out SoccerClaimRelation relation))
+            if (relation == SoccerClaimRelation.Unknown)
             {
                 return Result<ClaimRequestSummaryResponse>.Error(ErrorCode.InvalidInput, "unknown relation");
             }

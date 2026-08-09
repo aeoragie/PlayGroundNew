@@ -1,5 +1,6 @@
 using FluentAssertions;
 using PlayGround.Client.Models;
+using PlayGround.Contracts.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Client
@@ -8,39 +9,19 @@ namespace PlayGround.Tests.Unit.Client
     /// 공식 기록의 신뢰가 깨진다(설계 결정 7). 필터 판정과 URL 왕복을 고정한다.</summary>
     public class SoccerMatchSegmentTests
     {
-        //.// 저장 문자열 → 경기 성격
-
-        [Theory]
-        [InlineData("Friendly", true)]
-        [InlineData("Official", false)]
-        [InlineData("Unknown", false)]   // 알 수 없으면 공식 — 다수가 공식이라 안전한 기본값
-        [InlineData(null, false)]
-        [InlineData("", false)]
-        public void IsFriendly_ParsesStoredString(string? value, bool expected)
-        {
-            SoccerMatchTypeExtensions.IsFriendly(value).Should().Be(expected);
-        }
-
-        [Fact]
-        public void Parse_FallsBackToOfficial_WhenUnknown()
-        {
-            SoccerMatchTypeExtensions.Parse("이상한값").Should().Be(SoccerMatchType.Official);
-            SoccerMatchTypeExtensions.Parse(null).Should().Be(SoccerMatchType.Official);
-        }
-
         //.// 세그먼트 필터 — 목록에 무엇이 남는가
 
         [Theory]
-        [InlineData(SoccerMatchSegment.All, "Official", true)]
-        [InlineData(SoccerMatchSegment.All, "Friendly", true)]
-        [InlineData(SoccerMatchSegment.All, null, true)]
-        [InlineData(SoccerMatchSegment.Official, "Official", true)]
-        [InlineData(SoccerMatchSegment.Official, "Friendly", false)]
-        [InlineData(SoccerMatchSegment.Official, null, true)]      // 미상은 공식으로 본다
-        [InlineData(SoccerMatchSegment.Friendly, "Friendly", true)]
-        [InlineData(SoccerMatchSegment.Friendly, "Official", false)]
-        [InlineData(SoccerMatchSegment.Friendly, null, false)]
-        public void Matches_SegmentAcceptsMatch(SoccerMatchSegment segment, string? matchType, bool expected)
+        [InlineData(SoccerMatchSegment.All, SoccerMatchType.Official, true)]
+        [InlineData(SoccerMatchSegment.All, SoccerMatchType.Friendly, true)]
+        [InlineData(SoccerMatchSegment.All, SoccerMatchType.Unknown, true)]
+        [InlineData(SoccerMatchSegment.Official, SoccerMatchType.Official, true)]
+        [InlineData(SoccerMatchSegment.Official, SoccerMatchType.Friendly, false)]
+        [InlineData(SoccerMatchSegment.Official, SoccerMatchType.Unknown, true)]   // 미상은 공식으로 본다
+        [InlineData(SoccerMatchSegment.Friendly, SoccerMatchType.Friendly, true)]
+        [InlineData(SoccerMatchSegment.Friendly, SoccerMatchType.Official, false)]
+        [InlineData(SoccerMatchSegment.Friendly, SoccerMatchType.Unknown, false)]
+        public void Matches_SegmentAcceptsMatch(SoccerMatchSegment segment, SoccerMatchType matchType, bool expected)
         {
             segment.Matches(matchType).Should().Be(expected);
         }
@@ -49,12 +30,12 @@ namespace PlayGround.Tests.Unit.Client
         public void Matches_OfficialAndFriendly_PartitionAllMatches()
         {
             // 어느 경기도 두 세그먼트에서 동시에 보이거나 둘 다에서 사라지면 안 된다
-            foreach (string? matchType in new[] { "Official", "Friendly", "Unknown", null })
+            foreach (SoccerMatchType matchType in Enum.GetValues<SoccerMatchType>())
             {
                 bool official = SoccerMatchSegment.Official.Matches(matchType);
                 bool friendly = SoccerMatchSegment.Friendly.Matches(matchType);
 
-                (official ^ friendly).Should().BeTrue($"matchType={matchType ?? "null"}");
+                (official ^ friendly).Should().BeTrue($"matchType={matchType}");
                 SoccerMatchSegment.All.Matches(matchType).Should().BeTrue();
             }
         }
@@ -75,7 +56,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData(SoccerMatchSegment.Friendly)]
         public void Segment_SurvivesUrlRoundTrip(SoccerMatchSegment segment)
         {
-            SoccerMatchTypeExtensions.ParseSegment(segment.ToQuery()).Should().Be(segment);
+            SoccerMatchSegmentExtensions.ParseSegment(segment.ToQuery()).Should().Be(segment);
         }
 
         [Theory]
@@ -86,7 +67,7 @@ namespace PlayGround.Tests.Unit.Client
         [InlineData("", SoccerMatchSegment.All)]
         public void ParseSegment_FallsBackToAll_WhenUnknown(string? query, SoccerMatchSegment expected)
         {
-            SoccerMatchTypeExtensions.ParseSegment(query).Should().Be(expected);
+            SoccerMatchSegmentExtensions.ParseSegment(query).Should().Be(expected);
         }
     }
 }

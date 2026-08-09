@@ -41,11 +41,12 @@ namespace PlayGround.Tests.Unit.Core
         }
 
         [Fact]
-        public void Null_StaysNull()
+        public void NullToken_FallsBackToUnknown()
         {
+            // 비널러블 정책 — null 토큰도 미지정(Unknown)으로 받는다 (HandleNull)
             PlayerProfileDto restored = JsonSerializer.Deserialize<PlayerProfileDto>("""{"AgeGroup":null}""")!;
 
-            restored.AgeGroup.Should().BeNull();
+            restored.AgeGroup.Should().Be(SoccerAgeGroup.Unknown);
         }
 
         [Fact]

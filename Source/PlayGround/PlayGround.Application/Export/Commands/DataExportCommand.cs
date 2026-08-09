@@ -1,11 +1,12 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Common;
 using PlayGround.Contracts.Export;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Settings;
 using PlayGround.Contracts.Team;
-using PlayGround.Domain.Soccer;
+using PlayGround.Contracts.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
@@ -74,7 +75,7 @@ namespace PlayGround.Application.Export.Commands
                 return Result<DataExportRequestResult>.Error(ErrorCode.InvalidInput, "select at least one item");
             }
 
-            Result<(string Status, Guid? RequestId)> created = await mExportRepository.CreateAsync(
+            Result<(DataExportRequestStatus Status, Guid? RequestId)> created = await mExportRepository.CreateAsync(
                 userId, request.IncludeProfile, request.IncludeRecords, request.IncludeRequests, cancellation);
             if (created.IsError)
             {
@@ -84,7 +85,7 @@ namespace PlayGround.Application.Export.Commands
             mLogger.Info("Data export requested", ("UserId", userId));
 
             // 접수됐으면 백그라운드 잡 큐에 넣고 즉시 반환(동기 생성 금지)
-            if (created.Value.Status == "Ok" && created.Value.RequestId is { } id)
+            if (created.Value.Status == DataExportRequestStatus.Ok && created.Value.RequestId is { } id)
             {
                 mQueue.Enqueue(id);
             }
@@ -166,7 +167,7 @@ namespace PlayGround.Application.Export.Commands
         public async Task GenerateAsync(Guid requestId, CancellationToken cancellation = default)
         {
             Result<DataExportJob?> jobResult = await mExportRepository.GetByIdAsync(requestId, cancellation);
-            if (jobResult.IsError || jobResult.Value is null || jobResult.Value.Status != "Pending")
+            if (jobResult.IsError || jobResult.Value is null || jobResult.Value.Status != DataExportStatus.Pending)
             {
                 // 취소됐거나 이미 처리됨 — 조용히 종료
                 return;
@@ -185,7 +186,7 @@ namespace PlayGround.Application.Export.Commands
                 SystemTime expiresAt = SystemTime.Now.AddDays(7);
 
                 Result<bool> updated = await mExportRepository.UpdateStatusAsync(
-                    requestId, "Ready", token, storageKey, zipBytes.LongLength, expiresAt, cancellation);
+                    requestId, DataExportStatus.Ready, token, storageKey, zipBytes.LongLength, expiresAt, cancellation);
 
                 // Pending이 아니면(취소 등) 전환이 안 된다 — 그 경우 알림/이메일도 보내지 않는다
                 if (updated.IsError || !updated.Value)
@@ -200,7 +201,7 @@ namespace PlayGround.Application.Export.Commands
             catch (Exception ex)
             {
                 mLogger.Error(ex, "Data export generation failed", ("RequestId", requestId));
-                await mExportRepository.UpdateStatusAsync(requestId, "Failed", null, null, null, null, cancellation);
+                await mExportRepository.UpdateStatusAsync(requestId, DataExportStatus.Failed, null, null, null, null, cancellation);
                 throw;
             }
         }
@@ -295,13 +296,13 @@ namespace PlayGround.Application.Export.Commands
                                 goals = statsResult.Value.Matches.Sum(m => m.Goals);
                                 assists = statsResult.Value.Matches.Sum(m => m.Assists);
                                 childData.Add(new { child.PlayerId, child.Name, info, careers, seasonStats = statsResult.Value });
-                                csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup?.ToString())},{Csv(child.TeamName)},{apps},{goals},{assists}");
+                                csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup == SoccerAgeGroup.Unknown ? null : child.AgeGroup.ToString())},{Csv(child.TeamName)},{apps},{goals},{assists}");
                                 continue;
                             }
                         }
 
                         childData.Add(new { child.PlayerId, child.Name, info, careers });
-                        csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup?.ToString())},{Csv(child.TeamName)},{apps},{goals},{assists}");
+                        csv.AppendLine($"{Csv(child.Name)},{Csv(child.AgeGroup == SoccerAgeGroup.Unknown ? null : child.AgeGroup.ToString())},{Csv(child.TeamName)},{apps},{goals},{assists}");
                     }
 
                     await WriteObjectAsync(zip, "children/children.json", childData, cancellation);

@@ -16,11 +16,11 @@ namespace PlayGround.Contracts.Records
     {
         public Guid TournamentId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Format { get; set; } = string.Empty;
-        public string Scope { get; set; } = string.Empty;
+        public SoccerTournamentFormat Format { get; set; }
+        public SoccerTournamentScope Scope { get; set; }
         public SoccerAgeGroup AgeGroup { get; set; }
         public string? RegionGroup { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public SoccerTournamentStatus Status { get; set; }
         public int? TeamCount { get; set; }
         public string? ChampionTeamName { get; set; }
     }
@@ -41,11 +41,11 @@ namespace PlayGround.Contracts.Records
         public Guid TournamentId { get; set; }
         public int SeasonYear { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Format { get; set; } = string.Empty;
-        public string Scope { get; set; } = string.Empty;
+        public SoccerTournamentFormat Format { get; set; }
+        public SoccerTournamentScope Scope { get; set; }
         public SoccerAgeGroup AgeGroup { get; set; }
         public string? RegionGroup { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public SoccerTournamentStatus Status { get; set; }
         public DateOnly? StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
         public int? TeamCount { get; set; }
@@ -60,7 +60,7 @@ namespace PlayGround.Contracts.Records
 
     public class RecordsStandingDto
     {
-        public string StageType { get; set; } = string.Empty;
+        public SoccerStageType StageType { get; set; }
         public string? GroupName { get; set; }
         public Guid? TeamId { get; set; }
         public string TeamName { get; set; } = string.Empty;
@@ -79,7 +79,7 @@ namespace PlayGround.Contracts.Records
     public class RecordsMatchDto
     {
         public Guid MatchId { get; set; }
-        public string? StageType { get; set; }
+        public SoccerStageType StageType { get; set; }
         public string? GroupName { get; set; }
         public string? RoundName { get; set; }
         public Guid? HomeTeamId { get; set; }
@@ -92,7 +92,7 @@ namespace PlayGround.Contracts.Records
         public int? AwayScore { get; set; }
         public int? HomePkScore { get; set; }
         public int? AwayPkScore { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public SoccerMatchStatus Status { get; set; }
         public SystemTime? MatchedAt { get; set; }
         public string? VenueName { get; set; }
         public int? MatchSequence { get; set; }
@@ -101,7 +101,7 @@ namespace PlayGround.Contracts.Records
 
     public class RecordsAwardDto
     {
-        public string AwardType { get; set; } = string.Empty;
+        public SoccerAwardType AwardType { get; set; }
         public Guid? TeamId { get; set; }
         public string TeamName { get; set; } = string.Empty;
         public string? TeamSlug { get; set; }
@@ -120,7 +120,7 @@ namespace PlayGround.Contracts.Records
         public Guid VideoId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string VideoUrl { get; set; } = string.Empty;
-        public string VideoType { get; set; } = string.Empty;
+        public SoccerVideoType VideoType { get; set; }
         public int? DurationSeconds { get; set; }
         public DateOnly? RecordedOn { get; set; }
         public string? HomeTeamName { get; set; }
@@ -139,17 +139,17 @@ namespace PlayGround.Contracts.Records
     public class RecordsMatchDetailResponse
     {
         public Guid MatchId { get; set; }
-        public string MatchType { get; set; } = string.Empty;
+        public SoccerMatchType MatchType { get; set; }
         public Guid? TournamentId { get; set; }
         public string? TournamentName { get; set; }
-        public string? Format { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerTournamentFormat Format { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public int? SeasonYear { get; set; }
-        public string? StageType { get; set; }
+        public SoccerStageType StageType { get; set; }
         public string? GroupName { get; set; }
         public string? RoundName { get; set; }
         public int? MatchSequence { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public SoccerMatchStatus Status { get; set; }
 
         public Guid? HomeTeamId { get; set; }
         public string HomeTeamName { get; set; } = string.Empty;
@@ -179,7 +179,7 @@ namespace PlayGround.Contracts.Records
 
     public class RecordsMatchEventDto
     {
-        public string EventType { get; set; } = string.Empty;
+        public SoccerMatchEventType EventType { get; set; }
         public int? MinuteOfPlay { get; set; }
         public string? PlayerName { get; set; }
         public Guid? PlayerId { get; set; }
@@ -195,7 +195,7 @@ namespace PlayGround.Contracts.Records
         public Guid? PlayerId { get; set; }
         public string? PlayerSlug { get; set; }
         public int? JerseyNumber { get; set; }
-        public SoccerPosition? Position { get; set; }
+        public SoccerPosition Position { get; set; }
         public bool IsCaptain { get; set; }
         public bool IsStarter { get; set; }
         public List<int> GoalMinutes { get; set; } = new();

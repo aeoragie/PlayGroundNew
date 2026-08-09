@@ -3,7 +3,7 @@
    방문자 뷰 — 사례 0건이면 CTA 없이 안내 문장으로 종료 (공개홈 관례). *@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 
 <div class="flex flex-col gap-3 md:gap-4">
     <div class="flex flex-col gap-[3px] md:gap-1">
@@ -62,9 +62,9 @@
 
     // 유형별 인원 합 — 값이 있는 유형만, enum 선언 순서(프로 산하 → 축구부 → 승격)
     private List<(SoccerCareerOutcomeType Type, int Count)> Summaries =>
-        Enum.GetValues<SoccerCareerOutcomeType>()
+        Enum.GetValues<SoccerCareerOutcomeType>().Where(t => t != SoccerCareerOutcomeType.Unknown)
             .Select(type => (Type: type, Count: Data.Items
-                .Where(i => i.OutcomeType == type.ToString())
+                .Where(i => i.OutcomeType == type)
                 .Sum(i => i.PlayerCount)))
             .Where(pair => pair.Count > 0)
             .ToList();
@@ -73,13 +73,13 @@
         type == SoccerCareerOutcomeType.Promotion ? AppText.Team.Promotion : type.ToSummaryLabel();
 
     internal static string TagLabel(TeamCareerOutcomeDto item) =>
-        Enum.TryParse(item.OutcomeType, out SoccerCareerOutcomeType type) ? type.ToTagLabel() : item.OutcomeType;
+        item.OutcomeType.ToTagLabel();
 
     // 유형 태그 — 프로 산하 오렌지 톤 / 축구부 네이비 톤 / 승격 teal 톤 (상태 뱃지 캡슐 통일)
     internal static string TagClass(TeamCareerOutcomeDto item) => item.OutcomeType switch
     {
-        nameof(SoccerCareerOutcomeType.ProTransfer) => Css.Badge.Pending,
-        nameof(SoccerCareerOutcomeType.SchoolTeam) => Css.Badge.Info,
+        SoccerCareerOutcomeType.ProTransfer => Css.Badge.Pending,
+        SoccerCareerOutcomeType.SchoolTeam => Css.Badge.Info,
         _ => Css.Badge.Positive,
     };
 }

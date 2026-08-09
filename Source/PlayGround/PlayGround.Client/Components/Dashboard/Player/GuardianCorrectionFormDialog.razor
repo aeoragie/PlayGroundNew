@@ -5,7 +5,7 @@
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Player
 @using PlayGround.Contracts.Team
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject PlayerClient Players
 @inject ToastService Toasts
 
@@ -225,7 +225,7 @@
         var request = new CreateRecordCorrectionRequest
         {
             MatchId = Match!.MatchId,
-            FieldType = mField.ToString(),
+            FieldType = mField,
             CurrentValue = CurrentStoredValue,
             RequestedValue = RequestedValue,
             Description = string.IsNullOrWhiteSpace(mDescription) ? null : mDescription!.Trim(),

@@ -7,7 +7,7 @@ namespace PlayGround.Contracts.Player
     {
         public string Name { get; set; } = string.Empty;
         public string? BirthDate { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? Region { get; set; }
     }
 
@@ -29,11 +29,11 @@ namespace PlayGround.Contracts.Player
         public string Name { get; set; } = string.Empty;
 
         public string? Slug { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? PhotoUrl { get; set; }
         public string? TeamName { get; set; }
         public string? JerseyNumber { get; set; }
-        public SoccerPosition? Position { get; set; }
+        public SoccerPosition Position { get; set; }
         public bool IsGuardianManaged { get; set; }
     }
 
@@ -52,15 +52,15 @@ namespace PlayGround.Contracts.Player
 
         public string? Slug { get; set; }
         public string? PhotoUrl { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public int? BirthYear { get; set; }
-        public SoccerGrade? Grade { get; set; }
-        public SoccerPosition? Position { get; set; }
+        public SoccerGrade Grade { get; set; }
+        public SoccerPosition Position { get; set; }
         public string? JerseyNumber { get; set; }
         public string? TeamName { get; set; }
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
-        public SoccerPreferredFoot? PreferredFoot { get; set; }
+        public SoccerPreferredFoot PreferredFoot { get; set; }
         public string? SchoolName { get; set; }
         public string? GuardianPhoneMasked { get; set; }
         public bool IsGuardianManaged { get; set; }
@@ -72,20 +72,20 @@ namespace PlayGround.Contracts.Player
 
     public class PlayerFieldVisibilityDto
     {
-        public string FieldName { get; set; } = string.Empty;
+        public SoccerPlayerProfileField FieldName { get; set; }
         public bool IsPublic { get; set; }
     }
 
     public class PlayerFamilyMemberDto
     {
         public string MemberName { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
+        public SoccerFamilyRole Role { get; set; }
         public bool HasAccount { get; set; }
     }
 
     public class SetPlayerFieldVisibilityRequest
     {
-        public string FieldName { get; set; } = string.Empty;
+        public SoccerPlayerProfileField FieldName { get; set; }
         public bool IsPublic { get; set; }
     }
 
@@ -93,7 +93,7 @@ namespace PlayGround.Contracts.Player
     {
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
-        public SoccerPreferredFoot? PreferredFoot { get; set; }
+        public SoccerPreferredFoot PreferredFoot { get; set; }
         public string? SchoolName { get; set; }
 
         public string? Slug { get; set; }
@@ -137,9 +137,9 @@ namespace PlayGround.Contracts.Player
         public Guid MatchId { get; set; }
         public SystemTime? MatchedAt { get; set; }
 
-        public string CompetitionType { get; set; } = string.Empty;
+        public SoccerCompetitionType CompetitionType { get; set; }
 
-        public string MatchType { get; set; } = string.Empty;
+        public SoccerMatchType MatchType { get; set; }
         public string OpponentName { get; set; } = string.Empty;
         public int TeamScore { get; set; }
         public int OpponentScore { get; set; }
@@ -245,10 +245,10 @@ namespace PlayGround.Contracts.Player
         public string Name { get; set; } = string.Empty;
         public string? PhotoUrl { get; set; }
         public bool IsGuardianManaged { get; set; }
-        public SoccerPosition? Position { get; set; }
+        public SoccerPosition Position { get; set; }
         public string? JerseyNumber { get; set; }
         public int? BirthYear { get; set; }
-        public SoccerAgeGroup? AgeGroup { get; set; }
+        public SoccerAgeGroup AgeGroup { get; set; }
         public string? TeamName { get; set; }
         public string? TeamSlug { get; set; }
         public bool TeamIsVerified { get; set; }
@@ -256,11 +256,11 @@ namespace PlayGround.Contracts.Player
         public bool IsClaimable { get; set; }
         public int? HeightCm { get; set; }
         public int? WeightKg { get; set; }
-        public SoccerPreferredFoot? PreferredFoot { get; set; }
+        public SoccerPreferredFoot PreferredFoot { get; set; }
 
         public string? SchoolName { get; set; }
 
-        public SoccerGrade? Grade { get; set; }
+        public SoccerGrade Grade { get; set; }
 
         public string? GuardianDisplayName { get; set; }
 

@@ -4,7 +4,7 @@
 @using PlayGround.Client.Services.Feedback
 @using PlayGround.Client.Styles
 @using PlayGround.Contracts.Team
-@using PlayGround.Domain.Soccer
+@using PlayGround.Contracts.Soccer
 @inject TeamClient Teams
 @inject ToastService Toasts
 
@@ -103,8 +103,7 @@
         if (Editing is not null && mLoadedFor != target)
         {
             mLoadedFor = target;
-            mType = Enum.TryParse(Editing.OutcomeType, out SoccerCareerOutcomeType parsed)
-                ? parsed : SoccerCareerOutcomeType.ProTransfer;
+            mType = Editing.OutcomeType == SoccerCareerOutcomeType.Unknown ? SoccerCareerOutcomeType.ProTransfer : Editing.OutcomeType;
             mYear = Editing.OutcomeYear.ToString();
             mTitle = Editing.Title;
             mDetail = Editing.Detail ?? string.Empty;
@@ -151,7 +150,7 @@
         {
             OutcomeId = Editing?.OutcomeId ?? Guid.Empty,
             OutcomeYear = int.Parse(mYear),
-            OutcomeType = mType.ToString(),
+            OutcomeType = mType,
             Title = mTitle.Trim(),
             Detail = string.IsNullOrWhiteSpace(mDetail) ? null : mDetail.Trim(),
             PlayerCount = int.Parse(mPlayerCount),

@@ -149,14 +149,14 @@
     private static string? ChildMeta(ManagedPlayerDto child)
     {
         List<string> parts = new();
-        if (child.AgeGroup is not null)
+        if (child.AgeGroup != SoccerAgeGroup.Unknown)
         {
-            parts.Add(child.AgeGroup.ToString()!);
+            parts.Add(child.AgeGroup.ToText()!);
         }
 
-        if (child.Position is not null)
+        if (child.Position != SoccerPosition.Unknown)
         {
-            parts.Add(child.Position.ToString()!);
+            parts.Add(child.Position.ToText()!);
         }
 
         return parts.Count > 0 ? string.Join(" · ", parts) : null;
@@ -175,7 +175,7 @@
         {
             RecruitmentId = Recruitment!.RecruitmentId,
             PlayerId = mPlayerId,
-            DesiredPosition = HasPositions ? mDesiredPosition : null,
+            DesiredPosition = HasPositions ? mDesiredPosition ?? SoccerPosition.Unknown : SoccerPosition.Unknown,
             Introduction = string.IsNullOrWhiteSpace(mIntroduction) ? null : mIntroduction!.Trim(),
         };
 
