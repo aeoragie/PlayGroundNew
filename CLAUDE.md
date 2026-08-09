@@ -409,7 +409,10 @@ Yes면 Infrastructure/Persistence, No면 Shared/Domain/Application.
 ### 포맷·헬퍼 (Core.Shared/Logging — MEL `ILogger` 확장)
 
 - **메시지 포맷: `문장. { Key:Value, Key:Value }`** — 헬퍼가 자동 생성 + 구조화 속성 동시 기록.
-- `Logger.InfoWith("Team created", ("TeamId", id))` — Trace/Debug/Info/Warn/Error/Fatal 각 `~With` 제공.
+- `mLogger.Info("Team created", ("TeamId", id))` — Trace/Debug/Info/Warn/Error/Fatal 제공.
+  NLog `ILogger`(인프라·모듈·컨트롤러)는 같은 이름의 인스턴스 메서드에 가리므로
+  `KeyValueLogExtensions.Info(logger, …)` 정적 호출로 쓴다. 진단 로그는 `DiagLog`
+  (카테고리별 `[Conditional]` — 스위치는 그 파일 하나, 켜려면 심볼 정의 후 재빌드).
   식별자는 반드시 이 필드로 넘긴다. **문자열 보간(`$"Team {id}"`) 금지** — 검색·집계가 안 된다.
 - **실패 Result를 받은 로직은 반드시 `result.LogWith(Logger, "작업명")` 호출** — 코드 종류가 곧 레벨이다
   (`ErrorCode`→Error, 그중 `IsCritical`만 Fatal · `WarningCode`→Warn · 나머지→Info).

@@ -45,7 +45,7 @@ namespace PlayGround.Server.DependencyInjection
             //.// JWT 발급 + Bearer 검증
             string signingKey = RequireSigningKey(configuration);
 
-            Logger.InfoWith("JWT configured",
+            KeyValueLogExtensions.Info(Logger, "JWT configured",
                 ("Issuer", configuration["Jwt:Issuer"]),
                 ("Audience", configuration["Jwt:Audience"]));
 

@@ -147,7 +147,7 @@ namespace PlayGround.Server.Controllers.Auth
             string tokenId = User.FindFirstValue(JwtRegisteredClaimNames.Jti) ?? string.Empty;
             await mTokenRevocation.RevokeTokenAsync(tokenId, CurrentTokenExpiresAt, cancellation);
 
-            Logger.InfoWith("Logout", ("UserId", CurrentUserId));
+            KeyValueLogExtensions.Info(Logger, "Logout", ("UserId", CurrentUserId));
             return Result<bool>.Success(true).ToEnvelope();
         }
 
@@ -202,7 +202,7 @@ namespace PlayGround.Server.Controllers.Auth
             }
 
             string state = mOAuth.CreateLinkState(CurrentUserId);
-            Logger.InfoWith("Social link started", ("Provider", provider), ("UserId", CurrentUserId));
+            KeyValueLogExtensions.Info(Logger, "Social link started", ("Provider", provider), ("UserId", CurrentUserId));
             return Result<string>.Success(mOAuth.GetAuthorizationUrl(provider, state)).ToEnvelope();
         }
 
@@ -232,12 +232,12 @@ namespace PlayGround.Server.Controllers.Auth
             if (!mOAuth.IsConfigured(provider))
             {
                 // 자격증명 미설정(예: LINE 키 미발급) — 500 대신 로그인 화면으로 안내.
-                Logger.WarnWith("Social login provider not configured", ("Provider", provider));
+                KeyValueLogExtensions.Warn(Logger, "Social login provider not configured", ("Provider", provider));
                 return Redirect("/login?error=NotConfigured");
             }
 
             var state = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
-            Logger.InfoWith("Social login started", ("Provider", provider));
+            KeyValueLogExtensions.Info(Logger, "Social login started", ("Provider", provider));
             return Redirect(mOAuth.GetAuthorizationUrl(provider, state));
         }
 
@@ -247,14 +247,14 @@ namespace PlayGround.Server.Controllers.Auth
         {
             if (string.IsNullOrWhiteSpace(code))
             {
-                Logger.WarnWith("Social callback missing code", ("Provider", provider));
+                KeyValueLogExtensions.Warn(Logger, "Social callback missing code", ("Provider", provider));
                 return Redirect("/login?error=NoCode");
             }
 
             var userInfo = await mOAuth.GetUserInfoAsync(provider, code);
             if (userInfo is null)
             {
-                Logger.WarnWith("Social callback provider error", ("Provider", provider));
+                KeyValueLogExtensions.Warn(Logger, "Social callback provider error", ("Provider", provider));
                 return Redirect("/login?error=ProviderError");
             }
 
@@ -269,7 +269,7 @@ namespace PlayGround.Server.Controllers.Auth
                     return Redirect("/settings/account?linkError=Failed");
                 }
 
-                Logger.InfoWith("Social link completed", ("Provider", provider), ("Status", link.Value), ("UserId", linkUserId));
+                KeyValueLogExtensions.Info(Logger, "Social link completed", ("Provider", provider), ("Status", link.Value), ("UserId", linkUserId));
                 // 'Conflict' = 다른 계정에 이미 연결 → 인라인 오류 / 'Ok'·'AlreadyLinked' = 성공 토스트
                 return link.Value == "Conflict"
                     ? Redirect($"/settings/account?linkError=Duplicate&provider={Uri.EscapeDataString(userInfo.Provider)}")
@@ -285,7 +285,7 @@ namespace PlayGround.Server.Controllers.Auth
                 return Redirect("/login?error=LoginFailed");
             }
 
-            Logger.InfoWith("Social login completed", ("Provider", provider), ("UserId", result.Value!.User.UserId));
+            KeyValueLogExtensions.Info(Logger, "Social login completed", ("Provider", provider), ("UserId", result.Value!.User.UserId));
 
             return Redirect($"/settings/select-role#access_token={Uri.EscapeDataString(result.Value!.AccessToken)}");
         }

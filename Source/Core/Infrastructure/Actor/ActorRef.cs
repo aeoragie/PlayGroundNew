@@ -2,9 +2,6 @@ using Akka.Actor;
 
 namespace PlayGround.Infrastructure.Actor
 {
-    /// <summary>
-    /// IActorRef 래퍼 (Send/SendAsync 편의 메서드 제공)
-    /// </summary>
     public class ActorRef(IActorRef actorRef, string actorName)
     {
         public string Name { get; } = actorName;

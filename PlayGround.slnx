@@ -43,11 +43,8 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Source/" />
-  <Folder Name="/Source/Core/" />
-  <Folder Name="/Source/Core/Infrastructure/">
+  <Folder Name="/Source/Core/">
     <Project Path="Source/Core/Infrastructure/Core.Infrastructure.csproj" />
-  </Folder>
-  <Folder Name="/Source/Core/Shared/">
     <Project Path="Source/Core/Shared/Core.Shared.csproj" />
   </Folder>
   <Folder Name="/Source/Database/">

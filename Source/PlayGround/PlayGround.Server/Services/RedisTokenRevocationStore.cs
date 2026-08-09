@@ -45,7 +45,7 @@ namespace PlayGround.Server.Services
         {
             if (string.IsNullOrWhiteSpace(tokenId))
             {
-                Logger.WarnWith("Token revocation skipped — empty token id");
+                KeyValueLogExtensions.Warn(Logger, "Token revocation skipped — empty token id");
                 return;
             }
 
@@ -58,7 +58,7 @@ namespace PlayGround.Server.Services
             await using IRedisSession? session = mRedis.CreateSession(ConnectionName);
             if (session is null)
             {
-                Logger.ErrorWith("Token revocation failed — Redis unavailable", ("TokenId", tokenId));
+                KeyValueLogExtensions.Error(Logger, "Token revocation failed — Redis unavailable", ("TokenId", tokenId));
                 return;
             }
 
@@ -67,11 +67,11 @@ namespace PlayGround.Server.Services
 
             if (!stored.IsSuccess)
             {
-                Logger.ErrorWith("Token revocation not stored", ("TokenId", tokenId));
+                KeyValueLogExtensions.Error(Logger, "Token revocation not stored", ("TokenId", tokenId));
                 return;
             }
 
-            Logger.InfoWith("Token revoked", ("TokenId", tokenId));
+            KeyValueLogExtensions.Info(Logger, "Token revoked", ("TokenId", tokenId));
         }
 
         public async Task RevokeAllForUserAsync(
@@ -79,14 +79,14 @@ namespace PlayGround.Server.Services
         {
             if (userId == Guid.Empty)
             {
-                Logger.WarnWith("User token revocation skipped — empty user");
+                KeyValueLogExtensions.Warn(Logger, "User token revocation skipped — empty user");
                 return;
             }
 
             await using IRedisSession? session = mRedis.CreateSession(ConnectionName);
             if (session is null)
             {
-                Logger.ErrorWith("User token revocation failed — Redis unavailable", ("UserId", userId));
+                KeyValueLogExtensions.Error(Logger, "User token revocation failed — Redis unavailable", ("UserId", userId));
                 return;
             }
 
@@ -96,11 +96,11 @@ namespace PlayGround.Server.Services
 
             if (!stored.IsSuccess)
             {
-                Logger.ErrorWith("User token revocation not stored", ("UserId", userId));
+                KeyValueLogExtensions.Error(Logger, "User token revocation not stored", ("UserId", userId));
                 return;
             }
 
-            Logger.InfoWith("All tokens revoked for user", ("UserId", userId));
+            KeyValueLogExtensions.Info(Logger, "All tokens revoked for user", ("UserId", userId));
         }
 
         public async Task<bool> IsRevokedAsync(
@@ -110,7 +110,7 @@ namespace PlayGround.Server.Services
             if (session is null)
             {
                 // fail-open — 클래스 주석 참조. 막으면 Redis 장애가 전체 인증 실패로 번진다.
-                Logger.WarnWith("Revocation check skipped — Redis unavailable", ("UserId", userId));
+                KeyValueLogExtensions.Warn(Logger, "Revocation check skipped — Redis unavailable", ("UserId", userId));
                 return false;
             }
 

@@ -67,7 +67,7 @@ namespace PlayGround.Server.DependencyInjection
             UploadStorageConfiguration uploadConfig =
                 configuration.GetSection(UploadStorageConfiguration.Section).Get<UploadStorageConfiguration>()
                 ?? new UploadStorageConfiguration();
-            Logger.InfoWith("Upload storage configured",
+            KeyValueLogExtensions.Info(Logger, "Upload storage configured",
                 ("Provider", uploadConfig.Provider),
                 ("Bucket", uploadConfig.UsesLocalDisk ? null : uploadConfig.BucketName),
                 ("Region", uploadConfig.UsesLocalDisk ? null : uploadConfig.Region));
@@ -109,7 +109,7 @@ namespace PlayGround.Server.DependencyInjection
             services.AddHostedService<DataExportWorker>();                 // 백그라운드 생성 워커
 
             // 셋 다 아직 대체물이다. 기동 로그에 남지 않으면 "메일이 안 온다"를 코드를 열어야 안다.
-            Logger.InfoWith("Data export configured",
+            KeyValueLogExtensions.Info(Logger, "Data export configured",
                 ("EmailSender", nameof(LogOnlyEmailSender)),
                 ("EmailDelivery", "None"),
                 ("Storage", nameof(LocalExportStorage)),

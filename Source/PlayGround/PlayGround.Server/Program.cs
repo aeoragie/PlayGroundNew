@@ -16,7 +16,7 @@ try
     builder.Host.ConfigurePlayGroundLogger(builder.Configuration);
     builder.Services.AddPlayGroundLogger();
 
-    logger.InfoWith("Server starting", ("Environment", builder.Environment.EnvironmentName));
+    KeyValueLogExtensions.Info(logger, "Server starting", ("Environment", builder.Environment.EnvironmentName));
 
     builder.Services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection(DatabaseConfiguration.Section));
 
@@ -25,7 +25,7 @@ try
         builder.Configuration.GetSection(DatabaseConfiguration.Section).Get<DatabaseConfiguration>() ?? new DatabaseConfiguration();
     foreach (var (database, options) in databaseConfiguration.Databases)
     {
-        logger.InfoWith("Database configured", ("Database", database), ("Provider", options.Provider));
+        KeyValueLogExtensions.Info(logger, "Database configured", ("Database", database), ("Provider", options.Provider));
     }
 
     //.// 모듈별 DI — 인프라(Akka) · 인증(공유) · 종목(축구)
@@ -76,7 +76,7 @@ try
 }
 catch (Exception ex)
 {
-    logger.FatalWith(ex, "Application terminated unexpectedly");
+    KeyValueLogExtensions.Fatal(logger, ex, "Application terminated unexpectedly");
     throw;
 }
 finally

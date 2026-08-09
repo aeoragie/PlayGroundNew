@@ -1,10 +1,9 @@
-using PlayGround.Shared.Primitives;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using NLog;
 using PlayGround.Infrastructure.Logging;
-using PlayGround.Shared.Logging;
+using PlayGround.Shared.Primitives;
 using PlayGround.Shared.Result;
 using System.Collections.Frozen;
 using System.Data;
@@ -61,7 +60,7 @@ public abstract class RepositoryBase
 
     public async Task<bool> CanConnectAsync(CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -72,7 +71,7 @@ public abstract class RepositoryBase
         catch (Exception ex)
         {
             stopwatch?.Stop();
-            Logger.ErrorWith(ex, "Connection test failed", ("Database", Database), ("ElapsedMs", stopwatch?.ElapsedMilliseconds));
+            Logging.KeyValueLogExtensions.Error(Logger, ex, "Connection test failed", ("Database", Database), ("ElapsedMs", stopwatch?.ElapsedMilliseconds));
             return false;
         }
     }
@@ -84,7 +83,7 @@ public abstract class RepositoryBase
     public async Task<Result<TRow>> QuerySingleOrDefaultAsync<TRow>(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -116,7 +115,7 @@ public abstract class RepositoryBase
     public async Task<Result<TRow>> ProcedureSingleOrDefaultAsync<TRow>(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -155,7 +154,7 @@ public abstract class RepositoryBase
     public async Task<Result<IEnumerable<TRow>>> QueryAsync<TRow>(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -183,7 +182,7 @@ public abstract class RepositoryBase
     public async Task<Result<IEnumerable<TRow>>> ProcedureAsync<TRow>(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -213,7 +212,7 @@ public abstract class RepositoryBase
     public async Task<Result<MultiQueryReader>> ProcedureMultipleAsync(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
 
         // 리더가 커넥션을 계속 사용하므로 여기서 dispose하지 않고 MultiQueryReader에 소유권을 넘긴다
         var connection = await OpenConnectionAsync(cancellation);
@@ -250,7 +249,7 @@ public abstract class RepositoryBase
     public async Task<Result<int>> ExecuteAsync(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -275,7 +274,7 @@ public abstract class RepositoryBase
     public async Task<Result<int>> ProcedureExecuteAsync(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -309,7 +308,7 @@ public abstract class RepositoryBase
     public async Task<Result<TResult>> ExecuteInTransactionAsync<TResult>(
         Func<DbConnection, DbTransaction, Task<TResult>> operation, IsolationLevel isolationLevel = IsolationLevel.ReadCommitted, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = LogSwitch.Database ? Stopwatch.StartNew() : null;
+        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
         await using var connection = await OpenConnectionAsync(cancellation);
         await using var transaction = await connection.BeginTransactionAsync(isolationLevel, cancellation);
 
@@ -331,7 +330,7 @@ public abstract class RepositoryBase
             }
             catch (Exception rollbackEx)
             {
-                Logger.ErrorWith(rollbackEx, "Transaction rollback failed", ("Database", Database));
+                Logging.KeyValueLogExtensions.Error(Logger, rollbackEx, "Transaction rollback failed", ("Database", Database));
             }
 
             return Result<TResult>.FromException(ex);
@@ -367,7 +366,7 @@ public abstract class RepositoryBase
             {
                 if (attempt > 1)
                 {
-                    Logger.WarnWith("Operation failed after retries", ("Database", Database), ("Attempts", attempt));
+                    Logging.KeyValueLogExtensions.Warn(Logger, "Operation failed after retries", ("Database", Database), ("Attempts", attempt));
                 }
                 return result;
             }
@@ -404,41 +403,29 @@ public abstract class RepositoryBase
         return TransientErrorNumbers.Contains(ex.Number);
     }
 
-#pragma warning disable CS0162 // LogSwitch가 const라 꺼져 있으면 컴파일러가 블록을 지운다 — 의도한 제거다
-
+    [Conditional("LOG_DATABASE")]
     private void DiagRetry(int attempt, int maxRetries, int delayMs)
     {
-        if (LogSwitch.Database)
-        {
-            Logger.DebugWith("Retry scheduled", ("Attempt", attempt), ("MaxRetries", maxRetries), ("DelayMs", delayMs));
-        }
+        KeyValueLogExtensions.Debug(Logger, "Retry scheduled", ("Attempt", attempt), ("MaxRetries", maxRetries), ("DelayMs", delayMs));
     }
 
+    [Conditional("LOG_DATABASE")]
     private void DiagDatabase(string message, Stopwatch? stopwatch = null)
     {
-        if (LogSwitch.Database)
-        {
-            Logger.DebugWith(message, ("Database", Database), ("ElapsedMs", stopwatch?.ElapsedMilliseconds));
-        }
+        KeyValueLogExtensions.Debug(Logger, message, ("Database", Database), ("ElapsedMs", stopwatch?.ElapsedMilliseconds));
     }
 
+    [Conditional("LOG_DATABASE")]
     private void DiagSql(string message, Stopwatch? stopwatch, string sql, long? rows = null)
     {
-        if (LogSwitch.Database)
-        {
-            Logger.DebugWith(message, ("ElapsedMs", stopwatch?.ElapsedMilliseconds), ("Rows", rows), ("Sql", TruncateSql(sql)));
-        }
+        KeyValueLogExtensions.Debug(Logger, message, ("ElapsedMs", stopwatch?.ElapsedMilliseconds), ("Rows", rows), ("Sql", TruncateSql(sql)));
     }
 
+    [Conditional("LOG_DATABASE")]
     private void DiagProcedure(string message, Stopwatch? stopwatch, string procedure, long? rows = null)
     {
-        if (LogSwitch.Database)
-        {
-            Logger.DebugWith(message, ("ElapsedMs", stopwatch?.ElapsedMilliseconds), ("Rows", rows), ("Procedure", procedure));
-        }
+        KeyValueLogExtensions.Debug(Logger, message, ("ElapsedMs", stopwatch?.ElapsedMilliseconds), ("Rows", rows), ("Procedure", procedure));
     }
-
-#pragma warning restore CS0162
 
     private static string TruncateSql(string sql, int maxLength = 100)
     {

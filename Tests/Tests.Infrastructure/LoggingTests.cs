@@ -32,7 +32,7 @@ namespace PlayGround.Tests.Infrastructure
         {
             var (logger, target) = CreateLogger();
 
-            logger.InfoWith("Player profile requested", ("PlayerId", 123), ("TeamId", 45));
+            KeyValueLogExtensions.Info(logger, "Player profile requested", ("PlayerId", 123), ("TeamId", 45));
 
             Assert.Equal("Info|Player profile requested. { PlayerId:123, TeamId:45 }", target.Logs[0]);
         }
@@ -42,7 +42,7 @@ namespace PlayGround.Tests.Infrastructure
         {
             var (logger, target) = CreateLogger();
 
-            logger.InfoWith("Application started.");
+            KeyValueLogExtensions.Info(logger, "Application started.");
 
             Assert.Equal("Info|Application started.", target.Logs[0]);
         }
@@ -52,7 +52,7 @@ namespace PlayGround.Tests.Infrastructure
         {
             var (logger, target) = CreateLogger();
 
-            logger.ErrorWith("Lookup failed", ("Key", null));
+            logger.Error("Lookup failed", ("Key", null));
 
             Assert.Equal("Error|Lookup failed. { Key:null }", target.Logs[0]);
         }

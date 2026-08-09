@@ -1,4 +1,3 @@
-using PlayGround.Shared.Primitives;
 using Akka.Actor;
 using Akka.Configuration;
 using Akka.DependencyInjection;
@@ -7,9 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using PlayGround.Infrastructure.Logging;
-using PlayGround.Shared.Logging;
+using PlayGround.Shared.Primitives;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace PlayGround.Infrastructure.Actor
 {
@@ -64,7 +62,7 @@ namespace PlayGround.Infrastructure.Actor
                 mApplicationLifetime.StopApplication();
             }, cancellationToken);
 
-            Logger.InfoWith("ActorSystem started", ("SystemName", akkaConfig.SystemName));
+            Logging.KeyValueLogExtensions.Info(Logger, "ActorSystem started", ("SystemName", akkaConfig.SystemName));
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -73,7 +71,7 @@ namespace PlayGround.Infrastructure.Actor
             {
                 await CoordinatedShutdown.Get(ActorSystem)
                     .Run(CoordinatedShutdown.ClrExitReason.Instance);
-                Logger.InfoWith("ActorSystem stopped");
+                Logging.KeyValueLogExtensions.Info(Logger, "ActorSystem stopped");
             }
         }
 
@@ -118,7 +116,7 @@ namespace PlayGround.Infrastructure.Actor
             // 중복 이름을 먼저 걸러 고아 액터 생성을 방지
             if (Actors.ContainsKey(actorName))
             {
-                Logger.WarnWith("Actor already exists", ("ActorName", actorName));
+                Logging.KeyValueLogExtensions.Warn(Logger, "Actor already exists", ("ActorName", actorName));
                 return null;
             }
 
@@ -130,22 +128,19 @@ namespace PlayGround.Infrastructure.Actor
                 var actor = new ActorRef(actorRef, actorName);
                 if (!Actors.TryAdd(actorName, actor))
                 {
-                    Logger.WarnWith("Actor registration raced, stopping orphan", ("ActorName", actorName));
+                    Logging.KeyValueLogExtensions.Warn(Logger, "Actor registration raced, stopping orphan", ("ActorName", actorName));
                     ActorSystem.Stop(actorRef);
                     return null;
                 }
 
 #pragma warning disable CS0162
-                if (LogSwitch.Actor)
-                {
-                    Logger.DebugWith("Actor created", ("ActorName", actorName));
-                }
+                DiagLog.Actor(Logger, "Actor created", ("ActorName", actorName));
 #pragma warning restore CS0162
                 return actor;
             }
             catch (InvalidActorNameException ex)
             {
-                Logger.ErrorWith(ex, "Actor creation failed", ("ActorName", actorName));
+                Logging.KeyValueLogExtensions.Error(Logger, ex, "Actor creation failed", ("ActorName", actorName));
                 return null;
             }
         }

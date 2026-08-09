@@ -40,7 +40,7 @@ namespace PlayGround.Server.Services
                 return;
             }
 
-            Logger.InfoWith("Revoked token rejected", ("UserId", userId));
+            KeyValueLogExtensions.Info(Logger, "Revoked token rejected", ("UserId", userId));
             context.Fail("token revoked");
         }
 

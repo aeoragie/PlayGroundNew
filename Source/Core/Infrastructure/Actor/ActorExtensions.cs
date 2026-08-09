@@ -2,9 +2,6 @@ using Akka.Actor;
 
 namespace PlayGround.Infrastructure.Actor
 {
-    /// <summary>
-    /// IActorRef 확장 메서드 (Response, SendAsync, Verify)
-    /// </summary>
     public static class ActorExtensions
     {
         #region Response (액터 내부에서 Sender에게 응답)

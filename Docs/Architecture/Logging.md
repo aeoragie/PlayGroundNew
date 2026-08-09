@@ -30,7 +30,7 @@ Repository는 `managerUserId`는 알아도 그게 권한 판정을 통과한 값
 평소에 꺼져 있다. 요청마다 한 줄씩 쌓이면 정작 봐야 할 실패가 묻힌다.
 
 **상태를 바꾼 일만 Info로 남긴다.** 그것도 경계의 한 줄에 맡기지 않고 **식별자를 담은
-`InfoWith`를 유즈케이스 안에서 직접** 남긴다 — 누가 어떤 팀을 만들었는지는
+`Info`를 유즈케이스 안에서 직접** 남긴다 — 누가 어떤 팀을 만들었는지는
 `Operation completed`로는 알 수 없다.
 
 ## 3. 레벨
@@ -77,7 +77,7 @@ Repository는 `managerUserId`는 알아도 그게 권한 판정을 통과한 값
 ```csharp
 catch (Exception ex)
 {
-    Logger.ErrorWith(ex, "Failed to create team", ("ManagerUserId", managerUserId));
+    mLogger.Error(ex, "Failed to create team", ("ManagerUserId", managerUserId));
     return Result<TeamResponse>.Error(ErrorCode.UnhandledException);
 }
 ```
@@ -87,7 +87,7 @@ catch (Exception ex)
 ### 식별자는 구조화 필드로
 
 ```csharp
-Logger.InfoWith("Team created", ("TeamId", teamId));    // O — 검색·집계 가능
+Logger.Info("Team created", ("TeamId", teamId));    // O — 검색·집계 가능
 Logger.Info($"Team {teamId} created");                  // X — 문자열에 묻힌다
 ```
 
@@ -111,7 +111,7 @@ public async Task<Result<TeamResponse>> ExecuteAsync(Guid managerUserId, CreateT
 private async Task<Result<TeamResponse>> ExecuteCoreAsync(Guid managerUserId, CreateTeamRequest request, CancellationToken cancellation = default)
 {
     ...
-    mLogger.InfoWith("Team created", ("ManagerUserId", managerUserId), ("TeamId", saved.Value));
+    mLogger.Info("Team created", ("ManagerUserId", managerUserId), ("TeamId", saved.Value));
     return Result<TeamResponse>.Success(response);
 }
 ```
