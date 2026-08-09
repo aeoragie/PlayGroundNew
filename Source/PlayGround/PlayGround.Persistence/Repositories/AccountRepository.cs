@@ -5,7 +5,7 @@ using PlayGround.Contracts.Settings;
 using PlayGround.Domain.Account;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Persistence.Database;
+using PlayGround.Shared.Extensions;
 using PlayGround.Persistence.Database.Generated.Account.Entities;
 using PlayGround.Persistence.Database.Generated.Account.Procedures;
 using PlayGround.Shared.Result;

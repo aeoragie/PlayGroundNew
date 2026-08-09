@@ -559,7 +559,7 @@ Windows에서 멀쩡하던 참조가 서버에서만 깨진다.**
   클라이언트가 죽지 않는다.
   - **DTO의 enum 필드는 비널러블 + `Unknown`(0) 기본값, 문자열은 `= string.Empty`.**
     `Unknown`은 "미지정"의 표현이지 저장·전송 어휘가 아니다 — 요청 키 필드에 오면 InvalidInput.
-  - DB 변환은 Persistence의 `EnumColumn` 한 곳: `Read`는 NULL·빈 값→`Unknown`, 비정형 저장 값→Panic
+  - DB 변환은 Core.Shared의 `EnumColumn` 한 곳(신뢰된 저장소 전용 — 와이어는 관대한 컨버터): `Read`는 NULL·빈 값→`Unknown`, 비정형 저장 값→Panic
     (데이터 버그), `Write`는 `Unknown`→NULL. 생성 엔티티(string)는 그대로 둔다.
   - Client 표시는 `ToText()`(Unknown→null → "-"·생략 폴백)와 `SoccerDomainEnumLabels`의 `ToLabel()`.
     `Enum.GetValues`로 목록을 만들 때는 `Unknown`을 걸러낸다.

@@ -4,7 +4,7 @@ using PlayGround.Contracts.Notification;
 using PlayGround.Domain.Soccer;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Persistence.Database;
+using PlayGround.Shared.Extensions;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
 using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
 using PlayGround.Shared.Result;

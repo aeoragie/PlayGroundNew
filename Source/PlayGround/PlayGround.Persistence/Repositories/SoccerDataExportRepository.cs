@@ -6,7 +6,7 @@ using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
 using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
-using PlayGround.Persistence.Database;
+using PlayGround.Shared.Extensions;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
 
