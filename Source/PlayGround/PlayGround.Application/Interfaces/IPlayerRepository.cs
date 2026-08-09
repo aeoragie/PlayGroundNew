@@ -1,6 +1,6 @@
 using PlayGround.Application.Player.Models;
 using PlayGround.Contracts.Player;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Result;
 
 namespace PlayGround.Application.Interfaces

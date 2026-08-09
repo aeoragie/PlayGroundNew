@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Claim;

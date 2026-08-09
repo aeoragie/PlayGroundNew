@@ -1,5 +1,5 @@
 using PlayGround.Contracts.Agent;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Http;
 using System.Net.Http.Json;
 

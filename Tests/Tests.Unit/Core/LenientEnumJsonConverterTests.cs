@@ -1,7 +1,7 @@
 using System.Text.Json;
 using FluentAssertions;
 using PlayGround.Contracts.Player;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Core

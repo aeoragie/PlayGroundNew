@@ -3,7 +3,7 @@ using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Models;
 using PlayGround.Contracts.Player;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using System.Diagnostics;

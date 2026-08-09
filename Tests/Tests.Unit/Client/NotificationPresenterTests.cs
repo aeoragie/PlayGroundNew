@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlayGround.Client.Components.Shared.Notifications;
 using PlayGround.Client.Services;
 using PlayGround.Contracts.Notification;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Time;
 using Xunit;
 

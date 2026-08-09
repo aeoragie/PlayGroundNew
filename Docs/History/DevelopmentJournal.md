@@ -81,9 +81,13 @@
 1단계(AgeGroup·Grade·Position·PreferredFoot, e71e05c)에 이어 상태·유형·역할 전 DTO 필드를
 enum으로 전환했다. 규칙 요약은 CLAUDE.md "enum은 정수가 아니라 문자열" 절.
 
-- **어휘의 거처** — `Contracts/Soccer/SoccerEnums.cs`(34종) + `Contracts/Common/CommonEnums.cs`(5종).
-  Domain의 열거형 9파일과 Client `Models/`의 평행 enum 11파일(SoccerMatchType·SoccerClaimStatus·
-  SoccerScheduleEventType·SoccerTournamentStageType·UserRole 등)을 삭제하고 Contracts로 단일화.
+- **어휘의 거처** — `Domain/Soccer/SoccerEnums.cs`(34종) + `Domain/Account/AccountEnums.cs`(5종).
+  처음에는 "Contracts가 Domain을 못 본다"는 자기 제약 때문에 Contracts에 뒀다가, 같은 날
+  **Contracts→Domain 참조를 추가하고 Domain으로 이동**했다. 이 enum들은 와이어 형식이 아니라
+  도메인 어휘이고, Contracts에 두면 기본값·판정 규칙이 Domain에 못 있어 Application·Client로
+  흩어진다(실제로 Client에 알림 기본값 사본이 생겼다가 이 이동으로 제거됨). Domain의 옛 열거형
+  9파일과 Client `Models/`의 평행 enum 11파일(SoccerMatchType·SoccerClaimStatus·
+  SoccerScheduleEventType·SoccerTournamentStageType·UserRole 등)을 삭제하고 단일화.
   Client에 남은 것은 UI 전용(SoccerMatchSegment·ApplicantSegment·대시보드 섹션 enum)뿐이다.
 - **비널러블 정책** — DTO enum 필드는 `Unknown`(0) 기본값, 널러블 금지. 컨버터가 미지 이름·숫자
   토큰·null 토큰을 전부 Unknown으로 받는다(`HandleNull => true`). 키 필드의 Unknown은 유즈케이스가
@@ -92,9 +96,9 @@ enum으로 전환했다. 규칙 요약은 CLAUDE.md "enum은 정수가 아니라
 - **파생 상태의 어휘 포함** — `SoccerClaimRequestStatus.Confirmed`는 저장 값이 아니라
   UspGetSoccerNotificationsByUser의 파생 값(RosterInvite)이라 enum에 명시하고 주석으로 남겼다.
   `SoccerPlayerProfileField.StrengthTags`도 1단계에서 누락됐던 멤버.
-- **기본값 확장의 거처 이동** — `DefaultIsPublic`·`DefaultIsEnabled`는 Domain에서 Application으로
-  (Domain은 Contracts를 볼 수 없다). Client는 Application을 참조할 수 없어 알림 기본값만 표시층
-  사본을 둔다(`Models/NotificationPreferenceDefaults.cs` — 정책 변경 시 두 곳을 함께).
+- **기본값 확장은 Domain에 산다** — `DefaultIsPublic`(SoccerPlayerProfileFieldExtensions)·
+  `DefaultIsEnabled`(NotificationPreferenceItemExtensions). enum과 같은 네임스페이스라
+  Persistence·Application·Client 모두 enum using만으로 규칙까지 얻는다. 사본 없음.
 - **표시 헬퍼** — `EnumDisplay.ToText()`(Unknown→null)로 "-"·생략 폴백을 잇고, 라벨은
   `SoccerDomainEnumLabels.ToLabel()`로 통합(대회 형식·상태·영상·일정·경기 유형 라벨 이관).
 - **검증** — 전 테스트 800건 통과. 로컬 DB 저장 어휘 전수 대조(모든 컬럼 값이 enum 멤버와 일치),

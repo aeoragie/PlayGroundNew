@@ -2,7 +2,7 @@ using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
 using PlayGround.Client.Services;
 using PlayGround.Contracts.Records;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Time;
 
 namespace PlayGround.Client.Components.Records

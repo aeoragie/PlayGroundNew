@@ -5,7 +5,7 @@ using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Commands;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Result;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application

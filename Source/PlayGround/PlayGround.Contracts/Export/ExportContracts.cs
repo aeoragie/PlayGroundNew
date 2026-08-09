@@ -1,5 +1,5 @@
 using PlayGround.Shared.Time;
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 
 namespace PlayGround.Contracts.Export
 {

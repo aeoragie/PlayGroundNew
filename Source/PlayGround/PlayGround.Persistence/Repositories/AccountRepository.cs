@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
-using PlayGround.Application.Settings;
 using PlayGround.Contracts.Settings;
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database;

@@ -1,11 +1,10 @@
 using Microsoft.Extensions.Options;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Persistence.Database;
 using PlayGround.Application.Interfaces;
-using PlayGround.Application.Player;
 using PlayGround.Application.Player.Models;
 using PlayGround.Contracts.Player;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;

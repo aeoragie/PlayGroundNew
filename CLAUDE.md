@@ -270,16 +270,20 @@ PlayGroundNew/
 
 - **역할**: Client와 Server가 함께 쓰는 요청/응답 DTO. 도메인별 폴더에
   `{Domain}Contracts.cs` 하나로 통합 (예: `Team/TeamContracts.cs`).
-- **참조**: Core.Shared만 (2026-08-06, 시각 타입 `SystemTime` 공유 목적).
+- **참조**: Core.Shared(시각 타입 `SystemTime`) + Domain(도메인 enum 어휘 — 2026-08-09).
+  DTO는 어휘를 실어 나르는 쪽이고 어휘의 주인은 Domain이다.
 - **금지**: 로직(메서드), 엔티티, 외부 의존. 순수 데이터 클래스만.
   시각 필드는 순간이면 `SystemTime`, 달력 날짜면 `DateOnly` — `DateTime` 금지.
+  정형 값 필드는 Domain enum — 아래 "정형 값은 와이어·로직 모두 enum" 규칙.
 
 ### PlayGround.Domain — 도메인 모델
 
-- **역할**: 엔티티, 값 객체, 도메인 Enum(포지션·경기상태 등), 도메인 특화
-  ResultCode, 순수 비즈니스 규칙.
+- **역할**: 엔티티, 값 객체, **도메인 Enum 어휘**(`Soccer/SoccerEnums.cs`·`Account/AccountEnums.cs` —
+  포지션·경기상태·역할 등 전 정형 값), enum 기본값·판정 확장, 도메인 특화 ResultCode, 순수 비즈니스 규칙.
 - **참조**: Core.Shared만.
 - **금지**: 외부 라이브러리(EF Core 포함) 의존, DB/HTTP 등 인프라 관심사.
+  (`[JsonConverter(LenientEnumJsonConverter)]` 어트리뷰트는 예외 — 컨버터가 Core.Shared에 있고
+  선언만 얹는 수준이라 허용. 전역 등록 방식은 Server·Client 두 곳 등록 누락 위험이 더 크다.)
 
 ### PlayGround.Application — 유즈케이스
 
@@ -357,9 +361,9 @@ PlayGroundNew/
 ### 의존성 그래프
 
 ```
-Core.Shared (의존성 없음)          PlayGround.Contracts (Core.Shared 참조 — SystemTime)
+Core.Shared (의존성 없음)          PlayGround.Domain (Core.Shared 참조 — enum 어휘의 주인)
   ↑                                  ↑
-Core.Infrastructure                PlayGround.Domain (Core.Shared 참조)
+Core.Infrastructure                PlayGround.Contracts (Domain, Core.Shared 참조)
   ↑                                  ↑
   │                                PlayGround.Application (Domain, Contracts, Core.Shared)
   │                                  ↑
@@ -549,8 +553,8 @@ Windows에서 멀쩡하던 참조가 서버에서만 깨진다.**
   컬럼은 `VARCHAR(20)` + enum 멤버 이름 그대로(`'General'`, `'Pending'`), 주석에 허용 값 명시.
   **enum 멤버 이름 = DB 저장 문자열**이므로 개명은 데이터 마이그레이션과 함께.
 - **정형 값은 와이어·로직 모두 enum이다** (2026-08-09 전면 적용 — 상태·유형·역할 등 전 DTO 필드).
-  와이어 enum은 `Contracts/Soccer/SoccerEnums.cs`·`Contracts/Common/CommonEnums.cs`에 두고
-  (참조 방향상 Domain 불가), JSON은 `LenientEnumJsonConverter`가 이름 문자열로 오간다 —
+  enum 어휘는 **Domain이 소유한다** — `Domain/Soccer/SoccerEnums.cs`·`Domain/Account/AccountEnums.cs`
+  (2026-08-09 이동, Contracts→Domain 참조). JSON은 `LenientEnumJsonConverter`가 이름 문자열로 오간다 —
   **미지 값·null 토큰은 예외 대신 `Unknown`(0) 폴백**이라 서버가 멤버를 추가해도 캐시된 옛
   클라이언트가 죽지 않는다.
   - **DTO의 enum 필드는 비널러블 + `Unknown`(0) 기본값, 문자열은 `= string.Empty`.**

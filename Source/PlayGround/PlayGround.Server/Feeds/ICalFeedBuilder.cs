@@ -1,4 +1,4 @@
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Time;
 using System.Globalization;

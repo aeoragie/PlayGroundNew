@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 using PlayGround.Shared.Http;
 using PlayGround.Shared.Result;
 

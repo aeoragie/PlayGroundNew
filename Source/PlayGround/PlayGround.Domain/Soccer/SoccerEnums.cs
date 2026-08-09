@@ -1,11 +1,8 @@
 using System.Text.Json.Serialization;
 using PlayGround.Shared.Http;
 
-namespace PlayGround.Contracts.Soccer
+namespace PlayGround.Domain.Soccer
 {
-    // 와이어(JSON)는 멤버 이름 문자열, DB도 멤버 이름 문자열(변환은 Persistence EnumColumn에서만).
-    // Unknown(0)은 저장·전송 값이 아니라 미지정·미지 값 폴백이다.
-
     [JsonConverter(typeof(LenientEnumJsonConverter<SoccerAgeGroup>))]
     public enum SoccerAgeGroup
     {
@@ -25,7 +22,6 @@ namespace PlayGround.Contracts.Soccer
         FW,
     }
 
-    /// <summary>학년 — 국가 학제 대신 나이 기준 U표기. 표시도 당분간 이 표기 그대로다(국가별 표기는 추후 결정).</summary>
     [JsonConverter(typeof(LenientEnumJsonConverter<SoccerGrade>))]
     public enum SoccerGrade
     {
@@ -189,7 +185,6 @@ namespace PlayGround.Contracts.Soccer
         Guardian,
     }
 
-    /// <summary>Confirmed는 저장 값이 아니라 알림 조회의 파생 상태다 (RosterInvite — SoccerApplications.ConfirmedAt).</summary>
     [JsonConverter(typeof(LenientEnumJsonConverter<SoccerClaimRequestStatus>))]
     public enum SoccerClaimRequestStatus
     {

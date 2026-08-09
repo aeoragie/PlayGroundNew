@@ -4,7 +4,7 @@ using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Settings.Commands;
 using PlayGround.Contracts.Auth;
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 using PlayGround.Contracts.Settings;
 using PlayGround.Infrastructure.Logging;
 using PlayGround.Server.Services;

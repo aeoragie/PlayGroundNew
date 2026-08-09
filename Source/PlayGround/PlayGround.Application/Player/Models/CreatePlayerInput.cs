@@ -1,4 +1,4 @@
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 
 namespace PlayGround.Application.Player.Models
 {

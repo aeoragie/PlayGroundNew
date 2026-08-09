@@ -1,8 +1,6 @@
 using FluentAssertions;
-using PlayGround.Application.Player;
-using PlayGround.Application.Settings;
-using PlayGround.Contracts.Common;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Account;
+using PlayGround.Domain.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Domain

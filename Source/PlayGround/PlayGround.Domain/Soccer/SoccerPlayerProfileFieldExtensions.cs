@@ -1,8 +1,6 @@
-using PlayGround.Contracts.Soccer;
-
-namespace PlayGround.Application.Player
+namespace PlayGround.Domain.Soccer
 {
-    public static class PlayerProfileFieldDefaults
+    public static class SoccerPlayerProfileFieldExtensions
     {
         /// <summary>항목 기본 공개값 — 프로필·키·몸무게·주발·강점 태그 공개, 학교·보호자 연락처 비공개 (SPEC.PLAYERDASHBOARD §1).</summary>
         public static bool DefaultIsPublic(this SoccerPlayerProfileField field)

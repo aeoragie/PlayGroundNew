@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using PlayGround.Shared.Http;
 
-namespace PlayGround.Contracts.Common
+namespace PlayGround.Domain.Account
 {
     [JsonConverter(typeof(LenientEnumJsonConverter<AccountRole>))]
     public enum AccountRole

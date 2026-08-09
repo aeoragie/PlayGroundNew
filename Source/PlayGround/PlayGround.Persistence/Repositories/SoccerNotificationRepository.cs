@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Notification;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database;

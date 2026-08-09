@@ -1,5 +1,5 @@
 using PlayGround.Shared.Time;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 
 namespace PlayGround.Contracts.Claim
 {

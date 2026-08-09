@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 using PlayGround.Application.Interfaces;
-using PlayGround.Application.Settings;
 using PlayGround.Contracts.Team;
-using PlayGround.Contracts.Common;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Account;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;

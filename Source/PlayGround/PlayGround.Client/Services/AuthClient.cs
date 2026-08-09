@@ -1,6 +1,6 @@
 using PlayGround.Client.Localization;
 using PlayGround.Contracts.Auth;
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 using PlayGround.Contracts.Settings;
 using PlayGround.Shared.Http;
 using System.Net.Http.Json;

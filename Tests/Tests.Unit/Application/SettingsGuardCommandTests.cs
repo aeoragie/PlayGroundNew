@@ -4,9 +4,9 @@ using Moq;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Settings.Commands;
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 using PlayGround.Contracts.Settings;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Result;
 using Xunit;
 

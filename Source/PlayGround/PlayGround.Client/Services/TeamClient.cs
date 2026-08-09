@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components.Forms;
 using PlayGround.Client.Localization;
 using PlayGround.Contracts.Common;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Account;
+using PlayGround.Domain.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Http;
 using System.Net;

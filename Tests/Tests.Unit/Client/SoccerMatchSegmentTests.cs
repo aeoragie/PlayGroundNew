@@ -1,6 +1,6 @@
 using FluentAssertions;
 using PlayGround.Client.Models;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Client

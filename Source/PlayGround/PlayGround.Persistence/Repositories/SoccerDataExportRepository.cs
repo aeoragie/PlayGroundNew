@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 using PlayGround.Application.Interfaces;
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 using PlayGround.Contracts.Export;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;

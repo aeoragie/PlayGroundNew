@@ -1,5 +1,5 @@
 using Akka.Routing;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Contracts.Team;
 
 namespace PlayGround.Server.Actors

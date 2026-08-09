@@ -4,7 +4,7 @@ using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Shared.Result;
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using PlayGround.Client.Components.Records;
 using PlayGround.Contracts.Records;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Time;
 using Xunit;
 

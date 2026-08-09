@@ -1,4 +1,4 @@
-using PlayGround.Contracts.Common;
+using PlayGround.Domain.Account;
 namespace PlayGround.Contracts.Auth
 {
     public class LoginByEmailRequest

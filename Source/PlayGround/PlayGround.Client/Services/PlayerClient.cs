@@ -1,6 +1,6 @@
 using PlayGround.Client.Localization;
 using PlayGround.Contracts.Player;
-using PlayGround.Contracts.Soccer;
+using PlayGround.Domain.Soccer;
 using PlayGround.Contracts.Team;
 using PlayGround.Shared.Http;
 using System.Net;
