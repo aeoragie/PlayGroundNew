@@ -209,10 +209,17 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 
 ---
 
-## R4. 배포 파이프라인 — 자산 완료 (2026-08-02), 실행 대기
+## R4. 배포 파이프라인 — **첫 배포 완료 (2026-08-09)**, 파이프라인 전환 대기
 
-**스크립트·워크플로·설치 절차는 모두 만들어 뒀다.** 남은 것은 AWS 콘솔·GitHub 설정과
-실제 실행이며, **전부 `Deploy/`에 있다** — 여기 옮겨 적지 않는다(고칠 때 두 곳이 어긋난다).
+**https://playgroundsport.com 라이브.** 스키마(계약 테스트 252건으로 검증) → 수동 배포
+(publish → tar zip → scp → `playground-deploy`) → HTTPS(certbot)까지 사용자가 직접 완주했다.
+현황·운영 방침·재생성 이력은 `Deploy/Servers.md`, 절차는 `Deploy/README.md`.
+
+**의도적 보류 (2026-08-09 결정):**
+
+- **GitHub Actions 전환 보류** — 수동 배포가 손에 익을 때까지. 시크릿 4개 등록만 하면 된다(README 4-5).
+- **백업 크론 보류** — 테스트 데이터뿐. **실데이터 유입 전에 반드시 켠다**(README 4-4) +
+  DB 비번 회전(첫 구축 중 노출됨)도 그때 함께.
 
 | 무엇 | 어디 |
 |---|---|
@@ -220,7 +227,7 @@ Redis 키 형태도 확인: `auth:revoked:token:{jti}` · `auth:revoked:user:{us
 | AWS 콘솔 클릭 가이드 (1회) | `Deploy/AwsSetup.md` |
 | 장애 대응 | `Deploy/Runbook.md` |
 
-**완료 기준** — 파이프라인으로 배포되고, **롤백을 1회 실제로 연습**해 봄.
+**완료 기준** — 파이프라인으로 배포되고, **롤백을 1회 실제로 연습**해 봄. (수동 숙달 후)
 
 ---
 

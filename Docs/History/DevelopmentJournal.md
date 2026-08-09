@@ -76,6 +76,27 @@
   `Models/` 분리 + `Soccer` 프리픽스, **페이지 라우트 문자열은 `Client/Routes.cs` 단일 관리**
   (@page 대신 `@attribute [Route(Routes.X)]`, 링크·NavigateTo는 상수/헬퍼만).
 
+### 첫 운영 배포 완주 (2026-08-09) — https://playgroundsport.com 라이브
+
+R4 실행. **사용자가 학습하며 전 단계를 직접 실행**했고(클로드는 단계 안내·해석), 인스턴스
+재생성 → DB 비번 복구(mssql-conf) → 스키마 배포(계약 테스트 252건 검증) → 수동 앱 배포 →
+HTTPS(certbot)까지. 운영 방침(수동 배포 유지·백업 보류)은 ReleasePlan R4·Servers.md.
+
+밟은 함정 5개 — 전부 자산·학습 노트에 반영됨:
+
+1. **Compress-Archive의 백슬래시 zip** — Linux unzip이 폴더 구조를 못 살린다. Windows `tar`로
+   해결 (BuildPublishDeploy.md).
+2. **22.04 prod 저장소에 .NET 10 apt 패키지 없음**(9.0까지만) — dotnet-install 스크립트로 교체,
+   ec2-setup.sh 수정 + 갱신 절차 Runbook에.
+3. **playground.service Type=notify** — 앱에 UseSystemd() 신호가 없어 start가 90초 대기 후 실패
+   반복. Type=simple로 수정.
+4. **Blazor 지문 자리표시자 — 호스티드 배포에서 미치환** — index.html의 `#[.{fingerprint}]`는
+   Client standalone publish에서만 치환된다. Server publish에는 치환 경로가 없어(정적 자산
+   매니페스트에 index.html 항목 0) Loading에서 정지. dotnet run에서는 정상이라 배포 전엔 안
+   보인다. WasmFingerprintAssets=false로 해결 (BuildPublishDeploy.md).
+5. **비밀번호 관리 부재로 DB 비번 분실** — 자격 증명은 git 밖 `C:\Workspace\Keys\` 한 파일로
+   통일. 구축 중 노출된 비번은 실사용자 유입 전 회전(ReleasePlan R4 보류 항목).
+
 ### 정형 값 enum화 전면 적용 (2026-08-09)
 
 1단계(AgeGroup·Grade·Position·PreferredFoot, e71e05c)에 이어 상태·유형·역할 전 DTO 필드를
