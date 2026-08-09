@@ -8,7 +8,7 @@ namespace PlayGround.Infrastructure.Logging
     /// LOG_DATABASE·LOG_REDIS·LOG_ACTOR를 추가하고 다시 빌드한다.
     /// [Conditional]이라 꺼진 카테고리는 호출과 인자 계산이 컴파일에서 통째로 사라진다.
     /// </summary>
-    public static class DiagLog
+    public static class DiagnosticLog
     {
         [Conditional("LOG_DATABASE")]
         public static void Database(ILogger logger, string message, params (string Key, object? Value)[] fields)

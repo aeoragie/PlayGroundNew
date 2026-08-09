@@ -18,11 +18,11 @@ public abstract class CommandBase(RepositoryBase repository)
         var result = await task;
         if (result.IsError)
         {
-            DiagLog.Database(Logger, "Execute failed", ("Command", CommandName), ("Message", result.Message));
+            DiagnosticLog.Database(Logger, "Execute failed", ("Command", CommandName), ("Message", result.Message));
             return new QueryResultBase { ResultCode = QueryResult.Error };
         }
 
-        DiagLog.Database(Logger, "Execute completed", ("Command", CommandName), ("AffectedRows", result.Value));
+        DiagnosticLog.Database(Logger, "Execute completed", ("Command", CommandName), ("AffectedRows", result.Value));
         return new QueryResultBase { ResultCode = QueryResult.Success };
     }
 
@@ -39,11 +39,11 @@ public abstract class CommandBase(RepositoryBase repository)
         {
             if (result.ResultData.DetailCode == ErrorCode.NotFound)
             {
-                DiagLog.Database(Logger, "Single query returned no data", ("Command", CommandName));
+                DiagnosticLog.Database(Logger, "Single query returned no data", ("Command", CommandName));
             }
             else
             {
-                DiagLog.Database(Logger, "Single query failed", ("Command", CommandName), ("Message", result.Message));
+                DiagnosticLog.Database(Logger, "Single query failed", ("Command", CommandName), ("Message", result.Message));
             }
 
             queryResult.ResultCode = QueryResult.Error;
@@ -65,7 +65,7 @@ public abstract class CommandBase(RepositoryBase repository)
         var queryResult = new QueryResultList<T1>();
         if (result.IsError)
         {
-            DiagLog.Database(Logger, "Query failed", ("Command", CommandName), ("Message", result.Message));
+            DiagnosticLog.Database(Logger, "Query failed", ("Command", CommandName), ("Message", result.Message));
             queryResult.ResultCode = QueryResult.Error;
             return queryResult;
         }

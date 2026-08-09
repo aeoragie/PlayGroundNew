@@ -60,7 +60,7 @@ public abstract class RepositoryBase
 
     public async Task<bool> CanConnectAsync(CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -83,7 +83,7 @@ public abstract class RepositoryBase
     public async Task<Result<TRow>> QuerySingleOrDefaultAsync<TRow>(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -115,7 +115,7 @@ public abstract class RepositoryBase
     public async Task<Result<TRow>> ProcedureSingleOrDefaultAsync<TRow>(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -154,7 +154,7 @@ public abstract class RepositoryBase
     public async Task<Result<IEnumerable<TRow>>> QueryAsync<TRow>(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -182,7 +182,7 @@ public abstract class RepositoryBase
     public async Task<Result<IEnumerable<TRow>>> ProcedureAsync<TRow>(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -212,7 +212,7 @@ public abstract class RepositoryBase
     public async Task<Result<MultiQueryReader>> ProcedureMultipleAsync(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
 
         // 리더가 커넥션을 계속 사용하므로 여기서 dispose하지 않고 MultiQueryReader에 소유권을 넘긴다
         var connection = await OpenConnectionAsync(cancellation);
@@ -249,7 +249,7 @@ public abstract class RepositoryBase
     public async Task<Result<int>> ExecuteAsync(
         string sql, object? parameters = null, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -274,7 +274,7 @@ public abstract class RepositoryBase
     public async Task<Result<int>> ProcedureExecuteAsync(
         ProcedureBase procedure, int? commandTimeout = null, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         try
         {
             await using var connection = await OpenConnectionAsync(cancellation);
@@ -308,7 +308,7 @@ public abstract class RepositoryBase
     public async Task<Result<TResult>> ExecuteInTransactionAsync<TResult>(
         Func<DbConnection, DbTransaction, Task<TResult>> operation, IsolationLevel isolationLevel = IsolationLevel.ReadCommitted, CancellationToken cancellation = default)
     {
-        Stopwatch? stopwatch = DiagLog.DatabaseTimer();
+        Stopwatch? stopwatch = DiagnosticLog.DatabaseTimer();
         await using var connection = await OpenConnectionAsync(cancellation);
         await using var transaction = await connection.BeginTransactionAsync(isolationLevel, cancellation);
 

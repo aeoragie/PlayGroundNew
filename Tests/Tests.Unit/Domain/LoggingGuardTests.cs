@@ -11,11 +11,11 @@ namespace PlayGround.Tests.Unit.Domain
     public class LoggingGuardTests
     {
         private static readonly Regex LogCall = new(
-            @"\b(?:m?[Ll]ogger)\.(?:Trace|Debug|Info|Warn|Error|Fatal)(?:With)?\(|\b(?:KeyValueLogExtensions|DiagLog)\.\w+\(|\bLogWith\(|\bLog(?:Trace|Debug|Information|Warning|Error|Critical)\(",
+            @"\b(?:m?[Ll]ogger)\.(?:Trace|Debug|Info|Warn|Error|Fatal)(?:With)?\(|\b(?:KeyValueLogExtensions|DiagnosticLog)\.\w+\(|\bLogWith\(|\bLog(?:Trace|Debug|Information|Warning|Error|Critical)\(",
             RegexOptions.Compiled);
 
         private static readonly Regex LogMessage = new(
-            @"\b(?:(?:m?[Ll]ogger)\.(?:Trace|Debug|Info|Warn|Error|Fatal)(?:With)?|(?:KeyValueLogExtensions|DiagLog)\.\w+)\((?:\w+,\s*){0,2}""(?<text>[^""]*)""",
+            @"\b(?:(?:m?[Ll]ogger)\.(?:Trace|Debug|Info|Warn|Error|Fatal)(?:With)?|(?:KeyValueLogExtensions|DiagnosticLog)\.\w+)\((?:\w+,\s*){0,2}""(?<text>[^""]*)""",
             RegexOptions.Compiled);
 
         private static readonly Regex LogField = new(@"\(""(?<key>\w+)"",", RegexOptions.Compiled);

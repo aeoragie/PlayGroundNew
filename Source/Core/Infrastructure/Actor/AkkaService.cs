@@ -134,7 +134,7 @@ namespace PlayGround.Infrastructure.Actor
                 }
 
 #pragma warning disable CS0162
-                DiagLog.Actor(Logger, "Actor created", ("ActorName", actorName));
+                DiagnosticLog.Actor(Logger, "Actor created", ("ActorName", actorName));
 #pragma warning restore CS0162
                 return actor;
             }
