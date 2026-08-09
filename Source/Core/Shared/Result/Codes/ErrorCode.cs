@@ -1,6 +1,5 @@
-using System.Collections.Concurrent;
-
 using PlayGround.Shared.Primitives;
+using System.Collections.Concurrent;
 
 namespace PlayGround.Shared.Result;
 
@@ -17,9 +16,6 @@ public sealed class ErrorCode : DetailCode
         }
     }
 
-    /// <summary>
-    /// 외부 프로젝트에서 도메인 특화 ErrorCode를 등록하기 위한 팩토리 메서드
-    /// </summary>
     public static ErrorCode Register(int value, string name, string message)
     {
         return new ErrorCode(value, name, message);
@@ -245,13 +241,20 @@ public sealed class ErrorCode : DetailCode
         };
     }
 
-    public static IEnumerable<ErrorCode> GetClientErrors() => GetByRange(DetailCodeRange.Error.Client.Min, DetailCodeRange.Error.Client.Max);
-    public static IEnumerable<ErrorCode> GetAuthErrors() => GetByRange(DetailCodeRange.Error.Auth.Min, DetailCodeRange.Error.Auth.Max);
-    public static IEnumerable<ErrorCode> GetResourceErrors() => GetByRange(DetailCodeRange.Error.Resource.Min, DetailCodeRange.Error.Resource.Max);
-    public static IEnumerable<ErrorCode> GetUserErrors() => GetByRange(DetailCodeRange.Error.Client.Min, DetailCodeRange.Error.Resource.Max);
-    public static IEnumerable<ErrorCode> GetBusinessErrors() => GetByRange(DetailCodeRange.Error.Business.Min, DetailCodeRange.Error.Business.Max);
-    public static IEnumerable<ErrorCode> GetBusinessLogicErrors() => GetByRange(DetailCodeRange.Error.Business.Min, DetailCodeRange.Error.Sports.Max);
-    public static IEnumerable<ErrorCode> GetSystemErrors() => GetByRange(DetailCodeRange.Error.Database.Min, DetailCodeRange.Error.Internal.Max);
+    public static IEnumerable<ErrorCode> GetClientErrors()
+        => GetByRange(DetailCodeRange.Error.Client.Min, DetailCodeRange.Error.Client.Max);
+    public static IEnumerable<ErrorCode> GetAuthErrors()
+        => GetByRange(DetailCodeRange.Error.Auth.Min, DetailCodeRange.Error.Auth.Max);
+    public static IEnumerable<ErrorCode> GetResourceErrors()
+        => GetByRange(DetailCodeRange.Error.Resource.Min, DetailCodeRange.Error.Resource.Max);
+    public static IEnumerable<ErrorCode> GetUserErrors()
+        => GetByRange(DetailCodeRange.Error.Client.Min, DetailCodeRange.Error.Resource.Max);
+    public static IEnumerable<ErrorCode> GetBusinessErrors()
+        => GetByRange(DetailCodeRange.Error.Business.Min, DetailCodeRange.Error.Business.Max);
+    public static IEnumerable<ErrorCode> GetBusinessLogicErrors()
+        => GetByRange(DetailCodeRange.Error.Business.Min, DetailCodeRange.Error.Sports.Max);
+    public static IEnumerable<ErrorCode> GetSystemErrors()
+        => GetByRange(DetailCodeRange.Error.Database.Min, DetailCodeRange.Error.Internal.Max);
 
     public bool IsClientError => DetailCodeRange.IsClientError(Value);
     public bool IsAuthError => DetailCodeRange.IsAuthError(Value);
@@ -263,12 +266,14 @@ public sealed class ErrorCode : DetailCode
     public bool IsUserError => DetailCodeRange.IsUserError(Value);
     public bool IsBusinessLogicError => DetailCodeRange.IsBusinessLogicError(Value);
 
-    public bool IsRetryable => this == NetworkTimeout || this == DatabaseTimeout ||
-                              this == ExternalServiceTimeout || this == ServiceUnavailable ||
-                              this == MessageTimeout || this == CacheTimeout;
+    public bool IsRetryable =>
+        this == NetworkTimeout || this == DatabaseTimeout ||
+        this == ExternalServiceTimeout || this == ServiceUnavailable ||
+        this == MessageTimeout || this == CacheTimeout;
 
-    public bool IsCritical => this == DatabaseError || this == InternalError ||
-                             this == UnknownError || this == DatabaseDeadlock;
+    public bool IsCritical =>
+        this == DatabaseError || this == InternalError ||
+        this == UnknownError || this == DatabaseDeadlock;
 
     #endregion
 }

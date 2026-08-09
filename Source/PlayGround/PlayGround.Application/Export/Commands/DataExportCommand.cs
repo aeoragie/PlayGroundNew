@@ -1,19 +1,18 @@
-using System.Diagnostics;
-using System.IO.Compression;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using PlayGround.Shared.Logging;
-using PlayGround.Shared.Result;
-using PlayGround.Shared.Time;
+using PlayGround.Application.Auth.Models;
+using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Export;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Settings;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
-using PlayGround.Application.Auth.Models;
-using PlayGround.Application.Interfaces;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
+using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace PlayGround.Application.Export.Commands
 {

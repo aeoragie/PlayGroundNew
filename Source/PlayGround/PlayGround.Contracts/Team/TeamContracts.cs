@@ -1,5 +1,4 @@
 using PlayGround.Shared.Time;
-using System.Collections.Generic;
 
 namespace PlayGround.Contracts.Team
 {

@@ -1,10 +1,10 @@
-using System.Diagnostics;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Player;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
-using PlayGround.Contracts.Player;
-using PlayGround.Application.Interfaces;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace PlayGround.Application.Player.Commands
 {

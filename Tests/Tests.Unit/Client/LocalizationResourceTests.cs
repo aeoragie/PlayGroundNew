@@ -1,8 +1,8 @@
+using FluentAssertions;
+using PlayGround.Client.Localization;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using FluentAssertions;
 using Xunit;
-using PlayGround.Client.Localization;
 
 namespace PlayGround.Tests.Unit.Client
 {

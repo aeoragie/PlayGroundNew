@@ -1,10 +1,8 @@
+using NLog;
+using PlayGround.Infrastructure.Logging;
+using StackExchange.Redis;
 using System.Diagnostics;
 using System.Text.Json;
-using NLog;
-using StackExchange.Redis;
-
-using PlayGround.Shared.Logging;
-using PlayGround.Infrastructure.Logging;
 
 namespace PlayGround.Infrastructure.Store
 {

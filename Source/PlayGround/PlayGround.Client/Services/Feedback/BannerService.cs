@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace PlayGround.Client.Services.Feedback
 {
     /// <summary>배너 심각도 — 색·아이콘·닫기 가능 여부가 달라진다 (Design.BannerStepper §1).

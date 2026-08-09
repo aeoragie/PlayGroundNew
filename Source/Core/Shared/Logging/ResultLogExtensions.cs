@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using PlayGround.Shared.Result;
 using Results = PlayGround.Shared.Result;
 
 namespace PlayGround.Shared.Logging
@@ -45,11 +44,21 @@ namespace PlayGround.Shared.Logging
             string message = isSuccess ? "Operation completed" : "Operation failed";
             switch (level)
             {
-                case LogLevel.Critical: logger.Fatal(message, [.. fields]); break;
-                case LogLevel.Error: logger.Error(message, [.. fields]); break;
-                case LogLevel.Warning: logger.Warn(message, [.. fields]); break;
-                case LogLevel.Debug: logger.Debug(message, [.. fields]); break;
-                default: logger.Info(message, [.. fields]); break;
+                case LogLevel.Critical:
+                    logger.Fatal(message, [.. fields]);
+                    break;
+                case LogLevel.Error:
+                    logger.Error(message, [.. fields]);
+                    break;
+                case LogLevel.Warning:
+                    logger.Warn(message, [.. fields]);
+                    break;
+                case LogLevel.Debug:
+                    logger.Debug(message, [.. fields]);
+                    break;
+                default:
+                    logger.Info(message, [.. fields]);
+                    break;
             }
         }
 

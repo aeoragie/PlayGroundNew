@@ -1,10 +1,10 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using PlayGround.Shared.Logging;
-using PlayGround.Shared.Result;
+using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Soccer;
-using PlayGround.Application.Interfaces;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
+using System.Diagnostics;
 
 namespace PlayGround.Application.Team.Commands
 {

@@ -1,12 +1,12 @@
-using System.Diagnostics;
-using System.Globalization;
 using Microsoft.Extensions.Logging;
-using PlayGround.Shared.Logging;
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Player;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Models;
+using PlayGround.Contracts.Player;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace PlayGround.Application.Player.Commands
 {

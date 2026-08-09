@@ -1,6 +1,6 @@
 using FluentAssertions;
-using Xunit;
 using PlayGround.Client.Models;
+using Xunit;
 
 namespace PlayGround.Tests.Unit.Client
 {

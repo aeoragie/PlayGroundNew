@@ -1,10 +1,9 @@
-using System.Net;
-using System.Net.Http.Json;
-using PlayGround.Shared.Http;
+using PlayGround.Client.Localization;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Team;
-
-using PlayGround.Client.Localization;
+using PlayGround.Shared.Http;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace PlayGround.Client.Services
 {

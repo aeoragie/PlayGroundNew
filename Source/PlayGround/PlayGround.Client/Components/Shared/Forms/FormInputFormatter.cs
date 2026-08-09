@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace PlayGround.Client.Components.Shared.Forms
 {
     /// <summary>입력 자동 포맷 (Design.FormPatterns 컨트롤별). 숫자만 남기고 구분자를 넣는다.</summary>

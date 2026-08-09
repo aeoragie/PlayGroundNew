@@ -1,6 +1,6 @@
+using PlayGround.Shared.Result;
 using System.Diagnostics;
 using System.Globalization;
-using PlayGround.Shared.Result;
 
 namespace PlayGround.Shared.Extensions;
 

@@ -1,5 +1,5 @@
-using PlayGround.Domain.Soccer;
 using PlayGround.Client.Localization;
+using PlayGround.Domain.Soccer;
 
 namespace PlayGround.Client.Models
 {

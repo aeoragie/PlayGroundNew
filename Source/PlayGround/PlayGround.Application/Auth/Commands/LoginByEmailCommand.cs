@@ -1,10 +1,10 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using PlayGround.Shared.Logging;
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Auth;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Auth;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
+using System.Diagnostics;
 
 namespace PlayGround.Application.Auth.Commands
 {

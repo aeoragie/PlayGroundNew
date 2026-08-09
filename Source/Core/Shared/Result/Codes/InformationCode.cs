@@ -1,6 +1,5 @@
-using System.Collections.Concurrent;
-
 using PlayGround.Shared.Primitives;
+using System.Collections.Concurrent;
 
 namespace PlayGround.Shared.Result;
 
@@ -17,9 +16,6 @@ public sealed class InformationCode : DetailCode
         }
     }
 
-    /// <summary>
-    /// 외부 프로젝트에서 도메인 특화 InformationCode를 등록하기 위한 팩토리 메서드
-    /// </summary>
     public static InformationCode Register(int value, string name, string message)
     {
         return new InformationCode(value, name, message);

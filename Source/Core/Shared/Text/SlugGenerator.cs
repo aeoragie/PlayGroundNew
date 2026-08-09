@@ -1,7 +1,6 @@
-using System;
+using PlayGround.Shared.Result;
 using System.Diagnostics;
 using System.Text;
-using PlayGround.Shared.Result;
 
 namespace PlayGround.Shared.Text
 {

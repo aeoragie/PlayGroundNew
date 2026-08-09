@@ -1,8 +1,7 @@
 using NLog;
-using PlayGround.Shared.Result;
-
-using PlayGround.Shared.Logging;
 using PlayGround.Infrastructure.Logging;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
 
 #pragma warning disable CS0162 // LogSwitch가 const라 꺼지면 컴파일러가 블록을 지운다
 

@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using PlayGround.Application.Interfaces;
+using System.Diagnostics;
 
 namespace PlayGround.Server.Services
 {

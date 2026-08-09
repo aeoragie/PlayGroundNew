@@ -1,13 +1,12 @@
 using Akka.Actor;
-using Microsoft.Extensions.DependencyInjection;
-using PlayGround.Shared.Result;
-using PlayGround.Infrastructure.Actor;
-using PlayGround.Contracts.Agent;
-using PlayGround.Contracts.Claim;
-using PlayGround.Contracts.Notification;
 using PlayGround.Application.Agent.Commands;
 using PlayGround.Application.Claim.Commands;
 using PlayGround.Application.Notification.Commands;
+using PlayGround.Contracts.Agent;
+using PlayGround.Contracts.Claim;
+using PlayGround.Contracts.Notification;
+using PlayGround.Infrastructure.Actor;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Server.Actors
 {

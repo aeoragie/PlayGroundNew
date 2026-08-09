@@ -1,14 +1,14 @@
+using Dapper;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
+using NLog;
+using PlayGround.Infrastructure.Logging;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
 using System.Collections.Frozen;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
-using Dapper;
-using NLog;
-using PlayGround.Shared.Logging;
-using PlayGround.Shared.Result;
-using PlayGround.Infrastructure.Logging;
 
 namespace PlayGround.Infrastructure.Database.Base;
 

@@ -1,7 +1,6 @@
-using System.Diagnostics;
-using Microsoft.Extensions.Hosting;
 using PlayGround.Infrastructure.Actor;
 using PlayGround.Infrastructure.Logging;
+using System.Diagnostics;
 
 namespace PlayGround.Server.Actors
 {

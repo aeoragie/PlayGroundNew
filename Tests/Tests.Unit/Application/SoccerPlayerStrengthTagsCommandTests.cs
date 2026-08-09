@@ -1,12 +1,12 @@
-using System.Text.Json;
-using Microsoft.Extensions.Logging.Abstractions;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Xunit;
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Player;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Commands;
+using PlayGround.Contracts.Player;
+using PlayGround.Shared.Result;
+using System.Text.Json;
+using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
 {

@@ -1,12 +1,11 @@
+using Microsoft.AspNetCore.Components.Forms;
+using PlayGround.Client.Localization;
+using PlayGround.Contracts.Common;
+using PlayGround.Contracts.Team;
+using PlayGround.Shared.Http;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Components.Forms;
-using PlayGround.Shared.Http;
-using PlayGround.Contracts.Common;
-using PlayGround.Contracts.Team;
-
-using PlayGround.Client.Localization;
 
 namespace PlayGround.Client.Services
 {

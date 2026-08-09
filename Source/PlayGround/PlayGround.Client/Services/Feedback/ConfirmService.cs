@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 using PlayGround.Client.Localization;
 
 namespace PlayGround.Client.Services.Feedback

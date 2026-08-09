@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using PlayGround.Infrastructure.Actor;
 using PlayGround.Server.Actors;
 

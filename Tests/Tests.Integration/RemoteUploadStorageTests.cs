@@ -1,9 +1,9 @@
-using System.Text.RegularExpressions;
 using Amazon.S3;
 using Amazon.S3.Model;
 using FluentAssertions;
 using Moq;
 using PlayGround.Server.Services;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace PlayGround.Tests.Integration

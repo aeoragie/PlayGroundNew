@@ -1,14 +1,14 @@
-using System.Text.Json;
 using Microsoft.Extensions.Options;
-using PlayGround.Shared.Result;
-using PlayGround.Infrastructure.Database;
-using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Contracts.Player;
-using PlayGround.Domain.Soccer;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Models;
+using PlayGround.Contracts.Player;
+using PlayGround.Domain.Soccer;
+using PlayGround.Infrastructure.Database;
+using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
 using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
+using PlayGround.Shared.Result;
+using System.Text.Json;
 
 namespace PlayGround.Persistence.Repositories
 {

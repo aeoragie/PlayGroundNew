@@ -1,5 +1,4 @@
 using PlayGround.Shared.Time;
-using System;
 
 namespace PlayGround.Contracts.Claim
 {

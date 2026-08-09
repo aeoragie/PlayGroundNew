@@ -1,14 +1,14 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Xunit;
-using PlayGround.Shared.Result;
-using PlayGround.Shared.Time;
+using PlayGround.Application.Interfaces;
+using PlayGround.Application.Team.Commands;
 using PlayGround.Contracts.Team;
 using PlayGround.Domain.Account;
 using PlayGround.Domain.Soccer;
-using PlayGround.Application.Interfaces;
-using PlayGround.Application.Team.Commands;
+using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
+using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
 {

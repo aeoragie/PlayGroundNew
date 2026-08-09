@@ -1,7 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace PlayGround.Client.Services.Feedback
 {
     /// <summary>토스트 종류 — 상태 원 색이 달라진다 (Design.FeedbackPatterns A).</summary>

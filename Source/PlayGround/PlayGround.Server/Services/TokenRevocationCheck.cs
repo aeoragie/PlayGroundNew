@@ -1,8 +1,8 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using PlayGround.Application.Interfaces;
+using PlayGround.Infrastructure.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using PlayGround.Infrastructure.Logging;
-using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Server.Services
 {

@@ -1,9 +1,8 @@
 using Akka.Actor;
-using Microsoft.Extensions.DependencyInjection;
-using PlayGround.Shared.Result;
-using PlayGround.Infrastructure.Actor;
-using PlayGround.Contracts.Records;
 using PlayGround.Application.Records.Commands;
+using PlayGround.Contracts.Records;
+using PlayGround.Infrastructure.Actor;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Server.Actors
 {

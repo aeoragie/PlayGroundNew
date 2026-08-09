@@ -1,10 +1,10 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PlayGround.Shared.Http;
-using PlayGround.Shared.Result;
 using PlayGround.Contracts.Claim;
 using PlayGround.Server.Actors;
+using PlayGround.Shared.Http;
+using PlayGround.Shared.Result;
+using System.Security.Claims;
 
 namespace PlayGround.Server.Controllers.Soccer
 {

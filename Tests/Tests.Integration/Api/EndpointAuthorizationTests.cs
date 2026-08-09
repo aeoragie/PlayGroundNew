@@ -1,10 +1,10 @@
-using System.Reflection;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Xunit;
 using PlayGround.Server.Controllers.Auth;
+using System.Reflection;
+using Xunit;
 
 namespace PlayGround.Tests.Integration.Api
 {

@@ -1,6 +1,6 @@
+using PlayGround.Client.Localization;
 using System.Text.Json;
 using Xunit;
-using PlayGround.Client.Localization;
 
 namespace PlayGround.Tests.Unit.Client
 {

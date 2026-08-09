@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Options;
-using PlayGround.Shared.Result;
+using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Landing;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Application.Interfaces;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
 using PlayGround.Persistence.Database.Generated.Soccer.Procedures;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Persistence.Repositories
 {

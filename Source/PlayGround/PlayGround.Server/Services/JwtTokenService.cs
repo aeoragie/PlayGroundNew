@@ -1,12 +1,12 @@
+using Microsoft.IdentityModel.Tokens;
+using PlayGround.Application.Interfaces;
+using PlayGround.Shared.Time;
 using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using PlayGround.Shared.Time;
-using PlayGround.Application.Interfaces;
 
 namespace PlayGround.Server.Services
 {

@@ -1,10 +1,9 @@
+using PlayGround.Shared.Time;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using PlayGround.Shared.Time;
 
 namespace PlayGround.Server.Services
 {
@@ -134,8 +133,12 @@ namespace PlayGround.Server.Services
             string s = value.Replace('-', '+').Replace('_', '/');
             switch (s.Length % 4)
             {
-                case 2: s += "=="; break;
-                case 3: s += "="; break;
+                case 2:
+                    s += "==";
+                    break;
+                case 3:
+                    s += "=";
+                    break;
             }
             return Convert.FromBase64String(s);
         }

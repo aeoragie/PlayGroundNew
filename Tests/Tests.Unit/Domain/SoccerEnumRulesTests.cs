@@ -1,7 +1,7 @@
 using FluentAssertions;
-using Xunit;
 using PlayGround.Domain.Account;
 using PlayGround.Domain.Soccer;
+using Xunit;
 
 namespace PlayGround.Tests.Unit.Domain
 {

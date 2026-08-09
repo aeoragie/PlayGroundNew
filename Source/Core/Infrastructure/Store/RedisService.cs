@@ -1,11 +1,10 @@
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using NLog;
-using StackExchange.Redis;
-
 using PlayGround.Infrastructure.Logging;
+using StackExchange.Redis;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace PlayGround.Infrastructure.Store
 {

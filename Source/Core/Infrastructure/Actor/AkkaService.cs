@@ -1,15 +1,14 @@
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Akka.Actor;
 using Akka.Configuration;
 using Akka.DependencyInjection;
 using Akka.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using NLog;
-
-using PlayGround.Shared.Logging;
 using PlayGround.Infrastructure.Logging;
+using PlayGround.Shared.Logging;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace PlayGround.Infrastructure.Actor
 {

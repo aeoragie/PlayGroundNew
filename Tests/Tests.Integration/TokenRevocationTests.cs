@@ -1,5 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,9 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Xunit;
 using PlayGround.Application.Interfaces;
 using PlayGround.Server.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Xunit;
 
 namespace PlayGround.Tests.Integration
 {

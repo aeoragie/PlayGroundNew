@@ -1,7 +1,7 @@
-using System.Data;
-using System.Globalization;
 using Dapper;
 using PlayGround.Shared.Time;
+using System.Data;
+using System.Globalization;
 
 namespace PlayGround.Infrastructure.Database;
 

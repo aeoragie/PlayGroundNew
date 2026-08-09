@@ -22,9 +22,6 @@ public static class DetailCodeExtensions
         return DetailCodeRange.IsBusinessLogicError(code.Value);
     }
 
-    /// <summary>
-    /// HTTP 상태 코드로 변환
-    /// </summary>
     public static int ToHttpStatusCode(this DetailCode code)
     {
         return code switch
@@ -49,9 +46,6 @@ public static class DetailCodeExtensions
         };
     }
 
-    /// <summary>
-    /// 재시도 가능한지 확인
-    /// </summary>
     public static bool IsRetryable(this DetailCode code)
     {
         if (code is ErrorCode errorCode)
@@ -60,5 +54,4 @@ public static class DetailCodeExtensions
         }
         return false;
     }
-
 }

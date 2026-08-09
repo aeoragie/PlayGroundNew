@@ -1,5 +1,3 @@
-using System;
-
 namespace PlayGround.Application.Og
 {
     /// <summary>팀 OG 카드 원자료 (DECISION.OGMETA). 공개 팀만 — 비공개·미존재는 조회가 null.</summary>

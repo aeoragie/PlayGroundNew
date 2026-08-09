@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using PlayGround.Shared.Primitives;
+using System.Diagnostics;
 
 namespace PlayGround.Shared.Result
 {
@@ -11,12 +11,12 @@ namespace PlayGround.Shared.Result
         private string? mDetails;
         private Exception? mException;
 
-        private readonly Dictionary<string, object> Metadatas = new();
-        private readonly Stopwatch Stopwatch = new();
+        private readonly Dictionary<string, object> mMetadatas = new();
+        private readonly Stopwatch mStopwatch = new();
 
         public ResultBuilder()
         {
-            Stopwatch.Start();
+            mStopwatch.Start();
         }
 
         #region Value Setting
@@ -105,7 +105,7 @@ namespace PlayGround.Shared.Result
 
         public ResultBuilder<T> WithMetadata(string key, object value)
         {
-            Metadatas[key] = value;
+            mMetadatas[key] = value;
             return this;
         }
 
@@ -153,8 +153,8 @@ namespace PlayGround.Shared.Result
 
         public Result<T> Build()
         {
-            Stopwatch.Stop();
-            WithMetadata("ExecutionTime", Stopwatch.Elapsed);
+            mStopwatch.Stop();
+            WithMetadata("ExecutionTime", mStopwatch.Elapsed);
 
             if (mDetailCode?.IsError == true)
             {
@@ -219,7 +219,7 @@ namespace PlayGround.Shared.Result
         {
             var status = mDetailCode?.Category.ToString() ?? "Building";
             var valueInfo = mValue != null ? $"Value: {mValue}" : "No Value";
-            var metadataInfo = Metadatas.Count > 0 ? $"Metadata: {Metadatas.Count} items" : "No Metadata";
+            var metadataInfo = mMetadatas.Count > 0 ? $"Metadata: {mMetadatas.Count} items" : "No Metadata";
 
             return $"ResultBuilder<{typeof(T).Name}> [{status}] - {valueInfo}, {metadataInfo}";
         }
@@ -235,12 +235,12 @@ namespace PlayGround.Shared.Result
         private string? mMessage;
         private string? mDetails;
         private Exception? mException;
-        private readonly Dictionary<string, object> Metadatas = new();
-        private readonly Stopwatch Stopwatch = new();
+        private readonly Dictionary<string, object> mMetadatas = new();
+        private readonly Stopwatch mStopwatch = new();
 
         public ResultBuilder()
         {
-            Stopwatch.Start();
+            mStopwatch.Start();
         }
 
         #region Error Handling
@@ -297,7 +297,7 @@ namespace PlayGround.Shared.Result
 
         public ResultBuilder WithMetadata(string key, object value)
         {
-            Metadatas[key] = value;
+            mMetadatas[key] = value;
             return this;
         }
 
@@ -318,8 +318,8 @@ namespace PlayGround.Shared.Result
 
         public Result Build()
         {
-            Stopwatch.Stop();
-            WithMetadata("ExecutionTime", Stopwatch.Elapsed);
+            mStopwatch.Stop();
+            WithMetadata("ExecutionTime", mStopwatch.Elapsed);
 
             if (mDetailCode?.IsError == true)
             {

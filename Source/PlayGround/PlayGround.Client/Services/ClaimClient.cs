@@ -1,6 +1,6 @@
-using System.Net.Http.Json;
-using PlayGround.Shared.Http;
 using PlayGround.Contracts.Claim;
+using PlayGround.Shared.Http;
+using System.Net.Http.Json;
 
 namespace PlayGround.Client.Services
 {

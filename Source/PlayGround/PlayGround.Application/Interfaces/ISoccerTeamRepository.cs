@@ -1,6 +1,6 @@
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Team;
 using PlayGround.Application.Team.Models;
+using PlayGround.Contracts.Team;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Application.Interfaces
 {

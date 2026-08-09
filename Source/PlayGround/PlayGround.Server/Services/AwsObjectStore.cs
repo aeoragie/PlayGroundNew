@@ -1,8 +1,8 @@
-using System.Diagnostics;
-using System.Net;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using System.Diagnostics;
+using System.Net;
 
 namespace PlayGround.Server.Services
 {

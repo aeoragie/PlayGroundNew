@@ -1,6 +1,6 @@
-using System.Diagnostics;
-using PlayGround.Shared.Time;
 using PlayGround.Application.Interfaces;
+using PlayGround.Shared.Time;
+using System.Diagnostics;
 
 namespace PlayGround.Server.Services
 {

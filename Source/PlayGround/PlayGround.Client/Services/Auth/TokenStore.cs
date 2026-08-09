@@ -1,7 +1,5 @@
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using System.Diagnostics;
 
 namespace PlayGround.Client.Services.Auth
 {

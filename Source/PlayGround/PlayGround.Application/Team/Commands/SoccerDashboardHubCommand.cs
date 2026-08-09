@@ -1,13 +1,12 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using PlayGround.Shared.Logging;
-using PlayGround.Shared.Result;
-using PlayGround.Shared.Time;
+using PlayGround.Application.Interfaces;
 using PlayGround.Contracts.Claim;
 using PlayGround.Contracts.Player;
 using PlayGround.Contracts.Team;
-
-using PlayGround.Application.Interfaces;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
+using System.Diagnostics;
 
 namespace PlayGround.Application.Team.Commands
 {

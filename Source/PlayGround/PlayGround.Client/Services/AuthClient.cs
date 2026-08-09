@@ -1,9 +1,8 @@
-using System.Net.Http.Json;
-using PlayGround.Shared.Http;
+using PlayGround.Client.Localization;
 using PlayGround.Contracts.Auth;
 using PlayGround.Contracts.Settings;
-
-using PlayGround.Client.Localization;
+using PlayGround.Shared.Http;
+using System.Net.Http.Json;
 
 namespace PlayGround.Client.Services
 {

@@ -1,9 +1,8 @@
 using FluentAssertions;
-using PlayGround.Shared.Time;
-using PlayGround.Client.Services;
-using Xunit;
-using PlayGround.Contracts.Records;
 using PlayGround.Client.Components.Records;
+using PlayGround.Contracts.Records;
+using PlayGround.Shared.Time;
+using Xunit;
 
 namespace PlayGround.Tests.Unit.Client
 {

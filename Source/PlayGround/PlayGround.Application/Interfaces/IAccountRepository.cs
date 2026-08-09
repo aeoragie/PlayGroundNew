@@ -1,6 +1,6 @@
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Settings;
 using PlayGround.Application.Auth.Models;
+using PlayGround.Contracts.Settings;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Application.Interfaces
 {

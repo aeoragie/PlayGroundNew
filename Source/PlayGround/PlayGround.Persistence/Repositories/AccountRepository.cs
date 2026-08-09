@@ -1,14 +1,14 @@
 using Microsoft.Extensions.Options;
-using PlayGround.Shared.Result;
-using PlayGround.Shared.Time;
-using PlayGround.Infrastructure.Database;
-using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Contracts.Settings;
-using PlayGround.Domain.Account;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Settings;
+using PlayGround.Domain.Account;
+using PlayGround.Infrastructure.Database;
+using PlayGround.Infrastructure.Database.Base;
 using PlayGround.Persistence.Database.Generated.Account.Entities;
 using PlayGround.Persistence.Database.Generated.Account.Procedures;
+using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Persistence.Repositories
 {

@@ -1,15 +1,13 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using PlayGround.Infrastructure.Store;
-using PlayGround.Infrastructure.Logging;
-using PlayGround.Application.Interfaces;
 using PlayGround.Application.Auth.Commands;
+using PlayGround.Application.Interfaces;
 using PlayGround.Application.Settings.Commands;
+using PlayGround.Infrastructure.Logging;
+using PlayGround.Infrastructure.Store;
 using PlayGround.Persistence;
 using PlayGround.Server.Services;
+using System.Text;
 
 namespace PlayGround.Server.DependencyInjection
 {

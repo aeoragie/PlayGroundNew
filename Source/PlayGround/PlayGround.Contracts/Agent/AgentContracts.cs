@@ -1,6 +1,4 @@
 using PlayGround.Shared.Time;
-using System;
-using System.Collections.Generic;
 
 namespace PlayGround.Contracts.Agent
 {

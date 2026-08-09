@@ -1,6 +1,6 @@
-using System.Text.RegularExpressions;
 using FluentAssertions;
 using PlayGround.Shared.Time;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Domain

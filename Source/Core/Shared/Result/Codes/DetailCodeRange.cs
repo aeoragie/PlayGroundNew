@@ -1,8 +1,5 @@
 namespace PlayGround.Shared.Result;
 
-/// <summary>
-/// DetailCode 값 범위를 정의하는 상수 클래스
-/// </summary>
 public static class DetailCodeRange
 {
     #region Success Codes (0-999)
@@ -309,7 +306,6 @@ public static class DetailCodeRange
     public static bool IsWarningCode(int value) => IsInRange(value, Warning.Min, Warning.Max);
     public static bool IsInformationCode(int value) => IsInRange(value, Information.Min, Information.Max);
 
-    // 세분화된 에러 카테고리 (1000-1299: 사용자/클라이언트 측 에러)
     public static bool IsClientError(int value) => IsInRange(value, Error.Client.Min, Error.Client.Max);
     public static bool IsAuthError(int value) => IsInRange(value, Error.Auth.Min, Error.Auth.Max);
     public static bool IsResourceError(int value) => IsInRange(value, Error.Resource.Min, Error.Resource.Max);

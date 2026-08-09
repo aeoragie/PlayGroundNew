@@ -1,5 +1,5 @@
-using PlayGround.Shared.Result;
 using PlayGround.Contracts.Landing;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Application.Interfaces
 {

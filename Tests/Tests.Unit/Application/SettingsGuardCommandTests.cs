@@ -1,12 +1,12 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Xunit;
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Settings;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Settings.Commands;
+using PlayGround.Contracts.Settings;
+using PlayGround.Shared.Result;
+using Xunit;
 
 namespace PlayGround.Tests.Unit.Application
 {

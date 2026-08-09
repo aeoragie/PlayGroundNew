@@ -1,9 +1,9 @@
-using System.Data;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
-using Xunit;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Persistence.Database.Generated.Soccer.Entities;
+using System.Data;
+using Xunit;
 
 namespace PlayGround.Tests.Infrastructure.Database
 {

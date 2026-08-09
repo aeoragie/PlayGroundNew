@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using PlayGround.Contracts.Team;
 
 namespace PlayGround.Application.Team.Models

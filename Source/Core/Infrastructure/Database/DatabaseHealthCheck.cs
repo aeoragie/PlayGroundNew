@@ -1,7 +1,7 @@
-using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
+using System.Data.Common;
 
 namespace PlayGround.Infrastructure.Database;
 

@@ -1,9 +1,9 @@
-using Moq;
 using Microsoft.Extensions.Logging.Abstractions;
-using PlayGround.Shared.Result;
+using Moq;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
+using PlayGround.Shared.Result;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application

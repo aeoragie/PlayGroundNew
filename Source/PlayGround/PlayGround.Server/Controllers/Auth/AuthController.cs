@@ -1,18 +1,18 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PlayGround.Shared.Http;
-using PlayGround.Shared.Result;
-using PlayGround.Shared.Time;
-using PlayGround.Infrastructure.Logging;
-using PlayGround.Contracts.Auth;
-using PlayGround.Contracts.Settings;
 using PlayGround.Application.Auth.Commands;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Settings.Commands;
+using PlayGround.Contracts.Auth;
+using PlayGround.Contracts.Settings;
+using PlayGround.Infrastructure.Logging;
 using PlayGround.Server.Services;
+using PlayGround.Shared.Http;
+using PlayGround.Shared.Result;
+using PlayGround.Shared.Time;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace PlayGround.Server.Controllers.Auth
 {

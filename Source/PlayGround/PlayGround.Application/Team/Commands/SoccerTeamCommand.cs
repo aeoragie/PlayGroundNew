@@ -1,13 +1,11 @@
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.Extensions.Logging;
-using PlayGround.Shared.Logging;
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Team;
 using PlayGround.Application.Auth.Models;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Team.Models;
+using PlayGround.Contracts.Team;
+using PlayGround.Shared.Logging;
+using PlayGround.Shared.Result;
+using System.Diagnostics;
 
 namespace PlayGround.Application.Team.Commands
 {

@@ -1,7 +1,7 @@
+using PlayGround.Contracts.Team;
+using PlayGround.Shared.Time;
 using System.Globalization;
 using System.Text;
-using PlayGround.Shared.Time;
-using PlayGround.Contracts.Team;
 
 namespace PlayGround.Server.Feeds
 {

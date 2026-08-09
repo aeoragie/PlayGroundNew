@@ -1,6 +1,6 @@
-using System.Text;
 using NLog;
 using NLog.LayoutRenderers;
+using System.Text;
 
 namespace PlayGround.Infrastructure.Logging.Render
 {

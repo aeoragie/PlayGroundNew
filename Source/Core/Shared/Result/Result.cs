@@ -1,16 +1,10 @@
 // ErrorOr (https://github.com/amantinband/error-or)
 // OneOf (https://github.com/mcintyre321/OneOf)
 
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using PlayGround.Shared.Primitives;
 
 namespace PlayGround.Shared.Result;
 
-/// <summary>
-/// 함수형 결과. 널 허용 여부는 타입 인자가 정한다 — <c>Result&lt;Team?&gt;</c>은 "성공인데 값 없음"을
-/// 표현하는 별개의 계약이라 <see cref="Value"/>는 <c>T?</c>가 아니라 <c>T</c>다.
-/// </summary>
 public readonly struct Result<T>
 {
     private readonly T mValue;

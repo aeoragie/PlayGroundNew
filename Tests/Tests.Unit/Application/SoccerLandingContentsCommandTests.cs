@@ -1,9 +1,9 @@
-using Moq;
 using Microsoft.Extensions.Logging.Abstractions;
-using PlayGround.Shared.Result;
-using PlayGround.Contracts.Landing;
+using Moq;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Landing.Commands;
+using PlayGround.Contracts.Landing;
+using PlayGround.Shared.Result;
 using Xunit;
 
 namespace PlayGround.Tests.Unit.Application

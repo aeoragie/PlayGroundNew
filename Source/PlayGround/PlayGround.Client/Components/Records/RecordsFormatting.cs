@@ -1,8 +1,8 @@
-using PlayGround.Shared.Time;
-using PlayGround.Client.Services;
 using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
+using PlayGround.Client.Services;
 using PlayGround.Contracts.Records;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Client.Components.Records
 {
@@ -127,13 +127,19 @@ namespace PlayGround.Client.Components.Records
         {
             switch (roundName)
             {
-                case "PO": return AppText.Records.RoundPo;
-                case "R16": return AppText.Records.RoundR16;
-                case "QF": return AppText.Records.RoundQf;
-                case "SF": return AppText.Records.RoundSf;
-                case "F": return AppText.Records.RoundF;
+                case "PO":
+                    return AppText.Records.RoundPo;
+                case "R16":
+                    return AppText.Records.RoundR16;
+                case "QF":
+                    return AppText.Records.RoundQf;
+                case "SF":
+                    return AppText.Records.RoundSf;
+                case "F":
+                    return AppText.Records.RoundF;
                 case null:
-                case "": return string.Empty;
+                case "":
+                    return string.Empty;
             }
 
             if (roundName.StartsWith('R') && int.TryParse(roundName.AsSpan(1), out int n))

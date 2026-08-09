@@ -1,11 +1,11 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PlayGround.Application.Export.Commands;
+using PlayGround.Contracts.Export;
+using PlayGround.Infrastructure.Logging;
 using PlayGround.Shared.Http;
 using PlayGround.Shared.Result;
-using PlayGround.Infrastructure.Logging;
-using PlayGround.Contracts.Export;
-using PlayGround.Application.Export.Commands;
+using System.Security.Claims;
 
 namespace PlayGround.Server.Controllers.Soccer
 {

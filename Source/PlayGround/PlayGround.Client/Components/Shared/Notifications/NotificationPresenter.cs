@@ -1,10 +1,9 @@
-using PlayGround.Shared.Time;
-using PlayGround.Client.Services;
-using System;
-using PlayGround.Contracts.Notification;
-using PlayGround.Domain.Soccer;
 using PlayGround.Client.Localization;
 using PlayGround.Client.Models;
+using PlayGround.Client.Services;
+using PlayGround.Contracts.Notification;
+using PlayGround.Domain.Soccer;
+using PlayGround.Shared.Time;
 
 namespace PlayGround.Client.Components.Shared.Notifications
 {

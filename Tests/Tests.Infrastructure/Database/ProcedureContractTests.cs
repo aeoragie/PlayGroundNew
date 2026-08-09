@@ -1,10 +1,9 @@
-using System.Reflection;
 using Dapper;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-
+using System.Reflection;
 using Xunit;
 
 namespace PlayGround.Tests.Infrastructure.Database

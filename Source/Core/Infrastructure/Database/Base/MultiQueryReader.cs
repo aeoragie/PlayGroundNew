@@ -1,5 +1,5 @@
-using System.Data.Common;
 using Dapper;
+using System.Data.Common;
 
 namespace PlayGround.Infrastructure.Database.Base;
 

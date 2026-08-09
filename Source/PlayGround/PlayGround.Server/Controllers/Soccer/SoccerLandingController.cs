@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using PlayGround.Shared.Http;
-using PlayGround.Shared.Result;
 using PlayGround.Contracts.Landing;
 using PlayGround.Server.Actors;
+using PlayGround.Shared.Http;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Server.Controllers.Soccer
 {

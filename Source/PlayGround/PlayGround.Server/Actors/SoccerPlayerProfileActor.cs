@@ -1,11 +1,10 @@
 using Akka.Actor;
-using Microsoft.Extensions.DependencyInjection;
-using PlayGround.Shared.Result;
-using PlayGround.Infrastructure.Actor;
-using PlayGround.Contracts.Player;
-using PlayGround.Contracts.Team;
 using PlayGround.Application.Player.Commands;
 using PlayGround.Application.Team.Commands;
+using PlayGround.Contracts.Player;
+using PlayGround.Contracts.Team;
+using PlayGround.Infrastructure.Actor;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Server.Actors
 {

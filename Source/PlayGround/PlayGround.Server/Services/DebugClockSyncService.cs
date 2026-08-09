@@ -1,11 +1,10 @@
 #if DEBUG
-using System.Diagnostics;
 using Microsoft.Extensions.Options;
-using PlayGround.Shared.Result;
 using PlayGround.Infrastructure.Database;
 using PlayGround.Infrastructure.Database.Base;
-using PlayGround.Infrastructure.Logging;
+using PlayGround.Shared.Result;
 using PlayGround.Shared.Time;
+using System.Diagnostics;
 
 namespace PlayGround.Server.Services
 {

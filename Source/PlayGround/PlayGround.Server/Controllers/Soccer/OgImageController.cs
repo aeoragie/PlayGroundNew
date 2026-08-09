@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using PlayGround.Shared.Result;
-using PlayGround.Application.Og;
 using PlayGround.Application.Interfaces;
+using PlayGround.Application.Og;
 using PlayGround.Server.Services;
+using PlayGround.Shared.Result;
 
 namespace PlayGround.Server.Controllers.Soccer
 {

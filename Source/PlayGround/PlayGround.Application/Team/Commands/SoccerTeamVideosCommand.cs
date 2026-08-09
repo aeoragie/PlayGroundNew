@@ -1,9 +1,9 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using PlayGround.Application.Interfaces;
+using PlayGround.Contracts.Team;
 using PlayGround.Shared.Logging;
 using PlayGround.Shared.Result;
-using PlayGround.Contracts.Team;
-using PlayGround.Application.Interfaces;
+using System.Diagnostics;
 
 namespace PlayGround.Application.Team.Commands
 {

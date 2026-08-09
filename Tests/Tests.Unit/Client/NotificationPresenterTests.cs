@@ -1,10 +1,10 @@
 using FluentAssertions;
-using PlayGround.Shared.Time;
+using PlayGround.Client.Components.Shared.Notifications;
 using PlayGround.Client.Services;
-using Xunit;
 using PlayGround.Contracts.Notification;
 using PlayGround.Domain.Soccer;
-using PlayGround.Client.Components.Shared.Notifications;
+using PlayGround.Shared.Time;
+using Xunit;
 
 namespace PlayGround.Tests.Unit.Client
 {

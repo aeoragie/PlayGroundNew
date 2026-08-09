@@ -1,5 +1,5 @@
-using System.Globalization;
 using PlayGround.Shared.Time;
+using System.Globalization;
 
 namespace PlayGround.Client.Services
 {
