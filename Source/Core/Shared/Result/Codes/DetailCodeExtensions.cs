@@ -1,38 +1,22 @@
 namespace PlayGround.Shared.Result;
 
-/// <summary>
-/// DetailCode에 대한 확장 메서드들
-/// </summary>
 public static class DetailCodeExtensions
 {
-
-    /// <summary>
-    /// 에러 코드가 특정 범위에 속하는지 확인
-    /// </summary>
     public static bool IsInRange(this DetailCode code, int minValue, int maxValue)
     {
         return code.Value >= minValue && code.Value <= maxValue;
     }
 
-    /// <summary>
-    /// 에러 코드가 사용자 오류인지 확인 (Client + Auth + Resource: 1000-1299)
-    /// </summary>
     public static bool IsUserError(this DetailCode code)
     {
         return DetailCodeRange.IsUserError(code.Value);
     }
 
-    /// <summary>
-    /// 에러 코드가 시스템 오류인지 확인 (3000-3999)
-    /// </summary>
     public static bool IsSystemError(this DetailCode code)
     {
         return DetailCodeRange.IsSystemError(code.Value);
     }
 
-    /// <summary>
-    /// 에러 코드가 비즈니스 로직 오류인지 확인 (Business + Sports: 2000-2199)
-    /// </summary>
     public static bool IsBusinessError(this DetailCode code)
     {
         return DetailCodeRange.IsBusinessLogicError(code.Value);
@@ -61,7 +45,7 @@ public static class DetailCodeExtensions
             WarningCode => 200,
             SuccessCode => 200,
             InformationCode => 200,
-            _ => 200
+            _ => 500
         };
     }
 
