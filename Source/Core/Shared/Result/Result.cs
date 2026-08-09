@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using PlayGround.Shared.Primitives;
 
 namespace PlayGround.Shared.Result;
 
@@ -229,7 +230,15 @@ public readonly struct Result<T>
 
     public T GetValueOrDefault(T defaultValue = default!) => IsSuccess ? Value! : defaultValue;
 
-    public T GetValueOrThrow() => IsSuccess ? Value! : throw new InvalidOperationException(ResultData.ToString());
+    public T GetValueOrPanic()
+    {
+        if (!IsSuccess)
+        {
+            Panic.Fail(ResultData.ToString());
+        }
+
+        return Value!;
+    }
 
     public static implicit operator Result<T>(T value) => Success(value);
     public static implicit operator Result<T>(ResultInfo resultInfo) => Failure(resultInfo);

@@ -7,7 +7,39 @@ namespace PlayGround.Shared.Extensions;
 public static class ConvertExtensions
 {
 
-    public static Result<decimal> ToDecimalSafe(this double value)
+    public static decimal ConvertDecimal(this double value) => value.TryConvertDecimal().GetValueOrPanic();
+
+    public static decimal ConvertDecimal(this float value) => value.TryConvertDecimal().GetValueOrPanic();
+
+    public static decimal ConvertDecimal(this double? value) => value.TryConvertDecimal().GetValueOrPanic();
+
+    public static decimal ConvertDecimal(this float? value) => value.TryConvertDecimal().GetValueOrPanic();
+
+    public static decimal ConvertDecimal(this string value) => value.TryConvertDecimal().GetValueOrPanic();
+
+    public static double ConvertDouble(this decimal value) => value.TryConvertDouble().GetValueOrPanic();
+
+    public static double ConvertDouble(this string value) => value.TryConvertDouble().GetValueOrPanic();
+
+    public static float ConvertFloat(this decimal value) => value.TryConvertFloat().GetValueOrPanic();
+
+    public static int ConvertInt32(this decimal value) => value.TryConvertInt32().GetValueOrPanic();
+
+    public static int ConvertInt32(this double value) => value.TryConvertInt32().GetValueOrPanic();
+
+    public static int ConvertInt32(this decimal? value) => value.TryConvertInt32().GetValueOrPanic();
+
+    public static int ConvertInt32(this string value) => value.TryConvertInt32().GetValueOrPanic();
+
+    public static long ConvertInt64(this decimal value) => value.TryConvertInt64().GetValueOrPanic();
+
+    public static long ConvertInt64(this string value) => value.TryConvertInt64().GetValueOrPanic();
+
+    public static short ConvertInt16(this decimal value) => value.TryConvertInt16().GetValueOrPanic();
+
+    public static byte ConvertByte(this decimal value) => value.TryConvertByte().GetValueOrPanic();
+
+    public static Result<decimal> TryConvertDecimal(this double value)
     {
         if (double.IsNaN(value))
         {
@@ -50,15 +82,7 @@ public static class ConvertExtensions
         }
     }
 
-    public static bool TryToDecimalSafe(this double value, out decimal result, out string errorMessage)
-    {
-        Result<decimal> outcome = value.ToDecimalSafe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        errorMessage = outcome.IsSuccess ? string.Empty : outcome.Message;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<decimal> ToDecimalSafe(this float value)
+    public static Result<decimal> TryConvertDecimal(this float value)
     {
         if (float.IsNaN(value))
         {
@@ -101,15 +125,7 @@ public static class ConvertExtensions
         }
     }
 
-    public static bool TryToDecimalSafe(this float value, out decimal result, out string errorMessage)
-    {
-        Result<decimal> outcome = value.ToDecimalSafe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        errorMessage = outcome.IsSuccess ? string.Empty : outcome.Message;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<double> ToDoubleSafe(this decimal value)
+    public static Result<double> TryConvertDouble(this decimal value)
     {
         try
         {
@@ -122,15 +138,7 @@ public static class ConvertExtensions
         }
     }
 
-    public static bool TryToDoubleSafe(this decimal value, out double result, out string errorMessage)
-    {
-        Result<double> outcome = value.ToDoubleSafe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        errorMessage = outcome.IsSuccess ? string.Empty : outcome.Message;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<float> ToFloatSafe(this decimal value)
+    public static Result<float> TryConvertFloat(this decimal value)
     {
         double doubleValue = (double)value;
         if (doubleValue > float.MaxValue)
@@ -156,15 +164,7 @@ public static class ConvertExtensions
         }
     }
 
-    public static bool TryToFloatSafe(this decimal value, out float result, out string errorMessage)
-    {
-        Result<float> outcome = value.ToFloatSafe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        errorMessage = outcome.IsSuccess ? string.Empty : outcome.Message;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<int> ToInt32Safe(this decimal value)
+    public static Result<int> TryConvertInt32(this decimal value)
     {
         if (value > int.MaxValue)
         {
@@ -189,15 +189,7 @@ public static class ConvertExtensions
         }
     }
 
-    public static bool TryToInt32Safe(this decimal value, out int result, out string errorMessage)
-    {
-        Result<int> outcome = value.ToInt32Safe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        errorMessage = outcome.IsSuccess ? string.Empty : outcome.Message;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<int> ToInt32Safe(this double value)
+    public static Result<int> TryConvertInt32(this double value)
     {
         if (double.IsNaN(value))
         {
@@ -234,15 +226,7 @@ public static class ConvertExtensions
         }
     }
 
-    public static bool TryToInt32Safe(this double value, out int result, out string errorMessage)
-    {
-        Result<int> outcome = value.ToInt32Safe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        errorMessage = outcome.IsSuccess ? string.Empty : outcome.Message;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<long> ToInt64Safe(this decimal value)
+    public static Result<long> TryConvertInt64(this decimal value)
     {
         if (value > long.MaxValue)
         {
@@ -267,15 +251,7 @@ public static class ConvertExtensions
         }
     }
 
-    public static bool TryToInt64Safe(this decimal value, out long result, out string errorMessage)
-    {
-        Result<long> outcome = value.ToInt64Safe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        errorMessage = outcome.IsSuccess ? string.Empty : outcome.Message;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<short> ToInt16Safe(this decimal value)
+    public static Result<short> TryConvertInt16(this decimal value)
     {
         if (value > short.MaxValue)
         {
@@ -292,7 +268,7 @@ public static class ConvertExtensions
         return Result<short>.Success(Convert.ToInt16(value));
     }
 
-    public static Result<byte> ToByteSafe(this decimal value)
+    public static Result<byte> TryConvertByte(this decimal value)
     {
         if (value > byte.MaxValue)
         {
@@ -309,7 +285,7 @@ public static class ConvertExtensions
         return Result<byte>.Success(Convert.ToByte(value));
     }
 
-    public static Result<decimal> ToDecimalSafe(this double? value)
+    public static Result<decimal> TryConvertDecimal(this double? value)
     {
         if (!value.HasValue)
         {
@@ -317,21 +293,21 @@ public static class ConvertExtensions
             return Result<decimal>.Error(ErrorCode.MissingRequired, "Cannot convert null to decimal.");
         }
 
-        return value.Value.ToDecimalSafe();
+        return value.Value.TryConvertDecimal();
     }
 
-    public static Result<decimal?> ToDecimalSafeOrNull(this double? value)
+    public static Result<decimal?> TryConvertDecimalOrNull(this double? value)
     {
         if (!value.HasValue)
         {
             return Result<decimal?>.Success(null);
         }
 
-        Result<decimal> converted = value.Value.ToDecimalSafe();
+        Result<decimal> converted = value.Value.TryConvertDecimal();
         return converted.IsSuccess ? Result<decimal?>.Success(converted.Value) : Result<decimal?>.Failure(converted.ResultData);
     }
 
-    public static Result<decimal> ToDecimalSafe(this float? value)
+    public static Result<decimal> TryConvertDecimal(this float? value)
     {
         if (!value.HasValue)
         {
@@ -339,21 +315,21 @@ public static class ConvertExtensions
             return Result<decimal>.Error(ErrorCode.MissingRequired, "Cannot convert null to decimal.");
         }
 
-        return value.Value.ToDecimalSafe();
+        return value.Value.TryConvertDecimal();
     }
 
-    public static Result<decimal?> ToDecimalSafeOrNull(this float? value)
+    public static Result<decimal?> TryConvertDecimalOrNull(this float? value)
     {
         if (!value.HasValue)
         {
             return Result<decimal?>.Success(null);
         }
 
-        Result<decimal> converted = value.Value.ToDecimalSafe();
+        Result<decimal> converted = value.Value.TryConvertDecimal();
         return converted.IsSuccess ? Result<decimal?>.Success(converted.Value) : Result<decimal?>.Failure(converted.ResultData);
     }
 
-    public static Result<int> ToInt32Safe(this decimal? value)
+    public static Result<int> TryConvertInt32(this decimal? value)
     {
         if (!value.HasValue)
         {
@@ -361,21 +337,21 @@ public static class ConvertExtensions
             return Result<int>.Error(ErrorCode.MissingRequired, "Cannot convert null to int.");
         }
 
-        return value.Value.ToInt32Safe();
+        return value.Value.TryConvertInt32();
     }
 
-    public static Result<int?> ToInt32SafeOrNull(this decimal? value)
+    public static Result<int?> TryConvertInt32OrNull(this decimal? value)
     {
         if (!value.HasValue)
         {
             return Result<int?>.Success(null);
         }
 
-        Result<int> converted = value.Value.ToInt32Safe();
+        Result<int> converted = value.Value.TryConvertInt32();
         return converted.IsSuccess ? Result<int?>.Success(converted.Value) : Result<int?>.Failure(converted.ResultData);
     }
 
-    public static Result<decimal> ToDecimalSafe(this string value)
+    public static Result<decimal> TryConvertDecimal(this string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -392,14 +368,7 @@ public static class ConvertExtensions
         return Result<decimal>.Success(result);
     }
 
-    public static bool TryToDecimalSafe(this string value, out decimal result)
-    {
-        Result<decimal> outcome = value.ToDecimalSafe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<double> ToDoubleSafe(this string value)
+    public static Result<double> TryConvertDouble(this string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -428,14 +397,7 @@ public static class ConvertExtensions
         return Result<double>.Success(result);
     }
 
-    public static bool TryToDoubleSafe(this string value, out double result)
-    {
-        Result<double> outcome = value.ToDoubleSafe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<int> ToInt32Safe(this string value)
+    public static Result<int> TryConvertInt32(this string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -452,14 +414,7 @@ public static class ConvertExtensions
         return Result<int>.Success(result);
     }
 
-    public static bool TryToInt32Safe(this string value, out int result)
-    {
-        Result<int> outcome = value.ToInt32Safe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<long> ToInt64Safe(this string value)
+    public static Result<long> TryConvertInt64(this string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -476,14 +431,7 @@ public static class ConvertExtensions
         return Result<long>.Success(result);
     }
 
-    public static bool TryToInt64Safe(this string value, out long result)
-    {
-        Result<long> outcome = value.ToInt64Safe();
-        result = outcome.IsSuccess ? outcome.Value : default;
-        return outcome.IsSuccess;
-    }
-
-    public static Result<decimal> RoundSafe(this decimal value, int decimals = 2)
+    public static Result<decimal> TryRound(this decimal value, int decimals = 2)
     {
         if (decimals < 0 || decimals > 28)
         {
@@ -494,13 +442,13 @@ public static class ConvertExtensions
         return Result<decimal>.Success(Math.Round(value, decimals, MidpointRounding.AwayFromZero));
     }
 
-    public static Result<decimal> RoundToDecimalSafe(this double value, int decimals = 2)
+    public static Result<decimal> TryRoundToDecimal(this double value, int decimals = 2)
     {
-        Result<decimal> converted = value.ToDecimalSafe();
-        return converted.IsSuccess ? converted.Value.RoundSafe(decimals) : converted;
+        Result<decimal> converted = value.TryConvertDecimal();
+        return converted.IsSuccess ? converted.Value.TryRound(decimals) : converted;
     }
 
-    public static Result<double> RoundSafe(this double value, int decimals = 2)
+    public static Result<double> TryRound(this double value, int decimals = 2)
     {
         if (double.IsNaN(value))
         {
@@ -523,13 +471,13 @@ public static class ConvertExtensions
         return Result<double>.Success(Math.Round(value, decimals, MidpointRounding.AwayFromZero));
     }
 
-    public static decimal CeilingSafe(this decimal value) => Math.Ceiling(value);
+    public static decimal Ceiling(this decimal value) => Math.Ceiling(value);
 
-    public static decimal FloorSafe(this decimal value) => Math.Floor(value);
+    public static decimal Floor(this decimal value) => Math.Floor(value);
 
-    public static decimal TruncateSafe(this decimal value) => Math.Truncate(value);
+    public static decimal Truncate(this decimal value) => Math.Truncate(value);
 
-    public static Result<decimal> AverageToDecimalSafe<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector)
+    public static Result<decimal> TryAverageToDecimal<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector)
     {
         if (source == null)
         {
@@ -550,16 +498,16 @@ public static class ConvertExtensions
             return Result<decimal>.Error(ErrorCode.InvalidOperation, "Cannot calculate average of empty collection.");
         }
 
-        return list.Average(selector).ToDecimalSafe();
+        return list.Average(selector).TryConvertDecimal();
     }
 
-    public static decimal AverageToDecimalSafeOrDefault<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector, decimal defaultValue = 0m)
+    public static decimal AverageToDecimalOrDefault<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector, decimal defaultValue = 0m)
     {
-        Result<decimal> outcome = source.AverageToDecimalSafe(selector);
+        Result<decimal> outcome = source.TryAverageToDecimal(selector);
         return outcome.IsSuccess ? outcome.Value : defaultValue;
     }
 
-    public static Result<decimal> SumToDecimalSafe<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector)
+    public static Result<decimal> TrySumToDecimal<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector)
     {
         if (source == null)
         {
@@ -573,12 +521,12 @@ public static class ConvertExtensions
             return Result<decimal>.Error(ErrorCode.MissingRequired, "Selector cannot be null.");
         }
 
-        return source.Sum(selector).ToDecimalSafe();
+        return source.Sum(selector).TryConvertDecimal();
     }
 
-    public static decimal SumToDecimalSafeOrDefault<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector, decimal defaultValue = 0m)
+    public static decimal SumToDecimalOrDefault<TItem>(this IEnumerable<TItem> source, Func<TItem, double> selector, decimal defaultValue = 0m)
     {
-        Result<decimal> outcome = source.SumToDecimalSafe(selector);
+        Result<decimal> outcome = source.TrySumToDecimal(selector);
         return outcome.IsSuccess ? outcome.Value : defaultValue;
     }
 
@@ -637,7 +585,7 @@ public static class ConvertExtensions
             && int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out _);
     }
 
-    public static Result<decimal> CalculatePercentage(this decimal value, decimal total)
+    public static Result<decimal> TryCalculatePercentage(this decimal value, decimal total)
     {
         if (total == 0)
         {
@@ -645,7 +593,7 @@ public static class ConvertExtensions
             return Result<decimal>.Error(ErrorCode.InvalidInput, "Cannot calculate percentage with zero total.");
         }
 
-        return (value / total * 100m).RoundSafe(2);
+        return (value / total * 100m).TryRound(2);
     }
 
     public static decimal CalculatePercentageOrDefault(this decimal value, decimal total, decimal defaultValue = 0m)
@@ -655,9 +603,9 @@ public static class ConvertExtensions
             return defaultValue;
         }
 
-        Result<decimal> outcome = (value / total * 100m).RoundSafe(2);
+        Result<decimal> outcome = (value / total * 100m).TryRound(2);
         return outcome.IsSuccess ? outcome.Value : defaultValue;
     }
     public static decimal ToDecimalFraction(this decimal percentage) => percentage / 100m;
-    public static Result<decimal> ToPercentage(this decimal fraction) => (fraction * 100m).RoundSafe(2);
+    public static decimal ToPercentage(this decimal fraction) => Math.Round(fraction * 100m, 2, MidpointRounding.AwayFromZero);
 }
