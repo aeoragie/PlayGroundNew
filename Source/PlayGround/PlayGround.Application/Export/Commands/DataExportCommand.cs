@@ -82,7 +82,7 @@ namespace PlayGround.Application.Export.Commands
                 return Result<DataExportRequestResult>.Failure(created.ResultData);
             }
 
-            mLogger.InfoWith("Data export requested", ("UserId", userId));
+            mLogger.Info("Data export requested", ("UserId", userId));
 
             // 접수됐으면 백그라운드 잡 큐에 넣고 즉시 반환(동기 생성 금지)
             if (created.Value.Status == "Ok" && created.Value.RequestId is { } id)
@@ -127,7 +127,7 @@ namespace PlayGround.Application.Export.Commands
                 return cancelled;
             }
 
-            mLogger.InfoWith("Data export cancelled", ("UserId", userId));
+            mLogger.Info("Data export cancelled", ("UserId", userId));
 
             return cancelled.Value
                 ? Result<bool>.Success(true)
@@ -194,13 +194,13 @@ namespace PlayGround.Application.Export.Commands
                     return;
                 }
 
-                mLogger.InfoWith("Data export ready", ("RequestId", requestId), ("Bytes", zipBytes.LongLength));
+                mLogger.Info("Data export ready", ("RequestId", requestId), ("Bytes", zipBytes.LongLength));
 
                 await NotifyReadyAsync(job.UserId, requestId, cancellation);
             }
             catch (Exception ex)
             {
-                mLogger.ErrorWith(ex, "Data export generation failed", ("RequestId", requestId));
+                mLogger.Error(ex, "Data export generation failed", ("RequestId", requestId));
                 await mExportRepository.UpdateStatusAsync(requestId, "Failed", null, null, null, null, cancellation);
                 throw;
             }

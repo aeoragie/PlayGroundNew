@@ -59,7 +59,7 @@ namespace PlayGround.Application.Settings.Commands
                 return saved;
             }
 
-            mLogger.InfoWith("Notification preference updated", ("UserId", userId));
+            mLogger.Info("Notification preference updated", ("UserId", userId));
 
             if (!saved.Value)
             {

@@ -11,11 +11,11 @@ namespace PlayGround.Tests.Unit.Domain
     public class LoggingGuardTests
     {
         private static readonly Regex LogCall = new(
-            @"\b(?:Trace|Debug|Info|Warn|Error|Fatal)With\(|\bLogWith\(|\bLog(?:Trace|Debug|Information|Warning|Error|Critical)\(",
+            @"\b(?:m?[Ll]ogger)\.(?:Trace|Debug|Info|Warn|Error|Fatal)(?:With)?\(|\bLogWith\(|\bLog(?:Trace|Debug|Information|Warning|Error|Critical)\(",
             RegexOptions.Compiled);
 
         private static readonly Regex LogMessage = new(
-            @"\b(?:Trace|Debug|Info|Warn|Error|Fatal)With\((?:ex(?:ception)?\w*,\s*)?""(?<text>[^""]*)""",
+            @"\b(?:m?[Ll]ogger)\.(?:Trace|Debug|Info|Warn|Error|Fatal)(?:With)?\((?:ex(?:ception)?\w*,\s*)?""(?<text>[^""]*)""",
             RegexOptions.Compiled);
 
         private static readonly Regex LogField = new(@"\(""(?<key>\w+)"",", RegexOptions.Compiled);

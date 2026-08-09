@@ -1,3 +1,5 @@
+using PlayGround.Shared.Primitives;
+
 namespace PlayGround.Shared.Result;
 
 public abstract class DetailCode : IEquatable<DetailCode>
@@ -11,12 +13,12 @@ public abstract class DetailCode : IEquatable<DetailCode>
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new ArgumentException("Name cannot be null or empty.", nameof(name));
+            Panic.Fail("DetailCode name cannot be null or empty.");
         }
 
         if (string.IsNullOrWhiteSpace(message))
         {
-            throw new ArgumentException("Message cannot be null or empty.", nameof(message));
+            Panic.Fail($"DetailCode '{name}' message cannot be null or empty.");
         }
 
         Category = category;

@@ -84,7 +84,7 @@ namespace PlayGround.Application.Notification.Commands
                 return marked;
             }
 
-            mLogger.InfoWith("Notification marked as read", ("UserId", userId));
+            mLogger.Info("Notification marked as read", ("UserId", userId));
 
             if (!marked.Value)
             {

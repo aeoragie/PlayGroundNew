@@ -73,7 +73,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<bool>.Failure(saved.ResultData);
             }
 
-            mLogger.InfoWith("Review saved", ("AuthorUserId", authorUserId));
+            mLogger.Info("Review saved", ("AuthorUserId", authorUserId));
 
             if (!saved.Value)
             {
@@ -100,7 +100,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<bool>.Failure(deleted.ResultData);
             }
 
-            mLogger.InfoWith("Review deleted", ("AuthorUserId", authorUserId));
+            mLogger.Info("Review deleted", ("AuthorUserId", authorUserId));
 
             if (!deleted.Value)
             {

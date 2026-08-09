@@ -70,7 +70,7 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Portfolio video saved", ("UserId", userId));
+            mLogger.Info("Portfolio video saved", ("UserId", userId));
 
             if (!applied.Value)
             {
@@ -103,7 +103,7 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Portfolio video deleted", ("UserId", userId));
+            mLogger.Info("Portfolio video deleted", ("UserId", userId));
 
             if (!applied.Value)
             {

@@ -51,7 +51,7 @@ namespace PlayGround.Application.Player.Commands
                 return Result<ClaimPlayerInviteResponse>.Failure(claimed.ResultData);
             }
 
-            mLogger.InfoWith("Invite claimed", ("UserId", userId));
+            mLogger.Info("Invite claimed", ("UserId", userId));
 
             if (claimed.Value is null)
             {
@@ -70,7 +70,7 @@ namespace PlayGround.Application.Player.Commands
                     AccountUser user = promoted.Value;
                     response.AccessToken = mTokenService.GenerateAccessToken(
                         user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
-                    mLogger.InfoWith("User role promoted", ("UserId", userId), ("Role", "Player"));
+                    mLogger.Info("User role promoted", ("UserId", userId), ("Role", "Player"));
                 }
                 else
                 {

@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 
+using PlayGround.Shared.Primitives;
+
 namespace PlayGround.Shared.Result;
 
 public sealed class WarningCode : DetailCode
@@ -11,7 +13,7 @@ public sealed class WarningCode : DetailCode
     {
         if (!WarningCodes.TryAdd(value, this))
         {
-            throw new InvalidOperationException($"Warning code value {value} is already defined.");
+            Panic.Fail($"WarningCode value {value} is already defined.");
         }
     }
 

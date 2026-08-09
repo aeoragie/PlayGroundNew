@@ -65,7 +65,7 @@ namespace PlayGround.Application.Auth.Commands
                     return Result<AuthResult>.Error(ErrorCode.InvalidCredentials, "이메일 또는 비밀번호가 올바르지 않아요.");
                 }
 
-                mLogger.InfoWith("User signed in with email", ("UserId", user.UserId));
+                mLogger.Info("User signed in with email", ("UserId", user.UserId));
                 return Result<AuthResult>.Success(BuildResult(user));
             }
 
@@ -84,7 +84,7 @@ namespace PlayGround.Application.Auth.Commands
                 return Result<AuthResult>.Failure(created.ResultData);
             }
 
-            mLogger.InfoWith("Account created with email", ("UserId", created.Value.UserId));
+            mLogger.Info("Account created with email", ("UserId", created.Value.UserId));
 
             return Result<AuthResult>.Success(BuildResult(created.Value));
         }

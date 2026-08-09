@@ -1,8 +1,5 @@
 namespace PlayGround.Shared.Primitives;
 
-/// <summary>
-/// 값 객체 기본 클래스
-/// </summary>
 public abstract class ValueObject : IEquatable<ValueObject>
 {
     protected abstract IEnumerable<object?> GetEqualityComponents();

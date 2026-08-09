@@ -78,7 +78,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamRosterPlayerDto>.Failure(added.ResultData);
             }
 
-            mLogger.InfoWith("Team player added", ("ManagerUserId", managerUserId));
+            mLogger.Info("Team player added", ("ManagerUserId", managerUserId));
 
             if (added.Value is null)
             {
@@ -106,7 +106,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<bool>.Failure(removed.ResultData);
             }
 
-            mLogger.InfoWith("Team player removed", ("ManagerUserId", managerUserId));
+            mLogger.Info("Team player removed", ("ManagerUserId", managerUserId));
 
             // 빈 결과(false) = 남의 팀이거나 이미 그 상태 — 존재 여부를 흘리지 않고 Forbidden으로 통일
             if (!removed.Value)

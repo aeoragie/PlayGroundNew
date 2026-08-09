@@ -119,7 +119,7 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Strength tags saved", ("UserId", userId));
+            mLogger.Info("Strength tags saved", ("UserId", userId));
 
             // 반영 안 됨 = 소유 선수 없음 → 타인 프로필 시도(존재 여부 미노출)
             if (!applied.Value)

@@ -120,7 +120,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<ScheduleDto>.Failure(saved.ResultData);
             }
 
-            mLogger.InfoWith("Schedule saved", ("ManagerUserId", managerUserId));
+            mLogger.Info("Schedule saved", ("ManagerUserId", managerUserId));
 
             if (saved.Value is null)
             {
@@ -148,7 +148,7 @@ namespace PlayGround.Application.Team.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Schedule deleted", ("ManagerUserId", managerUserId));
+            mLogger.Info("Schedule deleted", ("ManagerUserId", managerUserId));
 
             if (!applied.Value)
             {

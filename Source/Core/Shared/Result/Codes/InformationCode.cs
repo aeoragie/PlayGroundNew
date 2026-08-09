@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 
+using PlayGround.Shared.Primitives;
+
 namespace PlayGround.Shared.Result;
 
 public sealed class InformationCode : DetailCode
@@ -11,7 +13,7 @@ public sealed class InformationCode : DetailCode
     {
         if (!InformationCodes.TryAdd(value, this))
         {
-            throw new InvalidOperationException($"Information code value {value} is already defined.");
+            Panic.Fail($"InformationCode value {value} is already defined.");
         }
     }
 

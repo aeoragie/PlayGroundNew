@@ -11,5 +11,12 @@ namespace PlayGround.Shared.Primitives
             Debug.Assert(false, message);
             throw new InvalidOperationException(message);
         }
+
+        [DoesNotReturn]
+        public static T Fail<T>(string message)
+        {
+            Debug.Assert(false, message);
+            throw new InvalidOperationException(message);
+        }
     }
 }

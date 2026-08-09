@@ -116,7 +116,7 @@ namespace PlayGround.Application.Agent.Commands
                 return blocked;
             }
 
-            mLogger.InfoWith("Agent blocked", ("GuardianUserId", guardianUserId));
+            mLogger.Info("Agent blocked", ("GuardianUserId", guardianUserId));
 
             if (!blocked.Value)
             {

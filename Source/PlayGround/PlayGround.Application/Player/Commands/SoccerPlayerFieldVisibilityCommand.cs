@@ -44,7 +44,7 @@ namespace PlayGround.Application.Player.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Field visibility updated", ("UserId", userId));
+            mLogger.Info("Field visibility updated", ("UserId", userId));
 
             if (!applied.Value)
             {

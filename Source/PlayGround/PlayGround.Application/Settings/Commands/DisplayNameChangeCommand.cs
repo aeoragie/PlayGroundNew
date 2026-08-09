@@ -48,7 +48,7 @@ namespace PlayGround.Application.Settings.Commands
                 return Result<AuthResult>.Failure(updated.ResultData);
             }
 
-            mLogger.InfoWith("Display name updated", ("UserId", userId));
+            mLogger.Info("Display name updated", ("UserId", userId));
 
             // 빈 결과 = 제한 초과·미변경·미존재 (SP 원자 판정). 클라가 제한을 미리 막지만 서버가 최종 방어.
             if (updated.Value is null)

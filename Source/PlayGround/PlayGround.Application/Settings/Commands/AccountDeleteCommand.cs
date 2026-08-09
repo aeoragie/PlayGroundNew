@@ -36,7 +36,7 @@ namespace PlayGround.Application.Settings.Commands
                 return deleted;
             }
 
-            mLogger.InfoWith("Account deleted", ("UserId", userId));
+            mLogger.Info("Account deleted", ("UserId", userId));
 
             if (!deleted.Value)
             {

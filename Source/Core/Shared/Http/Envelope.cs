@@ -22,9 +22,6 @@ namespace PlayGround.Shared.Http
             };
         }
 
-        /// <summary>
-        /// 기존 코드 호환용 - SuccessCode.Ok 기본값 사용
-        /// </summary>
         public static Envelope<T> Success(T data)
         {
             return new Envelope<T>
@@ -49,9 +46,6 @@ namespace PlayGround.Shared.Http
             };
         }
 
-        /// <summary>
-        /// 기존 코드 호환용 - ErrorCode.UnknownError 기본값 사용
-        /// </summary>
         public static Envelope<T> Fail(string message)
         {
             return new Envelope<T>

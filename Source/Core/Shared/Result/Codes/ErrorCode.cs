@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 
+using PlayGround.Shared.Primitives;
+
 namespace PlayGround.Shared.Result;
 
 public sealed class ErrorCode : DetailCode
@@ -11,7 +13,7 @@ public sealed class ErrorCode : DetailCode
     {
         if (!ErrorCodes.TryAdd(value, this))
         {
-            throw new InvalidOperationException($"Error code value {value} is already defined.");
+            Panic.Fail($"ErrorCode value {value} is already defined.");
         }
     }
 

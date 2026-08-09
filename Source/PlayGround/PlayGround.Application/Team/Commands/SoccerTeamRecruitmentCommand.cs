@@ -102,7 +102,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamRecruitmentDto>.Failure(saved.ResultData);
             }
 
-            mLogger.InfoWith("Recruitment saved", ("ManagerUserId", managerUserId));
+            mLogger.Info("Recruitment saved", ("ManagerUserId", managerUserId));
 
             if (saved.Value is null)
             {
@@ -156,7 +156,7 @@ namespace PlayGround.Application.Team.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Recruitment deleted", ("ManagerUserId", managerUserId));
+            mLogger.Info("Recruitment deleted", ("ManagerUserId", managerUserId));
 
             if (!applied.Value)
             {

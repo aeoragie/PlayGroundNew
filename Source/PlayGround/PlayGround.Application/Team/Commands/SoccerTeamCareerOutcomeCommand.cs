@@ -102,7 +102,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamCareerOutcomeDto>.Failure(saved.ResultData);
             }
 
-            mLogger.InfoWith("Career outcome saved", ("ManagerUserId", managerUserId));
+            mLogger.Info("Career outcome saved", ("ManagerUserId", managerUserId));
 
             if (saved.Value is null)
             {
@@ -130,7 +130,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<bool>.Failure(deleted.ResultData);
             }
 
-            mLogger.InfoWith("Career outcome deleted", ("ManagerUserId", managerUserId));
+            mLogger.Info("Career outcome deleted", ("ManagerUserId", managerUserId));
 
             if (!deleted.Value)
             {

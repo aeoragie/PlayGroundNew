@@ -1,3 +1,5 @@
+using PlayGround.Shared.Primitives;
+
 namespace PlayGround.Shared.Result;
 
 public readonly struct ResultInfo
@@ -40,6 +42,11 @@ public readonly struct ResultInfo
 
     public static ResultInfo Exception(Exception ex, ErrorCode? code = null)
     {
+        if (ex is null)
+        {
+            Panic.Fail("Exception info requires an exception instance.");
+        }
+
         var errorCode = code ?? ErrorCode.UnknownError;
         return new(errorCode, ex.Message, ex.StackTrace);
     }

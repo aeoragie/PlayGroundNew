@@ -55,12 +55,14 @@ public readonly struct Result<T>
 
     public static Result<T> Success(T value) => new(value);
 
-    /// <summary>다른 Result의 실패를 이 타입으로 옮긴다. 값을 담지 않으므로 **오류 정보여야 한다** —
-    /// 실패가 아닌 정보를 넘기면 "성공인데 값 없음"이 되어 호출부가 값을 읽다 터진다.</summary>
     public static Result<T> Failure(ResultInfo info)
     {
-        Debug.Assert(info.IsError, "Failure expects an error ResultInfo");
-        return new(info.IsError ? info : ResultInfo.Unknown(info.Message));
+        if (info.IsSuccess)
+        {
+            Panic.Fail("Failure requires a non-success ResultInfo — the value would be lost.");
+        }
+
+        return new(info);
     }
 
     public static Result<T> Error(ErrorCode code, string? message = null, string? details = null)
@@ -87,7 +89,7 @@ public readonly struct Result<T>
                 return Result<T>.Error(errorCode);
             }
 
-            return Result<T>.Unknown();
+            return Panic.Fail<Result<T>>($"FromDetailCode requires a value for non-error code '{detailCode}'.");
         }
 
         return detailCode.Category switch
@@ -96,7 +98,7 @@ public readonly struct Result<T>
             ResultCodes.Error when detailCode is ErrorCode errorCode => Result<T>.Error(errorCode),
             ResultCodes.Warning when detailCode is WarningCode warningCode => Result<T>.Warning(value, warningCode),
             ResultCodes.Information when detailCode is InformationCode infoCode => Result<T>.Information(value, infoCode),
-            _ => Result<T>.Unknown()
+            _ => Panic.Fail<Result<T>>($"DetailCode '{detailCode}' does not match its category '{detailCode.Category}'.")
         };
     }
 
@@ -145,8 +147,7 @@ public readonly struct Result<T>
                 return onError(ResultData);
 
             default:
-                Debug.Assert(false, $"Unknown result code: {ResultData.DetailCode.Category}");
-                return onError(ResultData);
+                return Panic.Fail<TResult>($"Unknown result code: {ResultData.DetailCode.Category}");
         }
     }
 
@@ -285,8 +286,12 @@ public readonly struct Result
 
     public static Result Failure(ResultInfo info)
     {
-        Debug.Assert(!info.IsSuccess, "Failure expects a non-success ResultInfo");
-        return new(info.IsSuccess ? ResultInfo.Unknown(info.Message) : info);
+        if (info.IsSuccess)
+        {
+            Panic.Fail("Failure requires a non-success ResultInfo.");
+        }
+
+        return new(info);
     }
 
     public static Result FromDetailCode(DetailCode detailCode)
@@ -297,7 +302,7 @@ public readonly struct Result
             ResultCodes.Error when detailCode is ErrorCode errorCode => Result.Error(errorCode),
             ResultCodes.Warning when detailCode is WarningCode warningCode => Result.Warning(warningCode),
             ResultCodes.Information when detailCode is InformationCode infoCode => Result.Information(infoCode),
-            _ => Result.Unknown()
+            _ => Panic.Fail<Result>($"DetailCode '{detailCode}' does not match its category '{detailCode.Category}'.")
         };
     }
 

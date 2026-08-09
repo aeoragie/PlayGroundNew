@@ -129,7 +129,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamPostDto>.Failure(saved.ResultData);
             }
 
-            mLogger.InfoWith("Post saved", ("ManagerUserId", managerUserId));
+            mLogger.Info("Post saved", ("ManagerUserId", managerUserId));
 
             if (saved.Value is null)
             {
@@ -188,7 +188,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamPostDto>.Failure(updated.ResultData);
             }
 
-            mLogger.InfoWith("Post pinned updated", ("ManagerUserId", managerUserId));
+            mLogger.Info("Post pinned updated", ("ManagerUserId", managerUserId));
 
             if (updated.Value is null)
             {
@@ -217,7 +217,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<TeamPostDto>.Failure(updated.ResultData);
             }
 
-            mLogger.InfoWith("Post public updated", ("ManagerUserId", managerUserId));
+            mLogger.Info("Post public updated", ("ManagerUserId", managerUserId));
 
             if (updated.Value is null)
             {
@@ -245,7 +245,7 @@ namespace PlayGround.Application.Team.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Post deleted", ("ManagerUserId", managerUserId));
+            mLogger.Info("Post deleted", ("ManagerUserId", managerUserId));
 
             if (!applied.Value)
             {

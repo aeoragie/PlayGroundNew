@@ -2,9 +2,6 @@ using System.Reflection;
 
 namespace PlayGround.Shared.Primitives;
 
-/// <summary>
-/// 스마트 Enum 기본 클래스
-/// </summary>
 public abstract class Enumeration<TEnum> : IEquatable<Enumeration<TEnum>>
     where TEnum : Enumeration<TEnum>
 {
@@ -66,11 +63,7 @@ public abstract class Enumeration<TEnum> : IEquatable<Enumeration<TEnum>>
     private static IEnumerable<TEnum> GetAllEnumerations()
     {
         var enumerationType = typeof(TEnum);
-        var fields = enumerationType.GetFields(
-            BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
-
-        return fields
-            .Select(f => f.GetValue(null))
-            .OfType<TEnum>();
+        var fields = enumerationType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+        return fields.Select(f => f.GetValue(null)).OfType<TEnum>();
     }
 }

@@ -86,7 +86,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<CreateTeamResponse>.Failure(created.ResultData);
             }
 
-            mLogger.InfoWith("Team created", ("ManagerUserId", managerUserId));
+            mLogger.Info("Team created", ("ManagerUserId", managerUserId));
 
             // 온보딩 완료 → 역할 승격 + 승격된 역할로 JWT 재발급 (재로그인 없이 /dashboard 분기가 맞도록).
             // 실패해도 팀은 생성됐으므로 비치명적 — 토큰 없이 반환하면 기존 토큰이 유지된다.
@@ -98,7 +98,7 @@ namespace PlayGround.Application.Team.Commands
                 AccountUser user = promoted.Value;
                 accessToken = mTokenService.GenerateAccessToken(
                     user.UserId, user.Email, user.DisplayName, user.UserRole, user.ProfileImageUrl);
-                mLogger.InfoWith("User role promoted", ("UserId", managerUserId), ("Role", "TeamAdmin"));
+                mLogger.Info("User role promoted", ("UserId", managerUserId), ("Role", "TeamAdmin"));
             }
             else
             {

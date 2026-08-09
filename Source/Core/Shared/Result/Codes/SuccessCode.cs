@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 
+using PlayGround.Shared.Primitives;
+
 namespace PlayGround.Shared.Result;
 
 public sealed class SuccessCode : DetailCode
@@ -11,7 +13,7 @@ public sealed class SuccessCode : DetailCode
     {
         if (!SuccessCodes.TryAdd(value, this))
         {
-            throw new InvalidOperationException($"Success code value {value} is already defined.");
+            Panic.Fail($"SuccessCode value {value} is already defined.");
         }
     }
 

@@ -64,7 +64,7 @@ namespace PlayGround.Application.Team.Commands
                 return Result<UpdateTeamInfoResponse>.Failure(saved.ResultData);
             }
 
-            mLogger.InfoWith("Team info updated", ("ManagerUserId", managerUserId));
+            mLogger.Info("Team info updated", ("ManagerUserId", managerUserId));
 
             if (saved.Value is null)
             {

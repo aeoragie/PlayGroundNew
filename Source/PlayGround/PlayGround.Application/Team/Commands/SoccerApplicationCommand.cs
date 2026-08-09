@@ -125,7 +125,7 @@ namespace PlayGround.Application.Team.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Application status updated", ("ManagerUserId", managerUserId));
+            mLogger.Info("Application status updated", ("ManagerUserId", managerUserId));
 
             if (!applied.Value)
             {
@@ -151,7 +151,7 @@ namespace PlayGround.Application.Team.Commands
                 return applied;
             }
 
-            mLogger.InfoWith("Application cancelled", ("GuardianUserId", guardianUserId));
+            mLogger.Info("Application cancelled", ("GuardianUserId", guardianUserId));
 
             if (!applied.Value)
             {
