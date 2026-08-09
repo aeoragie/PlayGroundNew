@@ -92,13 +92,6 @@ namespace PlayGround.Client.Components.Shared.Notifications
             _ => AppText.Notification.BodyCorrection(FieldTypeLabel(item.MetaText), item.TeamName),
         };
 
-        public static string RelationLabel(SoccerClaimRelation relation) => relation switch
-        {
-            SoccerClaimRelation.Father => AppText.Notification.RelationFather,
-            SoccerClaimRelation.Guardian => AppText.Notification.RelationGuardian,
-            _ => AppText.Notification.RelationMother,
-        };
-
         public static string FieldTypeLabel(string? fieldType) =>
             (Enum.TryParse(fieldType, out SoccerCorrectionField field) ? field : SoccerCorrectionField.Unknown).ToLabel();
 

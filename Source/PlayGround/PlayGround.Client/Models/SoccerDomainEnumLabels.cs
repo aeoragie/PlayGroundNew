@@ -3,9 +3,9 @@ using PlayGround.Domain.Soccer;
 
 namespace PlayGround.Client.Models
 {
-    /// <summary>Contracts 열거형의 화면 표기 라벨. **표시는 표현 계층의 몫**이라
-    /// (Contracts는 Client를 참조할 수 없어 AppText에 닿지 못한다) 여기서 리소스로 라우팅한다.
-    /// 근거는 Docs/Architecture/Localization.md §7.</summary>
+    /// <summary>enum → 화면 표기의 전이 지점은 이 파일 하나다 (Localization.md §11).
+    /// 정식 라벨(값의 이름)만 여기 둔다 — 화면 문맥 카피(히어로 긴 표기·액션 버튼·상태별 본문)는 각 화면에.
+    /// TODO(로컬라이징): 통과형(ToString 반환) 라벨의 국가별 표기 결정, 라벨 키의 Enums 도메인 통합.</summary>
     public static class SoccerDomainEnumLabels
     {
         public static string ToLabel(this SoccerCorrectionField field) => field switch
@@ -75,5 +75,52 @@ namespace PlayGround.Client.Models
             SoccerVideoType.FullMatch => AppText.Enums.VideoFullMatch,
             _ => AppText.Enums.VideoTraining,
         };
+
+        public static string ToLabel(this SoccerCorrectionStatus status) => status switch
+        {
+            SoccerCorrectionStatus.Accepted => AppText.Correction.StatusAccepted,
+            SoccerCorrectionStatus.Rejected => AppText.Correction.StatusRejected,
+            _ => AppText.Correction.StatusPending,
+        };
+
+        public static string ToLabel(this SoccerClaimRelation relation) => relation switch
+        {
+            SoccerClaimRelation.Father => AppText.Claim.RelationFather,
+            SoccerClaimRelation.Guardian => AppText.Claim.RelationGuardian,
+            _ => AppText.Claim.RelationMother,
+        };
+
+        public static string ToLabel(this SoccerAgentViewEvent eventType) => eventType switch
+        {
+            SoccerAgentViewEvent.RecordView => AppText.Agent.LogRecordView,
+            SoccerAgentViewEvent.ProfileView => AppText.Agent.LogProfileView,
+            _ => AppText.Agent.LogApproved,
+        };
+
+        public static string ToLabel(this SoccerAwardType awardType) => awardType switch
+        {
+            SoccerAwardType.Champion => AppText.Records.AwardChampion,
+            SoccerAwardType.RunnerUp => AppText.Records.AwardRunnerUp,
+            _ => AppText.Records.AwardFairPlay,
+        };
+
+        public static string? ToLabel(this SoccerPreferredFoot foot) => foot switch
+        {
+            SoccerPreferredFoot.Left => AppText.Enums.FootLeft,
+            SoccerPreferredFoot.Right => AppText.Enums.FootRight,
+            SoccerPreferredFoot.Both => AppText.Enums.FootBoth,
+            _ => null,
+        };
+
+        //.// 통과형 — 현재는 로케일 중립 표기(멤버 이름) 그대로. 국가별 표기 결정 시 리소스로 승격한다.
+
+        // TODO(로컬라이징): 포지션 표기(GK/DF/MF/FW)의 국가별 결정
+        public static string? ToLabel(this SoccerPosition position) => position.ToText();
+
+        // TODO(로컬라이징): 학년 U표기(U7~U18)의 국가별 결정 — CLAUDE.md "학년은 나이 기준 U표기"
+        public static string? ToLabel(this SoccerGrade grade) => grade.ToText();
+
+        // TODO(로컬라이징): 연령 그룹 U표기(U12/U15/U18)의 국가별 결정
+        public static string? ToLabel(this SoccerAgeGroup ageGroup) => ageGroup.ToText();
     }
 }

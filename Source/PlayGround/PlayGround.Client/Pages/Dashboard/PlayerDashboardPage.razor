@@ -590,12 +590,12 @@
         List<string> parts = new();
         if (mInfo.Profile.AgeGroup != SoccerAgeGroup.Unknown)
         {
-            parts.Add(mInfo.Profile.AgeGroup.ToText()!);
+            parts.Add(mInfo.Profile.AgeGroup.ToLabel()!);
         }
 
         if (mInfo.Profile.Position != SoccerPosition.Unknown)
         {
-            parts.Add(mInfo.Profile.Position.ToText()!);
+            parts.Add(mInfo.Profile.Position.ToLabel()!);
         }
 
         if (mInfo.Profile.JerseyNumber is not null)

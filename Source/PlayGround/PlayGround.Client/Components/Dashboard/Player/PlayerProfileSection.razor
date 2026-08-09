@@ -145,10 +145,10 @@
 
     private bool HasLinkedFamily => Info.Family.Any(m => m.HasAccount);
 
-    private string? PositionText => Compose(Info.Profile.Position.ToText(),
+    private string? PositionText => Compose(Info.Profile.Position.ToLabel(),
         Info.Profile.JerseyNumber is not null ? AppText.Player.JerseyNumber(Info.Profile.JerseyNumber) : null);
 
-    private string? BirthText => Compose(Info.Profile.BirthYear.ToString(), Info.Profile.Grade.ToText());
+    private string? BirthText => Compose(Info.Profile.BirthYear.ToString(), Info.Profile.Grade.ToLabel());
 
     private List<FieldRow> FieldRows => BuildFieldRows(Info);
 

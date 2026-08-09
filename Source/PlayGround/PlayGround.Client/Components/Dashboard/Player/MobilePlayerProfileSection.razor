@@ -143,7 +143,7 @@
             List<string> parts = new();
             if (Info.Profile.Position != SoccerPosition.Unknown)
             {
-                parts.Add(Info.Profile.Position.ToText()!);
+                parts.Add(Info.Profile.Position.ToLabel()!);
             }
 
             if (Info.Profile.JerseyNumber is not null)
@@ -158,7 +158,7 @@
 
             if (Info.Profile.Grade != SoccerGrade.Unknown)
             {
-                parts.Add(Info.Profile.Grade.ToText()!);
+                parts.Add(Info.Profile.Grade.ToLabel()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;

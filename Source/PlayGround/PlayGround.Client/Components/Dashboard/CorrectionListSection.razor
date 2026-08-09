@@ -27,7 +27,7 @@
                             <span class="@Css.Correction.Summary">@SummaryOf(correction)</span>
                             <span class="@Css.Correction.Meta">@MetaOf(correction)</span>
                         </span>
-                        <span class="@Css.Correction.StatusBadge(correction.Status)">@StatusLabel(status)</span>
+                        <span class="@Css.Correction.StatusBadge(correction.Status)">@status.ToLabel()</span>
 
                         @* 취소는 접수 상태에서만 — 심사가 끝난 건은 손댈 수 없다 *@
                         @if (status == SoccerCorrectionStatus.Pending)
@@ -65,7 +65,7 @@
             ? correction.RequestedValue
             : $"{correction.CurrentValue} → {correction.RequestedValue}";
 
-        return $"{head} {FieldLabel(field)} {change}";
+        return $"{head} {field.ToLabel()} {change}";
     }
 
     private static string MetaOf(RecordCorrectionDto correction)
@@ -80,22 +80,6 @@
         string verb = status == SoccerCorrectionStatus.Accepted ? AppText.Correction.VerbAccepted : AppText.Correction.VerbRejected;
         return AppText.Correction.Reviewed(requested, correction.ReviewedAt.Value.Month, correction.ReviewedAt.Value.Day, verb);
     }
-
-    // enum → 표시 라벨 (Domain의 ToLabel은 한글 하드코딩 — 표시는 Client 로컬라이제이션으로 라우팅)
-    private static string FieldLabel(SoccerCorrectionField field) => field switch
-    {
-        SoccerCorrectionField.Score => AppText.Correction.FieldScore,
-        SoccerCorrectionField.GoalAssist => AppText.Correction.FieldGoalAssist,
-        SoccerCorrectionField.Appearance => AppText.Correction.FieldAppearance,
-        _ => AppText.Correction.FieldEtc,
-    };
-
-    private static string StatusLabel(SoccerCorrectionStatus status) => status switch
-    {
-        SoccerCorrectionStatus.Accepted => AppText.Correction.StatusAccepted,
-        SoccerCorrectionStatus.Rejected => AppText.Correction.StatusRejected,
-        _ => AppText.Correction.StatusPending,
-    };
 
     private List<OverflowMenu.MenuItem> BuildCancelItems(RecordCorrectionDto correction) => new()
     {

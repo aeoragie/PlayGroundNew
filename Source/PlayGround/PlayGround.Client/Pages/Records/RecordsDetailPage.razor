@@ -99,7 +99,7 @@
                                         @foreach (RecordsAwardDto award in mData.Awards)
                                         {
                                             <span class="flex gap-2.5 items-center">
-                                                <span class="@AwardBadgeClass(award.AwardType)">@AwardLabel(award.AwardType)</span>
+                                                <span class="@AwardBadgeClass(award.AwardType)">@award.AwardType.ToLabel()</span>
                                                 <TeamNameLink Name="@award.TeamName" Slug="@award.TeamSlug" Class="font-bold text-navy-deep" />
                                             </span>
                                         }
@@ -651,13 +651,6 @@
         : AppText.Records.ZoneLegendCup;
 
     //.// 수상
-
-    private static string AwardLabel(SoccerAwardType awardType) => awardType switch
-    {
-        SoccerAwardType.Champion => AppText.Records.AwardChampion,
-        SoccerAwardType.RunnerUp => AppText.Records.AwardRunnerUp,
-        _ => AppText.Records.AwardFairPlay,
-    };
 
     private static string AwardBadgeClass(SoccerAwardType awardType) =>
         "text-[11px] font-extrabold rounded-full px-2.5 py-0.5 whitespace-nowrap " + awardType switch

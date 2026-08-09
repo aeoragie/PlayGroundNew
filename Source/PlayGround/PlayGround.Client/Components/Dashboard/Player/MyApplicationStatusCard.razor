@@ -87,5 +87,5 @@
     };
 
     private static string PlayerMeta(MyApplicationDto a) =>
-        a.DesiredPosition == SoccerPosition.Unknown ? a.PlayerName : $"{a.PlayerName} · {a.DesiredPosition}";
+        a.DesiredPosition == SoccerPosition.Unknown ? a.PlayerName : $"{a.PlayerName} · {a.DesiredPosition.ToLabel()}";
 }

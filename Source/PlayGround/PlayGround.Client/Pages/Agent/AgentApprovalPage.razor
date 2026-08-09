@@ -114,7 +114,7 @@
 
     private string? PlayerMeta => mData is null
         ? null
-        : string.Join(" · ", new[] { mData.PlayerAgeGroup.ToText(), mData.PlayerPosition.ToText() }.Where(v => v is not null)) is { Length: > 0 } meta
+        : string.Join(" · ", new[] { mData.PlayerAgeGroup.ToLabel(), mData.PlayerPosition.ToLabel() }.Where(v => v is not null)) is { Length: > 0 } meta
             ? meta
             : null;
 
@@ -267,13 +267,6 @@
         return AppText.Agent.RequestedAt(local.Month, local.Day, local.Hour < 12 ? AppText.Agent.Am : AppText.Agent.Pm, ((local.Hour + 11) % 12) + 1, local.Minute.ToString("D2"));
     }
 
-    private static string LogLabel(SoccerAgentViewEvent eventType) => eventType switch
-    {
-        SoccerAgentViewEvent.RecordView => AppText.Agent.LogRecordView,
-        SoccerAgentViewEvent.ProfileView => AppText.Agent.LogProfileView,
-        _ => AppText.Agent.LogApproved,
-    };
-
     private static string LogTimeText(SystemTime utc)
     {
         DateTime local = utc.ToWallClock();
@@ -354,7 +347,7 @@
             {
                 <div class="flex items-center gap-[9px] md:gap-2.5 py-2 md:py-[9px] border-t border-surface-soft">
                     <span class="w-1.5 h-1.5 rounded-full bg-agent flex-none"></span>
-                    <span class="text-xs md:text-[13px] text-text-strong flex-1 break-keep">@LogLabel(log.EventType)</span>
+                    <span class="text-xs md:text-[13px] text-text-strong flex-1 break-keep">@log.EventType.ToLabel()</span>
                     <span class="text-[11px] md:text-[11.5px] text-text-muted whitespace-nowrap">@LogTimeText(log.CreatedAt)</span>
                 </div>
             }

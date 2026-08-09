@@ -35,7 +35,7 @@
                 </div>
                 <span class="flex flex-col gap-0.5">
                     <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@player.Name</span>
-                    <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position.ToText() ?? "-") · @(player.Grade.ToText() ?? "-")</span>
+                    <span class="text-[11.5px] text-text-body whitespace-nowrap">@(player.Position.ToLabel() ?? "-") · @(player.Grade.ToLabel() ?? "-")</span>
                 </span>
                 @* 강점 태그 — 카드 뷰만: 첫 1개 + "+N". 없으면 생략 *@
                 @if (player.StrengthTags.Count > 0)

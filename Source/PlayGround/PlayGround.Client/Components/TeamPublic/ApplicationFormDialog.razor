@@ -151,12 +151,12 @@
         List<string> parts = new();
         if (child.AgeGroup != SoccerAgeGroup.Unknown)
         {
-            parts.Add(child.AgeGroup.ToText()!);
+            parts.Add(child.AgeGroup.ToLabel()!);
         }
 
         if (child.Position != SoccerPosition.Unknown)
         {
-            parts.Add(child.Position.ToText()!);
+            parts.Add(child.Position.ToLabel()!);
         }
 
         return parts.Count > 0 ? string.Join(" · ", parts) : null;

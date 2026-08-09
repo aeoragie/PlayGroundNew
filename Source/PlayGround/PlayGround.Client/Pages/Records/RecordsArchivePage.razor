@@ -101,7 +101,7 @@
     private static string MetaLine(RecordsTournamentDto tournament)
     {
         string format = tournament.Format.ToLabel();
-        string meta = $"{tournament.AgeGroup.ToText()} · {format}";
+        string meta = $"{tournament.AgeGroup.ToLabel()} · {format}";
         return tournament.TeamCount is null ? meta : meta + " · " + AppText.Records.TeamCountSuffix(tournament.TeamCount);
     }
 

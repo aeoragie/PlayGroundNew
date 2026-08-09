@@ -174,12 +174,12 @@
         List<string> parts = new();
         if (app.PlayerAgeGroup != SoccerAgeGroup.Unknown)
         {
-            parts.Add(app.PlayerAgeGroup.ToText()!);
+            parts.Add(app.PlayerAgeGroup.ToLabel()!);
         }
 
         if (app.DesiredPosition != SoccerPosition.Unknown)
         {
-            parts.Add(AppText.Dashboard.DesiredPositionSuffix(app.DesiredPosition.ToText()!));
+            parts.Add(AppText.Dashboard.DesiredPositionSuffix(app.DesiredPosition.ToLabel()!));
         }
 
         return parts.Count == 0 ? null : string.Join(" · ", parts);

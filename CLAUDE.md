@@ -563,12 +563,12 @@ Windows에서 멀쩡하던 참조가 서버에서만 깨진다.**
     (데이터 버그), `Write`는 `Unknown`→NULL. 생성 엔티티(string)는 그대로 둔다.
   - **enum의 세 영역과 두 전이 지점** (2026-08-09 기록 — 실작업은 로컬라이징 착수 시):
     `화면(브라우저 표기) ←[로컬라이징 표기]→ 클라·서버 로직(enum) ←[enum↔string]→ DB(저장)`.
-    로직 영역 안에서는 enum 그대로 오간다(와이어 JSON 컨버터 포함). DB 전이는 `EnumColumn`
-    한 곳으로 끝났고, **표기 전이는 국가별 로컬라이징 영역이라 아직 흩어져 있다** —
-    상세·보류 목록은 `Docs/Architecture/Localization.md` §11.
-  - Client 표시는 `ToText()`(로케일 중립 코드 표기 — U표기·포지션 약어, Unknown→null → "-"·생략 폴백)와
-    `SoccerDomainEnumLabels`의 `ToLabel()`(리소스 라벨). 화면에 enum을 raw `ToString()`·보간으로
-    내보내지 않는다. `Enum.GetValues`로 목록을 만들 때는 `Unknown`을 걸러낸다.
+    로직 영역 안에서는 enum 그대로 오간다(와이어 JSON 컨버터 포함). 두 전이 지점 모두 단일화됐다 —
+    DB는 `EnumColumn`, 표기는 `SoccerDomainEnumLabels.ToLabel()`(미결정 표기는 통과형+TODO).
+    상세·가드·보류 목록은 `Docs/Architecture/Localization.md` §11.
+  - Client 표시는 `SoccerDomainEnumLabels.ToLabel()` 하나만 지난다 — raw `ToString()`·보간 금지,
+    누락은 `SoccerEnumLabelGuardTests`가 잡는다. `ToText()`는 통과형 구현 재료("-"·생략 폴백용).
+    `Enum.GetValues`로 목록을 만들 때는 `Unknown`을 걸러낸다.
   - **학년(Grade)은 국가 학제 대신 나이 기준 U표기**(U7~U18) — 표시도 당분간 그대로, 국가별 표기는 추후 결정.
   - 자유 텍스트로 남긴 필드(enum화 보류): `TeamType`(클럽/학교/학원 — 한글 저장 값이라 값 마이그레이션
     결정 필요), 코치 `Role`(감독 등), `ActiveRegions`, 커리어 `Role`, `Round`(R1/QF), `Region`.

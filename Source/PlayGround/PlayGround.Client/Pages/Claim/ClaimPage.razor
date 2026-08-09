@@ -91,7 +91,7 @@
                                 SoccerClaimRelation value = relation;
                                 <button type="button"
                                         class="@(mRelation == value ? Css.Claim.RelationButtonActive : Css.Claim.RelationButton)"
-                                        @onclick="() => mRelation = value">@RelationLabel(value)</button>
+                                        @onclick="() => mRelation = value">@value.ToLabel()</button>
                             }
                         </div>
                     </div>
@@ -116,7 +116,7 @@
                     <div class="@Css.Claim.SummaryCard">
                         <Avatar Name="@mRequest.PlayerName" Size="44" Class="flex-none" />
                         <span class="flex flex-col gap-0.5 flex-1 min-w-0">
-                            <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Claim.PendingGuardianOf(mRequest.PlayerName, RelationLabel(mRequest.Relation))</span>
+                            <span class="text-[13.5px] font-extrabold text-navy-deep whitespace-nowrap">@AppText.Claim.PendingGuardianOf(mRequest.PlayerName, mRequest.Relation.ToLabel())</span>
                             <span class="text-[11.5px] text-text-muted whitespace-nowrap">@AppText.Claim.RequestedAt(RequestedAtText)</span>
                         </span>
                         <span class="@Css.Claim.PendingBadge">@AppText.Claim.PendingBadge</span>
@@ -181,7 +181,7 @@
             List<string> parts = new();
             if (mCard.Position != SoccerPosition.Unknown)
             {
-                parts.Add(mCard.Position.ToText()!);
+                parts.Add(mCard.Position.ToLabel()!);
             }
 
             if (mCard.JerseyNumber is not null)
@@ -196,7 +196,7 @@
 
             if (mCard.AgeGroup != SoccerAgeGroup.Unknown)
             {
-                parts.Add(mCard.AgeGroup.ToText()!);
+                parts.Add(mCard.AgeGroup.ToLabel()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;
@@ -372,16 +372,6 @@
     private static string InitialOf(string name)
     {
         return string.IsNullOrEmpty(name) ? "?" : name[^Math.Min(2, name.Length)..][..1];
-    }
-
-    internal static string RelationLabel(SoccerClaimRelation relation)
-    {
-        return relation switch
-        {
-            SoccerClaimRelation.Father => AppText.Claim.RelationFather,
-            SoccerClaimRelation.Guardian => AppText.Claim.RelationGuardian,
-            _ => AppText.Claim.RelationMother,
-        };
     }
 
 }

@@ -252,7 +252,7 @@ else if (mData is not null)
                     @foreach (PlayerMatchStatDto match in matches)
                     {
                         <div class="@Css.PlayerPublic.RecordRowPc">
-                            <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@CompLabel(match)</span>
+                            <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@match.CompetitionType.ToLabel()</span>
                             <span class="text-xs text-text-muted w-11 whitespace-nowrap">@(match.MatchedAt?.ToWallClock().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
                             <span class="@($"{Css.PlayerPublic.RecordMatchTitle} flex-1")">@MatchTitle(match)</span>
                             <span class="@Css.PlayerPublic.RecordStatChip">@StatLabel(match)</span>
@@ -260,7 +260,7 @@ else if (mData is not null)
                         </div>
                         <div class="@Css.PlayerPublic.RecordRowMobile">
                             <div class="flex items-center gap-[7px]">
-                                <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@CompLabel(match)</span>
+                                <span class="@($"{Css.PlayerPublic.CompPillBase} {CompPillClass(match)}")">@match.CompetitionType.ToLabel()</span>
                                 <span class="text-[10.5px] text-text-muted whitespace-nowrap">@(match.MatchedAt?.ToWallClock().ToString("M/d", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</span>
                                 <div class="flex-1"></div>
                                 <span class="@Css.PlayerPublic.RecordMinutes">@MinutesLabel(match)</span>
@@ -355,7 +355,7 @@ else if (mData is not null)
             List<string> parts = new();
             if (mData!.Profile.Position != SoccerPosition.Unknown)
             {
-                parts.Add(mData.Profile.Position.ToText()!);
+                parts.Add(mData.Profile.Position.ToLabel()!);
             }
 
             if (mData.Profile.JerseyNumber is not null)
@@ -370,7 +370,7 @@ else if (mData is not null)
 
             if (mData.Profile.AgeGroup != SoccerAgeGroup.Unknown)
             {
-                parts.Add(mData.Profile.AgeGroup.ToText()!);
+                parts.Add(mData.Profile.AgeGroup.ToLabel()!);
             }
 
             return parts.Count > 0 ? string.Join(" · ", parts) : null;
@@ -386,13 +386,6 @@ else if (mData is not null)
     }
 
     // 대회 pill — 리그 네이비 / 컵 오렌지 톤 / 친선 teal 톤 (dc comp 함수 그대로)
-    private static string CompLabel(PlayerMatchStatDto match) => match.CompetitionType switch
-    {
-        SoccerCompetitionType.League => AppText.Player.CompLeague,
-        SoccerCompetitionType.Cup => AppText.Player.CompCup,
-        _ => AppText.Player.CompFriendly,
-    };
-
     private static string CompPillClass(PlayerMatchStatDto match) => match.CompetitionType switch
     {
         SoccerCompetitionType.League => "text-navy bg-surface-icon",

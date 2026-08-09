@@ -271,7 +271,7 @@
         item.Type == SoccerNotificationType.ClaimRequest ? AppText.Notification.TitleClaimRequest : AppText.Notification.TitleTeamInvite;
 
     private static string ActionBody(NotificationDto item) => item.Type == SoccerNotificationType.ClaimRequest
-        ? AppText.Notification.BodyClaimRequest(item.ActorName, NotificationPresenter.RelationLabel(item.Relation), item.PlayerName, item.MetaText is not null ? $"({item.MetaText})" : "")
+        ? AppText.Notification.BodyClaimRequest(item.ActorName, item.Relation.ToLabel(), item.PlayerName, item.MetaText is not null ? $"({item.MetaText})" : "")
         : AppText.Notification.BodyTeamInvite(item.TeamName, item.PlayerName);
 
     private RenderFragment RightAction(NotificationDto item) => builder =>

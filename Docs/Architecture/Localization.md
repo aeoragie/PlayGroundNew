@@ -220,24 +220,32 @@ enum은 세 영역을 지나며 두 번 모습을 바꾼다.
 - **② DB 전이**는 `EnumColumn`(Core.Shared) 한 곳으로 완결됐다.
 - **① 표기 전이**가 이 문서의 영역이다 — 국가별 서비스 로컬라이징과 직결되며, 전이 도구는 둘뿐이다.
 
-| 도구 | 용도 | 예 |
-|---|---|---|
-| `ToLabel()` (`Models/SoccerDomainEnumLabels`) | **리소스 라벨** — 언어별로 다른 표기 | League→"리그"/"リーグ" |
-| `ToText()` (`Models/EnumDisplay`) | **로케일 중립 코드 표기** — 언어 무관 | U15, GK, FW |
+**화면이 enum을 표기할 때는 `ToLabel()`(`Models/SoccerDomainEnumLabels`) 하나만 지난다** (2026-08-09 구조 완료).
+raw `ToString()`·문자열 보간 금지. 아직 국가별 표기가 결정되지 않은 enum(포지션·학년 U표기·연령 그룹)은
+**통과형 ToLabel**(멤버 이름 그대로 반환, 파일 안 TODO)로 같은 전이 지점을 지난다 — 리소스로 승격해도
+호출부는 변하지 않는다. `ToText()`(`Models/EnumDisplay`)는 통과형의 구현 재료이자 "-"·생략 폴백용
+내부 도구다(Unknown→null).
 
-화면에 enum을 raw `ToString()`·문자열 보간으로 내보내는 것은 금지다 — 반드시 위 둘 중
-하나를 지나야 한다. 어떤 멤버가 중립 표기로 남을지(예: Grade U표기)와 라벨로 승격할지는
-국가별 표기를 결정할 때 함께 정한다.
+중앙에 두는 기준은 **정식 라벨(값의 이름)**이다. enum으로 분기하는 화면 문맥 카피는 각 화면에 남는다 —
+상세 히어로의 긴 형식 표기("조별 예선 + 토너먼트"), 상태별 본문·액션 버튼(MyApplicationStatusCard·
+RosterSection ActionLabel), 항목별 예시 플레이스홀더(Correction 다이얼로그) 등.
+
+### 완료 (2026-08-09 구조 선행)
+
+1. **표기 전이 지점 단일화** — 페이지-로컬 정식 라벨 switch를 `SoccerDomainEnumLabels`로 이관
+   (CorrectionListSection 항목·상태, ClaimPage·NotificationPresenter 관계, AgentApprovalPage 열람 로그,
+   PlayerPublicProfilePage 대회 유형, RecordsDetailPage 수상). `SoccerPreferredFootLabels`도 흡수.
+   관계 라벨처럼 두 도메인에 같은 값으로 중복돼 있던 키는 한쪽(Claim)만 쓴다.
+2. **라벨 전수 가드** — `SoccerEnumLabelGuardTests`가 리플렉션으로 라벨 메서드 전부를 찾아
+   전 멤버 호출: Unknown은 무예외만, 그 외는 비어 있지 않은 라벨 필수. switch `_` 폴백 때문에
+   컴파일러가 못 잡는 멤버 추가·라벨 누락을 잡는다.
 
 ### 보류 작업 (로컬라이징 착수 시)
 
-1. **표기 전이 지점 단일화** — 페이지-로컬 라벨 switch가 11개 파일에 흩어져 있다
-   (CorrectionFormDialog·CorrectionListSection·GuardianCorrectionFormDialog·MyApplicationStatusCard·
-   RosterSection·TeamInfoSection·AgentApprovalPage·ClaimPage·PlayerPublicProfilePage·
-   RecordsDetailPage·RecordsPage). 전부 `SoccerDomainEnumLabels`로 모은다 —
-   언어 추가 시 한 파일만 보면 되게.
-2. **라벨 전수 가드 테스트** — 라벨 대상 enum의 전 멤버(Unknown 제외)에 리플렉션으로
-   `ToLabel()`을 호출해 예외·빈 값·리소스 키 누락을 잡는다(LocalizationResourceTests 패턴).
-   enum에 멤버를 추가하고 라벨을 빠뜨리는 실수를 빌드 단계에서 막는다.
+1. **통과형 라벨의 국가별 표기 결정** — 포지션(GK/DF/MF/FW)·학년(U표기)·연령 그룹.
+   파일 안 TODO(로컬라이징) 주석이 자리를 표시한다.
+2. **라벨 키의 Enums 도메인 통합** — 중앙 함수가 참조하는 키가 Correction·Claim·Agent·Records
+   도메인에 흩어져 있다(값 이동 없이 함수만 먼저 모았다). 키를 `Enums` 도메인으로 옮기고
+   중복 키(Notification.Relation* 등)를 정리한다.
 3. **raw 표기 가드** — `.razor`에서 enum 프로퍼티 직접 보간(`@item.Status`)을 잡는
-   정적 가드는 타입 정보가 필요해 비용이 크다. 1·2가 끝나면 실익이 작아 보류.
+   정적 가드는 타입 정보가 필요해 비용이 크다. 1·2 완료 후 실익이 작으면 하지 않는다.
