@@ -361,3 +361,15 @@ Account DB도 같은 방식으로. 이후 서버측 설치(`README.md` 4단계) 
 ```bash
 journalctl -u playground --since "2026-08-02 14:00" --until "2026-08-02 15:00"
 ```
+
+## .NET 런타임 보안 패치 (apt가 안 해준다)
+
+런타임은 apt 패키지가 아니라 dotnet-install 스크립트로 설치했다(22.04 prod 저장소에
+.NET 10이 없다). `apt upgrade`가 갱신해주지 않으므로 패치는 손으로 한다:
+
+```bash
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+sudo bash /tmp/dotnet-install.sh --channel 10.0 --runtime aspnetcore --install-dir /usr/share/dotnet
+sudo systemctl restart playground
+dotnet --list-runtimes   # 새 패치 버전 확인
+```

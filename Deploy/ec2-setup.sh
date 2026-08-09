@@ -52,7 +52,12 @@ ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd
 ln -sf /opt/mssql-tools18/bin/bcp /usr/local/bin/bcp
 
 log "ASP.NET Core 런타임"
-apt-get install -y aspnetcore-runtime-10.0
+# MS prod 저장소(22.04/jammy)는 9.0까지만 올라온다 — .NET 10은 apt에 없다(2026-08-09 실측).
+# 공식 dotnet-install 스크립트로 설치한다. 대가: apt upgrade가 갱신해주지 않으므로
+# 보안 패치는 이 두 줄을 다시 실행한다(Runbook 참조).
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+bash /tmp/dotnet-install.sh --channel 10.0 --runtime aspnetcore --install-dir /usr/share/dotnet
+ln -sf /usr/share/dotnet/dotnet /usr/bin/dotnet
 
 log "Redis"
 apt-get install -y redis-server
