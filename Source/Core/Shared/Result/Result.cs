@@ -20,8 +20,21 @@ namespace PlayGround.Shared.Result;
 /// </summary>
 public readonly struct Result<T>
 {
-    /// <summary>결과 값. 실패 경로에서는 채워지지 않으니 <see cref="IsError"/> 확인 후 읽는다.</summary>
-    public T Value { get; }
+    private readonly T mValue;
+
+    /// <summary>결과 값. 실패 결과에서 읽으면 Panic — 값이 있다는 전제가 계약이다.</summary>
+    public T Value
+    {
+        get
+        {
+            if (IsError)
+            {
+                Panic.Fail($"Value accessed on a failed result. {ResultData}");
+            }
+
+            return mValue;
+        }
+    }
 
     public ResultInfo ResultData { get; }
     public string Message => ResultData.Message;
@@ -34,20 +47,19 @@ public readonly struct Result<T>
 
     private Result(T value)
     {
-        Value = value;
+        mValue = value;
         ResultData = ResultInfo.Success();
     }
 
     private Result(T value, ResultInfo? info)
     {
-        Value = value;
+        mValue = value;
         ResultData = info ?? ResultInfo.Success();
     }
 
     private Result(ResultInfo info)
     {
-        // 실패 경로 — 값이 없다. T가 널 비허용이어도 여기서는 담을 값이 없으므로 억제한다
-        Value = default!;
+        mValue = default!;
         ResultData = info;
     }
 

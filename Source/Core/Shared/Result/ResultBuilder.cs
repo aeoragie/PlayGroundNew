@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using PlayGround.Shared.Primitives;
 
 namespace PlayGround.Shared.Result
 {
@@ -179,7 +180,7 @@ namespace PlayGround.Shared.Result
                 return Result<T>.Success(mValue);
             }
 
-            return Result<T>.Unknown();
+            return Panic.Fail<Result<T>>("ResultBuilder built without a value or an error code.");
         }
 
         public async Task<Result<T>> BuildAsync()
