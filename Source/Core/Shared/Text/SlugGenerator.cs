@@ -71,11 +71,6 @@ namespace PlayGround.Shared.Text
             return slug;
         }
 
-        /// <summary>
-        /// 기준 슬러그가 예약어이거나 이미 사용 중이면 접미사(-2, -3…)를 붙여 고유한 값을 만든다.
-        /// <paramref name="isUnavailable"/>는 예약어 집합 + 저장소 존재 여부를 합쳐 판단하는 조건이다.
-        /// 빈 기준 슬러그는 <paramref name="fallback"/>을 사용한다.
-        /// </summary>
         public static Result<string> MakeUnique(string? baseSlug, Func<string, bool> isUnavailable, string fallback = "item")
         {
             if (isUnavailable is null)
@@ -99,8 +94,7 @@ namespace PlayGround.Shared.Text
                 }
             }
 
-            return Result<string>.Error(
-                ErrorCode.ResourceExhausted, $"Could not resolve a unique slug for '{candidate}'.");
+            return Result<string>.Error(ErrorCode.ResourceExhausted, $"Could not resolve a unique slug for '{candidate}'.");
         }
     }
 }

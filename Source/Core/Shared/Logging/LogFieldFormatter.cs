@@ -2,7 +2,6 @@ using System.Text;
 
 namespace PlayGround.Shared.Logging
 {
-    /// <summary>로그 메시지 형태의 단일 정의 — <c>문장. { Key:Value }</c>. NLog와 MEL이 함께 쓴다.</summary>
     public static class LogFieldFormatter
     {
         public static string BuildRendered(string message, (string Key, object? Value)[] fields) =>

@@ -4,11 +4,6 @@ using System.Text.Json.Serialization;
 
 namespace PlayGround.Shared.Time;
 
-/// <summary>
-/// 시각의 단일 타입. "순간"은 언제나 UTC 하나이고 그걸 타입으로 강제한다 — 어떤 Kind로 들어와도
-/// 생성자가 UTC로 정규화하고, DB(Dapper 핸들러)·JSON(ISO-8601 Z) 경계는 자동 변환이라 로직은
-/// <c>DateTime</c>을 모른다. 시간대는 이 타입이 아니라 Client의 <c>DisplayTime</c>이 안다.
-/// </summary>
 [JsonConverter(typeof(SystemTimeJsonConverter))]
 public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTime>, IComparable
 {
@@ -19,7 +14,7 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
         mValue = DateTime.UtcNow;
     }
 
-    /// <summary>DB에서 읽은 값(<c>Unspecified</c>)은 저장 규칙상 UTC이므로 그대로 UTC로 표식한다.</summary>
+    // Unspecified는 저장 규칙상 UTC다 (DB에서 읽은 값)
     public SystemTime(DateTime value)
     {
         mValue = value.Kind switch
@@ -43,10 +38,8 @@ public readonly struct SystemTime : IEquatable<SystemTime>, IComparable<SystemTi
 
     public static SystemTime MaxValue { get; } = new(DateTime.MaxValue);
 
-    /// <summary>JWT·OAuth·Redis TTL처럼 <c>DateTimeOffset</c>을 요구하는 외부 라이브러리 경계용.</summary>
     public static DateTimeOffset OffsetNow => DateTimeOffset.UtcNow;
 
-    /// <summary>원시 UTC <c>DateTime</c>. 경계(DB 파라미터·외부 라이브러리) 전용 — 로직에서 쓰지 않는다.</summary>
     public DateTime UtcDateTime => DateTime.SpecifyKind(mValue, DateTimeKind.Utc);
 
     //.// 성분 (UTC 기준)
