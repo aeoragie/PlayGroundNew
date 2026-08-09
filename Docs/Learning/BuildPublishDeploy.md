@@ -50,3 +50,15 @@
 (`Source/Database/README.md`의 루프 — 원격은 `-S <EIP>,47821 -U ... -C`만 다르다).
 적용 검증은 손이 아니라 **DB 계약 테스트**로 한다:
 `PLAYGROUND_TEST_*_CONNSTR` 환경변수를 운영 DB로 잡고 `dotnet test Tests/Tests.Infrastructure`.
+
+## 수동 배포 시 zip 함정 (실측 2026-08-09)
+
+PowerShell `Compress-Archive`는 zip 안에 경로 구분자를 `\`로 쓴다(규격 위반). Linux `unzip`이
+폴더 구조를 못 살리고 `wwwroot\index.html` 같은 납작한 파일로 풀어 앱이 깨진다.
+**Windows 기본 탑재 `tar`로 만든다** — 규격대로 `/`를 쓴다:
+
+```powershell
+tar -a -cf C:\Temp\playground-app.zip -C C:\Workspace\Publish\PlayGround .
+```
+
+GitHub Actions 경로는 Linux `zip`으로 만들므로 이 함정이 없다 — 수동 배포에서만 밟는다.
