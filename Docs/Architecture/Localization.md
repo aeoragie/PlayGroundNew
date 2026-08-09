@@ -206,3 +206,38 @@ console.log(bad?'❌ '+bad:'✅ 정합')"
 - 날짜·숫자 형식 문화권 대응(현재 `CultureInfo.InvariantCulture` 고정 자리 존재)
 - en 리소스 작성, 번역 워크플로(외부 번역가 전달 형식)
 - 서버 발신 문자열(이메일·알림 본문) 다국어 — 현재 Client 전용 구조
+
+## 11. 열거형 표기 모델 (2026-08-09 기록 — 실작업 보류)
+
+enum은 세 영역을 지나며 두 번 모습을 바꾼다.
+
+```
+화면(브라우저 표기)  ←[① 로컬라이징 표기]→  클라·서버 로직(enum)  ←[② enum↔string]→  DB(저장)
+```
+
+- **로직 영역**(Client·Server·와이어 JSON) 안에서는 enum 그대로 오간다. 와이어의
+  `LenientEnumJsonConverter`는 전송 표현일 뿐 영역 전이가 아니다.
+- **② DB 전이**는 `EnumColumn`(Core.Shared) 한 곳으로 완결됐다.
+- **① 표기 전이**가 이 문서의 영역이다 — 국가별 서비스 로컬라이징과 직결되며, 전이 도구는 둘뿐이다.
+
+| 도구 | 용도 | 예 |
+|---|---|---|
+| `ToLabel()` (`Models/SoccerDomainEnumLabels`) | **리소스 라벨** — 언어별로 다른 표기 | League→"리그"/"リーグ" |
+| `ToText()` (`Models/EnumDisplay`) | **로케일 중립 코드 표기** — 언어 무관 | U15, GK, FW |
+
+화면에 enum을 raw `ToString()`·문자열 보간으로 내보내는 것은 금지다 — 반드시 위 둘 중
+하나를 지나야 한다. 어떤 멤버가 중립 표기로 남을지(예: Grade U표기)와 라벨로 승격할지는
+국가별 표기를 결정할 때 함께 정한다.
+
+### 보류 작업 (로컬라이징 착수 시)
+
+1. **표기 전이 지점 단일화** — 페이지-로컬 라벨 switch가 11개 파일에 흩어져 있다
+   (CorrectionFormDialog·CorrectionListSection·GuardianCorrectionFormDialog·MyApplicationStatusCard·
+   RosterSection·TeamInfoSection·AgentApprovalPage·ClaimPage·PlayerPublicProfilePage·
+   RecordsDetailPage·RecordsPage). 전부 `SoccerDomainEnumLabels`로 모은다 —
+   언어 추가 시 한 파일만 보면 되게.
+2. **라벨 전수 가드 테스트** — 라벨 대상 enum의 전 멤버(Unknown 제외)에 리플렉션으로
+   `ToLabel()`을 호출해 예외·빈 값·리소스 키 누락을 잡는다(LocalizationResourceTests 패턴).
+   enum에 멤버를 추가하고 라벨을 빠뜨리는 실수를 빌드 단계에서 막는다.
+3. **raw 표기 가드** — `.razor`에서 enum 프로퍼티 직접 보간(`@item.Status`)을 잡는
+   정적 가드는 타입 정보가 필요해 비용이 크다. 1·2가 끝나면 실익이 작아 보류.

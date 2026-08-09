@@ -561,8 +561,14 @@ Windows에서 멀쩡하던 참조가 서버에서만 깨진다.**
     `Unknown`은 "미지정"의 표현이지 저장·전송 어휘가 아니다 — 요청 키 필드에 오면 InvalidInput.
   - DB 변환은 Core.Shared의 `EnumColumn` 한 곳(신뢰된 저장소 전용 — 와이어는 관대한 컨버터): `Read`는 NULL·빈 값→`Unknown`, 비정형 저장 값→Panic
     (데이터 버그), `Write`는 `Unknown`→NULL. 생성 엔티티(string)는 그대로 둔다.
-  - Client 표시는 `ToText()`(Unknown→null → "-"·생략 폴백)와 `SoccerDomainEnumLabels`의 `ToLabel()`.
-    `Enum.GetValues`로 목록을 만들 때는 `Unknown`을 걸러낸다.
+  - **enum의 세 영역과 두 전이 지점** (2026-08-09 기록 — 실작업은 로컬라이징 착수 시):
+    `화면(브라우저 표기) ←[로컬라이징 표기]→ 클라·서버 로직(enum) ←[enum↔string]→ DB(저장)`.
+    로직 영역 안에서는 enum 그대로 오간다(와이어 JSON 컨버터 포함). DB 전이는 `EnumColumn`
+    한 곳으로 끝났고, **표기 전이는 국가별 로컬라이징 영역이라 아직 흩어져 있다** —
+    상세·보류 목록은 `Docs/Architecture/Localization.md` §11.
+  - Client 표시는 `ToText()`(로케일 중립 코드 표기 — U표기·포지션 약어, Unknown→null → "-"·생략 폴백)와
+    `SoccerDomainEnumLabels`의 `ToLabel()`(리소스 라벨). 화면에 enum을 raw `ToString()`·보간으로
+    내보내지 않는다. `Enum.GetValues`로 목록을 만들 때는 `Unknown`을 걸러낸다.
   - **학년(Grade)은 국가 학제 대신 나이 기준 U표기**(U7~U18) — 표시도 당분간 그대로, 국가별 표기는 추후 결정.
   - 자유 텍스트로 남긴 필드(enum화 보류): `TeamType`(클럽/학교/학원 — 한글 저장 값이라 값 마이그레이션
     결정 필요), 코치 `Role`(감독 등), `ActiveRegions`, 커리어 `Role`, `Round`(R1/QF), `Region`.
