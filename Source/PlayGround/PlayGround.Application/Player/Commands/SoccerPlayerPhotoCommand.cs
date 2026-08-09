@@ -6,8 +6,8 @@ using System.Diagnostics;
 
 namespace PlayGround.Application.Player.Commands
 {
-    /// <summary>선수 사진 설정·삭제 유즈케이스. 미성년자 보호 규칙에 따라 주체는 보호자·소속팀 관리자만이며
-    /// 판정은 프로시저가 한다 — 여기서는 입력 형태만 막는다.</summary>
+    /// <summary>선수 사진 설정·삭제 유즈케이스. 주체는 관리 주체(본인 계정·보호자)와 소속팀 관리자 —
+    /// 팀 소속 무관(2026-08-09 규칙). 판정은 프로시저가 한다 — 여기서는 입력 형태만 막는다.</summary>
     public class SoccerPlayerPhotoCommand
     {
         /// <summary>업로드 API가 돌려주는 경로만 저장한다 — 외부 URL을 프로필에 심지 못하게.</summary>

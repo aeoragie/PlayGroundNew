@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using PlayGround.Domain.Soccer;
 using PlayGround.Shared.Extensions;
 using PlayGround.Application.Interfaces;
 using PlayGround.Application.Player.Models;
@@ -16,9 +15,6 @@ namespace PlayGround.Persistence.Repositories
 {
     public class SoccerPlayerRepository : RepositoryBase, IPlayerRepository
     {
-        /// <summary>가족 계정 연결의 관리 역할 — SoccerPlayerFamilyLinks.Role 저장 문자열.</summary>
-        private const string GuardianRole = "Guardian";
-
         public override DatabaseTypes Database => DatabaseTypes.Soccer;
 
         public SoccerPlayerRepository(IOptions<DatabaseConfiguration> options) : base(options)
@@ -120,10 +116,9 @@ namespace PlayGround.Persistence.Repositories
                     SchoolName = NullIfEmpty(player.SchoolName),
                     GuardianPhoneMasked = MaskPhone(NullIfEmpty(player.GuardianPhone)),
                     IsGuardianManaged = player.IsGuardianManaged,
-                    // 사진 편집은 보호자만 — UspSetSoccerPlayerPhoto의 보호자 판정 2갈래와 같은 규칙.
-                    // (팀 관리자 갈래는 이 경로에 없다 — 여기 조회 주체는 프로필 관리 계정이다)
-                    CanEditPhoto = player.IsGuardianManaged
-                                   || family.Any(f => f.UserId == userId && f.Role == GuardianRole),
+                    // 관리 주체(본인 계정·보호자)는 팀 소속과 무관하게 사진 편집 가능 (2026-08-09 규칙 변경,
+                    // UspSetSoccerPlayerPhoto와 같은 기준) — me/info는 관리 주체 전용 뷰라 항상 참이다
+                    CanEditPhoto = true,
                     // me/info는 소유자 편집 뷰라 공개 설정과 무관하게 전부 내려준다 (게이팅 없음)
                     StrengthTags = ParseTags(player.StrengthTags)
                 },
