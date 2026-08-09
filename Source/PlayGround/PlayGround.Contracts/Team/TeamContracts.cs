@@ -27,7 +27,6 @@ namespace PlayGround.Contracts.Team
         public string? AccessToken { get; set; }
     }
 
-    /// <summary>팀 정보 묶음 (대시보드 팀 정보 섹션 + 공개 홈페이지 소개 탭 공유).</summary>
     public class TeamInfoResponse
     {
         public TeamProfileDto Profile { get; set; } = new();
@@ -80,7 +79,7 @@ namespace PlayGround.Contracts.Team
         public List<TeamRosterPlayerDto> Players { get; set; } = new();
     }
 
-    /// <summary>로스터에 선수 1명 추가 (대시보드 "＋ 선수 추가"). 이름만 필수 — 나머지는 나중에 채운다.
+    /// <summary>로스터에 선수 1명 추가. 이름만 필수 — 나머지는 나중에 채운다.
     /// 추가된 선수는 Unclaimed로 시작하고 Pending 초대코드가 함께 발급된다.</summary>
     public class AddTeamPlayerRequest
     {
