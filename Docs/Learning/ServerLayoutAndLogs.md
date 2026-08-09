@@ -3,23 +3,22 @@
 > 첫 배포(R4)에서 실행한 명령들이 "무엇을 어디에 왜" 놓는지, 그리고 문제가 생겼을 때
 > **스스로** 로그를 찾아 읽는 방법. 명령 문법 자체는 `LinuxBasics.md`, 절차는 `Deploy/README.md`.
 
-## 1. 리눅스 폴더 역할 — 자리가 정해져 있다 (FHS)
+## 1. 우리 서버의 배치 지도
 
-리눅스는 FHS(Filesystem Hierarchy Standard)라는 관례로 폴더마다 역할이 정해져 있다.
-"아무 데나 놓아도 돌아가지만", 관례를 따르면 어떤 서버에 들어가도 뭐가 어디 있는지 안다.
+폴더 역할의 **개념**(FHS — 왜 종류별로 나뉘나, 판단 축 3개)은 `LinuxBasics.md` "폴더 구조" 절.
+여기는 그 지도가 우리 서버에서 실제로 어떻게 채워졌는지만 적는다.
 
-| 폴더 | 역할 | 우리 서버에서 |
-|---|---|---|
-| `/etc` | **설정** (editable text config) — 프로그램 말고 프로그램의 설정 | `/etc/playground/playground.env`(앱 시크릿), `/etc/nginx/`(웹서버 설정), `/etc/systemd/system/`(서비스 정의) |
-| `/usr` | 배포판·패키지가 설치한 **프로그램** (읽기 전용 성격) | `/usr/bin/dotnet` |
-| `/usr/local` | 패키지 관리자 밖에서 **관리자가 직접** 설치한 것 — apt가 절대 건드리지 않는 안전지대 | `/usr/local/bin/playground-deploy`·`playground-backup` (우리 스크립트) |
-| `/opt` | 자기 폴더 하나를 통째로 쓰는 서드파티 | `/opt/mssql/`(SQL Server), `/opt/mssql-tools18/` |
-| `/var` | **변하는 데이터** (variable) — 로그·DB 파일·앱 데이터 | `/var/www/playground/`(앱 본체), `/var/log/`(로그), `/var/opt/mssql/`(DB 데이터 파일) |
-| `/tmp` | 임시 파일 — 재부팅하면 사라져도 되는 것만 | scp로 올린 zip·스크립트의 첫 착지점. 그래서 받은 뒤 `install`로 제자리에 옮긴다 |
-| `/home` | 사용자 홈 | `/home/ubuntu` — SSH로 들어가면 여기서 시작 |
+| 폴더 | 우리 서버에서 |
+|---|---|
+| `/etc` | `/etc/playground/playground.env`(앱 시크릿) · `/etc/nginx/`(웹서버 설정) · `/etc/systemd/system/playground.service`(서비스 정의) |
+| `/usr` | `/usr/bin/dotnet` (런타임 — dotnet-install 설치본의 링크) |
+| `/usr/local` | `/usr/local/bin/playground-deploy`·`playground-backup` (우리 스크립트) |
+| `/opt` | `/opt/mssql/`(SQL Server) · `/opt/mssql-tools18/`(sqlcmd) |
+| `/var` | `/var/www/playground/`(앱 본체 + `Logs/`) · `/var/log/nginx/` · `/var/opt/mssql/`(DB 데이터 파일) |
+| `/tmp` | scp로 올린 zip·스크립트의 착지점 — 받은 뒤 `install`로 제자리에 옮긴다 |
+| `/home` | `/home/ubuntu` — SSH 시작점 |
 
-요약: **프로그램은 /usr, 설정은 /etc, 데이터·로그는 /var, 임시는 /tmp.**
-"어디에 있을까?"가 떠오르면 역할부터 생각하면 된다 — 앱 로그는 변하는 데이터니까 /var 근처다.
+"어디에 있을까?"가 떠오르면 역할부터 — 앱 로그는 변하는 데이터니까 /var 근처다.
 
 ## 2. 4-2 명령 해설 — 제자리 배치 + nginx 교체
 
