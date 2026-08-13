@@ -8,5 +8,14 @@ namespace PlayGround.Client.Models
         /// 요청 생산자(에이전트 서비스)가 아직 없어 켜도 도달할 데이터가 없다.
         /// 켜면: 알림 센터 "열람 요청" 행 + /approvals/agent/{id} 심사 화면이 활성화된다.</summary>
         public static readonly bool AgentApproval = false;
+
+        /// <summary>결제 테스트 플로우 (/dev/payments). DEBUG 빌드에서만 켜진다 —
+        /// 운영 publish(RELEASE)에는 화면 진입 경로가 없다 (DebugClock과 같은 철학).
+        /// 서버 API는 남지만 [Authorize] + Provider None이면 Unavailable이라 안전하다.</summary>
+#if DEBUG
+        public static readonly bool Payments = true;
+#else
+        public static readonly bool Payments = false;
+#endif
     }
 }

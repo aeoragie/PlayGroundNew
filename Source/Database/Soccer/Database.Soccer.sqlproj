@@ -85,5 +85,7 @@
     <None Include="Queries\**\*.sql" />
     <None Include="Migrations\**\*.sql" />
     <None Include="Debug\**\*.sql" />
+    <!-- Maintenance: 수동 유틸리티(데이터 초기화 등) — 스키마도 배포 대상도 아니다 -->
+    <None Include="Maintenance\**\*.sql" />
   </ItemGroup>
 </Project>

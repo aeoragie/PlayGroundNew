@@ -79,6 +79,11 @@
   **Account(공용 신원)는 프리픽스 없음**(`Users`, `LoginBySocialCommand` 등 — 인증은 종목 무관 공유).
 - **장점**: "Soccer가 붙으면 축구 도메인"이 한눈에. 멀티스포츠 시 클래스명 충돌·혼동 없음.
 - **단점**: 종목 DB 안에서 `PlayGround_Soccer.SoccerPlayers`는 다소 중복감. (엔티티=테이블명 불변식 유지를 위해 감수.)
+- **종목 공통 기능은 프리픽스 없음** (2026-08-13, 결제로 확정). 결제처럼 어느 종목에서나 쓰는 기능은
+  `Payments`·`PaymentRepository`·`PaymentController`(라우트 `api/payment`)로 공통 명명하고,
+  어느 종목의 데이터인지는 **행 내부 `Sport` 컬럼**(Domain `Sport` enum)으로 구분한다.
+  물리 DB는 현 2-DB 체계상 Soccer DB에 두되, 멀티스포츠 실도입 때 DB 재편을 재검토한다.
+  Server 액터·메시지·유즈케이스도 같은 규칙(`PaymentActor`, `PaymentOrderCommand`).
 
 ---
 

@@ -1,0 +1,207 @@
+@* 결제 테스트 체크아웃 (개발 전용 — FeatureFlags.Payments 뒤, i18n 면제).
+   주문 생성 → 토스 결제위젯 렌더 → requestPayment(토스 도메인 왕복) 흐름을 검증한다. *@
+@attribute [Route(Routes.DevPayments)]
+@layout LandingLayout
+@using PlayGround.Contracts.Payment
+@using PlayGround.Domain.Payment
+@using System.Security.Claims
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject PaymentClient Payments
+@inject IJSRuntime Js
+@implements IAsyncDisposable
+
+<PageTitle>결제 테스트 — PlayGround</PageTitle>
+
+@if (mReady)
+{
+    <div class="min-h-screen bg-surface-alt text-navy-deep">
+        <div class="max-w-[560px] mx-auto px-4 md:px-8 pt-8 pb-[140px] md:pb-20 flex flex-col gap-5">
+            <header class="flex flex-col gap-1.5">
+                <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em]">결제 테스트</h1>
+                <p class="m-0 text-[13px] text-text-body leading-[1.7] break-keep">
+                    토스페이먼츠 테스트 키 결제 플로우예요. 실제 청구는 발생하지 않아요.
+                </p>
+            </header>
+
+            @if (!mEnabled)
+            {
+                <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7">
+                    <span class="text-[13px] text-text-muted break-keep">
+                        결제가 비활성 상태예요. appsettings.Local.json에 PaymentConfiguration(Provider=Toss + 테스트 키)을 넣고 서버를 다시 띄워 주세요.
+                    </span>
+                </section>
+            }
+            else
+            {
+                @* 주문 입력 *@
+                <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7 flex flex-col gap-3.5">
+                    <span class="text-sm font-extrabold">주문 정보</span>
+                    <label class="flex flex-col gap-1.5">
+                        <span class="text-[12.5px] font-bold text-text-body">주문명</span>
+                        <input type="text" @bind="mOrderName" disabled="@(mOrder is not null)"
+                               class="h-[42px] px-3.5 rounded-[9px] border-1.5 border-border text-[13.5px] disabled:bg-surface-alt" />
+                    </label>
+                    <label class="flex flex-col gap-1.5">
+                        <span class="text-[12.5px] font-bold text-text-body">금액 (원, 100원 이상)</span>
+                        <input type="number" @bind="mAmount" disabled="@(mOrder is not null)"
+                               class="h-[42px] px-3.5 rounded-[9px] border-1.5 border-border text-[13.5px] disabled:bg-surface-alt" />
+                    </label>
+
+                    @if (mOrder is null)
+                    {
+                        <button type="button" @onclick="StartAsync" disabled="@mBusy"
+                                class="h-[46px] rounded-[10px] bg-navy-deep text-white text-[13.5px] font-extrabold whitespace-nowrap cursor-pointer disabled:opacity-50">
+                            @(mBusy ? "주문 생성 중…" : "결제 진행")
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="text-[12.5px] text-text-muted break-keep">주문번호 @mOrder.OrderId</span>
+                    }
+
+                    @if (mError is not null)
+                    {
+                        <span class="text-[12.5px] font-bold text-danger break-keep">@mError</span>
+                    }
+                </section>
+
+                @* 토스 위젯 영역 — 주문 생성 후 렌더된다 *@
+                <section class="bg-white border-1.5 border-border rounded-card-xs px-3 py-4 md:px-5 md:py-5 flex flex-col gap-2 @(mOrder is null ? "hidden" : null)">
+                    <div id="payment-method"></div>
+                    <div id="agreement"></div>
+                    <button type="button" @onclick="PayAsync" disabled="@mBusy"
+                            class="mx-2 mb-2 h-[46px] rounded-[10px] bg-orange hover:bg-orange-hover text-white text-[13.5px] font-extrabold whitespace-nowrap cursor-pointer disabled:opacity-50">
+                        결제하기
+                    </button>
+                </section>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool mReady;
+    private bool mEnabled;
+    private bool mBusy;
+    private string mOrderName = "테스트 결제";
+    private int mAmount = 1000;
+    private string? mError;
+    private string? mClientKey;
+    private string? mCustomerKey;
+    private PaymentSummaryResponse? mOrder;
+    private IJSObjectReference? mModule;
+    private IJSObjectReference? mWidget;
+
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 결제 테스트 화면은 feature flag 뒤 — 꺼져 있으면 없는 화면이다
+        if (!FeatureFlags.Payments)
+        {
+            Nav.NavigateTo(Routes.NotFound, replace: true);
+            return;
+        }
+
+        // 직접 URL 진입 대비 — 인증 상태를 먼저 확정 (토큰 복원 + Bearer 헤더 부착)
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
+            return;
+        }
+
+        mCustomerKey = state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        PaymentConfigResponse? config = await Payments.GetConfigAsync();
+        mEnabled = config is { Enabled: true } && !string.IsNullOrEmpty(config.ClientKey);
+        mClientKey = config?.ClientKey;
+        mReady = true;
+    }
+
+    private async Task StartAsync()
+    {
+        mError = null;
+        if (string.IsNullOrWhiteSpace(mOrderName) || mAmount < 100)
+        {
+            mError = "주문명과 100원 이상의 금액을 입력해 주세요.";
+            return;
+        }
+
+        mBusy = true;
+        try
+        {
+            PaymentActionResult created = await Payments.CreateOrderAsync(Sport.Soccer, mOrderName.Trim(), mAmount);
+            if (created.Payment is null)
+            {
+                mError = created.IsNetworkError ? "네트워크 오류가 발생했어요. 다시 시도해 주세요." : (created.ErrorMessage ?? "주문을 만들지 못했어요.");
+                return;
+            }
+
+            mOrder = created.Payment;
+            StateHasChanged();
+
+            mModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./js/payments.js");
+            mWidget = await mModule.InvokeAsync<IJSObjectReference>(
+                "initWidget", mClientKey, mCustomerKey, mOrder.Amount, "#payment-method", "#agreement");
+        }
+        catch (JSException)
+        {
+            mError = "결제위젯을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.";
+            mOrder = null;
+        }
+        finally
+        {
+            mBusy = false;
+        }
+    }
+
+    private async Task PayAsync()
+    {
+        if (mWidget is null || mOrder is null)
+        {
+            return;
+        }
+
+        mError = null;
+        mBusy = true;
+        try
+        {
+            string baseUrl = Nav.BaseUri.TrimEnd('/');
+            // 성공하면 토스가 successUrl로 리다이렉트한다 (전체 리로드) — 이 아래 코드는 실패 때만 돈다
+            await mWidget.InvokeVoidAsync("requestPayment",
+                mOrder.OrderId, mOrder.OrderName,
+                baseUrl + Routes.DevPaymentsResult, baseUrl + Routes.DevPaymentsResult);
+        }
+        catch (JSException ex)
+        {
+            // 사용자가 결제창을 닫거나 위젯 검증에 걸린 경우 — 주문은 Pending으로 남는다
+            mError = "결제가 진행되지 않았어요. " + ex.Message;
+        }
+        finally
+        {
+            mBusy = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (mWidget is not null)
+            {
+                await mWidget.InvokeVoidAsync("dispose");
+                await mWidget.DisposeAsync();
+            }
+
+            if (mModule is not null)
+            {
+                await mModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+}

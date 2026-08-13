@@ -1322,3 +1322,42 @@ enum으로 전환했다. 규칙 요약은 CLAUDE.md "enum은 정수가 아니라
 체크리스트는 `Docs/Development/LocalVerification.md` "새 PC 최초 셋업"으로 옮겼다 —
 살아 있는 절차라 이 히스토리 문서에 두면 낡는다.
 
+---
+
+## 결제 골격 — 토스페이먼츠 테스트 플로우 (2026-08-13)
+
+**무엇을**: 주문 생성, 토스 결제위젯, successUrl 복귀, 서버 승인(confirm), 원장 저장·조회까지의
+인프라 골격. 무엇을 팔지는 미정이라 상품 참조 없이 원장(`Payments`)만 만들었다.
+
+**설계 결정과 근거**
+
+- **결제는 종목 공통** (사용자 결정). `Payments`·`PaymentRepository`·`PaymentController`(`api/payment`)
+  전부 무프리픽스, 종목은 행의 `Sport` 컬럼(Domain `Sport` enum)으로 구분. 물리 DB는 현 2-DB
+  체계상 Soccer DB에 뒀다(제3 DB 신설은 DatabaseTypes·sqlproj·생성기·테스트 전부 확장이라 과대).
+- **PG 벤더 중립 포트** `IPaymentGateway`(Application/Interfaces) 뒤에 `TossPaymentGatewayService`
+  (Server/Services — 벤더를 아는 유일한 클래스). `PaymentConfiguration.Provider`(None/Toss)가
+  어댑터를 고른다(UploadStorage 방식). **기본 None이면 Disabled 어댑터**라 시크릿 없는 환경에서도
+  기동하고 결제 API만 Unavailable — 반쪽 설정(Toss인데 키 없음)은 기동 실패.
+- **금액 위·변조 방어가 승인 커맨드의 본체다**: successUrl 쿼리의 amount를 믿지 않고
+  저장 주문의 Amount·소유자와 대조한 뒤에만 PG confirm을 호출한다(불일치 시 게이트웨이 미호출 —
+  Moq Verify로 테스트 고정). 이미 Approved면 저장 결과 반환(복귀 페이지 새로고침 멱등).
+- **UI는 dev 페이지 + DEBUG 플래그**: `/dev/payments`는 i18n 면제 경로(Pages/Dev)이고
+  `FeatureFlags.Payments`가 `#if DEBUG`라 RELEASE publish에는 진입 경로가 없다(DebugClock 철학).
+- **토스 SDK는 JS로만 배포**(카드 입력이 토스 iframe — PCI 책임 분리)라 C# 완전 대체 불가.
+  `wwwroot/js/payments.js` 래퍼 하나로 경계를 최소화(script 주입 로드 + 위젯 렌더 + requestPayment).
+
+**겪은 함정**
+
+- DB 루트에 둔 `ResetData.sql`이 `SqlProjectCoverageTests`에 걸렸다 — sqlproj는 폴더 글롭만
+  허용(개별 파일 나열 금지 테스트 존재). `Maintenance/` 폴더 신설 + `<None>` 글롭으로 해결.
+  **루트에 .sql을 두면 안 된다.**
+- `dotnet test --filter-class`는 이 SDK 조합(MTP + msbuild 경유)에서 MSB1001로 죽는다 —
+  exit 1을 "테스트 실패"로 오독하기 쉽다. 변조 검증은 전체 스위트로 돌려 실패 "2건"을 확인했다.
+- 토스 confirm 응답의 approvedAt은 `+09:00` 오프셋 ISO-8601 — `SystemTimeJsonConverter`
+  (`reader.GetDateTime()` + 생성자 UTC 정규화)가 순간을 보존한다. 어댑터 DTO 필드를
+  `SystemTime?`으로 선언하면 끝(테스트로 고정: +09:00 12시 = UTC 03시).
+
+**남긴 것**: 웹훅 수신(로컬 수신 불가라 보류), 취소·환불, 정기결제(빌링), 실상품 연결 —
+`FeatureBacklog.md`. 시크릿 배선은 appsettings.Local.json(.example에 자리) + 운영 env
+`PaymentConfiguration__*`(당분간 None).
+

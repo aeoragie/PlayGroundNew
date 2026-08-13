@@ -1,0 +1,157 @@
+@* 결제 복귀 화면 (개발 전용 — i18n 면제). 토스 successUrl(paymentKey/orderId/amount)과
+   failUrl(code/message/orderId)이 모두 여기로 돌아온다. paymentKey 유무로 분기하고,
+   외부 도메인 왕복(전체 리로드) 후라 1회 처리 플래그로 중복 호출을 막는다. *@
+@attribute [Route(Routes.DevPaymentsResult)]
+@layout LandingLayout
+@using PlayGround.Contracts.Payment
+@using PlayGround.Domain.Payment
+@inject NavigationManager Nav
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject PaymentClient Payments
+
+<PageTitle>결제 결과 — PlayGround</PageTitle>
+
+@if (mReady)
+{
+    <div class="min-h-screen bg-surface-alt text-navy-deep">
+        <div class="max-w-[560px] mx-auto px-4 md:px-8 pt-8 pb-[140px] md:pb-20 flex flex-col gap-5">
+            <header class="flex flex-col gap-1.5">
+                <h1 class="m-0 text-[21px] md:text-[23px] font-extrabold tracking-[-.02em]">결제 결과</h1>
+            </header>
+
+            @* 처리 결과 카드 *@
+            <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7 flex flex-col gap-3">
+                @if (mProcessing)
+                {
+                    <span class="text-[13px] text-text-muted break-keep">결제를 확인하는 중이에요…</span>
+                }
+                else if (mResult is not null)
+                {
+                    <span class="text-sm font-extrabold @(mResult.Status == PaymentStatus.Approved ? "text-navy-deep" : "text-danger")">
+                        @(mResult.Status == PaymentStatus.Approved ? "결제가 완료됐어요" : "결제가 실패했어요")
+                    </span>
+                    <div class="flex flex-col gap-1 text-[13px] text-text-body break-keep">
+                        <span>주문명 @mResult.OrderName</span>
+                        <span>금액 @(mResult.Amount.ToString("N0"))원</span>
+                        <span>상태 @mResult.Status.ToText()</span>
+                        @if (!string.IsNullOrEmpty(mResult.Method))
+                        {
+                            <span>수단 @mResult.Method</span>
+                        }
+                        @if (!string.IsNullOrEmpty(mResult.FailReason))
+                        {
+                            <span class="text-danger">사유 @mResult.FailReason</span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span class="text-[13px] font-bold text-danger break-keep">@(mError ?? "표시할 결제 정보가 없어요.")</span>
+                }
+
+                <a href="@Routes.DevPayments" class="mt-1 text-[12.5px] font-bold text-navy-deep underline">다시 결제 테스트하기</a>
+            </section>
+
+            @* 내 결제 내역 *@
+            <section class="bg-white border-1.5 border-border rounded-card-xs px-5 py-6 md:px-7 md:py-7 flex flex-col gap-3">
+                <span class="text-sm font-extrabold">내 결제 내역</span>
+                @if (mHistory is null || mHistory.Count == 0)
+                {
+                    <span class="text-[13px] text-text-muted break-keep">결제 내역이 없어요.</span>
+                }
+                else
+                {
+                    @foreach (PaymentSummaryResponse item in mHistory)
+                    {
+                        <div class="flex items-center justify-between gap-3 border-1.5 border-border rounded-[11px] px-3.5 py-3">
+                            <div class="flex flex-col gap-0.5 min-w-0">
+                                <span class="text-[13px] font-bold break-keep">@item.OrderName</span>
+                                <span class="text-[12px] text-text-muted">@item.Status.ToText() · @(item.Amount.ToString("N0"))원</span>
+                            </div>
+                            <span class="shrink-0 text-[12px] text-text-muted whitespace-nowrap">@item.Sport.ToText()</span>
+                        </div>
+                    }
+                }
+            </section>
+        </div>
+    </div>
+}
+
+@code {
+    private bool mReady;
+    private bool mProcessing;
+    private bool mHandled;
+    private string? mError;
+    private PaymentSummaryResponse? mResult;
+    private List<PaymentSummaryResponse>? mHistory;
+
+    /// <summary>성공 복귀 — 토스가 붙여주는 파라미터.</summary>
+    [Parameter, SupplyParameterFromQuery(Name = "paymentKey")]
+    public string? PaymentKey { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "orderId")]
+    public string? OrderId { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "amount")]
+    public string? Amount { get; set; }
+
+    /// <summary>실패 복귀 — 토스가 붙여주는 파라미터.</summary>
+    [Parameter, SupplyParameterFromQuery(Name = "code")]
+    public string? FailCode { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "message")]
+    public string? FailMessage { get; set; }
+
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri);
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!FeatureFlags.Payments)
+        {
+            Nav.NavigateTo(Routes.NotFound, replace: true);
+            return;
+        }
+
+        // 외부 도메인 왕복 복귀라 전체 리로드 상태 — 인증을 먼저 확정해야 승인 API에 토큰이 실린다
+        AuthenticationState state = await AuthProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not { IsAuthenticated: true })
+        {
+            Nav.NavigateTo(Routes.LoginWithReturn(CurrentPath), replace: true);
+            return;
+        }
+
+        mReady = true;
+        await HandleReturnAsync();
+        mHistory = await Payments.GetHistoryAsync();
+    }
+
+    private async Task HandleReturnAsync()
+    {
+        if (mHandled)
+        {
+            return;
+        }
+
+        mHandled = true;
+
+        if (!string.IsNullOrEmpty(PaymentKey) && !string.IsNullOrEmpty(OrderId) && int.TryParse(Amount, out int amount))
+        {
+            mProcessing = true;
+            StateHasChanged();
+            PaymentActionResult confirmed = await Payments.ConfirmAsync(PaymentKey, OrderId, amount);
+            mResult = confirmed.Payment;
+            mError = confirmed.Payment is null
+                ? (confirmed.IsNetworkError ? "네트워크 오류가 발생했어요. 새로고침으로 다시 확인할 수 있어요." : confirmed.ErrorMessage)
+                : null;
+            mProcessing = false;
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(FailCode) && !string.IsNullOrEmpty(OrderId))
+        {
+            PaymentActionResult failed = await Payments.FailAsync(OrderId, FailCode, FailMessage ?? string.Empty);
+            mResult = failed.Payment;
+            mError = failed.Payment is null ? failed.ErrorMessage : null;
+        }
+    }
+}

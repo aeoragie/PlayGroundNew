@@ -136,6 +136,9 @@ DatabaseConfiguration__Databases__Soccer__ConnectionString=Server=localhost,4782
 RedisConfig__Connections__0__ConnectionString=localhost:6379
 UploadStorageConfiguration__Provider=Aws
 UploadStorageConfiguration__BucketName=playgroundsport-images-599615474479-ap-northeast-2-an
+# 결제(토스페이먼츠)는 당분간 운영에서 끈다 — None이면 키 없이 기동하고 결제 API만 비활성.
+# 켤 때 세 줄: PaymentConfiguration__Provider=Toss + ClientKey(test_ck_/live_ck_) + SecretKey(test_sk_/live_sk_)
+PaymentConfiguration__Provider=None
 ```
 
 > **`localhost` 뒤에도 `,47821`이 필요하다.** SQL Server는 지정한 포트 하나만 듣기 때문에

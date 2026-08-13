@@ -26,8 +26,8 @@ function Invoke-Sql([string]$db, [string]$file) {
 }
 
 Write-Host "== 초기화 (모든 데이터 삭제 — $Server)"
-Invoke-Sql 'PlayGround_Account' (Join-Path $dbRoot 'Account\ResetData.sql')
-Invoke-Sql 'PlayGround_Soccer' (Join-Path $dbRoot 'Soccer\ResetData.sql')
+Invoke-Sql 'PlayGround_Account' (Join-Path $dbRoot 'Account\Maintenance\ResetData.sql')
+Invoke-Sql 'PlayGround_Soccer' (Join-Path $dbRoot 'Soccer\Maintenance\ResetData.sql')
 
 Write-Host '== 마스터 시드'
 foreach ($f in Get-ChildItem (Join-Path $dbRoot 'Soccer\Seeds\*.sql') -File) {

@@ -9,5 +9,6 @@ namespace PlayGround.Server.Actors
         public const string SoccerRecords = "Soccer_Records";
         public const string SoccerDashboard = "Soccer_Dashboard";
         public const string SoccerClaim = "Soccer_Claim";
+        public const string Payment = "Payment";   // 종목 공통 (프리픽스 없음)
     }
 }

@@ -28,11 +28,12 @@ try
         KeyValueLogExtensions.Info(logger, "Database configured", ("Database", database), ("Provider", options.Provider));
     }
 
-    //.// 모듈별 DI — 인프라(Akka) · 인증(공유) · 종목(축구)
+    //.// 모듈별 DI — 인프라(Akka) · 인증(공유) · 종목(축구) · 결제(공통)
 
     builder.Services.AddAkkaPipeline();
     builder.Services.AddAuthServices(builder.Configuration);
     builder.Services.AddSoccerServices(builder.Configuration);
+    builder.Services.AddPaymentServices(builder.Configuration);
 
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();

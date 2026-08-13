@@ -30,6 +30,12 @@
 > 데이터(전후반·주심·경기순번·감독·카드·교체·등번호·포지션·주장)는 **대회 서비스 SingleIdx 모델
 > 선반영**으로 스키마 확장했다(생산자 = 대회 운영 서비스, 아직 미착수 — 아래 큰 덩어리 ①).
 
+> **결제 골격 완료 (2026-08-13)** — 토스페이먼츠 단일(카드·카카오페이·토스페이가 결제위젯 한 연동).
+> `IPaymentGateway` 포트 + **종목 공통 `Payments` 원장**(무프리픽스, `Sport` 컬럼 구분 — NamingConventions §3.4)
+> + 테스트 화면 `/dev/payments`(`FeatureFlags.Payments` — DEBUG=on, RELEASE=off). 키는 appsettings.Local.json
+> (`PaymentConfiguration`, 기본 Provider=None이면 결제만 비활성), 운영은 당분간 None. 무엇을 팔지는 미정 —
+> 웹훅·취소환불·빌링·실상품 연결은 `FeatureBacklog.md`.
+
 > **페이즈별 상세 구현 이력·설계 근거·검증 결과·겪은 함정은 `Docs/History/DevelopmentJournal.md`**
 > (2026-08-01 CLAUDE.md에서 이관). 특정 기능이 "왜 이렇게 됐나"를 알아야 하면 거기서 검색한다.
 > 이 파일에는 **영속 규칙 + 현재 상태 + 반복 함정 + 미해결**만 압축해 남긴다.

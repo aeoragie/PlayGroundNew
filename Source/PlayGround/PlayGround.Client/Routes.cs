@@ -57,6 +57,12 @@ namespace PlayGround.Client
         /// <summary>배너 3톤·스텝퍼 데모 (Design.BannerStepper 검증용 — 개발 전용).</summary>
         public const string DevBannerStepper = "/dev/banner-stepper";
 
+        /// <summary>결제 테스트 체크아웃 (개발 전용, FeatureFlags.Payments 뒤).</summary>
+        public const string DevPayments = "/dev/payments";
+
+        /// <summary>결제 테스트 복귀 화면 — 토스 successUrl/failUrl이 여기로 돌아온다 (개발 전용).</summary>
+        public const string DevPaymentsResult = "/dev/payments/result";
+
         //.// 링크 생성 헬퍼 (파라미터 라우트)
 
         public static string TeamDashboardSection(SoccerTeamDashboardSection section)

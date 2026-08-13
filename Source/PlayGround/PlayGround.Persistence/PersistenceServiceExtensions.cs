@@ -12,6 +12,12 @@ namespace PlayGround.Persistence
             return services;
         }
 
+        public static IServiceCollection AddPaymentPersistence(this IServiceCollection services)
+        {
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            return services;
+        }
+
         public static IServiceCollection AddSoccerPersistence(this IServiceCollection services)
         {
             services.AddScoped<ILandingContentRepository, SoccerLandingContentRepository>();
