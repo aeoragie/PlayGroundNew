@@ -4,7 +4,7 @@
 --   2) verify-empty-0714@test.local     / password123!  → 팀 'EmptyFC' (빈 상태 확인용 — 시드 없음)
 -- 재실행 안전: 검증fc의 기존 팀 정보 행을 지우고 다시 삽입. 로컬 개발 DB 전용 — 운영 배포 금지.
 DECLARE @TeamId UNIQUEIDENTIFIER =
-    (SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WHERE [TeamName] = '검증fc' AND [DeletedAt] IS NULL);
+    (SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WHERE [TeamName] IN ('검증fc', '플레이그라운드FC') AND [DeletedAt] IS NULL);
 
 IF @TeamId IS NULL
 BEGIN

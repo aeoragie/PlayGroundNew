@@ -1,0 +1,4 @@
+# KFA 샘플 시드는 생성물이다 — Source/Tools/KfaSeeder/GenerateKfaSeed.ps1로 재생성한다.
+# 원본(크롤링 JSON)은 저장소 밖이고, 대회·경기 상세는 커밋하지 않는 방침(CLAUDE.md Records 시드).
+*.sql
+photo-manifest.json

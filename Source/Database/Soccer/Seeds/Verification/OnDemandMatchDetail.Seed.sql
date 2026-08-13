@@ -3,7 +3,7 @@
 -- 선행: 검증fc 로스터(Verification/VerificationRoster.Seed.sql). 재실행 안전. 로컬 개발 DB 전용.
 SET NOCOUNT ON;
 
-DECLARE @vf UNIQUEIDENTIFIER = (SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WHERE [TeamName] = '검증fc' AND [DeletedAt] IS NULL);
+DECLARE @vf UNIQUEIDENTIFIER = (SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WHERE [TeamName] IN ('검증fc', '플레이그라운드FC') AND [DeletedAt] IS NULL);
 IF @vf IS NULL BEGIN RAISERROR('Team ''검증fc'' not found — run VerificationRoster first.', 16, 1); RETURN; END
 
 DECLARE @t UNIQUEIDENTIFIER = 'C1000000-0000-0000-0000-000000000001';

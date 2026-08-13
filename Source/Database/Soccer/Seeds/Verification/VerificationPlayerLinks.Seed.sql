@@ -7,7 +7,7 @@
 -- 재실행 안전(UPDATE). 로컬 개발 DB 전용 — 운영 배포 금지.
 
 DECLARE @TeamId UNIQUEIDENTIFIER =
-    (SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WHERE [TeamName] = '검증fc' AND [DeletedAt] IS NULL);
+    (SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WHERE [TeamName] IN ('검증fc', '플레이그라운드FC') AND [DeletedAt] IS NULL);
 
 IF @TeamId IS NULL
 BEGIN
