@@ -1,21 +1,29 @@
 # KfaSeeder — KFA 크롤링 데이터를 샘플 시드로
 
 KFA 크롤러 산출물(JSON 5종)을 Records·팀·선수 화면용 샘플 시드 SQL로 변환한다.
-생성물은 `Source/Database/Soccer/Seeds/Kfa/`에 떨어지며 **커밋하지 않는다**(gitignore).
+**생성물은 `Source/Database/Soccer/Seeds/Kfa/`에 커밋돼 있다** — 다른 PC에서는
+재생성 없이 아래 "적용"부터 하면 된다. 재생성은 원본 크롤링 JSON이 있을 때만 필요하다.
 
-## 실행
+## 적용 (다른 PC 재현은 여기부터)
 
 ```powershell
 cd Source/Tools/KfaSeeder
-.\GenerateKfaSeed.ps1 -InputDir 'D:\Study\Workspace\PlayGroundOld2\Backup\Others\Crawler'
 
-# 적용 (00→07 순서 — 00이 KfaApi 소스 데이터를 지우므로 재실행 안전)
-foreach ($f in Get-ChildItem ..\..\Database\Soccer\Seeds\Kfa\0*.sql) {
-    sqlcmd -S .\SQLEXPRESS -d PlayGround_Soccer -b -f 65001 -i $f.FullName
+# 08은 Account DB, 나머지는 Soccer DB (00이 KfaApi 데이터를 지우므로 재실행 안전)
+foreach ($f in Get-ChildItem ..\..\Database\Soccer\Seeds\Kfa\0*.sql | Sort-Object Name) {
+    $db = 'PlayGround_Soccer'
+    if ($f.Name -like '*.Account.sql') { $db = 'PlayGround_Account' }
+    sqlcmd -S .\SQLEXPRESS -d $db -b -f 65001 -i $f.FullName
 }
 
-# 쇼케이스 로스터 사진을 개발 S3 버킷에 업로드 (aws configure 필요)
+# 쇼케이스 로스터 사진을 개발 S3 버킷에 업로드 (aws configure 필요, 이미 올라가 있으면 생략 가능)
 .\UploadPhotos.ps1
+```
+
+## 재생성 (원본 JSON 보유 시)
+
+```powershell
+.\GenerateKfaSeed.ps1 -InputDir 'D:\Study\Workspace\PlayGroundOld2\Backup\Others\Crawler'
 ```
 
 ## 무엇이 만들어지나
