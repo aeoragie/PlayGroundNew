@@ -448,10 +448,17 @@ Write-Host ("  standings {0}" -f $rows.Count)
 
 #.// 07 — 테스트 팀 연결: 검증fc를 플레이그라운드FC로 개명 + 쇼케이스 자리 GUID를 실제 TeamId로 치환
 
+$pgFallbackGuid = Get-KfaGuid 'team' 'playgroundfc'
 $lines = New-Lines
 $lines.Add('SET NOCOUNT ON;')
 $lines.Add("DECLARE @pg UNIQUEIDENTIFIER = (SELECT TOP 1 [TeamId] FROM [dbo].[SoccerTeams] WHERE [TeamName] IN ('검증fc','$ShowcaseNewName') AND [DataSource] <> 'KfaApi' AND [DeletedAt] IS NULL);")
-$lines.Add("IF @pg IS NULL BEGIN RAISERROR('테스트 팀(검증fc)이 없다 - LocalVerification의 팀 온보딩을 먼저 진행한다.', 16, 1); RETURN; END")
+$lines.Add('-- 테스트 팀이 없는 DB(운영 등)에서는 플레이그라운드FC를 새로 만들어 검증fc 자리를 대체한다')
+$lines.Add('IF @pg IS NULL')
+$lines.Add('BEGIN')
+$lines.Add("    SET @pg = '$pgFallbackGuid';")
+$lines.Add("    INSERT INTO [dbo].[SoccerTeams] ([TeamId],[TeamName],[TeamType],[AgeGroup],[Slug],[IsPublicProfile],[DataSource],[ExternalId])")
+$lines.Add("    VALUES (@pg, '$ShowcaseNewName', '클럽', 'U12', 'playgroundfc', 1, 'Seed', 'playgroundfc');")
+$lines.Add('END')
 $lines.Add("UPDATE [dbo].[SoccerTeams] SET [TeamName] = '$ShowcaseNewName', [UpdatedAt] = GETUTCDATE() WHERE [TeamId] = @pg;")
 # 기존 친선·검증 시드 행에 문자열로 남은 옛 팀명(검증fc)도 함께 갱신한다 — 화면은 이 문자열을 그대로 보여준다
 $lines.Add("UPDATE [dbo].[SoccerMatches] SET [HomeTeamName] = '$ShowcaseNewName' WHERE [HomeTeamId] = @pg AND [HomeTeamName] <> '$ShowcaseNewName';")
